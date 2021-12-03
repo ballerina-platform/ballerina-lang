@@ -5946,7 +5946,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     classDefinition.hasClosureVars |= true;
                     resolvedSymbol.closure = true;
                     OCEDynamicEnvironmentData oceEnvData = classDefinition.oceEnvData;
-                    if (currentFunction.symbol.params.contains(resolvedSymbol)) {
+                    if (currentFunction != null && currentFunction.symbol.params.contains(resolvedSymbol)) {
                         oceEnvData.closureFuncSymbols.add(resolvedSymbol);
                     } else {
                         oceEnvData.closureBlockSymbols.add(resolvedSymbol);
