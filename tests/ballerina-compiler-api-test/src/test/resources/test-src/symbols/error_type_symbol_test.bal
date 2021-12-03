@@ -14,33 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a person.
-type Person record {
-    string name;
-    int age;
-};
+# Represents an error that occurs when sending an email fails.
+public type SendError error;
 
-# Represents an employee.
-class Employee {
-    string name;
-    string designation;
-}
+# Represents an error that occurs when the email store access fails.
+public type ReadClientInitError error;
 
-# An enumeration of colours.
-enum Colour {
-    RED, GREEN, BLUE
-}
+# Represents an error that occurs an email read operation fails.
+public type ReadError error;
 
-function test() {
-    Person p;
-    Employee e;
-    Colour c;
-}
+# Represents email related errors.
+public type EmailError SendError|ReadClientInitError|ReadError;
 
-type Age int;
-
-function test() {
-    record {|
-        Age age;
-    |} p;
-}
+# Represents the operation canceled(typically by the caller) error.
+public type CancelledError distinct error;
