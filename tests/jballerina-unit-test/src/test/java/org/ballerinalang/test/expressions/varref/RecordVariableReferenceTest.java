@@ -218,14 +218,14 @@ public class RecordVariableReferenceTest {
                 164, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 5);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid mapping binding pattern; optional fields of records are not allowed in mapping binding pattern",
-                215, 40);
+                "invalid mapping binding pattern; optional fields of records are not allowed in " +
+                        "mapping binding pattern", 215, 40);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid mapping binding pattern; optional fields of records are not allowed in mapping binding pattern",
-                217, 41);
+                "invalid mapping binding pattern; optional fields of records are not allowed in " +
+                        "mapping binding pattern", 217, 41);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid mapping binding pattern; optional fields of records are not allowed in mapping binding pattern",
-                219, 50);
+                "invalid mapping binding pattern; optional fields of records are not allowed in " +
+                        "mapping binding pattern", 219, 50);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
