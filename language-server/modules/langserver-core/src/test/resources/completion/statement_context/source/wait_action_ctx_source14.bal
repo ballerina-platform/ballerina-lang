@@ -1,9 +1,4 @@
-type Result record {
- (int|error) a; 
- (string|error) b; 
- };
-
- public function main() {
+public function main() {
 
     worker WA returns int|error {
         return 0;
@@ -16,7 +11,7 @@ type Result record {
     future<int> fint = start getInt();
     future<string> fstr = start getString(); 
 
-    Result r = wait {};
+    map<string|error> myVar = wait {};
 }
 
 function getString() returns string {

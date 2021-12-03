@@ -1,33 +1,48 @@
 {
   "position": {
-    "line": 18,
-    "character": 21
+    "line": 13,
+    "character": 36
   },
   "source": "statement_context/source/wait_action_ctx_source14.bal",
   "items": [
     {
-      "label": "a",
-      "kind": "Field",
-      "detail": "Result.a",
-      "sortText": "K",
-      "insertText": "a: ${1:0}",
+      "label": "WB",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "F",
+      "insertText": "WB",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "b",
-      "kind": "Field",
-      "detail": "Result.b",
-      "sortText": "K",
-      "insertText": "b: ${2:\"\"}",
+      "label": "fint",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "F",
+      "insertText": "fint",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill Result Required Fields",
-      "kind": "Property",
-      "detail": "Result",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "a: 0,\nb: \"\"",
+      "label": "WA",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "F",
+      "insertText": "WA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fstr",
+      "kind": "Variable",
+      "detail": "future<string>",
+      "sortText": "F",
+      "insertText": "fstr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myVar",
+      "kind": "Variable",
+      "detail": "map<string|error>",
+      "sortText": "F",
+      "insertText": "myVar",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -1,9 +1,6 @@
-type Result record {
- (int|error) a; 
- (string|error) b; 
- };
+import ballerina/module1;
 
- public function main() {
+public function main() {
 
     worker WA returns int|error {
         return 0;
@@ -16,7 +13,7 @@ type Result record {
     future<int> fint = start getInt();
     future<string> fstr = start getString(); 
 
-    Result r = wait {a:f };
+    map<string|error> myVar = wait {fieldName: module1: };
 }
 
 function getString() returns string {

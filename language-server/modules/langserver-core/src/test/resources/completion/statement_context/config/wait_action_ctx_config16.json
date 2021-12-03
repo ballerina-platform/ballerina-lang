@@ -1,350 +1,127 @@
 {
   "position": {
-    "line": 18,
-    "character": 24
+    "line": 15,
+    "character": 55
   },
   "source": "statement_context/source/wait_action_ctx_source16.bal",
   "items": [
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "test",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "array",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "java",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "module1",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transaction",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getString()",
-      "kind": "Function",
-      "detail": "string",
+      "label": "TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "1",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+          "value": ""
         }
       },
       "sortText": "G",
-      "filterText": "getString",
-      "insertText": "getString()",
+      "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fstr",
+      "label": "TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "future<string>",
-      "sortText": "F",
-      "insertText": "fstr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WA",
-      "kind": "Variable",
-      "detail": "worker",
-      "sortText": "F",
-      "insertText": "WA",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getInt()",
-      "kind": "Function",
-      "detail": "int",
+      "detail": "HELLO WORLD",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+          "value": ""
         }
       },
-      "sortText": "G",
-      "filterText": "getInt",
-      "insertText": "getInt()",
+      "sortText": "AC",
+      "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WB",
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "AH",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "listener1",
       "kind": "Variable",
-      "detail": "worker",
-      "sortText": "F",
-      "insertText": "WB",
+      "detail": "module1:Listener",
+      "sortText": "G",
+      "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "main()",
+      "label": "function1()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "G",
-      "filterText": "main",
-      "insertText": "main()",
+      "sortText": "E",
+      "filterText": "function1",
+      "insertText": "function1()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "r",
-      "kind": "Variable",
-      "detail": "Result",
-      "sortText": "AB",
-      "insertText": "r",
+      "label": "function2()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "function2",
+      "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fint",
-      "kind": "Variable",
-      "detail": "future<int>",
-      "sortText": "F",
-      "insertText": "fint",
-      "insertTextFormat": "Snippet"
+      "label": "function3(int param1, int param2, float... param3)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "function3",
+      "insertText": "function3(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "function4(int param1, int param2, string param3, float... param4)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
+        }
+      },
+      "sortText": "E",
+      "filterText": "function4",
+      "insertText": "function4(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

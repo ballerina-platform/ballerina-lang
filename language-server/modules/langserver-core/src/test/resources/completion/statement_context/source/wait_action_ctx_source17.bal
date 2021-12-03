@@ -1,5 +1,3 @@
-import ballerina/module1;
-
 type Result record {
  (int|error) a; 
  (string|error) b; 
@@ -10,15 +8,15 @@ type Result record {
     worker WA returns int|error {
         return 0;
     }
-  
+
     worker WB returns string|error {
         return "";
     }
-    
+
     future<int> fint = start getInt();
     future<string> fstr = start getString(); 
 
-    Result r = wait {a: module1: };
+    Result r = wait {};
 }
 
 function getString() returns string {
