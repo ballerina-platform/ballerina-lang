@@ -47,9 +47,10 @@ import java.util.stream.Collectors;
  */
 public class ModuleImporter {
 
-    List<Package> packageList;
+    private final List<Package> packageList;
     private static final String UNDEFINED_MODULE = "undefined module";
     private static final String LANG = "lang";
+    private static final List<String> SKIPPED_LIBS = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
 
     public ModuleImporter() {
         packageList = getPackagesFromDistRepo();
@@ -127,14 +128,13 @@ public class ModuleImporter {
         Map<String, List<String>> pkgMap = packageRepository.getPackages();
 
         List<io.ballerina.projects.Package> packages = new ArrayList<>();
-        List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
         pkgMap.forEach((key, value) -> {
             if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
             }
             value.forEach(nameEntry -> {
                 String[] components = nameEntry.split(":");
-                if (components.length != 2 || skippedLangLibs.contains(components[0])) {
+                if (components.length != 2 || SKIPPED_LIBS.contains(components[0])) {
                     return;
                 }
                 String nameComponent = components[0];
