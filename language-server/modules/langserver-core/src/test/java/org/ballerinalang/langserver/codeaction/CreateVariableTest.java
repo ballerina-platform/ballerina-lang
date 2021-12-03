@@ -100,10 +100,14 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"createVariableWithIntersectionType2.json", "createVariableWithIntersectionType.bal"},
                 {"createVariableForOptionalFieldAccess1.json", "createVariableForOptionalFieldAccess1.bal"},
                 {"createVariableForOptionalFieldAccess2.json", "createVariableForOptionalFieldAccess2.bal"},
+                {"createVariableWithTypeDesc.json", "createVariableWithTypeDesc.bal"},
 
                 // Create variables of function/invocable type
                 {"createVariableWithFunctionType1.json", "createVariableWithFunctionType1.bal"},
                 {"createVariableWithFunctionType2.json", "createVariableWithFunctionType1.bal"},
+                
+                {"createVariableWithFunctionCall1.json", "createVariableWithFunctionCall1.bal"},
+                {"createVariableWithFunctionCall2.json", "createVariableWithFunctionCall2.bal"},
         };
     }
 }

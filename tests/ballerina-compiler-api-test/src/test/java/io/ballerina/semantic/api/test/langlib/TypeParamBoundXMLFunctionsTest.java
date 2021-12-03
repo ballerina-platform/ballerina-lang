@@ -119,7 +119,10 @@ public class TypeParamBoundXMLFunctionsTest {
 
         TypeSymbol mapFnRetType = mapFnType.returnTypeDescriptor().get();
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.XML);
-        assertEquals(((XMLTypeSymbol) mapFnRetType).typeParameter().get().typeKind(), TypeDescKind.XML);
+
+        TypeSymbol typeParameterSymbol = ((XMLTypeSymbol) mapFnRetType).typeParameter().get();
+        assertEquals(typeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) typeParameterSymbol).typeDescriptor().typeKind(), TypeDescKind.XML);
     }
 
     @Test

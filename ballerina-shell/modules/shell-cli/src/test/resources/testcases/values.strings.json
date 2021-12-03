@@ -9,27 +9,47 @@
   },
   {
     "description": "Converts to uppercase.",
-    "code": "string s1 = statement.toUpperAscii(); s1",
+    "code": "string s1 = statement.toUpperAscii()"
+  },
+  {
+    "description": "Converts to uppercase - get value.",
+    "code": "s1",
     "expr": "\"LION IN TOWN. CATCH THE LION\""
   },
   {
     "description": "Converts to lowercase.",
-    "code": "string s2 = statement.toLowerAscii(); s2",
+    "code": "string s2 = statement.toLowerAscii();"
+  },
+  {
+    "description": "Converts to lowercase - get value.",
+    "code": "s2",
     "expr": "\"lion in town. catch the lion\""
   },
   {
     "description": "Get the substring.",
-    "code": "string s3 = statement.substring(0, 4); s3",
+    "code": "string s3 = statement.substring(0, 4)"
+  },
+  {
+    "description": "Get the substring - get value.",
+    "code": "s3",
     "expr": "\"Lion\""
   },
   {
     "description": "Get the index of a substring.",
-    "code": "int? index = statement.indexOf(\"on\"); index",
+    "code": "int? index = statement.indexOf(\"on\")"
+  },
+  {
+    "description": "Get the index of a substring - get value.",
+    "code": "index",
     "expr": "2"
   },
   {
     "description": "Get the length of a string.",
-    "code": "int length = statement.length(); length",
+    "code": "int length = statement.length();"
+  },
+  {
+    "description": "Get the length of a string - get value.",
+    "code": "length",
     "expr": "28"
   },
   {
@@ -38,37 +58,65 @@
   },
   {
     "description": "Concat strings together.",
-    "code": "string s4 = hello.concat(\" \", ballerina); s4",
+    "code": "string s4 = hello.concat(\" \", ballerina);"
+  },
+  {
+    "description": "Concat strings together - get value.",
+    "code": "s4",
     "expr": "\"Hello Ballerina!\""
   },
   {
     "description": "Join strings together.",
-    "code": "string s5 = \",\".'join(hello, ballerina); s5",
+    "code": "string s5 = \",\".'join(hello, ballerina)"
+  },
+  {
+    "description": "Join strings together - get value.",
+    "code": "s5",
     "expr": "\"Hello,Ballerina!\""
   },
   {
     "description": "Get the byte array of string.",
-    "code": "byte[] bArray = hello.toBytes(); bArray",
+    "code": "byte[] bArray = hello.toBytes()"
+  },
+  {
+    "description": "Get the byte array of string - get value.",
+    "code": "bArray",
     "expr": "[72,101,108,108,111]"
   },
   {
     "description": "Get the string from bytes.",
-    "code": "string|error s6 = 'string:fromBytes(bArray); s6",
+    "code": "string|error s6 = 'string:fromBytes(bArray);"
+  },
+  {
+    "description": "Get the string from bytes - get value.",
+    "code": "s6",
     "expr": "\"Hello\""
   },
   {
     "description": "Trims strings.",
-    "code": "string toTrim = \"  Ballerina Programming Language  \"; toTrim.trim();",
+    "code": "string toTrim = \"  Ballerina Programming Language  \";"
+  },
+  {
+    "description": "Trims strings - get value.",
+    "code": "toTrim.trim();",
     "expr": "\"Ballerina Programming Language\""
   },
   {
     "description": "Check for suffix.",
-    "code": "boolean hasSuffix = statement.endsWith(\"Lion\"); hasSuffix",
+    "code": "boolean hasSuffix = statement.endsWith(\"Lion\");"
+  },
+  {
+    "description": "Check for suffix - get value.",
+    "code": "hasSuffix",
     "expr": "true"
   },
   {
     "description": "Check for prefix.",
-    "code": "boolean hasPrefix = statement.startsWith(\"Lion\"); hasPrefix",
+    "code": "boolean hasPrefix = statement.startsWith(\"Lion\");"
+  },
+  {
+    "description": "Check for prefix - get value.",
+    "code": "hasPrefix",
     "expr": "true"
   },
   {
@@ -86,7 +134,11 @@
   },
   {
     "description": "Get the character at index.",
-    "code": "string country = \"Sri Lanka\"; string c = country[4]; c",
+    "code": "string country = \"Sri Lanka\"; string c = country[4]"
+  },
+  {
+    "description": "Get the character at index - get value.",
+    "code": "c",
     "expr": "\"L\""
   },
   {

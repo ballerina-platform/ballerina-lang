@@ -6,10 +6,9 @@ SYNOPSIS
        bal build <ballerina-file-path>
        bal build <ballerina-package-path>
        bal build [--target-dir] <target-directory-path>
-       bal build [--offline] [--experimental] [-o | --output] <output-path> [--dump-build-time]
-                  <ballerina-file-path>
+       bal build [--offline] [--experimental] [-o | --output] <output-path> <ballerina-file-path>
        bal build [--offline] [--experimental] [--cloud] [--observability-included]
-                 [--dump-build-time] [--list-conflicted-classes] <ballerina-package-path>
+                 [--list-conflicted-classes] <ballerina-package-path>
 
 
 DESCRIPTION
@@ -51,9 +50,6 @@ OPTIONS
 
        --list-conflicted-classes
        		List the conflicting classes of conflicting JARs in the project.
-
-       --dump-build-time
-            Calculate and dump build time.
 
        --target-dir
            Target directory path.

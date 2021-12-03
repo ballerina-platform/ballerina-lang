@@ -19,7 +19,6 @@ package io.ballerina.parsers;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -48,11 +47,18 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+            StatementNode statementNode;
+
+            if (request.getStModification() != null) {
+                String newStatement = STModificationUtil.getModifiedStatement(
+                        request.getCodeSnippet(), request.getStModification());
+                statementNode = NodeParser.parseStatement(newStatement);
+            } else {
+                statementNode = NodeParser.parseStatement(request.getCodeSnippet());
+            }
+
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNode);
             STResponse response = new STResponse();
-            NodeList<StatementNode> s = NodeParser.parseStatements(request.getCodeSnippet());
-
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s.get(0));
-
             response.setSyntaxTree(syntaxTreeJSON);
             return response;
         });
@@ -61,11 +67,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForExpression(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
+            ExpressionNode expressionNode = NodeParser.parseExpression(request.getCodeSnippet());
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
             STResponse response = new STResponse();
-            ExpressionNode s = NodeParser.parseExpression(request.getCodeSnippet());
-
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(s);
-
             response.setSyntaxTree(syntaxTreeJSON);
             return response;
         });

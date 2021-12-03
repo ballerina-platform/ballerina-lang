@@ -95,16 +95,16 @@ public class SymbolsInCallStatementsTest {
     public Object[][] getPos() {
         return new Object[][]{
                 {22, 16, "val", SymbolKind.VARIABLE},
-//                {23, 14, "age", SymbolKind.PARAMETER},  // TODO: uncomment after fixing #32807
+                {23, 14, "age", SymbolKind.PARAMETER},
                 {23, 20, "val", SymbolKind.VARIABLE},
-//                {24, 22, "ints", SymbolKind.VARIABLE},  // TODO: uncomment after fixing #33223
+                {24, 22, "ints", SymbolKind.VARIABLE},
                 {25, 14, "name", SymbolKind.VARIABLE},
                 {26, 25, "val", SymbolKind.VARIABLE},
                 {28, 4, "dog", SymbolKind.VARIABLE},
                 {29, 13, "val", SymbolKind.VARIABLE},
-//                {29, 18, "j", SymbolKind.PARAMETER},  // TODO: uncomment after fixing #32807
+                {29, 18, "j", SymbolKind.PARAMETER},
                 {29, 22, "name", SymbolKind.VARIABLE},
-//                {30, 27, "ints", SymbolKind.VARIABLE},    // TODO: uncomment after fixing #33223
+                {30, 27, "ints", SymbolKind.VARIABLE},
                 {31, 10, "dog", SymbolKind.VARIABLE},
         };
     }

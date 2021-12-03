@@ -32,7 +32,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     UNDEFINED_MODULE("BCE2000", "undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("BCE2001", "cyclic.module.imports.detected"),
-    UNUSED_IMPORT_MODULE("BCE2002", "unused.import.module"),
+    UNUSED_MODULE_PREFIX("BCE2002", "unused.module.prefix"),
     MODULE_NOT_FOUND("BCE2003", "module.not.found"),
     REDECLARED_IMPORT_MODULE("BCE2004", "redeclared.import.module"),
     INVALID_MODULE_DECLARATION("BCE2005", "invalid.module.declaration"),
@@ -753,7 +753,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
     INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard"),
     ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found"),
-    CANNOT_INFER_SERVICE_TYPES_FROM_LISTENERS("BCE4021", "cannot.infer.service.type.from.listeners"),
     SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs")
     ;
 

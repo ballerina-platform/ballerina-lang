@@ -33,6 +33,7 @@ public class QueryExpressionUtil {
                 new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
                 new SnippetCompletionItem(context, Snippet.KW_LET.get()),
                 new SnippetCompletionItem(context, Snippet.CLAUSE_LET.get()),
+                new SnippetCompletionItem(context, Snippet.KW_OUTER.get()),
                 new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
                 new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
                 new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),

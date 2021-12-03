@@ -19,11 +19,11 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.changetype.TypeCastCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for error type handle.
@@ -48,6 +49,7 @@ import java.util.Optional;
 public class AddCheckCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Add Check";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2800");
 
     public AddCheckCodeAction() {
         super();
@@ -56,19 +58,32 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
-        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
-        if (matchedNode == null) {
+        //Check if there is a check expression already present.
+        MatchedExpressionNodeResolver expressionResolver =
+                new MatchedExpressionNodeResolver(positionDetails.matchedNode());
+        Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
+        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> foundType = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        Optional<TypeSymbol> foundType;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(
+                    CodeActionUtil.getDiagPropertyFilterFunction(
+                            DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else if ("BCE2800".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOR_ITERABLE_FOUND_SYMBOL_INDEX);
+        } else {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        }
         if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
@@ -78,15 +93,13 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             return Collections.emptyList();
         }
 
-        Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
-            return Collections.emptyList();
-        }
-
         List<TextEdit> edits = new ArrayList<>();
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
                 CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
                 positionDetails.matchedNode(), context));
+        if (edits.isEmpty()) {
+            return Collections.emptyList();
+        }
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(
                 CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
     }

@@ -86,13 +86,27 @@ public class TestConnectorGenerator {
 
         Assert.assertEquals(sendMsgFuncParams.get(0).name, "user");
         Assert.assertEquals(sendMsgFuncParams.get(0).typeName, "record");
-
         Assert.assertEquals(sendMsgFuncParams.get(1).name, "message");
         Assert.assertEquals(sendMsgFuncParams.get(1).typeName, "string");
-        Assert.assertEquals(sendMsgFuncParams.get(1).documentation,
-                "Message to send\n");
-        Assert.assertEquals(sendMsgFuncParams.get(1).displayAnnotation.get("label"),
-                "Message");
+        Assert.assertEquals(sendMsgFuncParams.get(1).documentation, "Message to send\n");
+        Assert.assertEquals(sendMsgFuncParams.get(1).displayAnnotation.get("label"), "Message");
+
+        Assert.assertEquals(functionList.get(3).name, "viewMessage");
+        Assert.assertEquals(functionList.get(3).parameters.size(), 3);
+        List<Type> viewMessageFuncParams = functionList.get(3).parameters;
+
+        Assert.assertEquals(viewMessageFuncParams.get(0).name, "uid");
+        Assert.assertEquals(viewMessageFuncParams.get(0).typeName, "string");
+        Assert.assertEquals(viewMessageFuncParams.get(0).optional, false);
+        Assert.assertEquals(viewMessageFuncParams.get(0).defaultable, false);
+        Assert.assertEquals(viewMessageFuncParams.get(1).name, "name");
+        Assert.assertEquals(viewMessageFuncParams.get(1).typeName, "string");
+        Assert.assertEquals(viewMessageFuncParams.get(1).optional, false);
+        Assert.assertEquals(viewMessageFuncParams.get(1).defaultable, true);
+        Assert.assertEquals(viewMessageFuncParams.get(2).name, "age");
+        Assert.assertEquals(viewMessageFuncParams.get(2).typeName, "int");
+        Assert.assertEquals(viewMessageFuncParams.get(2).optional, true);
+        Assert.assertEquals(viewMessageFuncParams.get(2).defaultable, true);
     }
 
     @Test(description = "Test connector metadata generation")

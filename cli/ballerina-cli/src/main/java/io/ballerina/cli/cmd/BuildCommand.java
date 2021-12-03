@@ -57,50 +57,45 @@ public class BuildCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private boolean exitWhenFinish;
-    private boolean skipCopyLibsFromDist;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
-        this.skipCopyLibsFromDist = false;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean dumpBuildTime) {
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
-        this.exitWhenFinish = false;
+        this.exitWhenFinish = exitWhenFinish;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean dumpBuildTime) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
         this.dumpBuildTime = dumpBuildTime;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist) {
+                        String output) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-    }
-
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, String output) {
-        this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
-        this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.output = output;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Path targetDir) {
+                        Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.targetDir = targetDir;
     }
 
@@ -154,7 +149,7 @@ public class BuildCommand implements BLauncherCmd {
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
 
-    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time")
+    @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
 
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
@@ -162,14 +157,6 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
-
-    // TODO : Remove after Beta4
-    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
-            "executable(s).")
-    private boolean compile;
-
-    @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
-    private Boolean skipTestsTemp;
 
     public void execute() {
         long start = 0;
@@ -179,25 +166,12 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-        if (this.compile) {
-            this.outStream.println("error: '-c compile' flag has been removed. Please make use of 'bal pack' command");
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        if (this.skipTestsTemp != null) {
-            this.outStream.println("error : '--skip-tests' flag is deprecated.");
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        // load project
-        Project project;
-
         if (sticky == null) {
             sticky = false;
         }
 
+        // load project
+        Project project;
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFileBuild = false;
@@ -314,7 +288,8 @@ public class BuildCommand implements BLauncherCmd {
             buildOptionsBuilder.targetDir(targetDir.toString());
         }
 
-        return buildOptionsBuilder.build();
+        return buildOptionsBuilder.setConfigSchemaGen(configSchemaGen)
+                .build();
     }
 
     @Override

@@ -161,6 +161,7 @@ public class ManifestBuilder {
         String ballerinaVersion = "";
         String visibility = "";
         boolean template = false;
+        String icon = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -173,6 +174,20 @@ public class ManifestBuilder {
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
                 visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
+                icon = getStringValueFromTomlTableNode(pkgNode, "icon", "");
+
+                // validate icon path
+                if (icon != null) {
+                    Path iconPath = Paths.get(icon);
+                    if (!iconPath.isAbsolute()) {
+                        iconPath = this.projectPath.resolve(iconPath);
+                    }
+                    if (Files.notExists(iconPath)) {
+                        reportDiagnostic(pkgNode.entries().get("icon"),
+                                "could not locate icon path '" + icon + "'",
+                                "error.invalid.path", DiagnosticSeverity.ERROR);
+                    }
+                }
             }
         }
 
@@ -203,7 +218,7 @@ public class ManifestBuilder {
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
                 diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility,
-                template);
+                template, icon);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -300,7 +315,9 @@ public class ManifestBuilder {
                                             path = this.projectPath.resolve(path);
                                         }
                                         if (Files.notExists(path)) {
-                                            reportInvalidPathDiagnostic(platformEntryTable, pathValue);
+                                            reportDiagnostic(platformEntryTable.entries().get("path"),
+                                                    "could not locate dependency path '" + pathValue + "'",
+                                                    "error.invalid.path", DiagnosticSeverity.ERROR);
                                         }
                                     }
                                     platformEntryMap.put("path",
@@ -366,13 +383,16 @@ public class ManifestBuilder {
         return dependencies;
     }
 
-    private void reportInvalidPathDiagnostic(TomlTableNode tomlTableNode, String path) {
+    private void reportDiagnostic(TopLevelNode tomlTableNode,
+                                  String message,
+                                  String messageFormat,
+                                  DiagnosticSeverity severity) {
         DiagnosticInfo diagnosticInfo =
-                new DiagnosticInfo(null, "error.invalid.path", DiagnosticSeverity.ERROR);
+                new DiagnosticInfo(null, messageFormat, severity);
         TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(
-                tomlTableNode.entries().get("path").location(),
+                tomlTableNode.location(),
                 diagnosticInfo,
-                "could not locate dependency path '" + path + "'");
+                message);
         tomlTableNode.addDiagnostic(tomlDiagnostic);
     }
 

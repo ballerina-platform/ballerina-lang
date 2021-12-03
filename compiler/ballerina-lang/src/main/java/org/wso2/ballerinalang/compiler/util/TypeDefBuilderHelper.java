@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -212,6 +213,20 @@ public class TypeDefBuilderHelper {
         return typeDefinition;
     }
 
+    public static BLangTypeDefinition createTypeDefinitionForTSymbol(BType type, BSymbol symbol, BLangType typeNode,
+                                                                     SymbolEnv env) {
+        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        typeDefinition.typeNode = typeNode;
+        typeDefinition.setBType(type);
+        typeDefinition.symbol = Symbols.createTypeDefinitionSymbol(symbol.flags,
+                    Names.fromString(symbol.name.value), symbol.pkgID, type, symbol.owner,
+                    symbol.pos, symbol.origin);
+        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
+        typeDefinition.pos = typeNode.getPosition();
+        env.enclPkg.addTypeDefinition(typeDefinition);
+        return typeDefinition;
+    }
+
     public static BLangClassDefinition createClassDef(Location pos, BObjectTypeSymbol classTSymbol,
                                                       SymbolEnv env) {
         BObjectType objType = (BObjectType) classTSymbol.type;
@@ -269,5 +284,19 @@ public class TypeDefBuilderHelper {
         errorType.detailType = userDefinedTypeNode;
 
         return errorType;
+    }
+
+    public static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
+        for (BLangImportPackage importStmt : env.enclPkg.imports) {
+            if (!importStmt.compUnit.value.equals(compUnitName)) {
+                continue;
+            }
+
+            if (importStmt.symbol != null && typePkgId.equals(importStmt.symbol.pkgID)) {
+                return importStmt.alias.value;
+            }
+        }
+
+        return ""; // current module
     }
 }
