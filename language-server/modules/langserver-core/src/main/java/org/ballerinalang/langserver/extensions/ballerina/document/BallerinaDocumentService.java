@@ -23,6 +23,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.util.DependencyUtils;
 import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
 import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.tools.text.LinePosition;
@@ -396,6 +397,35 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                         (Position) null);
             }
             return response;
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<BallerinaSyntaxTreeResponse> resolveMissingDependencies(
+            BallerinaSyntaxTreeRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return reply;
+            }
+
+            try {
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
+                if (project.isEmpty()) {
+                    reply.setParseSuccess(false);
+                    return reply;
+                }
+                DependencyUtils.pullMissingDependencies(project.get());
+                reply.setParseSuccess(true);
+            } catch (Throwable e) {
+                reply.setParseSuccess(false);
+                String msg = "Operation 'ballerinaDocument/resolveMissingDependencies' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE, msg, e, request.getDocumentIdentifier(),
+                        (Position) null);
+            }
+            return reply;
         });
     }
 
