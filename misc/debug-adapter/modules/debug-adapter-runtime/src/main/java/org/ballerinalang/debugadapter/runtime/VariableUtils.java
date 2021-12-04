@@ -35,8 +35,8 @@ public class VariableUtils {
     /**
      * Extract map type with constraint from a given BMapValue.
      *
-     * @param mapObject mapObject.
-     * @return
+     * @param mapObject mapObject
+     * @return map type with constraint from a given BMapValue
      */
     public static String getBMapType(Object mapObject) {
         if (!(mapObject instanceof MapValueImpl)) {
