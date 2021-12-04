@@ -93,7 +93,8 @@ public class DiagnosticsHelper {
             WorkspaceManager workspace = context.workspace();
             return workspace.waitAndGetPackageCompilation(context.filePath());
         }).thenAccept(compilation -> {
-            compilation.ifPresent(packageCompilation -> compileAndSendDiagnostics(client, context, packageCompilation));
+            compilation.ifPresent(packageCompilation -> compileAndSendDiagnostics(client, context, packageCompilation,
+                    context.workspace()));
         });
     }
 
@@ -143,7 +144,8 @@ public class DiagnosticsHelper {
      * @param context LS context
      */
     private synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context,
-                                                        PackageCompilation compilation) {
+                                                        PackageCompilation compilation,
+                                                        WorkspaceManager workspaceManager) {
         // Compile diagnostics
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
@@ -154,7 +156,7 @@ public class DiagnosticsHelper {
             projectRoot = projectRoot.getParent();
         }
         Map<String, List<Diagnostic>> diagnosticMap =
-                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot);
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspaceManager);
 
         // If the client is null, returns
         if (client == null) {
@@ -193,12 +195,13 @@ public class DiagnosticsHelper {
         }
         PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
         // We do not send the internal diagnostics
-        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot));
+        diagnosticMap.putAll(
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace));
         return diagnosticMap;
     }
 
     private Map<String, List<Diagnostic>> toDiagnosticsMap(Collection<io.ballerina.tools.diagnostics.Diagnostic> diags,
-                                                           Path projectRoot) {
+                                                           Path projectRoot, WorkspaceManager workspaceManager) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         for (io.ballerina.tools.diagnostics.Diagnostic diag : diags) {
             LineRange lineRange = diag.location().lineRange();
