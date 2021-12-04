@@ -91,6 +91,7 @@ public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
     private static final String CONNECTORS = "connectors";
+    private static final String TRIGGERS = "triggers";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String ERR_CANNOT_FIND_PACKAGE = "error: could not connect to remote repository to find " +
@@ -101,6 +102,8 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
     private static final String ERR_CANNOT_GET_CONNECTOR = "error: failed to find connector: ";
+    private static final String ERR_CANNOT_GET_TRIGGERS = "error: failed to find triggers: ";
+    private static final String ERR_CANNOT_GET_TRIGGER = "error: failed to find the trigger: ";
     private static final String ERR_PACKAGE_RESOLUTION = "error: while connecting to central: ";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String baseUrl;
@@ -918,5 +921,105 @@ public class CentralAPIClient {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    /**
+     * Get triggers with search filters.
+     *
+     * @param params            Search query param map.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  The ballerina version.
+     * @return Trigger list.
+     * @throws CentralClientException Central Client exception.
+     */
+    public JsonElement getTriggers(Map<String, String> params, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        // TODO: update this client initiation with default timeouts after fixing central/triggers API.
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .proxy(this.proxy)
+                .build();
+
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(TRIGGERS);
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
+            }
+
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(httpBuilder.build())
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().toJsonTree(body.get().string());
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_GET_TRIGGERS);
+            return new JsonArray();
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_TRIGGERS + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Get trigger by id.
+     *
+     * @param id                Trigger id.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  String supportedPlatform.
+     * @return Trigger.
+     * @throws CentralClientException Central Client exception.
+     */
+    public JsonObject getTrigger(String id, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(this.baseUrl + "/" + TRIGGERS + "/" + id)
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                String responseStr = body.get().string();
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().fromJson(responseStr, JsonObject.class);
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_GET_TRIGGER + " id:" + id);
+            return new JsonObject();
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_TRIGGER + "'" + id + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
     }
 }
