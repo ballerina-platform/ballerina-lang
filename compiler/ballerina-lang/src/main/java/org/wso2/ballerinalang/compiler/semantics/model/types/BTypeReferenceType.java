@@ -61,6 +61,6 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     @Override
     public boolean isNullable() {
-        return this.referredType.isNullable();
+        return this.referredType != null && this.referredType.isNullable();
     }
 }
