@@ -241,7 +241,7 @@ function variableNameFieldAsKeyField() {
     ];
 }
 
-function testTableConstructorWithVar() {
+function testTableConstructorWithVar1() {
     string s1 = "id";
     string s2 = "employed";
 
@@ -262,4 +262,32 @@ function testTableConstructorWithVar() {
 
     table<record {|string name?;|}> _ = v2;
     table<record {|string|int name?;|}> _ = v2;
+}
+
+type FooUnion int|string;
+
+function testTableConstructorWithVar2() {
+    FooUnion f = 1;
+
+    var v1 = table [
+        {a: f},
+        {a: 1}
+    ];
+    int _ = v1;
+}
+
+type FooRec2 record {|
+    int i;
+    never j?;
+    never k?;
+    never...;
+|};
+
+function testTableConstructorWithVar3(FooRec2 f) {
+    var v1 = table [
+            {...f},
+            {i: 1, j: 2, l: ""}
+        ];
+
+    int _ = v1;
 }

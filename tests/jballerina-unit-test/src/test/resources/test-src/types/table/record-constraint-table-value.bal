@@ -513,6 +513,8 @@ function testTableTypeInferenceWithVarType() {
     testTableTypeInferenceWithVarType3();
     testTableTypeInferenceWithVarType4();
     testTableTypeInferenceWithVarType5();
+    testTableTypeInferenceWithVarType6();
+    testTableTypeInferenceWithVarType7({i: 2});
 }
 
 function testTableTypeInferenceWithVarType1() {
@@ -581,6 +583,38 @@ function testTableTypeInferenceWithVarType5() {
     v1.add({a: 1});
     v1.add({...m});
     v1.add({[s1] : true, c: 2, [s2] : false});
+}
+
+type FooUnion int|string;
+
+function testTableTypeInferenceWithVarType6() {
+    FooUnion f = 1;
+
+    var v1 = table [
+        {a: f},
+        {a: 1}
+    ];
+    table<record {| (int|string) a; |}> _ = v1;
+    v1.add({a: f});
+    v1.add({a: 1});
+}
+
+type FooRec2 record {|
+    int i;
+    never j?;
+    never k?;
+    never...;
+|};
+
+function testTableTypeInferenceWithVarType7(FooRec2 f) {
+    var v1 = table [
+            {...f},
+            {i: 1, j: 2, l: ""}
+        ];
+
+    table<record {|int i; int j?; never k?; string l?;never...; |}> _ = v1;
+    v1.add({...f});
+    v1.add({i: 1, j: 2, l: ""});
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

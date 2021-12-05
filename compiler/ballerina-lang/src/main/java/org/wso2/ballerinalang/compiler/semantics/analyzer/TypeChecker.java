@@ -1124,18 +1124,21 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             if (!member.sealed) {
-                BType restFieldType = member.restFieldType;
-                if (isUniqueType(restFieldTypes, restFieldType)) {
-                    restFieldTypes.add(restFieldType);
-                }
+                restFieldTypes.add(member.restFieldType);
             }
         }
 
         LinkedHashSet<BField> inferredFields = new LinkedHashSet<>();
         int memTypesSize = memTypes.size();
 
-        fieldNameToFields.forEach((fieldName, fields) -> {
-            List<BType> uniqueTypes = getUniqueTypesFromSameNameFieldList(fields);
+        for (Map.Entry<String, List<BField>> entry : fieldNameToFields.entrySet()) {
+            String fieldName = entry.getKey();
+            List<BField> fields = entry.getValue();
+
+            List<BType> types = new ArrayList<>();
+            for (BField field : fields) {
+                types.add(field.getType());
+            }
 
             for (BType memType : memTypes) {
                 BRecordType bMemType = (BRecordType) memType;
@@ -1144,12 +1147,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BType restFieldType = bMemType.restFieldType;
-                if (isUniqueType(uniqueTypes, restFieldType)) {
-                    uniqueTypes.add(restFieldType);
-                }
+                types.add(restFieldType);
             }
 
-            BField resultantField = createFieldWithType(fields.get(0), uniqueTypes);
+            BField resultantField = createFieldWithType(fields.get(0), types);
             boolean isOptional = hasOptionalFields(fields) || fields.size() != memTypesSize;
 
             if (isOptional) {
@@ -1162,52 +1163,27 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             inferredFields.add(resultantField);
-        });
+        }
 
         return createTableConstraintRecordType(inferredFields, restFieldTypes, tableConstructorExpr.pos);
     }
 
     /**
-     * Gives unique {@code BType} list, extracted from {@code BField} list in which all fields having same field name.
-     *
-     * @param fields the list of same name fields
-     * @return a {@code List<BType>}
-     */
-    private List<BType> getUniqueTypesFromSameNameFieldList(List<BField> fields) {
-        List<BType> uniqueTypes = new ArrayList<>();
-
-        for (BField field : fields) {
-            BType type = field.getType();
-            if (type.tag == TypeTags.UNION) {
-                for (BType t : ((BUnionType) type).getMemberTypes()) {
-                    if (isUniqueType(uniqueTypes, t)) {
-                        uniqueTypes.add(t);
-                    }
-                }
-            } else if (isUniqueType(uniqueTypes, type)) {
-                uniqueTypes.add(type);
-            }
-        }
-
-        return uniqueTypes;
-    }
-
-    /**
      * Create a new {@code BField} out of existing {@code BField}, while changing its type.
-     * The new type is derived from the given unique list of types.
+     * The new type is derived from the given list of bTypes.
      *
-     * @param field       - existing {@code BField}
-     * @param uniqueTypes - list of unique types
+     * @param field  - existing {@code BField}
+     * @param bTypes - list of bTypes
      * @return a {@code BField}
      */
-    private BField createFieldWithType(BField field, List<BType> uniqueTypes) {
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(uniqueTypes);
+    private BField createFieldWithType(BField field, List<BType> bTypes) {
+        LinkedHashSet<BType> effectiveTypes = getEffectiveMemberTypes(bTypes);
 
         BType newType;
-        if (memberTypes.size() == 1) {
-            newType = uniqueTypes.get(0);
+        if (effectiveTypes.size() == 1) {
+            newType = effectiveTypes.iterator().next();
         } else {
-            newType = BUnionType.create(null, memberTypes);
+            newType = BUnionType.create(null, effectiveTypes);
         }
 
         BVarSymbol originalSymbol = field.symbol;
@@ -1215,6 +1191,46 @@ public class TypeChecker extends BLangNodeVisitor {
                 newType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
 
         return new BField(field.name, field.pos, fieldSymbol);
+    }
+
+    private LinkedHashSet<BType> getEffectiveMemberTypes(List<BType> bTypeList) {
+        LinkedHashSet<BType> bTypes = new LinkedHashSet<>(bTypeList);
+        LinkedHashSet<BType> eBTypes = new LinkedHashSet<>(bTypes.size());
+        return getEffectiveMemberTypes(eBTypes, bTypes);
+    }
+
+    private LinkedHashSet<BType> getEffectiveMemberTypes(LinkedHashSet<BType> eBTypes, LinkedHashSet<BType> bTypes) {
+        if (bTypes.size() == 1) {
+            return bTypes;
+        }
+
+        for (BType memberType : bTypes) {
+            BType bType;
+            switch (memberType.tag) {
+                case TypeTags.NEVER:
+                    continue;
+                case TypeTags.UNION:
+                    getEffectiveMemberTypes(eBTypes, ((BUnionType) memberType).getMemberTypes());
+                    continue;
+                case TypeTags.TYPEREFDESC:
+                    BType constraint = types.getReferredType(memberType);
+                    if (constraint.tag == TypeTags.UNION) {
+                        getEffectiveMemberTypes(eBTypes, ((BUnionType) constraint).getMemberTypes());
+                        continue;
+                    }
+                    bType = constraint;
+                    break;
+                default:
+                    bType = memberType;
+                    break;
+            }
+
+            if (isUniqueType(eBTypes, bType)) {
+                eBTypes.add(bType);
+            }
+        }
+
+        return eBTypes;
     }
 
     private boolean hasOptionalFields(List<BField> fields) {
@@ -1247,14 +1263,16 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                                            names, symTable);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordType, recordSymbol, recordTypeNode, env);
 
-        if (restFieldTypes.isEmpty()) {
+        LinkedHashSet<BType> eRestFieldTypes = getEffectiveMemberTypes(restFieldTypes);
+        if (eRestFieldTypes.isEmpty()) {
             recordType.sealed = true;
             recordType.restFieldType = symTable.noType;
-        } else if (restFieldTypes.size() == 1) {
-            recordType.restFieldType = restFieldTypes.get(0);
+        } else if (eRestFieldTypes.size() == 1) {
+            recordType.restFieldType = eRestFieldTypes.iterator().next();
         } else {
-            recordType.restFieldType = BUnionType.create(null, restFieldTypes.toArray(new BType[0]));
+            recordType.restFieldType = BUnionType.create(null, eRestFieldTypes);
         }
+
         return recordType;
     }
 
@@ -8490,7 +8508,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean isUniqueType(List<BType> typeList, BType type) {
+    private boolean isUniqueType(Iterable<BType> typeList, BType type) {
         boolean isRecord = type.tag == TypeTags.RECORD;
 
         for (BType bType : typeList) {

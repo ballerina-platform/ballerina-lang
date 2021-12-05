@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 38);
+        Assert.assertEquals(compileResult.getErrorCount(), 40);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -113,8 +113,12 @@ public class TableNegativeTest {
                 + " found 'table<record {| (string|int|boolean) name?; (int|boolean)...; |}>'", 254, 41);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
                 " found 'table<record {| (string|int) name?; int...; |}>'", 263, 41);
-        validateError(compileResult, index, "incompatible types: expected 'table<record {| (string|int) name?; |}>'," +
-                        " found 'table<record {| (string|int) name?; int...; |}>'",
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| (string|int) name?; |}>'" +
+                        ", found 'table<record {| (string|int) name?; int...; |}>'",
                 264, 45);
+        validateError(compileResult, index++, "incompatible types: expected 'int'," +
+                " found 'table<record {| (int|string) a; |}>'", 276, 13);
+        validateError(compileResult, index, "incompatible types: expected 'int'," +
+                " found 'table<record {| int i; int j?; never k?; string l?; never...; |}>'", 292, 13);
     }
 }
