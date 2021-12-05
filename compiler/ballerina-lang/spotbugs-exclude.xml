@@ -367,6 +367,7 @@
     </Match>
     <Match>
         <Class name = "org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType"/>
+        <Method name="getReferredType"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
 </FindBugsFilter>
