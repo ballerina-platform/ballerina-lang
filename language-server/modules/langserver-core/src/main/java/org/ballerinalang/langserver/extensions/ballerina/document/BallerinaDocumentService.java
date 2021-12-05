@@ -35,7 +35,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManagerProxy;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
@@ -63,15 +63,15 @@ import java.util.stream.Collectors;
 public class BallerinaDocumentService implements ExtendedLanguageServerService {
     protected static final String MINUTIAE = "WHITESPACE_MINUTIAE";
 
-    private WorkspaceManagerProxy workspaceManagerProxy;
+    private WorkspaceManager workspaceManager;
     private LSClientLogger clientLogger;
     private LanguageServerContext serverContext;
 
     @Override
     public void init(LanguageServer langServer,
-                     WorkspaceManagerProxy workspaceManagerProxy,
+                     WorkspaceManager workspaceManager,
                      LanguageServerContext serverContext) {
-        this.workspaceManagerProxy = workspaceManagerProxy;
+        this.workspaceManager = workspaceManager;
         this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
     }
@@ -87,7 +87,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             }
 
             try {
-                Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
+                Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
                 if (srcFile.isEmpty()) {
                     return reply;
                 }
@@ -125,13 +125,13 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         }
 
         try {
-            Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
+            Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
             if (srcFile.isEmpty()) {
                 return CompletableFuture.supplyAsync(() -> reply);
             }
 
             // Get the semantic model.
-            Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
             // Get the generated syntax tree JSON with type info.
             JsonElement jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(srcFile.get(), semanticModel.get());
@@ -160,13 +160,13 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             }
 
             try {
-                Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
+                Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
                 if (srcFile.isEmpty()) {
                     return reply;
                 }
 
                 // Get the semantic model.
-                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
                 //Find the ST Nodes of the selected range
                 SyntaxTree syntaxTree = srcFile.get().syntaxTree();
@@ -201,13 +201,13 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             }
 
             try {
-                Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
+                Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
                 if (srcFile.isEmpty()) {
                     return reply;
                 }
 
                 // Get the semantic model.
-                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
                 //Find the ST Nodes of the selected range
                 SyntaxTree syntaxTree = srcFile.get().syntaxTree();
@@ -247,7 +247,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         try {
             // Apply modifications.
             JsonElement syntaxTreeWithSource = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
-                    filePath.get(), this.workspaceManagerProxy.get());
+                    filePath.get(), this.workspaceManager);
 
             // Preparing the response.
             reply.setSource(syntaxTreeWithSource.getAsJsonObject().get("source").getAsString());
@@ -273,7 +273,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         try {
             // Apply modifications to the trigger
             JsonElement syntaxTreeWithSource = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(),
-                    request.getConfig(), filePath.get(), this.workspaceManagerProxy.get());
+                    request.getConfig(), filePath.get(), this.workspaceManager);
 
             // Preparing the response.
             reply.setSource(syntaxTreeWithSource.getAsJsonObject().get("source").getAsString());
@@ -301,7 +301,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 if (filePath.isEmpty()) {
                     return ballerinaProject;
                 }
-                Optional<Project> project = this.workspaceManagerProxy.get().project(filePath.get());
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
                 if (project.isEmpty()) {
                     return ballerinaProject;
                 }
@@ -326,7 +326,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             String fileUri = params.getDocumentIdentifier().getUri();
             try {
                 DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
-                        this.workspaceManagerProxy.get(fileUri),
+                        this.workspaceManager,
                         LSContextOperation.DOC_DIAGNOSTICS,
                         this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
@@ -352,7 +352,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 if (filePath.isEmpty()) {
                     return syntaxTreeNodeResponse;
                 }
-                SyntaxTree syntaxTree = this.workspaceManagerProxy.get().syntaxTree(filePath.get()).orElseThrow();
+                SyntaxTree syntaxTree = this.workspaceManager.syntaxTree(filePath.get()).orElseThrow();
                 NonTerminalNode currentNode = CommonUtil.findNode(params.getRange(), syntaxTree);
                 LinePosition startLine = currentNode.lineRange().startLine();
                 LinePosition endLine = currentNode.lineRange().endLine();
@@ -385,7 +385,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                     return response;
                 }
 
-                Optional<Module> module = workspaceManagerProxy.get().module(filePath.get());
+                Optional<Module> module = workspaceManager.module(filePath.get());
                 if (module.isEmpty()) {
                     return response;
                 }
@@ -412,7 +412,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             }
 
             try {
-                Optional<Project> project = this.workspaceManagerProxy.get(fileUri).project(filePath.get());
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
                 if (project.isEmpty()) {
                     reply.setParseSuccess(false);
                     return reply;

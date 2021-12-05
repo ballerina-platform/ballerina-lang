@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
@@ -50,7 +51,6 @@ import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.rename.RenameUtil;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -111,14 +111,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private final BallerinaLanguageServer languageServer;
     private LSClientCapabilities clientCapabilities;
-    private final BallerinaWorkspaceManagerProxy workspaceManagerProxy;
+    private final WorkspaceManager workspaceManager;
     private final LanguageServerContext serverContext;
     private final LSClientLogger clientLogger;
 
     BallerinaTextDocumentService(BallerinaLanguageServer languageServer,
-                                 BallerinaWorkspaceManagerProxy workspaceManagerProxy,
+                                 WorkspaceManager workspaceManager,
                                  LanguageServerContext serverContext) {
-        this.workspaceManagerProxy = workspaceManagerProxy;
+        this.workspaceManager = workspaceManager;
         this.languageServer = languageServer;
         this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(this.serverContext);
@@ -138,7 +138,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = position.getTextDocument().getUri();
             CompletionContext context = ContextBuilder.buildCompletionContext(fileUri,
-                    this.workspaceManagerProxy.get(fileUri),
+                    this.workspaceManager,
                     this.clientCapabilities.getTextDocCapabilities().getCompletion(),
                     this.serverContext,
                     position.getPosition());
@@ -164,7 +164,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 HoverContext context = ContextBuilder.buildHoverContext(
                         CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
-                        this.workspaceManagerProxy.get(),
+                        this.workspaceManager,
                         this.serverContext, params.getPosition(),
                         cancelChecker);
                 return HoverUtil.getHover(context);
@@ -193,7 +193,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             SignatureContext context = ContextBuilder.buildSignatureContext(uri,
-                    this.workspaceManagerProxy.get(uri),
+                    this.workspaceManager,
                     this.clientCapabilities.getTextDocCapabilities().getSignatureHelp(),
                     this.serverContext,
                     params.getPosition(),
@@ -222,7 +222,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
                         CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
-                        this.workspaceManagerProxy.get(),
+                        this.workspaceManager,
                         this.serverContext,
                         params.getPosition(),
                         cancelChecker);
@@ -245,10 +245,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
-                String fileUri = params.getTextDocument().getUri();
                 ReferencesContext context = ContextBuilder.buildReferencesContext(
-                        CommonUtil.convertUriSchemeFromBala(fileUri),
-                        this.workspaceManagerProxy.get(fileUri),
+                        CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
+                        this.workspaceManager,
                         this.serverContext,
                         params.getPosition(),
                         cancelChecker);
@@ -303,7 +302,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
             try {
                 DocumentSymbolContext context = ContextBuilder.buildDocumentSymbolContext(params,
-                        this.workspaceManagerProxy.get(),
+                        this.workspaceManager,
                         this.serverContext,
                         this.clientCapabilities);
                 return DocumentSymbolUtil.documentSymbols(context);
@@ -324,11 +323,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
             try {
-                CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri,
-                        workspaceManagerProxy.get(),
-                        this.serverContext,
-                        params,
-                        cancelChecker);
+                CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri, workspaceManager,
+                        this.serverContext, params, cancelChecker);
                 return LangExtensionDelegator.instance().codeActions(params, context, this.serverContext).stream()
                         .map((Function<CodeAction, Either<Command, CodeAction>>) Either::forRight)
                         .collect(Collectors.toList());
@@ -365,8 +361,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             DocumentServiceContext codeLensContext = ContextBuilder.buildDocumentServiceContext(
-                    fileUri,
-                    this.workspaceManagerProxy.get(),
+                    fileUri, this.workspaceManager,
                     LSContextOperation.TXT_CODE_LENS, this.serverContext,
                     cancelChecker);
             try {
@@ -390,7 +385,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
-                    this.workspaceManagerProxy.get(),
+                    this.workspaceManager,
                     LSContextOperation.TXT_FORMATTING,
                     this.serverContext,
                     cancelChecker);
@@ -429,7 +424,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
-                    this.workspaceManagerProxy.get(),
+                    this.workspaceManager,
                     LSContextOperation.TXT_FORMATTING,
                     this.serverContext,
                     cancelChecker);
@@ -468,10 +463,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
-                String fileUri = params.getTextDocument().getUri();
                 PrepareRenameContext context = ContextBuilder.buildPrepareRenameContext(
-                        fileUri,
-                        this.workspaceManagerProxy.get(),
+                        params.getTextDocument().getUri(),
+                        this.workspaceManager,
                         this.serverContext,
                         params.getPosition(),
                         cancelChecker);
@@ -498,7 +492,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 RenameContext context = ContextBuilder.buildRenameContext(params,
-                        this.workspaceManagerProxy.get(),
+                        this.workspaceManager,
                         this.serverContext,
                         this.clientCapabilities,
                         cancelChecker);
@@ -523,9 +517,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
         try {
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
                     CommonUtil.convertUriSchemeFromBala(fileUri),
-                    this.workspaceManagerProxy.get(fileUri),
+                    this.workspaceManager,
                     LSContextOperation.TXT_DID_OPEN, this.serverContext);
-            this.workspaceManagerProxy.didOpen(params);
+            this.workspaceManager.didOpen(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
@@ -545,10 +539,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             // Update content
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
                     CommonUtil.convertUriSchemeFromBala(fileUri),
-                    this.workspaceManagerProxy.get(fileUri),
+                    this.workspaceManager,
                     LSContextOperation.TXT_DID_CHANGE,
                     this.serverContext);
-            this.workspaceManagerProxy.didChange(params);
+            // Note: If the path does not exist, then return early and ignore
+            workspaceManager.didChange(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
@@ -567,10 +562,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
         try {
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
                     CommonUtil.convertUriSchemeFromBala(fileUri),
-                    this.workspaceManagerProxy.get(fileUri),
+                    this.workspaceManager,
                     LSContextOperation.TXT_DID_CLOSE,
                     this.serverContext);
-            this.workspaceManagerProxy.didClose(params);
+            workspaceManager.didClose(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
                     "' {fileUri: '" + fileUri + "'} closed");
         } catch (Throwable e) {
@@ -593,7 +588,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                 .getFoldingRange().getLineFoldingOnly());
                 FoldingRangeContext context = ContextBuilder.buildFoldingRangeContext(
                         params.getTextDocument().getUri(),
-                        this.workspaceManagerProxy.get(),
+                        this.workspaceManager,
                         this.serverContext,
                         lineFoldingOnly,
                         cancelChecker);
@@ -617,7 +612,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 SemanticTokensContext context = ContextBuilder.buildSemanticTokensContext(
                         params.getTextDocument().getUri(),
-                        this.workspaceManagerProxy.get(),
+                        this.workspaceManager,
                         this.serverContext,
                         cancelChecker);
 
@@ -630,7 +625,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         new TextDocumentIdentifier(params.getTextDocument().getUri()),
                         (Position) null);
             }
-
+            
             return new SemanticTokens(new ArrayList<>());
         });
     }

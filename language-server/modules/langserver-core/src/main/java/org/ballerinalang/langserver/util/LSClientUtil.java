@@ -136,23 +136,18 @@ public class LSClientUtil {
     }
 
     public static boolean isDynamicDefinitionRegistrationSupported(TextDocumentClientCapabilities capabilities) {
-        return capabilities != null && capabilities.getDefinition() != null &&
+        return capabilities != null && capabilities.getHover() != null &&
                 Boolean.TRUE.equals(capabilities.getDefinition().getDynamicRegistration());
     }
 
     public static boolean isDynamicReferencesRegistrationSupported(TextDocumentClientCapabilities capabilities) {
-        return capabilities != null && capabilities.getReferences() != null &&
+        return capabilities != null && capabilities.getHover() != null &&
                 Boolean.TRUE.equals(capabilities.getReferences().getDynamicRegistration());
     }
 
     public static boolean isDynamicSynchronizationRegistrationSupported(TextDocumentClientCapabilities capabilities) {
         return capabilities != null && capabilities.getSynchronization() != null &&
                 Boolean.TRUE.equals(capabilities.getSynchronization().getDynamicRegistration());
-    }
-
-    public static boolean isDynamicCompletionRegistrationSupported(TextDocumentClientCapabilities capabilities) {
-        return capabilities != null && capabilities.getCompletion() != null &&
-                Boolean.TRUE.equals(capabilities.getCompletion().getDynamicRegistration());
     }
 
     /**
