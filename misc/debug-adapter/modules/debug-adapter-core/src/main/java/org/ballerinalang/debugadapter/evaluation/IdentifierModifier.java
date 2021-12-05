@@ -67,6 +67,16 @@ public class IdentifierModifier extends TreeModifier {
         return IdentifierUtils.decodeIdentifier(encodedIdentifier);
     }
 
+    public static String decodeAndEscapeIdentifier(String encodedIdentifier) {
+        String decodedIdentifier = decodeIdentifier(encodedIdentifier);
+        decodedIdentifier = IdentifierUtils.escapeSpecialCharacters(decodedIdentifier);
+        if (!decodedIdentifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
+            decodedIdentifier = QUOTED_IDENTIFIER_PREFIX + decodedIdentifier;
+        }
+
+        return decodedIdentifier;
+    }
+
     /**
      * Identifier types based on different runtime identifier encoding mechanisms.
      */

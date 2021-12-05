@@ -99,10 +99,10 @@ type Employee record {
 
 type EmployeeTable table<Employee> key(id);
 
-class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ {
+class 'Person_\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ {
     public string '1st_name = "John";
     public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0} = 0;
-    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ? parent = ();
+    public 'Person_\ \/\<\>\:\@\[\`\{\~π_ƮέŞŢ? parent = ();
     string email = "default@abc.com";
     string address = "No 20, Palm grove";
 
@@ -134,7 +134,7 @@ public class Location {
 public type AnonPerson object {
     public string '1st_name;
     public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0};
-    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ? parent;
+    public 'Person_\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ? parent;
     string email;
     string address;
 };
@@ -292,9 +292,9 @@ public function main() {
     future<int> futureVar = start sum(40, 50);
     _ = checkpanic wait futureVar;
 
-    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ objectVar = new;
+    'Person_\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ objectVar = new;
 
-    AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ();
+    AnonPerson anonObjectVar = new 'Person_\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ();
 
     Child clientObjectVar = new Child();
 
