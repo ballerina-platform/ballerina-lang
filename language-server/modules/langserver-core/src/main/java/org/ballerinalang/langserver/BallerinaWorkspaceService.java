@@ -36,11 +36,11 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -71,15 +71,14 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
-    private final BallerinaWorkspaceManagerProxy workspaceManagerProxy;
+    private final WorkspaceManager workspaceManager;
     private final LanguageServerContext serverContext;
     private final LSClientLogger clientLogger;
 
-    BallerinaWorkspaceService(BallerinaLanguageServer languageServer,
-                              BallerinaWorkspaceManagerProxy workspaceManagerProxy,
+    BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager,
                               LanguageServerContext serverContext) {
         this.languageServer = languageServer;
-        this.workspaceManagerProxy = workspaceManagerProxy;
+        this.workspaceManager = workspaceManager;
         this.serverContext = serverContext;
         this.configHolder = LSClientConfigHolder.getInstance(this.serverContext);
         this.clientLogger = LSClientLogger.getInstance(this.serverContext);
@@ -114,7 +113,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             }
             Path filePath = optFilePath.get();
             try {
-                workspaceManagerProxy.get().didChangeWatched(filePath, fileEvent);
+                workspaceManager.didChangeWatched(filePath, fileEvent);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("File Change Failed to Handle", e);
             } catch (Throwable e) {
@@ -130,7 +129,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             List<CommandArgument> commandArguments = params.getArguments().stream()
                     .map(CommandArgument::from)
                     .collect(Collectors.toList());
-            ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManagerProxy.get(),
+            ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManager,
                                                                                       this.serverContext,
                                                                                       commandArguments,
                                                                                       this.clientCapabilities,
@@ -208,7 +207,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
         docEdits.forEach(docEdit -> {
             Optional<SyntaxTree> originalST = CommonUtil.getPathFromURI(docEdit.getFileUri())
-                    .flatMap(workspaceManagerProxy.get()::document)
+                    .flatMap(workspaceManager::document)
                     .flatMap(doc -> Optional.of(doc.syntaxTree()));
             if (originalST.isEmpty()) {
                 return;
