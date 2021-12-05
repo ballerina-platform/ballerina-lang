@@ -73,6 +73,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeAndEscapeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -593,19 +594,13 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             BImport bImport = entry.getValue();
             if (bImport.orgName().equals(packageOrgAndName.getKey()) &&
                     bImport.moduleName().equals(packageOrgAndName.getValue())) {
-                return alias + ":" + bVar.computeValue();
+                return alias + ":" + decodeAndEscapeIdentifier(bVar.computeValue());
             }
         }
 
         // since the variable.computeValue returns the encoded type name, need to decode it before injecting to the
         // source code snippet.
-        String decodedIdentifier = IdentifierModifier.decodeIdentifier(bVar.computeValue());
-        decodedIdentifier = IdentifierUtils.escapeSpecialCharacters(decodedIdentifier);
-        if (!decodedIdentifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
-            decodedIdentifier = QUOTED_IDENTIFIER_PREFIX + decodedIdentifier;
-        }
-
-        return decodedIdentifier;
+        return decodeAndEscapeIdentifier(bVar.computeValue());
     }
 
     private void dispose() {

@@ -54,12 +54,12 @@ public class EvaluationContext {
         return expression;
     }
 
-    public void setExpression(String rawExpression) {
+    public void setExpression(String expression) {
         expression = expression.trim();
-        if (rawExpression.endsWith(SyntaxKind.SEMICOLON_TOKEN.stringValue())) {
-            this.expression = rawExpression.substring(0, rawExpression.length() - 1);
+        if (expression.endsWith(SyntaxKind.SEMICOLON_TOKEN.stringValue())) {
+            this.expression = expression.substring(0, expression.length() - 1);
         } else {
-            this.expression = rawExpression;
+            this.expression = expression;
         }
     }
 }
