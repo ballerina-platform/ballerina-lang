@@ -4,13 +4,13 @@
     "character": 7
   },
   "source": {
-    "file": "hover_class1.bal"
+    "file": "hover_classdef.bal"
   },
   "expected": {
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Test Type definition2"
+        "value": "A student class    \n  \n---  \n  \n### Methods  \n  \n+ `public function getName() returns string`  \nGet Name  \n  \n+ `public function getId() returns int`  \nGet ID  \n"
       }
     },
     "id": {
