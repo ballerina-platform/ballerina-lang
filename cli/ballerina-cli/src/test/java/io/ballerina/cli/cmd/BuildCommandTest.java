@@ -86,6 +86,11 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar")));
 
+        // copying the executable to a different location before deleting
+        // to use for testCodeGeneratorForSingleFile test case
+        Files.copy(this.testResources.resolve("valid-bal-file").resolve("hello_world.jar"),
+                this.testResources.resolve("valid-bal-file").resolve("hello_world-for-codegen-test.jar"));
+
         Files.delete(this.testResources
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar"));
@@ -196,7 +201,7 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Build bal file containing syntax error")
+    @Test(description = "Build bal file containing syntax error", enabled = false)
     public void testBalFileWithSyntaxError() throws IOException {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
@@ -230,8 +235,21 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
+    @Test(dependsOnMethods = "testBuildBalFile")
+    public void testCodeGeneratorForSingleFile() throws IOException {
+        Path execPath = this.testResources.resolve("valid-bal-file").resolve("hello_world-for-codegen-test.jar");
+        String generatedSource = "dummyfunc-generated_1.class";
+        String generatedResource = "resources/$anon/./0/openapi-spec.yaml";
+
+        JarFile execJar = new JarFile(execPath.toString());
+
+        Assert.assertNull(execJar.getJarEntry(generatedSource));
+        Assert.assertNotNull(execJar.getJarEntry(generatedResource));
+
+    }
+
     @Test(dependsOnMethods = "testBuildBalProject")
-    public void testCodeGenerator() throws IOException {
+    public void testCodeGeneratorForBuildProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path thinJarPath = projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
