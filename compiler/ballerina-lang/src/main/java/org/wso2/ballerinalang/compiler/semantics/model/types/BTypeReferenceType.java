@@ -31,11 +31,19 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     public BType referredType;
     public final String definitionName;
+    private Boolean nullable = null;
 
     public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags) {
         super(TYPEREFDESC, tsymbol, flags);
         this.referredType = referredType;
         this.definitionName = tsymbol.getName().getValue();
+    }
+
+    public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags, boolean nullable) {
+        super(TYPEREFDESC, tsymbol, flags);
+        this.referredType = referredType;
+        this.definitionName = tsymbol.getName().getValue();
+        this.nullable = nullable;
     }
 
     @Override
@@ -61,6 +69,11 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     @Override
     public boolean isNullable() {
-        return this.referredType.isNullable();
+        if (this.nullable != null) {
+            return this.nullable;
+        }
+
+        this.nullable = this.referredType.isNullable();
+        return this.nullable;
     }
 }
