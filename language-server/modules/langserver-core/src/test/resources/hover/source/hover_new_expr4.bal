@@ -16,5 +16,5 @@ class Student {
 }
 
 function doSomething() {
-    Student st = new ("", 1); 
+    Student st = new Student("", 1); 
 }
