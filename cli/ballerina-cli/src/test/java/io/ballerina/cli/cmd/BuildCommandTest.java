@@ -201,6 +201,9 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    // Disabling this since the cause is due to an existing bug that is revealed
+    // after code generator support. Should be enabled after fixing
+    // https://github.com/ballerina-platform/ballerina-lang/issues/34159
     @Test(description = "Build bal file containing syntax error", enabled = false)
     public void testBalFileWithSyntaxError() throws IOException {
         // valid source root path
@@ -216,6 +219,26 @@ public class BuildCommandTest extends BaseCommandTest {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
         }
     }
+
+    // Disabling this since the cause is due to an existing bug that is revealed
+    // after code generator support. Should be enabled after fixing
+    // https://github.com/ballerina-platform/ballerina-lang/issues/34159
+    @Test(description = "Build bal file containing syntax error", enabled = false)
+    public void testBalProjectWithSyntaxError() throws IOException {
+        // valid source root path
+        Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse(balFilePath.toString());
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-syntax-err-bal.txt"));
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
+        }
+    }
+
 
     @Test(description = "Build a valid ballerina project")
     public void testBuildBalProject() throws IOException {

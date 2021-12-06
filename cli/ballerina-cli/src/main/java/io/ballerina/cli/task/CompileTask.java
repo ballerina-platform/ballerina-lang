@@ -19,7 +19,6 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
