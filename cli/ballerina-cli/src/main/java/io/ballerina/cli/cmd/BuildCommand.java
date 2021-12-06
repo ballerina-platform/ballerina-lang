@@ -158,6 +158,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
+    @CommandLine.Option(names = "--export-openapi", description = "generate openAPI contract files for all" +
+            " the services in the current package")
+    private Boolean exportOpenAPI;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -282,7 +286,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
-                .setConfigSchemaGen(configSchemaGen);
+                .setConfigSchemaGen(configSchemaGen)
+                .setExportOpenAPI(exportOpenAPI);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
