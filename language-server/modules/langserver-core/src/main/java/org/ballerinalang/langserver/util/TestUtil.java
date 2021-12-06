@@ -93,6 +93,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -200,6 +201,22 @@ public class TestUtil {
                                                String triggerChar) {
         CompletableFuture<?> result =
                 endpoint.request(COMPLETION, getCompletionParams(filePath, position, triggerChar));
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the textDocument/completion response.
+     *
+     * @param fileURI     URI of the Bal file
+     * @param position    Cursor Position
+     * @param endpoint    Service Endpoint to Language Server
+     * @param triggerChar trigger character
+     * @return {@link String}   Response as String
+     */
+    public static String getCompletionResponse(URI fileURI, Position position, Endpoint endpoint,
+                                               String triggerChar) {
+        CompletableFuture<?> result =
+                endpoint.request(COMPLETION, getCompletionParams(fileURI, position, triggerChar));
         return getResponseString(result);
     }
 
@@ -475,22 +492,35 @@ public class TestUtil {
      * @throws IOException Exception while reading the file content
      */
     public static void openDocument(Endpoint serviceEndpoint, Path filePath) throws IOException {
+        byte[] encodedContent = Files.readAllBytes(filePath);
+        openDocument(serviceEndpoint, filePath.toUri().toString(), new String(encodedContent));
+    }
+
+    /**
+     * Open a document.
+     *
+     * @param serviceEndpoint Language Server Service Endpoint
+     * @param fileUri         uri of the document to open
+     * @throws IOException Exception while reading the file content
+     */
+    public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
         TextDocumentItem textDocumentItem = new TextDocumentItem();
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
 
-        byte[] encodedContent = Files.readAllBytes(filePath);
-        identifier.setUri(filePath.toUri().toString());
-        textDocumentItem.setUri(identifier.getUri());
-        textDocumentItem.setText(new String(encodedContent));
+        textDocumentItem.setUri(fileUri);
+        textDocumentItem.setText(content);
         documentParams.setTextDocument(textDocumentItem);
 
         serviceEndpoint.notify("textDocument/didOpen", documentParams);
     }
 
     public static void didChangeDocument(Endpoint serviceEndpoint, Path filePath, String content) {
+        didChangeDocument(serviceEndpoint, filePath.toUri(), content);
+    }
+
+    public static void didChangeDocument(Endpoint serviceEndpoint, URI fileUri, String content) {
         VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
-        identifier.setUri(filePath.toUri().toString());
+        identifier.setUri(fileUri.toString());
 
         DidChangeTextDocumentParams didChangeTextDocumentParams = new DidChangeTextDocumentParams();
         didChangeTextDocumentParams.setTextDocument(identifier);
@@ -576,9 +606,29 @@ public class TestUtil {
         return getResponseString(result);
     }
 
+    /**
+     * Get the {@link TextDocumentIdentifier} given the file path. Use the one with the URI as the parameter.
+     * 
+     * @param filePath {@link Path}
+     * @return {@link TextDocumentIdentifier}
+     */
+    @Deprecated
     public static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
         identifier.setUri(Paths.get(filePath).toUri().toString());
+
+        return identifier;
+    }
+
+    /**
+     * Get the {@link TextDocumentIdentifier} given the URI.
+     *
+     * @param fileUri {@link URI}
+     * @return {@link TextDocumentIdentifier}
+     */
+    public static TextDocumentIdentifier getTextDocumentIdentifier(URI fileUri) {
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
+        identifier.setUri(fileUri.toString());
 
         return identifier;
     }
@@ -618,6 +668,22 @@ public class TestUtil {
     private static CompletionParams getCompletionParams(String filePath, Position position, String triggerChar) {
         CompletionParams completionParams = new CompletionParams();
         completionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+        CompletionContext context = new CompletionContext();
+        if (triggerChar != null && !triggerChar.isEmpty()) {
+            context.setTriggerCharacter(triggerChar);
+            context.setTriggerKind(CompletionTriggerKind.TriggerCharacter);
+        } else {
+            context.setTriggerKind(CompletionTriggerKind.Invoked);
+        }
+        completionParams.setContext(context);
+
+        return completionParams;
+    }
+
+    private static CompletionParams getCompletionParams(URI fileURI, Position position, String triggerChar) {
+        CompletionParams completionParams = new CompletionParams();
+        completionParams.setTextDocument(getTextDocumentIdentifier(fileURI));
         completionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
         CompletionContext context = new CompletionContext();
         if (triggerChar != null && !triggerChar.isEmpty()) {
@@ -676,7 +742,7 @@ public class TestUtil {
         diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
     }
-    
+
     public static LanguageServerBuilder newLanguageServer() {
         return new LanguageServerBuilder();
     }
@@ -729,7 +795,7 @@ public class TestUtil {
                     ExtendedLanguageClient.class, inputStream, outputStream);
             ExtendedLanguageClient client = launcher.getRemoteProxy();
             languageServer.connect(client);
-            
+
             if (initializeParams == null) {
                 initializeParams = new InitializeParams();
                 ClientCapabilities capabilities = new ClientCapabilities();
