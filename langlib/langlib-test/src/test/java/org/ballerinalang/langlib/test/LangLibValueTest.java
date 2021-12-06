@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -67,9 +68,10 @@ public class LangLibValueTest {
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 31, 23);
-        validateError(negativeResult, index++, "invalid usage of the 'check' expression operator: " +
+        validateWarning(negativeResult, index++, "invalid usage of the 'check' expression operator: " +
                 "no expression type is equivalent to error type", 40, 21);
-        assertEquals(negativeResult.getErrorCount(), index);
+        assertEquals(negativeResult.getErrorCount(), index - 1);
+        assertEquals(negativeResult.getWarnCount(), 1);
     }
 
     @Test

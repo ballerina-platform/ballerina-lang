@@ -40,6 +40,7 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -5543,8 +5544,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.anyAndReadonly;
                 return;
             } else if (exprType != symTable.semanticError) {
-                dlog.error(checkedExpr.expr.pos,
-                        DiagnosticErrorCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS,
+                dlog.warning(checkedExpr.expr.pos,
+                        DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS,
                         operatorType);
             }
             checkedExpr.setBType(symTable.semanticError);
@@ -5575,8 +5576,8 @@ public class TypeChecker extends BLangNodeVisitor {
         checkedExpr.equivalentErrorTypeList = errorTypes;
         if (errorTypes.isEmpty()) {
             // No member types in this union is equivalent to the error type
-            dlog.error(checkedExpr.expr.pos,
-                    DiagnosticErrorCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
+            dlog.warning(checkedExpr.expr.pos,
+                    DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
             checkedExpr.setBType(symTable.semanticError);
             return;
         }
