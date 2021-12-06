@@ -104,10 +104,8 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1162,7 +1160,7 @@ public class CommonUtil {
                                            Path filePath) throws URISyntaxException {
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
         if (clientCapabilities.getInitializationOptions().isBalaSchemeSupported()) {
-            return getBalaUriForPath(filePath);
+            return getUriForPath(filePath, URI_SCHEME_BALA);
         }
         return filePath.toUri().toString();
     }
@@ -1171,12 +1169,13 @@ public class CommonUtil {
      * Returns the URI with bala scheme for the provided file path.
      *
      * @param filePath File path
+     * @param scheme URI Scheme
      * @return URI with bala scheme
      * @throws URISyntaxException URI parsing errors
      */
-    private static String getBalaUriForPath(Path filePath) throws URISyntaxException {
+    public static String getUriForPath(Path filePath, String scheme) throws URISyntaxException {
         URI uri = filePath.toUri();
-        uri = new URI(URI_SCHEME_BALA, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+        uri = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                 uri.getPath(), uri.getQuery(), uri.getFragment());
         return uri.toString();
     }
