@@ -42,14 +42,12 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.BImport;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationImportResolver;
-import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
@@ -272,7 +270,9 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         return classNameJoiner.toString();
     }
 
-    private BExpressionValue classAndInvokeExecutable(Path executablePath, String mainClassName) throws EvaluationException {
+    private BExpressionValue classAndInvokeExecutable(Path executablePath, String mainClassName)
+            throws EvaluationException {
+
         List<String> argTypes = new ArrayList<>();
         argTypes.add(JAVA_STRING_CLASS);
         argTypes.add(JAVA_STRING_CLASS);
