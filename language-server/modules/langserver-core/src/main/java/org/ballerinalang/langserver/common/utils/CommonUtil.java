@@ -159,6 +159,7 @@ public class CommonUtil {
     public static final String URI_SCHEME_EXPR = "expr";
     public static final String URI_SCHEME_FILE = "file";
     public static final String LANGUAGE_ID_BALLERINA = "ballerina";
+    public static final String LANGUAGE_ID_TOML = "toml";
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
