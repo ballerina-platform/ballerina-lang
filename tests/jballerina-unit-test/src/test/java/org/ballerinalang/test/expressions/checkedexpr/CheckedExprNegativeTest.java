@@ -58,7 +58,7 @@ public class CheckedExprNegativeTest {
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
         Assert.assertEquals(compile.getDiagnostics().length, 6, compile.toString());
         BAssertUtil.validateWarning(compile, 0, "unused variable 'line'", 11, 5);
-        BAssertUtil.validateWarning(compile, 1, ERROR_MISMATCH_ERR_MSG, 11, 19);
+        BAssertUtil.validateError(compile, 1, ERROR_MISMATCH_ERR_MSG, 11, 19);
         BAssertUtil.validateWarning(compile, 2, "unused variable 'line'", 15, 5);
         BAssertUtil.validateError(compile, 3, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 15, 19);
@@ -73,7 +73,7 @@ public class CheckedExprNegativeTest {
                 "test-src/expressions/checkedexpr/checked_expr_within_resource_negative.bal");
         Assert.assertEquals(compile.getDiagnostics().length, 2);
         BAssertUtil.validateWarning(compile, 0, "unused variable 'abc'", 23, 9);
-        BAssertUtil.validateWarning(compile, 1, ERROR_MISMATCH_ERR_MSG, 23, 22);
+        BAssertUtil.validateError(compile, 1, ERROR_MISMATCH_ERR_MSG, 23, 22);
     }
 
     @Test
@@ -81,22 +81,24 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_error_return_type_mismatch_negative.bal");
         int i = 0;
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 24, 13);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 24, 13);
         BAssertUtil.validateWarning(compile, i++, "unused variable 'x'", 32, 5);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 45, 17);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 45, 17);
         BAssertUtil.validateWarning(compile, i++, "unused variable 'res'", 48, 5);
         BAssertUtil.validateWarning(compile, i++, "unused variable 'x'", 55, 5);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 55, 23);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 55, 23);
         BAssertUtil.validateWarning(compile, i++, "unused variable 'y'", 56, 5);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 56, 13);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 56, 13);
         BAssertUtil.validateWarning(compile, i++, "unused variable 'z'", 57, 5);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 57, 20);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 57, 20);
         BAssertUtil.validateWarning(compile, i++, "unused variable 'q'", 58, 5);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 58, 23);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 71, 13);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 20);
-        BAssertUtil.validateWarning(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 31);
-        Assert.assertEquals(compile.getWarnCount(), i);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 58, 23);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 71, 13);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 20);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 31);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 85, 13);
+        Assert.assertEquals(compile.getWarnCount(), 6);
+        Assert.assertEquals(compile.getErrorCount(), i - 6);
     }
 
     @Test
@@ -104,10 +106,9 @@ public class CheckedExprNegativeTest {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expression_with_readonly_in_union_negative.bal");
         int index = 0;
-        BAssertUtil.validateWarning(compile, index++, ERROR_MISMATCH_ERR_MSG, 23, 13);
-        BAssertUtil.validateWarning(compile, index++, ERROR_MISMATCH_ERR_MSG, 29, 13);
-        BAssertUtil.validateWarning(compile, index++, ERROR_MISMATCH_ERR_MSG, 37, 13);
-        Assert.assertEquals(compile.getWarnCount(), index);
-        Assert.assertEquals(compile.getErrorCount(), 0);
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 23, 13);
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 29, 13);
+        BAssertUtil.validateError(compile, index++, ERROR_MISMATCH_ERR_MSG, 37, 13);
+        Assert.assertEquals(compile.getErrorCount(), index);
     }
 }

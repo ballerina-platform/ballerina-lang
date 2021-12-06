@@ -79,3 +79,8 @@ function testCheckedExprWithNoErrorType2() {
 function getInt(int x) returns int {
     return x + 1;
 }
+
+function testCheckedExprWithNoErrorType3() {
+    int|error i = error("Error");
+    int _ = check i;
+}
