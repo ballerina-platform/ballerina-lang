@@ -374,6 +374,13 @@ public class LargeMethodOptimizer {
             splitNum += 1;
             BIRNonTerminator lastInstruction = basicBlocks.get(currSplit.endBBNum).instructions.get(currSplit.lastIns);
             BType newFuncReturnType = lastInstruction.lhsOp.variableDcl.type;
+            BIROperand splitLastInsLhsOp = new BIROperand(lastInstruction.lhsOp.variableDcl);
+            BIROperand splitFuncCallResultOp;
+            if (currSplit.returnValAssigned) {
+                splitFuncCallResultOp = generateTempLocalVariable(function, newFuncReturnType);
+            } else {
+                splitFuncCallResultOp = splitLastInsLhsOp;
+            }
             if (currSplit.returnValAssigned) {
                 LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(2);
                 memberTypes.add(newFuncReturnType);
@@ -394,12 +401,6 @@ public class LargeMethodOptimizer {
             List<BIRArgument> args = new ArrayList<>();
             for (BIRVariableDcl funcArg : currSplit.funcArgs) {
                 args.add(new BIRArgument(ArgumentState.PROVIDED, funcArg));
-            }
-            BIROperand splitFuncCallResultOp;
-            if (currSplit.returnValAssigned) {
-                splitFuncCallResultOp = generateTempLocalVariable(function, newFuncReturnType);
-            } else {
-                splitFuncCallResultOp = new BIROperand(lastInstruction.lhsOp.variableDcl);
             }
             currentBB.terminator = new BIRTerminator.Call(lastInstruction.pos, InstructionKind.CALL, false,
                     currentPackageId, newFuncName, args, splitFuncCallResultOp, newBB, Collections.emptyList(),
@@ -424,7 +425,6 @@ public class LargeMethodOptimizer {
                 trueBB.terminator = new BIRTerminator.GOTO(null, returnBB,
                         lastInstruction.scope);
                 newBBList.add(trueBB);
-                BIROperand splitLastInsLhsOp = new BIROperand(lastInstruction.lhsOp.variableDcl);
                 falseBB.instructions.add(new BIRNonTerminator.TypeCast(null, splitLastInsLhsOp,
                         splitFuncCallResultOp, splitLastInsLhsOp.variableDcl.type, false));
                 currentBB = falseBB;
