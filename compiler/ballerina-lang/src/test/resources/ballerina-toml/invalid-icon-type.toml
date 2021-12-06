@@ -8,4 +8,4 @@ keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 distribution= "slbeta2"
 visibility= "private"
-icon= "../sample.png"
+icon= "../sample.svg"
