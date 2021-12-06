@@ -16,42 +16,40 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.NameReferenceNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
-import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 
 /**
  * Completion provider for {@link AnnotAccessExpressionNode} context.
@@ -67,81 +65,105 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AnnotAccessExpressionNode node) {
-//        List<LSCompletionItem> completionItems = new ArrayList<>();
-//        Optional<Symbol> expressionEntry = this.getExpressionEntry(context, node.expression());
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        FieldAccessCompletionResolver fieldAccessCompletionResolver = new FieldAccessCompletionResolver(context);
+        Optional<TypeSymbol> type = node.expression().apply(fieldAccessCompletionResolver);
 
-        // Fixme
-//        if (!expressionEntry.isPresent()) {
-//            return completionItems;
-//        }
+        if (type.isEmpty()) {
+            return completionItems;
+        }
 
-//        BType typeOfSymbol = CommonUtil.getTypeOfSymbol(expressionEntry.get());
-//
-//        if (!(typeOfSymbol instanceof BTypedescType)) {
-//            return completionItems;
-//        }
-//
-//        return getAnnotationTags(context, (BTypedescType) typeOfSymbol);
+        TypeSymbol typeSymbol = type.get();
 
-        return new ArrayList<>();
+        if (((TypeDescTypeSymbol) typeSymbol).typeParameter().isEmpty()) {
+            return completionItems;
+        }
+        
+        return getAnnotationTags(context, node, typeSymbol);
     }
 
-    public List<LSCompletionItem> getAnnotationTags(BallerinaCompletionContext context, BTypedescType typedescType) {
+    public List<LSCompletionItem> getAnnotationTags(BallerinaCompletionContext context, AnnotAccessExpressionNode node,
+                                                    TypeSymbol typeSymbol) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        AttachPoint.Point attachPoint = getAttachPointForType(typedescType);
+        TypeDescKind typeDescKind = ((TypeDescTypeSymbol) typeSymbol).typeParameter().get().typeKind();
+        AttachPoint.Point attachPoint = getAttachPointForType(typeSymbol);
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        boolean isTypeDescKindAnyOrAnyData = typeDescKind == TypeDescKind.ANY || typeDescKind == TypeDescKind.ANYDATA;
 
-        if (attachPoint == null) {
+        if (attachPoint == null && !isTypeDescKindAnyOrAnyData) {
             return new ArrayList<>();
         }
 
-        if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
-//            String alias = ((QualifiedNameReferenceNode) nodeAtCursor).modulePrefix().text();
-//            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
 
-            // Fixme
-//            return scopeEntry.map(value -> value.symbol.scope.entries.values().stream()
-//                    .filter(entry -> {
-//                        BSymbol symbol = entry.symbol;
-//                        return symbol instanceof BAnnotationSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC
-//                                && ((BAnnotationSymbol) symbol).points.stream()
-//                                .anyMatch(aPoint -> aPoint.point.getValue().equals(attachPoint.getValue()));
-//                    })
-//                    .map(entry -> {
-//                        BAnnotationSymbol symbol = (BAnnotationSymbol) entry.symbol;
-//                        return getAnnotationsCompletionItem(context, symbol);
-//                    })
-//                    .collect(Collectors.toList())).orElseGet(ArrayList::new);
-            return new ArrayList<>();
+            List<Symbol> moduleSymbols = getAnnotationContextEntries(context, qNameRef);
+            moduleSymbols.stream()
+                    .filter(symbol -> isTypeDescKindAnyOrAnyData || ((AnnotationSymbol) symbol).attachPoints()
+                            .stream()
+                            .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name())))
+                    .forEach(annotation -> {
+                        AnnotationSymbol symbol = (AnnotationSymbol) annotation;
+                        completionItems.add(getAnnotationsCompletionItem(context, symbol));
+                    });
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+            visibleSymbols.stream()
+                    .filter(symbol -> symbol.kind() == ANNOTATION
+                            && (isTypeDescKindAnyOrAnyData || ((AnnotationSymbol) symbol).attachPoints()
+                            .stream()
+                            .anyMatch(aPoint -> aPoint.name().equals(attachPoint.name()))))
+                    .forEach(annotation -> {
+                        AnnotationSymbol symbol = (AnnotationSymbol) annotation;
+                        completionItems.add(getAnnotationsCompletionItem(context, symbol));
+                    });
         }
-
-        List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == ANNOTATION && ((AnnotationSymbol) symbol).attachPoints()
-                        .stream()
-                        .anyMatch(aPoint -> aPoint.name().equals(attachPoint.getValue())))
-                .forEach(annotation -> {
-                    AnnotationSymbol symbol = (AnnotationSymbol) annotation;
-                    completionItems.add(getAnnotationsCompletionItem(context, symbol));
-                });
-
+        
+        this.sort(context, node, completionItems);
         return completionItems;
     }
 
-    private AttachPoint.Point getAttachPointForType(BTypedescType typedescType) {
-        BType type = typedescType.constraint.tsymbol.type;
-        if (type instanceof BObjectType && Symbols.isService(typedescType.constraint.tsymbol)) {
-            return AttachPoint.Point.SERVICE;
-        } else if (type instanceof BInvokableType) {
-            return AttachPoint.Point.FUNCTION;
-        } else {
+    public static AttachPoint.Point getAttachPointForType(TypeSymbol typeSymbol) {
+        if (((TypeDescTypeSymbol) typeSymbol).typeParameter().isEmpty()) {
             return null;
         }
+        TypeSymbol symbol = ((TypeDescTypeSymbol) typeSymbol).typeParameter().get();
+        switch (symbol.typeKind()) {
+            case TYPEDESC:
+                TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) symbol;
+                if (((TypeReferenceTypeSymbol) typeDescTypeSymbol.typeParameter().get()).typeDescriptor().kind() 
+                        == SymbolKind.CLASS) {
+                    return  AttachPoint.Point.CLASS;
+                }
+                return AttachPoint.Point.TYPE;
+            case OBJECT:
+                if (((ObjectTypeSymbol) symbol).qualifiers().contains(Qualifier.SERVICE)) {
+                    return AttachPoint.Point.SERVICE;
+                } else {
+                    return AttachPoint.Point.OBJECT_FIELD;
+                }
+            case FUNCTION:
+                return AttachPoint.Point.FUNCTION;
+            case RECORD:
+                return AttachPoint.Point.RECORD_FIELD;
+            default:
+                return null;
+        }
+    }
+    
+    private static List<Symbol> getAnnotationContextEntries(BallerinaCompletionContext ctx,
+                                                            QualifiedNameReferenceNode qNameRef) {
+        String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
+        Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, moduleAlias);
+
+        return moduleSymbol.map(value -> value.allSymbols().stream()
+                .filter(symbol -> symbol.kind() == ANNOTATION)
+                .collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
 
     private LSCompletionItem getAnnotationsCompletionItem(BallerinaCompletionContext ctx,
                                                           AnnotationSymbol annotationSymbol) {
-        Optional<TypeSymbol> attachedType = annotationSymbol.typeDescriptor();
         CompletionItem item = new CompletionItem();
         item.setInsertText(annotationSymbol.getName().get());
         item.setLabel(annotationSymbol.getName().get());
@@ -149,57 +171,26 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         item.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         item.setKind(CompletionItemKind.Property);
 
-        return new TypeCompletionItem(ctx, attachedType.get(), item);
+        return new TypeCompletionItem(ctx, null, item);
     }
 
-    /**
-     * Get the expression entry, given the node.
-     *
-     * @param context        language server context
-     * @param expressionNode expression node
-     * @return {@link Optional} scope entry for the node
-     */
-    private Optional<Symbol> getExpressionEntry(BallerinaCompletionContext context, Node expressionNode) {
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+    @Override
+    protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
+        return Collections.emptyList();
+    }
 
-        switch (expressionNode.kind()) {
-            case SIMPLE_NAME_REFERENCE:
-                String nameRef = ((SimpleNameReferenceNode) expressionNode).name().text();
-                for (Symbol symbol : visibleSymbols) {
-                    if (Objects.equals(symbol.getName().orElse(null), nameRef)) {
-                        return Optional.of(symbol);
-                    }
-                }
-                return Optional.empty();
-            case FUNCTION_CALL:
-                NameReferenceNode refName = ((FunctionCallExpressionNode) expressionNode).functionName();
-                if (refName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                    String alias = ((QualifiedNameReferenceNode) refName).modulePrefix().text();
-                    String fName = ((QualifiedNameReferenceNode) refName).identifier().text();
-                    Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
-                    if (moduleSymbol.isEmpty()) {
-                        return Optional.empty();
-                    }
-                    for (FunctionSymbol functionSymbol : moduleSymbol.get().functions()) {
-                        if (functionSymbol.getName().get().equals(fName)) {
-                            return Optional.of(functionSymbol);
-                        }
-                    }
-                    return Optional.empty();
-                } else if (refName.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                    String funcName = ((SimpleNameReferenceNode) refName).name().text();
-                    for (Symbol symbol : visibleSymbols) {
-                        if (symbol.kind() == FUNCTION && symbol.getName().get().equals(funcName)) {
-                            return Optional.of(symbol);
-                        }
-                    }
-                    return Optional.empty();
-                }
-                break;
-            default:
-                break;
+    @Override
+    public void sort(BallerinaCompletionContext context, AnnotAccessExpressionNode node, 
+                     List<LSCompletionItem> lsCItems) {
+        for (LSCompletionItem lsCItem : lsCItems) {
+            CompletionItem completionItem = lsCItem.getCompletionItem();
+            if (completionItem.getDetail().equals(ItemResolverConstants.ANNOTATION_TYPE)) {
+                completionItem.setSortText(SortingUtil.genSortText(1) 
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            } else {
+            completionItem.setSortText(SortingUtil.genSortText(2) 
+                    + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            }
         }
-
-        return Optional.empty();
     }
 }

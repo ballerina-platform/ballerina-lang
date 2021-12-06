@@ -128,7 +128,7 @@ public class DebugTestRunner {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient = new BMainInstance(balServer);
-        debuggeeProcess = balClient.debugMain("build", new String[]{"--with-tests", "--debug", String.valueOf(port)},
+        debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 20, true);
         clientLeecher.waitForText(20000);
     }

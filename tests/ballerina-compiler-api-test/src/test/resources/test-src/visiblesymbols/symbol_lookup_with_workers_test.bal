@@ -51,3 +51,17 @@ function testFork() {
         }
     }
 }
+
+function testWorkerSendReceive() {
+    worker wrk1 {
+        int a = 6;
+        a ->
+    }
+
+    worker wrk2 {
+    }
+
+    worker wrk3 {
+        int b = <-
+    }
+}

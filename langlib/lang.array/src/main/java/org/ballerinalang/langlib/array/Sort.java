@@ -19,6 +19,8 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -44,6 +46,7 @@ public class Sort {
 
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
+
         if (function != null) {
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
@@ -57,11 +60,13 @@ public class Sort {
 
         mergesort(sortArr, sortArrClone, 0, sortArr.length - 1, direction.toString());
 
+        BArray sortedArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));
+
         for (int k = 0; k < sortArr.length; k++) {
-            arr.add(k, sortArr[k][1]);
+            sortedArray.add(k, sortArr[k][1]);
         }
 
-        return arr;
+        return sortedArray;
     }
 
     // Adapted from https://algs4.cs.princeton.edu/22mergesort/Merge.java.html

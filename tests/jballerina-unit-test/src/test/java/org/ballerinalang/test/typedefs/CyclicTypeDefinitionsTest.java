@@ -129,6 +129,7 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'N'", 58, 6);
         BAssertUtil.validateError(negativeResult, i++, "tuple and expression size does not match", 62, 11);
         BAssertUtil.validateError(negativeResult, i++, "tuple and expression size does not match", 63, 11);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'ET', found 'int'", 75, 17);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

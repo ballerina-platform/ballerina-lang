@@ -115,7 +115,7 @@ public class SubtractOperationTest {
         BAssertUtil.validateError(resultNegative, 9, "operator '-' not defined for 'int' and 'float'", 41, 18);
         BAssertUtil.validateError(resultNegative, 10, "operator '-' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 11, "operator '-' not defined for 'C' and 'float'", 46, 14);
-        BAssertUtil.validateError(resultNegative, 12, "Integer '-9223372036854775808' too small", 50, 16);
+        BAssertUtil.validateError(resultNegative, 12, "'-9223372036854775808' is out of range", 50, 16);
     }
 
     @Test(description = "Test subtraction of nullable values")

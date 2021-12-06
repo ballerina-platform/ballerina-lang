@@ -19,7 +19,6 @@ package io.ballerina.parsers;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -48,17 +47,17 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            NodeList<StatementNode> statementNodes;
+            StatementNode statementNode;
 
             if (request.getStModification() != null) {
                 String newStatement = STModificationUtil.getModifiedStatement(
                         request.getCodeSnippet(), request.getStModification());
-                statementNodes = NodeParser.parseStatements(newStatement);
+                statementNode = NodeParser.parseStatement(newStatement);
             } else {
-                statementNodes = NodeParser.parseStatements(request.getCodeSnippet());
+                statementNode = NodeParser.parseStatement(request.getCodeSnippet());
             }
 
-            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNodes.get(0));
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNode);
             STResponse response = new STResponse();
             response.setSyntaxTree(syntaxTreeJSON);
             return response;

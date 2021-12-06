@@ -89,6 +89,11 @@ function testHexaDecimalLiteralsWithFloat() {
     assertEqual(1365.0, f2);
 }
 
+function testOutOfRangeIntWithFloat() {
+    float f1 = 999999999999999999999999999999;
+    assertEqual(1.0E30, f1);
+}
+
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

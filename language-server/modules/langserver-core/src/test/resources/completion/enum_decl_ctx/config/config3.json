@@ -288,7 +288,7 @@
     {
       "label": "super",
       "kind": "Variable",
-      "detail": "SUPER",
+      "detail": "\"SUPER\"",
       "documentation": {
         "right": {
           "kind": "markdown",

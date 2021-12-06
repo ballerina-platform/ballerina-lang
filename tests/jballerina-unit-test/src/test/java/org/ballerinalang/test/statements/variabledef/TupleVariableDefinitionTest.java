@@ -173,6 +173,16 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[++i]).intValue(), 56);
     }
 
+    @Test
+    public void testTupleVarDefinition3() {
+        BRunUtil.invoke(result, "testTupleVarDef3");
+    }
+
+    @Test
+    public void testTupleVarDefinition4() {
+        BRunUtil.invoke(result, "testTupleVarDef4");
+    }
+
     @Test(description = "Test tuple var definition with array 1")
     public void testTupleVarDefWithArray1() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefWithArray1");
@@ -353,6 +363,11 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 23);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 24);
+    }
+
+    @Test(description = "Test tuple variable with error BP")
+    public void testTupleVariableWithErrorBP() {
+        BRunUtil.invoke(result, "testTupleVariableWithErrorBP");
     }
 
     private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {

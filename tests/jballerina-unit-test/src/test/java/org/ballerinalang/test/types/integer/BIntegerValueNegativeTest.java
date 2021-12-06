@@ -35,16 +35,16 @@ public class BIntegerValueNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 8);
 
         int index = 0;
-        String expectedError = "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large";
+        String expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range";
         BAssertUtil.validateError(compileResult, index++, expectedError, 2, 13);
 
-        expectedError = "Integer '9999999999999999999' too large";
+        expectedError = "'9999999999999999999' is out of range";
         BAssertUtil.validateError(compileResult, index++, expectedError, 3, 13);
 
-        expectedError = "Hexadecimal '-0xFFFFFFFFFFFFFFFF' too small";
+        expectedError = "'-0xFFFFFFFFFFFFFFFF' is out of range";
         BAssertUtil.validateError(compileResult, index++, expectedError, 5, 13);
 
-        expectedError = "Integer '-9999999999999999999' too small";
+        expectedError = "'-9999999999999999999' is out of range";
         BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
 
         expectedError = "missing semicolon token";

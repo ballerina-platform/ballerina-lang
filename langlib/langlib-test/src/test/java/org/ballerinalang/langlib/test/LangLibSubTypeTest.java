@@ -129,10 +129,13 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_INT, 57, 24);
         BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 58, 14);
         // testTypeAlias
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 65, 16);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 67, 17);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 69, 17);
-        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_SIGNED_32, 72, 24);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 65, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 67, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 69, 17);
+        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + " found 'NewInt'", 72, 24);
 
         // TODO : Fix this, Issue : #21542
 //        // Consts
@@ -222,8 +225,8 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 275, 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 276, 17);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 277, 22);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 278, 23);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 279, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_32, 278, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_32, 279, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 280, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 281, 22);
 
@@ -232,25 +235,25 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 297, 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 298, 17);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_16, 299, 22);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 300, 23);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 301, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_32, 300, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_32, 301, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 302, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 303, 22);
 
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned32', found '-1|2'", 312,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned32', found 'X'", 312,
                 24);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8[]', found '-1|2[]'", 315,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8[]', found 'X[]'", 315,
                 25);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8[]', found '-1|1|128[]'",
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8[]', found 'Y[]'",
                 318, 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found '-1|1|foo'", 321,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found 'Z'", 321,
                 21);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(string:Char|int:Signed8)', found " +
-                        "'-1|1|foo'", 322, 33);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string:Char|int:Signed8)[]', " +
-                        "found '-1|1|foo[]'", 325, 43);
+                        "'Z'", 322, 33);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected " +
+                "'(float|string:Char|int:Signed8)[]', found 'Z[]'", 325, 43);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string|int:Unsigned8)[]', " +
-                "found '-1|1|foo[]'", 326, 40);
+                "found 'Z[]'", 326, 40);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found " +
                 "'InvalidIntType'", 337, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found " +
@@ -259,8 +262,10 @@ public class LangLibSubTypeTest {
                 "'InvalidIntType'", 340, 17);
         BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type " +
                 "'(int:Signed32|int:Signed16|string)'", 341, 17);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found '1|2|3|R'", 343, 25);
-        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in type '1|2|3|R'", 344, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', " +
+                "found 'InvalidIntFiniteType'", 343, 25);
+        BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in " +
+                "type 'InvalidIntFiniteType'", 344, 17);
 
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed16', found 'int'", 348, 24);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed16', found 'int'", 349, 24);
@@ -269,9 +274,9 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 352, 26);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 353, 26);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 354, 25);
-        BAssertUtil.validateError(result, err++, "Integer '-9223372036854775808' too small", 355, 25);
-        BAssertUtil.validateError(result, err++, "Integer '9223372036854775808' too large", 356, 23);
-        BAssertUtil.validateError(result, err++, "Integer '-9223372036854775809' too small", 357, 25);
+        BAssertUtil.validateError(result, err++, "'-9223372036854775808' is out of range", 355, 25);
+        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range", 356, 23);
+        BAssertUtil.validateError(result, err++, "'-9223372036854775809' is out of range", 357, 25);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 
@@ -289,16 +294,18 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 39, 28);
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 43, 19);
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 48, 13);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char', found 'ab|b'", 56, 21);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'ab|b[]'", 59,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char', found 'X'", 56, 21);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'X[]'", 59,
                 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found '-1|e|f[]'", 62,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'Y[]'", 62,
                 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]', found" +
-                " '-1|e|f[]'", 63, 39);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'ABC|D|3.0f'", 74, 29);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]', " +
+                "found 'Y[]'", 63, 39);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', " +
+                "found 'StringFiniteType'", 74, 29);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'StringType'", 75, 29);
-        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'ABC|D|3.0f'", 77, 14);
+        BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in " +
+                "type 'StringFiniteType'", 77, 14);
         BAssertUtil.validateError(result, err++, "undefined function 'toLowerAscii' in type 'StringType'", 78, 14);
         Assert.assertEquals(result.getErrorCount(), err);
     }

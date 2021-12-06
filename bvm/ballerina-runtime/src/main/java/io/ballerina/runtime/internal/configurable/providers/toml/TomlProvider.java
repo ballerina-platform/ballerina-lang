@@ -127,7 +127,7 @@ public class TomlProvider implements ConfigProvider {
             switch (node.kind()) {
                 case KEY_VALUE:
                     if (!visitedNodes.contains(node) && !isInvalidNode) {
-                        diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
+                        diagnosticLog.error(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
                     }
                     break;
                 case TABLE:
@@ -135,7 +135,7 @@ public class TomlProvider implements ConfigProvider {
                     break;
                 case TABLE_ARRAY:
                     if (!visitedNodes.contains(node) && !isInvalidNode) {
-                        diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
+                        diagnosticLog.error(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
                     }
                     for (TomlTableNode tableNode : ((TomlTableArrayNode) node).children()) {
                         validateUnusedNodes(tableNode, entryKey + ".", diagnosticLog);
@@ -157,12 +157,12 @@ public class TomlProvider implements ConfigProvider {
                 Module module = moduleInfo.getModuleFromName(nodeName);
                 if (module != null && !invalidRequiredModuleSet.contains(module.toString()) &&
                         !rootModule.getOrg().equals(module.getOrg())) {
-                    diagnosticLog.warn(CONFIG_TOML_INVALID_MODULE_STRUCTURE, null, lineRange, nodeName,
+                    diagnosticLog.error(CONFIG_TOML_INVALID_MODULE_STRUCTURE, null, lineRange, nodeName,
                             getModuleKey(module));
                 }
             }
             if (!(containsOrg || containsModule) && !invalidTomlLines.contains(node.location().lineRange())) {
-                diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + nodeName);
+                diagnosticLog.error(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + nodeName);
             }
         }
         validateUnusedNodes(node, moduleHeader + nodeName + ".", diagnosticLog);

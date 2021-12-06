@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "name",
       "kind": "Field",
       "detail": "Pet.name",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "name: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "type",
       "kind": "Field",
       "detail": "Pet.type",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "'type: ${2:0}",
       "insertTextFormat": "Snippet"
     },

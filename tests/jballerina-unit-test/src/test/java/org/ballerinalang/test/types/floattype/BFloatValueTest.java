@@ -163,10 +163,21 @@ public class BFloatValueTest {
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 2200.0, "Invalid float value returned.");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test()
     public void testIntegerValue() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals", 3, 9);
+        BAssertUtil.validateError(negativeResult, 1, "'999e9999999999' is out of range", 8, 15);
+        BAssertUtil.validateError(negativeResult, 2, "'999e-9999999999' is out of range", 9, 15);
+        BAssertUtil.validateError(negativeResult, 3, "'999e9999999999' is out of range", 10, 23);
+        BAssertUtil.validateError(negativeResult, 4, "'99.9E99999999' is out of range", 11, 27);
+        BAssertUtil.validateError(negativeResult, 5, "'99.9E-99999999' is out of range", 12, 27);
+        BAssertUtil.validateError(negativeResult, 6, "'0x9999999p999999999999999999999999' is out of range", 15, 10);
+        BAssertUtil.validateError(negativeResult, 7, "'0x9999999p-999999999999999999999999' is out of range", 17, 11);
+        BAssertUtil.validateError(negativeResult, 8, "'9999999999e9999999999999999999f' is out of range", 19, 10);
+        BAssertUtil.validateError(negativeResult, 9, "'9999999999e-9999999999999999999f' is out of range", 21, 11);
+        BAssertUtil.validateError(negativeResult, 10, "'0x999.9p999999999999999' is out of range", 23, 1);
+        BAssertUtil.validateError(negativeResult, 11, "'0x999.9p999999999999999' is out of range", 23, 29);
     }
 
     @Test(description = "Test float literal discrimination error")
@@ -181,6 +192,10 @@ public class BFloatValueTest {
         BRunUtil.invoke(result, "testHexaDecimalLiteralsWithFloat");
     }
 
+    @Test
+    public void testOutOfRangeIntWithFloat() {
+        BRunUtil.invoke(result, "testOutOfRangeIntWithFloat");
+    }
 
     @AfterClass
     public void tearDown() {
