@@ -108,18 +108,10 @@ function testLangLibCallOnFiniteType() {
 }
 
 function testIntOverflow() {
-    int a1 = -9223372036854775808;
-    int|error result = trap a1.abs();
+    int|error result = trap (-9223372036854775807 - 1).abs();
 
     test:assertValueEqual(true, result is error);
     error err = <error>result;
-    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
-    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
-
-    result = trap (-9223372036854775807 - 1).abs();
-
-    test:assertValueEqual(true, result is error);
-    err = <error>result;
     test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
     test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
 }
