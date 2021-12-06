@@ -924,12 +924,6 @@ function testCloneWithTypeIntArrayToUnionArray() {
     assert(k is error, false);
     assert(checkpanic k, [10, 20]);
 
-    byte[] z = [1, 2, 3];
-
-    (int|float)[]|error l = z.cloneWithType();
-    assert(l is error, false);
-    assert(checkpanic l, [1, 2, 3]);
-
     (int:Signed16|int:Unsigned8|decimal)[]|error m = y.cloneWithType();
     assert(m is error, true);
     error err = <error> m;
@@ -940,6 +934,26 @@ function testCloneWithTypeIntArrayToUnionArray() {
     "\n\t\tarray element '[1]' should be of type '(lang.int:Signed16|lang.int:Unsigned8|decimal)', found '20.0'";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
+
+    byte[] z = [1, 2, 3];
+
+    (int|float)[]|error l = z.cloneWithType();
+    assert(l is error, false);
+    assert(checkpanic l, [1, 2, 3]);
+
+    (int|decimal|int:Unsigned8|int:Signed32)[]|error n = z.cloneWithType();
+    assert(n is error, false);
+    assert(checkpanic n, [1, 2, 3]);
+
+    int:Signed32[] w = [1, 2, 3];
+
+    (int|float)[]|error p = w.cloneWithType();
+    assert(p is error, false);
+    assert(checkpanic p, [1, 2, 3]);
+
+    (byte|decimal|int:Unsigned8|int:Signed8)[]|error q = w.cloneWithType();
+    assert(q is error, false);
+    assert(checkpanic q, [1, 2, 3]);
 }
 
 function testCloneWithTypeArrayToTupleWithRestType() {
