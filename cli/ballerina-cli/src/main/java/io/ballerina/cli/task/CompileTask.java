@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -75,11 +76,13 @@ public class CompileTask implements Task {
             }
 
             // run built-in code generator compiler plugins
+            DiagnosticResult codeGenDiagnosticResult = null;
             if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
                 // SingleFileProject cannot hold additional sources or resources
                 // and BalaProjects is a read-only project.
                 // Hence we run the code generators only for BuildProject
-                project.currentPackage().runCodeGeneratorPlugins();
+                CodeGeneratorResult codeGeneratorResult = project.currentPackage().runCodeGeneratorPlugins();
+                codeGenDiagnosticResult = codeGeneratorResult.reportedDiagnostics();
             }
 
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -91,9 +94,16 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
+            // Report code generator diagnostics
+            if (codeGenDiagnosticResult != null) {
+                codeGenDiagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
+            }
+
+            // Report package compilation and backend diagnostics
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
             diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
-            if (diagnosticResult.hasErrors()) {
+            if (diagnosticResult.hasErrors() ||
+                    (codeGenDiagnosticResult != null && codeGenDiagnosticResult.hasErrors())) {
                 throw createLauncherException("compilation contains errors");
             }
             project.save();

@@ -265,7 +265,6 @@ public class BuildCommandTest extends BaseCommandTest {
         String generatedResource = "resources/$anon/./0/openapi-spec.yaml";
 
         JarFile execJar = new JarFile(execPath.toString());
-
         Assert.assertNull(execJar.getJarEntry(generatedSource));
         Assert.assertNotNull(execJar.getJarEntry(generatedResource));
 
