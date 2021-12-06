@@ -78,8 +78,6 @@ public class HoverUtil {
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
-
-        NonTerminalNode nodeAtCursor = CommonUtil.findNode(new Range(context.getCursorPosition(), context.getCursorPosition()), srcFile.get().syntaxTree());
         
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
@@ -89,6 +87,8 @@ public class HoverUtil {
         // Check for the cancellation after the time consuming operation
         context.checkCancelled();
         if (symbolAtCursor.isEmpty()) {
+            Range nodeRange = new Range(context.getCursorPosition(), context.getCursorPosition());
+            NonTerminalNode nodeAtCursor = CommonUtil.findNode(nodeRange, srcFile.get().syntaxTree());
             if (nodeAtCursor != null) {
                 MatchedExpressionNodeResolver expressionResolver = new MatchedExpressionNodeResolver(nodeAtCursor);
                 Optional<ExpressionNode> expr = nodeAtCursor.apply(expressionResolver);
