@@ -20,11 +20,15 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -68,7 +72,16 @@ public class DecimalValue implements SimpleValue, BDecimal {
         if (isHexValueString(value)) {
             this.value = hexToDecimalFloatingPointNumber(value);
         } else {
-            this.value = new BigDecimal(value, MathContext.DECIMAL128);
+            try {
+                this.value = new BigDecimal(value, MathContext.DECIMAL128);
+            } catch (NumberFormatException exception) {
+                String message = exception.getMessage();
+                if (message.equals("Too many nonzero exponent digits.") || message.equals("Exponent overflow.")) {
+                    throw ErrorCreator.createError(BallerinaErrorReasons.LARGE_EXPONENT_ERROR,
+                            BLangExceptionHelper.getErrorDetails(RuntimeErrors.LARGE_EXPONENTS_IN_DECIMAL, value));
+                }
+                throw exception;
+            }
         }
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
