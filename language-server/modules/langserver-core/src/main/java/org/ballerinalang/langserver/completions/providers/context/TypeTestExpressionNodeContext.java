@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -24,7 +25,9 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -35,6 +38,7 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,15 +67,15 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
         } else {
             completionItems.addAll(this.getTypeDescContextItems(context));
-            completionItems.addAll(getTypeDescCompletionsOfExpression(context, node));
+            completionItems.addAll(getModuleTypeDescCompletionsForExpression(context, node));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
-    private List<LSCompletionItem> getTypeDescCompletionsOfExpression(BallerinaCompletionContext context,
-                                                                      TypeTestExpressionNode node) {
+    private List<LSCompletionItem> getModuleTypeDescCompletionsForExpression(BallerinaCompletionContext context,
+                                                                             TypeTestExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Optional<TypeSymbol> typeSymbol =
                 context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node.expression()));
@@ -90,13 +94,49 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             //check for intersection as well.
             return completionItems;
         }
-        completionItems = typeReferences.stream().filter(typeRef -> typeRef.getModule().isPresent()
-                        && !typeRef.getModule().get().nameEquals(context.currentModule().get()
-                        .moduleName().moduleNamePart()))
-                .map(typeRef -> new SymbolCompletionItem(context, typeRef,
-                        TypeCompletionItemBuilder.build(typeRef, typeRef.signature())))
-                .collect(Collectors.toList());
+        completionItems = typeReferences.stream().filter(typeRef -> isQualifiedTypeReference(context, typeRef))
+                .map(typeRef -> {
+                    String symbolRef = getQualifiedSymbolReference(typeRef);
+                    return new SymbolCompletionItem(context, typeRef,
+                            TypeCompletionItemBuilder.build(typeRef, symbolRef));
+                }).collect(Collectors.toList());
         return completionItems;
+    }
+
+    private String getQualifiedSymbolReference(TypeSymbol typeSymbol) {
+        ModuleID moduleID = typeSymbol.getModule().get().id();
+        String moduleName = moduleID.moduleName();
+        String modulePrefix = moduleID.modulePrefix();
+        if (modulePrefix.isEmpty()) {
+            List<String> moduleNameComponents = Arrays.stream(moduleName.split("\\."))
+                    .map(CommonUtil::escapeModuleName)
+                    .collect(Collectors.toList());
+            if (moduleNameComponents.isEmpty()) {
+                modulePrefix = moduleName;
+            } else {
+                modulePrefix = moduleNameComponents.get(moduleNameComponents.size() - 1);
+            }
+        }
+        return modulePrefix + ":" + typeSymbol.getName().get();
+    }
+
+    private boolean isQualifiedTypeReference(BallerinaCompletionContext context, TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() != TypeDescKind.TYPE_REFERENCE
+                && typeSymbol.getModule().isEmpty() || typeSymbol.getName().isEmpty()
+                || context.currentModule().isEmpty()) {
+            return false;
+        }
+        ModuleID moduleID = typeSymbol.getModule().get().id();
+        String moduleName = moduleID.moduleName();
+        String orgName = moduleID.orgName();
+
+        ModuleId currentModuleID = context.currentModule().get().moduleId();
+        String currentModuleName = currentModuleID.moduleName();
+        String currentOrg = context.currentModule().get().packageInstance().packageOrg().value();
+        if (orgName.equals(currentOrg) && moduleName.equals(currentModuleName)) {
+            return false;
+        }
+        return true;
     }
 
     private boolean onExpressionContext(BallerinaCompletionContext context, TypeTestExpressionNode node) {
@@ -134,7 +174,13 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         List<String> typeNames;
         if (typeSymbol.get().typeKind() == TypeDescKind.UNION) {
             typeNames = ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().stream()
-                    .map(TypeSymbol::typeKind).map(TypeDescKind::getName).collect(Collectors.toList());
+                    .map(type -> {
+                        if (type.getName().isEmpty()) {
+                            return type.typeKind().getName();
+                        }
+                        return isQualifiedTypeReference(context, type) ?
+                                getQualifiedSymbolReference(type) : type.getName().get();
+                    }).collect(Collectors.toList());
         } else {
             typeNames = List.of(typeSymbol.get().typeKind().getName());
         }

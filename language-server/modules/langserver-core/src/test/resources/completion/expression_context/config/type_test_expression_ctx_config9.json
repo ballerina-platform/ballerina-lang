@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 3,
+    "line": 5,
     "character": 16
   },
-  "source": "expression_context/source/type_test_expression_ctx_source8.bal",
+  "source": "expression_context/source/projectls/modules/lsmod4/lsmod4.bal",
   "items": [
     {
       "label": "StrandData",
@@ -170,6 +170,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "mod3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BBO",
+      "filterText": "mod3",
+      "insertText": "mod3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -181,11 +190,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -205,11 +214,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -229,11 +238,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -253,11 +262,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -277,11 +286,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -400,6 +409,78 @@
       "sortText": "BG",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "projectls.ls.mod4",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BCG",
+      "filterText": "",
+      "insertText": "mod4",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import projectls.ls.mod4;\n"
+        }
+      ]
+    },
+    {
+      "label": "projectls.lsmod2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BCG",
+      "filterText": "",
+      "insertText": "lsmod2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import projectls.lsmod2;\n"
+        }
+      ]
+    },
+    {
+      "label": "projectls.lsmod1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BCG",
+      "filterText": "",
+      "insertText": "lsmod1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import projectls.lsmod1;\n"
+        }
+      ]
     },
     {
       "label": "module1:TestMap2",
