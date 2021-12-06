@@ -56,11 +56,6 @@ isolated function externLInit(object {} o) returns error? = @java:Method {
     name: "listenerInit"
 } external;
 
-function getService() returns object {} = @java:Method {
-    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
-    name: "getService"
-} external;
-
 function reset() = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name: "reset"
@@ -69,6 +64,11 @@ function reset() = @java:Method {
 public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
     name:"callMethod"
+} external;
+
+function getService() returns ServiceType = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getService"
 } external;
 
 listener lsn = new Listener();
@@ -89,6 +89,16 @@ service / on lsn {
 
 function testServiceDecl() {
     any|error v = wait callMethod(<service object {}> getService(), "$get$processRequest");
+    ServiceType s = getService();
+    var td = typeof s;
+    var tIds = td.typeIds();
+    if (tIds != ()) {
+        assertEquality(tIds.length(), 1);
+        assertEquality(tIds[0].localId, "ServiceType");
+    } else {
+        panic error("Expected to have type-ids");
+    }
+
     reset();
     assertEquality(v, <json> { output: "Hello" });
 }
