@@ -89,5 +89,7 @@
         "nextNode": null
       }
     }
-  }
+  },
+  "type": "Success",
+  "message": "Success"
 }
