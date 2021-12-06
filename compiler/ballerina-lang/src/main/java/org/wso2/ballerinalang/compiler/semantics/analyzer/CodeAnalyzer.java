@@ -3774,10 +3774,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType checkedExprType = checkedExpr.expr.getBType();
         BType errorType = getErrorTypes(checkedExprType);
 
-        if (!this.failureHandled && errorType != symTable.semanticError && !types.isAssignable(errorType, exprType) &&
+        if (errorType == symTable.semanticError) {
+            return;
+        }
+
+        if (!this.failureHandled && !types.isAssignable(errorType, exprType) &&
                 !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
-            dlog.warning(checkedExpr.pos,
-                    DiagnosticWarningCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            dlog.error(checkedExpr.pos,
+                    DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
         if (!this.errorTypes.empty()) {
             this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.getBType()));

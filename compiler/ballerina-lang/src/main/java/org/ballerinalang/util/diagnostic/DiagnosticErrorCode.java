@@ -449,16 +449,19 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SAFE_NAVIGATION_NOT_REQUIRED("BCE3000", "safe.navigation.not.required"),
     OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS("BCE3001", "optional.field.access.not.required.on.lhs"),
 
-    EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED("BCE3032", "expression.of.never.type.not.allowed"),
-    THIS_FUNCTION_SHOULD_PANIC("BCE3033", "this.function.should.panic"),
+    CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
+            "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
+
+    EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED("BCE3033", "expression.of.never.type.not.allowed"),
+    THIS_FUNCTION_SHOULD_PANIC("BCE3034", "this.function.should.panic"),
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
-            "BCE3034", "fail.expr.no.matching.error.return.in.encl.invokable"),
-    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3035", "on.fail.no.matching.error"),
+            "BCE3035", "fail.expr.no.matching.error.return.in.encl.invokable"),
+    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3036", "on.fail.no.matching.error"),
 
-    START_REQUIRE_INVOCATION("BCE3036", "start.require.invocation"),
-    INVALID_EXPR_STATEMENT("BCE3037", "invalid.expr.statement"),
-    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3038", "invalid.action.invocation.as.expr"),
+    START_REQUIRE_INVOCATION("BCE3037", "start.require.invocation"),
+    INVALID_EXPR_STATEMENT("BCE3038", "invalid.expr.statement"),
+    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3039", "invalid.action.invocation.as.expr"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("BCE3100", "invalid.token"),
