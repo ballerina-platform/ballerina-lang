@@ -44,7 +44,6 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_UTILS_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DECIMAL_VALUE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_BMAP_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;

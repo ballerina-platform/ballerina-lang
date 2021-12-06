@@ -359,13 +359,13 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     public void typeTestEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertEvaluationError(context, String.format("%s is NotDefinedClass", OBJECT_VAR),
                 String.format(CUSTOM_ERROR.getString(), "compilation error(s) found while creating executables for " +
-                        "evaluation: \n" + "unknown type 'NotDefinedClass'"));
+                        "evaluation: " + System.lineSeparator() + "unknown type 'NotDefinedClass'"));
 
         // qualified literals (i.e. imported modules)
         debugTestRunner.assertEvaluationError(context, "location is other:Location",
                 String.format(CUSTOM_ERROR.getString(), "compilation error(s) found while creating executables for " +
-                        "evaluation: \n" + "attempt to refer to non-accessible symbol 'Location'\n" +
-                        "unknown type 'Location'"));
+                        "evaluation: " + System.lineSeparator() + "attempt to refer to non-accessible symbol " +
+                        "'Location'" + System.lineSeparator() + "unknown type 'Location'"));
         debugTestRunner.assertEvaluationError(context, "location is foo:Place",
                 String.format(IMPORT_RESOLVING_ERROR.getString(), "foo"));
     }
