@@ -87,7 +87,7 @@ public class TestSingleFileProject {
         Path targetDirPath = project.targetDir();
         Assert.assertNotNull(targetDirPath);
         Assert.assertTrue(targetDirPath.toFile().exists());
-        Assert.assertEquals(Path.of(System.getProperty("java.io.tmpdir")), targetDirPath.getParent());
+        Assert.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), targetDirPath.getParent());
     }
 
     @Test (description = "tests loading a valid standalone Ballerina file")
