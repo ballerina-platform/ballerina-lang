@@ -1184,7 +1184,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (restFieldTypes.size() == 1) {
             recordType.restFieldType = restFieldTypes.get(0);
         } else {
-            recordType.restFieldType = BUnionType.create(null, restFieldTypes.toArray(new BType[0]));
+            recordType.restFieldType = BUnionType.create(null, new LinkedHashSet<>(restFieldTypes));
         }
         return recordType;
     }
