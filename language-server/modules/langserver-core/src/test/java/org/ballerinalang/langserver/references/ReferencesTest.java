@@ -99,7 +99,8 @@ public class ReferencesTest {
         expected.forEach(jsonElement -> Assert.assertTrue(actual.contains(jsonElement)));
     }
     
-    protected String getReferencesResponseWithinStdLib(Path sourcePath, Position position) throws IOException, URISyntaxException {
+    protected String getReferencesResponseWithinStdLib(Path sourcePath, Position position) 
+            throws IOException, URISyntaxException {
         String fileUri = CommonUtil.getUriForPath(sourcePath, getExpectedUriScheme());
         TestUtil.openDocument(serviceEndpoint, sourcePath, fileUri);
         String actualStr = TestUtil.getReferencesResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
