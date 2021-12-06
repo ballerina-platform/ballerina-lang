@@ -890,17 +890,13 @@ function testCloneWithTypeIntArrayToUnionArray() {
     assert(c is error, false);
     assert(checkpanic c, [1.0, 2.0, 3.0]);
 
+    (float|int:Signed16)[]|error d = x.cloneWithType();
+    assert(d is error, false);
+    assert(checkpanic d, [1, 2, 3]);
+
     (byte|float)[]|error e = x.cloneWithType();
-    assert(e is error, true);
-    error err = <error> e;
-    var message = err.detail()["message"];
-    string messageString = message is error ? message.toString() : message.toString();
-    string errMsg = "'int[]' value cannot be converted to '(byte|float)[]': " +
-    "\n\t\tarray element '[0]' should be of type '(byte|float)', found '1'" +
-    "\n\t\tarray element '[1]' should be of type '(byte|float)', found '2'" +
-    "\n\t\tarray element '[2]' should be of type '(byte|float)', found '3'";
-    assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, errMsg);
+    assert(e is error, false);
+    assert(checkpanic e, [1, 2, 3]);
 
     float[] y = [10, 20];
 
@@ -928,12 +924,18 @@ function testCloneWithTypeIntArrayToUnionArray() {
     assert(k is error, false);
     assert(checkpanic k, [10, 20]);
 
+    byte[] z = [1, 2, 3];
+
+    (int|float)[]|error l = z.cloneWithType();
+    assert(l is error, false);
+    assert(checkpanic l, [1, 2, 3]);
+
     (int:Signed16|int:Unsigned8|decimal)[]|error m = y.cloneWithType();
     assert(m is error, true);
-    err = <error> m;
-    message = err.detail()["message"];
-    messageString = message is error ? message.toString() : message.toString();
-    errMsg = "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]': " +
+    error err = <error> m;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    string errMsg = "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]': " +
     "\n\t\tarray element '[0]' should be of type '(lang.int:Signed16|lang.int:Unsigned8|decimal)', found '10.0'" +
     "\n\t\tarray element '[1]' should be of type '(lang.int:Signed16|lang.int:Unsigned8|decimal)', found '20.0'";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
