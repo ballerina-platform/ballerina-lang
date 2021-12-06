@@ -1,5 +1,7 @@
 Compiling source
 	file_create.bal
+WARNING [:(1:1,1:1)] skipping addition of generated file dummyfunc. sourcefile generation is not supported with standalone bal files
+WARNING [file_create.bal:(6:4,6:58)] unused variable 'isSuccess'
 
 Running executable
 
