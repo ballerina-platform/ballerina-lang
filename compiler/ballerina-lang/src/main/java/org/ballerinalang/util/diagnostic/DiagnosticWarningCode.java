@@ -69,7 +69,11 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD("BCE20402",
             "concurrent.calls.will.not.be.made.to.non.isolated.method"),
 
-    UNUSED_LOCAL_VARIABLE("BCE20403", "unused.local.variable")
+    UNUSED_LOCAL_VARIABLE("BCE20403", "unused.local.variable"),
+
+    CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE20404", "checked.expr.invalid.usage.no.error.type.rhs"),
+    CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("BCE20405",
+            "checked.expr.no.matching.error.return.in.encl.invokable"),
     ;
 
     private String diagnosticId;
