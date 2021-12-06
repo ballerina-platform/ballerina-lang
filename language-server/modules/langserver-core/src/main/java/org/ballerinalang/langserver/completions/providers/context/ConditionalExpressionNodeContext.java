@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -29,7 +30,9 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +54,8 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         int cursor = context.getCursorPositionInTree();
         int colonTokenPos = node.colonToken().textRange().startOffset();
-        
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (cursor > colonTokenPos && node.middleExpression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE 
                 && node.endExpression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             /*
@@ -62,17 +66,36 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
             String alias = middleExprName.startsWith("'") ? middleExprName.substring(1) : middleExprName;
             Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
             if (moduleSymbol.isEmpty()) {
-                return this.expressionCompletions(context);
+                completionItems.addAll(this.expressionCompletions(context));
             } else {
                 List<Symbol> expressionContextSymbols = QNameReferenceUtil.getExpressionContextEntries(context, alias);
-                return this.getCompletionItemList(expressionContextSymbols, context);
+                completionItems.addAll(this.getCompletionItemList(expressionContextSymbols, context));
             }
         } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             List<Symbol> expressionContextSymbols =
                     QNameReferenceUtil.getExpressionContextEntries(context, (QualifiedNameReferenceNode) nodeAtCursor);
-            return this.getCompletionItemList(expressionContextSymbols, context);
+            completionItems.addAll(this.getCompletionItemList(expressionContextSymbols, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
+        return completionItems;
+    }
 
-        return this.expressionCompletions(context);
+    @Override
+    public void sort(BallerinaCompletionContext context, ConditionalExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
+        }
     }
 }
