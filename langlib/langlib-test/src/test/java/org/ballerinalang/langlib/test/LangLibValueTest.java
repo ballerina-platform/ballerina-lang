@@ -378,6 +378,7 @@ public class LangLibValueTest {
     @Test
     public void testAssigningCloneableToAnyOrError() {
         BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+        BRunUtil.invokeFunction(compileResult, "testUsingCloneableReturnType");
     }
 
     @Test

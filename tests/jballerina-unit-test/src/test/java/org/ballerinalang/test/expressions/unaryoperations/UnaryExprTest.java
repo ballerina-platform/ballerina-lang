@@ -204,6 +204,11 @@ public class UnaryExprTest {
         BRunUtil.invoke(result, "testUnaryOperationsWithUserDefinedTypes");
     }
 
+    @Test(description = "Test resulting type of unary plus")
+    public void testResultingTypeOfUnaryPlus() {
+        BRunUtil.invoke(result, "testResultingTypeOfUnaryPlus");
+    }
+
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 19);

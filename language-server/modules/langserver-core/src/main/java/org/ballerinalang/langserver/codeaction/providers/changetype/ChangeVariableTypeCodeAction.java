@@ -117,18 +117,21 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     private Optional<NonTerminalNode> getVariableNode(NonTerminalNode sNode) {
         // Find var node
-        while (sNode != null &&
-                sNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                sNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
-                sNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
-            // The cursor can be within a positional/named arg. If so, don't show this code action
-            if (sNode.kind() == SyntaxKind.POSITIONAL_ARG || sNode.kind() == SyntaxKind.NAMED_ARG) {
-                return Optional.empty();
-            }
-            sNode = sNode.parent();
+        if (isVariableNode(sNode)) {
+            return Optional.of(sNode);
+        } else if (isVariableNode(sNode.parent())) {
+            return Optional.of(sNode.parent());
         }
 
-        return Optional.ofNullable(sNode);
+        return Optional.empty();
+    }
+    
+    boolean isVariableNode (NonTerminalNode sNode) {
+        return sNode != null &&
+                (sNode.kind() == SyntaxKind.LOCAL_VAR_DECL ||
+                sNode.kind() == SyntaxKind.MODULE_VAR_DECL ||
+                sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) &&
+                (sNode.kind() != SyntaxKind.POSITIONAL_ARG || sNode.kind() != SyntaxKind.NAMED_ARG);
     }
 
     private Optional<String> getTypeNodeStr(ExpressionNode expressionNode) {

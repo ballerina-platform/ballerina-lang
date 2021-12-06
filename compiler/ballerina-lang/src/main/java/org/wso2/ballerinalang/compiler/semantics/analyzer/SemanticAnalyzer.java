@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -3665,35 +3666,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void inferServiceTypeFromListeners(BLangService serviceNode) {
+        List<BLangType> typeRefs = serviceNode.serviceClass.typeRefs;
+        if (!typeRefs.isEmpty()) {
+            serviceNode.inferredServiceType = typeRefs.get(0).getBType();
+            return;
+        }
+
         LinkedHashSet<BType> listenerTypes = new LinkedHashSet<>();
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             BType type = typeChecker.checkExpr(attachExpr, env);
             flatMapAndGetObjectTypes(listenerTypes, type);
         }
         BType inferred;
+        BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
         if (listenerTypes.size() == 1) {
             inferred = listenerTypes.iterator().next();
+            typeIdSet.add(getTypeIds(inferred));
         } else {
-            BTypeIdSet typeIdSet = null;
             for (BType attachType : listenerTypes) {
-                BObjectType objectType = (BObjectType) attachType;
-                // todo: distinct union is only allowed when all types have the same type-ids,
-                // we need to improve this here.
-                if (objectType.typeIdSet == null || objectType.typeIdSet.isEmpty()) {
-                    continue;
-                }
-                if (typeIdSet == null) {
-                    typeIdSet = objectType.typeIdSet;
-                } else if (!(typeIdSet.isAssignableFrom(objectType.typeIdSet)
-                        && objectType.typeIdSet.isAssignableFrom(typeIdSet))) {
-                    dlog.error(serviceNode.attachedExprs.get(0).pos,
-                            DiagnosticErrorCode.CANNOT_INFER_SERVICE_TYPES_FROM_LISTENERS);
-                }
+                typeIdSet.add(getTypeIds(attachType));
             }
             inferred = BUnionType.create(null, listenerTypes);
         }
 
         serviceNode.inferredServiceType = inferred;
+        BType tServiceClass = serviceNode.serviceClass.getBType();
+        getTypeIds(tServiceClass).add(typeIdSet);
+    }
+
+    private BTypeIdSet getTypeIds(BType type) {
+        int tag = type.tag;
+        if (tag == TypeTags.SERVICE || tag == TypeTags.OBJECT) {
+            return ((BObjectType) type).typeIdSet;
+        } else if (tag == TypeTags.TYPEREFDESC) {
+            return getTypeIds(((BTypeReferenceType) type).referredType);
+        }
+        return BTypeIdSet.emptySet();
     }
 
     private void flatMapAndGetObjectTypes(Set<BType> result, BType type) {

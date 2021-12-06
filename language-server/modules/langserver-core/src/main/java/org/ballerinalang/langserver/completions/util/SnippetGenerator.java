@@ -272,6 +272,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Outer Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOuterKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.OUTER_KEYWORD, ItemResolverConstants.OUTER_KEYWORD, "outer ",
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
+    /**
      * Get Order By Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -282,7 +292,7 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Join Keyword Snippet Block.
+     * Get Limit Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */

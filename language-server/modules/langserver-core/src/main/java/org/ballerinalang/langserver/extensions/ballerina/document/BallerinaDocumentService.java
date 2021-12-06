@@ -330,6 +330,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                         this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
+                        .filter(entry->fileUri.equals(entry.getKey()))
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
                         .collect(Collectors.toList());
             } catch (Throwable e) {
