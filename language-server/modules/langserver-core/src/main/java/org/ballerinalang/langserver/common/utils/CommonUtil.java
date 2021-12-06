@@ -1108,9 +1108,7 @@ public class CommonUtil {
         URI uri = URI.create(fileUri);
         String scheme = uri.getScheme();
         try {
-            if (EXPR_SCHEME.equals(uri.getScheme())) {
-                scheme = URI_SCHEME_FILE;
-            } else if (URI_SCHEME_BALA.equals(uri.getScheme())) {
+            if (EXPR_SCHEME.equals(uri.getScheme()) || URI_SCHEME_BALA.equals(uri.getScheme())) {
                 scheme = URI_SCHEME_FILE;
             }
             URI converted = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
