@@ -469,10 +469,12 @@ public class BIRPackageSymbolEnter {
 
         BType type = readBType(dataInStream);
 
-        BType referenceType = null;
+        BTypeReferenceType referenceType = null;
         boolean hasReferenceType = dataInStream.readBoolean();
         if (hasReferenceType) {
-            referenceType = readBType(dataInStream);
+            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, names.fromString(typeDefName),
+                    this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
+            referenceType = new BTypeReferenceType(type, typeSymbol, flags);
         }
 
         if (type.tag == TypeTags.INVOKABLE) {
@@ -493,7 +495,7 @@ public class BIRPackageSymbolEnter {
         } else {
             symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
                     this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
-            ((BTypeDefinitionSymbol) symbol).referenceType = (BTypeReferenceType) referenceType;
+            ((BTypeDefinitionSymbol) symbol).referenceType = referenceType;
         }
         symbol.originalName = names.fromString(typeDefOrigName);
         symbol.origin = toOrigin(origin);

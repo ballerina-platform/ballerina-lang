@@ -452,61 +452,59 @@ public class CodeActionUtil {
 
     public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
                                                       CodeActionContext context) {
-        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
-        if (enclosedFunc.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         List<TextEdit> edits = new ArrayList<>();
-        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
-        Document document = context.currentDocument().orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol =
-                semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
-
+        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
         String returnText = "";
         Range returnRange = null;
-
-        FunctionSymbol enclosedFuncSymbol = null;
-        if (optEnclosedFuncSymbol.isPresent()) {
-            Symbol funcSymbol = optEnclosedFuncSymbol.get();
-            if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
-                    funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
-                enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+        if (enclosedFunc.isPresent()) {
+            SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+            Document document = context.currentDocument().orElseThrow();
+            Optional<Symbol> optEnclosedFuncSymbol =
+                    semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
+            FunctionSymbol enclosedFuncSymbol = null;
+            if (optEnclosedFuncSymbol.isPresent()) {
+                Symbol funcSymbol = optEnclosedFuncSymbol.get();
+                if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
+                        funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
+                    enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+                }
             }
-        }
 
-        if (enclosedFuncSymbol != null) {
-            boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
-            boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
-            if (hasFuncNodeReturn && hasFuncSymbolReturn) {
-                // Parent function already has a return-type
-                TypeSymbol enclosedRetTypeDesc = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
-                ReturnTypeDescriptorNode enclosedRetTypeDescNode =
-                        enclosedFunc.get().functionSignature().returnTypeDesc().get();
-                if (enclosedRetTypeDesc.typeKind() == TypeDescKind.UNION) {
-                    // Parent function already has a union return-type
-                    UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) enclosedRetTypeDesc;
-                    boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
-                            .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
-                    if (!hasErrorMember) {
-                        // Union has no error member-type
+            if (enclosedFuncSymbol != null) {
+                boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
+                boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
+                if (hasFuncNodeReturn && hasFuncSymbolReturn) {
+                    // Parent function already has a return-type
+                    TypeSymbol enclosedRetTypeDesc = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
+                    ReturnTypeDescriptorNode enclosedRetTypeDescNode =
+                            enclosedFunc.get().functionSignature().returnTypeDesc().get();
+                    if (enclosedRetTypeDesc.typeKind() == TypeDescKind.UNION) {
+                        // Parent function already has a union return-type
+                        UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) enclosedRetTypeDesc;
+                        boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
+                                .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
+                        if (!hasErrorMember) {
+                            // Union has no error member-type
+                            String typeName =
+                                    CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context)
+                                            .orElseThrow();
+                            returnText = "returns " + typeName + "|error";
+                            returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                        }
+                    } else {
+                        // Parent function already has another return-type
                         String typeName =
-                                CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context).orElseThrow();
+                                CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
                         returnText = "returns " + typeName + "|error";
                         returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     }
                 } else {
-                    // Parent function already has a other return-type
-                    String typeName = CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                    returnText = "returns " + typeName + "|error";
-                    returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                    // Parent function has no return
+                    returnText = " returns error?";
+                    Position position = CommonUtil.toPosition(
+                            enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
+                    returnRange = new Range(position, position);
                 }
-            } else {
-                // Parent function has no return
-                returnText = " returns error?";
-                Position position = CommonUtil.toPosition(
-                        enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
-                returnRange = new Range(position, position);
             }
         }
 
@@ -873,7 +871,7 @@ public class CodeActionUtil {
      *
      * @return Diagnostic property filter function.
      */
-    public static <T> Function<List<DiagnosticProperty<?>>, 
+    public static <T> Function<List<DiagnosticProperty<?>>,
             Optional<T>> getDiagPropertyFilterFunction(int propertyIndex) {
         Function<List<DiagnosticProperty<?>>, Optional<T>> filterFunction = diagnosticProperties -> {
 
