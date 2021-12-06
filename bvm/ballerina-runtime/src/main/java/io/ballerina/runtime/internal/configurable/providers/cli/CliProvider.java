@@ -162,7 +162,7 @@ public class CliProvider implements ConfigProvider {
         }
         try {
             return getCliConfigValue(TypeConverter.stringToDecimal(cliArg.value));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | BError e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
