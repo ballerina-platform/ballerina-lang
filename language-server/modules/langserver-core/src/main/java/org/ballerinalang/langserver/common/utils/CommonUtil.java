@@ -1098,23 +1098,27 @@ public class CommonUtil {
     }
 
     /**
-     * Get the path from given string URI. Even if the given URI's scheme is expr, we convert it to file scheme and
-     * provide a valid Path
+     * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
+     * we convert it to file scheme and provide a valid Path.
      *
-     * @param uri file uri
+     * @param fileUri file uri
      * @return {@link Optional} Path from the URI
      */
-    public static Optional<Path> getPathFromURI(String uri) {
-        URI fileUri = URI.create(uri);
-        if (fileUri.getScheme().equals(EXPR_SCHEME)) {
-            String newUri = fileUri.toString().replace(EXPR_SCHEME + ":", "file:");
-            try {
-                return Optional.of(Paths.get(new URL(newUri).toURI()));
-            } catch (URISyntaxException | MalformedURLException e) {
-                return Optional.empty();
+    public static Optional<Path> getPathFromURI(String fileUri) {
+        URI uri = URI.create(fileUri);
+        String scheme = uri.getScheme();
+        try {
+            if (EXPR_SCHEME.equals(uri.getScheme())) {
+                scheme = URI_SCHEME_FILE;
+            } else if (URI_SCHEME_BALA.equals(uri.getScheme())) {
+                scheme = URI_SCHEME_FILE;
             }
+            URI converted = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+            return Optional.of(Paths.get(converted));
+        } catch (URISyntaxException e) {
+            return Optional.empty();
         }
-        return Optional.of(Paths.get(fileUri));
     }
 
     /**
@@ -1139,7 +1143,7 @@ public class CommonUtil {
      * @throws URISyntaxException URI parsing errors
      */
     public static String convertUriSchemeFromBala(String fileUri) throws URISyntaxException {
-        URI uri = new URI(fileUri);
+        URI uri = URI.create(fileUri);
         if (URI_SCHEME_BALA.equals(uri.getScheme())) {
             URI converted = new URI(URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                     uri.getPath(), uri.getQuery(), uri.getFragment());
