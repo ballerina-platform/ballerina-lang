@@ -251,19 +251,19 @@ public class TestUtil {
     /**
      * Get the textDocument/reference response.
      *
-     * @param filePath        Path of the Bal file
+     * @param fileUri        URI of the Bal file
      * @param position        Cursor Position
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static String getReferencesResponse(String filePath, Position position, Endpoint serviceEndpoint) {
+    public static String getReferencesResponse(String fileUri, Position position, Endpoint serviceEndpoint) {
         ReferenceParams referenceParams = new ReferenceParams();
 
         ReferenceContext referenceContext = new ReferenceContext();
         referenceContext.setIncludeDeclaration(true);
 
         referenceParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-        referenceParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        referenceParams.setTextDocument(getTextDocumentIdentifier(URI.create(fileUri)));
         referenceParams.setContext(referenceContext);
 
         CompletableFuture<?> result = serviceEndpoint.request(REFERENCES, referenceParams);
