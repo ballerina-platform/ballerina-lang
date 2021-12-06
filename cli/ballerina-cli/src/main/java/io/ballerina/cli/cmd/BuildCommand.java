@@ -158,9 +158,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
-    @CommandLine.Option(names = "--export-openapi", description = "generate openapi specification for all" +
-            " services in package")
-    private Boolean exportOpenapi;
+    @CommandLine.Option(names = "--export-openapi", description = "generate openAPI contract files for all" +
+            " the services in the current package")
+    private Boolean exportOpenAPI;
 
     public void execute() {
         long start = 0;
@@ -287,7 +287,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setExportOpenapi(exportOpenapi);
+                .setExportOpenAPI(exportOpenAPI);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

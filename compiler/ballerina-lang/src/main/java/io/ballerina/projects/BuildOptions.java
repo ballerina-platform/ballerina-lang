@@ -83,8 +83,8 @@ public class BuildOptions {
         return this.compilationOptions;
     }
 
-    public boolean exportOpenapi() {
-        return this.compilationOptions.exportOpenapi();
+    public boolean exportOpenAPI() {
+        return this.compilationOptions.exportOpenAPI();
     }
 
     /**
@@ -133,7 +133,7 @@ public class BuildOptions {
         buildOptionsBuilder.setListConflictedClasses(compilationOptions.listConflictedClasses);
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
-        buildOptionsBuilder.setExportOpenapi(compilationOptions.exportOpenapi);
+        buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
 
         return buildOptionsBuilder.build();
     }
@@ -279,8 +279,8 @@ public class BuildOptions {
             return this;
         }
 
-        public BuildOptionsBuilder setExportOpenapi(Boolean value) {
-            compilationOptionsBuilder.setExportOpenapi(value);
+        public BuildOptionsBuilder setExportOpenAPI(Boolean value) {
+            compilationOptionsBuilder.setExportOpenAPI(value);
             return this;
         }
 
