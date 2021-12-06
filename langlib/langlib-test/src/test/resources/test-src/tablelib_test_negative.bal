@@ -197,4 +197,5 @@ function testMap() {
     });
 
     _ = tab.'map(arrowExpr);
+    _ = tab.'map((per) => "");
 }
