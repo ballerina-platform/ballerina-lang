@@ -372,4 +372,24 @@ public class TestBalaProject {
             }
         }
     }
+
+    @Test(description = "tests calling targetDir for balaProjects")
+    public void testBalaProjectTargetDir() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
+        // 1) Initialize the project instance
+        BalaProject balaProject = null;
+        try {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage(), e);
+        }
+
+        try {
+            balaProject.targetDir();
+        } catch (UnsupportedOperationException e) {
+            Assert.assertEquals(e.getMessage(), "target directory is not supported for BalaProject");
+        }
+    }
 }
