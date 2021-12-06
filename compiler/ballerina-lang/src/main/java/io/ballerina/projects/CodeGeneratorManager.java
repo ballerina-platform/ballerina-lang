@@ -277,7 +277,9 @@ class CodeGeneratorManager {
 
         @Override
         public void addSourceFile(TextDocument textDocument, String filenamePrefix) {
-            addSourceFile(textDocument, filenamePrefix, defaultModuleId);
+            if (this.currentPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+                addSourceFile(textDocument, filenamePrefix, defaultModuleId);
+            }
         }
 
         @Override
