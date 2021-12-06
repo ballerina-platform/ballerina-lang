@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 1,
+    "character": 7
+  },
+  "source": {
+    "file": "hover_class1.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Test Type definition2"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}
