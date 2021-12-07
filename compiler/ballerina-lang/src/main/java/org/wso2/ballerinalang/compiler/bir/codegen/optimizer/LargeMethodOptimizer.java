@@ -143,16 +143,17 @@ public class LargeMethodOptimizer {
             BIRTerminator bbTerminator = basicBlock.terminator;
             if (splitStarted) {
                 if (bbTerminator.lhsOp != null) {
-                    // as the varDcl is available inside the split no need to pass as function arg
-                    if (needToPassLhsVarDclAsArg(bbTerminator.lhsOp)) {
+                    if ((bbTerminator.lhsOp.variableDcl.kind == VarKind.LOCAL) ||
+                            (bbTerminator.lhsOp.variableDcl.kind == VarKind.RETURN)) {
+                        // if a local or the return var is assigned value in a BB terminator, no split is done
+                        splitStarted = false;
+                    } else if (needToPassLhsVarDclAsArg(bbTerminator.lhsOp)) {
                         neededOperandsVarDcl.add(bbTerminator.lhsOp.variableDcl);
                     } else {
                         neededOperandsVarDcl.remove(bbTerminator.lhsOp.variableDcl);
-                        lhsOperandList.add(bbTerminator.lhsOp.variableDcl);
-                    }
-                    if (bbTerminator.lhsOp.variableDcl.kind == VarKind.RETURN) {
-                        // if the return var is assigned value inside the split in a BB terminator, it is not split
-                        splitStarted = false;
+                        if (isTempOrSyntheticVar(bbTerminator.lhsOp.variableDcl)) {
+                            lhsOperandList.add(bbTerminator.lhsOp.variableDcl);
+                        }
                     }
                 }
                 splitInsCount++;
@@ -167,6 +168,10 @@ public class LargeMethodOptimizer {
             List<BIRNonTerminator> instructions = basicBlock.instructions;
             for (int insNum = instructions.size() - 1; insNum >= 0; insNum--) {
                 BIRNonTerminator currIns = instructions.get(insNum);
+                if (currIns.lhsOp.variableDcl.kind == VarKind.LOCAL) {
+                    // if the local var is assigned value inside the split, no split is done
+                    splitStarted = false;
+                }
                 if (splitStarted) {
                     if (currIns.lhsOp.variableDcl.kind == VarKind.RETURN) {
                         returnValAssigned = true;
@@ -174,7 +179,9 @@ public class LargeMethodOptimizer {
                         neededOperandsVarDcl.add(currIns.lhsOp.variableDcl);
                     } else {
                         neededOperandsVarDcl.remove(currIns.lhsOp.variableDcl);
-                        lhsOperandList.add(currIns.lhsOp.variableDcl);
+                        if (isTempOrSyntheticVar(currIns.lhsOp.variableDcl)) {
+                            lhsOperandList.add(currIns.lhsOp.variableDcl);
+                        }
                     }
                     BIROperand[] rhsOperands = currIns.getRhsOperands();
                     for (BIROperand rhsOperand : rhsOperands) {
@@ -266,8 +273,7 @@ public class LargeMethodOptimizer {
     }
 
     private boolean needToPassLhsVarDclAsArg(BIROperand lhsOp) {
-        return (!lhsOp.variableDcl.ignoreVariable) && ((lhsOp.variableDcl.kind == VarKind.SELF) ||
-                (lhsOp.variableDcl.kind == VarKind.LOCAL));
+        return (!lhsOp.variableDcl.ignoreVariable) && (lhsOp.variableDcl.kind == VarKind.SELF);
     }
 
     /**
