@@ -1,0 +1,24 @@
+{
+    "line": 1,
+    "character": 7,
+    "expected": [
+        {
+            "title": "Create variable with 'json[]'",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 68,
+                            "character": 4
+                        },
+                        "end": {
+                            "line": 68,
+                            "character": 4
+                        }
+                    },
+                    "newText": "json[] listResult = "
+                }
+            ]
+        }
+    ]
+}
