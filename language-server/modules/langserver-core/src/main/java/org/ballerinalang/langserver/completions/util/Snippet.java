@@ -100,19 +100,9 @@ public enum Snippet {
 //
 //    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
 
-    DEF_SERVICE(SnippetGenerator.getHttpServiceDefSnippet()),
-
     DEF_SERVICE_COMMON(SnippetGenerator.getCommonServiceSnippet()),
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
-
-//    DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
-
-//    DEF_SERVICE_WS_CLIENT(SnippetGenerator.getWebSocketClientServiceDefSnippet()),
-
-//    DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
-
-//    DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
 
     DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
 
@@ -135,8 +125,7 @@ public enum Snippet {
     DEF_IMMEDIATE_STOP_FUNCTION(SnippetGenerator.getImmediateStopFunctionSnippet()),
 
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
-
-
+    
     // Expressions Snippets
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 
@@ -301,6 +290,8 @@ public enum Snippet {
     KW_FALSE(SnippetGenerator.getKeywordSnippet("false")),
 
     KW_NIL(SnippetGenerator.getKeywordSnippet("null")),
+
+    KW_OUTER(SnippetGenerator.getOuterKeywordSnippet()),
 
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),

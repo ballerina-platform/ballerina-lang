@@ -44,7 +44,6 @@ public class BMap extends IndexedCompoundVariable {
     private static final String FIELD_SIZE = "size";
     private static final String METHOD_GET_KEYS = "getKeys";
     private static final String METHOD_GET = "get";
-    private static final String MAP_TYPEDESC_SEPARATOR = " & ";
 
     public BMap(SuspendedContext context, String name, Value value) {
         this(context, name, BVariableType.MAP, value);

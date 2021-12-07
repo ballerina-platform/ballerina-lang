@@ -1,10 +1,11 @@
 cmdname,flags
 add, -t --template
-bal, -v -h --help --version add bindgen build clean dist doc encrypt format grpc help init new openapi pull push run search shell test update version
+bal, -v -h --help --version add bindgen build pack clean dist doc encrypt format grpc help init new openapi pull push run search shell test update version
 bindgen, -cp -m -mvn -o --classpath --maven --modules --output --public
-build, -c -o --cloud --code-coverage --coverage-format --compile --debug --experimental --list-conflicted-classes --observability-included --offline --output --skip-tests --sticky --test-report --dump-build-time
+build, -o --cloud --debug --experimental --list-conflicted-classes --observability-included --offline --output --sticky --dump-build-time --target-dir
+pack, -o --debug --list-conflicted-classes --observability-included --offline --output --sticky --dump-build-time --target-dir
 dist, list pull remove update use
-doc, -c -e -o --combine --exclude --output --experimental 
+doc, -c -e -o --combine --exclude --output --experimental --target-dir
 encrypt, 
 format, -d --dry-run
 grpc, --input --mode --output
@@ -13,7 +14,8 @@ new, -t --template
 openapi, -i -m -o -s --input --mode --module --output --operation --service --service-name --tags --operation
 pull, --debug
 push, --debug --repository
-run, --debug --experimental --observability-included --offline
+clean, --target-dir
+run, --debug --experimental --observability-included --offline --target-dir
 search,
 shell, -d -f -t --debug --force-dumb --time-out --file
-test, --code-coverage --coverage-format --debug --disable-groups --experimental --groups --list-groups --observability-included --offline --rerun-failed --tests --test-report
+test, --code-coverage --coverage-format --debug --disable-groups --experimental --groups --list-groups --observability-included --offline --rerun-failed --tests --target-dir --test-report

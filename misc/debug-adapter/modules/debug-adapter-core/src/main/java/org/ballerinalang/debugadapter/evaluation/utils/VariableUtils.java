@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
@@ -32,6 +33,7 @@ import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,8 +43,11 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_UTILS_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_BMAP_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
  * Expression evaluation related variable utils.
@@ -139,6 +144,25 @@ public class VariableUtils {
                                                                    String nameReference) {
         String classQName = getInitClassName(moduleSymbol);
         return getFieldValue(context, classQName, nameReference);
+    }
+
+    /**
+     * Returns the constraint type for a given BMap value.
+     *
+     * @param context  suspended context
+     * @param mapValue JDI value instance of the BMap
+     * @return the constraint type for a given BMap value
+     */
+    public static String getMapType(SuspendedContext context, Value mapValue) {
+        try {
+            RuntimeStaticMethod getBMapType = EvaluationUtils.getRuntimeMethod(context, B_DEBUGGER_RUNTIME_UTILS_CLASS,
+                    GET_BMAP_TYPE_METHOD, Collections.singletonList(EvaluationUtils.JAVA_OBJECT_CLASS));
+            getBMapType.setArgValues(Collections.singletonList(mapValue));
+            Value value = getBMapType.invokeSafely();
+            return org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom(value);
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
     }
 
     /**

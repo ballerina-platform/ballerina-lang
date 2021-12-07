@@ -67,8 +67,8 @@ public class PushCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Push package with too many args")
-    public void testPushWithTooManyArgs() throws IOException {
+    @Test(description = "Push package with invalid path")
+    public void testPushWithInvalidPath() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse("tests");
@@ -76,14 +76,50 @@ public class PushCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: too many arguments"));
-        Assert.assertTrue(actual.contains("bal push "));
+        String expected = "ballerina: 'tests' does not match with the package version '0.1.0' in Ballerina.toml file." +
+                " Run 'bal pack' to recompile and generate the bala.";
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+    @Test(description = "Push package with custom path")
+    public void testPushWithCustomPath() throws IOException {
+        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+
+        FileUtils.copyDirectory(
+                this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
+        FileUtils.moveDirectory(
+                validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("custom").toFile());
+
+        Path customTargetDirBalaPath = validBalProject.resolve("custom").resolve("bala")
+                .resolve("foo-winery-any-0.1.0.bala");
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false,
+                customTargetDirBalaPath);
+        String[] args = { "--repository=local" };
+        new CommandLine(pushCommand).parse(args);
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        PowerMockito.mockStatic(RepoUtils.class);
+        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
+        pushCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        String expected = "Successfully pushed " + customTargetDirBalaPath.toString() + " to 'local' repository.";
+        Assert.assertTrue(actual.contains(expected));
+
+        try {
+            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
+                    .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));
+        } catch (ProjectException e) {
+            Assert.fail(e.getMessage());
+        }
+
     }
 
     @Test(description = "Push package without bala directory")
     public void testPushWithoutBalaDir() throws IOException {
         String expected = "cannot find bala file for the package: winery. Run "
-                + "'bal build -c' to compile and generate the bala.";
+                + "'bal pack' to compile and generate the bala.";
 
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
@@ -101,9 +137,9 @@ public class PushCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("compile-bal-project.txt"));
         Assert.assertTrue(
@@ -115,7 +151,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         // Push
         String expected = "cannot find bala file for the package: winery. Run "
-                + "'bal build -c' to compile and generate the bala.";
+                + "'bal pack' to compile and generate the bala.";
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
         pushCommand.execute();
@@ -178,10 +214,10 @@ public class PushCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
 
-        // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        // Pack project
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
@@ -202,10 +238,11 @@ public class PushCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve(VALID_PROJECT);
         System.setProperty("user.dir", projectPath.toString());
         Files.createFile(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
-        // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+
+        // Pack project
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
@@ -227,9 +264,9 @@ public class PushCommandTest extends BaseCommandTest {
     public void testPushToAnUnsupportedRepo() throws IOException {
         Path projectPath = this.testResources.resolve("validLibraryProject");
         // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 

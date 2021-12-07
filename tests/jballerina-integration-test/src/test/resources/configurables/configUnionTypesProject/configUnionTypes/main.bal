@@ -40,6 +40,7 @@ configurable type_defs:Country country = ?;
 
 configurable anydata anydataVar = ?;
 configurable int|string intStringVar = 2;
+configurable int|int[] intArrayVar = ?;
 configurable anydata[] anydataArray = ?;
 configurable map<anydata> anydataMap = ?;
 configurable table<map<anydata>> anydataTable = ?;
@@ -59,6 +60,7 @@ public function main() {
     testEnumValues();
     imported_unions:testEnumValues();
     union_ambiguity:test_ambiguous_union_type();
+    union_ambiguity:test_union_type_arrays();
     util:print("Tests passed");
 }
 
@@ -71,6 +73,7 @@ function testEnumValues() {
     test:assertEquals(countryCodes[1], type_defs:SL);
     test:assertEquals(anydataVar, "hello");
     test:assertEquals(intStringVar, 12345);
+    test:assertEquals(intArrayVar, [123, 456, 789]);
     test:assertEquals(anydataArray.toString(), "[\"hello\",1,2,3.4,false]");
     test:assertEquals(anydataMap.toString(), "{\"username\":\"waruna\",\"age\":14,\"marks\":85.67,\"isAdmin\":true}");
     test:assertEquals(anydataTable.toString(), "[{\"username\":\"manu\",\"age\":12,\"marks\":123.456," +

@@ -18,7 +18,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
@@ -59,7 +58,8 @@ public class ProjectFiles {
     public static PackageData loadSingleFileProjectPackageData(Path filePath) {
         DocumentData documentData = loadDocument(filePath);
         ModuleData defaultModule = ModuleData
-                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
+                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null,
+                        Collections.emptyList(), Collections.emptyList());
         return PackageData.from(filePath, defaultModule, Collections.emptyList(),
                 null, null, null, null, null);
     }
@@ -118,8 +118,31 @@ public class ProjectFiles {
         }
 
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
+        List<Path> resources = loadResources(moduleDirPath);
+        List<Path> testResources = loadResources(moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME));
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
-        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
+        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd,
+                resources, testResources);
+    }
+
+    public static List<Path> loadResources(Path modulePath) {
+        Path resourcesPath = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        if (Files.notExists(resourcesPath)) {
+            return Collections.emptyList();
+        }
+
+        try {
+            checkReadPermission(modulePath);
+        } catch (UnsupportedOperationException ignore) {
+            // ignore for zip entries
+        }
+        try (Stream<Path> pathStream = Files.walk(resourcesPath, 10)) {
+            return pathStream
+                    .filter(Files::isRegularFile)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new ProjectException(e);
+        }
     }
 
     public static List<DocumentData> loadDocuments(Path dirPath) {
@@ -200,7 +223,7 @@ public class ProjectFiles {
                 .from(ballerinaToml, pluginToml, projectDirPath);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
-            defaultBuildOptions = new BuildOptionsBuilder().build();
+            defaultBuildOptions = BuildOptions.builder().build();
         }
         return defaultBuildOptions.acceptTheirs(theirOptions);
     }

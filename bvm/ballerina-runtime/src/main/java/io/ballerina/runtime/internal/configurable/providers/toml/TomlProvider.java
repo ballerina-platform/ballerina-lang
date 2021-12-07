@@ -127,7 +127,7 @@ public class TomlProvider implements ConfigProvider {
             switch (node.kind()) {
                 case KEY_VALUE:
                     if (!visitedNodes.contains(node) && !isInvalidNode) {
-                        diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
+                        diagnosticLog.error(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
                     }
                     break;
                 case TABLE:
@@ -135,7 +135,7 @@ public class TomlProvider implements ConfigProvider {
                     break;
                 case TABLE_ARRAY:
                     if (!visitedNodes.contains(node) && !isInvalidNode) {
-                        diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
+                        diagnosticLog.error(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
                     }
                     for (TomlTableNode tableNode : ((TomlTableArrayNode) node).children()) {
                         validateUnusedNodes(tableNode, entryKey + ".", diagnosticLog);
@@ -157,12 +157,12 @@ public class TomlProvider implements ConfigProvider {
                 Module module = moduleInfo.getModuleFromName(nodeName);
                 if (module != null && !invalidRequiredModuleSet.contains(module.toString()) &&
                         !rootModule.getOrg().equals(module.getOrg())) {
-                    diagnosticLog.warn(CONFIG_TOML_INVALID_MODULE_STRUCTURE, null, lineRange, nodeName,
+                    diagnosticLog.error(CONFIG_TOML_INVALID_MODULE_STRUCTURE, null, lineRange, nodeName,
                             getModuleKey(module));
                 }
             }
             if (!(containsOrg || containsModule) && !invalidTomlLines.contains(node.location().lineRange())) {
-                diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + nodeName);
+                diagnosticLog.error(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + nodeName);
             }
         }
         validateUnusedNodes(node, moduleHeader + nodeName + ".", diagnosticLog);
@@ -625,7 +625,7 @@ public class TomlProvider implements ConfigProvider {
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
-                validateUnionValueArray(tomlValue, variableName, arrayType, elementType);
+                validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
             default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
@@ -648,7 +648,11 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateUnionValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType,
-                                         Type elementType) {
+                                         BUnionType elementType) {
+        if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
+            validateMapUnionArray((TomlTableArrayNode) tomlValue, variableName, arrayType, elementType);
+            return;
+        }
         TomlValueNode valueNode = ((TomlKeyValueNode) tomlValue).value();
         if (valueNode.kind() != getEffectiveTomlType(arrayType, variableName)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
@@ -657,6 +661,19 @@ public class TomlProvider implements ConfigProvider {
         }
         visitedNodes.add(tomlValue);
         validateArrayElements(variableName, ((TomlArrayValueNode) valueNode).elements(), elementType);
+    }
+
+    private void validateMapUnionArray(TomlTableArrayNode tomlValue, String variableName, ArrayType arrayType,
+                                       BUnionType elementType) {
+        if (!Utils.containsMapType(elementType.getMemberTypes())) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
+                    getTomlTypeString(tomlValue));
+        }
+        visitedNodes.add(tomlValue);
+        for (TomlNode tomlValueNode : tomlValue.children()) {
+            validateUnionValue(tomlValueNode, variableName, elementType);
+        }
     }
 
     private void validatePrimitiveArray(TomlNode tomlValue, String variableName, ArrayType arrayType) {
@@ -669,8 +686,7 @@ public class TomlProvider implements ConfigProvider {
         validateArrayElements(variableName, arrayList, arrayType.getElementType());
     }
 
-    private void validateArrayElements(String variableName, List<TomlValueNode> arrayList,
-                                                                          Type elementType) {
+    private void validateArrayElements(String variableName, List<TomlValueNode> arrayList, Type elementType) {
         int arraySize = arrayList.size();
         for (int i = 0; i < arraySize; i++) {
             String elementName = variableName + "[" + i + "]";

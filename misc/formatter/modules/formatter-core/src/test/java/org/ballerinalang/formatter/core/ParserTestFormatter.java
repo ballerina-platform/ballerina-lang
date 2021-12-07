@@ -67,6 +67,10 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_24.bal",
                 "doc_source_27.bal",
                 "invalid_identifier_source_02.bal",
+                "float_literal_source_07.bal",
+                "method_call_expr_source_03.bal",
+                "method_call_expr_source_05.bal",
+                "qualified_identifier_assert_08.bal",
 
                 // the following tests need to be enabled in the future
                 "annotations_source_04.bal", // could be considered an invalid scenario
@@ -164,7 +168,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal", "record_type_def_source_27.bal",
                 "func_type_source_09.bal", "func_type_source_13.bal", "func_type_source_14.bal",
                 "func_type_source_15.bal", "func_type_source_16.bal", "import_decl_source_24.bal",
-                "member_access_expr_source_11.bal");
+                "member_access_expr_source_11.bal", "float_literal_source_08.bal");
     }
 
     @DataProvider(name = "test-file-provider")

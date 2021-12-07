@@ -71,6 +71,7 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"createUndefinedFunction15.json", "createUndefinedFunction6.bal"},
                 {"createUndefinedFunction16.json", "createUndefinedFunction6.bal"},
                 {"createUndefinedFunction17.json", "createUndefinedFunction7.bal"},
+                {"createUndefinedFunction19.json", "createUndefinedFunction9.bal"},
 
                 {"createUndefinedFunctionInRecord.json", "createUndefinedFunctionInRecord.bal"},
                 {"createUndefinedFunctionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
@@ -97,13 +98,28 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_with_strands2.json", "create_function_with_strands1.bal"},
                 {"create_function_with_strands3.json", "create_function_with_strands1.bal"},
                 {"create_function_with_strands4.json", "create_function_with_strands1.bal"},
-                
+
                 {"create_function_in_if_statement1.json", "create_function_in_if_statement1.bal"},
                 {"create_function_in_if_statement2.json", "create_function_in_if_statement2.bal"},
                 {"create_function_in_if_statement3.json", "create_function_in_if_statement3.bal"},
                 {"create_function_in_if_statement4.json", "create_function_in_if_statement4.bal"},
-                
+
                 {"create_function_in_expression1.json", "create_function_in_expression1.bal"},
+                {"create_function_in_function_call_expr1.json", "create_function_in_function_call_expr1.bal"},
+                {"create_function_in_method_call_expr1.json", "create_function_in_method_call_expr1.bal"},
+                {"create_function_in_implicit_new_expression1.json", "create_function_in_implicit_new_expression1.bal"},
+                {"create_function_in_explicit_new_expression1.json", "create_function_in_explicit_new_expression1.bal"},
+                {"create_function_in_remote_method_call_action1.json",
+                        "create_function_in_remote_method_call_action1.bal"},
+                {"create_function_in_named_arg_context1.json", "create_function_in_named_arg_context1.bal"},
+                {"create_function_in_named_arg_context2.json", "create_function_in_named_arg_context2.bal"},
+                {"create_function_in_named_arg_context3.json", "create_function_in_named_arg_context3.bal"},
+                {"create_function_in_named_arg_context4.json", "create_function_in_named_arg_context4.bal"},
+                
+                // Error constructor
+                {"create_function_in_error_constructor1.json", "create_function_in_error_constructor1.bal"},
+                {"create_function_in_error_constructor2.json", "create_function_in_error_constructor2.bal"},
+                {"create_function_in_error_constructor3.json", "create_function_in_error_constructor3.bal"}
         };
     }
 

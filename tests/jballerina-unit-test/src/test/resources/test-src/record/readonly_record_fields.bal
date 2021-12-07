@@ -883,6 +883,41 @@ function getRecord(boolean b) returns IncludingRec1|IncludingRec2? {
     return {k: 1, l: 2};
 }
 
+type Corge record {|
+    string a = "hello";
+    string b = "world";
+    string[] c = <readonly> ["x", "y"];
+|};
+
+function testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstructor() {
+    record {int a; string b = "default";} a = {readonly a: 2};
+    assertEquality(<anydata> {a: 2, b: "default"}, a);
+    assertTrue(a is record {readonly int a; string b;});
+    assertFalse(a is record {readonly int a; readonly string b;});
+
+    record {int a; string b = "default";} b = {readonly a: 3, b: "val"};
+    assertEquality(<anydata> {a: 3, b: "val"}, b);
+    assertTrue(b is record {readonly int a; string b;});
+    assertFalse(b is record {readonly int a; readonly string b;});
+
+    record {int a; string b = "default";} c = {readonly a: 3, readonly b: "val"};
+    assertEquality(<anydata> {a: 3, b: "val"}, c);
+    assertTrue(c is record {readonly int a; string b;});
+    assertTrue(c is record {readonly int a; readonly string b;});
+
+    Corge d = {readonly b: "ballerina"};
+    string[] & readonly e = ["x", "y"];
+    assertEquality(<anydata> {a: "hello", b: "ballerina", c: e}, d);
+    assertTrue(d is record {|string a; readonly string b; string[] c;|});
+    assertFalse(d is record {|string a; readonly string b; readonly string[] c;|});
+
+    Corge f = {readonly b: "val", readonly c: ["a", "b", "c"]};
+    assertEquality(<anydata> {a: "hello", b: "val", c: <readonly> ["a", "b", "c"]}, f);
+    assertTrue(f is record {|string a; readonly string b; string[] c;|});
+    assertTrue(f is record {|string a; readonly string b; readonly string[] c;|});
+    assertFalse(f is record {|readonly string a; readonly string b; readonly string[] c;|});
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

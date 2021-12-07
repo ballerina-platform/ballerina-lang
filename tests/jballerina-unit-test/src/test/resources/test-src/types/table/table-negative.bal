@@ -203,3 +203,69 @@ function testInvalidTableKeys() {
     table<Person> key(id, name) tableVar;
     table<Person> key(invalidField) tableVar2;
 }
+
+type EmployeeId record {
+    readonly string firstname;
+    readonly string lastname;
+};
+
+type Employee1 record {
+    *EmployeeId;
+    readonly int leaves;
+};
+
+table<Employee1> key<EmployeeId> tbl1 = table key(leaves) [{firstname: "John", lastname: "Wick", leaves: 10}];
+
+table<Employee1> key<[string, string]> tbl2 = table key(firstname) [{firstname: "John", lastname: "Wick", leaves: 10}];
+
+table<Employee1> key<EmployeeId> tbl3 = table key(firstname) [{firstname: "John", lastname: "Wick", leaves: 10}];
+
+type CustomerDetail record {
+    readonly Name name;
+    readonly int id;
+    string address;
+};
+
+type Name record {
+    string fname;
+    string lname;
+};
+
+type CustomerTableWithKTC table<CustomerDetail> key<Name>;
+
+CustomerTableWithKTC tbl4 = table key(firstname, lastname) [{name: {fname: "Sanjiva", lname: "Weerawarana"},
+                id: 13, address: "Sri Lanka"}];
+
+function variableNameFieldAsKeyField() {
+    int id = 1;
+
+    table<record {readonly int id; string name;}> key (id) _ = table [
+        {id, name: "Jo"},
+        {id: 1, name: "Amy"},
+        {id: 2, name: "Amy"},
+        {id, name: "Alex"}
+    ];
+}
+
+function testTableConstructorWithVar() {
+    string s1 = "id";
+    string s2 = "employed";
+
+    var v1 = table [
+            {name: "Jo"},
+            {[s1] : 2},
+            {[s2] : false}
+        ];
+
+    table<record {|string name?;|}> _ = v1;
+
+    map<int> m = {name: 1, b: 2};
+
+    var v2 = table [
+        {name: "Jo"},
+        {...m}
+    ];
+
+    table<record {|string name?;|}> _ = v2;
+    table<record {|string|int name?;|}> _ = v2;
+}

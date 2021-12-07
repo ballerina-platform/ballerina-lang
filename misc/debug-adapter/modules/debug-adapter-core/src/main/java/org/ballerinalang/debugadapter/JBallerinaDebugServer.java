@@ -25,9 +25,16 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
+import org.ballerinalang.debugadapter.completion.CompletionContext;
+import org.ballerinalang.debugadapter.completion.FieldAccessCompletionResolver;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
@@ -40,9 +47,9 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.runner.BFileRunner;
 import org.ballerinalang.debugadapter.runner.BPackageRunner;
 import org.ballerinalang.debugadapter.runner.BProgramRunner;
+import org.ballerinalang.debugadapter.runner.BSingleFileRunner;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
@@ -54,6 +61,9 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
+import org.eclipse.lsp4j.debug.CompletionItem;
+import org.eclipse.lsp4j.debug.CompletionsArguments;
+import org.eclipse.lsp4j.debug.CompletionsResponse;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.ContinueResponse;
@@ -103,6 +113,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -110,6 +121,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
+import static org.ballerinalang.debugadapter.completion.CompletionUtil.getCompletions;
+import static org.ballerinalang.debugadapter.completion.CompletionUtil.getInjectedExpressionNode;
+import static org.ballerinalang.debugadapter.completion.CompletionUtil.getResolverNode;
+import static org.ballerinalang.debugadapter.completion.CompletionUtil.getVisibleSymbolCompletions;
+import static org.ballerinalang.debugadapter.completion.CompletionUtil.triggerCharactersFound;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
@@ -168,8 +184,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportTerminateDebuggee(true);
         capabilities.setSupportsConditionalBreakpoints(true);
         capabilities.setSupportsLogPoints(true);
+        capabilities.setSupportsCompletionsRequest(true);
         // Todo - Implement
-        capabilities.setSupportsCompletionsRequest(false);
         capabilities.setSupportsRestartRequest(false);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
@@ -222,7 +238,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             String sourceProjectRoot = context.getSourceProjectRoot();
             BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
-                    new BFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                    new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
                     new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
             context.setLaunchedProcess(programRunner.start());
@@ -454,6 +470,46 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
                 return new EvaluateResponse();
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<CompletionsResponse> completions(CompletionsArguments args) {
+        return CompletableFuture.supplyAsync(() -> {
+            CompletionsResponse completionsResponse = new CompletionsResponse();
+
+            if (suspendedContext == null) {
+                return completionsResponse;
+            }
+            CompletionContext completionContext = new CompletionContext(suspendedContext);
+
+            // If the debug console expression doesn't have any trigger characters,
+            // get the visible symbols at the breakpoint line using semantic API.
+            if (!triggerCharactersFound(args.getText())) {
+                CompletionItem[] visibleSymbolCompletions = getVisibleSymbolCompletions(completionContext);
+                completionsResponse.setTargets(visibleSymbolCompletions);
+                return completionsResponse;
+            }
+
+            // If the debug console expression has any trigger characters,
+            // identify the node instance at the breakpoint appropriately and inject the expression accordingly.
+            try {
+                NonTerminalNode injectedExpressionNode = getInjectedExpressionNode(completionContext, args,
+                        clientConfigHolder.getSourcePath(), suspendedContext.getLineNumber());
+                Optional<Node> resolverNode = getResolverNode(injectedExpressionNode);
+
+                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.FIELD_ACCESS) {
+                    FieldAccessCompletionResolver fieldAccessCompletionResolver =
+                            new FieldAccessCompletionResolver(completionContext);
+                    List<Symbol> visibleEntries = fieldAccessCompletionResolver
+                            .getVisibleEntries(((FieldAccessExpressionNode) resolverNode.get()).expression());
+                    CompletionItem[] completions = getCompletions(visibleEntries);
+                    completionsResponse.setTargets(completions);
+                }
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
+            }
+            return completionsResponse;
         });
     }
 

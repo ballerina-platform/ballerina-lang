@@ -20,13 +20,18 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchGuard;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import static org.ballerinalang.model.tree.NodeKind.MATCH_GUARD;
 
 /**
  * @since 2.0.0
  */
 public class BLangMatchGuard extends BLangExpression implements MatchGuard {
 
+    // BLangNodes
     public BLangExpression expr;
 
     @Override
@@ -45,7 +50,17 @@ public class BLangMatchGuard extends BLangExpression implements MatchGuard {
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
-        return null;
+        return MATCH_GUARD;
     }
 }

@@ -213,6 +213,9 @@ function getWithInvalidKey() returns boolean {
 }
 
 function testMap() returns boolean {
+    string expected = "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
+                      "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
+                      "{\"name\":\"Granier\",\"department\":\"HR\"}]";
     boolean testPassed = true;
     Person[] personList = getPersonList();
 
@@ -222,9 +225,19 @@ function testMap() returns boolean {
 
     Employee[] tableToList = empTab.toArray();
     testPassed = testPassed && tableToList.length() == 4;
-    testPassed = testPassed && empTab.toString() == "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
-        "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
-        "{\"name\":\"Granier\",\"department\":\"HR\"}]";
+    testPassed = testPassed && empTab.toString() == expected;
+
+    function (Person) returns Employee arrowExpr = (person) => {name: person.name, department : "HR"};
+
+    empTab = tab.'map(arrowExpr);
+    tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == expected;
+
+    empTab = tab.'map((person) => <Employee>{name: person.name, department : "HR"});
+    tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == expected;
 
     return testPassed;
 }

@@ -55,46 +55,58 @@ public class TypeTestExprTest {
         int i = 0;
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 23, 5);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' will not be matched to 'float'", 28,
                 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 37, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 41, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'int' will not be matched to '(string|float)'", 46, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 55, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 59, 5);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 64, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 68, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(int|string)' will not be matched to '(boolean|float)'", 73, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 91, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 93, 12);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 93, 16);
+                "unnecessary condition: expression will always evaluate to 'true' for variable of type 'never'",
+                93, 16);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 94, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 101, 5);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 118, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 120, 12);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 120, 16);
+                "unnecessary condition: expression will always evaluate to 'true' for variable of type 'never'",
+                120, 16);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 121, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 124, 5);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 131, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 131, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 131, 32);
+                "unnecessary condition: expression will always evaluate to 'true'", 131, 31);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int[]' will not be matched to 'float[]'",
-                132, 18);
+                132, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 133, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 133, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 134, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 134, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 135, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 135, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 141, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 141, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '[int,string]' will not be matched to '[float,boolean]'", 142, 18);
+                "incompatible types: '[int,string]' will not be matched to '[float,boolean]'", 142, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 143, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 143, 17);
         BAssertUtil.validateHint(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 144, 18);
+                "unnecessary condition: expression will always evaluate to 'true'", 144, 17);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 150, 18);
         BAssertUtil.validateHint(negativeResult, i++,
@@ -111,6 +123,7 @@ public class TypeTestExprTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 161, 18);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 177, 16);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 181, 5);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 187, 13);
         BAssertUtil.validateHint(negativeResult, i++,
@@ -124,7 +137,7 @@ public class TypeTestExprTest {
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 246, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'foo|bar' will not be matched to 'baz|2'", 255, 9);
+                "incompatible types: 'FooBar' will not be matched to 'BazTwo'", 255, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(string|int)' will not be matched to '(float|boolean)'",
                 262, 9);
@@ -146,33 +159,33 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 280, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 281, 18);
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 281, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Bar' will not be matched to 'Baz'", 284, 18);
+                "incompatible types: 'Bar' will not be matched to 'Baz'", 284, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Bar' will not be matched to 'Quux'", 285, 18);
+                "incompatible types: 'Bar' will not be matched to 'Quux'", 285, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Qux' will not be matched to 'Baz'", 288, 18);
+                "incompatible types: 'Qux' will not be matched to 'Baz'", 288, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Qux' will not be matched to 'Quux'", 289, 18);
+                "incompatible types: 'Qux' will not be matched to 'Quux'", 289, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Quux' will not be matched to 'Bar'", 292, 18);
+                "incompatible types: 'Quux' will not be matched to 'Bar'", 292, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Quux' will not be matched to 'Qux'", 293, 18);
+                "incompatible types: 'Quux' will not be matched to 'Qux'", 293, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: 'Quux' will not be matched to 'record {| int i; boolean b; |}'", 294, 18);
+                "incompatible types: 'Quux' will not be matched to 'record {| int i; boolean b; |}'", 294, 17);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'ClosedRecordWithIntField' will not be matched to " +
-                        "'record {| int i; string s; |}'", 297, 19);
+                        "'record {| int i; string s; |}'", 297, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'object { }[]' will not be matched to " +
                 "'anydata'", 330, 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'anydata' will not be matched to 'object " +
                 "{ }[]'", 336, 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Record' will not be matched to " +
-                "'RecordWithIntFieldAndNeverRestField'", 358, 18);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: 'Record' will not be matched to " +
-                "'RecordWithIntFieldAndEffectivelyNeverRestField'", 359, 18);
-        Assert.assertEquals(negativeResult.getErrorCount(), 26);
+                "'RecordWithIntFieldAndNeverRestField'", 358, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Record' will not be matched to " +
+                "'RecordWithIntFieldAndEffectivelyNeverRestField'", 359, 17);
+        Assert.assertEquals(negativeResult.getErrorCount(), 37);
     }
 
     @Test

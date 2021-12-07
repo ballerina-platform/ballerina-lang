@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLProcessingInstructionLiteralNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -31,14 +33,17 @@ import java.util.List;
  */
 public class BLangXMLProcInsLiteral extends BLangExpression implements XMLProcessingInstructionLiteralNode {
 
+    // BLangNodes
     public BLangLiteral target;
     public List<BLangExpression> dataFragments;
+
+    // Semantic Data
     public BLangExpression dataConcatExpr;
-    
+
     public BLangXMLProcInsLiteral() {
         dataFragments = new ArrayList<BLangExpression>();
     }
-    
+
     @Override
     public LiteralNode getTarget() {
         return target;
@@ -62,6 +67,16 @@ public class BLangXMLProcInsLiteral extends BLangExpression implements XMLProces
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

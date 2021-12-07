@@ -19,6 +19,8 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.projects.internal.model.Dependency;
+import org.ballerinalang.toml.model.Platform;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +44,9 @@ public class PackageManifest {
     private final String repository;
     private final List<String> exportedModules;
     private final String ballerinaVersion;
+    private final String visibility;
+    private boolean template;
+    private final String icon;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -65,6 +70,8 @@ public class PackageManifest {
         this.exportedModules = Collections.emptyList();
         this.repository = "";
         this.ballerinaVersion = "";
+        this.visibility = "";
+        this.icon = "";
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
@@ -78,7 +85,10 @@ public class PackageManifest {
                             List<String> keywords,
                             List<String> exportedModules,
                             String repository,
-                            String ballerinaVersion) {
+                            String ballerinaVersion,
+                            String visibility,
+                            boolean template,
+                            String icon) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
@@ -91,6 +101,9 @@ public class PackageManifest {
         this.exportedModules = getExport(packageDesc, exportedModules);
         this.repository = repository;
         this.ballerinaVersion = ballerinaVersion;
+        this.visibility = visibility;
+        this.template = template;
+        this.icon = icon;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
@@ -117,9 +130,12 @@ public class PackageManifest {
                                        List<String> keywords,
                                        List<String> export,
                                        String repository,
-                                       String ballerinaVersion) {
+                                       String ballerinaVersion,
+                                       String visibility,
+                                       boolean template,
+                                       String icon) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, repository, ballerinaVersion);
+                license, authors, keywords, export, repository, ballerinaVersion, visibility, template, icon);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -131,10 +147,12 @@ public class PackageManifest {
                                        List<String> keywords,
                                        List<String> export,
                                        String repository,
-                                       String ballerinaVersion) {
+                                       String ballerinaVersion,
+                                       String visibility,
+                                       boolean template) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                export, repository, ballerinaVersion);
+                export, repository, ballerinaVersion, visibility, template, "");
     }
 
     public PackageName name() {
@@ -194,8 +212,20 @@ public class PackageManifest {
         return ballerinaVersion;
     }
 
+    public String visibility() {
+        return visibility;
+    }
+
+    public String icon() {
+        return icon;
+    }
+
     public DiagnosticResult diagnostics() {
         return diagnostics;
+    }
+
+    public boolean template() {
+        return template;
     }
 
     /**

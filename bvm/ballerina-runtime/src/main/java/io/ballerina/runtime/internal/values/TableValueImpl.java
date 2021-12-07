@@ -41,7 +41,9 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -262,7 +264,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
         return this.get(key);
     }
@@ -271,7 +273,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         handleFrozenTableValue();
         if (!containsKey(key)) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
         return this.remove(key);
     }
@@ -302,7 +304,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         Object value = expectedType.getZeroValue();
@@ -486,12 +488,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V getData(K key) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         public V putData(K key, V data) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         public V putData(V data) {
@@ -513,7 +515,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V remove(K key) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
         }
 
         public boolean containsKey(K key) {
@@ -546,7 +548,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             if (containsKey((K) key)) {
                 throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
-                                               StringUtils.fromString("A value " + "found for key '" + key + "'"));
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.TABLE_HAS_A_VALUE_FOR_KEY, key));
             }
 
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
@@ -597,8 +599,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
-                throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("The key '" +
-                        key + "' not found in value " + data));
+                throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_IN_VALUE, key, data));
             }
 
             return putData(key, data, newData, entry, hash);

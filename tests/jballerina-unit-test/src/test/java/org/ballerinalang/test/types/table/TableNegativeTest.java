@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 32);
+        Assert.assertEquals(compileResult.getErrorCount(), 39);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -43,7 +43,7 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "table key specifier mismatch. expected: '[id]' " +
                 "but found '[id, firstName]'", 20, 28);
         validateError(compileResult, index++, "table key specifier mismatch with key constraint. " +
-                "expected: '1' fields but found '0'", 25, 20);
+                "expected: '[string]' fields but key specifier is empty", 25, 20);
         validateError(compileResult, index++, "table key specifier '[age]' does not match with " +
                 "key constraint type '[string]'", 30, 26);
         validateError(compileResult, index++, "table key specifier mismatch. expected: '[id]' but " +
@@ -101,7 +101,22 @@ public class TableNegativeTest {
                 "'map<any|error>' but found 'any'", 200, 14);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not " +
                 "found in table constraint type 'Person'", 203, 19);
-        validateError(compileResult, index, "field name 'invalidField' used in key specifier " +
+        validateError(compileResult, index++, "field name 'invalidField' used in key specifier " +
                 "is not found in table constraint type 'Person'", 204, 19);
+        validateError(compileResult, index++, "table key specifier '[leaves]' does not match " +
+                "with key constraint type '[EmployeeId]'", 217, 47);
+        validateError(compileResult, index++, "table key specifier mismatch with key constraint. " +
+                "expected: '[string, string]' fields but found '[firstname]'", 219, 47);
+        validateError(compileResult, index++, "field name 'firstname' used in key specifier " +
+                "is not found in table constraint type 'CustomerDetail'", 236, 35);
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
+                "a constant expression", 243, 9);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
+                + " found 'table<record {| string name?; (int|boolean)...; |}>'", 260, 41);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
+                " found 'table<record {| string name?; int...; |}>'", 269, 41);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                        "'table<record {| (string|int) name?; |}>', found 'table<record {| string name?; int...; |}>'",
+                270, 45);
     }
 }

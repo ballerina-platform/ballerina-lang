@@ -32,6 +32,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
+
 /**
  * Test nil return from functions.
  */
@@ -40,6 +42,8 @@ public class FunctionNilReturnTest {
     private CompileResult compileResult;
     private PrintStream original;
     private static final String EXPECTED_OUTPUT = "Hello\n\nBallerina\n";
+    private static final String WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE =
+            "this function should explicitly return a value";
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
@@ -206,6 +210,56 @@ public class FunctionNilReturnTest {
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnionArray")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTupleArray")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedescArray")[0]);
+    }
+
+    @Test
+    public void testWarningsForNotExplicitlyReturningAValue() {
+        int i = 0;
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 97, 46);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 105, 52);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 120, 41);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 138, 35);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 141, 37);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 144, 39);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 147, 38);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 150, 39);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 153, 36);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 156, 36);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 162, 35);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 165, 35);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 171, 40);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 174, 42);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 177, 44);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 180, 43);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 183, 44);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 186, 41);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 189, 41);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 192, 40);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 203, 42);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 206, 47);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 214, 44);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 217, 49);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 224, 38);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 227, 43);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 230, 37);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 233, 42);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 236, 37);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 239, 42);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 242, 40);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 245, 45);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 253, 28);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 257, 59);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 265, 35);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 274, 35);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 291, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 294, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 300, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 303, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 306, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 312, 84);
+        validateWarning(compileResult, i++, WARN_SHOULD_EXPLICITLY_RETURN_A_VALUE, 315, 84);
+        Assert.assertEquals(compileResult.getWarnCount(), i);
+
     }
 
     @AfterClass

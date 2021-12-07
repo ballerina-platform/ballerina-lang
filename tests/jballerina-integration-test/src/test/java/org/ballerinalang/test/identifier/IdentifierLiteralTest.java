@@ -51,7 +51,7 @@ public class IdentifierLiteralTest  extends BaseTest {
         Path projectPath = Paths.get(testFileLocation, "ModuleNameClashProject")
                 .toAbsolutePath();
         LogLeecher runLeecher = new LogLeecher("1 passing");
-        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0],
+        bMainInstance.runMain("test", new String[0], new HashMap<>(), new String[0],
                 new LogLeecher[]{runLeecher}, projectPath.toString());
         runLeecher.waitForText(5000);
     }
@@ -63,7 +63,7 @@ public class IdentifierLiteralTest  extends BaseTest {
         LogLeecher pushLeecher =
                 new LogLeecher("Successfully pushed target/bala/a_b-foo-any-0.1.0.bala to 'local' repository.");
         LogLeecher runLeecher = new LogLeecher("Tests passed");
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                 importProjectPath);
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},

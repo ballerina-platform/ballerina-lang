@@ -17,9 +17,14 @@
  */
 package io.ballerina.projects.test.plugins;
 
+import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.Resource;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.test.TestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -66,6 +71,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_lifecycle_listener");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_with_codeactions");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_codegen_init_function");
     }
 
     @Test
@@ -190,6 +197,78 @@ public class CompilerPluginTests {
         Package currentPackage = loadPackage("package_valid_exported_modules");
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected diagnostics exists");
+    }
+
+    @Test
+    public void testCompilerPluginWithNoCodeGenerators() {
+        Package currentPackage = loadPackage("package_plugin_user_1");
+
+        // Check the document count in the current package
+        Assert.assertEquals(1, currentPackage.getDefaultModule().documentIds().size());
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Running the code generation
+        CodeGeneratorResult codeGeneratorResult = currentPackage.runCodeGeneratorPlugins();
+
+        // Compiling the new package
+        Package newPackage = codeGeneratorResult.updatedPackage().orElse(null);
+        Assert.assertNull(newPackage, "Should be null, because there exist no code generators");
+    }
+
+    @Test
+    public void testCompilerPluginCodegenBasic() {
+        Package currentPackage = loadPackage("package_plugin_codegen_user_1");
+        // Check the document count in the current package
+        Assert.assertEquals(1, currentPackage.getDefaultModule().documentIds().size());
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+
+        // Running the code generation
+        CodeGeneratorResult codeGeneratorResult = currentPackage.runCodeGeneratorPlugins();
+
+        // Compiling the new package
+        Project project = currentPackage.project();
+        Package newPackage = codeGeneratorResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code generators");
+        Assert.assertSame(newPackage.project(), project);
+        Assert.assertSame(newPackage, project.currentPackage());
+
+        // The code generator produce 4 files. 3 files for three functions and one file importing another package.
+        Assert.assertEquals(5, newPackage.getDefaultModule().documentIds().size());
+        PackageCompilation compilation = newPackage.getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies
+        // Code generator produces a file that has an import.
+        // This import causes the dependencies count to be updated to 2.
+        Assert.assertEquals(newPackage.packageDependencies().size(), 2,
+                "Unexpected number of dependencies");
+
+        // Check resources
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.isDefaultModule()) {
+                Assert.assertEquals(module.resourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.resourceIds().size(), 1);
+            Resource resource = module.resource(module.resourceIds().stream().findFirst().orElseThrow());
+            Assert.assertEquals(resource.name(), "openapi-spec.yaml");
+            Assert.assertEquals(resource.content(), "".getBytes());
+            Assert.assertEquals(resource.module(), module);
+        }
+
     }
 
     public void assertDiagnostics(Package currentPackage) {

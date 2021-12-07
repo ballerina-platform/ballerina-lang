@@ -95,7 +95,7 @@ dependencies {
     testLibs 'org.hsqldb:hsqldb:2.4.1'
 }
 
-task createBre(type: org.gradle.api.tasks.Copy) {
+task createBre(type: Copy) {
     from configurations.balRuntime
     into '$buildDir/bre/lib'
 }

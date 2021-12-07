@@ -5,6 +5,7 @@ countryCodes = ["United States","Sri Lanka"]
 
 anydataVar ="hello"
 intStringVar=12345
+intArrayVar = [123, 456, 789]
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 
@@ -105,6 +106,7 @@ countryCode = "United States"
 countryCodes = ["Sri Lanka", "United States"]
 anydataVar ="hello"
 intStringVar=12345
+intArrayVar = [123, 456, 789]
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 
@@ -191,6 +193,9 @@ xmlVar = "<name>Jane Doe</name>"
 stringVar = "This is a string"
 unionVar2 = true
 unionVar3 = 24
+versions = ["HTTP_1_1", "HTTP_1_1", "HTTP_2"]
+countryCodes = ["United States", "Sri Lanka"]
+numbers = [1, 2.5, "three"]
 
 [[configUnionTypes.union_ambiguity.mapArrayVar]]
 a = "test string"
@@ -201,3 +206,49 @@ c = false
 a = "Hello World!"
 b = 34
 c = true
+
+[[configUnionTypes.union_ambiguity.responses]]
+httpVersion = "HTTP_1_1"
+
+[[configUnionTypes.union_ambiguity.responses]]
+httpVersion = "HTTP_2"
+
+[[configUnionTypes.union_ambiguity.countries]]
+countryCode = "United States"
+
+[[configUnionTypes.union_ambiguity.countries]]
+countryCode = "Sri Lanka"
+
+[[configUnionTypes.union_ambiguity.intPersonArr]]
+name = "Manu"
+age = 12
+
+[[configUnionTypes.union_ambiguity.intPersonArr]]
+name = "Nadeeshan"
+
+[[configUnionTypes.union_ambiguity.mapUnionArr]]
+a = "Hello World!"
+b = 34
+c = true
+
+[[configUnionTypes.union_ambiguity.mapUnionArr]]
+a = "Hello Ballerina!"
+b = 56
+c = false
+
+[[configUnionTypes.union_ambiguity.configs]]
+clientId =123456
+clientSecret="hello"
+clientConfig.httpVersion="HTTP_1_1"
+clientConfig.customHeaders.header1="header1"
+clientConfig.customHeaders.header2="header2"
+
+[[configUnionTypes.union_ambiguity.configs]]
+token ="123456"
+timeLimit=12.5
+clientConfig.httpVersion="HTTP_2"
+clientConfig.customHeaders.header3="header3"
+clientConfig.customHeaders.header4="header4"
+
+[[configUnionTypes.union_ambiguity.configs]]
+password=["1", 2, 3]

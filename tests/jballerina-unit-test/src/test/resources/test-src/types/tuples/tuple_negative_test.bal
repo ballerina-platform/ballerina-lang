@@ -202,3 +202,8 @@ function testTupleToJSONAssignmentNegative() {
     jsonTest = <json[]>C;
     jsonTest = C;
 }
+
+public function testUnionsOfTupleSingletons() {
+     [1, "hello"]|[1] f; // Must not crash
+     f = [1]; // ambiguous, [1] can match for both [1, "hello"] and [1] finite tuple values;
+}

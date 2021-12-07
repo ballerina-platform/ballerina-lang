@@ -23,6 +23,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -103,7 +104,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // Check if the project has write permissions
         if (packageCompilation.packageContext().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
             try {
-                new Target(packageCompilation.packageContext().project().sourceRoot());
+                new Target(packageCompilation.packageContext().project().targetDir());
             } catch (IOException e) {
                 throw new ProjectException("error while checking permissions of target directory", e);
             }
@@ -124,7 +125,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
-
         // TODO: Move to a compiler extension once Compiler revamp is complete
         if (packageContext.compilationOptions().observabilityIncluded()) {
             ObservabilitySymbolCollector observabilitySymbolCollector
@@ -299,15 +299,17 @@ public class JBallerinaBackend extends CompilerBackend {
             return;
         }
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
+        if (compiledJarFile == null) {
+            return;
+        }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile);
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledJarFile, getResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, jarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated jar, module: " + moduleContext.moduleName());
         }
-
-        // skip generation of the test jar if --skip-tests option is set to true
+        // skip generation of the test jar if --with-tests option is not provided
         if (moduleContext.project().buildOptions().skipTests()) {
             return;
         }
@@ -319,7 +321,7 @@ public class JBallerinaBackend extends CompilerBackend {
         String testJarFileName = jarFileName + TEST_JAR_FILE_NAME_SUFFIX;
         CompiledJarFile compiledTestJarFile = jvmCodeGenerator.generateTestModule(bLangPackage.testablePkgs.get(0));
         try {
-            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile);
+            ByteArrayOutputStream byteStream = JarWriter.write(compiledTestJarFile, getAllResources(moduleContext));
             compilationCache.cachePlatformSpecificLibrary(this, testJarFileName, byteStream);
         } catch (IOException e) {
             throw new ProjectException("Failed to cache generated test jar, module: " + moduleContext.moduleName());
@@ -514,6 +516,32 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
+    private Map<String, byte[]> getResources(ModuleContext moduleContext) {
+        Map<String, byte[]> resourceMap = new HashMap<>();
+        for (DocumentId documentId : moduleContext.resourceIds()) {
+            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org().toString() + "/"
+                    + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.descriptor().version().value().major() + "/"
+                    + moduleContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
+    private Map<String, byte[]> getAllResources(ModuleContext moduleContext) {
+        Map<String, byte[]> resourceMap = getResources(moduleContext);
+        for (DocumentId documentId : moduleContext.testResourceIds()) {
+            String resourceName = ProjectConstants.RESOURCE_DIR_NAME + "/"
+                    + moduleContext.descriptor().org() + "/"
+                    + moduleContext.moduleName().toString() + "/"
+                    + moduleContext.descriptor().version().value().major() + "/"
+                    + moduleContext.resourceContext(documentId).name();
+            resourceMap.put(resourceName, moduleContext.resourceContext(documentId).content());
+        }
+        return resourceMap;
+    }
+
     private PlatformLibraryScope getPlatformLibraryScope(Map<String, Object> dependency) {
         PlatformLibraryScope scope;
         String scopeValue = (String) dependency.get(JarLibrary.KEY_SCOPE);
@@ -538,8 +566,8 @@ public class JBallerinaBackend extends CompilerBackend {
      */
     private String getPlatformLibPath(String groupId, String artifactId, String version) {
         String targetRepo =
-                this.packageContext.project().sourceRoot().toString() + File.separator + "target" + File.separator
-                        + "platform-libs";
+                this.packageContext.project().targetDir().resolve(ProjectConstants.TARGET_DIR_NAME).toString()
+                        + File.separator + "platform" + "-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
         try {
             Dependency dependency = resolver.resolve(groupId, artifactId, version, false);

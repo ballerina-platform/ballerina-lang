@@ -21,7 +21,7 @@ type E1 distinct error;
 type E2 distinct error;
 
 function foo() returns E1? {
-    int i = check bar(); // should fail - check returns E2, but return type is E1?
+    int _ = check bar(); // should fail - check returns E2, but return type is E1?
 }
 
 function bar() returns int|E2 {
@@ -34,7 +34,7 @@ public function main() {
 
 public function baz() {
     worker w1 returns error? {
-        if (true) {
+        if (0 < 1) {
             return error("generic error");
         }
 
@@ -42,7 +42,7 @@ public function baz() {
     }
 
     worker w2 returns E1? {
-        int j = check <- w1; // should fail - the check-ed error is of type `error`
+        int _ = check <- w1; // should fail - the check-ed error is of type `error`
     }
 
     E1? res = wait w2;
@@ -64,4 +64,23 @@ function fbar() returns int|error {
 
 function fFoo() returns LhsErrTwo|int {
     return error("");
+}
+
+function testCheckedExprWithNoErrorType1() {
+    int|error i = 10;
+    int _ = check i;
+}
+
+function testCheckedExprWithNoErrorType2() {
+    int|error i = 10;
+    int _ = getInt(check i) + check i;
+}
+
+function getInt(int x) returns int {
+    return x + 1;
+}
+
+function testCheckedExprWithNoErrorType3() {
+    int|error i = error("Error");
+    int _ = check i;
 }

@@ -63,12 +63,10 @@ public class IsolatedInferenceWithTestsTest extends BaseTest {
     private void testPkg(String pkg, int testCount) throws BallerinaTestException {
         LogLeecher passedLeecher = new LogLeecher(testCount + " passing");
         LogLeecher failedLeecher = new LogLeecher("0 failing");
-        LogLeecher jarGenerationLeecher = new LogLeecher("target/bin/" + pkg + ".jar");
-        bMainInstance.runMain("build", new String[]{}, null, null,
-                              new LogLeecher[]{passedLeecher, failedLeecher, jarGenerationLeecher},
+        bMainInstance.runMain("test", new String[0], null, null,
+                              new LogLeecher[]{passedLeecher, failedLeecher},
                               Paths.get(testFileLocation, pkg).toString());
         passedLeecher.waitForText(5000);
         failedLeecher.waitForText(5000);
-        jarGenerationLeecher.waitForText(5000);
     }
 }

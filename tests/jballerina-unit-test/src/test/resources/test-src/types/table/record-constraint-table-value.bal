@@ -189,6 +189,7 @@ function runTableTestcasesWithVarType() {
     testTableWithMultiKeySpecifier2();
     testInferTableType();
     testInferTableTypeV2();
+    testTableConstructExprVar();
 }
 
 function testSimpleTableInitializationWithVarType() {
@@ -458,6 +459,52 @@ function testUnionConstrainedTableIteration() {
     }
 
     assertEquality(expectedNames, names);
+}
+
+type FooRec record {
+    readonly int x;
+    int y;
+};
+
+public function testSpreadFieldInConstructor() {
+    string expected = "[{\"x\":1001,\"y\":20},{\"x\":1002,\"y\":30}]";
+    FooRec spreadField1 = {x: 1002, y: 30};
+
+    table<FooRec> tb1 = table key(x) [
+            {x: 1001, y: 20},
+            {...spreadField1}
+        ];
+    assertEquality(expected, tb1.toString());
+
+    var spreadField2 = {x: 1002, y: 30};
+
+    var tb2 = table key(x) [
+            {x: 1001, y: 20},
+            {...spreadField2}
+        ];
+    assertEquality(expected, tb2.toString());
+
+    var spreadField3 = {id: 2, name: "Jo", age: 12};
+    var tb3 = table [
+            {id: 1, name: "Mary", salary: 100.0},
+            {...spreadField3}
+        ];
+    assertEquality("[{\"id\":1,\"name\":\"Mary\",\"salary\":100.0},{\"id\":2,\"name\":\"Jo\",\"age\":12}]",
+    tb3.toString());
+}
+
+function testTableConstructExprVar() {
+    string s1 = "id";
+    string s2 = "employed";
+
+    var v1 = table [
+        {name: "Jo"},
+        {[s1]: 2},
+        {[s2]: false}
+    ];
+
+    table<record {|string name?; int|boolean...;|}> t1 = v1;
+    assertEquality("[{\"name\":\"Jo\"},{\"id\":2},{\"employed\":false}]", t1.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

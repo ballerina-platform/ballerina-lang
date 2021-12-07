@@ -254,7 +254,7 @@ public class ErrorValue extends BError implements RefValue {
      */
     public Object getDetails() {
         if (details instanceof RefValue) {
-            return ((RefValue) details).copy(new HashMap<>());
+            return ((RefValue) details).frozenCopy(new HashMap<>());
         }
         return details;
     }
@@ -377,7 +377,7 @@ public class ErrorValue extends BError implements RefValue {
         sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
 
-    private String getPrintableError() {
+    public String getPrintableError() {
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add(this.message.getValue());

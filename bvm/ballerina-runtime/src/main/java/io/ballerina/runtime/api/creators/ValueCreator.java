@@ -460,7 +460,18 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with an XML.
+     * Create XML qualified name with qualified name string and namespace prefix.
+     *
+     * @param qNameStr Qualified name string
+     * @param prefix   Namespace prefix
+     * @return XML qualified name
+     */
+    public static BXmlQName createXmlQName(BString qNameStr, String prefix) {
+        return new XmlQName(qNameStr.getValue(), prefix);
+    }
+
+    /**
+     * Create XML qualified name with local name, uri and namespace prefix.
      *
      * @param localName Local part of the qualified name
      * @param uri       Namespace URI
@@ -472,7 +483,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with an XML.
+     * Create XML qualified name with local name, uri and namespace prefix.
      *
      * @param localName Local part of the qualified name
      * @param uri       Namespace URI
@@ -484,7 +495,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with a qualified name string.
+     * Create XML qualified name with a qualified name string.
      *
      * @param qNameStr qualified name string
      * @return XML qualified name
@@ -494,7 +505,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create attribute map with a qualified name string.
+     * Create XML qualified name with a qualified name string.
      *
      * @param qNameStr qualified name string
      * @return XML qualified name

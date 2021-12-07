@@ -19,8 +19,10 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.cli.cmd.CommandUtil.initPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -46,16 +49,17 @@ public class NewCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
+    Path homeCache = RepoUtils.createAndGetHomeReposPath();
 
     @CommandLine.Parameters
-    private List<String> argList;
+    public List<String> argList;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
             "default: default")
-    private String template = "default";
+    public String template = "default";
 
     public NewCommand() {
         this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -69,6 +73,14 @@ public class NewCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
+    }
+
+    public NewCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path customHomeCache) {
+        this.userDir = userDir;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        CommandUtil.initJarFs();
+        this.homeCache = customHomeCache;
     }
 
     @Override
@@ -143,42 +155,67 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
+        if (!ProjectUtils.validateUnderscoresOfName(packageName)) {
+            CommandUtil.printError(errStream,
+                                   "invalid package name : '" + packageName + "' :\n" +
+                                           ProjectUtils.getValidateUnderscoreError(packageName, "Package"),
+                                   null,
+                                   false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         if (!ProjectUtils.validatePackageName(packageName)) {
+            packageName = ProjectUtils.guessPkgName(packageName);
             errStream.println("unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
             errStream.println();
         }
 
-        // Check if the template exists
-        if (!CommandUtil.getTemplates().contains(template)) {
-            CommandUtil.printError(errStream,
-                    "template not found, use `bal new --help` to view available templates.",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         try {
-            Files.createDirectories(path);
-            CommandUtil.initPackageByTemplate(path, packageName, template);
+            // check if the template matches with one of the inbuilt template types
+            if (CommandUtil.getTemplates().contains(template)) {
+                // create package with inbuilt template
+                CommandUtil.initPackageByTemplate(path, packageName, template);
+            } else {
+                CommandUtil.setPrintStream(errStream);
+                Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
+                        .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                        .resolve(ProjectConstants.BALA_DIR_NAME);
+                initPackageFromCentral(balaCache, path, packageName, template);
+            }
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + "Insufficient Permission : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        } catch (BLauncherException e) {
+            if (Files.exists(path)) {
+                try {
+                    Files.delete(path);
+                } catch (IOException ignored) {
+                }
+            }
+            CommandUtil.printError(errStream, e.getDetailedMessages().get(0),
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
         } catch (IOException | URISyntaxException e) {
             CommandUtil.printError(errStream,
                     "error occurred while creating project : " + e.getMessage(),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
         }
-        errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
-                + "' at " + userDir.relativize(path) + ".");
+        if (Files.exists(path)) {
+            errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+                    + "' at " + userDir.relativize(path) + ".");
+        }
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+        return;
     }
 
     @Override

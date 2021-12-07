@@ -22,24 +22,26 @@ type E2 distinct error;
 
 public function main() {
     worker w1 returns E1|E2? {
-        if (false) {
+        if (0 > 1) {
             return error E1(R1);
         }
         100 ->> w2;
 
-        if (true) {
+        if (0 < 1) {
             return error E2(R2);
         }
         "hello" ->> w2;
+        return;
     }
 
     worker w2 returns error? {
-        int lw = <- w1;
+        int _ = <- w1;
 
-        if (true) {
+        if (0 < 1) {
             return error("w2 err");
         }
-        string s = <- w1;
+        string _ = <- w1;
+        return;
     }
 
     error? err = wait w1;

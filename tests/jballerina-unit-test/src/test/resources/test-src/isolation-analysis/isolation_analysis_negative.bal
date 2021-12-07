@@ -51,8 +51,8 @@ isolated function invalidIsolatedFunctionWithMutableGlobalVarWrite() {
 }
 
 isolated function invalidIsolatedFunctionWithNonIsolatedFunctionCall() {
-    int x = 1;
-    int y = nonIsolated();
+    int _ = 1;
+    int _ = nonIsolated();
 }
 
 function nonIsolated() returns int => a;
@@ -65,14 +65,14 @@ class Foo {
 
 isolated function invalidIsolatedFunctionWithNonIsolatedMethodCall() {
     Foo f = new;
-    int x = f.getInt();
+    int _ = f.getInt();
 }
 
 isolated function invalidIsolatedFunctionWithWorkerDeclaration(int i) {
-    int j = i + 1;
+    int _ = i + 1;
 
     worker w1 {
-        string s = "hello world";
+        string _ = "hello world";
     }
 }
 
@@ -108,20 +108,20 @@ class Baz {
 
 public class Listener {
 
-    public function attach(service object {} s, string[]|string? name = ()) returns error? { }
+    public function attach(service object {} s, string[]|string? name = ()) returns error? { return; }
 
-    public function detach(service object {} s) returns error? { }
+    public function detach(service object {} s) returns error? { return; }
 
-    public function 'start() returns error? { }
+    public function 'start() returns error? { return; }
 
-    public function gracefulStop() returns error? { }
+    public function gracefulStop() returns error? { return; }
 
-    public function immediateStop() returns error? { }
+    public function immediateStop() returns error? { return; }
 }
 
 service /s1 on new Listener() {
     isolated resource function get res1(map<int> j) {
-        int x = a + <int> j["val"];
+        int _ = a + <int> j["val"];
     }
 
     resource isolated function get res2(string str) returns error? {
@@ -145,7 +145,7 @@ service object {} s2 = service object {
     }
 
     isolated function res3() {
-        int i = d[1];
+        int _ = d[1];
     }
 };
 
@@ -163,14 +163,14 @@ isolated function diffParamKinds(int a, string b = "hello", boolean|int... c) {
 }
 
 var testInvalidIsolatedModuleAnonFunc = isolated function () {
-    int y = nonIsolated() + d[0];
-    string s = c + "world";
+    int _ = nonIsolated() + d[0];
+    string _ = c + "world";
 };
 
 function testInvalidIsolatedAnonFunc() {
-    var testInvalidIsolatedModuleAnonFunc = isolated function () {
-        int y = nonIsolated() + d[0];
-        string s = c + "world";
+    var _ = isolated function () {
+        int _ = nonIsolated() + d[0];
+        string _ = c + "world";
     };
 }
 
@@ -189,8 +189,8 @@ function testInvalidArrowFuncAsIsolatedFunction() {
 public isolated function testInvalidNonIsolatedRemoteMethodCalls() {
     ClientClass f = new;
     f->bar();
-    int j = f->baz(a);
-    int k = f->baz(a, c, c);
+    int _ = f->baz(a);
+    int _ = f->baz(a, c, c);
 }
 
 client class ClientClass {
@@ -203,7 +203,7 @@ client class ClientClass {
 final int[] & readonly immutableIntArr = [0, 1];
 
 isolated function invalidIsolatedFunctionWithForkStatement(int i) {
-    int j = immutableIntArr[1] + i;
+    int _ = immutableIntArr[1] + i;
 
     fork {
         worker w1 {
@@ -268,8 +268,8 @@ Service ser2 = new;
 ReadOnlyService ser3 = new;
 
 isolated function testInvalidMutableServiceAccess() {
-    any x1 = ser1;
-    any x2 = ser2;
+    any _ = ser1;
+    any _ = ser2;
     any x3 = ser3;
 }
 

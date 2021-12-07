@@ -33,6 +33,8 @@ import org.testng.annotations.Test;
 @Test
 public class MatchStmtTypeNarrowingTest {
 
+    private static final String ALWAYS_TRUE_HINT = "unnecessary condition: expression will always evaluate to 'true'";
+
     private CompileResult result, resultNegative;
 
     @BeforeClass
@@ -98,15 +100,28 @@ public class MatchStmtTypeNarrowingTest {
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 47, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 57, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 70, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 78, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 80, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 90, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 95, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 97, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 97, 18);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 110, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 112, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b'", 112, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'name'", 117, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 117, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 119, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'name'", 119, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 119, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 132, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 137, 18);
         BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 139, 9);
+        BAssertUtil.validateHint(resultNegative, ++i, ALWAYS_TRUE_HINT, 139, 18);
         Assert.assertEquals(resultNegative.getErrorCount(), 0);
-        Assert.assertEquals(resultNegative.getWarnCount(), ++i);
+        Assert.assertEquals(resultNegative.getHintCount(), 6);
+        Assert.assertEquals(resultNegative.getWarnCount(), ++i - 6);
     }
 
     @AfterClass

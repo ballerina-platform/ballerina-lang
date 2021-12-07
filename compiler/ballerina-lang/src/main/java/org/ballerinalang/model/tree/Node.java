@@ -18,9 +18,6 @@
 package org.ballerinalang.model.tree;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.Whitespace;
-
-import java.util.Set;
 
 /**
  * {@code Node} is the base interface for all tree nodes in Ballerina abstract syntax tree.
@@ -28,10 +25,6 @@ import java.util.Set;
  * @since 0.94
  */
 public interface Node {
-
-    void addWS(Set<Whitespace> whitespaces);
-
-    Set<Whitespace> getWS();
 
     /**
      * Returns the kind of this node.

@@ -292,24 +292,12 @@ public class ModuleBuildTestCase extends BaseTest {
 
         // Test for bal build on module with test sources
         String buildMsg = "Compiling source\n" +
-                    "    foo:0.0.0\n" +
-                    "\n" +
-                    "Running tests\n" +
-                    "    foo:0.0.0\n" +
-                    "I'm the before suite function!\n" +
-                    "I'm the before function!\n" +
-                    "I'm in test function!\n" +
-                    "I'm the after function!\n" +
-                    "I'm the after suite function!\n" +
-                    "\t[pass] testFunction\n" +
-                    "\n" +
-                    "\t1 passing\n" +
-                    "\t0 failing\n" +
-                    "\t0 skipped\n";
+                    "    foo:0.0.0\n";
 
         LogLeecher firstLeecher = new LogLeecher(buildMsg);
-        balClient.runMain("build", new String[] {"foo"}, envVariables, new String[0], new LogLeecher[]{firstLeecher},
-                          projectPath.toString());
+        balClient.runMain("build", new String[] {"foo"},
+                envVariables, new String[0],
+                new LogLeecher[]{firstLeecher}, projectPath.toString());
         Assert.assertTrue(Files.notExists(projectPath.resolve("target").resolve("foo.balx")));
 
 

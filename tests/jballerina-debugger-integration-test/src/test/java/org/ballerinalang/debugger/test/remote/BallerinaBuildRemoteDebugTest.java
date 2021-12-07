@@ -44,22 +44,22 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         balClient = new BMainInstance(debugTestRunner.getBalServer());
     }
 
-    @Test
+    @Test (enabled = false)
     public void testSuspendOnBallerinaModuleBuild() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)}, null, null,
+        balClient.debugMain("build", new String[]{"--with-tests", "--debug", String.valueOf(port)}, null, null,
                 new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath.toString(), 20);
         clientLeecher.waitForText(20000);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testSuspendOnBallerinaProjectBuild() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)}, null, null,
+        balClient.debugMain("build", new String[]{"--with-tests", "--debug", String.valueOf(port)}, null, null,
                 new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath.toString(), 20);
         clientLeecher.waitForText(20000);
     }
@@ -71,13 +71,14 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
      * @throws BallerinaTestException if the tests runs in remote debug mode, even when the  "--skip-tests" flag is
      *                                present.
      */
-    @Test
+    @Test (enabled = false)
     public void negativeTestSuspendOnBallerinaModuleBuildWithSkipFlag() throws BallerinaTestException {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         try {
-            balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), "--skip-tests"}, null, null,
+            balClient.debugMain("build",
+                    new String[]{"--with-tests", "--debug", String.valueOf(port), "--skip-tests"}, null, null,
                     new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath.toString(), 20);
             clientLeecher.waitForText(20000);
             throw new BallerinaTestException("Ballerina tests running is suspended even when the test skip flag is " +

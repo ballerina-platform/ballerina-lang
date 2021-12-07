@@ -23,7 +23,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Represents error type symbol.
@@ -36,12 +35,5 @@ public class BErrorTypeSymbol extends BTypeSymbol {
                             Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.kind = SymbolKind.ERROR;
-    }
-
-    @Override
-    public BErrorTypeSymbol createLabelSymbol() {
-        BErrorTypeSymbol copy = Symbols.createErrorSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin);
-        copy.isLabel = true;
-        return copy;
     }
 }

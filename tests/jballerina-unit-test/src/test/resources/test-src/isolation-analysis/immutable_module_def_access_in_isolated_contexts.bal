@@ -35,30 +35,35 @@ service /MyService on lstnr {
 
 readonly class Listener {
     public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
+        return;
     }
 
     public isolated function detach(service object {} s) returns error? {
+        return;
     }
 
     public isolated function 'start() returns error? {
+        return;
     }
 
     public isolated function gracefulStop() returns error? {
+        return;
     }
 
     public isolated function immediateStop() returns error? {
+        return;
     }
 }
 
 const MyConstant = "const";
 
 public isolated function main() {
-    typedesc t1 = MyRecord;
-    typedesc t2 = MyClass;
-    typedesc t3 = MyObject;
-    typedesc t4 = MyError;
+    typedesc _ = MyRecord;
+    typedesc _ = MyClass;
+    typedesc _ = MyObject;
+    typedesc _ = MyError;
 
-    function () f = MyFunction;
-    Listener l = lstnr;
-    MyConstant mc = MyConstant;
+    function () _ = MyFunction;
+    Listener _ = lstnr;
+    MyConstant _ = MyConstant;
 }
