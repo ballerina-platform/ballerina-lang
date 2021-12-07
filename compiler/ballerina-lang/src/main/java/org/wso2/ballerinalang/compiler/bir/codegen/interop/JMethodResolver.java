@@ -34,9 +34,11 @@ import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -271,8 +273,21 @@ class JMethodResolver {
 
         if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
                 (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
-            String expectedRetTypeName = jMethodRequest.bReturnType + "|error";
-            if (jMethodRequest.bReturnType.tag == TypeTags.NIL) {
+            BType returnType = jMethodRequest.bReturnType;
+            BType modifiedRetType = returnType;
+            if (returnType.tag == TypeTags.UNION) {
+                LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
+                for (BType bType : ((BUnionType) returnType).getMemberTypes()) {
+                    if (!(bType instanceof BTypeReferenceType &&
+                            ((BTypeReferenceType) bType).referredType.tag == TypeTags.ERROR)) {
+                        memTypes.add(bType);
+                    }
+                }
+                modifiedRetType = BUnionType.create(null, memTypes);
+            }
+            String expectedRetTypeName = modifiedRetType + "|error";
+            if (returnType.tag == TypeTags.NIL || returnType instanceof BTypeReferenceType &&
+                    ((BTypeReferenceType) returnType).referredType.tag == TypeTags.ERROR) {
                 expectedRetTypeName = "error";
             }
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
