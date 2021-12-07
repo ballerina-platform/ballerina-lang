@@ -212,8 +212,7 @@
         "required": [
           "org",
           "name",
-          "version",
-          "repository"
+          "version"
         ],
         "message": {
           "required": "'${property}' under [[dependency]] is missing"
