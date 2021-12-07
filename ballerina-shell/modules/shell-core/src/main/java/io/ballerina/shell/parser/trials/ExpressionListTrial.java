@@ -25,7 +25,6 @@ import io.ballerina.shell.parser.TrialTreeParser;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Attempts to parse source as list of expressions.

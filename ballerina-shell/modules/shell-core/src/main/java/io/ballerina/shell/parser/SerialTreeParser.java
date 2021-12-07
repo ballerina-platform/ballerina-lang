@@ -23,7 +23,17 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.exceptions.TreeParserException;
-import io.ballerina.shell.parser.trials.*;
+import io.ballerina.shell.parser.trials.EmptyExpressionTrial;
+import io.ballerina.shell.parser.trials.ExpressionListTrial;
+import io.ballerina.shell.parser.trials.ExpressionTrial;
+import io.ballerina.shell.parser.trials.GetErrorMessageTrial;
+import io.ballerina.shell.parser.trials.InvalidMethodException;
+import io.ballerina.shell.parser.trials.ModuleMemberTrial;
+import io.ballerina.shell.parser.trials.ModulePartTrial;
+import io.ballerina.shell.parser.trials.ParserRejectedException;
+import io.ballerina.shell.parser.trials.ParserTrialFailedException;
+import io.ballerina.shell.parser.trials.StatementTrial;
+import io.ballerina.shell.parser.trials.TreeParserTrial;
 
 import java.util.ArrayList;
 import java.util.Collection;
