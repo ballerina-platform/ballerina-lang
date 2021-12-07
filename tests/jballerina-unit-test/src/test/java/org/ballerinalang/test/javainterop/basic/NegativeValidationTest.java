@@ -281,7 +281,7 @@ public class NegativeValidationTest {
                         "'returnDistinctErrorUnionWhichThrowsCheckedException' which throws checked exception " +
                         "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
                         "expected 'int|error', found '(int|testorg/distinct_error.errors:1.0.0:DistinctError)''",
-                "modules/errors/errors.bal", 21, 1);
+                21, 1);
     }
 
     @Test
