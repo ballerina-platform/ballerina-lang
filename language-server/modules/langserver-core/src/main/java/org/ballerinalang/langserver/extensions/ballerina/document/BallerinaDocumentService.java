@@ -412,7 +412,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             }
 
             try {
-                Optional<Project> project = this.workspaceManagerProxy.get(fileUri).project(filePath.get());
+                Optional<Project> project = this.workspaceManagerProxy.get().project(filePath.get());
                 if (project.isEmpty()) {
                     reply.setParseSuccess(false);
                     return reply;
