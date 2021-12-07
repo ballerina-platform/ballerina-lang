@@ -273,16 +273,6 @@ function testUnionRecordVariable() returns [string|boolean, string|boolean, stri
     return [var1, var2, var3, var4];
 }
 
-function testMapRecordVar() returns [anydata, anydata, anydata, string?, string?, string?] {
-    map<anydata> m = {var1: "A", var2: true};
-    map<string> m2 = {var10: "B", var11: "C"};
-
-    var {var1, var2, var3} = m;
-    var {var10, var11, var12} = m2;
-
-    return [var1, var2, var3, var10, var11, var12];
-}
-
 function testIgnoreVariable() returns [string, int] {
     PersonWithAge p = { name: "John", age: { age:30, format: "YY", "year": 1990 }, married: true, "work": "SE" };
     PersonWithAge {name, age: {age, format: _, ...rest1}, married: _, ...rest2} = p;
@@ -323,7 +313,7 @@ type IntStringMap map<int|string>;
 
 type ObjectMap map<Object>;
 
-function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean] {
+function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
     IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
     IntRestRecord { name: name1, ...other1 } = rec1;
     var { name: name2, ...other2 } = rec1;
@@ -331,12 +321,7 @@ function testRestParameterType() returns [boolean, boolean, boolean, boolean, bo
     IntRestRecord|ObjectRestRecord rec3 = rec1;
     IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
 
-    map<string> stringMap = { a: "A", b: "B" };
-    map<string> { a, ...other6 } = stringMap;
-
     IntStringMap map1 = { name: "A", "age": 19, "token": 200 };
-    IntStringMap {name: name6, ...other7} = map1;
-    var { name: name7, ...other8} = map1;
 
     IntStringMap|ObjectMap map2 = map1;
     IntStringMap|ObjectMap { name: name8, ...other9 } = map2;
@@ -344,15 +329,11 @@ function testRestParameterType() returns [boolean, boolean, boolean, boolean, bo
     any a1 = other1;
     any a2 = other2;
     any a5 = other5;
-    any a6 = other6;
-    any a7 = other7;
-    any a8 = other8;
     any a9 = other9;
 
     return [a1 is record{|never name?; boolean married; int...;|}, a2 is record{|int...;|},
     a5 is record{|never name?; boolean married; int|Object...;|}, a5 is map<anydata>,
-    a6 is record{|never a?; string...;|}, a7 is record {| never name?; (int|string)...; |},
-    a8 is record {| never name?; (int|string)...; |}, a9 is record {| never name?; (int|string|Object)...; |}];
+    a9 is record {| never name?; (int|string|Object)...; |}];
 }
 
 type XY record {

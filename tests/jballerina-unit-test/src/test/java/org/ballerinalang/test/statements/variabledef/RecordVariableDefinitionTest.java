@@ -250,18 +250,6 @@ public class RecordVariableDefinitionTest {
         Assert.assertNull(returns[3]);
     }
 
-    @Test(description = "Test record variable with Map Type")
-    public void testMapRecordVar() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapRecordVar");
-        Assert.assertEquals(returns.length, 6);
-        Assert.assertEquals(returns[0].stringValue(), "A");
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertNull(returns[2]);
-        Assert.assertEquals(returns[3].stringValue(), "B");
-        Assert.assertEquals(returns[4].stringValue(), "C");
-        Assert.assertNull(returns[5]);
-    }
-
     @Test(description = "Test record variable with ignore variable")
     public void testIgnoreVariable() {
         BValue[] returns = BRunUtil.invoke(result, "testIgnoreVariable");
@@ -281,15 +269,12 @@ public class RecordVariableDefinitionTest {
     @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 8);
+        Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[7]).booleanValue());
     }
 
     @Test(description = "Test resolving the rest field type during record restructuring")
@@ -319,6 +304,10 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected '(string|boolean)', found '(string|boolean)?'", 142, 25);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '(int|float)', found '(int|float)?'", 142, 31);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid mapping binding pattern; cannot bind map expression", 149, 30);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid mapping binding pattern; cannot bind map expression", 150, 33);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,

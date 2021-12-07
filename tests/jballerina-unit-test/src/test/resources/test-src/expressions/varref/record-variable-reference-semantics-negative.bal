@@ -205,6 +205,11 @@ type Employee record {
     int age?;
 };
 
+type EmployeeOne record {
+    string name;
+    record { int id; int age; } details?;
+};
+
 function testOptionalFieldsInRecordBindingPattern(){
    Employee e = {name: "Jo", id: 1234};
 
@@ -214,7 +219,20 @@ function testOptionalFieldsInRecordBindingPattern(){
 
    {name: eName, id: eId, age: eAge} = e;
 
-   var {name: name, id: id, age: age} = e;
+   string name;
+   int id;
+   int age;
 
-   var {name: nameNew, id: idNew, age: ageNew} = e;
+   {name, id:id, age} = e;
+
+   EmployeeOne e1 = {name: "Jo", details: {
+          id: 5,
+          age: 32
+  }};
+
+  string nameOne;
+  int idOne;
+  int ageOne;
+
+  {name: nameOne, details:{id: idOne, age: ageOne}} = e1;
 }
