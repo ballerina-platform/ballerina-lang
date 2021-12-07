@@ -44,7 +44,7 @@ public class RuntimeInstanceMethod extends RuntimeMethod {
     }
 
     @Override
-    protected Value invoke() throws EvaluationException {
+    protected synchronized Value invoke() throws EvaluationException {
         try {
             if (!(objectValueRef instanceof ObjectReference)) {
                 throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
