@@ -288,6 +288,25 @@ function testTableConstructorWithVar3(FooRec2 f) {
             {...f},
             {i: 1, j: 2, l: ""}
         ];
+    int _ = v1;
+}
 
+function testTableConstructorWithVar4() {
+    anydata|error f = 1;
+
+    var v1 = table [
+            {a: f},
+            {a: 1}
+        ];
+    int _ = v1;
+}
+
+function testTableConstructorWithVar5() {
+    any|error f = 1;
+
+    var v1 = table [
+            {a: f},
+            {a: 1}
+        ];
     int _ = v1;
 }

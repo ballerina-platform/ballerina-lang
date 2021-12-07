@@ -1195,27 +1195,31 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private LinkedHashSet<BType> getEffectiveMemberTypes(List<BType> bTypeList) {
         LinkedHashSet<BType> bTypes = new LinkedHashSet<>(bTypeList);
-        LinkedHashSet<BType> eBTypes = new LinkedHashSet<>(bTypes.size());
-        return getEffectiveMemberTypes(eBTypes, bTypes);
-    }
 
-    private LinkedHashSet<BType> getEffectiveMemberTypes(LinkedHashSet<BType> eBTypes, LinkedHashSet<BType> bTypes) {
-        if (bTypes.size() == 1) {
+        if (bTypeList.size() == 1) {
             return bTypes;
         }
 
+        LinkedHashSet<BType> eBTypes = new LinkedHashSet<>(bTypes.size());
+        addEffectiveMemberTypes(eBTypes, bTypes);
+
+        eBTypes = filterRedundantAnyAnydataSubtypes(eBTypes);
+        return eBTypes;
+    }
+
+    private void addEffectiveMemberTypes(LinkedHashSet<BType> eBTypes, LinkedHashSet<BType> bTypes) {
         for (BType memberType : bTypes) {
             BType bType;
             switch (memberType.tag) {
                 case TypeTags.NEVER:
                     continue;
                 case TypeTags.UNION:
-                    getEffectiveMemberTypes(eBTypes, ((BUnionType) memberType).getMemberTypes());
+                    addEffectiveMemberTypes(eBTypes, ((BUnionType) memberType).getMemberTypes());
                     continue;
                 case TypeTags.TYPEREFDESC:
                     BType constraint = types.getReferredType(memberType);
                     if (constraint.tag == TypeTags.UNION) {
-                        getEffectiveMemberTypes(eBTypes, ((BUnionType) constraint).getMemberTypes());
+                        addEffectiveMemberTypes(eBTypes, ((BUnionType) constraint).getMemberTypes());
                         continue;
                     }
                     bType = constraint;
@@ -1227,6 +1231,43 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (isUniqueType(eBTypes, bType)) {
                 eBTypes.add(bType);
+            }
+        }
+    }
+
+    private LinkedHashSet<BType> filterRedundantAnyAnydataSubtypes(LinkedHashSet<BType> bTypeList) {
+        if (bTypeList.size() == 1) {
+            return bTypeList;
+        }
+
+        BType anyOrAnydata = null;
+        for (BType bType : bTypeList) {
+            if (bType.tag == TypeTags.ANY) {
+                anyOrAnydata = bType;
+                break;
+            } else if (bType.tag == TypeTags.ANYDATA) {
+                anyOrAnydata = bType;
+            }
+        }
+
+        if (anyOrAnydata == null) {
+            return bTypeList;
+        }
+
+        LinkedHashSet<BType> eBTypes = new LinkedHashSet<>(bTypeList.size());
+        eBTypes.add(anyOrAnydata);
+
+        if (anyOrAnydata.tag == TypeTags.ANYDATA) {
+            for (BType bType : bTypeList) {
+                if (!types.isAnydata(bType)) {
+                    eBTypes.add(bType);
+                }
+            }
+        } else {
+            for (BType bType : bTypeList) {
+                if (bType.tag == TypeTags.ERROR) {
+                    eBTypes.add(bType);
+                }
             }
         }
 
