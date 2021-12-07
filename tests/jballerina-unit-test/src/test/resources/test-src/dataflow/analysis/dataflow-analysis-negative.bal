@@ -875,3 +875,77 @@ function testUninitializedVariablesTernaryExpr() {
 
     string _ = condition ? a : b; // OK
 }
+
+function testPotentiallyUninitVar1(boolean b = false) {
+    int i;
+
+    while b {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVar2() {
+    int? a = 10;
+    int i;
+
+    while a is () {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVar3() {
+    int a = 10;
+    int i;
+
+    while a == 20 {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVar4() {
+    int a = 10;
+    int i;
+
+    while a < 20 {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVar5() {
+    int i;
+
+    while true {
+        i = 1;
+    }
+
+    int _ = i; // unreachable code
+}
+
+function testPotentiallyUninitVar6() {
+    int i;
+
+    while false {
+        i = 1; // unreachable code
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVar7() {
+    boolean b = true;
+    final int i;
+
+    while b {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
