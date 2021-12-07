@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -293,8 +292,7 @@ class JMethodResolver {
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
                             "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
-                            "': expected '" + expectedRetTypeName + "', found '" +
-                            jMethodRequest.bReturnType + "'");
+                            "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
         }
     }
 
