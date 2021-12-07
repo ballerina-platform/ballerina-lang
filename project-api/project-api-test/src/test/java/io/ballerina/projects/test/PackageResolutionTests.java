@@ -697,10 +697,9 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
 
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        // Check dependency repository is not given diagnostic
-        Assert.assertTrue(diagnosticIterator.next().toString().contains(
-                "ERROR [Ballerina.toml:(6:1,9:18)] 'repository' under [[dependency]] is missing"));
         // Check dependency cannot be resolved diagnostic
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "ERROR [Ballerina.toml:(17:1,21:21)] invalid value 'invalid'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(1:1,1:16)] cannot resolve module 'ccc/ddd'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
