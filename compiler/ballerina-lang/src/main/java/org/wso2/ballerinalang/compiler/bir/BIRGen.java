@@ -144,7 +144,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -1097,19 +1096,9 @@ public class BIRGen extends BLangNodeVisitor {
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
-        if (astBlockStmt.isLetExpr) {
-            breakBBForLetExprVariables(astBlockStmt.pos);
-        }
         this.env.enclInnerOnFailEndBB = currentWithinOnFailEndBB;
         this.env.enclOnFailEndBB = currentOnFailEndBB;
         this.currentBlock = prevBlock;
-    }
-
-    private void breakBBForLetExprVariables(Location pos) {
-        BIRBasicBlock letExprEndBB = new BIRBasicBlock(this.env.nextBBId(names));
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, letExprEndBB, this.currentScope);
-        this.env.enclBasicBlocks.add(letExprEndBB);
-        this.env.enclBB = letExprEndBB;
     }
 
     @Override
@@ -2270,28 +2259,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLAccessExpr xmlAccessExpr) {
         generateMappingAccess(xmlAccessExpr, false);
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        if (xmlAttributeAccessExpr.indexExpr != null) {
-            generateMappingAccess(xmlAttributeAccessExpr, false);
-            return;
-        }
-
-        // This is getting xml attributes as a map. i.e.: x@
-        // Model as a conversion where source type is xml, and target type is map<string>.
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.mapStringType, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        xmlAttributeAccessExpr.expr.accept(this);
-        BIROperand xmlVarOp = this.env.targetOperand;
-        setScopeAndEmit(
-                new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType,
-                        true));
-        this.env.targetOperand = toVarRef;
     }
 
     @Override

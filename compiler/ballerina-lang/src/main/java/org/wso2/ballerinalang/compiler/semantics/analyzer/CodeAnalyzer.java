@@ -79,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -87,7 +86,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
@@ -129,7 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -169,7 +166,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -195,7 +191,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -221,9 +216,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -584,11 +577,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (forkJoin.workers.isEmpty()) {
             dlog.error(forkJoin.pos, DiagnosticErrorCode.INVALID_FOR_JOIN_SYNTAX_EMPTY_FORK);
         }
-    }
-
-    @Override
-    public void visit(BLangWorker worker) {
-        /* ignore, remove later */
     }
 
     @Override
@@ -2344,10 +2332,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
     }
 
-    public void visit(BLangResource resourceNode) {
-        throw new RuntimeException("Deprecated lang feature");
-    }
-
     private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
                                           Location pos) {
 
@@ -2661,10 +2645,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangThrow throwNode) {
-        /* ignore */
-    }
-
     public void visit(BLangPanic panicNode) {
         analyzeExpr(panicNode.expr);
     }
@@ -2704,14 +2684,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (expr.getBType() == symTable.nilType) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.INVALID_EXPR_STATEMENT);
         }
-    }
-
-    public void visit(BLangTryCatchFinally tryNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangCatch catchNode) {
-        /* ignore */
     }
 
     private boolean isTopLevel() {
@@ -3611,18 +3583,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.defaultValueState = prevDefaultValueState;
     }
 
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-
-        analyzeExpr(xmlAttributeAccessExpr.expr);
-        analyzeExpr(xmlAttributeAccessExpr.indexExpr);
-    }
-
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        analyzeExpr(intRangeExpression.startExpr);
-        analyzeExpr(intRangeExpression.endExpr);
-    }
-
-
     /* Type Nodes */
 
     @Override
@@ -3812,10 +3772,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType exprType = enclInvokable.getReturnTypeNode().getBType();
         BType checkedExprType = checkedExpr.expr.getBType();
+        BType errorType = getErrorTypes(checkedExprType);
 
-        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExprType), exprType) &&
+        if (errorType == symTable.semanticError) {
+            return;
+        }
+
+        if (!this.failureHandled && !types.isAssignable(errorType, exprType) &&
                 !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
-            dlog.error(checkedExpr.pos, DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            dlog.error(checkedExpr.pos,
+                    DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
         if (!this.errorTypes.empty()) {
             this.errorTypes.peek().add(getErrorTypes(checkedExpr.expr.getBType()));

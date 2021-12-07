@@ -295,3 +295,8 @@ function testFunction5() {
         lastName: "Atkinson"
     };
 }
+
+# Err1 custom error type.
+public type Err1 error;
+
+Err1 myErr = error Err1("trxErr", data = "test");

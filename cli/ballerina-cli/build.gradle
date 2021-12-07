@@ -60,6 +60,8 @@ dependencies {
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
     implementation project(':ballerina-core')
+
+    testRuntime project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 }
 
 task createTestDistributionCache(type: Copy) {

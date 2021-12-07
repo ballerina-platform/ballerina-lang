@@ -168,7 +168,9 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        addToRunnableList(item, objectGroup.get());
+        ItemGroup group = objectGroup.get();
+        future.strand.strandGroup = group;
+        addToRunnableList(item, group);
         return future;
     }
 

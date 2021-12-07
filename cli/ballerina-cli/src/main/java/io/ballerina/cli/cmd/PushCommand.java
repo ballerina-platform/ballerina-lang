@@ -127,10 +127,13 @@ public class PushCommand implements BLauncherCmd {
             return;
         }
 
-        BuildProject project;
+        BuildProject project = null;
 
         try {
-            project = BuildProject.load(userDir);
+            // Skip the project creation and validation if balaPath is NOT null
+            if (balaPath == null) {
+                project = BuildProject.load(userDir);
+            }
         } catch (ProjectException e) {
             CommandUtil.printError(errStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -155,7 +158,16 @@ public class PushCommand implements BLauncherCmd {
                     return;
                 }
 
-                pushPackage(project);
+                if (balaPath == null) {
+                    pushPackage(project);
+                } else {
+                    try {
+                        validatePackageMdAndBalToml(balaPath);
+                    } catch (IOException e) {
+                        throw new ProjectException("error while validating the bala file.", e);
+                    }
+                    pushBalaToCustomRepo(balaPath);
+                }
             } else {
                 Settings settings = RepoUtils.readSettings();
                 if (settings.diagnostics().hasErrors()) {
@@ -165,9 +177,17 @@ public class PushCommand implements BLauncherCmd {
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                         initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
-
                 try {
-                    pushPackage(project, client);
+                    if (balaPath == null) {
+                        pushPackage(project, client);
+                    } else {
+                        try {
+                            validatePackageMdAndBalToml(balaPath);
+                        } catch (IOException e) {
+                            throw new ProjectException("error while validating the bala file.", e);
+                        }
+                        pushBalaToRemote(balaPath, client);
+                    }
                 } catch (ProjectException | CentralClientException e) {
                     CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -208,15 +228,6 @@ public class PushCommand implements BLauncherCmd {
     private void pushPackage(BuildProject project) {
         Path balaFilePath = validateBalaFile(project, this.balaPath);
         pushBalaToCustomRepo(balaFilePath);
-
-        Path relativePathToBalaFile;
-        if (this.balaPath != null) {
-            relativePathToBalaFile = balaFilePath;
-        } else {
-            relativePathToBalaFile = userDir.relativize(balaFilePath);
-        }
-        outStream.println("Successfully pushed " + relativePathToBalaFile
-                + " to '" + repositoryName + "' repository.");
     }
 
     private void pushPackage(BuildProject project, CentralAPIClient client)
@@ -338,6 +349,15 @@ public class PushCommand implements BLauncherCmd {
             throw new ProjectException("error while pushing bala file '" + balaFilePath + "' to '"
                     + ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository. " + e.getMessage());
         }
+
+        Path relativePathToBalaFile;
+        if (this.balaPath != null) {
+            relativePathToBalaFile = balaFilePath;
+        } else {
+            relativePathToBalaFile = userDir.relativize(balaFilePath);
+        }
+        outStream.println("Successfully pushed " + relativePathToBalaFile
+                + " to '" + repositoryName + "' repository.");
     }
 
     /**

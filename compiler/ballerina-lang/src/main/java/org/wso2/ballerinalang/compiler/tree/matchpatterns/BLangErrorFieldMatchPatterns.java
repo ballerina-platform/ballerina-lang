@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.matchpatterns.ErrorFieldMatchPatternsNode;
 import org.ballerinalang.model.tree.matchpatterns.NamedArgMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.List;
  */
 public class BLangErrorFieldMatchPatterns extends BLangMatchPattern implements ErrorFieldMatchPatternsNode {
 
+    // BLangNodes
     public List<BLangNamedArgMatchPattern> namedArgMatchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
 
@@ -59,6 +62,16 @@ public class BLangErrorFieldMatchPatterns extends BLangMatchPattern implements E
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

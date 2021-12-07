@@ -45,6 +45,8 @@ public class AddCheckCodeActionTest extends AbstractCodeActionTest {
                 {"add_check_codeaction_config1.json", "add_check_codeaction_source1.bal"},
                 {"add_check_codeaction_config2.json", "add_check_codeaction_source2.bal"},
                 {"add_check_codeaction_config3.json", "add_check_codeaction_source3.bal"},
+                {"add_check_codeaction_config4.json", "add_check_codeaction_source4.bal"},
+                {"add_check_codeaction_config5.json", "add_check_codeaction_source4.bal"},
         };
     }
 

@@ -172,22 +172,21 @@ public class WorkerFailTest {
     @Test
     public void invalidReceiveWithCheckWithNonError() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-check.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        Assert.assertEquals(result.getWarnCount(), 1);
-        validateError(result, 0, "invalid usage of the 'check' expression operator: no expression type is " +
+        Assert.assertEquals(result.getWarnCount(), 3);
+        validateWarning(result, 0, "invalid usage of the 'check' expression operator: no expression type is " +
                 "equivalent to error type", 10, 21);
         validateWarning(result, 1, "unused variable 'j'", 23, 7);
-        validateError(result, 2, "invalid usage of the 'check' expression operator: no expression type is " +
+        validateWarning(result, 2, "invalid usage of the 'check' expression operator: no expression type is " +
                 "equivalent to error type", 23, 21);
     }
 
     @Test
     public void invalidReceiveWithCheckpanic() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid_receive_with_checkpanic_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        validateError(result, 0, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
+        Assert.assertEquals(result.getWarnCount(), 2);
+        validateWarning(result, 0, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
                 "equivalent to error type", 23, 31);
-        validateError(result, 1, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
+        validateWarning(result, 1, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
                 "equivalent to error type", 33, 31);
     }
 

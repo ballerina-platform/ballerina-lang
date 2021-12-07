@@ -336,4 +336,60 @@ public class TestBalaProject {
         project.currentPackage().getCompilation();
         duplicate.currentPackage().getCompilation();
     }
+
+    @Test
+    public void testLoadResourcesFromBala() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
+        Project balaProject = TestUtils.loadProject(balaPath);
+        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
+            Module module = balaProject.currentPackage().module(moduleId);
+            if (module.moduleName().toString().equals("winery")) {
+                Assert.assertEquals(module.resourceIds().size(), 1);
+                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                        "main.json");
+            } else if (module.moduleName().toString().equals("winery.storage")) {
+                Assert.assertEquals(module.resourceIds().size(), 1);
+                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                        "db.json");
+            } else {
+                Assert.assertEquals(module.resourceIds().size(), 4);
+            }
+        }
+    }
+
+    @Test
+    public void testLoadResourcesFromExtractedBala() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("extracted-bala");
+        Project balaProject = TestUtils.loadProject(balaPath);
+        for (ModuleId moduleId : balaProject.currentPackage().moduleIds()) {
+            Module module = balaProject.currentPackage().module(moduleId);
+            if (module.moduleName().toString().equals("a")) {
+                Assert.assertEquals(module.resourceIds().size(), 1);
+                Assert.assertEquals(module.resource(module.resourceIds().stream().findFirst().orElseThrow()).name(),
+                        "config/default.conf");
+            } else {
+                Assert.assertEquals(module.resourceIds().size(), 0);
+            }
+        }
+    }
+
+    @Test(description = "tests calling targetDir for balaProjects")
+    public void testBalaProjectTargetDir() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
+        // 1) Initialize the project instance
+        BalaProject balaProject = null;
+        try {
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage(), e);
+        }
+
+        try {
+            balaProject.targetDir();
+        } catch (UnsupportedOperationException e) {
+            Assert.assertEquals(e.getMessage(), "target directory is not supported for BalaProject");
+        }
+    }
 }
