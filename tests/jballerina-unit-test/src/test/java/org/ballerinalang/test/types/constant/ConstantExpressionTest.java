@@ -59,6 +59,7 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 33, 22);
         BAssertUtil.validateError(compileResult1, i++, "operator '-' not defined for 'boolean'", 35, 21);
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 37, 22);
+        BAssertUtil.validateError(compileResult1, i++, "'-9223372036854775808' is out of range", 39, 20);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 

@@ -35,3 +35,5 @@ const int CONST1 =  ~~false; // operator '~' not defined for 'boolean'
 const int CONST2 =  -!false; // operator '-' not defined for 'boolean'
 
 const int CONST3 =  -~false; // operator '~' not defined for 'boolean'
+
+const int CONST4 = -9223372036854775808; // -9223372036854775808 is out of range

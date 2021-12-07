@@ -472,6 +472,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
+    public static final String INT_MIN_OVERFLOW_VAL = "-9223372036854775808";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
 
@@ -5850,6 +5851,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private Object parseLong(String originalNodeValue, String processedNodeValue, int radix) {
+        // Since 9223372036854775808 is to overflow in Ballerina and -9223372036854775808 is a unary-expr where the
+        // expression is 9223372036854775808, -9223372036854775808 should also overflow even though it is
+        // within bounds for Java Long
+        if (originalNodeValue.equals(INT_MIN_OVERFLOW_VAL)) {
+            return originalNodeValue;
+        }
         try {
             return Long.parseLong(processedNodeValue, radix);
         } catch (Exception e) {

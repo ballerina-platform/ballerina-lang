@@ -242,8 +242,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final String FUNCTION_NAME_UNSHIFT = "unshift";
     private static final String FUNCTION_NAME_ENSURE_TYPE = "ensureType";
 
-    public static final String INT_MIN_OVERFLOW_VAL = "-9223372036854775808";
-
     private Names names;
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -500,13 +498,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
+        if (literalExpr.value instanceof String) {
+            resultType = symTable.semanticError;
+            return resultType;
+        }
         return symTable.noType;
     }
 
     private BType getFiniteTypeMatchWithIntLiteral(BLangLiteral literalExpr, BFiniteType finiteType,
                                                    Object literalValue) {
         BType intLiteralType = getFiniteTypeMatchWithIntType(literalExpr, finiteType);
-        if (intLiteralType != symTable.noType) {
+        if (intLiteralType != symTable.noType || intLiteralType == symTable.semanticError) {
             return intLiteralType;
         }
         int typeTag = getPreferredMemberTypeTag(finiteType);
@@ -527,7 +529,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expectedType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(expectedType.tag)) {
             BType resultType = getIntLiteralType(expType, literalValue);
             if (resultType == symTable.semanticError) {
-                dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalValue.toString());
+                dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalValue);
             }
             return resultType;
         } else if (expectedType.tag == TypeTags.FLOAT) {
@@ -549,7 +551,11 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.decimalType;
         } else if (expectedType.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) expectedType;
-            return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
+            BType resultType = getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
+            if (resultType == symTable.semanticError) {
+                dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalValue);
+            }
+            return resultType;
         } else if (expectedType.tag == TypeTags.UNION) {
             for (BType memType : types.getAllTypes(expectedType, true)) {
                 BType memberRefType = types.getReferredType(memType);
@@ -869,13 +875,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // The literalValue will be a string if it is not within the bounds of what is supported by Java Long,
         // indicating that it is an overflown Ballerina int
         if (literalValue instanceof String) {
-            resultType = symTable.semanticError;
-            return resultType;
-        }
-        // Since 9223372036854775808 is to overflow in Ballerina and -9223372036854775808 is a unary-expr where the
-        // expression is 9223372036854775808, -9223372036854775808 should also overflow even though it is
-        // within bounds for Java Long
-        if (((Long) literalValue).toString().equals(INT_MIN_OVERFLOW_VAL)) {
             resultType = symTable.semanticError;
             return resultType;
         }
