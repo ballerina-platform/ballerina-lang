@@ -59,44 +59,25 @@ class PositionUtil {
         return true;
     }
 
-    static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
+    static boolean withinRange(LineRange range, LineRange enclRange) {
+        int startLine = range.startLine().line();
+        int startOffset = range.startLine().offset();
+        int endLine = range.endLine().line();
+        int endOffset = range.endLine().offset();
 
-        //TODO: Remove this check
-        if (nodePosition == null) {
-            return false;
-        }
+        int enclStartLine = enclRange.startLine().line();
+        int enclEndLine = enclRange.endLine().line();
+        int enclStartOffset = enclRange.startLine().offset();
+        int enclEndOffset = enclRange.endLine().offset();
 
-        if (!nodePosition.lineRange().filePath().equals(specifiedRange.filePath())) {
-            return false;
-        }
+        return enclRange.filePath().equals(range.filePath())
+                && (startLine == enclStartLine && startOffset >= enclStartOffset || startLine > enclStartLine)
+                && (endLine == enclEndLine && endOffset <= enclEndOffset || endLine < enclEndLine);
+    }
 
-        int nodeStartLine = nodePosition.lineRange().startLine().line();
-        int nodeStartColumn = nodePosition.lineRange().startLine().offset();
-        int nodeEndLine = nodePosition.lineRange().endLine().line();
-        int nodeEndColumn = nodePosition.lineRange().endLine().offset();
+    static boolean isRangeWithinNode(LineRange range, Location nodePosition) {
 
-        int specifiedStartLine = specifiedRange.startLine().line();
-        int specifiedStartColumn = specifiedRange.startLine().offset();
-        int specifiedEndLine = specifiedRange.endLine().line();
-        int specifiedEndColumn = specifiedRange.endLine().offset();
-
-        if (specifiedStartLine < nodeStartLine || specifiedEndLine > nodeEndLine) {
-            return false;
-        }
-
-        if (specifiedStartLine > nodeStartLine && specifiedEndLine < nodeEndLine) {
-            return true;
-        }
-
-        if (specifiedStartLine == nodeStartLine && specifiedEndLine == nodeEndLine) {
-            return specifiedStartColumn >= nodeStartColumn && specifiedEndColumn <= nodeEndColumn;
-        }
-
-        if (specifiedStartLine == nodeStartLine) {
-            return specifiedStartColumn >= nodeStartColumn;
-        }
-
-        return specifiedEndColumn <= nodeEndColumn;
+        return nodePosition != null && withinRange(range, nodePosition.lineRange());
     }
 
     //  todo to be removed once https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is sorted

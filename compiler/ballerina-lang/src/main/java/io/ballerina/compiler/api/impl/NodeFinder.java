@@ -234,7 +234,7 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)
+            if (!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) || isLambdaFunction(node)
                     || isClassForService(node)) {
                 continue;
             }
@@ -251,7 +251,7 @@ class NodeFinder extends BaseVisitor {
 
     private void lookupNodes(List<? extends BLangNode> nodes) {
         for (BLangNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.pos)) {
+            if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
                 continue;
             }
 
@@ -269,7 +269,7 @@ class NodeFinder extends BaseVisitor {
             return;
         }
 
-        if (!PositionUtil.withinRange(this.range, node.pos)) {
+        if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
             return;
         }
 
@@ -1369,7 +1369,7 @@ class NodeFinder extends BaseVisitor {
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
-        if (PositionUtil.withinRange(this.range, pos) && this.enclosingNode == null) {
+        if (PositionUtil.isRangeWithinNode(this.range, pos) && this.enclosingNode == null) {
             this.enclosingNode = node;
             return true;
         }

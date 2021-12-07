@@ -330,7 +330,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         for (Diagnostic diagnostic : allDiagnostics) {
             LineRange lineRange = diagnostic.location().lineRange();
 
-            if (lineRange.filePath().equals(range.filePath()) && withinRange(lineRange, range)) {
+            if (lineRange.filePath().equals(range.filePath()) && PositionUtil.withinRange(lineRange, range)) {
                 filteredDiagnostics.add(diagnostic);
             }
         }
@@ -453,22 +453,6 @@ public class BallerinaSemanticModel implements SemanticModel {
     private BPackageSymbol getModuleSymbol(BLangCompilationUnit compilationUnit) {
         return compilationUnit.getSourceKind() == REGULAR_SOURCE ? bLangPackage.symbol :
                 bLangPackage.getTestablePkg().symbol;
-    }
-
-    private boolean withinRange(LineRange range, LineRange specifiedRange) {
-        int startLine = range.startLine().line();
-        int startOffset = range.startLine().offset();
-        int endLine = range.endLine().line();
-        int endOffset = range.endLine().offset();
-
-        int specifiedStartLine = specifiedRange.startLine().line();
-        int specifiedEndLine = specifiedRange.endLine().line();
-        int specifiedStartOffset = specifiedRange.startLine().offset();
-        int specifiedEndOffset = specifiedRange.endLine().offset();
-
-        return (startLine == specifiedStartLine && startOffset >= specifiedStartOffset
-                || startLine > specifiedStartLine)
-                && (endLine == specifiedEndLine && endOffset <= specifiedEndOffset || endLine < specifiedEndLine);
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
