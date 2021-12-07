@@ -517,6 +517,7 @@ function testTableTypeInferenceWithVarType() {
     testTableTypeInferenceWithVarType7({i: 2});
     testTableTypeInferenceWithVarType8();
     testTableTypeInferenceWithVarType9();
+    testTableTypeInferenceWithVarType10();
 }
 
 function testTableTypeInferenceWithVarType1() {
@@ -640,6 +641,20 @@ function testTableTypeInferenceWithVarType9() {
         ];
     table<record {|any a;|}> _ = v1;
     v1.add({a: f});
+    v1.add({a: 1});
+}
+
+type IntArray int[];
+
+function testTableTypeInferenceWithVarType10() {
+    IntArray intArr = [0, 1];
+
+    var v1 = table [
+            {a: intArr},
+            {a: 1}
+        ];
+    table<record {|(int[]|int) a;|}> _ = v1;
+    v1.add({a: intArr});
     v1.add({a: 1});
 }
 

@@ -197,7 +197,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1153,12 +1152,11 @@ public class TypeChecker extends BLangNodeVisitor {
             boolean isOptional = hasOptionalFields(fields) || fields.size() != memTypesSize;
 
             if (isOptional) {
-                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
+                resultantField.symbol.flags = Flags.OPTIONAL;
             } else if (keySpecifierFieldNames.contains(fieldName)) {
-                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) +
-                        Flags.asMask(EnumSet.of(Flag.READONLY));
+                resultantField.symbol.flags = Flags.REQUIRED | Flags.READONLY;
             } else {
-                resultantField.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
+                resultantField.symbol.flags = Flags.REQUIRED;
             }
 
             inferredFields.add(resultantField);
