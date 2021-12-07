@@ -201,10 +201,7 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    // Disabling this since the cause is due to an existing bug that is revealed
-    // after code generator support. Should be enabled after fixing
-    // https://github.com/ballerina-platform/ballerina-lang/issues/34159
-    @Test(description = "Build bal file containing syntax error", enabled = false)
+    @Test(description = "Build bal file containing syntax error")
     public void testBalFileWithSyntaxError() throws IOException {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
@@ -220,10 +217,7 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
-    // Disabling this since the cause is due to an existing bug that is revealed
-    // after code generator support. Should be enabled after fixing
-    // https://github.com/ballerina-platform/ballerina-lang/issues/34159
-    @Test(description = "Build bal file containing syntax error", enabled = false)
+    @Test(description = "Build bal package containing syntax error")
     public void testBalProjectWithSyntaxError() throws IOException {
         // valid source root path
         Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
@@ -234,7 +228,7 @@ public class BuildCommandTest extends BaseCommandTest {
             buildCommand.execute();
         } catch (BLauncherException e) {
             String buildLog = readOutput(true);
-            Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-syntax-err-bal.txt"));
+            Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-syntax-err-package.txt"));
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
         }
     }
