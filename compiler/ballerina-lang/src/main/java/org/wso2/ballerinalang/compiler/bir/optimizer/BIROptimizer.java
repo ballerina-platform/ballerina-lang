@@ -161,7 +161,7 @@ public class BIROptimizer {
 
                 // if the current MOVE is not from a TEMP, again, don't do anything.
                 Move moveIns = ((Move) ins);
-                if (moveIns.rhsOp.variableDcl.kind != VarKind.TEMP) {
+                if (moveIns.rhsOp.variableDcl != null && moveIns.rhsOp.variableDcl.kind != VarKind.TEMP) {
                     newInstructions.add(ins);
                     continue;
                 }

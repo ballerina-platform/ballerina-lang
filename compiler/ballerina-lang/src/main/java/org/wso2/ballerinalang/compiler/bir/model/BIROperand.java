@@ -51,11 +51,11 @@ public class BIROperand extends BIRNode {
 
     @Override
     public String toString() {
-        return variableDcl.toString();
+        return variableDcl != null ? variableDcl.toString() : null;
     }
 
     @Override
     public int hashCode() {
-        return this.variableDcl.hashCode();
+        return this.variableDcl != null ? this.variableDcl.hashCode() : 0;
     }
 }
