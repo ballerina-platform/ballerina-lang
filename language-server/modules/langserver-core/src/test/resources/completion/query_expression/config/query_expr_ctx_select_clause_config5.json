@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 11,
-    "character": 6
+    "line": 24,
+    "character": 20
   },
   "source": "query_expression/source/query_expr_ctx_select_clause_source5.bal",
   "items": [
@@ -9,7 +9,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -27,7 +27,7 @@
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CR",
       "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
@@ -51,7 +51,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CR",
       "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
@@ -75,7 +75,7 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CR",
       "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
@@ -99,7 +99,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CR",
       "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
@@ -123,7 +123,7 @@
       "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CR",
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet",
@@ -147,7 +147,7 @@
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CR",
       "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
@@ -171,7 +171,7 @@
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -179,7 +179,7 @@
       "label": "decimal",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -187,7 +187,7 @@
       "label": "error",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -195,7 +195,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -203,7 +203,7 @@
       "label": "future",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -211,7 +211,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -219,7 +219,7 @@
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -227,7 +227,7 @@
       "label": "object",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "object",
       "insertTextFormat": "Snippet"
     },
@@ -235,7 +235,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -243,7 +243,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -251,7 +251,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -259,7 +259,7 @@
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
@@ -267,7 +267,7 @@
       "label": "typedesc",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -275,7 +275,7 @@
       "label": "xml",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -283,7 +283,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -292,7 +292,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
@@ -301,7 +301,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -310,7 +310,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
@@ -319,7 +319,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -328,7 +328,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
@@ -337,7 +337,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
@@ -346,7 +346,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
@@ -355,7 +355,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -364,7 +364,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -373,7 +373,7 @@
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
@@ -382,7 +382,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
@@ -391,7 +391,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
@@ -400,7 +400,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "CQ",
       "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
@@ -409,7 +409,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "CP",
       "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
@@ -418,7 +418,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "CP",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -427,7 +427,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "CP",
       "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
@@ -436,48 +436,9 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "CP",
       "filterText": "base64",
       "insertText": "base64 `${1}`",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MedalStats",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "MedalStats",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "findTop10GoldMedalsToAthletesRatio()",
-      "kind": "Function",
-      "detail": "error?",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error?`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "findTop10GoldMedalsToAthletesRatio",
-      "insertText": "findTop10GoldMedalsToAthletesRatio()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ratio",
-      "kind": "Variable",
-      "detail": "float",
-      "sortText": "B",
-      "insertText": "ratio",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "athletesByCountry",
-      "kind": "Variable",
-      "detail": "map<int>",
-      "sortText": "B",
-      "insertText": "athletesByCountry",
       "insertTextFormat": "Snippet"
     },
     {
@@ -487,47 +448,15 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "M",
+      "sortText": "CM",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "medalStats",
-      "kind": "Variable",
-      "detail": "stream<MedalStats, error?>",
-      "sortText": "B",
-      "insertText": "medalStats",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "entry",
-      "kind": "Variable",
-      "detail": "[string, int]",
-      "sortText": "B",
-      "insertText": "entry",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ratios",
-      "kind": "Variable",
-      "detail": "record {| string country; float ratio; |}[]",
-      "sortText": "B",
-      "insertText": "ratios",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stats",
-      "kind": "Variable",
-      "detail": "MedalStats",
-      "sortText": "B",
-      "insertText": "stats",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "N",
+      "sortText": "CN",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -535,7 +464,7 @@
       "label": "readonly",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -543,7 +472,7 @@
       "label": "handle",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -551,7 +480,7 @@
       "label": "never",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -559,7 +488,7 @@
       "label": "json",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -567,7 +496,7 @@
       "label": "anydata",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -575,7 +504,7 @@
       "label": "any",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -583,17 +512,110 @@
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "CR",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "on conflict",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "on_conflict",
-      "insertText": "on conflict ",
+      "label": "CustomerTable",
+      "kind": "TypeParameter",
+      "detail": "Table",
+      "sortText": "CN",
+      "insertText": "CustomerTable",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c1",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "CB",
+      "insertText": "c1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testTableNoDuplicatesAndOnConflictReturnTable()",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `boolean`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "testTableNoDuplicatesAndOnConflictReturnTable",
+      "insertText": "testTableNoDuplicatesAndOnConflictReturnTable()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "CM",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerTable",
+      "kind": "Variable",
+      "detail": "CustomerTable|error",
+      "sortText": "CB",
+      "insertText": "customerTable",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "onConflictError",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "AB",
+      "insertText": "onConflictError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c3",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "CB",
+      "insertText": "c3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c2",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "CB",
+      "insertText": "c2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getOnConflictError()",
+      "kind": "Function",
+      "detail": "error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "getOnConflictError",
+      "insertText": "getOnConflictError()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerList",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "CB",
+      "insertText": "customerList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testPassed",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "CB",
+      "insertText": "testPassed",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -77,14 +79,14 @@ public class OnConflictClauseNodeContext extends AbstractCompletionProvider<OnCo
     @Override
     public void sort(BallerinaCompletionContext context, OnConflictClauseNode node, List<LSCompletionItem> lsCItems) {
         for (LSCompletionItem lsCItem : lsCItems) {
-            int rank = 2;
-            if (this.isVariableOfErrorType(lsCItem)) {
-                Optional<Symbol> symbol = ((SymbolCompletionItem) lsCItem).getSymbol();
-                Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol.get());
-                if (typeDescriptor.isPresent()
-                        && CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.ERROR) {
-                    rank = 1;
-                }
+            int rank;
+            Optional<Symbol> symbolWithErrorType = this.symbolWithErrorType(lsCItem);
+            if (symbolWithErrorType.isEmpty()) {
+                rank = 3;
+            } else if (symbolWithErrorType.get().kind() == SymbolKind.FUNCTION) {
+                rank = 2;
+            } else {
+                rank = 1;
             }
             String sortText = SortingUtil.genSortText(rank)
                     + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
@@ -92,10 +94,26 @@ public class OnConflictClauseNodeContext extends AbstractCompletionProvider<OnCo
         }
     }
 
-    private boolean isVariableOfErrorType(LSCompletionItem lsCItem) {
+    private Optional<Symbol> symbolWithErrorType(LSCompletionItem lsCItem) {
         Predicate<Symbol> symbolPredicate = CommonUtil.getVariableFilterPredicate();
-        return lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL
-                && ((SymbolCompletionItem) lsCItem).getSymbol().isPresent()
-                && symbolPredicate.test(((SymbolCompletionItem) lsCItem).getSymbol().get());
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL
+                || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
+            return Optional.empty();
+        }
+        Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().get();
+
+        if (!symbolPredicate.test(symbol) && symbol.kind() != SymbolKind.FUNCTION) {
+            return Optional.empty();
+        }
+
+        Optional<TypeSymbol> typeSymbol = symbol.kind() == SymbolKind.FUNCTION
+                ? ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor()
+                : SymbolUtil.getTypeDescriptor(symbol);
+
+        if (typeSymbol.isPresent() && CommonUtil.getRawType(typeSymbol.get()).typeKind() == TypeDescKind.ERROR) {
+            return Optional.of(symbol);
+        }
+
+        return Optional.empty();
     }
 }
