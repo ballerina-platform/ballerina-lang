@@ -234,6 +234,11 @@ function testMap() returns boolean {
     testPassed = testPassed && tableToList.length() == 4;
     testPassed = testPassed && empTab.toString() == expected;
 
+    empTab = tab.'map((person) => <Employee>{name: person.name, department : "HR"});
+    tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == expected;
+
     return testPassed;
 }
 

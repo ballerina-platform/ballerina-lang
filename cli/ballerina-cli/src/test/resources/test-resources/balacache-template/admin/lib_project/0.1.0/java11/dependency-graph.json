@@ -2,47 +2,22 @@
   "packages": [
     {
       "org": "ballerina",
-      "name": "jballerina.java",
-      "version": "0.9.0",
-      "transitive": false,
-      "dependencies": [],
-      "modules": []
-    },
-    {
-      "org": "admin",
-      "name": "Sample",
-      "version": "0.1.5",
-      "transitive": false,
-      "dependencies": [
-        {
-          "org": "ballerina",
-          "name": "io",
-          "version": "0.6.0-beta.2",
-          "transitive": false,
-          "dependencies": [],
-          "modules": []
-        }
-      ],
-      "modules": []
-    },
-    {
-      "org": "ballerina",
       "name": "io",
       "version": "0.6.0-beta.2",
       "transitive": false,
       "dependencies": [
         {
           "org": "ballerina",
-          "name": "jballerina.java",
-          "version": "0.9.0",
+          "name": "lang.value",
+          "version": "1.0.0",
           "transitive": false,
           "dependencies": [],
           "modules": []
         },
         {
           "org": "ballerina",
-          "name": "lang.value",
-          "version": "1.0.0",
+          "name": "jballerina.java",
+          "version": "0.9.0",
           "transitive": false,
           "dependencies": [],
           "modules": []
@@ -66,29 +41,39 @@
         }
       ],
       "modules": []
+    },
+    {
+      "org": "admin",
+      "name": "lib_project",
+      "version": "0.1.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "ballerina",
+          "name": "io",
+          "version": "0.6.0-beta.2",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "ballerina",
+      "name": "jballerina.java",
+      "version": "0.9.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
     }
   ],
   "modules": [
     {
       "org": "admin",
-      "package_name": "Sample",
-      "version": "0.1.5",
-      "module_name": "Sample",
-      "dependencies": [
-        {
-          "org": "ballerina",
-          "package_name": "io",
-          "version": "0.6.0-beta.2",
-          "module_name": "io",
-          "dependencies": []
-        }
-      ]
-    },
-    {
-      "org": "admin",
-      "package_name": "Sample",
-      "version": "0.1.5",
-      "module_name": "Sample.Sample",
+      "package_name": "lib_project",
+      "version": "0.1.0",
+      "module_name": "lib_project",
       "dependencies": [
         {
           "org": "ballerina",

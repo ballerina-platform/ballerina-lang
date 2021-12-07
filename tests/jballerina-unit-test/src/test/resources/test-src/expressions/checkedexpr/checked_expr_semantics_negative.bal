@@ -33,3 +33,17 @@ function testCheckedExprSemanticErrors6() returns error? {
     string|error line = readLineSuccess();
     check line;
 }
+
+function testCheckedExprWithNoErrorType1() {
+    int i = 10;
+    int j = check i;
+}
+
+function testCheckedExprWithNoErrorType2() {
+    int i = 10;
+    int j = getInt(check 10) + check i;
+}
+
+function getInt(int x) returns int {
+    return x + 1;
+}

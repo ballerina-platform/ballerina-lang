@@ -28,3 +28,17 @@ function readLineProper() returns string | MyError | CustomError {
 function testCheckedExprSemanticErrors5() {
     string line = checkpanic readLineProper();
 }
+
+function testCheckedExprWithNoErrorType1() {
+    int i = 10;
+    int j = checkpanic i;
+}
+
+function testCheckedExprWithNoErrorType2() {
+    int i = 10;
+    int j = getInt(checkpanic 10) + checkpanic i;
+}
+
+function getInt(int x) returns int {
+    return x + 1;
+}

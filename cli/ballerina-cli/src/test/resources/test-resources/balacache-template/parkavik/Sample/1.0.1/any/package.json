@@ -1,7 +1,7 @@
 {
-  "organization": "admin",
+  "organization": "parkavik",
   "name": "Sample",
-  "version": "0.1.5",
+  "version": "1.0.1",
   "export": [
     "Sample"
   ],
