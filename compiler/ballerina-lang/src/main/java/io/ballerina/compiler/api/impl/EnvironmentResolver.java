@@ -23,6 +23,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -114,9 +115,14 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-        compUnit.getTopLevelNodes().stream().filter(
-                node -> !(node instanceof BLangFunction && ((BLangFunction) node).flagSet.contains(Flag.WORKER)))
-                .forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode, this.symbolEnv));
+
+        for (TopLevelNode node : compUnit.getTopLevelNodes()) {
+            if (node.getKind() == NodeKind.FUNCTION && isWorkerOrLambdaFunction((BLangFunction) node)) {
+                continue;
+            }
+
+            this.acceptNode((BLangNode) node, this.symbolEnv);
+        }
     }
 
     @Override
@@ -508,7 +514,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        this.acceptNode(bLangLambdaFunction.function, this.symbolEnv);
+        this.acceptNode(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
     }
 
     @Override
@@ -633,5 +639,9 @@ public class EnvironmentResolver extends BaseVisitor {
         }
 
         return PositionUtil.withinRange(nodePosition.lineRange(), this.scope.node.getPosition());
+    }
+
+    private boolean isWorkerOrLambdaFunction(BLangFunction node) {
+        return node.flagSet.contains(Flag.WORKER) || node.flagSet.contains(Flag.LAMBDA);
     }
 }
