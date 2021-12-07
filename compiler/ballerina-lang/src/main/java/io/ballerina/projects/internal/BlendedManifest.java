@@ -69,20 +69,20 @@ public class BlendedManifest {
                     depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) ?
                     Repository.LOCAL : Repository.NOT_SPECIFIED;
 
-            if (depInPkgManifest.repository() != null &&
-                    depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+            if (depInPkgManifest.repository() != null) {
+                if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                    continue;
+                }
                 if (!localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
                         depInPkgManifest.version())) {
                     continue;
                 }
             } else {
-                depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),new Dependency(
+                depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), new Dependency(
                         depInPkgManifest.org(), depInPkgManifest.name(), depInPkgManifest.version(),
                         DependencyRelation.UNKNOWN, Repository.NOT_SPECIFIED,
                         moduleNames(new DependencyManifest.Package(depInPkgManifest.name(), depInPkgManifest.org(),
-                                depInPkgManifest.version())),DependencyOrigin.LOCKED)
-                );
-
+                                depInPkgManifest.version())), DependencyOrigin.USER_SPECIFIED));
                 continue;
             }
 
