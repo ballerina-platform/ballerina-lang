@@ -231,6 +231,34 @@ function testNumericEscapes() {
         assertEquality("A \\\\u{5C} B", s4);
 }
 
+type Type1 1|2|3;
+type Type2 "int"|"string"|Type1;
+type Type3 1|"hello"|Type2;
+type Type4 2.0|3.0|5.0;
+
+function testStringTemplateWithFiniteType() {
+    Type1 a = 2;
+    Type2 b = 3;
+    Type2 c = "string";
+    Type3 d = "hello";
+    Type4 e = 2.0;
+
+    string str = string `${a}`;
+    assertEquality("2", str);
+
+    str = string `${b}`;
+    assertEquality("3", str);
+
+    str = string `${c}`;
+    assertEquality("string", str);
+
+    str = string `${d}`;
+    assertEquality("hello", str);
+
+    str = string `${e}`;
+    assertEquality("2.0", str);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

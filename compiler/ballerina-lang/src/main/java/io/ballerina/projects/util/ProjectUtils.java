@@ -589,7 +589,7 @@ public class ProjectUtils {
     }
 
     public static void checkExecutePermission(Path path) {
-        if (!path.toFile().canRead()) {
+        if (!path.toFile().canExecute()) {
             throw new ProjectException("'" + path.normalize() + "' does not have execute permissions");
         }
     }

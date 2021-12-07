@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -64,8 +63,10 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        ReturnStatementNode returnStatementNode = getReturnStatement(positionDetails.matchedNode());
-        if (returnStatementNode == null) {
+        //Suggest the code action only if the immediate parent of the matched node is a return statement 
+        // and the return statement corresponds to the enclosing function's signature. 
+        NonTerminalNode parentNode = positionDetails.matchedNode().parent();
+        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT) {
             return Collections.emptyList();
         }
 
@@ -134,12 +135,5 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public String getName() {
         return NAME;
     }
-
-    private ReturnStatementNode getReturnStatement(NonTerminalNode node) {
-        while (node != null && node.kind() != SyntaxKind.RETURN_STATEMENT) {
-            node = node.parent();
-        }
-
-        return node != null ? (ReturnStatementNode) node : null;
-    }
+    
 }
