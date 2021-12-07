@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -102,7 +103,8 @@ public class DefinitionTest {
             fileUri = CommonUtil.getUriForPath(sourcePath, CommonUtil.URI_SCHEME_BALA);
         }
 
-        TestUtil.openDocument(serviceEndpoint, sourcePath, fileUri);
+        byte[] encodedContent = Files.readAllBytes(sourcePath);
+        TestUtil.openDocument(serviceEndpoint, fileUri, new String(encodedContent));
         String actualStr = TestUtil.getDefinitionResponse(fileUri, position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, fileUri);
 

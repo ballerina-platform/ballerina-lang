@@ -493,19 +493,8 @@ public class TestUtil {
      * @throws IOException Exception while reading the file content
      */
     public static void openDocument(Endpoint serviceEndpoint, Path filePath) throws IOException {
-        openDocument(serviceEndpoint, filePath, filePath.toUri().toString());
-    }   
-    
-    /**
-     * Open a document. Allows specifying the file URI to simulate different URI schemes.
-     *
-     * @param serviceEndpoint Language Server Service Endpoint
-     * @param filePath        Path of the document to open
-     * @throws IOException Exception while reading the file content
-     */
-    public static void openDocument(Endpoint serviceEndpoint, Path filePath, String fileUri) throws IOException {
         byte[] encodedContent = Files.readAllBytes(filePath);
-        openDocument(serviceEndpoint, fileUri, new String(encodedContent));
+        openDocument(serviceEndpoint, filePath.toUri().toString(), new String(encodedContent));
     }
 
     /**
@@ -513,6 +502,7 @@ public class TestUtil {
      *
      * @param serviceEndpoint Language Server Service Endpoint
      * @param fileUri         uri of the document to open
+     * @param content         File content
      * @throws IOException Exception while reading the file content
      */
     public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {

@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -102,7 +103,8 @@ public class ReferencesTest {
     protected String getReferencesResponseWithinStdLib(Path sourcePath, Position position) 
             throws IOException, URISyntaxException {
         String fileUri = CommonUtil.getUriForPath(sourcePath, getExpectedUriScheme());
-        TestUtil.openDocument(serviceEndpoint, sourcePath, fileUri);
+        byte[] encodedContent = Files.readAllBytes(sourcePath);
+        TestUtil.openDocument(serviceEndpoint, fileUri, new String(encodedContent));
         String actualStr = TestUtil.getReferencesResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, fileUri);
         return actualStr;
