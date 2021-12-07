@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -854,6 +855,8 @@ public class JvmRecordGen {
             case FLOAT:
             case BYTE:
                 return false;
+            case TYPEREFDESC:
+                return checkIfValueIsJReferenceType(((BTypeReferenceType) bType).referredType);
             default:
                 return true;
         }
