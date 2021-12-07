@@ -83,6 +83,7 @@ public class StaticMethods {
     private static final BTupleType tupleType = new BTupleType(
             Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
                           PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
+    private static Module errorModule = new Module("testorg", "distinct_error.errors", "1");
 
     private StaticMethods() {
     }
@@ -304,6 +305,20 @@ public class StaticMethods {
             return 5;
         } else {
             return new ErrorValue(StringUtils.fromString("error message"));
+        }
+    }
+
+    public static Object returnDistinctErrorUnionWhichThrowsCheckedException(int flag, BString errorName)
+            throws JavaInteropTestCheckedException {
+        if (flag == 0) {
+            return 5;
+        } else if (flag == 1) {
+            BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+            errorDetails.put(StringUtils.fromString("detail"), "detail error message");
+            return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("error msg"),
+                    null, errorDetails);
+        } else {
+            return ErrorCreator.createError(StringUtils.fromString("Invalid data given"));
         }
     }
 

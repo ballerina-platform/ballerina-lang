@@ -272,6 +272,20 @@ public class NegativeValidationTest {
 
     @Test
     public void testMethodSignatureNotMatch8() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/javainterop/negative/distinct_error");
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
+                        "'returnDistinctErrorUnionWhichThrowsCheckedException' which throws checked exception " +
+                        "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'int|error', found '(int|testorg/distinct_error.errors:1.0.0:DistinctError)''",
+                "modules/errors/errors.bal", 21, 1);
+    }
+
+    @Test
+    public void testMethodSignatureNotMatch9() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
 
@@ -285,7 +299,7 @@ public class NegativeValidationTest {
     }
 
     @Test
-    public void testMethodSignatureNotMatch9() {
+    public void testMethodSignatureNotMatch10() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
 
@@ -299,7 +313,7 @@ public class NegativeValidationTest {
     }
 
     @Test
-    public void testMethodSignatureNotMatch10() {
+    public void testMethodSignatureNotMatch11() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
 
@@ -315,7 +329,7 @@ public class NegativeValidationTest {
     }
 
     @Test
-    public void testMethodSignatureNotMatch11() {
+    public void testMethodSignatureNotMatch12() {
 
         String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
 
