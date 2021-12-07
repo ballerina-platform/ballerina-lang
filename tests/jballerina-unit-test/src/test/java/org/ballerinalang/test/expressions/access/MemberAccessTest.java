@@ -46,7 +46,7 @@ public class MemberAccessTest {
         negativeResult = BCompileUtil.compile("test-src/expressions/access/member_access_negative.bal");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testNegativeCases() {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
@@ -370,6 +370,23 @@ public class MemberAccessTest {
         BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
     }
 
+    @Test
+    public void testMemberAccessWithBinaryExprAsIndex() {
+        BRunUtil.invoke(result, "testMemberAccessWithBinaryExprAsIndex");
+    }
+
+    @Test
+    public void testMemberAccessWithGroupExprAsIndex() {
+        BRunUtil.invoke(result, "testMemberAccessWithGroupExprAsIndex");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
+                    "index out of range: index: 3, size: 3\"\\}.*")
+    public void testMemberAccessOutOfRangeWithBinaryExpr() {
+        BRunUtil.invoke(result, "testMemberAccessOutOfRangeWithBinaryExpr");
+    }
+    
     @Test
     public void testNestedMemberAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedMemberAccessOnIntersectionTypes");

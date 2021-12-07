@@ -771,6 +771,41 @@ public function testNestedMemberAccessOnIntersectionTypes() {
     assertEquality((), v3);
 }
 
+type myrec record {|
+    string name;
+|};
+
+const LENGTH = 10;
+
+function testMemberAccessWithBinaryExprAsIndex() {
+    int[3] intArr = [0, 1, 2];
+    assertEquality(1, intArr[10 - 9]);
+    
+    int x = 8;
+    assertEquality(2, intArr[10 - x]);
+    
+    assertEquality(0, intArr[10 - LENGTH]);
+    
+    myrec myRecVar = {name: "Ballerina"};
+    assertEquality("Ballerina", myRecVar["na" + "me"]);
+}
+
+function testMemberAccessWithGroupExprAsIndex() {
+    int[3] intArr = [0, 1, 2];
+    assertEquality(1, intArr[((1))]);
+    
+    [int, int] intTuple = [3, 4];
+    assertEquality(4, intTuple[(10 - 9)]);
+    
+    myrec myRecVar = {name: "Ballerina"};
+    assertEquality("Ballerina", myRecVar[("name")]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr() {
+    int[3] intArr = [0, 1, 2];
+    int _ = intArr[2 + 1];
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
