@@ -412,7 +412,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             }
 
             try {
-                Optional<Project> project = this.workspaceManager.project(filePath.get());
+                Optional<Project> project = this.workspaceManagerProxy.get(fileUri).project(filePath.get());
                 if (project.isEmpty()) {
                     reply.setParseSuccess(false);
                     return reply;
@@ -422,8 +422,8 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
                 String msg = "Operation 'ballerinaDocument/resolveMissingDependencies' failed!";
-                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE, msg, e, request.getDocumentIdentifier(),
-                        (Position) null);
+                this.clientLogger.logError(DocumentContext.DC_RESOLVE_MISSING_DEPENDENCIES, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
             }
             return reply;
         });
