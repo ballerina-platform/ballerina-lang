@@ -1884,6 +1884,15 @@ public class TestBuildProject extends BaseTest {
         duplicate.currentPackage().getCompilation();
     }
 
+    @Test (description = "tests calling targetDir for Build Project")
+    public void testBuildProjectTargetDir() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        BuildProject project = loadBuildProject(projectPath);
+        Path targetDirPath = project.targetDir();
+        Path expectedPath = projectPath.resolve("target");
+        Assert.assertEquals(targetDirPath, expectedPath);
+    }
+
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");

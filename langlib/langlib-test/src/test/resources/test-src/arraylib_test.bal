@@ -26,13 +26,13 @@ function testLength() returns int {
 function testIterator() returns string {
     string[] arr = ["Hello", "World!", "From", "Ballerina"];
     object {
-         public isolated function next() returns record {| string value; |}?;
+        public isolated function next() returns record {|string value;|}?;
     } itr = arr.iterator();
 
-    record {| string value; |}|() elem = itr.next();
+    record {|string value;|}|() elem = itr.next();
     string result = "";
 
-    while (elem is record {| string value; |}) {
+    while (elem is record {|string value;|}) {
         result += elem.value;
         elem = itr.next();
     }
@@ -47,8 +47,8 @@ function testEnumerate() returns [int, string][] {
 
 function testMap() returns int[] {
     int[] arr = [10, 20, 30, 40];
-    int[] newArr = arr.'map(function (int x) returns int {
-        return x/10;
+    int[] newArr = arr.'map(function(int x) returns int {
+        return x / 10;
     });
     return newArr;
 }
@@ -57,7 +57,7 @@ function testForeach() returns string {
     string?[] arr = ["Hello", "World!", (), "from", "Ballerina"];
     string result = "";
 
-    arr.forEach(function (string? x) {
+    arr.forEach(function(string? x) {
         if (x is string) {
             result += x;
         }
@@ -135,28 +135,51 @@ function testSliceOfIntersectionOfReadonlyRecordArray() {
     assertValueEquality([{id: 175149, name: "Roy", age: 12, school: "RC", average: 84.9}], s);
 }
 
-function testPushAfterSlice() returns [int, int, float[]] {
-     float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
-     float[] s = arr.slice(1, 4);
-     int sl = s.length();
-     s.push(20.1);
-     int slp = s.length();
-     return [sl, slp, s];
+function testPushAfterSlice() {
+    float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
+    float[] s = arr.slice(1, 4);
+    int sl = s.length();
+    s.push(20.1);
+    int slp = s.length();
+    assertValueEquality(3, sl);
+    assertValueEquality(4, slp);
+    assertValueEquality([23.45, 34.56, 45.67, 20.1], s);
 }
 
-function testPushAfterSliceFixed() returns [int, int, int[]] {
-     int[5] arr = [1, 2, 3, 4, 5];
-     int[] s = arr.slice(3);
-     int sl = s.length();
-     s.push(88);
-     int slp = s.length();
-     return [sl, slp, s];
+function testPushAfterSliceFixed() {
+    int[5] arr = [1, 2, 3, 4, 5];
+    int[] s = arr.slice(3);
+    int sl = s.length();
+    s.push(88);
+    int slp = s.length();
+    assertValueEquality(2, sl);
+    assertValueEquality(3, slp);
+    assertValueEquality([4, 5, 88], s);
 }
 
 function testPushAfterSliceOfReadonlyMapArray() {
     readonly & map<string>[] arr = [{x: "a"}, {y: "b"}];
     map<string>[] r = arr.slice(1);
     r.push({z: "c"});
+}
+
+function testPushAfterSliceOnTuple() {
+    [int, string, string] x = [1, "hello", "world"];
+    (int|string)[] a = x.slice(1);
+    assertValueEquality(2, a.length());
+    assertValueEquality("hello", a[0]);
+    assertValueEquality("world", a[1]);
+    a.push("new element");
+    assertValueEquality(3, a.length());
+
+    [int, int, boolean...] y = [1, 2, true, false, true];
+    (int|boolean)[] b = y.slice(1, 4);
+    assertValueEquality(3, b.length());
+    assertValueEquality(2, b[0]);
+    b.push(false);
+    b.push(25);
+    assertValueEquality(25, b.pop());
+    assertFalse(b.pop());
 }
 
 function testSliceOnTupleWithRestDesc() {
@@ -182,7 +205,7 @@ function testRemove() returns [string, string[]] {
 
 function testReduce() returns float {
     int[] arr = [12, 15, 7, 10, 25];
-    float avg = arr.reduce(function (float accum, int val) returns float {
+    float avg = arr.reduce(function(float accum, int val) returns float {
         return accum + <float>val / <float>arr.length();
     }, 0.0);
     return avg;
@@ -193,11 +216,11 @@ type Grade "A+"|"A"|"A-"|"B+"|"B"|"B-"|"C"|"F";
 function testIterableOpChain() returns float {
     [Grade, int][] grades = [["A+", 2], ["A-", 3], ["B", 3], ["C", 2]];
 
-    int totalCredits = grades.reduce(function (int accum, [Grade, int] grade) returns int {
-         return accum + grade[1];
-     }, 0);
+    int totalCredits = grades.reduce(function(int accum, [Grade, int] grade) returns int {
+        return accum + grade[1];
+    }, 0);
 
-    float gpa = grades.'map(gradeToValue).reduce(function (float accum, [float, int] gradePoint) returns float {
+    float gpa = grades.'map(gradeToValue).reduce(function(float accum, [float, int] gradePoint) returns float {
         return accum + (gradePoint[0] * <float>gradePoint[1]) / <float>totalCredits;
     }, 0.0);
 
@@ -206,32 +229,62 @@ function testIterableOpChain() returns float {
 
 function gradeToValue([Grade, int] grade) returns [float, int] {
     match grade[0] {
-        "A+" => {return [4.2, grade[1]];}
-        "A" => {return [4.0, grade[1]];}
-        "A-" => {return [3.7, grade[1]];}
-        "B+" => {return [3.3, grade[1]];}
-        "B" => {return [3.0, grade[1]];}
-        "B-" => {return [2.7, grade[1]];}
-        "C" => {return [2.0, grade[1]];}
-        "F" => {return [0.0, grade[1]];}
+        "A+" => {
+            return [4.2, grade[1]];
+        }
+        "A" => {
+            return [4.0, grade[1]];
+        }
+        "A-" => {
+            return [3.7, grade[1]];
+        }
+        "B+" => {
+            return [3.3, grade[1]];
+        }
+        "B" => {
+            return [3.0, grade[1]];
+        }
+        "B-" => {
+            return [2.7, grade[1]];
+        }
+        "C" => {
+            return [2.0, grade[1]];
+        }
+        "F" => {
+            return [0.0, grade[1]];
+        }
     }
     error e = error("Invalid grade: " + <string>grade[0]);
     panic e;
 }
 
 function testIndexOf() returns [int?, int?] {
-    anydata[] arr = [10, "foo", 12.34, true, <map<string>>{"k":"Bar"}];
-    map<string> m = {"k":"Bar"};
+    anydata[] arr = [10, "foo", 12.34, true, <map<string>>{"k": "Bar"}];
+    map<string> m = {"k": "Bar"};
     int? i1 = arr.indexOf(m);
     int? i2 = arr.indexOf(50);
     return [i1, i2];
 }
 
 function testLastIndexOf() {
-    anydata[] array = [10, 10, 10, "foo", "foo", "foo", 12.34, 12.34, true, true, <map<string>>{"k":"Bar"},
-                       <map<string>>{"k":"Bar"}, [12, true], [12, true]];
-    map<string> m1 = {"k":"Bar"};
-    map<string> m2 = {"k":"Foo"};
+    anydata[] array = [
+        10,
+        10,
+        10,
+        "foo",
+        "foo",
+        "foo",
+        12.34,
+        12.34,
+        true,
+        true,
+        <map<string>>{"k": "Bar"},
+        <map<string>>{"k": "Bar"},
+        [12, true],
+        [12, true]
+    ];
+    map<string> m1 = {"k": "Bar"};
+    map<string> m2 = {"k": "Foo"};
     anydata[] arr1 = [12, true];
     anydata[] arr2 = [12, false];
 
@@ -293,10 +346,14 @@ type Employee record {
 };
 
 function testReverseRecord() {
-    Employee[] arr = [{name: "John Doe", age: 25, designation: "Software Engineer"},
-        {name: "Jane Doe", age: 27, designation: "UX Engineer"}];
-    assertValueEquality(arr.reverse(), [{name: "Jane Doe", age: 27, designation: "UX Engineer"},
-        {name: "John Doe", age: 25, designation: "Software Engineer"}]);
+    Employee[] arr = [
+        {name: "John Doe", age: 25, designation: "Software Engineer"},
+        {name: "Jane Doe", age: 27, designation: "UX Engineer"}
+    ];
+    assertValueEquality(arr.reverse(), [
+        {name: "Jane Doe", age: 27, designation: "UX Engineer"},
+        {name: "John Doe", age: 25, designation: "Software Engineer"}
+    ]);
 }
 
 function testArrayReverseEquality() {
@@ -317,48 +374,48 @@ type Person record {|
 // example from: https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
 function testIterableOpChain2() returns int {
     Person[] personnel = [
-      {
-        id: 5,
-        name: "Luke Skywalker",
-        pilotingScore: 98,
-        shootingScore: 56,
-        isForceUser: true
-      },
-      {
-        id: 82,
-        name: "Sabine Wren",
-        pilotingScore: 73,
-        shootingScore: 99,
-        isForceUser: false
-      },
-      {
-        id: 22,
-        name: "Zeb Orellios",
-        pilotingScore: 20,
-        shootingScore: 59,
-        isForceUser: false
-      },
-      {
-        id: 15,
-        name: "Ezra Bridger",
-        pilotingScore: 43,
-        shootingScore: 67,
-        isForceUser: true
-      },
-      {
-        id: 11,
-        name: "Caleb Dume",
-        pilotingScore: 71,
-        shootingScore: 85,
-        isForceUser: true
-      }
+        {
+            id: 5,
+            name: "Luke Skywalker",
+            pilotingScore: 98,
+            shootingScore: 56,
+            isForceUser: true
+        },
+        {
+            id: 82,
+            name: "Sabine Wren",
+            pilotingScore: 73,
+            shootingScore: 99,
+            isForceUser: false
+        },
+        {
+            id: 22,
+            name: "Zeb Orellios",
+            pilotingScore: 20,
+            shootingScore: 59,
+            isForceUser: false
+        },
+        {
+            id: 15,
+            name: "Ezra Bridger",
+            pilotingScore: 43,
+            shootingScore: 67,
+            isForceUser: true
+        },
+        {
+            id: 11,
+            name: "Caleb Dume",
+            pilotingScore: 71,
+            shootingScore: 85,
+            isForceUser: true
+        }
     ];
 
-    int totalJediScore = personnel.filter(function (Person p) returns boolean {
+    int totalJediScore = personnel.filter(function(Person p) returns boolean {
         return p.isForceUser;
-    }).map(function (Person jedi) returns int {
+    }).map(function(Person jedi) returns int {
         return jedi.pilotingScore + jedi.shootingScore;
-    }).reduce(function (int accum, int val) returns int {
+    }).reduce(function(int accum, int val) returns int {
         return accum + val;
     }, 0);
 
@@ -379,8 +436,8 @@ function testForEach() returns string {
 function testSetLength(int newLength) returns [int, int[], int[]] {
     int[] ar = [1, 2, 3, 4, 5, 6, 7];
     ar.setLength(newLength);
-    int [] ar2 = ar.clone();
-    ar2.setLength(newLength+1);
+    int[] ar2 = ar.clone();
+    ar2.setLength(newLength + 1);
     return [ar.length(), ar, ar2];
 }
 
@@ -405,9 +462,9 @@ class Obj {
     }
 }
 
-function testUnshiftTypeWithoutFillerValues () returns Obj[] {
+function testUnshiftTypeWithoutFillerValues() returns Obj[] {
     Obj[] arr = [];
-    arr.unshift(new Obj(1, 1), new Obj(1,2));
+    arr.unshift(new Obj(1, 1), new Obj(1, 2));
     return arr;
 }
 
@@ -522,7 +579,7 @@ function testBytePush() {
     assertValueEquality(1, arr[0]);
     assertValueEquality(2, arr[1]);
     assertValueEquality(3, arr[2]);
-    assertValueEquality(<byte> 255, arr[3]);
+    assertValueEquality(<byte>255, arr[3]);
     assertValueEquality(254, arr[4]);
     assertValueEquality(0, arr[5]);
     assertValueEquality(3, arr[6]);
@@ -565,7 +622,7 @@ type Foo record {
     string s;
 };
 
-type Bar record{
+type Bar record {
     int i;
 };
 
@@ -595,31 +652,31 @@ function testPushOnUnionOfSameBasicType() {
 function testInvalidPushOnUnionOfSameBasicType() {
     int[]|string[] arr = [1, 2];
 
-    var fn = function () {
+    var fn = function() {
         arr.push("foo");
     };
 
     error? res = trap fn();
     assertTrue(res is error);
 
-    error err = <error> res;
+    error err = <error>res;
 
     var message = err.detail()["message"];
-    string detailMessage = message is error? message.toString() : message.toString();
+    string detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
     assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 
-    fn = function () {
+    fn = function() {
         arr.unshift("foo");
     };
 
     res = trap fn();
     assertTrue(res is error);
 
-    err = <error> res;
+    err = <error>res;
 
     message = err.detail()["message"];
-    detailMessage = message is error? message.toString() : message.toString();
+    detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
     assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 }
@@ -631,33 +688,33 @@ function testShiftOperation() {
 function testShiftOnTupleWithoutValuesForRestParameter() {
     [int, int...] intTupleWithRest = [0];
 
-    var fn = function () {
+    var fn = function() {
         var x = intTupleWithRest.shift();
     };
 
     error? res = trap fn();
     assertTrue(res is error);
 
-    error err = <error> res;
+    error err = <error>res;
     var message = err.detail()["message"];
-    string detailMessage = message is error? message.toString() : message.toString();
+    string detailMessage = message is error ? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
     assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
 }
 
 type Student record {|
-   int id;
-   string? fname;
-   float? fee;
-   decimal impact;
-   boolean isUndergrad;
+    int id;
+    string? fname;
+    float? fee;
+    decimal impact;
+    boolean isUndergrad;
 |};
 
 function getStudentList() returns Student[] {
     Student s1 = {id: 1, fname: "Amber", fee: 10000.56, impact: 0.127, isUndergrad: true};
     Student s2 = {id: 20, fname: (), fee: 2000.56, impact: 0.45, isUndergrad: false};
     Student s3 = {id: 2, fname: "Dan", fee: (), impact: 0.3, isUndergrad: true};
-    Student s4 = {id: 10, fname: "Kate", fee: (0.0/0.0), impact: 0.146, isUndergrad: false};
+    Student s4 = {id: 10, fname: "Kate", fee: (0.0 / 0.0), impact: 0.146, isUndergrad: false};
     Student s5 = {id: 3, fname: "Kate", fee: 5000.56, impact: 0.4, isUndergrad: false};
 
     Student[] studentList = [s1, s2, s3, s4, s5];
@@ -765,16 +822,110 @@ function testSort2() {
 }
 
 function testSort3() returns int[] {
-    int[] arr = [618917, 342612, 134235, 330412, 361634, 106132, 664844, 572601, 898935, 752462, 422849, 967630,
-    261402, 947587, 818112, 225958, 625762, 979376, -374104, 194169, 306130, 930271, 579739, 4141, 391419, 529224,
-    92583, 709992, 481213, 851703, 152557, 995605, 88360, 595013, 526619, 497868, -246544, 17351, 601903, 634524,
-    959892, 569029, 924409, 735469, -561796, 548484, 741307, 451201, 309875, 229568, 808232, 420862, 729149, 958388,
-    228636, 834740, -147418, 756897, 872064, 670287, 487870, 984526, 352034, 868342, 705354, 21468, 101992, 716704,
-    842303, 463375, 796488, -45917, 74477, 111826, 205038, 267499, 381564, 311396, 627858, 898090, 66917, 119980,
-    601003, 962077, 757150, 636247, 965398, 993533, 780387, 797889, 384359, -80982, 817361, 117263, 819125, 162680,
-    374341, 297625, 89008, 564847];
+    int[] arr = [
+        618917,
+        342612,
+        134235,
+        330412,
+        361634,
+        106132,
+        664844,
+        572601,
+        898935,
+        752462,
+        422849,
+        967630,
+        261402,
+        947587,
+        818112,
+        225958,
+        625762,
+        979376,
+        -374104,
+        194169,
+        306130,
+        930271,
+        579739,
+        4141,
+        391419,
+        529224,
+        92583,
+        709992,
+        481213,
+        851703,
+        152557,
+        995605,
+        88360,
+        595013,
+        526619,
+        497868,
+        -246544,
+        17351,
+        601903,
+        634524,
+        959892,
+        569029,
+        924409,
+        735469,
+        -561796,
+        548484,
+        741307,
+        451201,
+        309875,
+        229568,
+        808232,
+        420862,
+        729149,
+        958388,
+        228636,
+        834740,
+        -147418,
+        756897,
+        872064,
+        670287,
+        487870,
+        984526,
+        352034,
+        868342,
+        705354,
+        21468,
+        101992,
+        716704,
+        842303,
+        463375,
+        796488,
+        -45917,
+        74477,
+        111826,
+        205038,
+        267499,
+        381564,
+        311396,
+        627858,
+        898090,
+        66917,
+        119980,
+        601003,
+        962077,
+        757150,
+        636247,
+        965398,
+        993533,
+        780387,
+        797889,
+        384359,
+        -80982,
+        817361,
+        117263,
+        819125,
+        162680,
+        374341,
+        297625,
+        89008,
+        564847
+    ];
 
-    int[] sorted = arr.sort(array:DESCENDING, isolated function (int x) returns int {
+    int[] sorted = arr.sort(array:DESCENDING, isolated function(int x) returns int {
         return x;
     });
 
@@ -815,7 +966,7 @@ function testSort5() {
     "{\"id\":1,\"fname\":\"Amber\",\"fee\":10000.56,\"impact\":0.127,\"isUndergrad\":true}");
     assertValueEquality(sortedArr[4].toString(),
     "{\"id\":20,\"fname\":null,\"fee\":2000.56,\"impact\":0.45,\"isUndergrad\":false}");
-     assertValueEquality(getStudentList(), studentArr); // no change to original array
+    assertValueEquality(getStudentList(), studentArr); // no change to original array
 }
 
 isolated function getFullName(int id, string? name) returns string? {
@@ -831,7 +982,7 @@ isolated function getFullName(int id, string? name) returns string? {
 type StringOrStudent string|Student;
 
 function testSort6() {
-    anydata[] arr = [90, 2.0, 1, true, 32, "AA", 12.09, 100, 3, <map<string>>{"k":"Bar"}, ["BB", true]];
+    anydata[] arr = [90, 2.0, 1, true, 32, "AA", 12.09, 100, 3, <map<string>>{"k": "Bar"}, ["BB", true]];
 
     anydata[] sortedArr = arr.sort(array:ASCENDING, isolated function(anydata a) returns int? {
         if (a is int) {
@@ -848,7 +999,7 @@ function testSort6() {
 
     assertValueEquality(sortedArr.toString(),
     "[{\"k\":\"Bar\"},true,1,2.0,3,12.09,32,90,100,\"AA\",[\"BB\",true]]");
-    assertValueEquality([90, 2.0, 1, true, 32, "AA", 12.09, 100, 3, <map<string>>{"k":"Bar"}, ["BB", true]], arr);
+    assertValueEquality([90, 2.0, 1, true, 32, "AA", 12.09, 100, 3, <map<string>>{"k": "Bar"}, ["BB", true]], arr);
 
     string?[] arr2 = ["Hello", "World!", (), "from", "Ballerina"];
 
@@ -856,8 +1007,8 @@ function testSort6() {
     assertValueEquality(sortedArr2.toString(), "[\"Ballerina\",\"Hello\",\"World!\",\"from\",null]");
 
     Obj obj1 = new Obj(1, 1);
-    Obj obj2 = new Obj(1,2);
-    Obj obj3 = new Obj(1,10);
+    Obj obj2 = new Obj(1, 2);
+    Obj obj3 = new Obj(1, 10);
     Obj[] arr3 = [obj1, obj2, obj3];
 
     Obj[] sortedArr3 = arr3.sort(array:DESCENDING, isolated function(Obj obj) returns int {
@@ -913,7 +1064,7 @@ function testSort6() {
 
     Student s1 = {id: 1, fname: "Amber", fee: 10000.56, impact: 0.127, isUndergrad: true};
     Student s2 = {id: 2, fname: "Dan", fee: (), impact: 0.3, isUndergrad: true};
-    Student s3 = {id: 10, fname: "Kate", fee: (0.0/0.0), impact: 0.146, isUndergrad: false};
+    Student s3 = {id: 10, fname: "Kate", fee: (0.0 / 0.0), impact: 0.146, isUndergrad: false};
 
     StringOrStudent[] arr7 = ["Anne", s3, s1, "James", "Frank", s2];
 
@@ -939,7 +1090,7 @@ function testSort6() {
     int[] sortedArr11 = array:sort(arr5);
     assertValueEquality(sortedArr11.toString(), "[0,1,2,3,12,23,55,100]");
     assertValueEquality([2, 0, 12, 1, 23, 3, 100, 55], arr5); // no change to arr5
-    assertValueEquality([0,1,2,3,12,23,55,100], sortedArr8); // no change to sortedArr8
+    assertValueEquality([0, 1, 2, 3, 12, 23, 55, 100], sortedArr8); // no change to sortedArr8
 
     int[2]|int[] sortedArr12 = array:sort(arr4, array:DESCENDING, isolated function(int i) returns int {
         return i;
@@ -953,23 +1104,40 @@ function testSort6() {
 }
 
 function testSort7() {
-    float?[][] arr= [[1.8, 2.89, 5, 70, 90], [(), 4],[1.8, 2.89, 5, 70], [(0.0/0.0), 9, 8, 10], [1.8, 2.89, 5, 70, ()
-    ],[1.8, 2.89, 5],
-    [1.8, 2.89, 4], [1.8, 2.89], [2.8, 2.89, 5, 70, 90],[3], [1.8, 2.89, 5, 70, (0.0/0.0)],[1.8, (0.0/0.0)]];
+    float?[][] arr = [
+        [1.8, 2.89, 5, 70, 90],
+        [(), 4],
+        [1.8, 2.89, 5, 70],
+        [(0.0 / 0.0), 9, 8, 10],
+        [
+            1.8,
+            2.89,
+            5,
+            70,
+            ()
+        ],
+        [1.8, 2.89, 5],
+        [1.8, 2.89, 4],
+        [1.8, 2.89],
+        [2.8, 2.89, 5, 70, 90],
+        [3],
+        [1.8, 2.89, 5, 70, (0.0 / 0.0)],
+        [1.8, (0.0 / 0.0)]
+    ];
 
     float?[][] sortedArr = arr.sort(array:DESCENDING);
 
     assertValueEquality(sortedArr[0], [3.0]);
     assertValueEquality(sortedArr[1], [2.8, 2.89, 5.0, 70.0, 90.0]);
     assertValueEquality(sortedArr[2], [1.8, 2.89, 5.0, 70.0, 90.0]);
-    assertValueEquality(sortedArr[3], [1.8, 2.89, 5.0, 70.0, (0.0/0.0)]);
+    assertValueEquality(sortedArr[3], [1.8, 2.89, 5.0, 70.0, (0.0 / 0.0)]);
     assertValueEquality(sortedArr[4], [1.8, 2.89, 5.0, 70.0, ()]);
     assertValueEquality(sortedArr[5], [1.8, 2.89, 5.0, 70.0]);
     assertValueEquality(sortedArr[6], [1.8, 2.89, 5.0]);
     assertValueEquality(sortedArr[7], [1.8, 2.89, 4.0]);
     assertValueEquality(sortedArr[8], [1.8, 2.89]);
-    assertValueEquality(sortedArr[9], [1.8, (0.0/0.0)]);
-    assertValueEquality(sortedArr[10], [(0.0/0.0), 9.0, 8.0, 10.0]);
+    assertValueEquality(sortedArr[9], [1.8, (0.0 / 0.0)]);
+    assertValueEquality(sortedArr[10], [(0.0 / 0.0), 9.0, 8.0, 10.0]);
     assertValueEquality(sortedArr[11], [(), 4.0]);
 
     float?[][] sortedArr2 = arr.sort(array:ASCENDING, isolated function(float?[] x) returns float?[] {
@@ -981,15 +1149,15 @@ function testSort7() {
     assertValueEquality(sortedArr2[2], [1.8, 2.89, 5.0]);
     assertValueEquality(sortedArr2[3], [1.8, 2.89, 5.0, 70.0]);
     assertValueEquality(sortedArr2[4], [1.8, 2.89, 5.0, 70.0, 90.0]);
-    assertValueEquality(sortedArr2[5], [1.8, 2.89, 5.0, 70.0, (0.0/0.0)]);
+    assertValueEquality(sortedArr2[5], [1.8, 2.89, 5.0, 70.0, (0.0 / 0.0)]);
     assertValueEquality(sortedArr2[6], [1.8, 2.89, 5.0, 70.0, ()]);
-    assertValueEquality(sortedArr2[7], [1.8, (0.0/0.0)]);
+    assertValueEquality(sortedArr2[7], [1.8, (0.0 / 0.0)]);
     assertValueEquality(sortedArr2[8], [2.8, 2.89, 5.0, 70.0, 90.0]);
     assertValueEquality(sortedArr2[9], [3.0]);
-    assertValueEquality(sortedArr2[10], [(0.0/0.0), 9.0, 8.0, 10.0]);
+    assertValueEquality(sortedArr2[10], [(0.0 / 0.0), 9.0, 8.0, 10.0]);
     assertValueEquality(sortedArr2[11], [(), 4.0]);
 
-    int[][] arr2 = [[1, 9, 2],[0, 9, 1], [1, 7, 5], [9, 8, 2], [9, 8, 1]];
+    int[][] arr2 = [[1, 9, 2], [0, 9, 1], [1, 7, 5], [9, 8, 2], [9, 8, 1]];
 
     int[][] sortedArr3 = arr2.sort();
 
@@ -1003,8 +1171,8 @@ function testSort7() {
 function testSort8() {
     [int...][] arr = [[10, 2, 0], [1, 2, 0, 7], [1, 2, 5], [0, 9, 5], [1, 2, 0], [1, 1, 0]];
 
-    [int...][] sortedArr = arr.sort(array:ASCENDING, isolated function ([int...] x) returns int[] {
-            return x;
+    [int...][] sortedArr = arr.sort(array:ASCENDING, isolated function([int...] x) returns int[] {
+        return x;
     });
 
     assertValueEquality(sortedArr[0], [0, 9, 5]);
@@ -1016,7 +1184,7 @@ function testSort8() {
 
     [int?...][] arr2 = [[(), 2, 0], [1, 2, 0, 7], [1, 2, 5], [0, 9, 5], [1, 2, 0], [1, 1, 0], [0, (), 9]];
 
-    [int?...][] sortedArr2 = arr2.sort(array:DESCENDING, isolated function (int?[] x) returns int?[] {
+    [int?...][] sortedArr2 = arr2.sort(array:DESCENDING, isolated function(int?[] x) returns int?[] {
         return x;
     });
 
@@ -1131,9 +1299,9 @@ function testSort10() {
     assertValueEquality(sortedArr.toString(), "[0,1,2,3,6,10]");
 
     final int methodInt1 = 2;
-    var addFunc1 = isolated function (int funcInt1) returns (int) {
+    var addFunc1 = isolated function(int funcInt1) returns (int) {
         final int methodInt2 = 23;
-        var addFunc2 = isolated function (int funcInt2) returns (int) {
+        var addFunc2 = isolated function(int funcInt2) returns (int) {
             final int methodInt3 = 7;
             isolated function (int) returns (int) addFunc3 = funcInt3 => funcInt3 + methodInt1 + methodInt2 + methodInt3;
             return addFunc3(8) + funcInt2;
@@ -1151,13 +1319,13 @@ function testSort10() {
 
     int[] sortedArr4 = arr.sort(array:DESCENDING, (i) => i.toString());
 
-    assertValueEquality(sortedArr4, [6,3,2,10,1,0]);
+    assertValueEquality(sortedArr4, [6, 3, 2, 10, 1, 0]);
 
     int?[] arr2 = [(), 1, 3, 10, 0, 6];
 
     int?[] sortedArr5 = arr2.sort(array:DESCENDING, (i) => i);
 
-    assertValueEquality(sortedArr5, [10,6,3,1,0,()]);
+    assertValueEquality(sortedArr5, [10, 6, 3, 1, 0, ()]);
 
     int[] arr3 = [];
     int[] sortedArr6 = arr3.sort(array:DESCENDING, (i) => i);
@@ -1166,26 +1334,25 @@ function testSort10() {
 }
 
 function testTupleReverse() {
-    [int, string, float] tupleArr = [2,  "abc", 2.4];
+    [int, string, float] tupleArr = [2, "abc", 2.4];
     anydata[] y = tupleArr.reverse();
-    (int|string|float)[] expected = [2.4,  "abc", 2];
+    (int|string|float)[] expected = [2.4, "abc", 2];
     assertValueEquality(expected, y);
 
     [int, int, int] arr1 = [1, 2, 3];
     y = arr1.reverse();
-    int[]  res = [3, 2, 1];
+    int[] res = [3, 2, 1];
     assertValueEquality(res, y);
-
 
     [int, int, int...] arr2 = [1, 2, 3, 4, 5];
     y = arr2.reverse();
-    anydata[]  res1 = [5, 4, 3, 2, 1];
+    anydata[] res1 = [5, 4, 3, 2, 1];
     assertValueEquality(res1, y);
 }
 
 function testTupleFilter() {
-    [int, string, float] tupleArr = [2,  "abc", 2.4];
-    anydata[] y = tupleArr.filter(function (anydata value) returns boolean {
+    [int, string, float] tupleArr = [2, "abc", 2.4];
+    anydata[] y = tupleArr.filter(function(anydata value) returns boolean {
         return (value is int);
     });
 
@@ -1193,18 +1360,17 @@ function testTupleFilter() {
     assertValueEquality(expected, y);
 
     [int, int, int] arr1 = [1, 2, 3];
-    y = arr1.filter(function (int value) returns boolean {
+    y = arr1.filter(function(int value) returns boolean {
         return value >= 2;
     });
     int[] res = [2, 3];
     assertValueEquality(res, y);
 
-
     [int, int, int...] arr2 = [1, 2, 3, 4, 5];
-    y = arr2.filter(function (int value) returns boolean {
+    y = arr2.filter(function(int value) returns boolean {
         return value > 2;
     });
-    anydata[]  res1 = [3, 4, 5];
+    anydata[] res1 = [3, 4, 5];
     assertValueEquality(res1, y);
 }
 
@@ -1228,32 +1394,30 @@ function assertFalse(any|error actual) {
     panic error(ASSERTION_ERROR_REASON, message = "expected 'false', found '" + actualValAsString + "'");
 }
 
-
 function assertValueEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
 
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+                message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
-
 
 function testAsyncFpArgsWithArrays() returns [int, int[]] {
     int[] numbers = [-7, 2, -12, 4, 1];
     int count = 0;
-    int[] filter = numbers.filter(function (int i) returns boolean {
+    int[] filter = numbers.filter(function(int i) returns boolean {
         future<int> f1 = start getRandomNumber(i);
         int a = checkpanic wait f1;
         return a >= 0;
     });
-    filter.forEach(function (int i) {
+    filter.forEach(function(int i) {
         future<int> f1 = start getRandomNumber(i);
         int a = checkpanic wait f1;
         filter[count] = i + 2;
         count = count + 1;
     });
-    int reduce = filter.reduce(function (int total, int i) returns int {
+    int reduce = filter.reduce(function(int total, int i) returns int {
         future<int> f1 = start getRandomNumber(i);
         int a = checkpanic wait f1;
         return total + a;
@@ -1277,9 +1441,9 @@ function getRandomNumber(int i) returns int {
 }
 
 function testToStreamOnImmutableArray() {
-    (byte[])[] & readonly arr = [[1,2]];
+    (byte[])[] & readonly arr = [[1, 2]];
     var strm = arr.toStream();
 
-    stream<byte[] & readonly> castedstrm = <stream<byte[] & readonly>> strm;
+    stream<byte[] & readonly> castedstrm = <stream<byte[] & readonly>>strm;
     assertValueEquality([1, 2], castedstrm.next()?.value);
 }

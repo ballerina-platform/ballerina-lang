@@ -87,10 +87,11 @@ public class PackageImportTest {
     @Test
     public void testUnusedImports() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
+        Assert.assertEquals(result.getErrorCount(), 3);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/jballerina.java as java'", 1, 1);
-        BAssertUtil.validateError(result, i, "unused import module 'ballerina/jballerina.java as otherJAVA'", 2, 1);
+        BAssertUtil.validateError(result, i++, "unused module prefix 'java'", 1, 29);
+        BAssertUtil.validateError(result, i++, "unused module prefix 'otherJAVA'", 2, 37);
+        BAssertUtil.validateError(result, i, "unused module prefix 'value'", 4, 23);
     }
 
     @Test(enabled = false)

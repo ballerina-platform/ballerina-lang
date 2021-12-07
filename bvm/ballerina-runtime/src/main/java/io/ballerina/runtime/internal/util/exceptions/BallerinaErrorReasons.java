@@ -50,6 +50,8 @@ public class BallerinaErrorReasons {
     public static final String NUMBER_OVERFLOW_ERROR_IDENTIFIER = "NumberOverflow";
     public static final BString NUMBER_OVERFLOW =
             StringUtils.fromString(BALLERINA_PREFIX.concat(NUMBER_OVERFLOW_ERROR_IDENTIFIER));
+    public static final BString LARGE_EXPONENT_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
+            "DecimalExponentError"));
     public static final BString ARITHMETIC_OPERATION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
     public static final BString JAVA_NULL_REFERENCE_ERROR =

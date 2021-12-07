@@ -2262,3 +2262,19 @@ function testToStringOnFiniteTypes() {
     Combo j = 2.0;
     assertEquality("2.0", j.toString());
 }
+
+public client class Caller {
+    public isolated function getAttribute(string key) returns value:Cloneable? {
+        return "dummyVal";
+    }
+}
+
+function getUsername(Caller ep, string key) returns string|error {
+    return <string> check ep.getAttribute(key);
+}
+
+function testUsingCloneableReturnType() {
+    Caller caller = new();
+    assertEquality("dummyVal", caller.getAttribute("dummy"));
+}
+

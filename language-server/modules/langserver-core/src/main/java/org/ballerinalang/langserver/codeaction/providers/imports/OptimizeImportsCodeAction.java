@@ -41,7 +41,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_IMPORT_MODULE;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_IMPORT_MODULE;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_MODULE_PREFIX;
 
 /**
  * Code Action for optimizing all imports.
@@ -74,7 +74,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
         List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> UNUSED_IMPORT_MODULE.diagnosticId().equals(diag.diagnosticInfo().code()) ||
+                .filter(diag -> UNUSED_MODULE_PREFIX.diagnosticId().equals(diag.diagnosticInfo().code()) ||
                         REDECLARED_IMPORT_MODULE.diagnosticId().equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
                 .collect(Collectors.toList());
