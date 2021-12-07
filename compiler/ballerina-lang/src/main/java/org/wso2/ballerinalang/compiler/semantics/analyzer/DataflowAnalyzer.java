@@ -792,8 +792,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+
         analyzeNode(whileNode.expr, env);
-        analyzeNode(whileNode.body, env);
+        BranchResult whileResult = analyzeBranch(whileNode.body, env);
+
         if (whileNode.onFailClause != null) {
             analyzeNode(whileNode.onFailClause, env);
         }
@@ -803,6 +805,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
             }
         }
+
+        if (whileResult.flowTerminated ||
+                ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType) {
+            this.uninitializedVars = whileResult.uninitializedVars;
+            return;
+        }
+
+        this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
     }
 
     @Override
