@@ -37,9 +37,6 @@ OPTIONS
        --experimental
            Enable experimental language features.
 
-       --debug
-           Run tests in remote debugging mode.
-
        --observability-included
            Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina
            program that are required to enable the observability functionalities on it.
