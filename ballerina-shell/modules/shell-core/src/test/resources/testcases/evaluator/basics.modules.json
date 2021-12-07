@@ -30,5 +30,33 @@
     "description": "Import different module with io prefix.",
     "code": "import ballerina/io;",
     "error": "InvokerException"
+  },
+  {
+    "description": "Add multiple statements.",
+    "code": "int x = 1; int y = 2; int z = 3;"
+  },
+  {
+    "description": "input multiple variables in one-line.",
+    "code": "x;y;z;",
+    "expr": 3
+  },
+  {
+    "description": "input multiple variables in one-line.",
+    "code": "x;y;z;",
+    "expr": 3
+  },
+  {
+    "description": "input a function",
+    "code": "\n\nfunction add(int x, int y) returns int {\n\n    int sum = x + y;\n\n    return sum;\n\n}"
+  },
+  {
+    "description": "Calling function multiple times in the same line.",
+    "code": "add(1,2); add(2,3); add(3,4)",
+    "expr": 7
+  },
+  {
+    "description": "Call multiple expressions in one-line",
+    "code": "add(1,2); add(2,3); add(3,4); x",
+    "expr": 1
   }
 ]
