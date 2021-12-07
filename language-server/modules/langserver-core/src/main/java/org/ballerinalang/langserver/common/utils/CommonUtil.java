@@ -1170,7 +1170,7 @@ public class CommonUtil {
      *
      * @param filePath File path
      * @param scheme URI Scheme
-     * @return URI with bala scheme
+     * @return URI with the given scheme
      * @throws URISyntaxException URI parsing errors
      */
     public static String getUriForPath(Path filePath, String scheme) throws URISyntaxException {
