@@ -217,8 +217,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         fileFilter.setLanguage(CommonUtil.LANGUAGE_ID_BALLERINA);
 
         DocumentFilter fileFilterToml = new DocumentFilter();
-        fileFilter.setScheme(CommonUtil.URI_SCHEME_FILE);
-        fileFilter.setLanguage(CommonUtil.LANGUAGE_ID_TOML);
+        fileFilterToml.setScheme(CommonUtil.URI_SCHEME_FILE);
+        fileFilterToml.setLanguage(CommonUtil.LANGUAGE_ID_TOML);
 
         DocumentFilter exprFilter = new DocumentFilter();
         exprFilter.setScheme(CommonUtil.URI_SCHEME_EXPR);
