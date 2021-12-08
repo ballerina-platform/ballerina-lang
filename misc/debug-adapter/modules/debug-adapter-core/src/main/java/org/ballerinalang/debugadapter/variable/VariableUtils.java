@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
@@ -172,18 +173,33 @@ public class VariableUtils {
     }
 
     /**
-     * Verifies whether a given JDI value is a ballerina record variable instance.
+     * Verifies whether a given JDI value is a ballerina record variable instance. (Ballerina record types are
+     * inherited from MapValue and, therefore need to check the `type` field of the super class to verify if the given
+     * value is a Ballerina record.)
      *
      * @param value JDI value instance.
      * @return true the given JDI value is a ballerina record variable instance.
      */
     static boolean isRecord(Value value) {
         try {
-            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
-                    (JVMValueType.BTYPE_RECORD.getString())).orElse(false);
-        } catch (DebugVariableException e) {
+            if (!(value.type() instanceof ClassType)) {
+                return false;
+            }
+            ClassType mapValueClass = ((ClassType) value.type()).superclass();
+            if (mapValueClass == null) {
+                return false;
+            }
+
+            Field mapTypeField = mapValueClass.fieldByName(FIELD_TYPE);
+            Value mapType = ((ObjectReference) value).getValue(mapTypeField);
+            return isRecordType(mapType);
+        } catch (Exception e) {
             return false;
         }
+    }
+
+    private static boolean isRecordType(Value typeValue) {
+        return typeValue.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString());
     }
 
     /**
