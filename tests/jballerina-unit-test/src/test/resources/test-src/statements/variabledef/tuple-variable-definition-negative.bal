@@ -112,3 +112,10 @@ function testInvalidTupleVarDef3() {
 
 type NoFillerObject object {
 };
+
+type T [int];
+
+function testTupleVarDeclWithTypeReferenceTypedExprNegative() {
+    T t = [1];
+    var [a, b] = t;
+}
