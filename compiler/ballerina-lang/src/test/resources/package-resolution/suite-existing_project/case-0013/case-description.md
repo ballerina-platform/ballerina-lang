@@ -12,4 +12,3 @@
 Dependency graph should be updated to have `ballerina/io:1.1.0`
 ### Sticky == false
 Dependency graph should be updated to have `ballerina/io:1.1.0`
-
