@@ -35,6 +35,7 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -56,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -294,7 +297,25 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(typesFactory.getTypeDescriptor(node.getDeterminedType()));
+        // The determined type of invocation with a start action is set to be future. Therefore, the constraint type
+        // is obtained if the given range is pointed to the invocation function.
+        BType determinedType = getDeterminedType(node, range);
+
+        return Optional.ofNullable(typesFactory.getTypeDescriptor(determinedType));
+    }
+
+    private BType getDeterminedType(BLangNode node, LineRange range) {
+        if (node.getKind() == NodeKind.INVOCATION && node.getDeterminedType().getKind() == TypeKind.FUTURE) {
+            BLangInvocation.BLangActionInvocation invocationNode = (BLangInvocation.BLangActionInvocation) node;
+
+            if (invocationNode.isAsync()
+                    && PositionUtil.withinBlock(range.startLine(), invocationNode.getName().getPosition())) {
+
+                return ((BFutureType) node.getDeterminedType()).getConstraint();
+            }
+        }
+
+        return node.getDeterminedType();
     }
 
     /**
