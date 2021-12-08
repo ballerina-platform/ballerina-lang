@@ -153,14 +153,70 @@ public class PackageResolutionTests extends BaseTest {
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
 
+        boolean check = false;
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
         for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
             Collection<ResolvedPackageDependency> directDeps = dependencyGraph.getDirectDependencies(graphNode);
             PackageManifest manifest = graphNode.packageInstance().manifest();
-            if (manifest.name().value().equals("package_o")) {
-                Assert.assertEquals(manifest.version().toString(), "1.0.2");
+            if (manifest.name().value().equals("package_o") && (manifest.version().toString().equals("1.0.2"))) {
+                check = true;
             }
         }
+
+        Assert.assertTrue(check);
+    }
+
+    @Test(description = "tests resoultion with toml dependency")
+    public void testBase() {
+
+        // Setup
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_1_0");
+
+        // Stage 1 : Package P without dep in Ballerina toml
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_p_withoutDep");
+
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+
+        boolean check = false;
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("package_o")) {
+                if (manifest.version().toString().equals("1.0.2")) {
+                    check = true;
+                }
+            }
+        }
+        Assert.assertTrue(check);
+
+
+        // Stage 2 : Package P with deps
+        projectDirPath = RESOURCE_DIRECTORY.resolve("package_p_withDep");
+        buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
+        buildOptions = buildOptionsBuilder.build();
+
+        loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        compilation = loadProject.currentPackage().getCompilation();
+
+        check = false;
+        dependencyGraph = compilation.getResolution().dependencyGraph();
+        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
+            PackageManifest manifest = graphNode.packageInstance().manifest();
+            if (manifest.name().value().equals("package_o")) {
+                if (manifest.version().toString().equals("1.1.0")) {
+                    check = true;
+                }
+            }
+        }
+        Assert.assertTrue(check);
     }
 
     @Test(dependsOnMethods = "testProjectWithInvalidBuildFile", description = "tests project with empty build file")
@@ -468,7 +524,7 @@ public class PackageResolutionTests extends BaseTest {
     }
 
     // TODO: enable after https://github.com/ballerina-platform/ballerina-lang/pull/31972 is merged
-    @Test(description = "Ultimate test case", enabled = false)
+    @Test(description = "Ultimate test case")
     public void testProjectWithManyDependencies() {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
