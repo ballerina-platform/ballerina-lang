@@ -22,11 +22,10 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -91,27 +90,22 @@ public class CleanCommand implements BLauncherCmd {
         }
 
         // Delete the target directory
-        try {
-            if (Files.notExists(this.targetDir)) {
-                CommandUtil.printError(this.outStream,
-                        "provided target directory '" + this.targetDir + "' does not exist.",
-                        null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            if (!Files.isDirectory(this.targetDir)) {
-                CommandUtil.printError(this.outStream,
-                        "provided target path '" + this.targetDir + "' is not a directory.",
-                        null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            FileUtils.deletePath(this.targetDir);
-            this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
-        } catch (IOException e) {
-            CommandUtil.printError(this.outStream, e.getMessage(), null, false);
+        if (Files.notExists(this.targetDir)) {
+            CommandUtil.printError(this.outStream,
+                    "provided target directory '" + this.targetDir + "' does not exist.",
+                    null, false);
             CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
+        if (!Files.isDirectory(this.targetDir)) {
+            CommandUtil.printError(this.outStream,
+                    "provided target path '" + this.targetDir + "' is not a directory.",
+                    null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        ProjectUtils.deleteDirectory(this.targetDir);
+        this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
     }
     
     @Override
