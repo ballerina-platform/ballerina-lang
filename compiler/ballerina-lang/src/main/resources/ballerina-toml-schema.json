@@ -209,7 +209,7 @@
             "type": "string",
             "pattern": "^local$",
             "message": {
-              "pattern": "invalid 'repository' under [dependency]: 'repository' can only have value 'local'"
+              "pattern": "invalid 'repository' under [dependency]: 'repository' can only have the value 'local'"
             }
           }
         },

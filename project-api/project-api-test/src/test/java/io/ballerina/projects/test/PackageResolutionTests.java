@@ -741,8 +741,8 @@ public class PackageResolutionTests extends BaseTest {
                 ResolutionOptions.builder().build()).size(), 2);
     }
 
-    @Test(description = "tests resolution for dependency given in Ballerina.toml without repository")
-    public void testPackageResolutionOfDependencyMissingRepository() {
+    @Test(description = "tests resolution for dependency given in Ballerina.toml invalid repository")
+    public void testPackageResolutionOfDependencyInvalidRepository() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_y_having_dependency_missing_repo");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
@@ -757,7 +757,7 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(
                 diagnosticIterator.next().toString(),
                 "ERROR [Ballerina.toml:(21:12,21:21)] invalid 'repository' under [dependency]: 'repository' " +
-                        "can only have value 'local'");
+                        "can only have the value 'local'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(1:1,1:16)] cannot resolve module 'ccc/ddd'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
