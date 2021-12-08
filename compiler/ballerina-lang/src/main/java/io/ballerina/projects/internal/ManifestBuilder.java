@@ -387,12 +387,6 @@ public class ManifestBuilder {
                 String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
                 String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
 
-                if (repository != null && !repository.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                    reportDiagnostic(dependencyNode,
-                            "invalid value '" + repository + "'",
-                            "error.invalid.value", DiagnosticSeverity.ERROR);
-                }
-
                 PackageName depName = PackageName.from(name);
                 PackageOrg depOrg = PackageOrg.from(org);
                 PackageVersion depVersion;

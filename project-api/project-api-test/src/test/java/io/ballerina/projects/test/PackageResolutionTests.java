@@ -754,8 +754,10 @@ public class PackageResolutionTests extends BaseTest {
 
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
         // Check dependency cannot be resolved diagnostic
-        Assert.assertEquals(diagnosticIterator.next().toString(),
-                "ERROR [Ballerina.toml:(17:1,21:21)] invalid value 'invalid'");
+        Assert.assertEquals(
+                diagnosticIterator.next().toString(),
+                "ERROR [Ballerina.toml:(21:12,21:21)] invalid 'repository' under [dependency]: 'repository' " +
+                        "can only have value 'local'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(1:1,1:16)] cannot resolve module 'ccc/ddd'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
