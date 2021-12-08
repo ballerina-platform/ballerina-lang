@@ -119,3 +119,12 @@ function testTupleVarDeclWithTypeReferenceTypedExprNegative() {
     T t = [1];
     var [a, b] = t;
 }
+
+type Ints int;
+type IntsOrStrings int|string;
+
+function testTupleVarDeclWithInvalidTypeReferenceType() {
+    [int, int] i = [1, 2];
+    Ints [a, b] = i;
+    IntsOrStrings [c, d] = i;
+}

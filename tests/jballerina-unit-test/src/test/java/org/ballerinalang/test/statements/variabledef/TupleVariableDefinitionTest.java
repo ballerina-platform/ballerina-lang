@@ -430,6 +430,10 @@ public class TupleVariableDefinitionTest {
                         "expected an array or a tuple, but found '(string|int)'", 110, 16);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; member variable count mismatch " +
                 "with member type count", 120, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
+                "but found 'Ints'", 128, 10);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
+                "but found 'IntsOrStrings'", 129, 19);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
