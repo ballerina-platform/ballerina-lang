@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.debugger.test.utils.client;
 
+import org.ballerinalang.debugger.test.utils.DebugHitListener;
 import org.eclipse.lsp4j.debug.BreakpointEventArguments;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.CapabilitiesEventArguments;
@@ -49,6 +50,8 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -61,6 +64,7 @@ public class DAPRequestManager {
 
     private final DAPClientConnector clientConnector;
     private final IDebugProtocolServer server;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DAPRequestManager.class);
 
     public DAPRequestManager(DAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
                              Capabilities serverCapabilities) {
@@ -184,8 +188,12 @@ public class DAPRequestManager {
 
     public VariablesResponse variables(VariablesArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
+            long start = System.currentTimeMillis();
             CompletableFuture<VariablesResponse> resp = server.variables(args);
-            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            VariablesResponse result = resp.get();
+            long end = System.currentTimeMillis();
+            LOGGER.info("******************** Variable response time : " + (end - start) + " ********************");
+            return result;
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
