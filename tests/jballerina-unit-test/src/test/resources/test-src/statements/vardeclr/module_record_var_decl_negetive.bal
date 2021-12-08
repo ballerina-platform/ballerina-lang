@@ -75,3 +75,17 @@ function getEmployee() returns Employee {
 var {name: eName, id: eId, age: eAge} = getEmployee();
 
 Employee {name: eNameNew, id: eIdNew, age: eAgeNew} = getEmployee();
+
+type EmployeeNew record {
+    string name;
+    record {
+        int id;
+        int age?;
+    } details?;
+};
+
+function getNewEmployeeList() returns EmployeeNew[2] {
+    return [{name: "Jo", details: {id: 1234}}, {name: "Amy", details: {id: 1234}}];
+}
+
+var [{name: nameNew, details: {id: idNew, age: ageNew}}, ...x] = getNewEmployeeList();

@@ -87,6 +87,10 @@ public class ModuleRecordVariableTest {
                 "invalid mapping binding pattern; cannot bind optional fields", 75, 28);
         validateError(compileResultNegetive, index++,
                 "invalid mapping binding pattern; cannot bind optional fields", 77, 39);
+        validateError(compileResultNegetive, index++,
+                "invalid mapping binding pattern; cannot bind optional fields", 91, 22);
+        validateError(compileResultNegetive, index++,
+                "invalid mapping binding pattern; cannot bind optional fields", 91, 43);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 
