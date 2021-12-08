@@ -93,6 +93,20 @@ public class RunCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Run bal file containing syntax error")
+    public void testRunBalProjectWithSyntaxError() {
+        // valid source root path
+        Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
+        RunCommand runCommand = new RunCommand(balFilePath, printStream, false);
+        // non existing bal file
+        new CommandLine(runCommand).parse(balFilePath.toString());
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
+        }
+    }
+
     @Test(description = "Run a valid ballerina file from a different directory")
     public void testRunValidBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validRunProject");
