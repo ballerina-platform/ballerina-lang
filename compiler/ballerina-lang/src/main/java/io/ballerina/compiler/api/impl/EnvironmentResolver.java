@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -603,6 +604,18 @@ public class EnvironmentResolver extends BaseVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.acceptNode(onFailClause.body, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangArrowFunction arrowFunctionNode) {
+        SymbolEnv arrowFunctionSymbolEnv = SymbolEnv.createArrowFunctionSymbolEnv(arrowFunctionNode, this.symbolEnv);
+        if ((arrowFunctionNode.getBody() != null && arrowFunctionNode.getBody().getKind() == NodeKind.EXPR_FUNCTION_BODY
+                && PositionUtil.withinRightInclusive(this.linePosition, arrowFunctionNode.getBody().getPosition()))
+                || (PositionUtil.withinBlock(this.linePosition, arrowFunctionNode.getBody().getPosition())
+                && isNarrowerEnclosure(arrowFunctionNode.getBody().getPosition()))) {
+            this.scope = arrowFunctionSymbolEnv;
+        }
+        this.acceptNode(arrowFunctionNode.getBody(), arrowFunctionSymbolEnv);
     }
 
     @Override
