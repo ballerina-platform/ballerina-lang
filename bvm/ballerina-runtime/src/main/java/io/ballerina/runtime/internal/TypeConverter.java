@@ -275,7 +275,7 @@ public class TypeConverter {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     Type inputValueType = TypeChecker.getType(inputValue);
-                    if (inputValueType == memType || integerSubtypeMembers(inputValueType, memType)) {
+                    if (inputValueType == memType || checkIntegerSubtypeMembers(inputValueType, memType)) {
                         return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
@@ -507,10 +507,11 @@ public class TypeConverter {
         }
     }
 
-    private static boolean integerSubtypeMembers(Type inputValueType, Type targetType) {
-        return TypeTags.isIntegerTypeTag(inputValueType.getTag()) && TypeTags.isIntegerTypeTag(targetType.getTag()) ||
-                inputValueType.getTag() == TypeTags.BYTE_TAG && TypeTags.isIntegerTypeTag(targetType.getTag()) ||
-                TypeTags.isIntegerTypeTag(inputValueType.getTag()) && targetType.getTag() == TypeTags.BYTE_TAG;
+    private static boolean checkIntegerSubtypeMembers(Type inputValueType, Type targetType) {
+        if (!TypeTags.isIntegerTypeTag(inputValueType.getTag()) && inputValueType.getTag() != TypeTags.BYTE_TAG) {
+            return false;
+        }
+        return TypeTags.isIntegerTypeTag(targetType.getTag()) || targetType.getTag() == TypeTags.BYTE_TAG;
     }
 
     private static boolean isConvertibleToTableType(Type tableConstrainedType) {
