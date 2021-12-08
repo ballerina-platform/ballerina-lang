@@ -19,16 +19,16 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CleanTargetDirTask;
-import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -79,31 +79,39 @@ public class CleanCommand implements BLauncherCmd {
             return;
         }
 
-        Project project;
-        BuildOptions buildOptions = constructBuildOptions();
+        if (this.targetDir == null) {
+            try {
+                Project project = BuildProject.load(this.projectPath);
+                this.targetDir = project.targetDir();
+            } catch (ProjectException e) {
+                CommandUtil.printError(this.outStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
 
+        // Delete the target directory
         try {
-            project = BuildProject.load(this.projectPath, buildOptions);
-        } catch (ProjectException e) {
+            if (Files.notExists(this.targetDir)) {
+                CommandUtil.printError(this.outStream,
+                        "provided target directory '" + this.targetDir + "' does not exist.",
+                        null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            if (!Files.isDirectory(this.targetDir)) {
+                CommandUtil.printError(this.outStream,
+                        "provided target path '" + this.targetDir + "' is not a directory.",
+                        null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            FileUtils.deletePath(this.targetDir);
+            this.outStream.println("Successfully deleted '" + this.targetDir + "'.");
+        } catch (IOException e) {
             CommandUtil.printError(this.outStream, e.getMessage(), null, false);
             CommandUtil.exitError(this.exitWhenFinish);
-            return;
         }
-
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask())
-                .build();
-        taskExecutor.executeTasks(project);
-    }
-
-    private BuildOptions constructBuildOptions() {
-        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
-
-        if (targetDir != null) {
-            buildOptionsBuilder.targetDir(targetDir.toString());
-        }
-
-        return buildOptionsBuilder.build();
     }
     
     @Override
