@@ -275,14 +275,8 @@ class JMethodResolver {
             BType returnType = jMethodRequest.bReturnType;
             BType modifiedRetType = returnType;
             if (returnType.tag == TypeTags.UNION) {
-                LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
-                for (BType bType : ((BUnionType) returnType).getMemberTypes()) {
-                    if (!(bType instanceof BTypeReferenceType &&
-                            ((BTypeReferenceType) bType).referredType.tag == TypeTags.ERROR)) {
-                        memTypes.add(bType);
-                    }
-                }
-                modifiedRetType = BUnionType.create(null, memTypes);
+                BUnionType bUnionReturnType = (BUnionType) returnType;
+                modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
             }
             String expectedRetTypeName = modifiedRetType + "|error";
             if (returnType.tag == TypeTags.NIL || returnType instanceof BTypeReferenceType &&
@@ -294,6 +288,17 @@ class JMethodResolver {
                             "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
                             "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
         }
+    }
+
+    private LinkedHashSet<BType> getNonErrorMembers(BUnionType bUnionReturnType) {
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
+        for (BType bType : bUnionReturnType.getMemberTypes()) {
+            if (!(bType instanceof BTypeReferenceType &&
+                    ((BTypeReferenceType) bType).referredType.tag == TypeTags.ERROR)) {
+                memTypes.add(bType);
+            }
+        }
+        return memTypes;
     }
 
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
