@@ -1362,7 +1362,7 @@ class NodeFinder extends BaseVisitor {
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
         if (PositionUtil.isRangeWithinNode(this.range, pos)
-                && (this.enclosingNode == null || PositionUtil.withinRange(pos.lineRange(), this.enclosingNode.pos))) {
+                && (this.enclosingNode == null || PositionUtil.isRangeWithinNode(pos.lineRange(), this.enclosingNode.pos))) {
             this.enclosingNode = node;
             return true;
         }

@@ -59,7 +59,6 @@ class PositionUtil {
         return true;
     }
 
-    // Checks whether the specified range falls within the node
     static boolean withinRange(LineRange range, LineRange enclRange) {
         int startLine = range.startLine().line();
         int startOffset = range.startLine().offset();
@@ -76,6 +75,7 @@ class PositionUtil {
                 && (endLine == enclEndLine && endOffset <= enclEndOffset || endLine < enclEndLine);
     }
 
+    // Checks whether the specified range falls within the node
     static boolean isRangeWithinNode(LineRange range, Location nodePosition) {
 
         return nodePosition != null && withinRange(range, nodePosition.lineRange());
