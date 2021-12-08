@@ -5926,14 +5926,17 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = env.node;
         if (node.getKind() == NodeKind.CLASS_DEFN &&
                 ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR))  {
-            BLangFunction currentFunction = (BLangFunction) encInvokable;
-            if ((currentFunction != null) && !currentFunction.attachedFunction &&
-                    !(currentFunction.symbol.receiverSymbol == symbol)) {
-                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv, symbol.name, SymTag.VARIABLE);
+            BLangClassDefinition classDef = (BLangClassDefinition) node;
+            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            BLangFunction currentFunc = (BLangFunction) encInvokable;
+            if ((currentFunc != null) && !currentFunc.attachedFunction &&
+                    !(currentFunc.symbol.receiverSymbol == symbol)) {
+
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(oceData.capturedClosureEnv, symbol.name, SymTag.VARIABLE);
                 BLangClassDefinition classDefinition = (BLangClassDefinition) node;
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
-                        updateObjectCtorClosureSymbol(pos, (BLangFunction) encInvokable, currentFunction,
+                        updateObjectCtorClosureSymbol(pos, (BLangFunction) encInvokable, currentFunc,
                                 resolvedSymbol, classDefinition);
                         return;
                     }

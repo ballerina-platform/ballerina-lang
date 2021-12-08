@@ -221,7 +221,6 @@ public class AnnotationDesugar {
                             initBody.stmts.add(index++, stmt);
                         }
                     } else {
-                        // Add the lambda/invocation in a temporary block.
                         LocationData locationData = new LocationData(pkgID, owner, pos, initBody);
                         addAnnotationLambdaToGlobalAnnotationMapWithBlockDef(pkgNode, classDef, locationData,
                                 lambdaFunction);
