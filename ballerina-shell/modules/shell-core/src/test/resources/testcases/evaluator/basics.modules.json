@@ -42,8 +42,8 @@
   },
   {
     "description": "input multiple variables in one-line.",
-    "code": "x;y;z;",
-    "expr": 3
+    "code": "x;y;",
+    "expr": 2
   },
   {
     "description": "input a function",
