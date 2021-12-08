@@ -18,14 +18,17 @@
 
 package io.ballerina.shell.test.unit;
 
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
+import io.ballerina.shell.ShellCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.test.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -50,8 +53,8 @@ public class EvaluatorMiscTest {
                 .build();
         Assert.assertTrue(evaluator.diagnostics().isEmpty());
         evaluator.initialize();
-        String assignment = evaluator.evaluate("int i = 4;");
-        String result = evaluator.evaluate("i");
+        String assignment = evaluate("int i = 4;", evaluator);
+        String result = evaluate("i", evaluator);
         Assert.assertEquals(result, "4");
         Assert.assertFalse(evaluator.diagnostics().isEmpty());
         evaluator.reset();
@@ -64,9 +67,9 @@ public class EvaluatorMiscTest {
                 .treeParser(TestUtils.getTestTreeParser())
                 .build();
         evaluator.initialize();
-        evaluator.evaluate("import ballerina/jballerina.java");
-        evaluator.evaluate("import ballerina/lang.'int as prefix");
-        evaluator.evaluate("import ballerina/lang.'float as prefix2");
+        evaluate("import ballerina/jballerina.java", evaluator);
+        evaluate("import ballerina/lang.'int as prefix", evaluator);
+        evaluate("import ballerina/lang.'float as prefix2", evaluator);
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
                 Set.of(
                         "(java) import ballerina/jballerina.java;",
@@ -85,10 +88,10 @@ public class EvaluatorMiscTest {
                 .treeParser(TestUtils.getTestTreeParser())
                 .build();
         evaluator.initialize();
-        evaluator.evaluate("import ballerina/lang.'int");
-        evaluator.evaluate("import ballerina/lang.'float");
-        evaluator.evaluate("import ballerina/lang.'object");
-        evaluator.evaluate("import ballerina/lang.'boolean");
+        evaluate("import ballerina/lang.'int", evaluator);
+        evaluate("import ballerina/lang.'float", evaluator);
+        evaluate("import ballerina/lang.'object", evaluator);
+        evaluate("import ballerina/lang.'boolean", evaluator);
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
                 Set.of(
                         "('int) import ballerina/lang.'int;",
@@ -108,11 +111,11 @@ public class EvaluatorMiscTest {
                 .treeParser(TestUtils.getTestTreeParser())
                 .build();
         evaluator.initialize();
-        evaluator.evaluate("int i = 23");
-        evaluator.evaluate("string? k = ()");
-        evaluator.evaluate("string t = \"Hello\"");
-        evaluator.evaluate("var f = function () returns int {return 1;}");
-        evaluator.evaluate("int a = 1; string b = \"World\"");
+        evaluate("int i = 23", evaluator);
+        evaluate("string? k = ()", evaluator);
+        evaluate("string t = \"Hello\"", evaluator);
+        evaluate("var f = function () returns int {return 1;}", evaluator);
+        evaluate("int a = 1; string b = \"World\"", evaluator);
         Assert.assertEquals(new HashSet<>(evaluator.availableVariables()),
                 Set.of(
                         "(a) int a = 1",
@@ -133,10 +136,10 @@ public class EvaluatorMiscTest {
                 .treeParser(TestUtils.getTestTreeParser())
                 .build();
         evaluator.initialize();
-        evaluator.evaluate("function a() {}");
-        evaluator.evaluate("const t = 100");
-        evaluator.evaluate("class A{}");
-        evaluator.evaluate("enum B{C, D}");
+        evaluate("function a() {}", evaluator);
+        evaluate("const t = 100", evaluator);
+        evaluate("class A{}", evaluator);
+        evaluate("enum B{C, D}", evaluator);
         Assert.assertEquals(new HashSet<>(evaluator.availableModuleDeclarations()),
                 Set.of(
                         "(a) function a() {}",
@@ -147,5 +150,11 @@ public class EvaluatorMiscTest {
         );
         Assert.assertEquals(evaluator.availableImports().size(), 0);
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
+    }
+
+    private String evaluate(String source, Evaluator evaluator) throws  BallerinaShellException {
+        ShellCompilation shellCompilation = evaluator.getCompilation(source);
+        Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
+        return evaluator.getValue(compilation);
     }
 }
