@@ -69,7 +69,7 @@ public class LargeMethodOptimizer {
     private PackageID currentPackageId;
     // newly created split BIR function number
     private int splitFuncNum;
-    // newly created split BIR function number
+    // newly created temporary variable number to handle split function return value
     private int splitTempVarNum;
 
     public LargeMethodOptimizer(SymbolTable symbolTable) {
@@ -79,6 +79,7 @@ public class LargeMethodOptimizer {
     public void splitLargeBIRFunctions(BIRPackage birPkg) {
         currentPackageId = birPkg.packageID;
         splitFuncNum = 0;
+        splitTempVarNum = 0;
 
         List<BIRFunction> newlyAddedBIRFunctions = new ArrayList<>();
         for (BIRFunction function : birPkg.functions) {
@@ -112,7 +113,6 @@ public class LargeMethodOptimizer {
         final List<BIRFunction> newlyAddingFunctions = new ArrayList<>();
         List<Split> possibleSplits = getPossibleSplits(birFunction.basicBlocks, birFunction.errorTable);
         if (!possibleSplits.isEmpty()) {
-            splitTempVarNum = 0;
             generateSplits(birFunction, possibleSplits, newlyAddingFunctions, fromAttachedFunction);
         }
         return newlyAddingFunctions;
@@ -796,8 +796,6 @@ public class LargeMethodOptimizer {
             for (BIRNonTerminator instruction : basicBlock.instructions) {
                 if (instruction.lhsOp.variableDcl.kind == VarKind.SELF) {
                     instruction.lhsOp.variableDcl = selfVarDcl;
-                } else if (instruction.lhsOp.variableDcl.kind == VarKind.LOCAL) {
-                    instruction.lhsOp.variableDcl = getArgVarKindVarDcl(instruction.lhsOp.variableDcl);
                 } else if (instruction.lhsOp.variableDcl.kind == VarKind.RETURN) {
                     instruction.lhsOp.variableDcl = birFunction.returnVariable;
                     basicBlock.terminator = new BIRTerminator.GOTO(null, returnBB, basicBlock.terminator.scope);
@@ -814,9 +812,6 @@ public class LargeMethodOptimizer {
             if ((basicBlock.terminator.lhsOp != null) &&
                     (basicBlock.terminator.lhsOp.variableDcl.kind == VarKind.SELF)) {
                 basicBlock.terminator.lhsOp.variableDcl = selfVarDcl;
-            } else if ((basicBlock.terminator.lhsOp != null) &&
-                    (basicBlock.terminator.lhsOp.variableDcl.kind == VarKind.LOCAL)) {
-                basicBlock.terminator.lhsOp.variableDcl = getArgVarKindVarDcl(basicBlock.terminator.lhsOp.variableDcl);
             }
             BIROperand[] rhsOperands = basicBlock.terminator.getRhsOperands();
             for (BIROperand rhsOperand : rhsOperands) {
