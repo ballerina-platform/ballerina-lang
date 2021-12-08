@@ -56,7 +56,11 @@ public class ExistingProjectTests extends AbstractPackageResolutionTest {
                 {"suite-existing_project", "case-0012", false},
                 // 13. package contains dependency which specified in the Ballerina toml file thats not local
                 {"suite-existing_project", "case-0013", true},
-                {"suite-existing_project", "case-0013", false}
+                {"suite-existing_project", "case-0013", false},
+                // 14. package contains 2 dependecies one of which is in Ballerina toml file thats not local
+                {"suite-existing_project", "case-0014", true},
+                {"suite-existing_project", "case-0014", false},
+
         };
     }
 }

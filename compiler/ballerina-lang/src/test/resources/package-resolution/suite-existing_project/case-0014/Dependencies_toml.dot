@@ -1,0 +1,4 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "ballerina/io:1.0.2"
+    "samejs/app:0.1.0" -> "samjs/io:1.0.1"
+}
