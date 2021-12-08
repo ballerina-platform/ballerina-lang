@@ -76,6 +76,32 @@ public class VariableUtils {
     }
 
     /**
+     * Returns the corresponding ballerina variable type of a given ballerina record variable instance.
+     *
+     * @param value jdi value instance of the ballerina jvm variable.
+     * @return variable type in string form.
+     */
+    public static String getRecordBType(Value value) {
+        try {
+            if (!(value.type() instanceof ClassType)) {
+                return UNKNOWN_VALUE;
+            }
+            ClassType mapValueClass = ((ClassType) value.type()).superclass();
+            if (mapValueClass == null) {
+                return UNKNOWN_VALUE;
+            }
+
+            Field bTypeField = mapValueClass.fieldByName(FIELD_TYPE);
+            Value bTypeRef = ((ObjectReference) value).getValue(bTypeField);
+            Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_TYPENAME);
+            Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
+            return getStringFrom(typeNameRef);
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
+    }
+
+    /**
      * Returns the source package org and name of a given ballerina runtime value type.
      *
      * @param bValue JDI value instance of the ballerina jvm variable.
