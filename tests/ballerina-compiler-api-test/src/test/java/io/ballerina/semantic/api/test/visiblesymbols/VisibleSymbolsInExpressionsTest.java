@@ -112,8 +112,8 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                 from("y", VARIABLE),
                                 from("fn1", VARIABLE),
                                 from("fn2", VARIABLE),
+                                from("param", PARAMETER),
                                 from("fn3", VARIABLE) // TODO: This shouldn't be visible
-//                                from("p", PARAMETER) // TODO: Should be visible
                 )},
                 {48, 12, concat(expModuleSymbols, from("b", VARIABLE))},
                 {48, 16, concat(expModuleSymbols, from("b", VARIABLE))},

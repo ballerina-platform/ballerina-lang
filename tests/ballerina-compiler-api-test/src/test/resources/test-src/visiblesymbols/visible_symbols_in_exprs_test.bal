@@ -42,7 +42,7 @@ function testAnonFuncs() {
 
     var fn2 = function (string s) returns int => y + 1;
 
-    function (int) returns int fn3 = (p) => p + y;
+    function (int) returns int fn3 = (param) => param + y;
 }
 
 function testMiscExprs() {
