@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -52,12 +53,9 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ConditionalExpressionNode node)
             throws LSCompletionException {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        int cursor = context.getCursorPositionInTree();
-        int colonTokenPos = node.colonToken().textRange().startOffset();
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (cursor > colonTokenPos && node.middleExpression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE 
-                && node.endExpression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        if (isMiddleExpressionQNameRef(node)) {
             /*
             Covers the following context
             eg: int n = true ? module1:
@@ -81,6 +79,13 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
         this.sort(context, node, completionItems);
         return completionItems;
     }
+    
+    private boolean isMiddleExpressionQNameRef(ConditionalExpressionNode node) {
+        Node middleExpression = node.middleExpression();
+        Node endExpression = node.endExpression();
+        return !middleExpression.isMissing() && middleExpression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE 
+                && !endExpression.isMissing() && endExpression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
+    }
 
     @Override
     public void sort(BallerinaCompletionContext context, ConditionalExpressionNode node,
@@ -98,4 +103,6 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
                     .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
+//    QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node.middleExpression();
+//    qualifiedNameReferenceNode.identifier()
 }
