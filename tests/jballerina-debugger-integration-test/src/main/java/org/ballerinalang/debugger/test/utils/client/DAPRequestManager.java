@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.debugger.test.utils.client;
 
-import org.ballerinalang.debugger.test.utils.DebugHitListener;
 import org.eclipse.lsp4j.debug.BreakpointEventArguments;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.CapabilitiesEventArguments;
