@@ -18,6 +18,7 @@
 
 package io.ballerina.shell;
 
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.parser.TreeParser;
@@ -26,10 +27,11 @@ import io.ballerina.shell.snippet.factory.SnippetFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Main shell entry point.
- * Creates an virtual shell which will accept input from
+ * Creates a virtual shell which will accept input from
  * a terminal and evaluate each expression.
  *
  * @since 2.0.0
@@ -58,7 +60,7 @@ public abstract class Evaluator extends DiagnosticReporter {
     public abstract void initialize() throws BallerinaShellException;
 
     /**
-     * Base evaluation function which evaluates an input line.
+     * Base evaluation function which returns compilation.
      * <p>
      * An input line may contain one or more statements separated by semicolons.
      * The result will be written via the {@code ShellResultController}.
@@ -66,9 +68,22 @@ public abstract class Evaluator extends DiagnosticReporter {
      * If the execution failed, an error will be thrown instead.
      *
      * @param source Input line from user.
+     * @return compilation.
+     */
+    public abstract ShellCompilation getCompilation(String source);
+
+    /**
+     * Base evaluation function.
+     * <p>
+     * An input line may contain one or more statements separated by semicolons.
+     * The result will be written via the {@code ShellResultController}.
+     * <p>
+     * If the execution failed, an error will be thrown instead.
+     *
+     * @param compilation compilation.
      * @return String output from the evaluator. This will be the last output.
      */
-    public abstract String evaluate(String source) throws BallerinaShellException;
+    public abstract String getValue(Optional<PackageCompilation> compilation) throws BallerinaShellException;
 
     /**
      * Evaluate a ballerina file as if it was entered to the shell.

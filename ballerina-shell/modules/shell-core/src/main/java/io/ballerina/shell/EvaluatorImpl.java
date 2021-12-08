@@ -19,8 +19,12 @@
 package io.ballerina.shell;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.PreprocessorException;
+import io.ballerina.shell.exceptions.SnippetException;
+import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
@@ -57,21 +61,54 @@ class EvaluatorImpl extends Evaluator {
         }
     }
 
-    @Override
-    public String evaluate(String source) throws BallerinaShellException {
+    public ShellCompilation getCompilation(String source) {
+        PackageCompilation compilation;
         try {
             Collection<Node> nodes = treeParser.parseString(source);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
-            Optional<Object> invokerOut = invoker.execute(snippets);
-            return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
-        } finally {
+            compilation = invoker.getCompilation(snippets);
             addAllDiagnostics(treeParser.diagnostics());
             addAllDiagnostics(snippetFactory.diagnostics());
             addAllDiagnostics(invoker.diagnostics());
             treeParser.resetDiagnostics();
             snippetFactory.resetDiagnostics();
             invoker.resetDiagnostics();
+            return new ShellCompilation(Optional.ofNullable(compilation), ExceptionStatus.SUCCESS);
+        } catch (TreeParserException e) {
+            addAllDiagnostics(treeParser.diagnostics());
+            treeParser.resetDiagnostics();
+            return new ShellCompilation(Optional.empty(), ExceptionStatus.TREE_PARSER_FAILED);
+        } catch (SnippetException e) {
+            addAllDiagnostics(treeParser.diagnostics());
+            addAllDiagnostics(snippetFactory.diagnostics());
+            snippetFactory.resetDiagnostics();
+            treeParser.resetDiagnostics();
+            return new ShellCompilation(Optional.empty(), ExceptionStatus.SNIPPET_FAILED);
+        } catch (InvokerException e) {
+            addAllDiagnostics(treeParser.diagnostics());
+            addAllDiagnostics(snippetFactory.diagnostics());
+            addAllDiagnostics(invoker.diagnostics());
+            snippetFactory.resetDiagnostics();
+            treeParser.resetDiagnostics();
+            invoker.resetDiagnostics();
+            return new ShellCompilation(Optional.empty(), ExceptionStatus.INVOKER_FAILED);
         }
+    }
+
+    @Override
+    public String getValue(Optional<PackageCompilation> compilation) throws BallerinaShellException {
+        String result;
+        try {
+            Optional<Object> invokerOut = invoker.execute(compilation);
+            result = invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+        } catch (BallerinaShellException e) {
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            throw e;
+        }
+        return result;
     }
 
     @Override
@@ -80,7 +117,7 @@ class EvaluatorImpl extends Evaluator {
             String statements = Files.readString(Paths.get(filePath), Charset.defaultCharset());
             Collection<Node> nodes = treeParser.parseDeclarations(statements);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
-            invoker.execute(snippets);
+            getValue(Optional.ofNullable(invoker.getCompilation(snippets)));
         } catch (IOException e) {
             addErrorDiagnostic("Failed to load declarations from file: " + filePath);
             throw new PreprocessorException();
