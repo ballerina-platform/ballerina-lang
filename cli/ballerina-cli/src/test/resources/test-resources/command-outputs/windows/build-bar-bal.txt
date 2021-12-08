@@ -1,6 +1,6 @@
 Compiling source
 	hello_world.bal
-WARNING [:(1:1,1:1)] skipping addition of generated file dummyfunc. sourcefile generation is not supported with standalone bal files
+WARNING [:(1:1,1:1)] Skipped adding the generated source file with prefix "dummyfunc". Source file generation is not supported with standalone bal files
 
 Generating executable
 	bar.jar

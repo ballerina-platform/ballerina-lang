@@ -278,8 +278,8 @@ class CodeGeneratorManager {
             if (this.currentPackage.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         ProjectDiagnosticErrorCode.UNSUPPORTED_COMPILER_PLUGIN_TYPE.diagnosticId(),
-                        "skipping addition of generated file '" + filenamePrefix +
-                                "'. sourcefile generation is not supported with standalone bal files",
+                        "Skipped adding the generated source file with prefix \"" + filenamePrefix +
+                                "\". Source file generation is not supported with standalone bal files",
                         DiagnosticSeverity.WARNING);
                 reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
                 return;
