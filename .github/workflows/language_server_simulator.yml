@@ -32,7 +32,7 @@ jobs:
           ./gradlew clean :language-server-simulator:runLSSimulator
 
       - name: Check Simulation Failure
-        run: if [[ test -f dump.hprof ]]; then exit 1; else exit 0; fi
+        run: if test -f dump.hprof; then exit 1; else exit 0; fi
           
       - name: Upload Heap Dumps
         uses: actions/upload-artifact@v2
