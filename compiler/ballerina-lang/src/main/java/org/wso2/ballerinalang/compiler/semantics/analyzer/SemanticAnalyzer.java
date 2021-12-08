@@ -1198,11 +1198,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, env));
         }
 
-        List<BLangIdentifier> varNames = new ArrayList<>();
-        for (BLangRecordVariable.BLangRecordVariableKeyValue keyValue: varNode.variableList) {
-            varNames.add(keyValue.getKey());
-        }
-        validateBindingPatternForNonRequiredFields(varNames, varNode.typeNode.getBType(), varNode.pos);
+        validateBindingPatternForVariableRecord( varNode.variableList,
+                varNode.typeNode.getBType(), varNode.pos);
 
         int ownerSymTag = env.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
@@ -1527,6 +1524,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 tupleVariable.setBType(rhsType);
 
+
+                if(rhsType.tag == TypeTags.ARRAY){
+                    BArrayType arrayType = (BArrayType) rhsType;
+                    for(BLangVariable memVar: tupleVariable.memberVariables) {
+                        if(memVar.getKind() == NodeKind.RECORD_VARIABLE) {
+                            BLangRecordVariable recordVariable = (BLangRecordVariable) memVar;
+                            validateBindingPatternForVariableRecord( recordVariable.variableList, arrayType.eType,
+                                    varRefExpr.pos);
+                        }
+                    }
+                }
+
                 if (!(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable, env))) {
                     tupleVariable.setBType(symTable.semanticError);
                     return;
@@ -1543,12 +1552,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                List<BLangIdentifier> varNames = new ArrayList<>();
-                for (BLangRecordVariable.BLangRecordVariableKeyValue keyValue:
-                        ((BLangRecordVariable) variable).variableList) {
-                    varNames.add(keyValue.getKey());
-                }
-                validateBindingPatternForNonRequiredFields(varNames, rhsType, varRefExpr.pos);
+                validateBindingPatternForVariableRecord( ((BLangRecordVariable) variable).variableList, rhsType,
+                        varRefExpr.pos);
 
                 BType recordRhsType = types.getReferredType(rhsType);
                 if (TypeTags.RECORD != recordRhsType.tag && TypeTags.MAP != recordRhsType.tag
@@ -1955,8 +1960,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangRecordVarRefKeyValue keyValue: recordDeStmt.varRef.recordRefFields) {
             varNames.add(keyValue.variableName);
         }
-        validateBindingPatternForNonRequiredFields(varNames, recordDeStmt.expr.getBType(), recordDeStmt.expr.pos);
-
+        validateBindingPatternForRecordDestructure(recordDeStmt.varRef.recordRefFields, recordDeStmt.expr.getBType(),
+                recordDeStmt.expr.pos);
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.getBType(),
                                      recordDeStmt.expr.pos);
     }
@@ -1978,6 +1983,58 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (Symbols.isOptional(recordType.fields.get(lhsField.value).symbol)) {
                     dlog.error(lhsField.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
                 }
+            }
+        }
+    }
+
+    private void validateBindingPatternForVariableRecord(List<BLangRecordVariable.BLangRecordVariableKeyValue> fields,
+                                                         BType type, Location pos) {
+        type = types.getReferredType(type);
+
+        if (type.tag == TypeTags.MAP) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_MAPPING_BINDING_PATTERN_WITH_MAP_EXPRESSION);
+            return;
+        }
+        if (type.tag != TypeTags.RECORD) {
+            return;
+        }
+        BRecordType recordType = (BRecordType) type;
+        for (BLangRecordVariable.BLangRecordVariableKeyValue lhsField : fields) {
+            if (recordType.fields.containsKey(lhsField.key.value)) {
+                if (Symbols.isOptional(recordType.fields.get(lhsField.key.value).symbol)) {
+                    dlog.error(lhsField.key.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
+                }
+            }
+            if (lhsField.valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
+                BLangRecordVariable recordVariable = (BLangRecordVariable) lhsField.valueBindingPattern;
+                BField fieldVal = recordType.fields.get(lhsField.key.value);
+                validateBindingPatternForVariableRecord(recordVariable.variableList, fieldVal.getType(), fieldVal.pos);
+            }
+        }
+    }
+
+    private void validateBindingPatternForRecordDestructure(List<BLangRecordVarRefKeyValue> fields,
+                                                         BType type, Location pos) {
+        type = types.getReferredType(type);
+
+        if (type.tag == TypeTags.MAP) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_MAPPING_BINDING_PATTERN_WITH_MAP_EXPRESSION);
+            return;
+        }
+        if (type.tag != TypeTags.RECORD) {
+            return;
+        }
+        BRecordType recordType = (BRecordType) type;
+        for (BLangRecordVarRefKeyValue lhsField : fields) {
+            if (recordType.fields.containsKey(lhsField.variableName.value)) {
+                if (Symbols.isOptional(recordType.fields.get(lhsField.variableName.value).symbol)) {
+                    dlog.error(lhsField.variableName.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
+                }
+            }
+            if (lhsField.variableReference.getKind() == NodeKind.RECORD_VARIABLE_REF) {
+                BLangRecordVarRef recordVariable = (BLangRecordVarRef) lhsField.variableReference;
+                BField fieldVal = recordType.fields.get(lhsField.variableName.value);
+                validateBindingPatternForRecordDestructure(recordVariable.recordRefFields, fieldVal.getType(), fieldVal.pos);
             }
         }
     }

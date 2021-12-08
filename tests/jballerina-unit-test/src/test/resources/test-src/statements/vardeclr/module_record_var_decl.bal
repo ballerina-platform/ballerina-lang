@@ -81,7 +81,7 @@ var {fieldA: [fieldAVar], fieldB: {a: fieldBMapVar}, fieldC: error(message), ...
 
 type complexRecord record {|
     [int] fieldA;
-    map<string> fieldB;
+    record {string a;} fieldB;
     error fieldC;
     int...;
 |};
