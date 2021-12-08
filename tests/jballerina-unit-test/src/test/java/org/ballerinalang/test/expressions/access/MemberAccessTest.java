@@ -370,21 +370,19 @@ public class MemberAccessTest {
         BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
     }
 
-    @Test
-    public void testMemberAccessWithBinaryExprAsIndex() {
-        BRunUtil.invoke(result, "testMemberAccessWithBinaryExprAsIndex");
+    @Test(dataProvider = "memberAccessWithBinaryExprAsIndex")
+    public void testMemberAccessWithBinaryExprAsIndex(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void testMemberAccessWithGroupExprAsIndex() {
-        BRunUtil.invoke(result, "testMemberAccessWithGroupExprAsIndex");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
-                    "index out of range: index: 3, size: 3\"\\}.*")
-    public void testMemberAccessOutOfRangeWithBinaryExpr() {
-        BRunUtil.invoke(result, "testMemberAccessOutOfRangeWithBinaryExpr");
+    @DataProvider(name = "memberAccessWithBinaryExprAsIndex")
+    public Object[][] memberAccessWithBinaryExprAsIndex() {
+        return new Object[][] {
+                { "testMemberAccessWithBinaryExprAsIndex" },
+                { "testMemberAccessWithGroupExprAsIndex" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr2" }
+        };
     }
     
     @Test
