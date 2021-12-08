@@ -50,6 +50,17 @@ public class NodeParser {
     }
 
     /**
+     * Parses the input as a block statement.
+     *
+     * @param text the input
+     * @return a {@code BlockStatementNode}
+     */
+    public static BlockStatementNode parseBlockStatement(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsBlockStatement().createUnlinkedFacade();
+    }
+
+    /**
      * Parses the input as an expression.
      *
      * @param text the input
@@ -98,7 +109,11 @@ public class NodeParser {
      *
      * @param text the input
      * @return a {@code NodeList<StatementNode>}
+     * @deprecated This method is no longer acceptable to parse statements due to
+     * issue <a href="https://github.com/ballerina-platform/ballerina-lang/issues/33323">#33323</a>.
+     * <p> Use {@link #parseBlockStatement(String)} instead.
      */
+    @Deprecated(forRemoval = true)
     public static NodeList<StatementNode> parseStatements(String text) {
         BallerinaParser parser = ParserFactory.getParser(text);
         return new NodeList<>(parser.parseAsStatements().createUnlinkedFacade());

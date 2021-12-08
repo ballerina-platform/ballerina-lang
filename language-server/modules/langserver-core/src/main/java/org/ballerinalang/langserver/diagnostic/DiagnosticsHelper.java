@@ -19,6 +19,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
@@ -151,9 +152,10 @@ public class DiagnosticsHelper {
      * @param compilation package compilation
      */
     private synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, Path projectRoot,
-                                                        PackageCompilation compilation) {
+                                                        PackageCompilation compilation,
+                                                        WorkspaceManager workspaceManager) {
         Map<String, List<Diagnostic>> diagnosticMap =
-                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot);
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspaceManager);
         // If the client is null, returns
         if (client == null) {
             return;
@@ -191,12 +193,13 @@ public class DiagnosticsHelper {
         }
         PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
         // We do not send the internal diagnostics
-        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot));
+        diagnosticMap.putAll(
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace));
         return diagnosticMap;
     }
 
     private Map<String, List<Diagnostic>> toDiagnosticsMap(Collection<io.ballerina.tools.diagnostics.Diagnostic> diags,
-                                                           Path projectRoot) {
+                                                           Path projectRoot, WorkspaceManager workspaceManager) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         for (io.ballerina.tools.diagnostics.Diagnostic diag : diags) {
             LineRange lineRange = diag.location().lineRange();
@@ -233,10 +236,11 @@ public class DiagnosticsHelper {
             If the project root is a directory, that means it is a build project and in the other case, a single 
             file project. So we only append the file URI for the build project case.
              */
-            String fileURI = (projectRoot.toFile().isDirectory()
+            Path resolvedPath = projectRoot.toFile().isDirectory()
                     ? projectRoot.resolve(lineRange.filePath())
-                    : projectRoot)
-                    .toUri().toString();
+                    : projectRoot;
+            String resolvedUri = resolvedPath.toUri().toString();
+            String fileURI = CommonUtil.getModifiedUri(workspaceManager, resolvedUri);
             List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }
@@ -258,6 +262,6 @@ public class DiagnosticsHelper {
                 .thenApplyAsync((bool) -> workspaceManager.waitAndGetPackageCompilation(projectRoot))
                 .thenAccept(compilation ->
                         compilation.ifPresent(pkgCompilation ->
-                                compileAndSendDiagnostics(client, projectRoot, pkgCompilation)));
+                                compileAndSendDiagnostics(client, projectRoot, pkgCompilation, workspaceManager)));
     }
 }

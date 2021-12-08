@@ -19,16 +19,16 @@ package org.ballerinalang.langserver.toml.ballerinatoml.completion;
 
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.toml.TomlCompletionExtension;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion extension implementation for Ballerina.toml file.
@@ -41,7 +41,8 @@ public class BallerinaTomlCompletionExtension implements TomlCompletionExtension
     @Override
     public boolean validate(CompletionParams inputParams) {
         String uri = inputParams.getTextDocument().getUri();
-        Path fileNamePath = Paths.get(URI.create(uri)).getFileName();
+        Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
+        Path fileNamePath = pathFromURI.isEmpty() ? null : pathFromURI.get().getFileName();
         if (fileNamePath == null) {
             return false;
         }

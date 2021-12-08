@@ -67,4 +67,12 @@ public interface PackageCache {
      * @return all the package versions with the given org and name
      */
     List<Package> getPackages(PackageOrg packageOrg, PackageName packageName);
+
+    /**
+     * Removes a package with the given PackageId.
+     *
+     * @param packageId packageId
+     */
+    void removePackage(PackageId packageId);
+
 }

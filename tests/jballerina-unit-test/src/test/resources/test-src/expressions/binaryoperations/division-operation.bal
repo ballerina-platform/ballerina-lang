@@ -43,6 +43,25 @@ const decimal K = 5.0;
 
 type L J|K;
 
+type IntType1 -2|-1|0|1|2;
+type IntType2 int:Unsigned8|int:Signed32;
+type IntType3 IntType1|IntType2;
+type IntType4 IntType1|byte;
+
+const float AA = 1.25;
+const float BB = 2.5;
+
+type FloatType1 -2.0f|-1.0f|0.0f|1.0f|2.0f;
+type FloatType2 FloatType1;
+type FloatType3 AA|BB;
+
+const decimal CC = 1.2;
+const decimal DD = 3.0;
+
+type DecimalType1 CC|DD;
+type DecimalType2 1d|2d|-1d|2d;
+type DecimalType3 DecimalType1|DecimalType2;
+
 function testDivisionWithTypes() {
     SomeTypes a1 = 10;
     int a2 = 20;
@@ -67,6 +86,43 @@ function testDivisionWithTypes() {
     assertEqual(a7 / a9, 1.05);
     assertEqual(a8 / a9, 1.0);
     assertEqual(a11 / a10, 2d);
+
+    IntType3 a21 = 1;
+    int|IntType3 a22 = 2;
+    IntType4|int a23 = 3;
+
+    assertEqual(a21 / a21, 1);
+    assertEqual(a21 / a22, 0);
+    assertEqual(a21 / a23, 0);
+    assertEqual(a22 / a23, 0);
+    assertEqual(a23 / a23, 1);
+
+    FloatType2 a24 = -2;
+    FloatType2 a25 = 1;
+    float|FloatType3 a26 = 1.25;
+    FloatType3|float a27 = 2.5;
+
+    assertEqual(a24 / a24, 1.0);
+    assertEqual(a24 / a25, -2.0);
+    assertEqual(a24 / a26, -1.6);
+    assertEqual(a24 / a27, -0.8);
+    assertEqual(a25 / a25, 1.0);
+    assertEqual(a25 / a26, 0.8);
+    assertEqual(a25 / a27, 0.4);
+    assertEqual(a26 / a26, 1.0);
+    assertEqual(a26 / a27, 0.5);
+    assertEqual(a27 / a27, 1.0);
+
+    DecimalType1 a28 = 1.2;
+    DecimalType3|decimal a29 = 2;
+    decimal|DecimalType3 a30 = 3;
+
+    assertEqual(a28 / a28, 1d);
+    assertEqual(a28 / a29, 0.6d);
+    assertEqual(a28 / a30, 0.4d);
+    assertEqual(a29 / a29, 1d);
+    assertEqual(a29 / a30, 0.6666666666666666666666666666666667d);
+    assertEqual(a30 / a30, 1d);
 }
 
 function testDivisionSingleton() {
@@ -199,6 +255,43 @@ function testDivisionNullable() {
     assertEqual(f / g, 2);
 
     assertEqual(g / g, 1);
+
+    IntType3? a27 = 1;
+    IntType3? a28 = 2;
+    IntType4? a29 = 3;
+
+    assertEqual(a27 / a27, 1);
+    assertEqual(a27 / a28, 0);
+    assertEqual(a27 / a29, 0);
+    assertEqual(a28 / a29, 0);
+    assertEqual(a29 / a29, 1);
+
+    FloatType2? a30 = -2;
+    FloatType2? a31 = 1;
+    FloatType3? a32 = 1.25;
+    FloatType3? a33 = 2.5;
+
+    assertEqual(a30 / a30, 1.0);
+    assertEqual(a30 / a31, -2.0);
+    assertEqual(a30 / a32, -1.6);
+    assertEqual(a30 / a33, -0.8);
+    assertEqual(a31 / a31, 1.0);
+    assertEqual(a31 / a32, 0.8);
+    assertEqual(a31 / a33, 0.4);
+    assertEqual(a32 / a32, 1.0);
+    assertEqual(a32 / a33, 0.5);
+    assertEqual(a33 / a33, 1.0);
+
+    DecimalType1? a34 = 1.2;
+    DecimalType3? a35 = 2;
+    DecimalType3? a36 = 3;
+
+    assertEqual(a34 / a34, 1d);
+    assertEqual(a34 / a35, 0.6d);
+    assertEqual(a34 / a36, 0.4d);
+    assertEqual(a35 / a35, 1d);
+    assertEqual(a35 / a36, 0.6666666666666666666666666666666667d);
+    assertEqual(a36 / a36, 1d);
 }
 
 function assertEqual(any actual, any expected) {

@@ -1,0 +1,9 @@
+{
+    "line": 2,
+    "character": 67,
+    "expected": [
+        {
+            "title": "Change variable 'val' type to 'float'"
+        }
+    ]
+}

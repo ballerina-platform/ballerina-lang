@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -48,6 +47,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,7 +58,6 @@ import java.util.Set;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
-import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
@@ -76,7 +75,7 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+        return load(environmentBuilder, projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -86,7 +85,7 @@ public class BuildProject extends Project {
      * @return BuildProject instance
      */
     public static BuildProject load(Path projectPath) {
-        return load(projectPath, new BuildOptionsBuilder().build());
+        return load(projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -158,7 +157,7 @@ public class BuildProject extends Project {
 
     @Override
     public Project duplicate() {
-        BuildOptions duplicateBuildOptions = new BuildOptionsBuilder().build().acceptTheirs(buildOptions());
+        BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         BuildProject buildProject = new BuildProject(
                 ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
         return cloneProject(buildProject);
@@ -178,19 +177,26 @@ public class BuildProject extends Project {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }
 
-                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
-                        Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
-                    Module module = this.currentPackage().module(moduleId);
+                Module module = this.currentPackage().module(moduleId);
+                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)) {
+                    // this is a source file
                     for (DocumentId documentId : module.documentIds()) {
                         if (module.document(documentId).name().equals(
                                 Optional.of(file.getFileName()).get().toString())) {
                             return documentId;
                         }
                     }
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
-                                .equals(Optional.of(file.getFileName()).get().toString())) {
-                            return documentId;
+                } else if (Optional.of(parent.getFileName()).get().toString().equals(ProjectConstants.TEST_DIR_NAME)) {
+                    // this is a test file
+                    if (Optional.of(Optional.of(parent.getParent()).get().getFileName()).get().toString()
+                            .equals(moduleDirName)) {
+                        for (DocumentId documentId : module.testDocumentIds()) {
+                            String[] splitName = module.document(documentId).name()
+                                    .split(ProjectConstants.TEST_DIR_NAME + "/");
+                            if (splitName.length > 1 && splitName[1]
+                                    .equals(Optional.of(file.getFileName()).get().toString())) {
+                                return documentId;
+                            }
                         }
                     }
                 }
@@ -209,7 +215,7 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         // if build file does not exists
 
@@ -427,4 +433,12 @@ public class BuildProject extends Project {
         }
     }
 
+    @Override
+    public Path targetDir() {
+        if (this.buildOptions().getTargetPath() == null) {
+            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        } else {
+            return Paths.get(this.buildOptions().getTargetPath());
+        }
+    }
 }

@@ -165,18 +165,13 @@ public class RemotePackageRepository implements PackageRepository {
         if (options.offline()) {
             return filesystem;
         }
-        List<ImportModuleResponse> unresolved = filesystem.stream()
-                .filter(r -> r.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED))
-                .collect(Collectors.toList());
 
         try {
-            if (unresolved.size() > 0) {
-                PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(unresolved);
-                PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
-                        JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion(), true);
-                List<ImportModuleResponse> remote = toImportModuleResponses(unresolved, response);
-                return mergeNameResolution(filesystem, remote);
-            }
+            PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(requests);
+            PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
+                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion(), true);
+            List<ImportModuleResponse> remote = toImportModuleResponses(requests, response);
+            return mergeNameResolution(filesystem, remote);
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
             // TODO we need to add diagnostics for resolution errors
@@ -188,29 +183,30 @@ public class RemotePackageRepository implements PackageRepository {
 
     private List<ImportModuleResponse> mergeNameResolution(Collection<ImportModuleResponse> filesystem,
                                                            Collection<ImportModuleResponse> remote) {
-        List<ImportModuleResponse> all = new ArrayList<>();
-        // We assume file system responses will have all module requests
-        for (ImportModuleResponse fileResponse : filesystem) {
-            if (fileResponse.resolutionStatus() == ResolutionResponse.ResolutionStatus.RESOLVED) {
-                all.add(fileResponse);
-            } else {
-                // If remote has resolutions of unresolved we will substitute
-                Optional<ImportModuleResponse> remoteResponse = remote.stream()
-                        .filter(r -> r.importModuleRequest().equals(fileResponse.importModuleRequest())).findFirst();
-                if (remoteResponse.isPresent()) {
-                    all.add(remoteResponse.get());
-                }
-            }
-        }
-        return all;
+        return new ArrayList<>(
+            Stream.of(filesystem, remote)
+                .flatMap(Collection::stream).collect(Collectors.toMap(
+                    ImportModuleResponse::importModuleRequest, Function.identity(),
+                    (ImportModuleResponse x, ImportModuleResponse y) -> {
+                        if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                            return x;
+                        } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                            return y;
+                        } else if (getLatest(x.packageDescriptor().version(),
+                                y.packageDescriptor().version()).equals(
+                                y.packageDescriptor().version())) {
+                            return y;
+                        }
+                        return x;
+                    })).values());
     }
 
-    private List<ImportModuleResponse> toImportModuleResponses(List<ImportModuleResponse> requests,
+    private List<ImportModuleResponse> toImportModuleResponses(Collection<ImportModuleRequest> requests,
                                                                PackageNameResolutionResponse response) {
         List<ImportModuleResponse> result = new ArrayList<>();
-        for (ImportModuleResponse module : requests) {
-            PackageOrg packageOrg = module.importModuleRequest().packageOrg();
-            String moduleName = module.importModuleRequest().moduleName();
+        for (ImportModuleRequest module : requests) {
+            PackageOrg packageOrg = module.packageOrg();
+            String moduleName = module.moduleName();
             Optional<PackageNameResolutionResponse.Module> resolvedModule = response.resolvedModules().stream()
                     .filter(m -> m.getModuleName().equals(moduleName)
                             && m.getOrganization().equals(packageOrg.value())).findFirst();
@@ -218,34 +214,32 @@ public class RemotePackageRepository implements PackageRepository {
                 PackageDescriptor packageDescriptor = PackageDescriptor.from(packageOrg,
                         PackageName.from(resolvedModule.get().getPackageName()),
                         PackageVersion.from(resolvedModule.get().getVersion()));
-                ImportModuleResponse importModuleResponse = new ImportModuleResponse(packageDescriptor,
-                        module.importModuleRequest());
+                ImportModuleResponse importModuleResponse = new ImportModuleResponse(packageDescriptor, module);
                 result.add(importModuleResponse);
             } else {
-                result.add(new ImportModuleResponse(module.importModuleRequest()));
+                result.add(new ImportModuleResponse(module));
             }
         }
         return result;
     }
 
-
-    private PackageNameResolutionRequest toPackageNameResolutionRequest(List<ImportModuleResponse> unresolved) {
+    private PackageNameResolutionRequest toPackageNameResolutionRequest(Collection<ImportModuleRequest> unresolved) {
         PackageNameResolutionRequest request = new PackageNameResolutionRequest();
-        for (ImportModuleResponse module : unresolved) {
-            if (module.importModuleRequest().possiblePackages().size() == 0) {
-                request.addModule(module.importModuleRequest().packageOrg().value(),
-                        module.importModuleRequest().moduleName());
+        for (ImportModuleRequest module : unresolved) {
+            if (module.possiblePackages().isEmpty()) {
+                request.addModule(module.packageOrg().value(),
+                        module.moduleName());
                 continue;
             }
             List<PackageNameResolutionRequest.Module.PossiblePackage> possiblePackages = new ArrayList<>();
-            for (PackageDescriptor possiblePackage : module.importModuleRequest().possiblePackages()) {
+            for (PackageDescriptor possiblePackage : module.possiblePackages()) {
                 possiblePackages.add(new PackageNameResolutionRequest.Module.PossiblePackage(
                         possiblePackage.org().toString(),
                         possiblePackage.name().toString(),
                         possiblePackage.version().toString()));
             }
-            request.addModule(module.importModuleRequest().packageOrg().value(),
-                    module.importModuleRequest().moduleName(), possiblePackages, PackageResolutionRequest.Mode.MEDIUM);
+            request.addModule(module.packageOrg().value(),
+                    module.moduleName(), possiblePackages, PackageResolutionRequest.Mode.MEDIUM);
         }
         return request;
     }

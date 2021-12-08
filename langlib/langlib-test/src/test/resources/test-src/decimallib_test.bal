@@ -135,6 +135,183 @@ function testDecimalNotExactEquality() {
     test:assertFalse(d1 !== d2);
 }
 
+function testFromStringFunctionWithInvalidValues() {
+    decimal|error a1 = decimal:fromString("123f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '123f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("123F");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '123F' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("123.67f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '123.67f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("123.67F");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '123.67F' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("12E+2f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '12E+2f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("-12E+2F");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '-12E+2F' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("12e-2F");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '12e-2F' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("-12e-2f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '-12e-2f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("12.23E+2F");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '12.23E+2F' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("-12.23E+2f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '-12.23E+2f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("12.23e-2f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '12.23e-2f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("-12.23e-2F");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '-12.23e-2F' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("+12.23E+2F");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '+12.23E+2F' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("+12.23e-2f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '+12.23e-2f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("+123.0f");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '+123.0f' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("12d");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '12d' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+     a1 = decimal:fromString("12D");
+     assertEquality(true, a1 is error);
+     if (a1 is error) {
+         assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+         assertEquality("'string' value '12D' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+     }
+
+    a1 = decimal:fromString("12.23E+2D");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '12.23E+2D' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("-12.23e-2d");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '-12.23e-2d' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("0xabcf");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '0xabcf' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("-0xabcf");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '-0xabcf' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("0Xabcf");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '0Xabcf' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("-0Xabcf");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '-0Xabcf' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("0x12a.12fa");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '0x12a.12fa' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = decimal:fromString("+0x12a");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '+0x12a' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

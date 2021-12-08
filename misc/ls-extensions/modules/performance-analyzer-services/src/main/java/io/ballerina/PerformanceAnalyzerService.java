@@ -37,6 +37,17 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
+import static io.ballerina.Constants.AUTHENTICATION_ERROR;
+import static io.ballerina.Constants.CONNECTION_ERROR;
+import static io.ballerina.Constants.ENDPOINT_RESOLVE_ERROR;
+import static io.ballerina.Constants.ERROR;
+import static io.ballerina.Constants.MESSAGE;
+import static io.ballerina.Constants.NO_DATA;
+import static io.ballerina.Constants.SOME_ERROR;
+import static io.ballerina.Constants.SUCCESS;
+import static io.ballerina.Constants.TYPE;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
+
 /**
  * The extended service for the performance analyzer.
  *
@@ -46,12 +57,8 @@ import java.util.concurrent.CompletableFuture;
 @JsonSegment("performanceAnalyzer")
 public class PerformanceAnalyzerService implements ExtendedLanguageServerService {
 
-    static final String ERROR = "error";
-    static final String SUCCESS = "Success";
-    static final String CONNECTION_ERROR = "CONNECTION_ERROR";
-    static final String AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR";
-    static final String SOME_ERROR = "SOME_ERROR_OCCURRED";
-    private static HashMap<JsonObject, JsonObject> cachedResponses = new HashMap<>();
+    private static final HashMap<JsonObject, JsonObject> realTimeCachedResponses = new HashMap<>();
+    private static final HashMap<JsonObject, JsonObject> advancedCachedResponses = new HashMap<>();
 
     private WorkspaceManager workspaceManager;
 
@@ -72,7 +79,27 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
-            return EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
+            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
+
+            if (data.entrySet().isEmpty()) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(TYPE, ERROR);
+                obj.addProperty(MESSAGE, ENDPOINT_RESOLVE_ERROR);
+                return obj;
+            }
+
+            if (data.get(ACTION_INVOCATION_KEY).getAsJsonObject().get("nextNode").isJsonNull()) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(TYPE, ERROR);
+                obj.addProperty(MESSAGE, NO_DATA);
+                return obj;
+            }
+
+            if (data.get(TYPE) == null) {
+                data.addProperty(TYPE, SUCCESS);
+                data.addProperty(MESSAGE, SUCCESS);
+            }
+            return data;
         });
     }
 
@@ -88,13 +115,16 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
             JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
-            if (data == null) {
-                return null;
+            if (data.entrySet().isEmpty()) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(TYPE, ERROR);
+                obj.addProperty(MESSAGE, ENDPOINT_RESOLVE_ERROR);
+                return obj;
             }
 
             JsonObject graphData;
-            if (cachedResponses.get(data) != null) {
-                graphData = cachedResponses.get(data);
+            if (advancedCachedResponses.get(data) != null) {
+                graphData = advancedCachedResponses.get(data);
             } else {
                 graphData = getDataFromChoreo(request.getChoreoAPI(), data, AnalyzeType.ADVANCED,
                         request.getChoreoToken(), request.getChoreoCookie());
@@ -103,10 +133,10 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                     return null;
                 }
 
-                if (graphData.get("type") == null) {
-                    graphData.addProperty("type", SUCCESS);
-                    graphData.addProperty("message", SUCCESS);
-                    cachedResponses.put(data, graphData);
+                if (graphData.get(TYPE) == null) {
+                    graphData.addProperty(TYPE, SUCCESS);
+                    graphData.addProperty(MESSAGE, SUCCESS);
+                    advancedCachedResponses.put(data, graphData);
                 }
             }
 
@@ -127,17 +157,34 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             String fileUri = request.getDocumentIdentifier().getUri();
             JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
 
-            if (data == null) {
-                return null;
+            if (data.entrySet().isEmpty()) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(TYPE, ERROR);
+                obj.addProperty(MESSAGE, ENDPOINT_RESOLVE_ERROR);
+                return obj;
             }
 
-            JsonObject realTimeData = getDataFromChoreo(request.getChoreoAPI(), data, AnalyzeType.REALTIME,
-                    request.getChoreoToken(), request.getChoreoCookie());
-
-            if (realTimeData.get("type") == null) {
-                realTimeData.addProperty("type", SUCCESS);
-                realTimeData.addProperty("message", SUCCESS);
+            if (data.get(ACTION_INVOCATION_KEY).getAsJsonObject().get("nextNode").isJsonNull()) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty(TYPE, ERROR);
+                obj.addProperty(MESSAGE, NO_DATA);
+                return obj;
             }
+
+            JsonObject realTimeData;
+            if (realTimeCachedResponses.get(data) != null) {
+                realTimeData = realTimeCachedResponses.get(data);
+            } else {
+                realTimeData = getDataFromChoreo(request.getChoreoAPI(), data, AnalyzeType.REALTIME,
+                        request.getChoreoToken(), request.getChoreoCookie());
+
+                if (realTimeData.get(TYPE) == null) {
+                    realTimeData.addProperty(TYPE, SUCCESS);
+                    realTimeData.addProperty(MESSAGE, SUCCESS);
+                    realTimeCachedResponses.put(data, realTimeData);
+                }
+            }
+
             return realTimeData;
         });
     }
@@ -173,27 +220,27 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                 return gson.fromJson(response.body(), JsonObject.class);
             } else if (response.statusCode() == 401) {
                 JsonObject obj = new JsonObject();
-                obj.addProperty("type", ERROR);
-                obj.addProperty("message", AUTHENTICATION_ERROR);
+                obj.addProperty(TYPE, ERROR);
+                obj.addProperty(MESSAGE, AUTHENTICATION_ERROR);
                 return obj;
             }
             JsonObject obj = new JsonObject();
-            obj.addProperty("type", ERROR);
-            obj.addProperty("message", SOME_ERROR);
+            obj.addProperty(TYPE, ERROR);
+            obj.addProperty(MESSAGE, SOME_ERROR);
             return obj;
 
         } catch (IOException e) {
             // No connection
             data.remove("analyzeType");
             JsonObject obj = new JsonObject();
-            obj.addProperty("type", ERROR);
-            obj.addProperty("message", CONNECTION_ERROR);
+            obj.addProperty(TYPE, ERROR);
+            obj.addProperty(MESSAGE, CONNECTION_ERROR);
             return obj;
         } catch (InterruptedException | URISyntaxException e) {
             data.remove("analyzeType");
             JsonObject obj = new JsonObject();
-            obj.addProperty("type", ERROR);
-            obj.addProperty("message", e.getMessage());
+            obj.addProperty(TYPE, ERROR);
+            obj.addProperty(MESSAGE, e.getMessage());
             return obj;
         }
     }

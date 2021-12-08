@@ -34,6 +34,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -45,9 +46,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -129,7 +132,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv.scope.owner, statesSet);
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet);
             }
         }
 
@@ -418,6 +421,11 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isCursorPosAtDefinition(BLangCompilationUnit compilationUnit, BSymbol symbolAtCursor,
                                             LinePosition cursorPos) {
+        BType symbolType = symbolAtCursor.type;
+        if (symbolType.tag == TypeTags.ERROR &&
+                Symbols.isFlagOn(symbolType.flags, Flags.ANONYMOUS)) {
+            return true;
+        }
         return !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
                 && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
@@ -456,12 +464,20 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
-                                      Name name, BSymbol symbolEnvScopeOwner, Set<DiagnosticState> states) {
+                                      Name name, SymbolEnv symbolEnv, Set<DiagnosticState> states) {
         if (scopeEntry == null || scopeEntry.symbol == null || isFilteredVarSymbol(scopeEntry.symbol, states)) {
             return;
         }
 
+        BSymbol symbolEnvScopeOwner = symbolEnv.scope.owner;
         BSymbol symbol = scopeEntry.symbol;
+
+        // Checks if the enclosed node is within a worker declaration body and the encountered symbol is the same
+        // worker that is being declared.
+        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol)) {
+            return;
+        }
+
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
                 && !isServiceDeclSymbol(symbol)) {
             Symbol compiledSymbol;
@@ -489,7 +505,23 @@ public class BallerinaSemanticModel implements SemanticModel {
 
             compiledSymbols.add(compiledSymbol);
         }
-        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnvScopeOwner, states);
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states);
+    }
+
+    private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {
+
+        if (Symbols.isFlagOn(symbolEnvScopeOwnerFlags, Flags.WORKER)
+                && Symbols.isFlagOn(symbol.flags, Flags.WORKER)
+                && enclEnv != null
+                && enclEnv.node.getKind() == NodeKind.FUNCTION) {
+
+            BLangIdentifier defaultWorkerName = ((BLangFunction) enclEnv.node).defaultWorkerName;
+
+            return defaultWorkerName.getValue().equals(symbol.getName().getValue())
+                    && defaultWorkerName.getPosition().equals(symbol.getPosition());
+        }
+
+        return false;
     }
 
     private boolean isFieldSymbol(Symbol symbol) {

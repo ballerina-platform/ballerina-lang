@@ -154,7 +154,7 @@ public class DebugInstructionTest extends BaseTestCase {
         // At this point, 'pause' command should suspend the program at the infinite while loop. (can be either
         // condition line or the statement body)
         debugTestRunner.pauseProgram(activeThreads[0].getId());
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        debugHitInfo = debugTestRunner.waitForDebugHit(15000);
         Assert.assertTrue(debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 20))
                 || debugHitInfo.getLeft().equals(new BallerinaTestDebugPoint(mainFilePath, 21)));
     }
