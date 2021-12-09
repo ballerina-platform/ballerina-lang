@@ -83,7 +83,7 @@ public class VariableUtils {
      */
     public static String getRecordBType(Value value) {
         try {
-            if (!(value.type() instanceof ClassType)) {
+            if (!(value instanceof ObjectReference && value.type() instanceof ClassType)) {
                 return UNKNOWN_VALUE;
             }
             ClassType mapValueClass = ((ClassType) value.type()).superclass();
