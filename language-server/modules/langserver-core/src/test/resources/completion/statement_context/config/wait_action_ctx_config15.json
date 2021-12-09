@@ -1,24 +1,48 @@
 {
   "position": {
-    "line": 4,
-    "character": 19
+    "line": 13,
+    "character": 46
   },
-  "source": "statement_context/source/wait_action_ctx_source5.bal",
+  "source": "statement_context/source/wait_action_ctx_source15.bal",
   "items": [
     {
-      "label": "fs2",
+      "label": "WB",
       "kind": "Variable",
-      "detail": "future<string|error>",
-      "sortText": "B",
-      "insertText": "fs2",
+      "detail": "worker",
+      "sortText": "F",
+      "insertText": "WB",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fs",
+      "label": "fstr",
       "kind": "Variable",
-      "detail": "future<string|error>",
-      "sortText": "B",
-      "insertText": "fs",
+      "detail": "future<string>",
+      "sortText": "F",
+      "insertText": "fstr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fint",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "F",
+      "insertText": "fint",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WA",
+      "kind": "Variable",
+      "detail": "worker",
+      "sortText": "F",
+      "insertText": "WA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myVar",
+      "kind": "Variable",
+      "detail": "map<string|error>",
+      "sortText": "F",
+      "insertText": "myVar",
       "insertTextFormat": "Snippet"
     },
     {
