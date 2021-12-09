@@ -1548,7 +1548,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (definedType.tsymbol.kind == SymbolKind.OBJECT || definedType.tsymbol.kind == SymbolKind.RECORD) {
+        if ((definedType.tsymbol.kind == SymbolKind.OBJECT || definedType.tsymbol.kind == SymbolKind.RECORD) &&
+                typeDefSymbol.owner == definedType.tsymbol.owner) {
             ((BStructureTypeSymbol) definedType.tsymbol).typeDefinitionSymbol = (BTypeDefinitionSymbol) typeDefSymbol;
         }
 
