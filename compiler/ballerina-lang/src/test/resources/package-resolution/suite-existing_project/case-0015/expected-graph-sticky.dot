@@ -1,0 +1,4 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "samjs/http:1.0.0"
+    "samjs/http:1.0.0" -> "samjs/io:1.1.0"
+}
