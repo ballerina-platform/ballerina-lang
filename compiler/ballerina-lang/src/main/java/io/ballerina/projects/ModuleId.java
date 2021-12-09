@@ -44,6 +44,18 @@ public final class ModuleId {
         return id;
     }
 
+    /**
+     * @deprecated use Module.moduleName instead.
+     *
+     * This method is for not supposed to be used by the API users.
+     * The access modifier will be removed in a future release to make it package-private.
+     * Use the Module.moduleName as shown in the example:
+     *
+     *  e.g. ModuleName moduleName = project.currentPackage().module(moduleId).moduleName();
+     *
+     * @return ModuleName as a string
+     */
+    @Deprecated
     public String moduleName() {
         return moduleName;
     }
