@@ -236,3 +236,9 @@ function testOptionalFieldsInRecordBindingPattern(){
 
   {name: nameOne, details:{id: idOne, age: ageOne}} = e1;
 }
+
+function testMappingBindingPatternWithMap() {
+    map<string> stringMap = {"a":"Foo"};
+    string? foo;
+    {a:foo} = stringMap;
+}

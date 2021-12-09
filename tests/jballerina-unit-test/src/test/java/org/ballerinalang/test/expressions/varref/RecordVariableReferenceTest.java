@@ -223,6 +223,8 @@ public class RecordVariableReferenceTest {
                 "invalid mapping binding pattern; cannot bind optional fields", 226, 18);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid mapping binding pattern; cannot bind optional fields", 237, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid mapping binding pattern; cannot bind map expression", 243, 15);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
