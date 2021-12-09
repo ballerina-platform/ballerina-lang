@@ -153,21 +153,16 @@ public class PackageResolutionTests extends BaseTest {
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
 
-        boolean check = false;
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
-        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
-            Collection<ResolvedPackageDependency> directDeps = dependencyGraph.getDirectDependencies(graphNode);
-            PackageManifest manifest = graphNode.packageInstance().manifest();
-            if (manifest.name().value().equals("package_o") && (manifest.version().toString().equals("1.0.2"))) {
-                check = true;
-            }
-        }
-
-        Assert.assertTrue(check);
+        ResolvedPackageDependency packageO =
+                dependencyGraph.getNodes().stream().filter(
+                        node -> node.packageInstance().manifest().name().toString().equals("package_o")
+                ).findFirst().orElseThrow();
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
     }
 
     @Test(description = "tests resoultion with toml dependency")
-    public void testBase() {
+    public void testProjectWithTomlDependency() {
 
         // Setup
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
@@ -184,18 +179,12 @@ public class PackageResolutionTests extends BaseTest {
         Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
 
-        boolean check = false;
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
-        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
-            PackageManifest manifest = graphNode.packageInstance().manifest();
-            if (manifest.name().value().equals("package_o")) {
-                if (manifest.version().toString().equals("1.0.2")) {
-                    check = true;
-                }
-            }
-        }
-        Assert.assertTrue(check);
-
+        ResolvedPackageDependency packageO =
+                dependencyGraph.getNodes().stream().filter(
+                        node -> node.packageInstance().manifest().name().toString().equals("package_o")
+                ).findFirst().orElseThrow();
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
 
         // Stage 2 : Package P with deps
         projectDirPath = RESOURCE_DIRECTORY.resolve("package_p_withDep");
@@ -206,17 +195,11 @@ public class PackageResolutionTests extends BaseTest {
         loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
         compilation = loadProject.currentPackage().getCompilation();
 
-        check = false;
         dependencyGraph = compilation.getResolution().dependencyGraph();
-        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
-            PackageManifest manifest = graphNode.packageInstance().manifest();
-            if (manifest.name().value().equals("package_o")) {
-                if (manifest.version().toString().equals("1.1.0")) {
-                    check = true;
-                }
-            }
-        }
-        Assert.assertTrue(check);
+        packageO = dependencyGraph.getNodes().stream().filter(
+                        node -> node.packageInstance().manifest().name().toString().equals("package_o")
+                ).findFirst().orElseThrow();
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.1.0");
     }
 
     @Test(dependsOnMethods = "testProjectWithInvalidBuildFile", description = "tests project with empty build file")
