@@ -65,8 +65,8 @@ OPTIONS
             Optional. List of operations to generate the Ballerina service or client.
 
         (--with-tests)
-            Optional. Work with client generation command, this generates a test boiler-plate for each remote
-            function
+            Optional. Work with the client generation command and generate a test boiler-plate for all the remote
+            functions of the generated client.
 
 DEFAULT BEHAVIOR
        If no options are provided, the help text for the OpenAPI Tool is shown.
@@ -78,8 +78,8 @@ EXAMPLES
        Generate a Ballerina client using a `hello.yaml` OpenAPI contract.
           $ bal openapi -i hello.yaml --mode client  
 
-       Generate a client with a tests module including boilerplate test cases to test each remote
-       function using a `hello.yaml` OpenAPI contract.
+       Generate a Ballerina client including boiler-plate test cases for all the client remote functions
+       based on the `hello.yaml` OpenAPI contract.
           $ bal openapi -i hello.yaml --mode client --with-tests
 
        Generate both the Ballerina client and service files using a `hello.yaml` OpenAPI contract 
