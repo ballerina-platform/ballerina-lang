@@ -69,7 +69,7 @@ public class IdentifierModifier extends TreeModifier {
 
     public static String decodeAndEscapeIdentifier(String encodedIdentifier) {
         String decodedIdentifier = decodeIdentifier(encodedIdentifier);
-        decodedIdentifier = IdentifierUtils.escapeSpecialCharacters(decodedIdentifier);
+        decodedIdentifier = Utils.escapeSpecialCharacters(decodedIdentifier);
         if (!decodedIdentifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
             decodedIdentifier = QUOTED_IDENTIFIER_PREFIX + decodedIdentifier;
         }
