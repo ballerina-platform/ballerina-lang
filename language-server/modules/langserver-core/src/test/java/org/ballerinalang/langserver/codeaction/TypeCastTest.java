@@ -58,8 +58,13 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"typeCast5.json", "typeCast.bal"},
 //                {"typeCast6.json", "typeCast.bal"}, Not supported by the subtype of API.
                 {"typeCast7.json", "typeCast.bal"},
+                {"typeCast8.json", "typeCast.bal"},
+                {"typeCast9.json", "typeCast.bal"},
+                {"typeCast10.json", "typeCast.bal"},
+                {"typeCast11.json", "typeCast.bal"},
                 {"nilTypeCast.json", "typeCast.bal"},
                 {"type_cast_function_param_config1.json", "type_cast_function_param_config1.bal"},
+                {"typeCast11.json", "typeCast.bal"},
         };
     }
 
@@ -69,6 +74,7 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"typeCastNegative1.json", "typeCast2.bal"},
                 {"typeCastNegative2.json", "typeCast.bal"},
                 {"typeCastNegative3.json", "typeCast.bal"},
+                {"typeCastNegative4.json", "typeCast.bal"},
         };
     }
 }

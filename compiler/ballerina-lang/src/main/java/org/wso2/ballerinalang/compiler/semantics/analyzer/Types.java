@@ -2897,7 +2897,8 @@ public class Types {
                 if (sourceTypes.contains(symTable.nilType) != targetTypes.contains(symTable.nilType)) {
                     return false;
                 }
-                return checkValueSpaceHasSameType(((BFiniteType) target.getMemberTypes().iterator().next()),
+                BType type = target.getMemberTypes().iterator().next();
+                return checkValueSpaceHasSameType(((BFiniteType) getReferredType(type)),
                         sUnionType.getMemberTypes().iterator().next());
             }
 
@@ -3062,7 +3063,8 @@ public class Types {
     }
 
     private boolean checkUnionHasAllFiniteOrNilMembers(LinkedHashSet<BType> memberTypes) {
-        for (BType type : memberTypes) {
+        for (BType bType : memberTypes) {
+            BType type = getReferredType(bType);
             if (type.tag != TypeTags.FINITE && type.tag != TypeTags.NIL) {
                 return false;
             }
@@ -5785,7 +5787,19 @@ public class Types {
             Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
             for (BType member : memberTypes) {
                 BType memType = getReferredType(member);
+                if (memType.tag == TypeTags.FINITE || memType.tag == TypeTags.UNION) {
+                    isNonNilSimpleBasicTypeOrString(memType);
+                    continue;
+                }
                 if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (type.tag == TypeTags.FINITE) {
+            for (BLangExpression expression: ((BFiniteType) type).getValueSpace()) {
+                BType exprType = getReferredType(expression.getBType());
+                if (exprType.tag == TypeTags.NIL || !isSimpleBasicType(exprType.tag)) {
                     return false;
                 }
             }

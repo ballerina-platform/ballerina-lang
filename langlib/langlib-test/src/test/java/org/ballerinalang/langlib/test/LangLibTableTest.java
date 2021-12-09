@@ -166,7 +166,7 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 24);
+        assertEquals(negativeResult.getErrorCount(), 25);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'EmployeeTable', " +
                 "found 'table<Person> key<string>'", 68, 36);
@@ -220,9 +220,12 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "incompatible types: expected 'function (ballerina/lang.table:0.0" +
                 ".0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', found 'function (Person) returns " +
                 "(string)'", 195, 27);
-        validateError(negativeResult, index, "incompatible types: expected 'function (ballerina/lang.table:0.0" +
+        validateError(negativeResult, index++, "incompatible types: expected 'function (ballerina/lang.table:0.0" +
                 ".0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', found 'function (Person) returns " +
                 "(string)'", 199, 18);
+        validateError(negativeResult, index, "incompatible types: expected 'function (ballerina/lang.table:0.0" +
+                ".0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', found 'function (Person) returns " +
+                "(string)'", 200, 18);
     }
 
     @Test
