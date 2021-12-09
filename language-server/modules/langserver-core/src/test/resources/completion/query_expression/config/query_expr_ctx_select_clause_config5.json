@@ -1,17 +1,26 @@
 {
   "position": {
-    "line": 17,
-    "character": 25
+    "line": 24,
+    "character": 20
   },
-  "source": "query_expression/source/query_expr_ctx_onconflict_clause_source2.bal",
+  "source": "query_expression/source/query_expr_ctx_select_clause_source5.bal",
   "items": [
     {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CO",
-      "filterText": "module1",
-      "insertText": "module1",
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "CQ",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "let",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "CQ",
+      "filterText": "let",
+      "insertText": "let",
       "insertTextFormat": "Snippet"
     },
     {
@@ -107,6 +116,30 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "module1",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -292,15 +325,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "let",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "let",
-      "insertText": "let",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -343,6 +367,15 @@
       "sortText": "CQ",
       "filterText": "false",
       "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "CQ",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
@@ -409,70 +442,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "from",
-      "insertText": "from ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testOnConflictClauseWithNonTableTypes()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "CC",
-      "filterText": "testOnConflictClauseWithNonTableTypes",
-      "insertText": "testOnConflictClauseWithNonTableTypes()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "CB",
-      "insertText": "personList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "CN",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "outputPersonList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "CB",
-      "insertText": "outputPersonList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Customer",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "CM",
-      "insertText": "Customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "onConflictError",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "AB",
-      "insertText": "onConflictError",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -484,35 +453,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Person",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "CM",
-      "insertText": "Person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p3",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "CB",
-      "insertText": "p3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p1",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "CB",
-      "insertText": "p1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p2",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "CB",
-      "insertText": "p2",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "CN",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -572,12 +517,105 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "null",
-      "insertText": "null",
+      "label": "CustomerTable",
+      "kind": "TypeParameter",
+      "detail": "Table",
+      "sortText": "CN",
+      "insertText": "CustomerTable",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c1",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "CB",
+      "insertText": "c1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testTableNoDuplicatesAndOnConflictReturnTable()",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `boolean`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "testTableNoDuplicatesAndOnConflictReturnTable",
+      "insertText": "testTableNoDuplicatesAndOnConflictReturnTable()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "CM",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerTable",
+      "kind": "Variable",
+      "detail": "CustomerTable|error",
+      "sortText": "CB",
+      "insertText": "customerTable",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "onConflictError",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "AB",
+      "insertText": "onConflictError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c3",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "CB",
+      "insertText": "c3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c2",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "CB",
+      "insertText": "c2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getOnConflictError()",
+      "kind": "Function",
+      "detail": "error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error`   \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "getOnConflictError",
+      "insertText": "getOnConflictError()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerList",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "CB",
+      "insertText": "customerList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testPassed",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "CB",
+      "insertText": "testPassed",
       "insertTextFormat": "Snippet"
     }
   ]
