@@ -1956,35 +1956,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         typeChecker.checkExpr(recordDeStmt.expr, this.env);
-        List<BLangIdentifier> varNames = new ArrayList<>();
-        for (BLangRecordVarRefKeyValue keyValue: recordDeStmt.varRef.recordRefFields) {
-            varNames.add(keyValue.variableName);
-        }
         validateBindingPatternForRecordDestructure(recordDeStmt.varRef.recordRefFields, recordDeStmt.expr.getBType(),
                 recordDeStmt.expr.pos);
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.getBType(),
                                      recordDeStmt.expr.pos);
-    }
-
-    private void validateBindingPatternForNonRequiredFields(List<BLangIdentifier> recordRefFields,
-                                                               BType type, Location pos) {
-        type = types.getReferredType(type);
-
-        if (type.tag == TypeTags.MAP) {
-            dlog.error(pos, DiagnosticErrorCode.INVALID_MAPPING_BINDING_PATTERN_WITH_MAP_EXPRESSION);
-            return;
-        }
-        if (type.tag != TypeTags.RECORD) {
-            return;
-        }
-        BRecordType recordType = (BRecordType) type;
-        for (BLangIdentifier lhsField : recordRefFields) {
-            if (recordType.fields.containsKey(lhsField.value)) {
-                if (Symbols.isOptional(recordType.fields.get(lhsField.value).symbol)) {
-                    dlog.error(lhsField.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
-                }
-            }
-        }
     }
 
     private void validateBindingPatternForVariableRecord(List<BLangRecordVariable.BLangRecordVariableKeyValue> fields,
