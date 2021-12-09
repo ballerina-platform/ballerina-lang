@@ -8,7 +8,7 @@ SYNOPSIS
        bal openapi [-i | --input] <ballerina-service-file-path> [-o | --output] <output-location> 
        bal openapi [-i | --input] <openapi-contract-file-path> [--mode <mode-type>] 
                    [--tags <tag-names>] [--operations <operation-names>] [-n | --nullable]
-                   [--license] <license-file-path>
+                   [--license] <license-file-path> [--with-tests]
        bal openapi [-i | --input] <ballerina-service-file-path> [--json]
                    [-s | --service] <current-service-name>
 
@@ -64,6 +64,10 @@ OPTIONS
         (--operations) <operation-names>
             Optional. List of operations to generate the Ballerina service or client.
 
+        (--with-tests)
+            Optional. Work with client generation command, this generates a test boiler-plate for each remote
+            function
+
 DEFAULT BEHAVIOR
        If no options are provided, the help text for the OpenAPI Tool is shown.
 
@@ -73,6 +77,10 @@ EXAMPLES
 
        Generate a Ballerina client using a `hello.yaml` OpenAPI contract.
           $ bal openapi -i hello.yaml --mode client  
+
+       Generate a client with a tests module including boilerplate test cases to test each remote
+       function using a `hello.yaml` OpenAPI contract.
+          $ bal openapi -i hello.yaml --mode client --with-tests
 
        Generate both the Ballerina client and service files using a `hello.yaml` OpenAPI contract 
        and (optionally) write the output to the given directory.
