@@ -800,14 +800,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             analyzeNode(whileNode.onFailClause, env);
         }
 
-        for (BSymbol symbol : prevUninitializedVars.keySet()) {
-            if (!this.uninitializedVars.containsKey(symbol)) {
-                this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
-            }
+        BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
+
+        if (constCondition == symTable.falseType) {
+            this.uninitializedVars = prevUninitializedVars;
+            return;
         }
 
-        if (whileResult.flowTerminated ||
-                ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType) {
+        if (whileResult.flowTerminated || constCondition == symTable.trueType) {
             this.uninitializedVars = whileResult.uninitializedVars;
             return;
         }
