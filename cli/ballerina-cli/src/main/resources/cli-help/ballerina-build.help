@@ -51,6 +51,8 @@ OPTIONS
        --target-dir
            Target directory path.
 
+       --export-openapi
+           Generate openAPI contract files for all the services in the current package.
 
 EXAMPLES
        Build the 'hello' package that has an entry point. This will generate a
