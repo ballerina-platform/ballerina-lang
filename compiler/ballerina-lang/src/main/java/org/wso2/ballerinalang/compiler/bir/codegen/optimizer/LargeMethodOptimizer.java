@@ -144,9 +144,8 @@ public class LargeMethodOptimizer {
             BIRTerminator bbTerminator = basicBlock.terminator;
             if (splitStarted) {
                 if (bbTerminator.lhsOp != null) {
-                    if ((bbTerminator.lhsOp.variableDcl.kind == VarKind.LOCAL) ||
-                            (bbTerminator.lhsOp.variableDcl.kind == VarKind.RETURN)) {
-                        // if a local or the return var is assigned value in a BB terminator, no split is done
+                    if (bbTerminator.lhsOp.variableDcl.kind == VarKind.LOCAL) {
+                        // if a local var is assigned value in a BB terminator, no split is done
                         splitStarted = false;
                     } else if (needToPassLhsVarDclAsArg(bbTerminator.lhsOp)) {
                         neededOperandsVarDcl.add(bbTerminator.lhsOp.variableDcl);
@@ -385,10 +384,7 @@ public class LargeMethodOptimizer {
             BIROperand splitFuncCallResultOp;
             if (currSplit.returnValAssigned) {
                 splitFuncCallResultOp = generateTempLocalVariable(function, newFuncReturnType);
-                LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(2);
-                memberTypes.add(newFuncReturnType);
-                memberTypes.add(symbolTable.errorType);
-                newFuncReturnType = new BUnionType(null, memberTypes, false, false);
+                newFuncReturnType = createErrorUnionReturnType(newFuncReturnType);
             } else {
                 splitFuncCallResultOp = splitLastInsLhsOp;
             }
@@ -430,34 +426,36 @@ public class LargeMethodOptimizer {
         removeUnusedVarsAndSetVarUsage(function);
     }
 
+    private BType createErrorUnionReturnType(BType newFuncReturnType) {
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(2);
+        memberTypes.add(newFuncReturnType);
+        memberTypes.add(symbolTable.errorType);
+        return new BUnionType(null, memberTypes, false, false);
+    }
+
     private BIRBasicBlock handleNewFuncReturnVal(BIRFunction function, BIROperand splitFuncCallResultOp,
                                                  BirScope lastInsScope, BIRBasicBlock currentBB, int newBBNum,
                                                  List<BIRBasicBlock> newBBList, BIROperand splitLastInsLhsOp) {
         BIROperand isErrorResultOp = generateTempLocalVariable(function, symbolTable.booleanType);
         BIRNonTerminator errorTestIns = new BIRNonTerminator.TypeTest(null, symbolTable.errorType,
                 isErrorResultOp, splitFuncCallResultOp);
-        errorTestIns.scope = lastInsScope;
         currentBB.instructions.add(errorTestIns);
         BIRBasicBlock trueBB = new BIRBasicBlock(new Name("bb" + ++newBBNum));
         BIRBasicBlock falseBB = new BIRBasicBlock(new Name("bb" + ++newBBNum));
-        currentBB.terminator = new BIRTerminator.Branch(null, isErrorResultOp, trueBB, falseBB);
-        currentBB.terminator.scope = lastInsScope;
+        currentBB.terminator = new BIRTerminator.Branch(null, isErrorResultOp, trueBB, falseBB, lastInsScope);
         newBBList.add(currentBB);
         BIROperand castedErrorOp = generateTempLocalVariable(function, symbolTable.errorType);
         BIRNonTerminator typeCastErrIns = new BIRNonTerminator.TypeCast(null, castedErrorOp,
                 splitFuncCallResultOp, symbolTable.errorType, false);
-        typeCastErrIns.scope = lastInsScope;
         trueBB.instructions.add(typeCastErrIns);
         BIRNonTerminator moveIns = new BIRNonTerminator.Move(null, castedErrorOp,
                 new BIROperand(function.returnVariable));
-        moveIns.scope = lastInsScope;
         trueBB.instructions.add(moveIns);
         BIRBasicBlock returnBB = function.basicBlocks.get(function.basicBlocks.size() - 1);
         trueBB.terminator = new BIRTerminator.GOTO(null, returnBB, lastInsScope);
         newBBList.add(trueBB);
         BIRNonTerminator typeCastLhsOpIns = new BIRNonTerminator.TypeCast(null, splitLastInsLhsOp,
                 splitFuncCallResultOp, splitLastInsLhsOp.variableDcl.type, false);
-        typeCastLhsOpIns.scope = lastInsScope;
         falseBB.instructions.add(typeCastLhsOpIns);
         return falseBB;
     }
