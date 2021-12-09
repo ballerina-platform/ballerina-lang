@@ -246,6 +246,14 @@
       "sortText": "DH",
       "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "DC",
+      "insertText": "TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
