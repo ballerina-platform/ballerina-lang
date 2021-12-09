@@ -14,41 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a person.
-type Person record {
-    string name;
-    int age;
-};
+any result = ();
 
-# Represents an employee.
-class Employee {
-    string name;
-    string designation;
+public function main() {
+    matchTest(17);
+    matchTest("string");
+    matchTest(20.5);
+    matchTest(20d);
+    matchTest(true);
 }
 
-# An enumeration of colours.
-enum Colour {
-    RED, GREEN, BLUE
+function matchTest(any v) {
+
+    match v {
+        17 => {
+            result = v;
+        }
+        true => {
+            result = v;
+        }
+        "str" => {
+            result = v;
+        }
+        false => {
+            result = v;
+        }
+        0|1 => {
+            result = v;
+        }
+        _ => {
+            result = v;
+        }
+    }
 }
 
-function test() {
-    Person p;
-    Employee e;
-    Colour c;
-}
-
-type Age int;
-
-function test() {
-    record {|
-        Age age;
-    |} p;
-
-    Foo f;
-    Bar b;
-}
-
-// utils
-type Foo Person;
-
-type Bar Foo;
