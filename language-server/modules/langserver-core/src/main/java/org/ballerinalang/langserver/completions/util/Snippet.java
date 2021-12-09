@@ -291,6 +291,8 @@ public enum Snippet {
 
     KW_NIL(SnippetGenerator.getKeywordSnippet("null")),
 
+    KW_OUTER(SnippetGenerator.getOuterKeywordSnippet()),
+
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 

@@ -1,0 +1,9 @@
+{
+  "line": 85,
+  "character": 73,
+  "expected": [
+    {
+      "title": "Add type cast to assignment"
+    }
+  ]
+}

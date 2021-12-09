@@ -1402,7 +1402,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
         blockStmt.scope = letExpression.env.scope;
-        blockStmt.isLetExpr = true;
 
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
@@ -7915,6 +7914,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, boolean isCheckPanic) {
+        // If the checked expression doesn't contain any error type, visit its expression.
+        if (checkedExpr.equivalentErrorTypeList == null) {
+            result = rewriteExpr(checkedExpr.expr);
+            return;
+        }
+
         //
         //  person p = bar(check foo()); // foo(): person | error
         //

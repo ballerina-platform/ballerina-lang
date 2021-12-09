@@ -314,6 +314,11 @@ public class StringTemplateLiteralTest {
         BRunUtil.invoke(result, "testNumericEscapes");
     }
 
+    @Test
+    public void testStringTemplateWithFiniteType() {
+        BRunUtil.invoke(result, "testStringTemplateWithFiniteType");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

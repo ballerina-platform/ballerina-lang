@@ -178,7 +178,7 @@ public class CommonUtil {
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
             SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
 
-    private static final String SELF_KW = "self";
+    public static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
@@ -768,7 +768,7 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
-        // In some scenarios the compiler sends the symbol name as empty string. Hence add the check
+        // In some scenarios the compiler sends the symbol name as empty string. Hence, add the check
         if (symbol != null && symbol.getName().isPresent() && !symbol.getName().get().isEmpty()) {
             // Start naming with symbol-name
             return generateVariableName(1, symbol.getName().get(), names);
@@ -820,7 +820,7 @@ public class CommonUtil {
                 List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
                 newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
             }
-            // If empty, revert back to original name
+            // If empty, revert to original name
             if (newName.isEmpty()) {
                 newName = name;
             }
@@ -1333,19 +1333,37 @@ public class CommonUtil {
                 .findFirst();
     }
 
+    /**
+     * Returns the type name (derived from signature) with version infromation removed.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol
+     * @return Signature
+     */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
         String typeSignature = typeSymbol.signature();
-        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(typeSignature);
+        return getModifiedSignature(context, typeSignature);
+    }
+
+    /**
+     * Given a signature, this method will remove the version information from the signature.
+     *
+     * @param context   Context
+     * @param signature Signature to be modified.
+     * @return Modified signature
+     */
+    public static String getModifiedSignature(DocumentServiceContext context, String signature) {
+        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(signature);
         while (matcher.find()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
             String matchedString = matcher.group();
             String modulePrefix = getModulePrefix(context, orgName, moduleName);
             String replaceText = modulePrefix.isEmpty() ? matchedString + Names.VERSION_SEPARATOR : matchedString;
-            typeSignature = typeSignature.replace(replaceText, modulePrefix);
+            signature = signature.replace(replaceText, modulePrefix);
         }
 
-        return typeSignature;
+        return signature;
     }
 
     public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
@@ -1414,7 +1432,7 @@ public class CommonUtil {
     }
 
     private static List<String> getBallerinaKeywords() {
-        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we comeup with a proper api.
+        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we come up with a proper api.
         // Related discussion can be found in https://github.com/ballerina-platform/ballerina-lang/discussions/28827
         try {
             Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");

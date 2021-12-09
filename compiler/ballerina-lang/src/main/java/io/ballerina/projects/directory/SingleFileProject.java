@@ -26,6 +26,8 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -33,6 +35,8 @@ import java.util.Optional;
  * {@code SingleFileProject} represents a Ballerina standalone file.
  */
 public class SingleFileProject extends Project {
+
+    private Path targetDir;
 
     /**
      * Loads a single file project from the provided path.
@@ -68,6 +72,13 @@ public class SingleFileProject extends Project {
 
     private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path filePath, BuildOptions buildOptions) {
         super(ProjectKind.SINGLE_FILE_PROJECT, filePath, environmentBuilder, buildOptions);
+
+        try {
+            this.targetDir = Files.createTempDirectory("ballerina-cache" + System.nanoTime());
+        } catch (IOException e) {
+            // ignore
+        }
+
         populateCompilerContext();
     }
 
@@ -98,5 +109,10 @@ public class SingleFileProject extends Project {
 
     @Override
     public void save() {
+    }
+
+    @Override
+    public Path targetDir() {
+        return this.targetDir;
     }
 }
