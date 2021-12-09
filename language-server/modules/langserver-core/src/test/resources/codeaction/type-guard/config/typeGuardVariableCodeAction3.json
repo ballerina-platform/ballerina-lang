@@ -16,7 +16,7 @@
                             "character": 28
                         }
                     },
-                    "newText": "\n    if cur is Token {\n\n    } else {\n\n    }\n"
+                    "newText": "\n    if cur is SingleCharDelim {\n\n    } else if cur is CompoundAssignDelim {\n\n    } else if cur is \"\u003c\u003c\" {\n\n    } else if cur is \"\u003e\u003e\" {\n\n    } else if cur is \"int\" {\n\n    } else if cur is \"string\" {\n\n    } else if cur is 100 {\n\n    } else if cur is \"200\" {\n\n    } else {\n\n    }\n"
                 }
             ]
         }
