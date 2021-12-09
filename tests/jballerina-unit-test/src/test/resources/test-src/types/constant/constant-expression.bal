@@ -144,6 +144,7 @@ function testConstUnaryExpressions() {
 
 const int CI1 = 2 + 1;
 const int CI2 = 2 * 1;
+const int CI3 = CI2;
 const float CF3 = 10.0 + 2.0;
 const float CF4 = 10.0 * 2.0;
 const decimal CD = 10.0 + 4;
@@ -161,6 +162,8 @@ function testTypesOfConstants() {
     assertEqual(4 is CI1, false);
     assertEqual(CI2 is 2, true);
     assertEqual(3 is CI2, false);
+    assertEqual(CI3 is 3, false);
+    assertEqual(2 is CI3, true);
     assertEqual(CF3 is 12.0, true);
     assertEqual(13.0 is CF3, false);
     assertEqual(CF4 is 20.0, true);
