@@ -94,8 +94,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
         constants.forEach(constant -> constant.accept(this));
         constantMap.clear();
-        constants.forEach(constant -> checkUniqueness(constant));
-        constants.forEach(constant -> updateSymbolType(constant));
     }
 
     @Override
@@ -103,6 +101,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
         this.currentConstSymbol.value = visitExpr(constant.expr);
+        updateSymbolType(constant);
+        checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
         this.currentConstSymbol = tempCurrentConstSymbol;
     }
@@ -489,17 +489,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private void updateSymbolType(BLangConstant constant) {
-        if (constant.symbol.kind == SymbolKind.CONSTANT && constant.symbol.type.getKind() != TypeKind.FINITE &&
-                constant.symbol.value != null) {
-            BFiniteType finiteType = checkType(constant, constant.symbol.value.value, constant.symbol.type,
-                    constant.symbol.pos);
-            if (finiteType != null) {
-                constant.symbol.type = finiteType;
+        BConstantSymbol symbol = constant.symbol;
+        if (constantMap.containsKey(symbol.name.value)) { // Check and skip duplicate constants
+            return;
+        }
+        if (symbol.type.getKind() == TypeKind.FINITE & symbol.value != null) {
+            BType singletonType = checkType(constant, symbol.value.value, symbol.type, symbol.pos);
+            if (singletonType != null) {
+                symbol.type = singletonType;
             }
         }
     }
 
-    public BFiniteType createFiniteType(BLangConstant constant, BLangExpression expr) {
+    private BFiniteType createFiniteType(BLangConstant constant, BLangExpression expr) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, constant.symbol.pkgID, null,
                 constant.symbol.owner, constant.symbol.pos, VIRTUAL);
@@ -508,16 +510,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return finiteType;
     }
 
-    private BFiniteType checkType(BLangConstant constant, Object value, BType type, Location pos) {
-        switch (type.getKind()) {
-            case INT:
-            case BYTE:
-            case FLOAT:
-            case DECIMAL:
+    private BType checkType(BLangConstant constant, Object value, BType type, Location pos) {
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
                 return createFiniteType(constant, createConstantNumericLiteralExpression(value, type, pos));
-            case STRING:
-            case NIL:
-            case BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.NIL:
+            case TypeTags.BOOLEAN:
                 return createFiniteType(constant, createConstantLiteralExpression(value, type, pos));
             default:
                 return null;
@@ -526,15 +528,15 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangNumericLiteral createConstantNumericLiteralExpression(Object value, BType type, Location pos) {
         BLangNumericLiteral literal = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-        literal.value = value;
-        literal.isConstant = true;
-        literal.setBType(type);
-        literal.pos = pos;
-        return literal;
+        return (BLangNumericLiteral) updateLiteral(literal, value, type, pos);
     }
 
     private BLangLiteral createConstantLiteralExpression(Object value, BType type, Location pos) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        return updateLiteral(literal, value, type, pos);
+    }
+
+    private BLangLiteral updateLiteral(BLangLiteral literal, Object value, BType type, Location pos) {
         literal.value = value;
         literal.isConstant = true;
         literal.setBType(type);
