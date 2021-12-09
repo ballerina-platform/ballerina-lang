@@ -2375,7 +2375,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 visitedSymbols.add(symbol);
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                     BRecordType recordType = (BRecordType) symbol.type;
-                    recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos, visitedSymbols));
+                    recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
+                            visitedSymbols));
                     if (recordType.restFieldType != null) {
                         checkForExportableType(recordType.restFieldType.tsymbol, pos, visitedSymbols);
                     }
