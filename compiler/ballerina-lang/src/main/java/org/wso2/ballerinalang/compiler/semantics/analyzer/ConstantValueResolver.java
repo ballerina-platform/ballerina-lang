@@ -75,6 +75,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
+    private Map<BConstantSymbol, BType> updatedTypes = new HashMap<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -493,10 +494,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constantMap.containsKey(symbol.name.value)) { // Check and skip duplicate constants
             return;
         }
-        if (symbol.type.getKind() == TypeKind.FINITE & symbol.value != null) {
-            BType singletonType = checkType(constant, symbol.value.value, symbol.type, symbol.pos);
+        if (symbol.type.getKind() == TypeKind.FINITE) {
+            updatedTypes.put(symbol, symbol.type); // Constant has a singleton type. Store it to reuse.
+        } else if (symbol.value != null) {
+            BType singletonType = checkType(constant.expr, constant, symbol.value.value, symbol.type, symbol.pos);
             if (singletonType != null) {
                 symbol.type = singletonType;
+                updatedTypes.put(symbol, singletonType); // Store resolved constant to reuse.
             }
         }
     }
@@ -510,7 +514,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return finiteType;
     }
 
-    private BType checkType(BLangConstant constant, Object value, BType type, Location pos) {
+    private BType checkType(BLangExpression expr, BLangConstant constant, Object value, BType type, Location pos) {
+        if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                updatedTypes.containsKey(((BLangSimpleVarRef) expr).symbol)) {
+            return updatedTypes.get(((BLangSimpleVarRef) expr).symbol); // Reference is already resolved.
+        }
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
