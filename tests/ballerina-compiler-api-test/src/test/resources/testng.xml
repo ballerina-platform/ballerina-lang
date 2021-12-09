@@ -149,6 +149,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.TypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.UnionTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.VarDeclSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.WorkerSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.XMLNamespaceDeclSymbolTest" />
 
             <!--Langlib-->
