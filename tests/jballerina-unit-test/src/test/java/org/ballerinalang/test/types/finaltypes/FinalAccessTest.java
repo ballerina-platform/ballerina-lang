@@ -81,11 +81,14 @@ public class FinalAccessTest {
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to potentially initialized final 'i'",
                                   75, 5);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 's'", 77, 5);
-        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 's'", 82, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to potentially initialized final 's'",
+                82, 5);
         BAssertUtil.validateError(resultNegative, i++, "variable 'i' may not have been initialized", 94, 13);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 't'", 101, 5);
+        BAssertUtil.validateError(resultNegative, i++, "variable 's' may not have been initialized", 101, 16);
 
-        Assert.assertEquals(resultNegative.getDiagnostics().length, i);
+        Assert.assertEquals(resultNegative.getErrorCount(), i - 9);
+        Assert.assertEquals(resultNegative.getWarnCount(), 9);
     }
 
     @Test(description = "Test final global variable")
