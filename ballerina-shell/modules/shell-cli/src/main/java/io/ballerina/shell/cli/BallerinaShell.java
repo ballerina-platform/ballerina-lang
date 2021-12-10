@@ -23,7 +23,7 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.ExceptionStatus;
-import io.ballerina.shell.ModuleImporter;
+import io.ballerina.shell.utils.ModuleImporter;
 import io.ballerina.shell.ShellCompilation;
 import io.ballerina.shell.cli.handlers.CommandHandler;
 import io.ballerina.shell.cli.handlers.DeleteCommand;
@@ -332,14 +332,12 @@ public class BallerinaShell {
      * @return distinct list of module errors.
      */
     public boolean isContainsUndefinedModules(Collection<Diagnostic> diagnostics) {
-        boolean isContainsUndefinedModules = false;
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.toString().contains("undefined module")) {
-                isContainsUndefinedModules = true;
-                break;
+                return true;
             }
         }
 
-        return isContainsUndefinedModules;
+        return false;
     }
 }

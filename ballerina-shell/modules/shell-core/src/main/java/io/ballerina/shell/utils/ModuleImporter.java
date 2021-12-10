@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.shell;
+package io.ballerina.shell.utils;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
@@ -29,6 +29,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import io.ballerina.shell.Diagnostic;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -63,16 +64,14 @@ public class ModuleImporter {
      * @return availability of the module.
      */
     public boolean isModuleInDistRepo(String module) {
-        boolean isModuleInDistRepo = false;
         String langModule = LANG + "." + module;
         for (Package pkg : packageList) {
             if (module.equals(pkg.packageName().value()) || langModule.equals(pkg.packageName().value())) {
-                isModuleInDistRepo = true;
-                break;
+                return true;
             }
         }
 
-        return isModuleInDistRepo;
+        return false;
     }
 
     /**
