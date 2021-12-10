@@ -28,6 +28,7 @@ import io.ballerina.types.typeops.ListTypeRwOps;
 import io.ballerina.types.typeops.MappingRoOps;
 import io.ballerina.types.typeops.MappingRwOps;
 import io.ballerina.types.typeops.StringOps;
+import io.ballerina.types.typeops.TableRwOps;
 import io.ballerina.types.typeops.UniformTypeOpsPanicImpl;
 import io.ballerina.types.typeops.XmlRoOps;
 import io.ballerina.types.typeops.XmlRwOps;
@@ -64,7 +65,7 @@ public class OpsTable {
         OPS[i++] = PANIC_IMPL;          // RW stream
         OPS[i++] = new ListTypeRwOps(); // RW list
         OPS[i++] = new MappingRwOps();  // RW mapping
-        OPS[i++] = new MappingRwOps();  // RW table
+        OPS[i++] = new TableRwOps();  // RW table
         OPS[i++] = new XmlRwOps();      // RW xml
         OPS[i] = PANIC_IMPL;            // RW object
     }

@@ -18,28 +18,25 @@
 package io.ballerina.types.subtypedata;
 
 import io.ballerina.types.Bdd;
-import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.Core;
-import io.ballerina.types.SemType;
+import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformSubtype;
-import io.ballerina.types.UniformTypeCode;
 
 /**
- * TableSubtype.
+ * Contains 2 bdds for readonly and readwrite mappings.
  *
  * @since 3.0.0
  */
-public class TableSubtype {
+public class RwTableSubtype implements ProperSubtypeData {
+    public Bdd ro;
+    public Bdd rw;
 
-    public static SemType tableContaining(SemType memberType) {
-        Bdd ro = (Bdd) Core.subtypeData(memberType, UniformTypeCode.UT_MAPPING_RO);
-        Bdd rw = (Bdd) Core.subtypeData(memberType, UniformTypeCode.UT_MAPPING_RW);
-        SubtypeData rwt = RwTableSubtype.createRwTableSubtype(ro, rw);
-        return ComplexSemType.createComplexSemType(0,
-                UniformSubtype.from(UniformTypeCode.UT_TABLE_RO, ro),
-                UniformSubtype.from(UniformTypeCode.UT_TABLE_RW, rwt));
+    private RwTableSubtype(Bdd ro, Bdd rw) {
+        this.ro = ro;
+        this.rw = rw;
+    }
+
+    public static SubtypeData createRwTableSubtype(Bdd ro, Bdd rw)  {
+        return new RwTableSubtype(ro, rw);
     }
 
 }
-
