@@ -571,7 +571,7 @@ public class TomlProvider implements ConfigProvider {
                 variableName);
         if (!type.valueSpace.contains(balValue)) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                    IdentifierUtils.decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
+                    decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
         }
         return balValue;
     }

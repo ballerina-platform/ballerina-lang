@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -44,6 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_ARGS_AMBIGUITY;
@@ -234,7 +234,7 @@ public class CliProvider implements ConfigProvider {
             }
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
-                                  Utils.decodeIdentifier(unionType.toString()), cliArg.value);
+                                  decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
     @Override
@@ -264,7 +264,7 @@ public class CliProvider implements ConfigProvider {
         if (matchingValues.size() == 1) {
             return matchingValues.get(0);
         }
-        String typeName = IdentifierUtils.decodeIdentifier(finiteType.toString());
+        String typeName = decodeIdentifier(finiteType.toString());
         if (matchingValues.isEmpty()) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, arg, key.variable, typeName, arg.value);
         }
