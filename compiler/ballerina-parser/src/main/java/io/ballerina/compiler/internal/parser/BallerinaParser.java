@@ -5521,7 +5521,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr, isInConditionalExpr);
                 break;
             case QUESTION_MARK_TOKEN:
-                newLhsExpr = parseConditionalExpression(lhsExpr);
+                newLhsExpr = parseConditionalExpression(lhsExpr, isInConditionalExpr);
                 break;
             case DOT_LT_TOKEN:
                 newLhsExpr = parseXMLFilterExpression(lhsExpr);
@@ -12962,10 +12962,11 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>conditional-expr := expression ? expression : expression</code>
      *
-     * @param lhsExpr Preceding expression of the question mark
+     * @param lhsExpr             Preceding expression of the question mark
+     * @param isInConditionalExpr whether calling from a conditional-expr
      * @return Parsed node
      */
-    private STNode parseConditionalExpression(STNode lhsExpr) {
+    private STNode parseConditionalExpression(STNode lhsExpr, boolean isInConditionalExpr) {
         startContext(ParserRuleContext.CONDITIONAL_EXPRESSION);
         STNode questionMark = parseQuestionMark();
         // start parsing middle-expr, by giving higher-precedence to the middle-expr, over currently
@@ -13017,7 +13018,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr);
+        return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr, isInConditionalExpr);
     }
 
     private STNode generateConditionalExprForRightMost(STNode lhsExpr, STNode questionMark, STNode middleExpr,
@@ -13043,12 +13044,12 @@ public class BallerinaParser extends AbstractParser {
                 endExpr);
     }
 
-    private STNode parseConditionalExprRhs(STNode lhsExpr, STNode questionMark, STNode middleExpr) {
+    private STNode parseConditionalExprRhs(STNode lhsExpr, STNode questionMark, STNode middleExpr,
+                                           boolean isInConditionalExpr) {
         STNode colon = parseColon();
         endContext();
         // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
         // parsing conditional expr. That is done by lowering the current precedence.
-        boolean isInConditionalExpr = this.errorHandler.getParentContext() == ParserRuleContext.CONDITIONAL_EXPRESSION;
         STNode endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false,
                 isInConditionalExpr);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
