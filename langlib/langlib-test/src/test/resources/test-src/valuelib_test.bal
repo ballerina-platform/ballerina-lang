@@ -954,6 +954,30 @@ function testCloneWithTypeIntArrayToUnionArray() {
     (byte|decimal|int:Unsigned8|int:Signed8)[]|error q = w.cloneWithType();
     assert(q is error, false);
     assert(checkpanic q, [1, 2, 3]);
+
+    int[] x1 = [5, 500, 65000];
+
+    (byte|int:Signed32)[]|error r = x1.cloneWithType();
+    assert(r is error, false);
+    assert(checkpanic r, [5, 500, 65000]);
+
+    (byte|int:Unsigned16|float)[]|error s = x1.cloneWithType();
+    assert(s is error, false);
+    assert(checkpanic s, [5, 500, 65000]);
+
+    (byte|int:Signed16|float)[]|error t = x1.cloneWithType();
+    assert(t is error, false);
+    assert(checkpanic t, [5, 500, 65000.0]);
+
+    (byte|int:Signed16)[]|error u = x1.cloneWithType();
+    assert(u is error, true);
+    err = <error> u;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    errMsg = "'int[]' value cannot be converted to '(byte|lang.int:Signed16)[]': " +
+              		"\n\t\tarray element '[2]' should be of type '(byte|lang.int:Signed16)', found '65000'";
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, errMsg);
 }
 
 function testCloneWithTypeArrayToTupleWithRestType() {
