@@ -14,34 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import AccessProject.module1;
+public type Foo record {
+    string name;
+    Foo[] x?;
+}[];
 
-public function testDefaultVisibility() {
-    assertEquality(54, module1:getNumber());
+public function getFooName(Foo f) returns string{
+    return f[0].name;
 }
 
-public function testPublicVisibility() {
-    assertEquality("Ballerina", module1:name);
-}
-
-public function testPublicVisibilityInComplexVar() {
-    assertEquality(32, module1:byteValue);
-    assertEquality(2.5, module1:floatValue);
-    assertEquality(1001, module1:Id);
-    assertEquality("John", module1:studentName);
-    assertEquality(24, module1:studentDetail["Age"]);
-    assertEquality("Paker", module1:studentDetail["surName"]);
-    assertEquality("AssignmentFailed", module1:errorMsg);
-    assertEquality("ArrayIndexOutOfBound", module1:errorCause);
-    assertEquality(1, module1:riskLevel);
-}
-
-public function testPublicWithIsolatedFuncType() {
-    assertEquality(10, module1:myIsolatedFunction());
-}
-
-public function testPublicWithIsolatedObjectType() {
-    assertEquality(20, module1:myIsolatedObj.getVal());
+public function testPublicFunctionWithRecordTypeParam() {
+    Foo foo = [{name: "Foo"}];
+    assertEquality("Foo", getFooName(foo));
 }
 
 function assertEquality(any|error expected, any|error actual) {

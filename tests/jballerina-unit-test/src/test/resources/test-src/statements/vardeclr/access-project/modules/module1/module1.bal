@@ -52,12 +52,3 @@ function init() {
         }
     };
 }
-
-public type Foo record {
-    string name;
-    Foo[] x?;
-}[];
-
-public function getFooName(Foo f) returns string{
-    return f[0].name;
-}

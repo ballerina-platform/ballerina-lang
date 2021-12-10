@@ -54,7 +54,6 @@ public class ModulePublicVariableTest {
                 "testPublicVisibilityInComplexVar",
                 "testPublicWithIsolatedFuncType",
                 "testPublicWithIsolatedObjectType",
-                "testPublicFunctionWithRecordType"
         };
     }
 
