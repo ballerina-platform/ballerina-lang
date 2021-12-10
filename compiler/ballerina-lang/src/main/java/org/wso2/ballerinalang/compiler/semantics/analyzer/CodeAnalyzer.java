@@ -2351,16 +2351,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // This is a built-in symbol or a type Param.
             return;
         }
-        if (visitedSymbols.contains(symbol)) {
+        if (!visitedSymbols.add(symbol)) {
             return;
         }
         switch (symbol.type.tag) {
             case TypeTags.ARRAY:
-                visitedSymbols.add(symbol);
                 checkForExportableType(((BArrayType) symbol.type).eType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.TUPLE:
-                visitedSymbols.add(symbol);
                 BTupleType tupleType = (BTupleType) symbol.type;
                 tupleType.tupleTypes.forEach(t -> checkForExportableType(t.tsymbol, pos, visitedSymbols));
                 if (tupleType.restType != null) {
@@ -2368,11 +2366,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 return;
             case TypeTags.MAP:
-                visitedSymbols.add(symbol);
                 checkForExportableType(((BMapType) symbol.type).constraint.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.RECORD:
-                visitedSymbols.add(symbol);
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                     BRecordType recordType = (BRecordType) symbol.type;
                     recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
@@ -2384,21 +2380,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.TABLE:
-                visitedSymbols.add(symbol);
                 BTableType tableType = (BTableType) symbol.type;
                 if (tableType.constraint != null) {
                     checkForExportableType(tableType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.STREAM:
-                visitedSymbols.add(symbol);
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
                     checkForExportableType(streamType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.INVOKABLE:
-                visitedSymbols.add(symbol);
                 BInvokableType invokableType = (BInvokableType) symbol.type;
                 if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
                     return;
@@ -2414,12 +2407,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 checkForExportableType(invokableType.retType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.PARAMETERIZED_TYPE:
-                visitedSymbols.add(symbol);
                 BTypeSymbol parameterizedType = ((BParameterizedType) symbol.type).paramValueType.tsymbol;
                 checkForExportableType(parameterizedType, pos, visitedSymbols);
                 return;
             case TypeTags.ERROR:
-                visitedSymbols.add(symbol);
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                     checkForExportableType((((BErrorType) symbol.type).detailType.tsymbol), pos, visitedSymbols);
                     return;
