@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CodeGenerator;
 import io.ballerina.projects.plugins.CodeGeneratorContext;
@@ -25,7 +26,14 @@ import io.ballerina.projects.plugins.GeneratorTask;
 import io.ballerina.projects.plugins.SourceGeneratorContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -267,6 +275,15 @@ class CodeGeneratorManager {
 
         @Override
         public void addSourceFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId) {
+            if (this.currentPackage.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.UNSUPPORTED_COMPILER_PLUGIN_TYPE.diagnosticId(),
+                        "Skipped adding the generated source file with prefix \"" + filenamePrefix +
+                                "\". Source file generation is not supported with standalone bal files",
+                        DiagnosticSeverity.WARNING);
+                reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
+                return;
+            }
             if (currentPackage.moduleIds().contains(moduleId)) {
                 sourceFiles.add(new GeneratedSourceFile(textDocument, filenamePrefix, moduleId));
             } else {
@@ -310,6 +327,26 @@ class CodeGeneratorManager {
 
         Collection<GeneratedResourceFile> generatedResourceFiles() {
             return resourceFiles;
+        }
+    }
+
+    /**
+     * Represents the null location. This can used to create diagnostics
+     * which cannot be related to a location in the document.
+     *
+     * @since 2.0.0
+     */
+    private static class NullLocation implements Location {
+
+        @Override
+        public LineRange lineRange() {
+            LinePosition from = LinePosition.from(0, 0);
+            return LineRange.from("", from, from);
+        }
+
+        @Override
+        public TextRange textRange() {
+            return TextRange.from(0, 0);
         }
     }
 
