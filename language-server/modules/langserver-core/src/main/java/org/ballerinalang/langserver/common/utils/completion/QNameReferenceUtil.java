@@ -84,7 +84,7 @@ public class QNameReferenceUtil {
     }
 
     /**
-     * Get the unquoted module alias identifier if the module alias is a quoted identifier
+     * Get the unquoted module alias identifier if the module alias is a quoted identifier.
      *
      * @param alias qualified name reference
      * @return {@link String} extracted alias
