@@ -147,7 +147,7 @@ public class EditorSimulator {
             }
         }
 
-        System.out.println("Exiting...");
+        logger.info("Exiting...");
         editor.close();
         System.exit(0);
     }
