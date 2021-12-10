@@ -146,14 +146,14 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
         Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().orElse(null);
         Optional<TypeSymbol> typeDesc = SymbolUtil.getTypeDescriptor(symbol);
 
-        List<TypeDescKind> ITERABLES = Arrays.asList(
+        List<TypeDescKind> iterables = Arrays.asList(
                 TypeDescKind.STRING, TypeDescKind.ARRAY,
                 TypeDescKind.MAP, TypeDescKind.TABLE,
                 TypeDescKind.STREAM, TypeDescKind.XML);
 
         if (typeDesc.isPresent()) {
             TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
-            return ITERABLES.contains(rawType.typeKind());
+            return iterables.contains(rawType.typeKind());
         }
         return false;
     }
