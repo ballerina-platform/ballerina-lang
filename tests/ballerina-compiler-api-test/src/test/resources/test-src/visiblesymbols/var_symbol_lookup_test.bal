@@ -57,3 +57,7 @@ function testLetExp1(float x) returns float {
 
 function testLetExp2(float y) returns float =>
     let float x3 = y+y, float x4 = y*y in ;
+
+function testLetExp3(float x) {
+    let float x1 = x*x, float x2 = x + 5 in ;
+}
