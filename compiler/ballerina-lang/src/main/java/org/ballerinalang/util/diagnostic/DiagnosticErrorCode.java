@@ -172,6 +172,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
     FLOAT_TOO_LARGE("BCE2129", "float.too.large"),
     FLOAT_TOO_SMALL("BCE2130", "float.too.small"),
+    CONSTANT_CYCLIC_REFERENCE("BCE2131", "constant.cyclic.reference"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
