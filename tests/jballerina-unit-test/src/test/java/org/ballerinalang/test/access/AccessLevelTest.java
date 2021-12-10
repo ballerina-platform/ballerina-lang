@@ -23,6 +23,9 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Positive test access for checking rules on public access in ballerina.
+ */
 public class AccessLevelTest {
 
     CompileResult result;
