@@ -1092,6 +1092,13 @@ function testCloneWithTypeTupleWithoutFillerValues() {
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[(1|2),(2|3)]' value cannot be converted to '(1|2|2)[4]': "
     + "\n\t\tarray cannot be expanded to size '4' because, the target type '(1|2|2)[4]' does not have a filler value");
+
+    [string, string] tuple3 = ["test", "string"];
+    string[5]|error result3 = tuple3.cloneWithType();
+    assert(result3 is string[], true);
+    if (result3 is string[]) {
+        assert(result3, ["test", "string", "", "", ""]);
+    }
 }
 
 type StringArray string[];
