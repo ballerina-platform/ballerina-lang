@@ -632,6 +632,6 @@ public class EnvironmentResolver extends BaseVisitor {
             return true;
         }
 
-        return PositionUtil.withinRange(nodePosition.lineRange(), this.scope.node.getPosition());
+        return PositionUtil.isRangeWithinNode(nodePosition.lineRange(), this.scope.node.getPosition());
     }
 }
