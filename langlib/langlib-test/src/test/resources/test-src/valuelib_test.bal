@@ -1080,7 +1080,7 @@ function testCloneWithTypeTupleWithoutFillerValues() {
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[NoFillerValue,NoFillerValue]' value cannot be converted to 'NoFillerValue[5]': "
-    + "\n\t\tarray size '5' is out of range for source type'[NoFillerValue,NoFillerValue]' of size '2'");
+    + "\n\t\tarray cannot be expanded to size '5' for target type 'NoFillerValue[5]' without filler values");
 
     [1|"2", 2|"3"] tuple2 = [1, 2];
     (1|2|"2")[4]|error result2 = tuple2.cloneWithType();
@@ -1090,7 +1090,7 @@ function testCloneWithTypeTupleWithoutFillerValues() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[(1|2),(2|3)]' value cannot be converted to '(1|2|2)[4]': "
-    + "\n\t\tarray size '4' is out of range for source type'[(1|2),(2|3)]' of size '2'");
+    + "\n\t\tarray cannot be expanded to size '4' for target type '(1|2|2)[4]' without filler values");
 }
 
 type StringArray string[];
