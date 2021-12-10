@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +54,7 @@ public class CleanCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Test doc command on a ballerina project.")
+    @Test(description = "Test clean command on a ballerina project.")
     public void testCleanCommandInProject() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTarget");
         FileUtils.copyDirectory(projectPath.resolve("target-dir").toFile(), projectPath.resolve("target").toFile());
@@ -68,12 +69,10 @@ public class CleanCommandTest extends BaseCommandTest {
         CleanCommand cleanCommand = new CleanCommand(projectPath, false);
         cleanCommand.execute();
 
-        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("bala")));
-        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("cache")));
-        Assert.assertFalse(Files.exists(projectPath.resolve("target").resolve("report")));
+        Assert.assertFalse(Files.exists(projectPath.resolve("target")));
     }
 
-    @Test(description = "Test doc command on a ballerina project with custom target dir.",
+    @Test(description = "Test clean command on a ballerina project with custom target dir.",
             dependsOnMethods = "testCleanCommandInProject")
     public void testCleanCommandInProjectWithCustomTarget() throws IOException {
         Path projectPath = this.testResources.resolve("validProjectWithTarget");
@@ -91,8 +90,36 @@ public class CleanCommandTest extends BaseCommandTest {
         CleanCommand cleanCommand = new CleanCommand(projectPath, false, customTargetDir);
         cleanCommand.execute();
 
-        Assert.assertFalse(Files.exists(customTargetDir.resolve("bala")));
-        Assert.assertFalse(Files.exists(customTargetDir.resolve("cache")));
-        Assert.assertFalse(Files.exists(customTargetDir.resolve("report")));
+        Assert.assertFalse(Files.exists(customTargetDir));
+    }
+
+    @Test(description = "Test clean command on a ballerina project with custom target dir.")
+    public void testCleanCommandNonExistentTarget() {
+        Path projectPath = this.testResources.resolve("validProjectWithTarget");
+        Path customTargetDir = Paths.get("customTargetDirNotExists");
+        Assert.assertTrue(Files.notExists(customTargetDir));
+
+        CleanCommand cleanCommand = new CleanCommand(projectPath, false, customTargetDir);
+        try {
+            cleanCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains(
+                    "provided target directory '" + customTargetDir + "' does not exist."));
+        }
+    }
+
+    @Test(description = "Test clean command on a regular file as the custom target dir.")
+    public void testCleanCommandOnRegularFile() {
+        Path projectPath = this.testResources.resolve("validProjectWithTarget");
+        Path customTargetDir = projectPath.resolve("main.bal");
+        Assert.assertTrue(Files.exists(customTargetDir));
+
+        CleanCommand cleanCommand = new CleanCommand(projectPath, false, customTargetDir);
+        try {
+            cleanCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains(
+                    "provided target path '" + customTargetDir + "' is not a directory."));
+        }
     }
 }
