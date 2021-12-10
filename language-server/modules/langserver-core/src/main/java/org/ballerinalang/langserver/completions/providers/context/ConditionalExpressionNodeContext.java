@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
@@ -25,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -61,12 +59,11 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
             eg: int n = true ? module1:
              */
             String middleExprName = ((SimpleNameReferenceNode) node.middleExpression()).name().text();
-            String alias = middleExprName.startsWith("'") ? middleExprName.substring(1) : middleExprName;
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
-            if (moduleSymbol.isEmpty()) {
+            List<Symbol> expressionContextSymbols = 
+                    QNameReferenceUtil.getExpressionContextEntries(context, middleExprName);
+            if (expressionContextSymbols.isEmpty()) {
                 completionItems.addAll(this.expressionCompletions(context));
             } else {
-                List<Symbol> expressionContextSymbols = QNameReferenceUtil.getExpressionContextEntries(context, alias);
                 completionItems.addAll(this.getCompletionItemList(expressionContextSymbols, context));
             }
         } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
@@ -103,6 +100,4 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
                     .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
-//    QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node.middleExpression();
-//    qualifiedNameReferenceNode.identifier()
 }
