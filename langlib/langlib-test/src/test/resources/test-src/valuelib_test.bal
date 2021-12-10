@@ -1067,6 +1067,32 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     + "\n\t\ttuple element '[3]' should be of type '(decimal|int)', found '5.2'");
 }
 
+type NoFillerValue 1|"foo";
+
+function testCloneWithTypeTupleWithoutFillerValues() {
+
+    [NoFillerValue, NoFillerValue] tuple1 = [1, "foo"];
+    NoFillerValue[5]|error result1 = tuple1.cloneWithType();
+
+    assert(result1 is error, true);
+    error err = <error>result1;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[NoFillerValue,NoFillerValue]' value cannot be converted to 'NoFillerValue[5]': "
+    + "\n\t\tarray size '5' is out of range for source type'[NoFillerValue,NoFillerValue]' of size '2'");
+
+    [1|"2", 2|"3"] tuple2 = [1, 2];
+    (1|2|"2")[4]|error result2 = tuple2.cloneWithType();
+    assert(result2 is error, true);
+    err = <error>result2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[(1|2),(2|3)]' value cannot be converted to '(1|2|2)[4]': "
+    + "\n\t\tarray size '4' is out of range for source type'[(1|2),(2|3)]' of size '2'");
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";

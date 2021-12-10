@@ -551,16 +551,27 @@ public class TypeConverter {
         }
         ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
-        if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = ((BArrayType) source.getType()).getElementType();
+        Type sourceType = source.getType();
+        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            Type sourceElementType = ((BArrayType) sourceType).getElementType();
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
+            }
+        }
+        int targetSize = targetType.getSize();
+        long sourceSize = source.getLength();
+        boolean returnVal = true;
+        if (!TypeChecker.hasFillerValue(sourceType) && sourceSize < targetSize) {
+            addErrorMessage(0, errors, "array size '" + targetSize + "' is out of range for source type'" +
+                    sourceType + "' of size '" + sourceSize + "'");
+            returnVal = false;
+            if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                return false;
             }
         }
 
         int initialErrorCount;
         String elementIndex;
-        boolean returnVal = true;
         for (int i = 0; i < source.size(); i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
