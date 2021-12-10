@@ -58,6 +58,11 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         testFile("conditional-expr/conditional_expr_source_26.bal", "conditional-expr/conditional_expr_assert_26.json");
     }
 
+    @Test
+    public void testNestedConditionalExprAmbiguity() {
+        testFile("conditional-expr/conditional_expr_source_28.bal", "conditional-expr/conditional_expr_assert_28.json");
+    }
+
     // Recovery tests
 
     @Test
