@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
@@ -745,7 +745,7 @@ public class JvmTerminatorGen {
                                String methodName, String methodLookupName) {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        String encodedMethodName = IdentifierUtils.encodeFunctionIdentifier(methodLookupName);
+        String encodedMethodName = Utils.encodeFunctionIdentifier(methodLookupName);
         String packageName = JvmCodeGenUtil.getPackageName(packageID);
 
 
@@ -763,7 +763,7 @@ public class JvmTerminatorGen {
             functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
         } else {
             // If the callee function from different module, we need to use decoded function name as lookup key.
-            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + IdentifierUtils
+            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + Utils
                     .decodeIdentifier(methodLookupName));
         }
         String methodDesc;
@@ -774,7 +774,7 @@ public class JvmTerminatorGen {
         } else {
             BPackageSymbol symbol = packageCache.getSymbol(
                     packageID.orgName.getValue() + "/" + packageID.name.getValue());
-            Name decodedMethodName = new Name(IdentifierUtils.decodeIdentifier(methodName));
+            Name decodedMethodName = new Name(Utils.decodeIdentifier(methodName));
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(decodedMethodName).symbol;
             BInvokableType type = (BInvokableType) funcSymbol.type;
             ArrayList<BType> params = new ArrayList<>(type.paramTypes);
@@ -934,7 +934,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
-        String funcName = IdentifierUtils.encodeFunctionIdentifier(callIns.name.value);
+        String funcName = Utils.encodeFunctionIdentifier(callIns.name.value);
         String lambdaName = "$" + funcName + "$lambda$_" + asyncDataCollector.getLambdaIndex() + "$";
 
         JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(), lambdaName);

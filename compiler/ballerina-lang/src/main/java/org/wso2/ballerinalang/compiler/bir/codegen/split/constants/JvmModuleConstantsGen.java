@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -124,8 +124,8 @@ public class JvmModuleConstantsGen {
             String varName = entry.getValue();
             mv.visitTypeInsn(NEW, MODULE);
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
-            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
+            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
+            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
             mv.visitLdcInsn(getMajorVersion(packageID.version.value));
             mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                     INIT_MODULE, false);
