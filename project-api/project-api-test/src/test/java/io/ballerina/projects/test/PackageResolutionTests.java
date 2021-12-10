@@ -152,6 +152,24 @@ public class PackageResolutionTests extends BaseTest {
                 .resolve(ProjectConstants.BUILD_FILE));
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().errorCount(), 0);
+    }
+
+    @Test(description = "tests validation of invalid build file", dependsOnMethods = "testProjectWithInvalidBuildFile")
+    public void testDependencyGraphWithInvalidBuildFile() {
+        // Package path
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
 
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
         ResolvedPackageDependency packageO =
@@ -161,7 +179,7 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
     }
 
-    @Test(description = "tests resoultion with toml dependency")
+    @Test(description = "tests resolution with toml dependency")
     public void testProjectWithTomlDependency() {
 
         // Setup
