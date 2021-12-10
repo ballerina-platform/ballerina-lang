@@ -251,6 +251,7 @@
       "label": "TEST_FUTURE_INT",
       "kind": "Variable",
       "detail": "future<int>",
+      "sortText": "G",
       "insertText": "TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
     }
