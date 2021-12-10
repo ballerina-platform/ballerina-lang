@@ -14938,7 +14938,8 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 // If the next token is an equal, then it is typedBP with union/intersection type and missing var name
-                if (peek().kind == SyntaxKind.EQUAL_TOKEN) {
+                if (peek().kind == SyntaxKind.EQUAL_TOKEN && 
+                        (!isDefiniteExpr(typeOrExpr.kind) && !isDefiniteExpr(rhsTypedBPOrExpr.kind))) {
                     return createCaptureBPWithMissingVarName(typeOrExpr, pipeOrAndToken, rhsTypedBPOrExpr);
                 }
 
