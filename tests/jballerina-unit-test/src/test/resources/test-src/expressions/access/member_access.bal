@@ -845,25 +845,21 @@ function testMemberAccessWithGroupExprAsIndex() {
 function testMemberAccessOutOfRangeWithBinaryExpr() {
     int[3] intArr = [0, 1, 2];
     int|error a = trap intArr[2 + 1];
-    if a is error {
-        assertEquality("error(\"{ballerina/lang.array}IndexOutOfRange\",message=\"array index out of range: " + 
-        "index: 3, size: 3\")", a.toString());
-    } else {
-        assertEquality("error(\"{ballerina/lang.array}IndexOutOfRange\",message=\"array index out of range: " + 
-        "index: 3, size: 3\")", a.toString());
-    }
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("array index out of range: index: 3, size: 3", e.detail()["message"]);
 }
 
 function testMemberAccessOutOfRangeWithBinaryExpr2() {
     [int, string] tupleVar = [0, "Car"];
     int|string|error a = trap tupleVar[1 + 1];
-    if a is error {
-        assertEquality("error(\"{ballerina/lang.array}IndexOutOfRange\",message=\"tuple index out of range: " + 
-        "index: 2, size: 2\")", a.toString());
-    } else {
-        assertEquality("error(\"{ballerina/lang.array}IndexOutOfRange\",message=\"tuple index out of range: " + 
-        "index: 2, size: 2\")", a.toString());
-    }
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("tuple index out of range: index: 2, size: 2", e.detail()["message"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
