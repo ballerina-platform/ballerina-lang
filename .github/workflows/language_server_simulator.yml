@@ -33,13 +33,28 @@ jobs:
 
       - name: Check Simulation Failure
         run: if test -f dump.hprof; then exit 1; else exit 0; fi
-          
+
+      - name: Analyze Heap Dump If Exists
+        if: failure()
+        run: |
+          if test -f dump.hprof; then echo "Heap sump exists. Analyzing..."; else exit 0; fi
+          wget https://ftp.jaist.ac.jp/pub/eclipse/mat/1.12.0/rcp/MemoryAnalyzer-1.12.0.20210602-linux.gtk.x86_64.zip
+          unzip MemoryAnalyzer-1.12.0.20210602-linux.gtk.x86_64.zip
+          ./mat/ParseHeapDump.sh ./dump.hprof org.eclipse.mat.api:suspects
+
       - name: Upload Heap Dumps
         uses: actions/upload-artifact@v2
         if: always()
         with:
           name: heap_dump.hprof
-          path: '*.hprof'
+          path: '*.hprof'      
+      
+      - name: Upload Leaks Suspects
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: Leak_Suspects.zip
+          path: 'dump_Leak_Suspects.zip'
 
       - name: Notify failure
         if: failure()
