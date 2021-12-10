@@ -51,11 +51,13 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("a ? check b :\"c\"", "conditional-expr/conditional_expr_assert_23.json");
         test("a ? <string> b :\"c\"", "conditional-expr/conditional_expr_assert_24.json");
         test("a ? b is c :\"d\"", "conditional-expr/conditional_expr_assert_25.json");
+        test("a ? b ? c : d : e", "conditional-expr/conditional_expr_assert_30.json");
     }
 
     @Test
     public void testConditionalExprAmbiguity() {
         testFile("conditional-expr/conditional_expr_source_26.bal", "conditional-expr/conditional_expr_assert_26.json");
+        test("a ? b:c.d;", "conditional-expr/conditional_expr_assert_29.json");
     }
 
     @Test
