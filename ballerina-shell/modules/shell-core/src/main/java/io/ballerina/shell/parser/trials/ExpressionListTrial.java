@@ -48,7 +48,7 @@ public class ExpressionListTrial extends TreeParserTrial {
             source = source + ";";
         }
 
-        expressionList = new ArrayList<>(Arrays.asList(source.split(";")));
+        expressionList = Arrays.asList(source.split(";"));
         for (String element: expressionList) {
             parsedNodes.add(NodeParser.parseActionOrExpression(element.trim()));
         }
