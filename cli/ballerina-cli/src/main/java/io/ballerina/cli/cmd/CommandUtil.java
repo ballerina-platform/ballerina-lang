@@ -355,6 +355,9 @@ public class CommandUtil {
         Files.writeString(balTomlPath, "\nlanguage_spec_version = \"" + packageJson.getLanguageSpecVersion()
                 + "\"", StandardOpenOption.APPEND);
 
+        Files.writeString(balTomlPath, "\n\n[build-options]", StandardOpenOption.APPEND);
+        Files.writeString(balTomlPath, "\nobservabilityIncluded = true", StandardOpenOption.APPEND);
+
         JsonArray platformLibraries = packageJson.getPlatformDependencies();
         if (platformLibraries == null) {
             return;
