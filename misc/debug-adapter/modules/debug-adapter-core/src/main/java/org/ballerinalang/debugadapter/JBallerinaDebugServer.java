@@ -30,8 +30,8 @@ import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.identifier.Utils;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.completion.CompletionContext;
 import org.ballerinalang.debugadapter.completion.FieldAccessCompletionResolver;
@@ -839,7 +839,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         List<CompletableFuture<Variable>> scheduledVariables = new ArrayList<>();
         ReferenceType initClassReference = cls.get(0);
         for (Field field : initClassReference.allFields()) {
-            String fieldName = IdentifierUtils.decodeIdentifier(field.name());
+            String fieldName = Utils.decodeIdentifier(field.name());
             if (!field.isPublic() || !field.isStatic() || fieldName.startsWith(GENERATED_VAR_PREFIX)) {
                 continue;
             }

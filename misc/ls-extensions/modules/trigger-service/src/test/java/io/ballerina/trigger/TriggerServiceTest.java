@@ -53,10 +53,10 @@ public class TriggerServiceTest {
     public void testTriggerService() throws ExecutionException, InterruptedException {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
 
-        BallerinaTriggerRequest request = new BallerinaTriggerRequest("1");
+        BallerinaTriggerRequest request = new BallerinaTriggerRequest("2");
         CompletableFuture<?> result = serviceEndpoint.request(BALLERINA_TRIGGER, request);
         JsonObject response = (JsonObject) result.get();
 
-        Assert.assertEquals(response.get("id").getAsString(), "1");
+        Assert.assertEquals(response.get("id").getAsString(), "2");
     }
 }
