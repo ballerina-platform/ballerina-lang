@@ -562,8 +562,8 @@ public class TypeConverter {
         long sourceSize = source.getLength();
         boolean returnVal = true;
         if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
-            addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' for target " +
-                    "type '" + targetType + "' without filler values");
+            addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
+                    "type '" + targetType + "' does not have a filler value");
             returnVal = false;
             if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
                 return false;
