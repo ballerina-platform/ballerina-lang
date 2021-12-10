@@ -317,7 +317,7 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(101, 4, 101, 21);
         assertEquals(type.typeKind(), FUTURE);
         assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
-//        assertType(101, 10, 101, 21, NIL); TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33016
+        assertType(101, 10, 101, 21, NIL);
     }
 
     @Test(dataProvider = "CallExprPosProvider")

@@ -24,7 +24,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -157,7 +157,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
      * Todo - remove
      */
     public static String modifyName(String identifier) {
-        return IdentifierUtils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
+        return Utils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
                 IdentifierModifier.IdentifierType.OTHER));
     }
 }

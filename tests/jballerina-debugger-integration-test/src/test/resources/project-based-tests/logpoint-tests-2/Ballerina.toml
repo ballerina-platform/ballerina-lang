@@ -1,4 +1,4 @@
 [package]
 org = "debug_test_resources"
-name = "logpoint_tests"
+name = "logpoint_tests_2"
 version = "0.1.0"

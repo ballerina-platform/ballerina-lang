@@ -1,16 +1,16 @@
 {
-  "source": {
-    "file": "hover.bal"
-  },
   "position": {
     "line": 206,
     "character": 8
+  },
+  "source": {
+    "file": "hover.bal"
   },
   "expected": {
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Description for TestClass\n  \n  \n---  \n  \n### Fields  \n  \n`int` ***field1*** : field1 description  \n  \n---  \n  \n### Methods  \n  \n+ `function (int a) returns int`  \nTest Description2 for testMethodDecl  \n  \n+ `function (int a) returns int`  \nTest Description2 for testMethodDef  \n  \n+ `function (int a) returns int`  \nTest Description2 for testRemoteMethodDecl1  \n  \n+ `function (int b) returns int`  \nTest Description for testRemoteMethodDef  \n"
+        "value": "Description for TestClass\n  \n  \n---  \n  \n### Fields  \n  \n`int` ***field1*** : field1 description  \n  \n---  \n  \n### Methods  \n  \n+ `function testMethodDecl(int a) returns int`  \nTest Description2 for testMethodDecl  \n  \n+ `function testMethodDef(int a) returns int`  \nTest Description2 for testMethodDef  \n  \n+ `remote function testRemoteMethodDecl1(int a) returns int`  \nTest Description2 for testRemoteMethodDecl1  \n  \n+ `remote function testRemoteMethodDef(int b) returns int`  \nTest Description for testRemoteMethodDef  \n"
       }
     },
     "id": {

@@ -62,7 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
