@@ -14883,7 +14883,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnonFuncExprOrTypedBPWithFuncType(qualifiers);
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
-                typeOrExpr = parseTupleTypeDescOrListConstructor(STNodeFactory.createEmptyNode());
+                typeOrExpr = parseTupleTypeDescOrListConstructor(STNodeFactory.createEmptyNodeList());
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             // Can be a singleton type or expression.
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -15112,7 +15112,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeDescOrExprRhs(typeOrExpr);
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
-                typeOrExpr = parseTupleTypeDescOrListConstructor(STNodeFactory.createEmptyNode());
+                typeOrExpr = parseTupleTypeDescOrListConstructor(STNodeFactory.createEmptyNodeList());
                 break;
             // Can be a singleton type or expression.
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -17043,7 +17043,9 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case COMMA_TOKEN: // [a, b, c],
             case CLOSE_BRACE_TOKEN: // [a, b, c]}
-            case CLOSE_BRACKET_TOKEN:// [a, b, c]]
+            case CLOSE_BRACKET_TOKEN: // [a, b, c]]
+            case PIPE_TOKEN: // [a, b, c] |
+            case BITWISE_AND_TOKEN: // [a, b, c] &
                 if (!isRoot) {
                     endContext();
                     return new STAmbiguousCollectionNode(SyntaxKind.TUPLE_TYPE_DESC_OR_LIST_CONST, openBracket, members,
@@ -18372,6 +18374,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createNilTypeDescriptorNode(nilLiteral.openParenToken, nilLiteral.closeParenToken);
             case BRACKETED_LIST:
             case LIST_BP_OR_LIST_CONSTRUCTOR:
+            case TUPLE_TYPE_DESC_OR_LIST_CONST:    
                 STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) expression;
                 STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(innerList.members));
                 return STNodeFactory.createTupleTypeDescriptorNode(innerList.collectionStartToken, memberTypeDescs,
@@ -18501,7 +18504,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode getExpression(STNode ambiguousNode) {
         if (isEmpty(ambiguousNode) || 
-                isDefiniteExpr(ambiguousNode.kind) && ambiguousNode.kind != SyntaxKind.INDEXED_EXPRESSION || 
+                (isDefiniteExpr(ambiguousNode.kind) && ambiguousNode.kind != SyntaxKind.INDEXED_EXPRESSION) || 
                 isDefiniteAction(ambiguousNode.kind) || ambiguousNode.kind == SyntaxKind.COMMA_TOKEN) {
             return ambiguousNode;
         }
