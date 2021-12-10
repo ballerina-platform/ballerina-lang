@@ -43,6 +43,7 @@ public enum HttpErrorType {
             "{ballerina/http}WritingOutboundRequestHeaderFailed"),
     WRITING_OUTBOUND_REQUEST_BODY_FAILED("WritingOutboundRequestBodyError",
             "{ballerina/http}WritingOutboundRequestBodyFailed"),
+    RESET_OUTBOUND_STREAM_ERROR("ResetOutboundStreamError", "{ballerina/http}ResetOutboundStreamError"),
 
     // InboundResponseError (Client)
     INIT_INBOUND_RESPONSE_FAILED("{ballerina/http}InitializingInboundResponseFailed",
@@ -71,6 +72,7 @@ public enum HttpErrorType {
             "{ballerina/http}Initializing100ContinueResponseFailed"),
     WRITING_100_CONTINUE_RESPONSE_FAILED("Writing100ContinueResponseError",
             "{ballerina/http}Writing100ContinueResponseFailed"),
+    RESET_INBOUND_STREAM_ERROR("ResetInboundStreamError", "{ballerina/http}ResetInboundStreamError"),
 
     // Other errors
     GENERIC_CLIENT_ERROR("GenericClientError", "{ballerina/http}GenericClientError"),

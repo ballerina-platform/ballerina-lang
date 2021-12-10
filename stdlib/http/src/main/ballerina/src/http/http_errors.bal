@@ -18,9 +18,11 @@
 #
 # + message - Specific error message for the error
 # + cause - Cause of the error; If this error occurred due to another error (Probably from another module)
+# + errorCode - code for HTTP2 stream error
 public type Detail record {
     string message;
     error cause?;
+    int errorCode?;
 };
 
 // Ballerina HTTP Client Error Types
@@ -82,6 +84,11 @@ public type WritingOutboundRequestHeadersError error<WRITING_OUTBOUND_REQUEST_HE
 public const WRITING_OUTBOUND_REQUEST_BODY_FAILED = "{ballerina/http}WritingOutboundRequestBodyFailed";
 # Represents a client error that occurred while writing outbound request entity body
 public type WritingOutboundRequestBodyError error<WRITING_OUTBOUND_REQUEST_BODY_FAILED, Detail>;
+
+# Represents the reason string for the `http:ResetOutboundStreamError`
+public const RESET_OUTBOUND_STREAM_ERROR = "{ballerina/http}ResetOutboundStreamError";
+# Represents an error occured due to outbound request stream reset
+public type ResetOutboundStreamError error<RESET_OUTBOUND_STREAM_ERROR, Detail>;
 
 // Inbound response errors in client
 # Represents the reason string for the `http:InitializingInboundResponseError`
@@ -146,6 +153,11 @@ public const INVALID_COOKIE_ERROR = "{ballerina/http}InvalidCookieError";
 # Represents a cookie error that occurred when sending cookies in the response
 public type InvalidCookieError error<INVALID_COOKIE_ERROR, Detail>;
 
+# Represents the reason string for the `http:ResetInboundStreamError`
+public const RESET_INBOUND_STREAM_ERROR = "{ballerina/http}ResetInboundStreamError";
+# Represents an error occured due to inbound response stream reset
+public type ResetInboundStreamError error<RESET_INBOUND_STREAM_ERROR, Detail>;
+
 // Generic errors (mostly to wrap errors from other modules)
 # Error reason for generic client error
 public const GENERIC_CLIENT_ERROR = "{ballerina/http}GenericClientError";
@@ -194,7 +206,7 @@ public type ClientAuthError AuthenticationError|AuthorizationError;
 
 # Defines the client error types that returned while sending outbound request
 public type OutboundRequestError InitializingOutboundRequestError|WritingOutboundRequestHeadersError|
-                            WritingOutboundRequestBodyError;
+                            WritingOutboundRequestBodyError|ResetOutboundStreamError;
 
 # Defines the client error types that returned while receiving inbound response
 public type InboundResponseError InitializingInboundResponseError|ReadingInboundResponseHeadersError|
@@ -207,7 +219,7 @@ public type InboundRequestError InitializingInboundRequestError|ReadingInboundRe
 # Defines the listener error types that returned while sending outbound response
 public type OutboundResponseError InitializingOutboundResponseError|WritingOutboundResponseHeadersError|
                             WritingOutboundResponseBodyError|Initiating100ContinueResponseError|
-                            Writing100ContinueResponseError|InvalidCookieError;
+                            Writing100ContinueResponseError|InvalidCookieError|ResetInboundStreamError;
 
 # Defines the possible client error types
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|

@@ -19,8 +19,10 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
@@ -31,12 +33,15 @@ import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.exceptions.ResetStreamException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.mime.util.MimeConstants.SERIALIZATION_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
@@ -174,8 +179,6 @@ public class ResponseWriter {
 
         @Override
         public void onError(Throwable throwable) {
-            ErrorValue httpConnectorError = HttpUtil.createHttpError(throwable.getMessage(),
-                    HttpErrorType.GENERIC_LISTENER_ERROR);
             if (outboundMsgDataStreamer != null) {
                 // Relevant transport state should set the IO Exception. Following code snippet is for other exceptions
                 if (!(throwable instanceof IOException)) {
@@ -183,7 +186,16 @@ public class ResponseWriter {
                             .setIoException(new IOException(throwable.getMessage(), throwable));
                 }
             }
-            this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
+            if (throwable instanceof ResetStreamException) {
+                Map<String, Object> values = new HashMap<>();
+                values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, throwable.getMessage());
+                values.put(HttpConstants.HTTP_ERROR_DETAIL_CODE, ((ResetStreamException)throwable).getErrorCode());
+                this.dataContext.notifyOutboundResponseStatus(
+                        HttpUtil.createHttpError(HttpErrorType.RESET_INBOUND_STREAM_ERROR, values));
+            } else {
+                this.dataContext.notifyOutboundResponseStatus(
+                        HttpUtil.createHttpError(throwable.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR));
+            }
         }
     }
 }

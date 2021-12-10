@@ -212,6 +212,7 @@ public class HttpConstants {
     public static final String HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
     public static final String HTTP_ERROR_RECORD = "HTTPError";
     public static final String HTTP_ERROR_MESSAGE = "message";
+    public static final String HTTP_ERROR_DETAIL_CODE = "errorCode";
 
     // ServeConnector struct indices
     public static final String HTTP_CONNECTOR_CONFIG_FIELD = "config";

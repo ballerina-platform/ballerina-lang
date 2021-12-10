@@ -22,6 +22,7 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
@@ -50,6 +51,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ResetStreamException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -59,6 +61,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
@@ -445,7 +449,12 @@ public abstract class AbstractHTTPAction {
         @Override
         public void onError(Throwable throwable) {
             ErrorValue httpConnectorError;
-            if (throwable instanceof ClientConnectorException) {
+            if (throwable instanceof ResetStreamException) {
+                Map<String, Object> values = new HashMap<>();
+                values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, throwable.getMessage());
+                values.put(HttpConstants.HTTP_ERROR_DETAIL_CODE, ((ResetStreamException)throwable).getErrorCode());
+                httpConnectorError = HttpUtil.createHttpError(HttpErrorType.RESET_OUTBOUND_STREAM_ERROR, values);
+            } else if (throwable instanceof ClientConnectorException) {
                 httpConnectorError = HttpUtil.createHttpError(throwable);
             } else if (throwable instanceof IOException) {
                 this.dataContext.getOutboundRequest().setIoException((IOException) throwable);

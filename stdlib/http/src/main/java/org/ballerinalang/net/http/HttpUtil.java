@@ -534,6 +534,12 @@ public class HttpUtil {
         return BallerinaErrors.createError(errorType.getReason(), detailRecord);
     }
 
+    public static ErrorValue createHttpError(HttpErrorType errorType, Map<String, Object> values) {
+        MapValue<String, Object> detail =
+                BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD, values);
+        return BallerinaErrors.createError(errorType.getReason(), detail);
+    }
+
     private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
         MapValue<String, Object> detail = BallerinaValues.
                 createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD);
