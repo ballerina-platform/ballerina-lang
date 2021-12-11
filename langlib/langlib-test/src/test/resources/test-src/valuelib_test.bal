@@ -951,6 +951,10 @@ function testCloneWithTypeIntArrayToUnionArray() {
     assert(p is error, false);
     assert(checkpanic p, [1, 2, 3]);
 
+    (byte|float)[]|error v = w.cloneWithType();
+    assert(v is error, false);
+    assert(checkpanic v, [1, 2, 3]);
+
     (byte|decimal|int:Unsigned8|int:Signed8)[]|error q = w.cloneWithType();
     assert(q is error, false);
     assert(checkpanic q, [1, 2, 3]);
