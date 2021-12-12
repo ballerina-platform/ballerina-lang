@@ -577,11 +577,13 @@ public class TypeConverter {
         int initialErrorCount;
         String elementIndex;
         boolean returnVal = true;
+        Set<Type> convertibleTypes;
         for (int i = 0; i < source.size(); i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
-            if (!isConvertibleToArrayInstance(source.get(i), targetTypeElementType, unresolvedValues, elementIndex,
-                    errors)) {
+            convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, elementIndex,
+                    false, unresolvedValues, errors);
+            if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "array element '" +
                         elementIndex + "' should be of type '" + targetTypeElementType.toString() + "', found '" +
                         getShortSourceValue(source.get(i)) + "'");
@@ -614,11 +616,13 @@ public class TypeConverter {
         int initialErrorCount;
         String elementIndex;
         boolean returnVal = true;
+        Set<Type> convertibleTypes;
         for (int i = 0; i < targetTypeSize; i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
-            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetTypes.get(i), unresolvedValues,
-                    elementIndex, errors)) {
+            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetTypes.get(i), elementIndex,
+                    false, unresolvedValues, errors);
+            if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetTypes.get(i).toString() + "', found '" +
                         getShortSourceValue(source.getRefValue(i)) + "'");
@@ -632,8 +636,9 @@ public class TypeConverter {
         for (int i = targetTypeSize; i < sourceTypeSize; i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
-            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetRestType, unresolvedValues,
-                    elementIndex, errors)) {
+            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetRestType, elementIndex,
+                    false, unresolvedValues, errors);
+            if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetRestType + "', found '" +
                         getShortSourceValue(source.getRefValue(i)) + "'");
@@ -652,19 +657,6 @@ public class TypeConverter {
         } else {
             return varName + "[" + index + "]";
         }
-    }
-
-    private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
-                                                        List<TypeValuePair> unresolvedValues, String varName,
-                                                        List<String> errors) {
-        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, varName, false,
-                unresolvedValues, errors);
-        return !convertibleTypes.isEmpty() && isConvertible(convertibleTypes, sourceElement);
-    }
-
-    private static boolean isConvertible(Set<Type> convertibleTypes, Object sourceElement) {
-        return convertibleTypes.size() <= 1 || convertibleTypes.contains(TypeChecker.getType(sourceElement))
-                || hasIntegerSubTypes(convertibleTypes);
     }
 
     public static boolean hasIntegerSubTypes(Set<Type> convertibleTypes) {

@@ -938,9 +938,8 @@ function testCloneWithTypeIntArrayToUnionArray() {
     error err = <error> m;
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
-    string errMsg = "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]': " +
-    "\n\t\tarray element '[0]' should be of type '(lang.int:Signed16|lang.int:Unsigned8|decimal)', found '10.0'" +
-    "\n\t\tarray element '[1]' should be of type '(lang.int:Signed16|lang.int:Unsigned8|decimal)', found '20.0'";
+    string errMsg = "'float' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': " +
+                        "ambiguous target type";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 
@@ -1035,8 +1034,7 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]': " +
-    "\n\t\ttuple element '[0]' should be of type '(float|decimal)', found '1'");
+    assert(messageString, "'int' value cannot be converted to '(float|decimal)': ambiguous target type");
 }
 
 function testCloneWithTypeArrayToTupleNegative() {
@@ -1106,9 +1104,7 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]': "
-    + "\n\t\ttuple element '[1]' should be of type '(decimal|int)', found '2.5'"
-    + "\n\t\ttuple element '[3]' should be of type '(decimal|int)', found '5.2'");
+    assert(messageString, "'float' value cannot be converted to '(decimal|int)': ambiguous target type");
 }
 
 type StringArray string[];
