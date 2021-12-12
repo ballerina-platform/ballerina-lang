@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,23 +20,16 @@ package org.ballerinalang.test.access;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Positive test access for checking rules on public access in ballerina.
+ * Positive tests for symbol exposure via public constructs.
  */
-public class AccessLevelTest {
-
-    CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/access/access_level.bal");
-    }
+public class SymbolExposureTest {
 
     @Test
-    public void testPublicFunctionWithRecordTypeParam() {
-        BRunUtil.invoke(result, "testPublicFunctionWithRecordTypeParam");
+    public void testPublicFunctionWithRecursiveArrayTypedParam() {
+        CompileResult result = BCompileUtil.compile("test-src/access/symbol_exposure.bal");
+        BRunUtil.invoke(result, "testPublicFunctionWithRecursiveArrayTypedParam");
     }
 }

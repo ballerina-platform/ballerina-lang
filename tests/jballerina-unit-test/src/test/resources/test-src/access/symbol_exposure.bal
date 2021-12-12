@@ -19,25 +19,16 @@ public type Foo record {
     Foo[] x?;
 }[];
 
-public function getFooName(Foo f) returns string{
-    return f[0].name;
-}
+public function getFooName(Foo f) returns string => f[0].name;
 
-public function testPublicFunctionWithRecordTypeParam() {
+public function testPublicFunctionWithRecursiveArrayTypedParam() {
     Foo foo = [{name: "Foo"}];
     assertEquality("Foo", getFooName(foo));
 }
 
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
         return;
     }
-
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(string `expected '${expectedValAsString}', found '${actualValAsString}'`);
+    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }
