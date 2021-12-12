@@ -19,10 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
@@ -189,7 +186,7 @@ public class ResponseWriter {
             if (throwable instanceof ResetStreamException) {
                 Map<String, Object> values = new HashMap<>();
                 values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, throwable.getMessage());
-                values.put(HttpConstants.HTTP_ERROR_DETAIL_CODE, ((ResetStreamException)throwable).getErrorCode());
+                values.put(HttpConstants.HTTP_ERROR_DETAIL_CODE, ((ResetStreamException) throwable).getErrorCode());
                 this.dataContext.notifyOutboundResponseStatus(
                         HttpUtil.createHttpError(HttpErrorType.RESET_INBOUND_STREAM_ERROR, values));
             } else {

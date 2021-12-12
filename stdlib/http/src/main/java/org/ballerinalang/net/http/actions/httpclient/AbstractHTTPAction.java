@@ -452,7 +452,7 @@ public abstract class AbstractHTTPAction {
             if (throwable instanceof ResetStreamException) {
                 Map<String, Object> values = new HashMap<>();
                 values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, throwable.getMessage());
-                values.put(HttpConstants.HTTP_ERROR_DETAIL_CODE, ((ResetStreamException)throwable).getErrorCode());
+                values.put(HttpConstants.HTTP_ERROR_DETAIL_CODE, ((ResetStreamException) throwable).getErrorCode());
                 httpConnectorError = HttpUtil.createHttpError(HttpErrorType.RESET_OUTBOUND_STREAM_ERROR, values);
             } else if (throwable instanceof ClientConnectorException) {
                 httpConnectorError = HttpUtil.createHttpError(throwable);
