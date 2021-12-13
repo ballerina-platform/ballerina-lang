@@ -1174,37 +1174,34 @@ public class TypeChecker extends BLangNodeVisitor {
      * @return a {@code BField}
      */
     private BField createFieldWithType(BField field, List<BType> bTypes) {
-        LinkedHashSet<BType> effectiveTypes = getEffectiveMemberTypes(bTypes);
-
-        BType newType;
-        if (effectiveTypes.size() == 1) {
-            newType = effectiveTypes.iterator().next();
-        } else {
-            newType = BUnionType.create(null, effectiveTypes);
-        }
+        BType resultantType = getResultantUnionOrNonUnionType(bTypes);
 
         BVarSymbol originalSymbol = field.symbol;
         BVarSymbol fieldSymbol = new BVarSymbol(originalSymbol.flags, originalSymbol.name, originalSymbol.pkgID,
-                newType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
+                resultantType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
 
         return new BField(field.name, field.pos, fieldSymbol);
     }
 
-    private LinkedHashSet<BType> getEffectiveMemberTypes(List<BType> bTypeList) {
-        LinkedHashSet<BType> bTypes = new LinkedHashSet<>(bTypeList);
-
-        if (bTypeList.size() == 1) {
-            return bTypes;
+    /**
+     * Get the resultant union or non-union type from a {@code List<BType>}.
+     *
+     * @param bTypes bType list (size > 0)
+     * @return {@code BUnionType} if effective members in list is > 1. {@code BType} Otherwise.
+     */
+    private BType getResultantUnionOrNonUnionType(List<BType> bTypes) {
+        if (bTypes.size() == 1) {
+            return bTypes.get(0);
         }
 
-        LinkedHashSet<BType> eBTypes = new LinkedHashSet<>(bTypes.size());
-        addEffectiveMemberTypes(eBTypes, bTypes);
+        LinkedHashSet<BType> bTypeSet = new LinkedHashSet<>(bTypes);
+        List<BType> eBTypes = new ArrayList<>(bTypes.size());
+        addEffectiveMemberTypes(eBTypes, bTypeSet);
 
-        eBTypes = filterRedundantAnyAnydataSubtypes(eBTypes);
-        return eBTypes;
+        return getRepresentativeBroadType(eBTypes);
     }
 
-    private void addEffectiveMemberTypes(LinkedHashSet<BType> eBTypes, LinkedHashSet<BType> bTypes) {
+    private void addEffectiveMemberTypes(List<BType> eBTypes, LinkedHashSet<BType> bTypes) {
         for (BType memberType : bTypes) {
             BType bType;
             switch (memberType.tag) {
@@ -1230,45 +1227,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 eBTypes.add(bType);
             }
         }
-    }
-
-    private LinkedHashSet<BType> filterRedundantAnyAnydataSubtypes(LinkedHashSet<BType> bTypeList) {
-        if (bTypeList.size() == 1) {
-            return bTypeList;
-        }
-
-        BType anyOrAnydata = null;
-        for (BType bType : bTypeList) {
-            if (bType.tag == TypeTags.ANY) {
-                anyOrAnydata = bType;
-                break;
-            } else if (bType.tag == TypeTags.ANYDATA) {
-                anyOrAnydata = bType;
-            }
-        }
-
-        if (anyOrAnydata == null) {
-            return bTypeList;
-        }
-
-        LinkedHashSet<BType> eBTypes = new LinkedHashSet<>(bTypeList.size());
-        eBTypes.add(anyOrAnydata);
-
-        if (anyOrAnydata.tag == TypeTags.ANYDATA) {
-            for (BType bType : bTypeList) {
-                if (!types.isAnydata(bType)) {
-                    eBTypes.add(bType);
-                }
-            }
-        } else {
-            for (BType bType : bTypeList) {
-                if (bType.tag == TypeTags.ERROR) {
-                    eBTypes.add(bType);
-                }
-            }
-        }
-
-        return eBTypes;
     }
 
     private boolean hasOptionalFields(List<BField> fields) {
@@ -1301,14 +1259,11 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                                            names, symTable);
         TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordType, recordSymbol, recordTypeNode, env);
 
-        LinkedHashSet<BType> eRestFieldTypes = getEffectiveMemberTypes(restFieldTypes);
-        if (eRestFieldTypes.isEmpty()) {
+        if (restFieldTypes.isEmpty()) {
             recordType.sealed = true;
             recordType.restFieldType = symTable.noType;
-        } else if (eRestFieldTypes.size() == 1) {
-            recordType.restFieldType = eRestFieldTypes.iterator().next();
         } else {
-            recordType.restFieldType = BUnionType.create(null, eRestFieldTypes);
+            recordType.restFieldType = getResultantUnionOrNonUnionType(restFieldTypes);
         }
 
         return recordType;
