@@ -56,8 +56,8 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         int port = findFreePort();
         String msg = REMOTE_DEBUG_LISTENING + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port)}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
+        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port)}, null, null,
+                new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath.toString(), 10);
         clientLeecher.waitForText(20000);
     }
 
@@ -66,9 +66,9 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         int port = findFreePort();
         String msg = REMOTE_DEBUG_LISTENING + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port),
-                        debugTestRunner.testEntryFilePath}, null, new String[]{}, new LogLeecher[]{clientLeecher},
-                debugTestRunner.testProjectPath, 10);
+        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), debugTestRunner.testEntryFilePath
+                        .toString()}, null, null, new LogLeecher[]{clientLeecher},
+                debugTestRunner.testProjectPath.toString(), 10);
         clientLeecher.waitForText(20000);
     }
 
@@ -88,8 +88,8 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         String executablePath = Paths.get("target", "bin", testProjectName.replaceAll("-", "_") + ".jar")
                 .toFile().getPath();
         LogLeecher clientLeecher = new LogLeecher(executablePath);
-        balClient.runMain("build", new String[]{}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath);
+        balClient.runMain("build", new String[0], null, null, new LogLeecher[]{clientLeecher},
+                debugTestRunner.testProjectPath.toString());
         clientLeecher.waitForText(20000);
 
         String port = debugOptions[0].contains("=") ? debugOptions[0].split("=")[1] : debugOptions[1];
@@ -97,8 +97,8 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         clientLeecher = new LogLeecher(msg);
         List<String> debugOptionsList = new ArrayList<>(Arrays.asList(debugOptions));
         debugOptionsList.add(executablePath);
-        balClient.debugMain("run", debugOptionsList.toArray(new String[0]), null,
-                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
+        balClient.debugMain("run", debugOptionsList.toArray(new String[0]), null, null, new LogLeecher[]{clientLeecher},
+                debugTestRunner.testProjectPath.toString(), 10);
         clientLeecher.waitForText(20000);
     }
 

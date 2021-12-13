@@ -45,6 +45,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import static io.ballerina.runtime.api.values.BXmlItem.XMLNS_NS_URI_PREFIX;
+
 /**
  * XML Serializer for Ballerina XML value trees.
  *
@@ -63,11 +65,15 @@ public class BallerinaXmlSerializer extends OutputStream {
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
     private boolean withinElement;
+    private static boolean isDefaultFactory = false;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
         if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
             xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
+        } else {
+            xmlOutputFactory.setProperty("escapeCharacters", false);
+            isDefaultFactory = true;
         }
     }
 
@@ -141,8 +147,9 @@ public class BallerinaXmlSerializer extends OutputStream {
     }
 
     private void writeXMLText(XmlText xmlValue) throws XMLStreamException {
-        // No need to escape xml text when they are within xml element, it's handle from xml stream writer.
-        if (this.withinElement) {
+        // No need to escape xml text when they are within xml element or if it is not from default stream writer.
+        // It's handled by xml stream  writer.
+        if (this.withinElement && !isDefaultFactory) {
             String textValue = xmlValue.getTextValue();
             if (!textValue.isEmpty()) {
                 xmlStreamWriter.writeCharacters(textValue);
@@ -370,7 +377,7 @@ public class BallerinaXmlSerializer extends OutputStream {
         // Extract namespace entries
         for (Map.Entry<BString, BString> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey().getValue();
-            if (key.startsWith(XmlItem.XMLNS_NS_URI_PREFIX)) {
+            if (key.startsWith(XMLNS_NS_URI_PREFIX)) {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
                 if (prefix.equals(XML)) {

@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.Unregistration;
 import org.eclipse.lsp4j.UnregistrationParams;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 import java.util.ArrayList;
@@ -101,9 +102,9 @@ public class LSClientUtil {
      */
     public static boolean isDynamicCommandRegistrationSupported(LanguageServerContext serverContext) {
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        return clientCapabilities.getWorkspaceCapabilities().getExecuteCommand() != null
-                && Boolean.TRUE.equals(clientCapabilities.getWorkspaceCapabilities().getExecuteCommand()
-                .getDynamicRegistration());
+        WorkspaceClientCapabilities workspaceCapabilities = clientCapabilities.getWorkspaceCapabilities();
+        return workspaceCapabilities != null && workspaceCapabilities.getExecuteCommand() != null
+                && Boolean.TRUE.equals(workspaceCapabilities.getExecuteCommand().getDynamicRegistration());
     }
 
     /**
@@ -113,8 +114,9 @@ public class LSClientUtil {
      * @return True if dynamic command registration is supported
      */
     public static boolean isDynamicCommandRegistrationSupported(ClientCapabilities clientCapabilities) {
-        return clientCapabilities.getWorkspace().getExecuteCommand() != null &&
-                Boolean.TRUE.equals(clientCapabilities.getWorkspace().getExecuteCommand().getDynamicRegistration());
+        WorkspaceClientCapabilities workspaceCapabilities = clientCapabilities.getWorkspace();
+        return workspaceCapabilities != null && workspaceCapabilities.getExecuteCommand() != null &&
+                Boolean.TRUE.equals(workspaceCapabilities.getExecuteCommand().getDynamicRegistration());
     }
 
     /**
@@ -124,8 +126,28 @@ public class LSClientUtil {
      * @return True if dynamic registration is supported, otherwise false
      */
     public static boolean isDynamicSemanticTokensRegistrationSupported(TextDocumentClientCapabilities capabilities) {
-        return capabilities.getSemanticTokens() != null &&
+        return capabilities != null && capabilities.getSemanticTokens() != null &&
                 Boolean.TRUE.equals(capabilities.getSemanticTokens().getDynamicRegistration());
+    }
+
+    public static boolean isDynamicHoverRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getHover() != null &&
+                Boolean.TRUE.equals(capabilities.getHover().getDynamicRegistration());
+    }
+
+    public static boolean isDynamicDefinitionRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getHover() != null &&
+                Boolean.TRUE.equals(capabilities.getDefinition().getDynamicRegistration());
+    }
+
+    public static boolean isDynamicReferencesRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getHover() != null &&
+                Boolean.TRUE.equals(capabilities.getReferences().getDynamicRegistration());
+    }
+
+    public static boolean isDynamicSynchronizationRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities != null && capabilities.getSynchronization() != null &&
+                Boolean.TRUE.equals(capabilities.getSynchronization().getDynamicRegistration());
     }
 
     /**
@@ -159,5 +181,17 @@ public class LSClientUtil {
         extendedLanguageClient.unregisterCapability(new UnregistrationParams(Collections.singletonList(
                 new Unregistration(EXECUTE_COMMAND_CAPABILITY_ID, "workspace/executeCommand"))));
         serverContext.get(ServerCapabilities.class).getExecuteCommandProvider().getCommands().clear();
+    }
+
+    /**
+     * Whether the client supports the prepare rename operation.
+     * 
+     * @param clientCapabilities {@link ClientCapabilities}
+     * @return whether the client supports prepareRename or not
+     */
+    public static boolean clientSupportsPrepareRename(ClientCapabilities clientCapabilities) {
+        TextDocumentClientCapabilities textDocument = clientCapabilities.getTextDocument();
+        return textDocument != null && textDocument.getRename() != null &&
+                Boolean.TRUE.equals(textDocument.getRename().getPrepareSupport());
     }
 }

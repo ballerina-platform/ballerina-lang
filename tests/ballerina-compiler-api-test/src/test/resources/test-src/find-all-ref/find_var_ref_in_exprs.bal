@@ -160,3 +160,9 @@ public type Person2 record {
         string country;
     |} address;
 };
+
+const LENGTH = 5;
+
+function testConstArrLen() {
+    int[LENGTH] a;
+}

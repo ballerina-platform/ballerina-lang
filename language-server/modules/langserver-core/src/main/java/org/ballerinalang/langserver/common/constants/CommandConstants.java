@@ -110,7 +110,7 @@ public class CommandConstants {
 
     public static final String CREATE_VAR_TYPE_GUARD_TITLE = "Create variable and type guard";
 
-    public static final String TYPE_GUARD_TITLE = "Type guard variable";
+    public static final String TYPE_GUARD_TITLE = "Type guard variable '%s'";
 
     public static final String CREATE_VAR_ADD_CHECK_TITLE = "Create variable and check error";
 
@@ -135,4 +135,7 @@ public class CommandConstants {
     public static final String CREATE_ON_FAIL_CLAUSE = "Create on fail clause";
 
     public static final String SURROUND_WITH_DO_ON_FAIL = "Surround with do/on-fail";
+
+    public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION = 
+            "Convert module variable '%s' to listener declaration";
 }

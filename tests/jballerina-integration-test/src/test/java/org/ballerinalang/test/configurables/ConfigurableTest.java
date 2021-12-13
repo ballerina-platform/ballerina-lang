@@ -56,7 +56,7 @@ public class ConfigurableTest extends BaseTest {
     private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                        "'local' repository.", ERROR);
+                                                        "'local' repository.");
         bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
                               packagPath);
         buildLeecher.waitForText(5000);

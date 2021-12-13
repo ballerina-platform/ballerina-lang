@@ -471,6 +471,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private void addSemtypeBType(BLangType typeNode, SemType semType) {
+        if (typeNode != null) {
+            typeNode.getBType().setSemtype(semType);
+        }
+    }
+
     private void defineSemTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
         // note: Let's start mimicking what James do as it is easy to populate the types and use in testing.
         // Eventually this should be moved to SymbolResolver and should integrate wtih existing type-symbols.
@@ -502,6 +508,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             semtype = evaluateConst(constant);
         }
+        addSemtypeBType(constant.getTypeNode(), semtype);
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
 
@@ -531,6 +538,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         defn.cycleDepth = depth;
         SemType s = resolveTypeDesc(semtypeEnv, mod, defn, depth, defn.typeNode);
+        addSemtypeBType(defn.getTypeNode(), s);
         if (defn.semType == null) {
             defn.semType = s;
             defn.cycleDepth = -1;
@@ -643,6 +651,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return resolveIntSubtype(name);
         } else if (td.pkgAlias.value.equals("string") && name.equals("Char")) {
             return SemTypes.CHAR;
+        } else if (td.pkgAlias.value.equals("xml")) {
+            return resolveXmlSubtype(name);
         }
 
         BLangNode moduleLevelDef = mod.get(name);
@@ -680,16 +690,41 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private SemType resolveXmlSubtype(String name) {
+        switch(name) {
+            case "Element":
+                return SemTypes.XML_ELEMENT;
+            case "Comment":
+                return SemTypes.XML_COMMENT;
+            case "Text":
+                return SemTypes.XML_TEXT;
+            case "ProcessingInstruction":
+                return SemTypes.XML_PI;
+            default:
+                throw new IllegalStateException("Unknown XML subtype: " + name);
+        }
+    }
+
     private SemType resolveTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod,
                                     int depth, BLangTypeDefinition defn) {
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
         switch (typeKind) {
             case MAP:
                 return resolveMapTypeDesc(td, semtypeEnv, mod, depth, defn);
+            case XML:
+                return resolveXmlTypeDesc(td, semtypeEnv, mod, depth, defn);
             case TYPEDESC:
             default:
                 throw new AssertionError("Unhandled type-kind: " + typeKind);
         }
+    }
+
+    private SemType resolveXmlTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                       BLangTypeDefinition defn) {
+        if (td.defn != null) {
+            return td.defn.getSemType(semtypeEnv);
+        }
+        return resolveTypeDesc(semtypeEnv, mod, defn, depth + 1, td.constraint);
     }
 
     private SemType resolveMapTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
@@ -1420,6 +1455,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope
         BPackageSymbol symbol = dupPackageSymbolAndSetCompUnit(pkgSymbol, names.fromIdNode(importPkgNode.compUnit));
+        if (!Names.IGNORE.equals(pkgAlias)) {
+            symbol.importPrefix = pkgAlias;
+        }
         symbol.scope = pkgSymbol.scope;
         importPkgNode.symbol = symbol;
         this.env.scope.define(pkgAlias, symbol);
@@ -4191,9 +4229,52 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineMembers(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode node : typeDefNodes) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
-                defineMembersOfClassDef(pkgEnv, (BLangClassDefinition) node);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
+                defineMembersOfClassDef(pkgEnv, classDefinition);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                defineMemberOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
+                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
+                BLangType typeNode = typeDefinition.typeNode;
+
+                if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                    validateInclusionsForNonPrivateMembers(((BLangObjectTypeNode) typeNode).typeRefs);
+                }
+
+                defineMemberOfObjectTypeDef(pkgEnv, typeDefinition);
+            }
+        }
+    }
+
+    private void validateInclusionsForNonPrivateMembers(List<BLangType> inclusions) {
+        for (BLangType inclusion : inclusions) {
+            BType type = inclusion.getBType();
+
+            if (type.tag != TypeTags.OBJECT) {
+                continue;
+            }
+
+            BObjectType objectType = (BObjectType) type;
+
+            boolean hasPrivateMember = false;
+
+            for (BField field : objectType.fields.values()) {
+                if (Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE)) {
+                    hasPrivateMember = true;
+                    break;
+                }
+            }
+
+            if (!hasPrivateMember) {
+                for (BAttachedFunction method : ((BObjectTypeSymbol) type.tsymbol).attachedFuncs) {
+                    if (Symbols.isFlagOn(method.symbol.flags, Flags.PRIVATE)) {
+                        hasPrivateMember = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasPrivateMember) {
+                dlog.error(inclusion.pos, DiagnosticErrorCode.INVALID_INCLUSION_OF_OBJECT_WITH_PRIVATE_MEMBERS);
             }
         }
     }
@@ -5214,6 +5295,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         copy.scope = originalSymbol.scope;
         copy.owner = originalSymbol.owner;
         copy.compUnit = compUnit;
+        copy.importPrefix = originalSymbol.importPrefix;
         return copy;
     }
 

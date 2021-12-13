@@ -52,8 +52,8 @@ public class ProjectSourceResolver extends SourceResolver {
                 return document.name().equals(location.sourcePath()) && document.name().equals(location.sourceName());
             } else if (sourceProject.kind() == ProjectKind.BUILD_PROJECT) {
                 String projectOrg = getOrgName(sourceProject);
-                LocationInfo locationInfo = new LocationInfo(location);
-                return locationInfo.isValid() && locationInfo.orgName().equals(projectOrg);
+                DebugSourceLocation debugSourceLocation = new DebugSourceLocation(location);
+                return debugSourceLocation.isValid() && debugSourceLocation.orgName().equals(projectOrg);
             } else {
                 return false;
             }
@@ -78,13 +78,13 @@ public class ProjectSourceResolver extends SourceResolver {
                 String projectOrg = getOrgName(sourceProject);
                 String defaultModuleName = getDefaultModuleName(sourceProject);
                 String locationName = location.sourceName();
-                LocationInfo locationInfo = new LocationInfo(location);
+                DebugSourceLocation debugSourceLocation = new DebugSourceLocation(location);
 
-                if (!locationInfo.isValid() || !locationInfo.orgName().equals(projectOrg)) {
+                if (!debugSourceLocation.isValid() || !debugSourceLocation.orgName().equals(projectOrg)) {
                     return Optional.empty();
                 }
 
-                String modulePart = decodeIdentifier(locationInfo.moduleName());
+                String modulePart = decodeIdentifier(debugSourceLocation.moduleName());
                 modulePart = modulePart.replaceFirst(defaultModuleName, "");
                 if (modulePart.startsWith(".")) {
                     modulePart = modulePart.replaceFirst("\\.", "");

@@ -63,7 +63,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
             }
             resolvedContext = ResolvedContext.TYPEDESC;
         } else if (this.onExpressionContext(context, node)) {
-            completionItems.addAll(this.initializerContextCompletions(context, node.typeDescriptor().orElse(null)));
+            completionItems.addAll(this.initializerContextCompletions(context,
+                    node.typeDescriptor().orElse(null), node.initializer()));
             resolvedContext = ResolvedContext.EXPRESSION;
         }
         this.sort(context, node, completionItems, resolvedContext);
@@ -100,7 +101,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
     }
 
     @Override
-    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context, Node typeDsc) {
+    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context,
+                                                                   Node typeDesc, Node initializer) {
         // Note: Type descriptor is possibly null. Hence, if we are going to use it, we have to be aware of that.
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();

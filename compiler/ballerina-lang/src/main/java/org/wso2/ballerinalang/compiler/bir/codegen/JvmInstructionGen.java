@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -192,14 +192,14 @@ public class JvmInstructionGen {
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
     private final JvmCastGen jvmCastGen;
-    private final JvmBStringConstantsGen stringConstantsGen;
+    private final JvmConstantsGen jvmConstantsGen;
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
     private final JvmTypeTestGen typeTestGen;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                             JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector,
+                             JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
                              CompilerContext compilerContext) {
         this.mv = mv;
         this.indexMap = indexMap;
@@ -210,7 +210,7 @@ public class JvmInstructionGen {
         this.currentPackageName = JvmCodeGenUtil.getPackageName(currentPackage);
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
-        this.stringConstantsGen = stringConstantsGen;
+        this.jvmConstantsGen = jvmConstantsGen;
         typeTestGen = new JvmTypeTestGen(this, compilerContext, mv, jvmTypeGen);
     }
 
@@ -1937,7 +1937,7 @@ public class JvmInstructionGen {
 
     void generateConstantLoadIns(BIRNonTerminator.ConstantLoad loadIns) {
 
-        JvmCodeGenUtil.loadConstantValue(loadIns.type, loadIns.value, this.mv, stringConstantsGen);
+        JvmCodeGenUtil.loadConstantValue(loadIns.type, loadIns.value, this.mv, jvmConstantsGen);
         this.storeToVar(loadIns.lhsOp.variableDcl);
     }
 

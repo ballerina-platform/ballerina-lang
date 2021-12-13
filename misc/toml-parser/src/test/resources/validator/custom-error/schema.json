@@ -11,15 +11,19 @@
             "properties": {
                 "name": {
                     "type": "string",
+                    "maxLength": 10,
                     "message" : {
-                        "type" : "invalid type"
+                        "type" : "invalid type",
+                        "maxLength": "Custom message for exceeding max length goes here"
                     }
                 },
                 "org": {
                     "type": "string",
-                    "pattern": "^(?!\\s*$).+",
+                    "pattern": "^[a-z]+$",
+                    "minLength": 3,
                     "message" : {
-                        "pattern" : "org cant be empty"
+                        "pattern" : "org can only contain a-z chars",
+                        "minLength": "Custom message for min length goes here"
                     }
                 },
                 "version": {
