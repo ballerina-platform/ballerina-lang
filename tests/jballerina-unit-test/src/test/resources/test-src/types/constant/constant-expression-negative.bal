@@ -35,22 +35,3 @@ const int CONST1 =  ~~false; // operator '~' not defined for 'boolean'
 const int CONST2 =  -!false; // operator '-' not defined for 'boolean'
 
 const int CONST3 =  -~false; // operator '~' not defined for 'boolean'
-
-const int CI6 = 1 + 2;
-const float CF1 = 1.0 + 2.0;
-const decimal CD1 = 1.0 + 2.0;
-// const byte CBT1 = 1; // Uncomment after fixing #33889
-// const byte CBT2 = 2;
-// const byte CBT3 = CBT1 + CBT2;
-const boolean CB2 = !true;
-const string CS2 = "1" + "2";
-
-function userDefinedTypeTests() {
-    CI6 ci6 = 4; // expected '3', found 'int'
-    CF1 cf1 = 4.0; // expected '3.0f', found 'float'
-    CD1 cd1 = 4.0; // expected '3.0d', found 'float'
-//  CBT3 cbt3 = 4; // expected '3', found 'int'
-    CB2 cb2 = true; // expected 'false', found 'boolean'
-    CS2 cs2 = "4"; // expected '12', found 'string'
-}
-

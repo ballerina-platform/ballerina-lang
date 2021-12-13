@@ -142,38 +142,6 @@ function testConstUnaryExpressions() {
     assertEqual(CUB, false);
 }
 
-const int CI1 = 2 + 1;
-const int CI2 = 2 * 1;
-const int CI3 = CI2;
-const float CF3 = 10.0 + 2.0;
-const float CF4 = 10.0 * 2.0;
-const decimal CD = 10.0 + 4;
-const boolean CB = !(true);
-
-function testTypesOfConstants() {
-    CI1 ci1 = 3;
-    CI2 ci2 = 2;
-    CF3 cf3 = 12.0;
-    CF4 cf4 = 20.0;
-    CD cd = 14;
-    CB cb = false;
-
-    assertEqual(CI1 is 3, true);
-    assertEqual(4 is CI1, false);
-    assertEqual(CI2 is 2, true);
-    assertEqual(3 is CI2, false);
-    assertEqual(CI3 is 3, false);
-    assertEqual(2 is CI3, true);
-    assertEqual(CF3 is 12.0, true);
-    assertEqual(13.0 is CF3, false);
-    assertEqual(CF4 is 20.0, true);
-    assertEqual(CF4 is 15.0, false);
-    assertEqual(14.0d is CD, true);
-    assertEqual(13.0d is CD, false);
-    assertEqual(CB is true, false);
-    assertEqual(false is CB, true);
-}
-
 function assertEqual(int|float|decimal|boolean actual, int|float|decimal|boolean expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);
