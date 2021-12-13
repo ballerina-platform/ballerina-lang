@@ -9,7 +9,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /***
  * @since 2.0
@@ -33,8 +35,8 @@ public class OCEDynamicEnvironmentData {
     public BVarSymbol classEnclosedFunctionMap;
 
     public List<BLangLambdaFunction> lambdaFunctionsList;
-    public List<BSymbol> closureBlockSymbols;
-    public List<BSymbol> closureFuncSymbols;
+    public Set<BSymbol> closureBlockSymbols;
+    public Set<BSymbol> closureFuncSymbols;
 
 
     /*
@@ -46,8 +48,8 @@ public class OCEDynamicEnvironmentData {
 
     public OCEDynamicEnvironmentData() {
         lambdaFunctionsList = new ArrayList<>(1);
-        closureBlockSymbols = new ArrayList<>();
-        closureFuncSymbols = new ArrayList<>();
+        closureBlockSymbols = new HashSet<>();
+        closureFuncSymbols = new HashSet<>();
         cloneAttempt = 0;
     }
 }

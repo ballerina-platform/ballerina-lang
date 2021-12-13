@@ -455,6 +455,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
         }
         int i = 0;
         BVarSymbol blockMap = getMapSymbol(env.enclEnv.node);
+        if (!oceData.closureBlockSymbols.isEmpty() && (blockMap == null || blockMap == CLOSURE_MAP_NOT_FOUND)) {
+            // we have collected block level closure variables, but there is no function level closure map
+            // checking body forcefully TODO: revisit this logic
+            if (env.enclEnv.node.getKind() == NodeKind.FUNCTION) {
+                BLangFunction enclosedFunction = (BLangFunction) env.enclEnv.node;
+                blockMap = getMapSymbol(enclosedFunction.body);
+            }
+        }
+
         if (!oceData.closureBlockSymbols.isEmpty() && blockMap != null && blockMap != CLOSURE_MAP_NOT_FOUND) {
             // eg: $map$objectCtor$_<num1>
             oceData.mapBlockMapSymbol = createMapSymbolIfAbsent(classDef, blockMap.name.value, true);

@@ -9,7 +9,12 @@ function testClosureVariableAsFieldValue() {
         int x = i;
     };
 
+    var inferredObj = object {
+        int x = i;
+    };
+
     assertValueEquality(10, obj.x);
+    assertValueEquality(10, inferredObj.x);
 }
 
 function testClosureVariableAsFieldValueUsedInAttachedFunctions() {
@@ -31,6 +36,20 @@ function testClosureVariableAsFieldValueUsedInAttachedFunctions() {
 
     assertValueEquality(55, y);
     assertValueEquality(10, bOceVariable.x);
+
+    var inferredObj = object {
+        int x = i;
+
+        function bar(int b) returns int {
+            return b + self.x;
+        }
+    };
+
+    lambda = inferredObj.bar;
+    y = lambda(45);
+
+    assertValueEquality(55, y);
+    assertValueEquality(10, inferredObj.x);
 }
 
 function testClosureVariableUsedInsideAttachedMethodBodyAndField() {
@@ -51,6 +70,20 @@ function testClosureVariableUsedInsideAttachedMethodBodyAndField() {
     int y = lambda(45);
 
     assertValueEquality(10, bOceVariable.x);
+    assertValueEquality(55, y);
+
+    var inferredObj = object {
+        int x = i;
+
+        function bar(int b) returns int {
+            return b + i;
+        }
+    };
+
+    lambda = inferredObj.bar;
+    y = lambda(45);
+
+    assertValueEquality(10, inferredObj.x);
     assertValueEquality(55, y);
 }
 
@@ -73,6 +106,20 @@ function testClosureVariableUsedInsideAttachedMethodBodyOnly() {
 
     assertValueEquality(3, bOceVariable.x);
     assertValueEquality(55, y);
+
+    var inferredObj = object {
+        int x = 3;
+
+        function bar(int b) returns int {
+            return b + i;
+        }
+    };
+
+    lambda = inferredObj.bar;
+    y = lambda(45);
+
+    assertValueEquality(3, inferredObj.x);
+    assertValueEquality(55, y);
 }
 
 function testClosureVariableUsedInsideWithDifferentType() {
@@ -92,6 +139,20 @@ function testClosureVariableUsedInsideWithDifferentType() {
     string y = lambda("45");
 
     assertValueEquality(3, bOceVariable.x);
+    assertValueEquality("4510", y);
+
+    var inferredObj = object {
+        int x = 3;
+
+        function bar(string b) returns string {
+            return b + i;
+        }
+    };
+
+    lambda = inferredObj.bar;
+    y = lambda("45");
+
+    assertValueEquality(3, inferredObj.x);
     assertValueEquality("4510", y);
 }
 
