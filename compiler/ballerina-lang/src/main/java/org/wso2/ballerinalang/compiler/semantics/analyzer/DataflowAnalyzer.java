@@ -385,8 +385,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        boolean steppedIntoFunction = false;
         Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
-        this.unusedLocalVariables = new HashMap<>();
+        if (!funcNode.flagSet.contains(Flag.ATTACHED)) {
+            this.unusedLocalVariables = new HashMap<>();
+            steppedIntoFunction = true;
+        }
 
         this.currDependentSymbolDeque.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
@@ -397,7 +401,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currDependentSymbolDeque.pop();
 
         emitUnusedVariableWarnings(this.unusedLocalVariables);
-        this.unusedLocalVariables = prevUnusedLocalVariables;
+        if (steppedIntoFunction) {
+            this.unusedLocalVariables = prevUnusedLocalVariables;
+        }
     }
 
     @Override
@@ -476,6 +482,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
         this.currDependentSymbolDeque.push(classDef.symbol);
 
+        for (BLangAnnotationAttachment bLangAnnotationAttachment : classDef.annAttachments) {
+            analyzeNode(bLangAnnotationAttachment.expr, env);
+        }
 
         classDef.fields.forEach(field -> analyzeNode(field, objectEnv));
         classDef.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
