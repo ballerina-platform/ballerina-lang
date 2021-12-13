@@ -380,8 +380,10 @@ public class MemberAccessTest {
         return new Object[][] {
                 { "testMemberAccessWithBinaryExprAsIndex" },
                 { "testMemberAccessWithGroupExprAsIndex" },
-                { "testMemberAccessOutOfRangeWithBinaryExpr" },
-                { "testMemberAccessOutOfRangeWithBinaryExpr2" }
+                { "testMemberAccessOutOfRangeWithBinaryExpr1" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr2" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr3" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr4" }
         };
     }
     

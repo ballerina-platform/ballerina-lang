@@ -842,7 +842,7 @@ function testMemberAccessWithGroupExprAsIndex() {
     assertEquality(202, member4);
 }
 
-function testMemberAccessOutOfRangeWithBinaryExpr() {
+function testMemberAccessOutOfRangeWithBinaryExpr1() {
     int[3] intArr = [0, 1, 2];
     int|error a = trap intArr[2 + 1];
     
@@ -855,6 +855,28 @@ function testMemberAccessOutOfRangeWithBinaryExpr() {
 function testMemberAccessOutOfRangeWithBinaryExpr2() {
     [int, string] tupleVar = [0, "Car"];
     int|string|error a = trap tupleVar[1 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("tuple index out of range: index: 2, size: 2", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr3() {
+    int[3] intArr = [0, 1, 2];
+    int int2 = 2;
+    int|error a = trap intArr[int2 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("array index out of range: index: 3, size: 3", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr4() {
+    [int, string] tupleVar = [0, "Car"];
+    int int1 = 1;
+    int|string|error a = trap tupleVar[int1 + 1];
     
     assertTrue(a is error);
     error e = <error> a;

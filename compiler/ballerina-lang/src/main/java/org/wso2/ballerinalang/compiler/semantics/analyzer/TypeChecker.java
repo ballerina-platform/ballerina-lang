@@ -2803,7 +2803,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         exprType);
                 resultType = symTable.semanticError;
                 return;
-            } else if (types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) && isConst(indexExpr) &&
+            } else if (types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) && isConstExpr(indexExpr) &&
                     isInvalidReadonlyFieldUpdate(exprType, getConstFieldName(indexExpr))) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
                         getConstFieldName(indexExpr), exprType);
@@ -7589,7 +7589,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (types.getReferredType(indexExpr.getBType()).tag == TypeTags.STRING
-                        && isConst(indexExpr)) {
+                        && isConstExpr(indexExpr)) {
                     String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD,
                             fieldName, indexBasedAccessExpr.expr.getBType());
@@ -7614,7 +7614,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.getBType().tag == TypeTags.INT && isConst(indexExpr)) {
+                if (indexExpr.getBType().tag == TypeTags.INT && isConstExpr(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.indexExpr.pos,
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
                     return actualType;
@@ -7758,7 +7758,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (indexExprType.tag) {
             case TypeTags.INT:
                 BLangExpression indexExpr = indexBasedAccess.indexExpr;
-                if (!isConst(indexExpr) || arrayType.state == BArrayState.OPEN) {
+                if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
                     actualType = arrayType.eType;
                     break;
                 }
@@ -7846,7 +7846,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.INT:
-                if (isConst(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     actualType = checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
@@ -7975,7 +7975,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
-                if (isConst(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     String fieldName = IdentifierUtils.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
@@ -8174,14 +8174,14 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isConst(BLangExpression expression) {
+    private boolean isConstExpr(BLangExpression expression) {
         switch (expression.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
                 return true;
             case GROUP_EXPR:
                 BLangGroupExpr groupExpr = (BLangGroupExpr) expression;
-                return isConst(groupExpr.expression);
+                return isConstExpr(groupExpr.expression);
             case SIMPLE_VARIABLE_REF:
                 return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
             default:
