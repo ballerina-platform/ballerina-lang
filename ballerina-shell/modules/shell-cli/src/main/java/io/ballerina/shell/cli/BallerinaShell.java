@@ -23,7 +23,6 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.ExceptionStatus;
-import io.ballerina.shell.utils.ModuleImporter;
 import io.ballerina.shell.ShellCompilation;
 import io.ballerina.shell.cli.handlers.CommandHandler;
 import io.ballerina.shell.cli.handlers.DeleteCommand;
@@ -35,6 +34,7 @@ import io.ballerina.shell.cli.handlers.StringListCommand;
 import io.ballerina.shell.cli.handlers.ToggleDebugCommand;
 import io.ballerina.shell.cli.utils.FileUtils;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.utils.ModuleImporter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
