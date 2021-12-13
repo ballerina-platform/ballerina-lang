@@ -490,9 +490,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private void updateSymbolType(BLangConstant constant) {
         BConstantSymbol symbol = constant.symbol;
-        if (constantMap.containsKey(symbol.name.value)) { // Check and skip duplicate constants
-            return;
-        }
         if (symbol.type.getKind() != TypeKind.FINITE && symbol.value != null) {
             BType singletonType = checkType(constant.expr, constant, symbol.value.value, symbol.type, symbol.pos);
             if (singletonType != null) {
