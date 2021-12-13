@@ -87,3 +87,7 @@ function testInvalidReaodOnlyObjectUpdates() {
     se:MyConfig c3 = new se:MyConfig("client config");
     c3.name = "new name";
 }
+
+function testReadOnlyObjectIntersectionMethodParamsNegative(se:Zone zone) {
+    se:Civil _ = zone.utcToCivil();
+}
