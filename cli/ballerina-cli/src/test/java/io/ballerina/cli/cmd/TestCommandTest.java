@@ -66,7 +66,7 @@ public class TestCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test a valid ballerina file")
-    public void testTestBalFile() throws IOException {
+    public void testTestBalFile() {
         Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
 
         System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());

@@ -54,8 +54,10 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -75,6 +77,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
+    private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
+    private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -100,7 +104,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     public void visit(BLangConstant constant) {
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
+        this.resolvingConstants.add(this.currentConstSymbol);
         this.currentConstSymbol.value = visitExpr(constant.expr);
+        this.resolvingConstants.remove(this.currentConstSymbol);
         updateSymbolType(constant);
         checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
@@ -142,7 +148,21 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         if (!this.unresolvedConstants.containsKey(constSymbol)) {
+            if (this.unresolvableConstants.contains(constSymbol)) {
+                this.result = null;
+                return;
+            }
+            this.unresolvableConstants.add(constSymbol);
             dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.value);
+            this.result = null;
+            return;
+        }
+
+        if (this.resolvingConstants.contains(constSymbol)) {
+            for (BConstantSymbol symbol : this.resolvingConstants) {
+                this.unresolvableConstants.add(symbol);
+            }
+            dlog.error(varRef.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE, this.resolvingConstants);
             this.result = null;
             return;
         }
