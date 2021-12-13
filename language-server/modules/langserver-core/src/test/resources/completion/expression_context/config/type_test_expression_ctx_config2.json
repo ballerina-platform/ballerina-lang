@@ -9,7 +9,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "BBN",
+      "sortText": "ABN",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -325,7 +325,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "AG",
+      "sortText": "BG",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -341,7 +341,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "AG",
+      "sortText": "BG",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -373,7 +373,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "AG",
+      "sortText": "BG",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },

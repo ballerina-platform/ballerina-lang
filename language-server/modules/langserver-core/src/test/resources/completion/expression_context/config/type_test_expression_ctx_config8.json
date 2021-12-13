@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 3,
+    "line": 16,
     "character": 16
   },
   "source": "expression_context/source/type_test_expression_ctx_source8.bal",
@@ -12,16 +12,56 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "BBM",
+      "sortText": "ABM",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "AAL",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Type2",
+      "kind": "TypeParameter",
+      "detail": "String",
+      "sortText": "AAN",
+      "insertText": "Type2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Type4",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AAM",
+      "insertText": "Type4",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "BBN",
+      "sortText": "ABN",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Type3",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AAM",
+      "insertText": "Type3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Type1",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "AAI",
+      "insertText": "Type1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -333,7 +373,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "AG",
+      "sortText": "BG",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },

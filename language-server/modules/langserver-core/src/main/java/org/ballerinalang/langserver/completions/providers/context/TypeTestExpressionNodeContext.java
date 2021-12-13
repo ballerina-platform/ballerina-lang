@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -28,11 +29,13 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -171,29 +174,25 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         if (typeSymbol.isEmpty()) {
             super.sort(context, node, completionItems);
         }
-        List<String> typeNames;
-        if (typeSymbol.get().typeKind() == TypeDescKind.UNION) {
-            typeNames = ((UnionTypeSymbol) typeSymbol.get()).memberTypeDescriptors().stream()
-                    .map(type -> {
-                        if (type.getName().isEmpty()) {
-                            return type.typeKind().getName();
-                        }
-                        return isQualifiedTypeReference(context, type) ?
-                                getQualifiedSymbolReference(type) : type.getName().get();
-                    }).collect(Collectors.toList());
-        } else {
-            typeNames = List.of(typeSymbol.get().typeKind().getName());
-        }
+
         completionItems.forEach(lsCItem -> {
-            String sortText;
-            if (typeNames.contains(lsCItem.getCompletionItem().getInsertText())) {
-                sortText = SortingUtil.genSortText(1) +
-                        SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
-            } else {
-                sortText = SortingUtil.genSortText(2) +
-                        SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+            int rank = 2;
+            if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                Optional<TypeSymbol> tSymbol = ((SymbolCompletionItem) lsCItem).getSymbol()
+                        .filter(symbol -> CommonUtil.typesFilter().test(symbol) || symbol.kind() == SymbolKind.TYPE)
+                        .flatMap(SymbolUtil::getTypeDescriptor);
+                if (tSymbol.isPresent() && tSymbol.get().subtypeOf(typeSymbol.get())) {
+                    rank = 1;
+                }
             }
-            lsCItem.getCompletionItem().setSortText(sortText);
+            if (lsCItem.getType() == LSCompletionItem.CompletionItemType.TYPE) {
+                Optional<TypeSymbol> tSymbol = ((TypeCompletionItem) lsCItem).getTypeSymbol();
+                if (tSymbol.isPresent() && tSymbol.get().subtypeOf(typeSymbol.get())) {
+                    rank = 1;
+                }
+            }
+            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
+                    SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
         });
     }
 }

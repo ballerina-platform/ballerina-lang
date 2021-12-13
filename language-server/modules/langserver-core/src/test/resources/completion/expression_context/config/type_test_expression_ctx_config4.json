@@ -15,7 +15,7 @@
           "value": ""
         }
       },
-      "sortText": "BD",
+      "sortText": "AD",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "BD",
+      "sortText": "AD",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": ""
         }
       },
-      "sortText": "BE",
+      "sortText": "AE",
       "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
     },

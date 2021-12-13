@@ -12,7 +12,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "BBM",
+      "sortText": "ABM",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -342,7 +342,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "AG",
+      "sortText": "BG",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
