@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test implementation to validate expression evaluator functionality against Ballerina dependency sources.
+ */
 public class DependencyEvaluationTest extends BaseTestCase {
 
     protected DebugTestRunner debugTestRunner;
@@ -38,13 +41,13 @@ public class DependencyEvaluationTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
-    protected void prepareForEvaluation() throws BallerinaTestException {
+    @Test(description = "Test for expression evaluations against Ballerina lang library sources.")
+    protected void testEvaluationsOnLangLibs() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 18));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
+
         // Step into the lang-lib function
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
@@ -52,6 +55,7 @@ public class DependencyEvaluationTest extends BaseTestCase {
         Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
                 .endsWith("ballerina/lang.int/0.0.0/any/modules/lang.int/int.bal"));
 
+        // Evaluates various types of expressions on the Ballerina library source debug hit.
         debugTestRunner.assertExpression(debugHitInfo.getRight(), "n", "12", "int");
         debugTestRunner.assertExpression(debugHitInfo.getRight(), "n + n", "24", "int");
         debugTestRunner.assertExpression(debugHitInfo.getRight(), "n.toBalString()", "\"12\"", "string");
