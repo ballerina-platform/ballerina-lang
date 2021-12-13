@@ -164,10 +164,10 @@ public class FieldCompletionItemBuilder {
     }
     
     public static boolean hasNilType(RecordFieldSymbol recordFieldSymbol) {
-        if(recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.NIL) {
+        if (recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.NIL) {
             return true;
         }
-        
+
         if (recordFieldSymbol.typeDescriptor().typeKind() != TypeDescKind.UNION) {
             return false;
         }
