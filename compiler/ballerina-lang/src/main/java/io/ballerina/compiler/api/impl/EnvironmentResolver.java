@@ -132,7 +132,6 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-
         for (TopLevelNode node : compUnit.getTopLevelNodes()) {
             if (node.getKind() == NodeKind.FUNCTION && isWorkerOrLambdaFunction((BLangFunction) node)) {
                 continue;
