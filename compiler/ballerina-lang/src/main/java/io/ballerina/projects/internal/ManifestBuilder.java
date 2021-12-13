@@ -60,6 +60,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
@@ -177,16 +179,33 @@ public class ManifestBuilder {
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
                 icon = getStringValueFromTomlTableNode(pkgNode, "icon", "");
 
-                // validate icon path
-                if (icon != null) {
+                // validate icon path for only png files
+                // we ignore other file types here, since file type error will be shown
+                if (icon != null && hasPngExtension(icon)) {
                     Path iconPath = Paths.get(icon);
                     if (!iconPath.isAbsolute()) {
                         iconPath = this.projectPath.resolve(iconPath);
                     }
+
                     if (Files.notExists(iconPath)) {
+                        // validate icon path
+                        // if file path does not exist, throw this error
                         reportDiagnostic(pkgNode.entries().get("icon"),
                                 "could not locate icon path '" + icon + "'",
                                 "error.invalid.path", DiagnosticSeverity.ERROR);
+                    } else {
+                        // validate file content
+                        // if other file types renamed as png, throw this error
+                        try {
+                            if (!FileUtils.isValidPng(iconPath)) {
+                                reportDiagnostic(pkgNode.entries().get("icon"),
+                                        "invalid 'icon' under [package]: 'icon' can only have 'png' images",
+                                        "error.invalid.icon", DiagnosticSeverity.ERROR);
+                            }
+                        } catch (IOException e) {
+                            // should not reach to this line
+                            throw new ProjectException("failed to read icon: '" + icon + "'");
+                        }
                     }
                 }
             }
@@ -565,5 +584,18 @@ public class ManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
+    }
+
+    /**
+     * Check file name has {@code .png} extension.
+     *
+     * @param fileName file name
+     * @return has {@code .png} extension
+     */
+    private boolean hasPngExtension(String fileName) {
+        String pngExtensionPattern = ".*.png$";
+        Pattern pattern = Pattern.compile(pngExtensionPattern);
+        Matcher matcher = pattern.matcher(fileName);
+        return matcher.find();
     }
 }

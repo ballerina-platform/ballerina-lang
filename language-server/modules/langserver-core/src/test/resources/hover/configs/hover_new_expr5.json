@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 10,
+    "character": 18
+  },
+  "source": {
+    "file": "hover_new_expr5.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": ""
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

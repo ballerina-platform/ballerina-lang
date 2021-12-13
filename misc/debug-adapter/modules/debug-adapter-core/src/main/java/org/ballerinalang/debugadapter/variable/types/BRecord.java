@@ -43,7 +43,7 @@ public class BRecord extends NamedCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            return isAnonymous() ? "anonymous" : VariableUtils.getBType(jvmValue);
+            return isAnonymous() ? "anonymous" : VariableUtils.getRecordBType(jvmValue);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }

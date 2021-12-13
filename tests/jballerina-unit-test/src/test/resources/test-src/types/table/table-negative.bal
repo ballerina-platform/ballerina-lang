@@ -246,3 +246,26 @@ function variableNameFieldAsKeyField() {
         {id, name: "Alex"}
     ];
 }
+
+function testTableConstructorWithVar() {
+    string s1 = "id";
+    string s2 = "employed";
+
+    var v1 = table [
+            {name: "Jo"},
+            {[s1] : 2},
+            {[s2] : false}
+        ];
+
+    table<record {|string name?;|}> _ = v1;
+
+    map<int> m = {name: 1, b: 2};
+
+    var v2 = table [
+        {name: "Jo"},
+        {...m}
+    ];
+
+    table<record {|string name?;|}> _ = v2;
+    table<record {|string|int name?;|}> _ = v2;
+}

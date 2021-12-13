@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -436,7 +436,7 @@ public class JvmDesugarPhase {
         if (encodedVsInitialIds.containsKey(identifier)) {
             return identifier;
         }
-        String encodedString = IdentifierUtils.encodeFunctionIdentifier(identifier);
+        String encodedString = Utils.encodeFunctionIdentifier(identifier);
         encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }
@@ -445,7 +445,7 @@ public class JvmDesugarPhase {
         if (encodedVsInitialIds.containsKey(identifier)) {
             return identifier;
         }
-        String encodedString = IdentifierUtils.encodeNonFunctionIdentifier(identifier);
+        String encodedString = Utils.encodeNonFunctionIdentifier(identifier);
         encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }
