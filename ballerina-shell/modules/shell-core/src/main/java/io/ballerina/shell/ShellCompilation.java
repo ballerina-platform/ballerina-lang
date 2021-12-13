@@ -30,16 +30,16 @@ import java.util.Optional;
  */
 public class ShellCompilation {
 
-    private final Optional<PackageCompilation> packageCompilation;
+    private final PackageCompilation packageCompilation;
     private final Enum<ExceptionStatus> exceptionStatus;
 
-    ShellCompilation(Optional<PackageCompilation> packageCompilation, Enum<ExceptionStatus> exceptionStatus) {
+    ShellCompilation(PackageCompilation packageCompilation, Enum<ExceptionStatus> exceptionStatus) {
         this.packageCompilation = packageCompilation;
         this.exceptionStatus = exceptionStatus;
     }
 
     public Optional<PackageCompilation> getPackageCompilation() {
-        return packageCompilation;
+        return Optional.ofNullable(packageCompilation);
     }
 
     public Enum<ExceptionStatus> getExceptionStatus() {

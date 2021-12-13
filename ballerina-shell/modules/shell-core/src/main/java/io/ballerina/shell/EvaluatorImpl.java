@@ -63,35 +63,26 @@ class EvaluatorImpl extends Evaluator {
 
     public ShellCompilation getCompilation(String source) {
         PackageCompilation compilation;
+        ExceptionStatus exceptionStatus;
         try {
             Collection<Node> nodes = treeParser.parseString(source);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
             compilation = invoker.getCompilation(snippets);
-            addAllDiagnostics(treeParser.diagnostics());
-            addAllDiagnostics(snippetFactory.diagnostics());
-            addAllDiagnostics(invoker.diagnostics());
-            treeParser.resetDiagnostics();
-            snippetFactory.resetDiagnostics();
-            invoker.resetDiagnostics();
-            return new ShellCompilation(Optional.ofNullable(compilation), ExceptionStatus.SUCCESS);
+            exceptionStatus = ExceptionStatus.SUCCESS;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(compilation, exceptionStatus);
         } catch (TreeParserException e) {
-            addAllDiagnostics(treeParser.diagnostics());
-            treeParser.resetDiagnostics();
-            return new ShellCompilation(Optional.empty(), ExceptionStatus.TREE_PARSER_FAILED);
+            exceptionStatus = ExceptionStatus.TREE_PARSER_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(null, exceptionStatus);
         } catch (SnippetException e) {
-            addAllDiagnostics(treeParser.diagnostics());
-            addAllDiagnostics(snippetFactory.diagnostics());
-            snippetFactory.resetDiagnostics();
-            treeParser.resetDiagnostics();
-            return new ShellCompilation(Optional.empty(), ExceptionStatus.SNIPPET_FAILED);
+            exceptionStatus = ExceptionStatus.SNIPPET_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(null, exceptionStatus);
         } catch (InvokerException e) {
-            addAllDiagnostics(treeParser.diagnostics());
-            addAllDiagnostics(snippetFactory.diagnostics());
-            addAllDiagnostics(invoker.diagnostics());
-            snippetFactory.resetDiagnostics();
-            treeParser.resetDiagnostics();
-            invoker.resetDiagnostics();
-            return new ShellCompilation(Optional.empty(), ExceptionStatus.INVOKER_FAILED);
+            exceptionStatus = ExceptionStatus.INVOKER_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(null, exceptionStatus);
         }
     }
 
@@ -151,5 +142,28 @@ class EvaluatorImpl extends Evaluator {
         invoker.resetDiagnostics();
         this.resetDiagnostics();
         invoker.reset();
+    }
+
+    private void clearDiagnostics(ExceptionStatus exceptionStatus) {
+        switch (exceptionStatus) {
+            case TREE_PARSER_FAILED:
+                addAllDiagnostics(treeParser.diagnostics());
+                treeParser.resetDiagnostics();
+                break;
+            case SNIPPET_FAILED:
+                addAllDiagnostics(treeParser.diagnostics());
+                addAllDiagnostics(snippetFactory.diagnostics());
+                snippetFactory.resetDiagnostics();
+                treeParser.resetDiagnostics();
+                break;
+            default:
+                addAllDiagnostics(treeParser.diagnostics());
+                addAllDiagnostics(snippetFactory.diagnostics());
+                addAllDiagnostics(invoker.diagnostics());
+                snippetFactory.resetDiagnostics();
+                treeParser.resetDiagnostics();
+                invoker.resetDiagnostics();
+                break;
+        }
     }
 }
