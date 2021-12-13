@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -1021,8 +1022,8 @@ public class BIRPackageSymbolEnter {
             Name name = names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
 
-            // read and ignore type flags. These are only needed for runtime.
-            inputStream.readInt();
+            // Read the type flags to identify if type reference types are nullable.
+            int typeFlags = inputStream.readInt();
 
             switch (tag) {
                 case TypeTags.INT:
@@ -1155,7 +1156,10 @@ public class BIRPackageSymbolEnter {
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
-                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags);
+
+                    boolean nullable = (typeFlags & TypeFlags.NILABLE) == TypeFlags.NILABLE;
+
+                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags, nullable);
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.referredType = readTypeFromCp();

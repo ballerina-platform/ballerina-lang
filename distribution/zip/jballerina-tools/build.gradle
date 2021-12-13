@@ -122,6 +122,7 @@ dependencies {
     dist project(':ballerina-shell:shell-cli')
     dist project(':compiler-plugins:package-semantic-analyzer')
     dist project(':compiler-plugins:configurable-schema-generator')
+    dist project(':identifier-util')
 
     datamapperLib project(':ballerinalang-data-mapper')
 

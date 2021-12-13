@@ -99,14 +99,14 @@ class DocumentContext {
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
+        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
+        SyntaxTree syntaxTree = syntaxTree();
+        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
+
         nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
             return nodeCloner.cloneCUnit(compilationUnit);
         }
-        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
-
-        SyntaxTree syntaxTree = syntaxTree();
-        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
         BLangNodeBuilder bLangNodeBuilder = new BLangNodeBuilder(compilerContext, pkgID, this.name);
         compilationUnit = (BLangCompilationUnit) bLangNodeBuilder.accept(syntaxTree.rootNode()).get(0);
         compilationUnit.setSourceKind(sourceKind);

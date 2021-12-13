@@ -792,17 +792,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+
         analyzeNode(whileNode.expr, env);
-        analyzeNode(whileNode.body, env);
+        BranchResult whileResult = analyzeBranch(whileNode.body, env);
+
         if (whileNode.onFailClause != null) {
             analyzeNode(whileNode.onFailClause, env);
         }
 
-        for (BSymbol symbol : prevUninitializedVars.keySet()) {
-            if (!this.uninitializedVars.containsKey(symbol)) {
-                this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
-            }
+        BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
+
+        if (constCondition == symTable.falseType) {
+            this.uninitializedVars = prevUninitializedVars;
+            return;
         }
+
+        if (whileResult.flowTerminated || constCondition == symTable.trueType) {
+            this.uninitializedVars = whileResult.uninitializedVars;
+            return;
+        }
+
+        this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
     }
 
     @Override
@@ -1708,11 +1718,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
         BTypeSymbol tsymbol = resolvedType.tsymbol;
-        BSymbol pop = this.currDependentSymbolDeque.pop();
-        this.currDependentSymbolDeque.push(tsymbol);
-        recordGlobalVariableReferenceRelationship(pop);
-        this.currDependentSymbolDeque.pop();
-        this.currDependentSymbolDeque.push(pop);
+        recordGlobalVariableReferenceRelationship(tsymbol);
     }
 
     @Override
