@@ -3553,6 +3553,18 @@
                     "type": "TypeDescriptorNode"
                 },
                 {
+                    "name": "dimensions",
+                    "type": "ArrayDimensionNode",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "ArrayDimensionNode",
+            "base": "Node",
+            "kind": "ARRAY_DIMENSION",
+            "attributes": [
+                {
                     "name": "openBracket",
                     "type": "Token"
                 },

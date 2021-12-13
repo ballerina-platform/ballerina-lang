@@ -8396,8 +8396,26 @@ public class BallerinaParser extends AbstractParser {
                     arrayLengthNode = STNodeFactory.createEmptyNode();
             }
         }
-        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, openBracketToken, arrayLengthNode,
+        
+        // If the member type desc is an array type desc flatten the dimensions
+        List<STNode> arrayDimensions = new ArrayList();
+        if (memberTypeDesc.kind == SyntaxKind.ARRAY_TYPE_DESC) {
+            STArrayTypeDescriptorNode innerArrayType = (STArrayTypeDescriptorNode) memberTypeDesc;
+            STNode innerArrayDimensions = innerArrayType.dimensions;
+            int dimensionCount = innerArrayDimensions.bucketCount();
+            
+            for (int i = 0; i < dimensionCount; i++) {
+                arrayDimensions.add(innerArrayDimensions.childInBucket(i));
+            }
+            memberTypeDesc = innerArrayType.memberTypeDesc;
+        }
+        
+        STNode arrayDimension = STNodeFactory.createArrayDimensionNode(openBracketToken, arrayLengthNode, 
                 closeBracketToken);
+        arrayDimensions.add(arrayDimension);
+        STNode arrayDimensionNode = STNodeFactory.createNodeList(arrayDimensions);
+        
+        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, arrayDimensionNode);
     }
 
     /**
@@ -18342,8 +18360,7 @@ public class BallerinaParser extends AbstractParser {
             case ARRAY_TYPE_DESC:
                 STArrayTypeDescriptorNode arrayTypeDesc = (STArrayTypeDescriptorNode) typeDesc;
                 STNode newMemberType = mergeQualifiedNameWithTypeDesc(qualifiedName, arrayTypeDesc.memberTypeDesc);
-                return createArrayTypeDesc(newMemberType, arrayTypeDesc.openBracket, arrayTypeDesc.arrayLength,
-                        arrayTypeDesc.closeBracket);
+                return STNodeFactory.createArrayTypeDescriptorNode(newMemberType, arrayTypeDesc.dimensions);
             case UNION_TYPE_DESC:
                 STUnionTypeDescriptorNode unionTypeDesc = (STUnionTypeDescriptorNode) typeDesc;
                 STNode newlhsType = mergeQualifiedNameWithTypeDesc(qualifiedName, unionTypeDesc.leftTypeDesc);

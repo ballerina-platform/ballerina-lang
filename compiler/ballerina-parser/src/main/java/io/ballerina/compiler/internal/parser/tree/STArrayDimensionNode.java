@@ -17,7 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
-import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -30,56 +30,66 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
-    public final STNode memberTypeDesc;
-    public final STNode dimensions;
+public class STArrayDimensionNode extends STNode {
+    public final STNode openBracket;
+    public final STNode arrayLength;
+    public final STNode closeBracket;
 
-    STArrayTypeDescriptorNode(
-            STNode memberTypeDesc,
-            STNode dimensions) {
+    STArrayDimensionNode(
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket) {
         this(
-                memberTypeDesc,
-                dimensions,
+                openBracket,
+                arrayLength,
+                closeBracket,
                 Collections.emptyList());
     }
 
-    STArrayTypeDescriptorNode(
-            STNode memberTypeDesc,
-            STNode dimensions,
+    STArrayDimensionNode(
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.ARRAY_TYPE_DESC, diagnostics);
-        this.memberTypeDesc = memberTypeDesc;
-        this.dimensions = dimensions;
+        super(SyntaxKind.ARRAY_DIMENSION, diagnostics);
+        this.openBracket = openBracket;
+        this.arrayLength = arrayLength;
+        this.closeBracket = closeBracket;
 
         addChildren(
-                memberTypeDesc,
-                dimensions);
+                openBracket,
+                arrayLength,
+                closeBracket);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STArrayTypeDescriptorNode(
-                this.memberTypeDesc,
-                this.dimensions,
+        return new STArrayDimensionNode(
+                this.openBracket,
+                this.arrayLength,
+                this.closeBracket,
                 diagnostics);
     }
 
-    public STArrayTypeDescriptorNode modify(
-            STNode memberTypeDesc,
-            STNode dimensions) {
+    public STArrayDimensionNode modify(
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket) {
         if (checkForReferenceEquality(
-                memberTypeDesc,
-                dimensions)) {
+                openBracket,
+                arrayLength,
+                closeBracket)) {
             return this;
         }
 
-        return new STArrayTypeDescriptorNode(
-                memberTypeDesc,
-                dimensions,
+        return new STArrayDimensionNode(
+                openBracket,
+                arrayLength,
+                closeBracket,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ArrayTypeDescriptorNode(this, position, parent);
+        return new ArrayDimensionNode(this, position, parent);
     }
 
     @Override
