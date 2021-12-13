@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 4,
-    "character": 32
+    "character": 28
   },
-  "source": "expression_context/source/conditional_expr_ctx_source5.bal",
+  "source": "expression_context/source/conditional_expr_ctx_source11.bal",
   "items": [
     {
       "label": "ENUM1_FIELD1",

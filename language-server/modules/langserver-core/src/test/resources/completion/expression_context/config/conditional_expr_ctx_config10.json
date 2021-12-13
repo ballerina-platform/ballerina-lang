@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 4,
-    "character": 24
+    "character": 26
   },
-  "source": "expression_context/source/conditional_expr_ctx_source3.bal",
+  "source": "expression_context/source/conditional_expr_ctx_source10.bal",
   "items": [
     {
       "label": "module1",
@@ -13,30 +13,6 @@
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "test",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
     },
     {
       "label": "ballerina/lang.array",
@@ -426,21 +402,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "name()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "G",
-      "filterText": "name",
-      "insertText": "name()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -530,6 +491,57 @@
       "sortText": "U",
       "filterText": "null",
       "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "test",
+      "insertText": "test1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test as test1 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "name(boolean test)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `boolean` test"
+        }
+      },
+      "sortText": "G",
+      "filterText": "name",
+      "insertText": "name(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "test",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "F",
+      "insertText": "test",
       "insertTextFormat": "Snippet"
     }
   ]

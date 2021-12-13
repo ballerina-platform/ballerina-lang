@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 4,
-    "character": 24
+    "character": 26
   },
-  "source": "expression_context/source/conditional_expr_ctx_source3.bal",
+  "source": "expression_context/source/conditional_expr_ctx_source8.bal",
   "items": [
     {
       "label": "module1",
@@ -346,6 +346,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -418,11 +427,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "R",
-      "insertText": "Thread",
+      "label": "n",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "n",
       "insertTextFormat": "Snippet"
     },
     {
@@ -441,17 +450,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "Q",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "flag",
       "kind": "Variable",
       "detail": "boolean",
@@ -460,11 +458,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "n",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "n",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "R",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "Q",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -521,15 +530,6 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "null",
-      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 4,
-    "character": 32
+    "character": 27
   },
-  "source": "expression_context/source/conditional_expr_ctx_source5.bal",
+  "source": "expression_context/source/conditional_expr_ctx_source7.bal",
   "items": [
     {
       "label": "ENUM1_FIELD1",
@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "AC",
+      "sortText": "AB",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": ""
         }
       },
-      "sortText": "G",
+      "sortText": "F",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -175,7 +175,7 @@
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
-      "sortText": "G",
+      "sortText": "F",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
@@ -189,7 +189,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "G",
       "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
@@ -204,7 +204,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "G",
       "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
@@ -219,7 +219,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "AA",
+      "sortText": "AC",
       "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
@@ -238,7 +238,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
-      "sortText": "E",
+      "sortText": "G",
       "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
@@ -251,7 +251,7 @@
       "label": "TEST_FUTURE_INT",
       "kind": "Variable",
       "detail": "future<int>",
-      "sortText": "G",
+      "sortText": "F",
       "insertText": "TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
     }
