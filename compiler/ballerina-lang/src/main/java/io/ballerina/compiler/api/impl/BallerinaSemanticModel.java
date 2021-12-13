@@ -405,7 +405,9 @@ public class BallerinaSemanticModel implements SemanticModel {
             return false;
         }
 
-        if (symbol.owner.getKind() == SymbolKind.PACKAGE || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+        if (symbol.owner.getKind() == SymbolKind.OBJECT
+                || symbol.owner.getKind() == SymbolKind.PACKAGE
+                || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
             return true;
         }
 
