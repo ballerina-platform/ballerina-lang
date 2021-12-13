@@ -75,6 +75,8 @@ public class BIRBinaryWriter {
 
         //Write import module declarations
         writeImportModuleDecls(birbuf, birPackage.importModules);
+        // Write annotations
+        writeAnnotations(birbuf, typeWriter, birPackage.annotations);
         // Write constants
         writeConstants(birbuf, birPackage.constants);
         // Write type defs
@@ -85,8 +87,6 @@ public class BIRBinaryWriter {
         writeTypeDefBodies(birbuf, typeWriter, birPackage.typeDefs);
         // Write functions
         writeFunctions(birbuf, typeWriter, birPackage.functions);
-        // Write annotations
-        writeAnnotations(birbuf, typeWriter, birPackage.annotations);
         // Write service declarations
         writeServiceDeclarations(birbuf, birPackage.serviceDecls);
 
