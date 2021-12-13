@@ -5521,7 +5521,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr, isInConditionalExpr);
                 break;
             case QUESTION_MARK_TOKEN:
-                newLhsExpr = parseConditionalExpression(lhsExpr);
+                newLhsExpr = parseConditionalExpression(lhsExpr, isInConditionalExpr);
                 break;
             case DOT_LT_TOKEN:
                 newLhsExpr = parseXMLFilterExpression(lhsExpr);
@@ -12971,62 +12971,96 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>conditional-expr := expression ? expression : expression</code>
      *
-     * @param lhsExpr Preceding expression of the question mark
+     * @param lhsExpr             Preceding expression of the question mark
+     * @param isInConditionalExpr whether calling from a conditional-expr
      * @return Parsed node
      */
-    private STNode parseConditionalExpression(STNode lhsExpr) {
+    private STNode parseConditionalExpression(STNode lhsExpr, boolean isInConditionalExpr) {
         startContext(ParserRuleContext.CONDITIONAL_EXPRESSION);
         STNode questionMark = parseQuestionMark();
         // start parsing middle-expr, by giving higher-precedence to the middle-expr, over currently
         // parsing conditional expr. That is done by lowering the current precedence.
         STNode middleExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false, true);
 
+        // There are special cases when the nextToken is not `:`. Any expression that contains qualified name ref at
+        // the beginning or at the end, is a possible match for conditionalExpr.
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            // There are special cases when the nextToken is not `:`. Any expression that contains qualified name ref at
-            // the beginning or at the end, is a possible match for conditionalExpr.
+            if (middleExpr.kind == SyntaxKind.CONDITIONAL_EXPRESSION) {
+                STConditionalExpressionNode innerConditionalExpr = (STConditionalExpressionNode) middleExpr;
+                STNode innerMiddleExpr = innerConditionalExpr.middleExpression;
+
+                // eg1 `a? b? c:d:e` reaches here as `a? (b? (c:d) : e)`
+                // eg2 `a? b? c:d.e:f` reaches here as `a? (b? (c:d.e) : f)`
+                // eg3 `a? b? c.d:e:f` reaches here as `a? (b? (c.d:e) : f)`
+                STNode rightMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(innerMiddleExpr, false);
+                if (rightMostQNameRef != null) {
+                    middleExpr = generateConditionalExprForRightMost(innerConditionalExpr.lhsExpression,
+                            innerConditionalExpr.questionMarkToken, innerMiddleExpr, rightMostQNameRef);
+                    endContext();
+                    return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr,
+                            innerConditionalExpr.colonToken, innerConditionalExpr.endExpression);
+                }
+
+                STNode leftMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(innerMiddleExpr, true);
+                if (leftMostQNameRef != null) {
+                    middleExpr = generateConditionalExprForLeftMost(innerConditionalExpr.lhsExpression,
+                            innerConditionalExpr.questionMarkToken, innerMiddleExpr, leftMostQNameRef);
+                    endContext();
+                    return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr,
+                            innerConditionalExpr.colonToken, innerConditionalExpr.endExpression);
+                }
+            }
 
             // eg1. `a ? b : c`, since `b:c` matches to var-ref due to expr-precedence.
             // eg2. `a ? b : c()`, since `b:c()` matches to func-call due to expr-precedence.
             // eg3. `a ? <TargetType> b : c` since `b:c` matches to var-ref due to expr-precedence.
-            STNode leftMostQualifiedNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, true);
-            if (leftMostQualifiedNameRef != null) {
-                STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) leftMostQualifiedNameRef;
-                STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
-                STNode endExpr = middleExpr.replace(leftMostQualifiedNameRef, simpleNameRef);
-
-                middleExpr = ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
-                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, middleExpr, endExpr);
+            STNode rightMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, false);
+            if (rightMostQNameRef != null) {
+                endContext();
+                return generateConditionalExprForRightMost(lhsExpr, questionMark, middleExpr, rightMostQNameRef);
             }
 
-            STNode rightMostQualifiedNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, false);
-            if (rightMostQualifiedNameRef != null) {
-                STQualifiedNameReferenceNode qualifiedNameRef =
-                        (STQualifiedNameReferenceNode) rightMostQualifiedNameRef;
-                STNode endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
-
-                STNode simpleNameRef =
-                        ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
-                middleExpr = middleExpr.replace(rightMostQualifiedNameRef, simpleNameRef);
-                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, middleExpr, endExpr);
+            STNode leftMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, true);
+            if (leftMostQNameRef != null) {
+                endContext();
+                return generateConditionalExprForLeftMost(lhsExpr, questionMark, middleExpr, leftMostQNameRef);
             }
         }
 
-        return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr);
+        return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr, isInConditionalExpr);
     }
 
-    private STNode parseConditionalExprRhs(STNode lhsExpr, STNode questionMark, STNode middleExpr) {
+    private STNode generateConditionalExprForRightMost(STNode lhsExpr, STNode questionMark, STNode middleExpr,
+                                                       STNode rightMostQualifiedNameRef) {
+        STQualifiedNameReferenceNode qualifiedNameRef =
+                (STQualifiedNameReferenceNode) rightMostQualifiedNameRef;
+        STNode endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+
+        STNode simpleNameRef =
+                ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
+        middleExpr = middleExpr.replace(rightMostQualifiedNameRef, simpleNameRef);
+        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, qualifiedNameRef.colon,
+                endExpr);
+    }
+
+    private STNode generateConditionalExprForLeftMost(STNode lhsExpr, STNode questionMark, STNode middleExpr,
+                                                      STNode leftMostQualifiedNameRef) {
+        STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) leftMostQualifiedNameRef;
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+        STNode endExpr = middleExpr.replace(leftMostQualifiedNameRef, simpleNameRef);
+        middleExpr = ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
+        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, qualifiedNameRef.colon,
+                endExpr);
+    }
+
+    private STNode parseConditionalExprRhs(STNode lhsExpr, STNode questionMark, STNode middleExpr,
+                                           boolean isInConditionalExpr) {
         STNode colon = parseColon();
         endContext();
         // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
         // parsing conditional expr. That is done by lowering the current precedence.
-        STNode endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false);
-        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
-    }
-
-    private STNode generateConditionalExpr(STNode lhsExpr, STQualifiedNameReferenceNode qualifiedNameRef,
-                                           STNode questionMark, STNode middleExpr, STNode endExpr) {
-        STNode colon = qualifiedNameRef.colon;
-        endContext();
+        STNode endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false,
+                isInConditionalExpr);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
     }
 

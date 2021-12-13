@@ -69,7 +69,7 @@ public class ConditionalExprResolver {
      * Check whether an identifier is a valid SimpleNameRef.
      * Predeclared prefixes which are not a BuiltinSimpleNameReference is not valid as SimpleNameRef.
      *
-     * @param modulePrefixIdentifier
+     * @param modulePrefixIdentifier module prefix identifier
      * @return <code>true</code> if modulePrefixIdentifier text is Valid Simple NameRef
      */
     private static boolean isValidSimpleNameRef(STToken modulePrefixIdentifier) {
