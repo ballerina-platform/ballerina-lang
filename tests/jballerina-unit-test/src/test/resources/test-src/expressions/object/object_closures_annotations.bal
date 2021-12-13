@@ -20,6 +20,13 @@ function createService(string hosty, decimal maxAgeMy, boolean allowCredentials)
             // hostRecField : hosty
         }
         final string xField = hosty;
+
+        @HSCfm {
+                    hostRecField : hosty
+                }
+                public function getSum() returns int {
+                    return 1 + 3;
+                }
     };
 
     return httpService;
