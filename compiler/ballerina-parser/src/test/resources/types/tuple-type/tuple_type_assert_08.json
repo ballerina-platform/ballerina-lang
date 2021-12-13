@@ -308,10 +308,20 @@
                                       ]
                                     },
                                     {
-                                      "kind": "OPEN_BRACKET_TOKEN"
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "ARRAY_DIMENSION",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -507,10 +517,20 @@
                                               ]
                                             },
                                             {
-                                              "kind": "OPEN_BRACKET_TOKEN"
-                                            },
-                                            {
-                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "ARRAY_DIMENSION",
+                                                  "children": [
+                                                    {
+                                                      "kind": "OPEN_BRACKET_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
