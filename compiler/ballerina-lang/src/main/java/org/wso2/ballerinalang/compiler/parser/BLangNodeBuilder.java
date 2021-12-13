@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
@@ -3488,14 +3489,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        int dimensions = 1;
         List<BLangExpression> sizes = new ArrayList<>();
         Location position = getPosition(arrayTypeDescriptorNode);
-        while (true) {
-            if (arrayTypeDescriptorNode.arrayLength().isEmpty()) {
+        NodeList<ArrayDimensionNode> dimensionNodes = arrayTypeDescriptorNode.dimensions();
+        int dimensionSize = dimensionNodes.size();
+        
+        for (int i = dimensionSize - 1; i >= 0; i--) {
+            ArrayDimensionNode dimensionNode = dimensionNodes.get(i);
+            if (dimensionNode.arrayLength().isEmpty()) {
                 sizes.add(new BLangLiteral(OPEN_ARRAY_INDICATOR, symTable.intType));
             } else {
-                Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
+                Node keyExpr = dimensionNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
                     int length = 0;
                     long lengthCheck = 0;
@@ -3508,11 +3512,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                             lengthCheck = Long.parseLong(literalToken.text().substring(2), 16);
                         }
                     } catch (NumberFormatException e) {
-                        dlog.error(((Node) literalToken).location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
+                        dlog.error((literalToken).location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     }
 
                     if (lengthCheck > MAX_ARRAY_SIZE) {
-                        dlog.error(((Node) literalToken).location(),
+                        dlog.error((literalToken).location(),
                                 DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
                     } else {
                         length = (int) lengthCheck;
@@ -3524,19 +3528,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     sizes.add(createExpression(keyExpr));
                 }
             }
-
-            if (arrayTypeDescriptorNode.memberTypeDesc().kind() != SyntaxKind.ARRAY_TYPE_DESC) {
-                break;
-            }
-
-            arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) arrayTypeDescriptorNode.memberTypeDesc();
-            dimensions++;
         }
 
         BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
         arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
-        arrayTypeNode.dimensions = dimensions;
+        arrayTypeNode.dimensions = dimensionSize;
         arrayTypeNode.sizes = sizes;
         return arrayTypeNode;
     }
