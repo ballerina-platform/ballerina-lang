@@ -2819,6 +2819,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                     defineMemberNode(value, env, restType);
                 }
                 continue;
+            } else {
+                if (Symbols.isOptional(recordVarTypeFields.get(variable.key.value).symbol)) {
+                    validRecord = false;
+                    dlog.error(variable.key.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
+                }
             }
             defineMemberNode(value, env, recordVarTypeFields.get((variable.getKey().getValue())).type);
         }

@@ -1198,8 +1198,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, env));
         }
 
-        validateBindingPatternForVariableRecord (varNode.variableList,
-                varNode.typeNode.getBType(), varNode.pos);
+        validateBindingPatternForVariableRecord (varNode, varNode.typeNode.getBType(), varNode.pos);
 
         int ownerSymTag = env.scope.owner.tag;
         // If this is a module record variable, checkTypeAndVarCountConsistency already done at symbolEnter.
@@ -1524,18 +1523,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 tupleVariable.setBType(rhsType);
 
-
-                if (rhsType.tag == TypeTags.ARRAY) {
-                    BArrayType arrayType = (BArrayType) rhsType;
-                    for (BLangVariable memVar: tupleVariable.memberVariables) {
-                        if (memVar.getKind() == NodeKind.RECORD_VARIABLE) {
-                            BLangRecordVariable recordVariable = (BLangRecordVariable) memVar;
-                            validateBindingPatternForVariableRecord (recordVariable.variableList, arrayType.eType,
-                                    varRefExpr.pos);
-                        }
-                    }
-                }
-
                 if (!(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable, env))) {
                     tupleVariable.setBType(symTable.semanticError);
                     return;
@@ -1552,9 +1539,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                validateBindingPatternForVariableRecord (((BLangRecordVariable) variable).variableList, rhsType,
-                        varRefExpr.pos);
-
                 BType recordRhsType = types.getReferredType(rhsType);
                 if (TypeTags.RECORD != recordRhsType.tag && TypeTags.MAP != recordRhsType.tag
                         && TypeTags.JSON != recordRhsType.tag) {
@@ -1564,6 +1548,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.setBType(rhsType);
+
+                validateBindingPatternForVariableRecord (((BLangRecordVariable) variable), rhsType,
+                        varRefExpr.pos);
 
                 if (!this.symbolEnter.symbolEnterAndValidateRecordVariable(recordVariable, env)) {
                     recordVariable.setBType(symTable.semanticError);
@@ -1962,28 +1949,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                      recordDeStmt.expr.pos);
     }
 
-    private void validateBindingPatternForVariableRecord(List<BLangRecordVariable.BLangRecordVariableKeyValue> fields,
+    private void validateBindingPatternForVariableRecord(BLangRecordVariable recordVar,
                                                          BType type, Location pos) {
         type = types.getReferredType(type);
 
         if (type.tag == TypeTags.MAP) {
-            dlog.error(pos, DiagnosticErrorCode.INVALID_MAPPING_BINDING_PATTERN_WITH_MAP_EXPRESSION);
+            for (BLangRecordVariable.BLangRecordVariableKeyValue lhsField : recordVar.variableList) {
+                dlog.error(lhsField.key.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
+            }
             return;
         }
         if (type.tag != TypeTags.RECORD) {
             return;
         }
         BRecordType recordType = (BRecordType) type;
-        for (BLangRecordVariable.BLangRecordVariableKeyValue lhsField : fields) {
+        for (BLangRecordVariable.BLangRecordVariableKeyValue lhsField : recordVar.variableList) {
             if (recordType.fields.containsKey(lhsField.key.value)) {
                 if (Symbols.isOptional(recordType.fields.get(lhsField.key.value).symbol)) {
+                    dlog.error(lhsField.key.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
+                }
+            } else {
+                if (!recordType.sealed) {
                     dlog.error(lhsField.key.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
                 }
             }
             if (lhsField.valueBindingPattern.getKind() == NodeKind.RECORD_VARIABLE) {
                 BLangRecordVariable recordVariable = (BLangRecordVariable) lhsField.valueBindingPattern;
                 BField fieldVal = recordType.fields.get(lhsField.key.value);
-                validateBindingPatternForVariableRecord(recordVariable.variableList, fieldVal.getType(), fieldVal.pos);
+                validateBindingPatternForVariableRecord(recordVariable, fieldVal.getType(), fieldVal.pos);
             }
         }
     }
@@ -1993,7 +1986,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         type = types.getReferredType(type);
 
         if (type.tag == TypeTags.MAP) {
-            dlog.error(pos, DiagnosticErrorCode.INVALID_MAPPING_BINDING_PATTERN_WITH_MAP_EXPRESSION);
+            for (BLangRecordVarRefKeyValue lhsField : fields) {
+                dlog.error(lhsField.variableName.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
+            }
             return;
         }
         if (type.tag != TypeTags.RECORD) {
