@@ -218,13 +218,13 @@ public class RecordVariableReferenceTest {
                 164, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 5);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid mapping binding pattern; cannot bind optional fields", 220, 27);
+                "invalid mapping binding pattern; can only bind required fields", 220, 27);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid mapping binding pattern; cannot bind optional fields", 226, 18);
+                "invalid mapping binding pattern; can only bind required fields", 226, 18);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid mapping binding pattern; cannot bind optional fields", 237, 19);
+                "invalid mapping binding pattern; can only bind required fields", 237, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid mapping binding pattern; cannot bind map expression", 243, 15);
+                "invalid mapping binding pattern; can only bind required fields", 243, 6);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

@@ -84,13 +84,13 @@ public class ModuleRecordVariableTest {
         validateError(compileResultNegetive, index++,
                 "invalid error binding pattern with type 'map<string>'", 53, 35);
         validateError(compileResultNegetive, index++,
-                "invalid mapping binding pattern; cannot bind optional fields", 75, 28);
+                "invalid mapping binding pattern; can only bind required fields", 75, 28);
         validateError(compileResultNegetive, index++,
-                "invalid mapping binding pattern; cannot bind optional fields", 77, 39);
+                "invalid mapping binding pattern; can only bind required fields", 77, 39);
         validateError(compileResultNegetive, index++,
-                "invalid mapping binding pattern; cannot bind optional fields", 91, 22);
+                "invalid mapping binding pattern; can only bind required fields", 91, 22);
         validateError(compileResultNegetive, index++,
-                "invalid mapping binding pattern; cannot bind optional fields", 91, 43);
+                "invalid mapping binding pattern; can only bind required fields", 91, 43);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
 
