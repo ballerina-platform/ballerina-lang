@@ -13,8 +13,16 @@ function testClosureVariableAsFieldValue() {
         int x = i;
     };
 
-    assertValueEquality(10, obj.x);
+    var objectWithInit = object {
+         int a = i;
+         function init() {
+             self.a = i;
+         }
+    };
+
     assertValueEquality(10, inferredObj.x);
+    assertValueEquality(10, obj.x);
+    assertValueEquality(10, objectWithInit.a);
 }
 
 function testClosureVariableAsFieldValueUsedInAttachedFunctions() {
