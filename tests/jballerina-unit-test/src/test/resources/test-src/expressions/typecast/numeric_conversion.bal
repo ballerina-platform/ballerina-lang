@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 //////////////////////// from float ////////////////////////
 function testFloatAsFloat(float f1) returns [boolean, float] {
     float s3 = <float> f1;
@@ -424,8 +426,13 @@ function testOutOfIntRangeNegativeDecimalInUnionAsInt() {
 
 function testNaNDecimalAsByte() {
     decimal d1 = 0.0;
-    decimal d2 = d1/0;
-    byte i = <byte> d2;
+    decimal|error d2 = trap d1/0d;
+    test:assertTrue(d2 is error);
+    error err = <error>d2;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    test:assertEquals(err.message(), "{ballerina}UnsupportedDecimalError");
+    test:assertEquals(messageString, "decimal operation resulting in unsupported value 'NaN'");
 }
 
 function testPositiveInfiniteDecimalAsByte() {
@@ -442,8 +449,13 @@ function testNegativeInfiniteDecimalAsByte() {
 
 function testNaNDecimalInUnionAsByte() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = d1/0d;
-    byte i = <byte> d2;
+    decimal|boolean|error d2 = trap d1 / 0d;
+    test:assertTrue(d2 is error);
+    error err = <error>d2;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    test:assertEquals(err.message(), "{ballerina}UnsupportedDecimalError");
+    test:assertEquals(messageString, "decimal operation resulting in unsupported value 'NaN'");
 }
 
 function testPositiveInfiniteDecimalInUnionAsByte() {
@@ -460,8 +472,13 @@ function testNegativeInfiniteDecimalInUnionAsByte() {
 
 function testNaNDecimalAsInt() {
     decimal d1 = 0.0;
-    decimal d2 = d1/0;
-    int i = <int> d2;
+    decimal|error d2 = trap d1/0d;
+    test:assertTrue(d2 is error);
+    error err = <error>d2;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    test:assertEquals(err.message(), "{ballerina}UnsupportedDecimalError");
+    test:assertEquals(messageString, "decimal operation resulting in unsupported value 'NaN'");
 }
 
 function testPositiveInfiniteDecimalAsInt() {
@@ -478,8 +495,13 @@ function testNegativeInfiniteDecimalAsInt() {
 
 function testNaNDecimalInUnionAsInt() {
     decimal d1 = 0.0;
-    decimal|boolean d2 = d1/0d;
-    int i = <int> d2;
+    decimal|boolean|error d2 = trap d1/0d;
+    test:assertTrue(d2 is error);
+    error err = <error>d2;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    test:assertEquals(err.message(), "{ballerina}UnsupportedDecimalError");
+    test:assertEquals(messageString, "decimal operation resulting in unsupported value 'NaN'");
 }
 
 function testPositiveInfiniteDecimalInUnionAsInt() {

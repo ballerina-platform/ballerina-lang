@@ -109,6 +109,8 @@ public class BallerinaErrorReasons {
     public static final BString ASYNC_CALL_INSIDE_LOCK =
             StringUtils.fromString(BALLERINA_PREFIX.concat("AsyncCallInsideLockError"));
     public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
+    public static final BString UNSUPPORTED_DECIMAL_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
+            "UnsupportedDecimalError"));
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

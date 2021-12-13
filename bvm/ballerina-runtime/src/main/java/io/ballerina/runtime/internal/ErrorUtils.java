@@ -174,4 +174,9 @@ public class ErrorUtils {
                 BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION_AMBIGUOUS_TARGET,
                         TypeChecker.getType(inputValue), targetType));
     }
+
+    public static BError createInvalidDecimalError(String value) {
+        throw createError(BallerinaErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_DECIMAL_VALUE, value));
+    }
 }

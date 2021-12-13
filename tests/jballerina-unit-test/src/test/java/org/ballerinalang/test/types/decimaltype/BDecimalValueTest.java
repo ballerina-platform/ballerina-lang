@@ -273,6 +273,11 @@ public class BDecimalValueTest {
         BRunUtil.invoke(result, "testDecimalFillerValue");
     }
 
+    @Test()
+    public void testInvalidDecimalValue() {
+        BRunUtil.invoke(result, "testInvalidDecimalValue");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
