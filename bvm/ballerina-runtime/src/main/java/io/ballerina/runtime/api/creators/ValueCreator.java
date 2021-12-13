@@ -21,6 +21,7 @@ package io.ballerina.runtime.api.creators;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -680,8 +681,20 @@ public class ValueCreator {
      *
      * @param mapType map type.
      * @return map value
+     * @deprecated use {@link #createMapValue(MapType)} instead
      */
+    @Deprecated
     public static BMap<BString, Object> createMapValue(Type mapType) {
+        return new MapValueImpl<>(mapType);
+    }
+
+    /**
+     * Create a runtime map value with given type.
+     *
+     * @param mapType map type.
+     * @return map value
+     */
+    public static BMap<BString, Object> createMapValue(MapType mapType) {
         return new MapValueImpl<>(mapType);
     }
 
@@ -691,8 +704,21 @@ public class ValueCreator {
      * @param mapType   map type.
      * @param keyValues initial map values to be populated.
      * @return map value
+     * @deprecated use {@link #createMapValue(MapType, BMapInitialValueEntry[])} instead
      */
+    @Deprecated
     public static BMap<BString, Object> createMapValue(Type mapType, BMapInitialValueEntry[] keyValues) {
+        return new MapValueImpl<>(mapType, keyValues);
+    }
+
+    /**
+     * Create a runtime map value with given initial values and given type.
+     *
+     * @param mapType   map type.
+     * @param keyValues initial map values to be populated.
+     * @return map value
+     */
+    public static BMap<BString, Object> createMapValue(MapType mapType, BMapInitialValueEntry[] keyValues) {
         return new MapValueImpl<>(mapType, keyValues);
     }
 
