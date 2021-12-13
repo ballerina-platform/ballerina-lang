@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -466,35 +467,41 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangClassDefinition classDefinition) {
-        SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
-        this.currDependentSymbolDeque.push(classDefinition.symbol);
+    public void visit(BLangClassDefinition classDef) {
+        SymbolEnv preEnv = env;
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            env = oceData.capturedClosureEnv;
+        }
+        SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
+        this.currDependentSymbolDeque.push(classDef.symbol);
 
-        classDefinition.fields.forEach(field -> analyzeNode(field, objectEnv));
-        classDefinition.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
+
+        classDef.fields.forEach(field -> analyzeNode(field, objectEnv));
+        classDef.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
 
         // Visit the constructor with the same scope as the object
-        if (classDefinition.initFunction != null) {
-            if (classDefinition.initFunction.body == null) {
+        if (classDef.initFunction != null) {
+            if (classDef.initFunction.body == null) {
                 // if the init() function is defined as an outside function definition
                 Optional<BLangFunction> outerFuncDef =
                         objectEnv.enclPkg.functions.stream()
-                                .filter(f -> f.symbol.name.equals((classDefinition.initFunction).symbol.name))
+                                .filter(f -> f.symbol.name.equals((classDef.initFunction).symbol.name))
                                 .findFirst();
-                outerFuncDef.ifPresent(bLangFunction -> classDefinition.initFunction = bLangFunction);
+                outerFuncDef.ifPresent(bLangFunction -> classDef.initFunction = bLangFunction);
             }
 
-            if (classDefinition.initFunction.body != null) {
+            if (classDef.initFunction.body != null) {
                 Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
                 this.unusedLocalVariables = new HashMap<>();
 
-                if (classDefinition.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                if (classDef.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     for (BLangStatement statement :
-                            ((BLangBlockFunctionBody) classDefinition.initFunction.body).stmts) {
+                            ((BLangBlockFunctionBody) classDef.initFunction.body).stmts) {
                         analyzeNode(statement, objectEnv);
                     }
-                } else if (classDefinition.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-                    analyzeNode(((BLangExprFunctionBody) classDefinition.initFunction.body).expr, objectEnv);
+                } else if (classDef.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+                    analyzeNode(((BLangExprFunctionBody) classDef.initFunction.body).expr, objectEnv);
                 }
 
                 emitUnusedVariableWarnings(this.unusedLocalVariables);
@@ -502,9 +509,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        Stream.concat(classDefinition.fields.stream(), classDefinition.referencedFields.stream())
+        Stream.concat(classDef.fields.stream(), classDef.referencedFields.stream())
                 .map(field -> {
-                    addTypeDependency(classDefinition.symbol, field.getBType(), new HashSet<>());
+                    addTypeDependency(classDef.symbol, field.getBType(), new HashSet<>());
                     return field; })
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
@@ -513,13 +520,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     }
                 });
 
-        classDefinition.functions.forEach(function -> analyzeNode(function, env));
-        classDefinition.typeRefs.forEach(type -> analyzeNode(type, env));
+        classDef.functions.forEach(function -> analyzeNode(function, env));
+        classDef.typeRefs.forEach(type -> analyzeNode(type, env));
+        env = preEnv;
         this.currDependentSymbolDeque.pop();
     }
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        visit(objectConstructorExpression.classNode);
         visit(objectConstructorExpression.typeInit);
         addDependency(objectConstructorExpression.getBType().tsymbol, objectConstructorExpression.classNode.symbol);
     }
