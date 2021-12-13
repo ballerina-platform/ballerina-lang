@@ -14,16 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
-import largeMethods.functions as f;
-import largeMethods.records as r;
-import largeMethods.objects as o;
+import testorg/typereftypes2 as tr;
 
-public function main() {
-    test:assertTrue(checkpanic f:largeMethod());
-    boolean|error largeMethodWithCheckResult = f:largeMethodWithCheck();
-    test:assertTrue(largeMethodWithCheckResult is error);
-    r:testLargeRecord();
-    o:largeClass largeObject = new();
-    largeObject.validate();
+type StringDefn tr:ConstPointerValue;
+
+type Module record {|
+    map<StringDefn> stringDefns = {};
+|};
+
+function testFn() {
+    Module m = {stringDefns: {a: new (1234)}};
+    assertEquality(1, m.stringDefns.length());
+    assertEquality(1234, m.stringDefns.get("a").i);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

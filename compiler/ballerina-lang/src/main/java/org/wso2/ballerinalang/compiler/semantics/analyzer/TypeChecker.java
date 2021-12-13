@@ -369,6 +369,11 @@ public class TypeChecker extends BLangNodeVisitor {
         this.diagCode = diagCode;
         this.expType = expType;
         this.isTypeChecked = true;
+
+        BType referredExpType = types.getReferredType(expType);
+        if (referredExpType.tag == TypeTags.INTERSECTION) {
+            expType = ((BIntersectionType) referredExpType).effectiveType;
+        }
         expr.expectedType = expType;
 
         expr.accept(this);

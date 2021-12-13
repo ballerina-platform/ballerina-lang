@@ -14,16 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
-import largeMethods.functions as f;
-import largeMethods.records as r;
-import largeMethods.objects as o;
+public readonly class ConstPointerValue {
+    public int i;
 
-public function main() {
-    test:assertTrue(checkpanic f:largeMethod());
-    boolean|error largeMethodWithCheckResult = f:largeMethodWithCheck();
-    test:assertTrue(largeMethodWithCheckResult is error);
-    r:testLargeRecord();
-    o:largeClass largeObject = new();
-    largeObject.validate();
+    public function init(int i) {
+        self.i = i;
+    }
 }
