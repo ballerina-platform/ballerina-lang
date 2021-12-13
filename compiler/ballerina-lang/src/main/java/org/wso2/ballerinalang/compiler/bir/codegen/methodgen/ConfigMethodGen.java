@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
@@ -209,7 +209,7 @@ public class ConfigMethodGen {
         if (module.packageID.equals(JvmConstants.DEFAULT)) {
             return oneBasedLineTrace;
         }
-        return IdentifierUtils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
+        return Utils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
     }
 
     private int calculateConfigArraySize(List<BIRNode.BIRGlobalVariableDcl> globalVars) {

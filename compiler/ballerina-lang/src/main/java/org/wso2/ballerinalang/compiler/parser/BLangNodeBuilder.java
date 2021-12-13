@@ -223,7 +223,7 @@ import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
 import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
@@ -1622,7 +1622,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.setOriginalValue(workerName);
-            workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
+            workerName = Utils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
 
         bLFunction.defaultWorkerName.value = workerName;
@@ -5225,10 +5225,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1)));
+            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value.substring(1)));
             bLIdentifer.setLiteral(true);
         } else {
-            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
+            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
         bLIdentifer.setOriginalValue(value);
@@ -5343,7 +5343,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
-                    text = IdentifierUtils.unescapeBallerina(text);
+                    text = Utils.unescapeBallerina(text);
                 } catch (Exception e) {
                     // We may reach here when the string literal has syntax diagnostics.
                     // Therefore mock the compiler with an empty string.
@@ -5389,10 +5389,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private void validateUnicodePoints(String text, Location pos) {
-        Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
+        Matcher matcher = Utils.UNICODE_PATTERN.matcher(text);
         while (matcher.find()) {
             String leadingBackSlashes = matcher.group(1);
-            if (IdentifierUtils.isEscapedNumericEscape(leadingBackSlashes)) {
+            if (Utils.isEscapedNumericEscape(leadingBackSlashes)) {
                 // e.g. \\u{61}, \\\\u{61}
                 continue;
             }
@@ -5613,7 +5613,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangIdentifier paraName = new BLangIdentifier();
                     Token parameterName = parameterDocLineNode.parameterName();
                     String parameterNameValue = parameterName.isMissing() ? "" :
-                            IdentifierUtils.unescapeUnicodeCodepoints(parameterName.text());
+                            Utils.unescapeUnicodeCodepoints(parameterName.text());
                     if (stringStartsWithSingleQuote(parameterNameValue)) {
                         parameterNameValue = parameterNameValue.substring(1);
                     }
@@ -5809,13 +5809,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 throw new IllegalArgumentException("Invalid backtick content transformation");
         }
         if (bLangRefDoc.identifier != null) {
-            bLangRefDoc.identifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.identifier);
+            bLangRefDoc.identifier = Utils.unescapeUnicodeCodepoints(bLangRefDoc.identifier);
             if (stringStartsWithSingleQuote(bLangRefDoc.identifier)) {
                 bLangRefDoc.identifier = bLangRefDoc.identifier.substring(1);
             }
         }
         if (bLangRefDoc.qualifier != null) {
-            bLangRefDoc.qualifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.qualifier);
+            bLangRefDoc.qualifier = Utils.unescapeUnicodeCodepoints(bLangRefDoc.qualifier);
             if (stringStartsWithSingleQuote(bLangRefDoc.qualifier)) {
                 bLangRefDoc.qualifier = bLangRefDoc.qualifier.substring(1);
             }
