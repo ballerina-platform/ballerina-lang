@@ -35,11 +35,13 @@ public class CompilationOptions {
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
     Boolean configSchemaGen;
+    Boolean exportOpenAPI;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
                        Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
-                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean configSchemaGen) {
+                       Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean configSchemaGen,
+                       Boolean exportOpenAPI) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -52,6 +54,7 @@ public class CompilationOptions {
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
         this.configSchemaGen = configSchemaGen;
+        this.exportOpenAPI = exportOpenAPI;
     }
 
     public boolean offlineBuild() {
@@ -100,6 +103,10 @@ public class CompilationOptions {
 
     public Boolean configSchemaGen() {
         return toBooleanDefaultIfNull(this.configSchemaGen);
+    }
+
+    public boolean exportOpenAPI() {
+        return toBooleanDefaultIfNull(this.exportOpenAPI);
     }
 
     /**
@@ -170,6 +177,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setConfigSchemaGen(this.configSchemaGen);
         }
+        if (theirOptions.exportOpenAPI != null) {
+            compilationOptionsBuilder.setExportOpenAPI(theirOptions.exportOpenAPI);
+        } else {
+            compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
+        }
         return compilationOptionsBuilder.build();
     }
 
@@ -216,6 +228,7 @@ public class CompilationOptions {
         private Boolean dumpRawGraph;
         private Boolean withCodeGenerators;
         private Boolean configSchemaGen;
+        private Boolean exportOpenAPI;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -277,10 +290,15 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
+            exportOpenAPI = value;
+            return this;
+        }
+
         public CompilationOptions build() {
             return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky,
-                    dumpGraph, dumpRawGraph, withCodeGenerators, configSchemaGen);
+                    dumpGraph, dumpRawGraph, withCodeGenerators, configSchemaGen, exportOpenAPI);
         }
     }
 }

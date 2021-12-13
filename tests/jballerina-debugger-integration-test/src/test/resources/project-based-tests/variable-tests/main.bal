@@ -187,6 +187,18 @@ public function main() {
         }
     };
 
+    Pet pet2 = {
+        id: 2,
+        name: "Rova",
+        'type: { 
+            'type: "Dog",
+            owner: {
+                name: "lnash",
+                address: ()
+            }
+        }
+    };
+
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
     EmployeeTable tableWithKeyVar = table [
@@ -295,17 +307,6 @@ public function main() {
 
     intVar = addition(2, 3);
     intVar = addition(3, 4);
-
-    // visibility of variable which is defined inside 'if' statement
-    if (true) {
-        int newVar = intVar + 5;
-        intVar += intVar;
-    }
-
-    // variable visibility inside let expression
-    string greeting = let string hello = "Hello ",
-                              string ballerina = "Ballerina!"
-                          in hello + ballerina;
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {

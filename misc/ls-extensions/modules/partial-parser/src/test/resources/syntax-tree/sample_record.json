@@ -1,0 +1,1253 @@
+{
+  "typeKeyword": {
+    "kind": "TypeKeyword",
+    "isToken": true,
+    "value": "type",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 0,
+      "endLine": 0,
+      "endColumn": 4
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "typeName": {
+    "kind": "IdentifierToken",
+    "isToken": true,
+    "value": "Test",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 5,
+      "endLine": 0,
+      "endColumn": 9
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ]
+  },
+  "typeDescriptor": {
+    "kind": "RecordTypeDesc",
+    "recordKeyword": {
+      "kind": "RecordKeyword",
+      "isToken": true,
+      "value": "record",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 10,
+        "endLine": 0,
+        "endColumn": 16
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ]
+    },
+    "bodyStartDelimiter": {
+      "kind": "OpenBraceToken",
+      "isToken": true,
+      "value": "{",
+      "isMissing": false,
+      "position": {
+        "startLine": 0,
+        "startColumn": 17,
+        "endLine": 0,
+        "endColumn": 18
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "minutiae": "\n",
+          "isInvalid": false
+        }
+      ]
+    },
+    "fields": [
+      {
+        "kind": "RecordField",
+        "typeName": {
+          "kind": "RecordTypeDesc",
+          "recordKeyword": {
+            "kind": "RecordKeyword",
+            "isToken": true,
+            "value": "record",
+            "isMissing": false,
+            "position": {
+              "startLine": 1,
+              "startColumn": 4,
+              "endLine": 1,
+              "endColumn": 10
+            },
+            "leadingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": "    ",
+                "isInvalid": false
+              }
+            ],
+            "trailingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": " ",
+                "isInvalid": false
+              }
+            ]
+          },
+          "bodyStartDelimiter": {
+            "kind": "OpenBraceToken",
+            "isToken": true,
+            "value": "{",
+            "isMissing": false,
+            "position": {
+              "startLine": 1,
+              "startColumn": 11,
+              "endLine": 1,
+              "endColumn": 12
+            },
+            "leadingMinutiae": [],
+            "trailingMinutiae": [
+              {
+                "kind": "END_OF_LINE_MINUTIAE",
+                "minutiae": "\n",
+                "isInvalid": false
+              }
+            ]
+          },
+          "fields": [
+            {
+              "kind": "RecordField",
+              "typeName": {
+                "kind": "StringTypeDesc",
+                "name": {
+                  "kind": "StringKeyword",
+                  "isToken": true,
+                  "value": "string",
+                  "isMissing": false,
+                  "position": {
+                    "startLine": 2,
+                    "startColumn": 8,
+                    "endLine": 2,
+                    "endColumn": 14
+                  },
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": "        ",
+                      "isInvalid": false
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": " ",
+                      "isInvalid": false
+                    }
+                  ]
+                },
+                "source": "        string ",
+                "syntaxDiagnostics": [],
+                "leadingMinutiae": [
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "minutiae": "        ",
+                    "isInvalid": false
+                  }
+                ],
+                "trailingMinutiae": [
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "minutiae": " ",
+                    "isInvalid": false
+                  }
+                ],
+                "position": {
+                  "startLine": 2,
+                  "startColumn": 8,
+                  "endLine": 2,
+                  "endColumn": 14
+                },
+                "typeData": {}
+              },
+              "fieldName": {
+                "kind": "IdentifierToken",
+                "isToken": true,
+                "value": "country",
+                "isMissing": false,
+                "position": {
+                  "startLine": 2,
+                  "startColumn": 15,
+                  "endLine": 2,
+                  "endColumn": 22
+                },
+                "leadingMinutiae": [],
+                "trailingMinutiae": []
+              },
+              "semicolonToken": {
+                "kind": "SemicolonToken",
+                "isToken": true,
+                "value": ";",
+                "isMissing": false,
+                "position": {
+                  "startLine": 2,
+                  "startColumn": 22,
+                  "endLine": 2,
+                  "endColumn": 23
+                },
+                "leadingMinutiae": [],
+                "trailingMinutiae": [
+                  {
+                    "kind": "END_OF_LINE_MINUTIAE",
+                    "minutiae": "\n",
+                    "isInvalid": false
+                  }
+                ]
+              },
+              "source": "        string country;\n",
+              "syntaxDiagnostics": [],
+              "leadingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "minutiae": "        ",
+                  "isInvalid": false
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "minutiae": "\n",
+                  "isInvalid": false
+                }
+              ],
+              "position": {
+                "startLine": 2,
+                "startColumn": 8,
+                "endLine": 2,
+                "endColumn": 23
+              },
+              "typeData": {}
+            },
+            {
+              "kind": "RecordField",
+              "typeName": {
+                "kind": "RecordTypeDesc",
+                "recordKeyword": {
+                  "kind": "RecordKeyword",
+                  "isToken": true,
+                  "value": "record",
+                  "isMissing": false,
+                  "position": {
+                    "startLine": 4,
+                    "startColumn": 8,
+                    "endLine": 4,
+                    "endColumn": 14
+                  },
+                  "leadingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "minutiae": "\n",
+                      "isInvalid": false
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": "        ",
+                      "isInvalid": false
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": " ",
+                      "isInvalid": false
+                    }
+                  ]
+                },
+                "bodyStartDelimiter": {
+                  "kind": "OpenBraceToken",
+                  "isToken": true,
+                  "value": "{",
+                  "isMissing": false,
+                  "position": {
+                    "startLine": 4,
+                    "startColumn": 15,
+                    "endLine": 4,
+                    "endColumn": 16
+                  },
+                  "leadingMinutiae": [],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "minutiae": "\n",
+                      "isInvalid": false
+                    }
+                  ]
+                },
+                "fields": [
+                  {
+                    "kind": "RecordField",
+                    "typeName": {
+                      "kind": "StringTypeDesc",
+                      "name": {
+                        "kind": "StringKeyword",
+                        "isToken": true,
+                        "value": "string",
+                        "isMissing": false,
+                        "position": {
+                          "startLine": 5,
+                          "startColumn": 12,
+                          "endLine": 5,
+                          "endColumn": 18
+                        },
+                        "leadingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "minutiae": "            ",
+                            "isInvalid": false
+                          }
+                        ],
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "minutiae": " ",
+                            "isInvalid": false
+                          }
+                        ]
+                      },
+                      "source": "            string ",
+                      "syntaxDiagnostics": [],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "minutiae": "            ",
+                          "isInvalid": false
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "minutiae": " ",
+                          "isInvalid": false
+                        }
+                      ],
+                      "position": {
+                        "startLine": 5,
+                        "startColumn": 12,
+                        "endLine": 5,
+                        "endColumn": 18
+                      },
+                      "typeData": {}
+                    },
+                    "fieldName": {
+                      "kind": "IdentifierToken",
+                      "isToken": true,
+                      "value": "code",
+                      "isMissing": false,
+                      "position": {
+                        "startLine": 5,
+                        "startColumn": 19,
+                        "endLine": 5,
+                        "endColumn": 23
+                      },
+                      "leadingMinutiae": [],
+                      "trailingMinutiae": []
+                    },
+                    "semicolonToken": {
+                      "kind": "SemicolonToken",
+                      "isToken": true,
+                      "value": ";",
+                      "isMissing": false,
+                      "position": {
+                        "startLine": 5,
+                        "startColumn": 23,
+                        "endLine": 5,
+                        "endColumn": 24
+                      },
+                      "leadingMinutiae": [],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "minutiae": " ",
+                          "isInvalid": false
+                        }
+                      ]
+                    },
+                    "source": "            string code; ",
+                    "syntaxDiagnostics": [],
+                    "leadingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "minutiae": "            ",
+                        "isInvalid": false
+                      }
+                    ],
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "minutiae": " ",
+                        "isInvalid": false
+                      }
+                    ],
+                    "position": {
+                      "startLine": 5,
+                      "startColumn": 12,
+                      "endLine": 5,
+                      "endColumn": 24
+                    },
+                    "typeData": {}
+                  },
+                  {
+                    "kind": "RecordField",
+                    "typeName": {
+                      "kind": "StringTypeDesc",
+                      "name": {
+                        "kind": "StringKeyword",
+                        "isToken": true,
+                        "value": "string",
+                        "isMissing": false,
+                        "position": {
+                          "startLine": 5,
+                          "startColumn": 25,
+                          "endLine": 5,
+                          "endColumn": 31
+                        },
+                        "leadingMinutiae": [],
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "minutiae": " ",
+                            "isInvalid": false
+                          }
+                        ]
+                      },
+                      "source": "string ",
+                      "syntaxDiagnostics": [],
+                      "leadingMinutiae": [],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "minutiae": " ",
+                          "isInvalid": false
+                        }
+                      ],
+                      "position": {
+                        "startLine": 5,
+                        "startColumn": 25,
+                        "endLine": 5,
+                        "endColumn": 31
+                      },
+                      "typeData": {}
+                    },
+                    "fieldName": {
+                      "kind": "IdentifierToken",
+                      "isToken": true,
+                      "value": "name",
+                      "isMissing": false,
+                      "position": {
+                        "startLine": 5,
+                        "startColumn": 32,
+                        "endLine": 5,
+                        "endColumn": 36
+                      },
+                      "leadingMinutiae": [],
+                      "trailingMinutiae": []
+                    },
+                    "semicolonToken": {
+                      "kind": "SemicolonToken",
+                      "isToken": true,
+                      "value": ";",
+                      "isMissing": false,
+                      "position": {
+                        "startLine": 5,
+                        "startColumn": 36,
+                        "endLine": 5,
+                        "endColumn": 37
+                      },
+                      "leadingMinutiae": [],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "minutiae": "\n",
+                          "isInvalid": false
+                        }
+                      ]
+                    },
+                    "source": "string name;\n",
+                    "syntaxDiagnostics": [],
+                    "leadingMinutiae": [],
+                    "trailingMinutiae": [
+                      {
+                        "kind": "END_OF_LINE_MINUTIAE",
+                        "minutiae": "\n",
+                        "isInvalid": false
+                      }
+                    ],
+                    "position": {
+                      "startLine": 5,
+                      "startColumn": 25,
+                      "endLine": 5,
+                      "endColumn": 37
+                    },
+                    "typeData": {}
+                  }
+                ],
+                "bodyEndDelimiter": {
+                  "kind": "CloseBraceToken",
+                  "isToken": true,
+                  "value": "}",
+                  "isMissing": false,
+                  "position": {
+                    "startLine": 6,
+                    "startColumn": 8,
+                    "endLine": 6,
+                    "endColumn": 9
+                  },
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": "        ",
+                      "isInvalid": false
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": " ",
+                      "isInvalid": false
+                    }
+                  ]
+                },
+                "source": "\n        record {\n            string code; string name;\n        } ",
+                "syntaxDiagnostics": [],
+                "leadingMinutiae": [
+                  {
+                    "kind": "END_OF_LINE_MINUTIAE",
+                    "minutiae": "\n",
+                    "isInvalid": false
+                  },
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "minutiae": "        ",
+                    "isInvalid": false
+                  }
+                ],
+                "trailingMinutiae": [
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "minutiae": " ",
+                    "isInvalid": false
+                  }
+                ],
+                "position": {
+                  "startLine": 4,
+                  "startColumn": 8,
+                  "endLine": 6,
+                  "endColumn": 9
+                },
+                "typeData": {}
+              },
+              "fieldName": {
+                "kind": "IdentifierToken",
+                "isToken": true,
+                "value": "city",
+                "isMissing": false,
+                "position": {
+                  "startLine": 6,
+                  "startColumn": 10,
+                  "endLine": 6,
+                  "endColumn": 14
+                },
+                "leadingMinutiae": [],
+                "trailingMinutiae": []
+              },
+              "semicolonToken": {
+                "kind": "SemicolonToken",
+                "isToken": true,
+                "value": ";",
+                "isMissing": false,
+                "position": {
+                  "startLine": 6,
+                  "startColumn": 14,
+                  "endLine": 6,
+                  "endColumn": 15
+                },
+                "leadingMinutiae": [],
+                "trailingMinutiae": [
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "minutiae": " ",
+                    "isInvalid": false
+                  }
+                ]
+              },
+              "source": "\n        record {\n            string code; string name;\n        } city; ",
+              "syntaxDiagnostics": [],
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "minutiae": "\n",
+                  "isInvalid": false
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "minutiae": "        ",
+                  "isInvalid": false
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "minutiae": " ",
+                  "isInvalid": false
+                }
+              ],
+              "position": {
+                "startLine": 4,
+                "startColumn": 8,
+                "endLine": 6,
+                "endColumn": 15
+              },
+              "typeData": {}
+            },
+            {
+              "kind": "RecordField",
+              "typeName": {
+                "kind": "StringTypeDesc",
+                "name": {
+                  "kind": "StringKeyword",
+                  "isToken": true,
+                  "value": "string",
+                  "isMissing": false,
+                  "position": {
+                    "startLine": 6,
+                    "startColumn": 16,
+                    "endLine": 6,
+                    "endColumn": 22
+                  },
+                  "leadingMinutiae": [],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": " ",
+                      "isInvalid": false
+                    }
+                  ]
+                },
+                "source": "string ",
+                "syntaxDiagnostics": [],
+                "leadingMinutiae": [],
+                "trailingMinutiae": [
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "minutiae": " ",
+                    "isInvalid": false
+                  }
+                ],
+                "position": {
+                  "startLine": 6,
+                  "startColumn": 16,
+                  "endLine": 6,
+                  "endColumn": 22
+                },
+                "typeData": {}
+              },
+              "fieldName": {
+                "kind": "IdentifierToken",
+                "isToken": true,
+                "value": "Lane",
+                "isMissing": false,
+                "position": {
+                  "startLine": 6,
+                  "startColumn": 23,
+                  "endLine": 6,
+                  "endColumn": 27
+                },
+                "leadingMinutiae": [],
+                "trailingMinutiae": []
+              },
+              "semicolonToken": {
+                "kind": "SemicolonToken",
+                "isToken": true,
+                "value": ";",
+                "isMissing": false,
+                "position": {
+                  "startLine": 6,
+                  "startColumn": 27,
+                  "endLine": 6,
+                  "endColumn": 28
+                },
+                "leadingMinutiae": [],
+                "trailingMinutiae": [
+                  {
+                    "kind": "END_OF_LINE_MINUTIAE",
+                    "minutiae": "\n",
+                    "isInvalid": false
+                  }
+                ]
+              },
+              "source": "string Lane;\n",
+              "syntaxDiagnostics": [],
+              "leadingMinutiae": [],
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "minutiae": "\n",
+                  "isInvalid": false
+                }
+              ],
+              "position": {
+                "startLine": 6,
+                "startColumn": 16,
+                "endLine": 6,
+                "endColumn": 28
+              },
+              "typeData": {}
+            }
+          ],
+          "bodyEndDelimiter": {
+            "kind": "CloseBraceToken",
+            "isToken": true,
+            "value": "}",
+            "isMissing": false,
+            "position": {
+              "startLine": 8,
+              "startColumn": 4,
+              "endLine": 8,
+              "endColumn": 5
+            },
+            "leadingMinutiae": [
+              {
+                "kind": "END_OF_LINE_MINUTIAE",
+                "minutiae": "\n",
+                "isInvalid": false
+              },
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": "    ",
+                "isInvalid": false
+              }
+            ],
+            "trailingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": " ",
+                "isInvalid": false
+              }
+            ]
+          },
+          "source": "    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } ",
+          "syntaxDiagnostics": [],
+          "leadingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": "    ",
+              "isInvalid": false
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ],
+          "position": {
+            "startLine": 1,
+            "startColumn": 4,
+            "endLine": 8,
+            "endColumn": 5
+          },
+          "typeData": {}
+        },
+        "fieldName": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "address",
+          "isMissing": false,
+          "position": {
+            "startLine": 8,
+            "startColumn": 6,
+            "endLine": 8,
+            "endColumn": 13
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": []
+        },
+        "semicolonToken": {
+          "kind": "SemicolonToken",
+          "isToken": true,
+          "value": ";",
+          "isMissing": false,
+          "position": {
+            "startLine": 8,
+            "startColumn": 13,
+            "endLine": 8,
+            "endColumn": 14
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "minutiae": "\n",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } address;\n",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": "    ",
+            "isInvalid": false
+          }
+        ],
+        "trailingMinutiae": [
+          {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\n",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 1,
+          "startColumn": 4,
+          "endLine": 8,
+          "endColumn": 14
+        },
+        "typeData": {}
+      },
+      {
+        "kind": "RecordField",
+        "typeName": {
+          "kind": "StringTypeDesc",
+          "name": {
+            "kind": "StringKeyword",
+            "isToken": true,
+            "value": "string",
+            "isMissing": false,
+            "position": {
+              "startLine": 10,
+              "startColumn": 4,
+              "endLine": 10,
+              "endColumn": 10
+            },
+            "leadingMinutiae": [
+              {
+                "kind": "END_OF_LINE_MINUTIAE",
+                "minutiae": "\n",
+                "isInvalid": false
+              },
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": "    ",
+                "isInvalid": false
+              }
+            ],
+            "trailingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": " ",
+                "isInvalid": false
+              }
+            ]
+          },
+          "source": "\n    string ",
+          "syntaxDiagnostics": [],
+          "leadingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "minutiae": "\n",
+              "isInvalid": false
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": "    ",
+              "isInvalid": false
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ],
+          "position": {
+            "startLine": 10,
+            "startColumn": 4,
+            "endLine": 10,
+            "endColumn": 10
+          },
+          "typeData": {}
+        },
+        "fieldName": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "school",
+          "isMissing": false,
+          "position": {
+            "startLine": 10,
+            "startColumn": 11,
+            "endLine": 10,
+            "endColumn": 17
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": []
+        },
+        "semicolonToken": {
+          "kind": "SemicolonToken",
+          "isToken": true,
+          "value": ";",
+          "isMissing": false,
+          "position": {
+            "startLine": 10,
+            "startColumn": 17,
+            "endLine": 10,
+            "endColumn": 18
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "minutiae": "\n",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "\n    string school;\n",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [
+          {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\n",
+            "isInvalid": false
+          },
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": "    ",
+            "isInvalid": false
+          }
+        ],
+        "trailingMinutiae": [
+          {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\n",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 10,
+          "startColumn": 4,
+          "endLine": 10,
+          "endColumn": 18
+        },
+        "typeData": {}
+      },
+      {
+        "kind": "RecordField",
+        "typeName": {
+          "kind": "StringTypeDesc",
+          "name": {
+            "kind": "StringKeyword",
+            "isToken": true,
+            "value": "string",
+            "isMissing": false,
+            "position": {
+              "startLine": 11,
+              "startColumn": 4,
+              "endLine": 11,
+              "endColumn": 10
+            },
+            "leadingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": "    ",
+                "isInvalid": false
+              }
+            ],
+            "trailingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": " ",
+                "isInvalid": false
+              }
+            ]
+          },
+          "source": "    string ",
+          "syntaxDiagnostics": [],
+          "leadingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": "    ",
+              "isInvalid": false
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ],
+          "position": {
+            "startLine": 11,
+            "startColumn": 4,
+            "endLine": 11,
+            "endColumn": 10
+          },
+          "typeData": {}
+        },
+        "fieldName": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "name",
+          "isMissing": false,
+          "position": {
+            "startLine": 11,
+            "startColumn": 11,
+            "endLine": 11,
+            "endColumn": 15
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": []
+        },
+        "semicolonToken": {
+          "kind": "SemicolonToken",
+          "isToken": true,
+          "value": ";",
+          "isMissing": false,
+          "position": {
+            "startLine": 11,
+            "startColumn": 15,
+            "endLine": 11,
+            "endColumn": 16
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "minutiae": "\n",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "    string name;\n",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": "    ",
+            "isInvalid": false
+          }
+        ],
+        "trailingMinutiae": [
+          {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\n",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 11,
+          "startColumn": 4,
+          "endLine": 11,
+          "endColumn": 16
+        },
+        "typeData": {}
+      },
+      {
+        "kind": "RecordField",
+        "typeName": {
+          "kind": "IntTypeDesc",
+          "name": {
+            "kind": "IntKeyword",
+            "isToken": true,
+            "value": "int",
+            "isMissing": false,
+            "position": {
+              "startLine": 12,
+              "startColumn": 4,
+              "endLine": 12,
+              "endColumn": 7
+            },
+            "leadingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": "    ",
+                "isInvalid": false
+              }
+            ],
+            "trailingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "minutiae": " ",
+                "isInvalid": false
+              }
+            ]
+          },
+          "source": "    int ",
+          "syntaxDiagnostics": [],
+          "leadingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": "    ",
+              "isInvalid": false
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ],
+          "position": {
+            "startLine": 12,
+            "startColumn": 4,
+            "endLine": 12,
+            "endColumn": 7
+          },
+          "typeData": {}
+        },
+        "fieldName": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "age",
+          "isMissing": false,
+          "position": {
+            "startLine": 12,
+            "startColumn": 8,
+            "endLine": 12,
+            "endColumn": 11
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": []
+        },
+        "semicolonToken": {
+          "kind": "SemicolonToken",
+          "isToken": true,
+          "value": ";",
+          "isMissing": false,
+          "position": {
+            "startLine": 12,
+            "startColumn": 11,
+            "endLine": 12,
+            "endColumn": 12
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "minutiae": "\n",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "    int age;\n",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": "    ",
+            "isInvalid": false
+          }
+        ],
+        "trailingMinutiae": [
+          {
+            "kind": "END_OF_LINE_MINUTIAE",
+            "minutiae": "\n",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 12,
+          "startColumn": 4,
+          "endLine": 12,
+          "endColumn": 12
+        },
+        "typeData": {}
+      }
+    ],
+    "bodyEndDelimiter": {
+      "kind": "CloseBraceToken",
+      "isToken": true,
+      "value": "}",
+      "isMissing": false,
+      "position": {
+        "startLine": 13,
+        "startColumn": 0,
+        "endLine": 13,
+        "endColumn": 1
+      },
+      "leadingMinutiae": [],
+      "trailingMinutiae": []
+    },
+    "source": "record {\n    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } address;\n\n    string school;\n    string name;\n    int age;\n}",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [],
+    "position": {
+      "startLine": 0,
+      "startColumn": 10,
+      "endLine": 13,
+      "endColumn": 1
+    },
+    "typeData": {}
+  },
+  "semicolonToken": {
+    "kind": "SemicolonToken",
+    "isToken": true,
+    "value": ";",
+    "isMissing": false,
+    "position": {
+      "startLine": 13,
+      "startColumn": 1,
+      "endLine": 13,
+      "endColumn": 2
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      }
+    ]
+  },
+  "source": "type Test record {\n    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } address;\n\n    string school;\n    string name;\n    int age;\n};\n",
+  "kind": "TypeDefinition",
+  "syntaxDiagnostics": [],
+  "leadingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    }
+  ],
+  "position": {
+    "startLine": 0,
+    "startColumn": 0,
+    "endLine": 13,
+    "endColumn": 2
+  },
+  "typeData": {}
+}
