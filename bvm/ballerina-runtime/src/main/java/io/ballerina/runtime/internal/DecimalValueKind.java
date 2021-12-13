@@ -29,7 +29,7 @@ public enum DecimalValueKind {
     NEGATIVE_INFINITY("-Infinity"),
     OTHER("Other");
 
-    private String value;
+    private final String value;
 
     DecimalValueKind(String value) {
         this.value = value;

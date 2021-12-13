@@ -300,10 +300,10 @@ public class ValueComparisonUtils {
     private static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
         switch (lhsValue.valueKind) {
             case POSITIVE_INFINITY:
-                return isDecimalRealNumber(rhsValue) || rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY;
+                return isDecimalRealNumber(rhsValue);
             case ZERO:
             case OTHER:
-                return rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY || (isDecimalRealNumber(rhsValue) &&
+                return (isDecimalRealNumber(rhsValue) &&
                         lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
             default:
                 return false;

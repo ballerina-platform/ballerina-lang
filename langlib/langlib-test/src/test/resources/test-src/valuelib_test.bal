@@ -863,15 +863,6 @@ function testCloneWithTypeDecimalToIntNegative() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
-
-    decimal a2 = 0.0 / 0;
-    int|error nan = a2.cloneWithType(int);
-    assert(nan is error, true);
-    err = <error>nan;
-    message = err.detail()["message"];
-    messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina}NumberConversionError");
-    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
 }
 
 type IntSubtypeArray1 int:Signed32[];
