@@ -5903,52 +5903,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
     protected void markAndRegisterClosureVariable(BSymbol symbol, Location pos, SymbolEnv env) {
         BLangInvokableNode encInvokable = env.enclInvokable;
+        BLangNode bLangNode = env.node;
         if ((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
-                env.node.getKind() != NodeKind.ARROW_EXPR && env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
+                bLangNode.getKind() != NodeKind.ARROW_EXPR && bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
                 encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA) &&
                 !encInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
             return;
         }
         if (!symbol.closure) {
-            if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
-                    && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
-                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                BSymbol resolvedSymbol =
-                        symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
-                    resolvedSymbol.closure = true;
-                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                    return;
-                }
-            }
-            if (env.node.getKind() == NodeKind.ARROW_EXPR
-                    && !isFunctionArgument(symbol, ((BLangArrowFunction) env.node).params)) {
-                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                BSymbol resolvedSymbol =
-                        symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol) {
-                    resolvedSymbol.closure = true;
-                    ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                    return;
-                }
-            }
-
-            if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
-                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
-                BSymbol resolvedSymbol =
-                        symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol && encInvokable != null &&
-                        !encInvokable.flagSet.contains(Flag.ATTACHED)) {
-                    resolvedSymbol.closure = true;
-                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                    return;
-                }
+            if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, bLangNode)) {
+                return;
             }
         }
 
-        BLangNode node = env.node;
-        if (node.getKind() == NodeKind.CLASS_DEFN &&
-                ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR))  {
+        BLangNode node = bLangNode;
+        if (isObjectCtorClass(node))  {
             BLangClassDefinition classDef = (BLangClassDefinition) node;
             OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
             BLangFunction currentFunc = (BLangFunction) encInvokable;
@@ -5974,7 +5943,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
                 }
             }
-            if (node.getKind() == NodeKind.CLASS_DEFN && ((BLangClassDefinition) node).isObjectContructorDecl) {
+            if (!symbol.closure) {
+                if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node)) {
+                    return;
+                }
+            }
+            if (isObjectCtorClass(node)) {
                 BLangFunction currentFunction = (BLangFunction) encInvokable;
                 if ((currentFunction != null) && currentFunction.attachedFunction &&
                         (currentFunction.symbol.receiverSymbol == symbol)) {
@@ -5994,15 +5968,59 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
                 break;
-            } else {
-                SymbolEnv enclEnv = cEnv.enclEnv;
-                if (enclEnv == null) {
-                    break;
-                }
-                cEnv = enclEnv;
-                node = cEnv.node;
+            }
+            SymbolEnv enclEnv = cEnv.enclEnv;
+            if (enclEnv == null) {
+                break;
+            }
+            cEnv = enclEnv;
+            node = cEnv.node;
+        }
+    }
+
+    private boolean isObjectCtorClass(BLangNode node) {
+        return node.getKind() == NodeKind.CLASS_DEFN &&
+                ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
+    }
+
+    private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env, BLangInvokableNode encInvokable,
+                                                       BLangNode bLangNode) {
+        if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
+                && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                resolvedSymbol.closure = true;
+                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return true;
             }
         }
+
+        if (bLangNode.getKind() == NodeKind.ARROW_EXPR
+                && !isFunctionArgument(symbol, ((BLangArrowFunction) bLangNode).params)) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol) {
+                resolvedSymbol.closure = true;
+                ((BLangArrowFunction) bLangNode).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return true;
+            }
+        }
+
+        if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol && encInvokable != null &&
+                    !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                resolvedSymbol.closure = true;
+                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return true;
+            }
+        }
+        return false;
     }
 
     private void updateObjectCtorClosureSymbol(Location pos, BLangFunction encInvokable, BLangFunction currentFunction,

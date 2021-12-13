@@ -34,11 +34,10 @@ public function testAnnotations() {
 
     assertValueEquality("hostKRv", annotationVal.hostRecField);
 
-     obj = createService("hostKRv boom", 200, true);
+    obj = createService("hostKRv boom", 200, true);
     typedesc<object {}> t2 = typeof obj;
     HSC annotationVal2 = <HSC>t2.@HSCsa;
     assertValueEquality("hostKRv boom", annotationVal2.hostRecField);
-
 }
 
 public type ObjectData record {|
