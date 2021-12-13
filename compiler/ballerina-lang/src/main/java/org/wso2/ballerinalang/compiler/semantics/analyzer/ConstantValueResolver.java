@@ -66,7 +66,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
-    private HashSet<BConstantSymbol> cannotResolveConstants = new HashSet<>();
+    private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -135,21 +135,21 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         if (!this.unresolvedConstants.containsKey(constSymbol)) {
-            if (cannotResolveConstants.contains(constSymbol)) {
+            if (this.unresolvableConstants.contains(constSymbol)) {
                 this.result = null;
                 return;
             }
-            cannotResolveConstants.add(constSymbol);
+            this.unresolvableConstants.add(constSymbol);
             dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.value);
             this.result = null;
             return;
         }
 
         if (this.resolvingConstants.contains(constSymbol)) {
-            for (BConstantSymbol symbol : resolvingConstants) {
-                cannotResolveConstants.add(symbol);
+            for (BConstantSymbol symbol : this.resolvingConstants) {
+                this.unresolvableConstants.add(symbol);
             }
-            dlog.error(varRef.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE, resolvingConstants);
+            dlog.error(varRef.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE, this.resolvingConstants);
             this.result = null;
             return;
         }
