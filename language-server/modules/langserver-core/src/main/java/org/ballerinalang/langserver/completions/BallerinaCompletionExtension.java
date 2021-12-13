@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.CompletionExtension;
@@ -28,6 +29,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,5 +63,12 @@ public class BallerinaCompletionExtension implements CompletionExtension {
         BallerinaCompletionContext bcContext =
                 new BallerinaCompletionContextImpl(context, serverContext, inputParams, cancelChecker);
         return CompletionUtil.getCompletionItems(bcContext);
+    }
+
+    @Override
+    public List<String> handledCustomURISchemes(CompletionParams inputParams,
+                                                CompletionContext context,
+                                                LanguageServerContext serverContext) {
+        return Collections.singletonList(CommonUtil.URI_SCHEME_EXPR);
     }
 }

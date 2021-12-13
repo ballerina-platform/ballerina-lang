@@ -198,7 +198,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -371,6 +370,11 @@ public class TypeChecker extends BLangNodeVisitor {
         this.diagCode = diagCode;
         this.expType = expType;
         this.isTypeChecked = true;
+
+        BType referredExpType = types.getReferredType(expType);
+        if (referredExpType.tag == TypeTags.INTERSECTION) {
+            expType = ((BIntersectionType) referredExpType).effectiveType;
+        }
         expr.expectedType = expType;
 
         expr.accept(this);
@@ -1098,76 +1102,159 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType inferTableMemberType(List<BType> memTypes, BLangTableConstructorExpr tableConstructorExpr) {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         List<String> keySpecifierFieldNames = new ArrayList<>();
-        Set<BField> allFieldSet = new LinkedHashSet<>();
         List<BType> restFieldTypes = new ArrayList<>();
 
-        for (BType memType : memTypes) {
-            BRecordType member = (BRecordType) memType;
-            allFieldSet.addAll(member.fields.values());
-            if (!member.sealed) {
-                BType restFieldType = member.restFieldType;
-                if (isUniqueType(restFieldTypes, restFieldType)) {
-                    restFieldTypes.add(restFieldType);
-                }
-            }
-        }
 
-        Set<BField> commonFieldSet = new LinkedHashSet<>(allFieldSet);
-        for (BType memType : memTypes) {
-            commonFieldSet.retainAll(((BRecordType) memType).fields.values());
-        }
-
-        List<String> requiredFieldNames = new ArrayList<>();
         if (keySpecifier != null) {
             for (IdentifierNode identifierNode : keySpecifier.fieldNameIdentifierList) {
-                requiredFieldNames.add(((BLangIdentifier) identifierNode).value);
                 keySpecifierFieldNames.add(((BLangIdentifier) identifierNode).value);
             }
         }
 
-        List<String> fieldNames = new ArrayList<>();
-        for (BField field : allFieldSet) {
-            String fieldName = field.name.value;
+        LinkedHashMap<String, List<BField>> fieldNameToFields = new LinkedHashMap<>();
+        for (BType memType : memTypes) {
+            BRecordType member = (BRecordType) memType;
+            for (Map.Entry<String, BField> entry : member.fields.entrySet()) {
+                String key = entry.getKey();
+                BField field = entry.getValue();
 
-            if (fieldNames.contains(fieldName)) {
-                dlog.error(tableConstructorExpr.pos,
-                        DiagnosticErrorCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY,
-                        fieldName);
-                return symTable.semanticError;
-            }
-            fieldNames.add(fieldName);
-
-            boolean isOptional = true;
-            for (BField commonField : commonFieldSet) {
-                if (commonField.name.value.equals(fieldName)) {
-                    isOptional = false;
-                    requiredFieldNames.add(commonField.name.value);
+                if (fieldNameToFields.containsKey(key)) {
+                    fieldNameToFields.get(key).add(field);
+                } else {
+                    fieldNameToFields.put(key, new ArrayList<>() {{
+                        add(field);
+                    }});
                 }
             }
 
-            if (isOptional) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-            } else if (requiredFieldNames.contains(fieldName) && keySpecifierFieldNames.contains(fieldName)) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED)) + Flags.asMask(EnumSet.of(Flag.READONLY));
-            } else if (requiredFieldNames.contains(fieldName)) {
-                field.symbol.flags = Flags.asMask(EnumSet.of(Flag.REQUIRED));
+            if (!member.sealed) {
+                restFieldTypes.add(member.restFieldType);
             }
         }
 
-        return createTableConstraintRecordType(allFieldSet, restFieldTypes, tableConstructorExpr.pos);
+        LinkedHashSet<BField> inferredFields = new LinkedHashSet<>();
+        int memTypesSize = memTypes.size();
+
+        for (Map.Entry<String, List<BField>> entry : fieldNameToFields.entrySet()) {
+            String fieldName = entry.getKey();
+            List<BField> fields = entry.getValue();
+
+            List<BType> types = new ArrayList<>();
+            for (BField field : fields) {
+                types.add(field.getType());
+            }
+
+            for (BType memType : memTypes) {
+                BRecordType bMemType = (BRecordType) memType;
+                if (bMemType.sealed || bMemType.fields.containsKey(fieldName)) {
+                    continue;
+                }
+
+                BType restFieldType = bMemType.restFieldType;
+                types.add(restFieldType);
+            }
+
+            BField resultantField = createFieldWithType(fields.get(0), types);
+            boolean isOptional = hasOptionalFields(fields) || fields.size() != memTypesSize;
+
+            if (isOptional) {
+                resultantField.symbol.flags = Flags.OPTIONAL;
+            } else if (keySpecifierFieldNames.contains(fieldName)) {
+                resultantField.symbol.flags = Flags.REQUIRED | Flags.READONLY;
+            } else {
+                resultantField.symbol.flags = Flags.REQUIRED;
+            }
+
+            inferredFields.add(resultantField);
+        }
+
+        return createTableConstraintRecordType(inferredFields, restFieldTypes, tableConstructorExpr.pos);
     }
 
-    private BRecordType createTableConstraintRecordType(Set<BField> allFieldSet, List<BType> restFieldTypes,
+    /**
+     * Create a new {@code BField} out of existing {@code BField}, while changing its type.
+     * The new type is derived from the given list of bTypes.
+     *
+     * @param field  - existing {@code BField}
+     * @param bTypes - list of bTypes
+     * @return a {@code BField}
+     */
+    private BField createFieldWithType(BField field, List<BType> bTypes) {
+        BType resultantType = getResultantUnionOrNonUnionType(bTypes);
+
+        BVarSymbol originalSymbol = field.symbol;
+        BVarSymbol fieldSymbol = new BVarSymbol(originalSymbol.flags, originalSymbol.name, originalSymbol.pkgID,
+                resultantType, originalSymbol.owner, originalSymbol.pos, VIRTUAL);
+
+        return new BField(field.name, field.pos, fieldSymbol);
+    }
+
+    /**
+     * Get the resultant union or non-union type from a {@code List<BType>}.
+     *
+     * @param bTypes bType list (size > 0)
+     * @return {@code BUnionType} if effective members in list is > 1. {@code BType} Otherwise.
+     */
+    private BType getResultantUnionOrNonUnionType(List<BType> bTypes) {
+        if (bTypes.size() == 1) {
+            return bTypes.get(0);
+        }
+
+        LinkedHashSet<BType> bTypeSet = new LinkedHashSet<>(bTypes);
+        List<BType> eBTypes = new ArrayList<>(bTypes.size());
+        addEffectiveMemberTypes(eBTypes, bTypeSet);
+
+        return getRepresentativeBroadType(eBTypes);
+    }
+
+    private void addEffectiveMemberTypes(List<BType> eBTypes, LinkedHashSet<BType> bTypes) {
+        for (BType memberType : bTypes) {
+            BType bType;
+            switch (memberType.tag) {
+                case TypeTags.NEVER:
+                    continue;
+                case TypeTags.UNION:
+                    addEffectiveMemberTypes(eBTypes, ((BUnionType) memberType).getMemberTypes());
+                    continue;
+                case TypeTags.TYPEREFDESC:
+                    BType constraint = types.getReferredType(memberType);
+                    if (constraint.tag == TypeTags.UNION) {
+                        addEffectiveMemberTypes(eBTypes, ((BUnionType) constraint).getMemberTypes());
+                        continue;
+                    }
+                    bType = constraint;
+                    break;
+                default:
+                    bType = memberType;
+                    break;
+            }
+
+            if (isUniqueType(eBTypes, bType)) {
+                eBTypes.add(bType);
+            }
+        }
+    }
+
+    private boolean hasOptionalFields(List<BField> fields) {
+        for (BField field : fields) {
+            if (field.symbol.getFlags().contains(Flag.OPTIONAL)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private BRecordType createTableConstraintRecordType(Set<BField> inferredFields, List<BType> restFieldTypes,
                                                         Location pos) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, pos, VIRTUAL);
 
-        for (BField field : allFieldSet) {
+        for (BField field : inferredFields) {
             recordSymbol.scope.define(field.name, field.symbol);
         }
 
         BRecordType recordType = new BRecordType(recordSymbol);
-        recordType.fields = allFieldSet.stream().collect(getFieldCollector());
+        recordType.fields = inferredFields.stream().collect(getFieldCollector());
 
         recordSymbol.type = recordType;
         recordType.tsymbol = recordSymbol;
@@ -1181,11 +1268,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (restFieldTypes.isEmpty()) {
             recordType.sealed = true;
             recordType.restFieldType = symTable.noType;
-        } else if (restFieldTypes.size() == 1) {
-            recordType.restFieldType = restFieldTypes.get(0);
         } else {
-            recordType.restFieldType = BUnionType.create(null, new LinkedHashSet<>(restFieldTypes));
+            recordType.restFieldType = getResultantUnionOrNonUnionType(restFieldTypes);
         }
+
         return recordType;
     }
 
@@ -2818,8 +2904,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         exprType);
                 resultType = symTable.semanticError;
                 return;
-            } else if (types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) &&
-                    (indexExpr.getKind() == NodeKind.LITERAL || isConst(indexExpr)) &&
+            } else if (types.isSubTypeOfBaseType(exprType, TypeTags.RECORD) && isConstExpr(indexExpr) &&
                     isInvalidReadonlyFieldUpdate(exprType, getConstFieldName(indexExpr))) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
                         getConstFieldName(indexExpr), exprType);
@@ -7743,7 +7828,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (types.getReferredType(indexExpr.getBType()).tag == TypeTags.STRING
-                        && isConst(indexExpr)) {
+                        && isConstExpr(indexExpr)) {
                     String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD,
                             fieldName, indexBasedAccessExpr.expr.getBType());
@@ -7768,7 +7853,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.getBType().tag == TypeTags.INT && isConst(indexExpr)) {
+                if (indexExpr.getBType().tag == TypeTags.INT && isConstExpr(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.indexExpr.pos,
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
                     return actualType;
@@ -7883,13 +7968,27 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private Long getConstIndex(BLangExpression indexExpr) {
-        return indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ? (Long) ((BLangLiteral) indexExpr).value :
-                (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+        switch (indexExpr.getKind()) {
+            case GROUP_EXPR:
+                BLangGroupExpr groupExpr = (BLangGroupExpr) indexExpr;
+                return getConstIndex(groupExpr.expression);
+            case NUMERIC_LITERAL:
+                return (Long) ((BLangLiteral) indexExpr).value;
+            default:
+                return (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+        }
     }
 
     private String getConstFieldName(BLangExpression indexExpr) {
-        return indexExpr.getKind() == NodeKind.LITERAL ? (String) ((BLangLiteral) indexExpr).value :
-                (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+        switch (indexExpr.getKind()) {
+            case GROUP_EXPR:
+                BLangGroupExpr groupExpr = (BLangGroupExpr) indexExpr;
+                return getConstFieldName(groupExpr.expression);
+            case LITERAL:
+                return (String) ((BLangLiteral) indexExpr).value;
+            default:
+                return (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+        }
     }
 
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
@@ -7898,7 +7997,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (indexExprType.tag) {
             case TypeTags.INT:
                 BLangExpression indexExpr = indexBasedAccess.indexExpr;
-                if (!isConst(indexExpr) || arrayType.state == BArrayState.OPEN) {
+                if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
                     actualType = arrayType.eType;
                     break;
                 }
@@ -7986,7 +8085,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.INT:
-                if (isConst(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     actualType = checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
@@ -8115,7 +8214,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
-                if (isConst(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     String fieldName = Utils.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
@@ -8314,17 +8413,19 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isConst(BLangExpression expression) {
-
-        if (ConstantAnalyzer.isValidConstantExpressionNode(expression)) {
-            return true;
+    private boolean isConstExpr(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+                return true;
+            case GROUP_EXPR:
+                BLangGroupExpr groupExpr = (BLangGroupExpr) expression;
+                return isConstExpr(groupExpr.expression);
+            case SIMPLE_VARIABLE_REF:
+                return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+            default:
+                return false;
         }
-
-        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            return false;
-        }
-
-        return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
     }
 
     private Name getCurrentCompUnit(BLangNode node) {
@@ -8543,7 +8644,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean isUniqueType(List<BType> typeList, BType type) {
+    private boolean isUniqueType(Iterable<BType> typeList, BType type) {
         boolean isRecord = type.tag == TypeTags.RECORD;
 
         for (BType bType : typeList) {

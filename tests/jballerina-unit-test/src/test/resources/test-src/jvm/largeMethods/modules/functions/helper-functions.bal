@@ -30,7 +30,11 @@ public function getString(string a, string b) returns string {
 }
 
 public function getStringOrError(string a, string b) returns string|error {
-    return error("error");
+    return "qwerty3" + check getWordOrError(true);
+}
+
+public function getWordOrError(boolean needsError) returns string|error {
+    return needsError ? error("error") : "qwerty4";
 }
 
 function getStringVal(int a, int b) returns string {

@@ -1736,11 +1736,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
         BTypeSymbol tsymbol = resolvedType.tsymbol;
-        BSymbol pop = this.currDependentSymbolDeque.pop();
-        this.currDependentSymbolDeque.push(tsymbol);
-        recordGlobalVariableReferenceRelationship(pop);
-        this.currDependentSymbolDeque.pop();
-        this.currDependentSymbolDeque.push(pop);
+        recordGlobalVariableReferenceRelationship(tsymbol);
     }
 
     @Override
