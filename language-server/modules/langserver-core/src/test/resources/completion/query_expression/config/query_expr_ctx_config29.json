@@ -1,18 +1,42 @@
 {
   "position": {
-    "line": 6,
-    "character": 46
+    "line": 19,
+    "character": 36
   },
-  "source": "query_expression/source/query_expr_ctx_source14.bal",
+  "source": "query_expression/source/query_expr_ctx_source29.bal",
   "items": [
     {
-      "label": "module1",
+      "label": "let",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "CQ",
+      "filterText": "let",
+      "insertText": "let",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "CO",
-      "filterText": "module1",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet"
+      "sortText": "CR",
+      "filterText": "test",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.array",
@@ -59,6 +83,54 @@
             }
           },
           "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "module1",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -244,15 +316,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "let",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "let",
-      "insertText": "let",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -295,6 +358,15 @@
       "sortText": "CQ",
       "filterText": "false",
       "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "CQ",
+      "filterText": "null",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
@@ -370,61 +442,57 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "doTask(int a, int c)",
+      "label": "getIntArr()",
       "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
-        }
-      },
-      "sortText": "B",
-      "filterText": "doTask",
-      "insertText": "doTask(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "CN",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "B",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "list1",
-      "kind": "Variable",
       "detail": "int[]",
-      "sortText": "AB",
-      "insertText": "list1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int[]`   \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "getIntArr",
+      "insertText": "getIntArr()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value2",
+      "label": "stringValue",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "stringValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intValue",
       "kind": "Variable",
       "detail": "int",
       "sortText": "CB",
-      "insertText": "value2",
+      "insertText": "intValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intArray",
+      "kind": "Variable",
+      "detail": "int[]",
+      "sortText": "AB",
+      "insertText": "intArray",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getStrArr()",
+      "kind": "Function",
+      "detail": "string[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string[]`   \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "getStrArr",
+      "insertText": "getStrArr()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -436,6 +504,45 @@
       },
       "sortText": "CM",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "CN",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getMedalStats()",
+      "kind": "Function",
+      "detail": "stream<MedalStatsRecord, error?>|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream<MedalStatsRecord, error?>|error`   \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "getMedalStats",
+      "insertText": "getMedalStats()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MedalStatsRecord",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "CM",
+      "insertText": "MedalStatsRecord",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tsvStream",
+      "kind": "Variable",
+      "detail": "stream<string[], error?>",
+      "sortText": "AB",
+      "insertText": "tsvStream",
       "insertTextFormat": "Snippet"
     },
     {
@@ -492,63 +599,6 @@
       "detail": "type",
       "sortText": "CR",
       "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CR",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CR",
-      "filterText": "test",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "null",
-      "insertText": "null",
       "insertTextFormat": "Snippet"
     }
   ]
