@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.exprscheme;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -76,6 +78,11 @@ public class TestExpressionFileScheme {
         // Get completions over the expr content after changing the content over expr scheme
         String completionRes3 = TestUtil.getCompletionResponse(exprUri, pos1, serviceEndpoint, "");
         // Check whether the expr content change has modified the content
+        JsonArray exprCompletions = JsonParser.parseString(completionRes3)
+                .getAsJsonObject().get("result")
+                .getAsJsonObject().get("left")
+                .getAsJsonArray();
+        Assert.assertFalse(exprCompletions.isEmpty(), "Expr context completions cannot be empty");
         Assert.assertNotEquals(completionRes1, completionRes3);
     }
 }
