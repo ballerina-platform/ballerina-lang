@@ -1987,7 +1987,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (type.tag == TypeTags.MAP) {
             for (BLangRecordVarRefKeyValue lhsField : fields) {
-                dlog.error(lhsField.variableName.pos, DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
+                dlog.error(lhsField.variableName.pos,
+                        DiagnosticErrorCode.INVALID_OPTIONAL_FIELD_IN_MAPPING_BINDING_PATTERN);
             }
             return;
         }
