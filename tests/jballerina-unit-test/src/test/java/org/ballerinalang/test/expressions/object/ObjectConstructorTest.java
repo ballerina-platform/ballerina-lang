@@ -34,7 +34,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 @Test
 public class ObjectConstructorTest {
 
-    private CompileResult compiledConstructedObjects, closures;
+    private CompileResult compiledConstructedObjects, closures, annotations;
 
     @BeforeClass
     public void setup() {
@@ -42,6 +42,8 @@ public class ObjectConstructorTest {
                 "test-src/expressions/object/object_constructor_expression.bal");
         closures = BCompileUtil.compile(
                 "test-src/expressions/object/object_closures.bal");
+        annotations = BCompileUtil.compile(
+                "test-src/expressions/object/object_closures_annotations.bal");
     }
 
     @DataProvider(name = "ObjectCtorTestFunctionList")
@@ -81,6 +83,11 @@ public class ObjectConstructorTest {
     @Test(dataProvider = "ClosureTestFunctionList")
     public void testClosureSupportForObjectCtor(String funcName) {
         BRunUtil.invoke(closures, funcName);
+    }
+
+    @Test
+    public void testClosureSupportForObjectCtorAnnotations() {
+        BRunUtil.invoke(annotations, "testAnnotations");
     }
 
     @Test
@@ -133,5 +140,6 @@ public class ObjectConstructorTest {
     public void tearDown() {
         compiledConstructedObjects = null;
         closures = null;
+        annotations = null;
     }
 }

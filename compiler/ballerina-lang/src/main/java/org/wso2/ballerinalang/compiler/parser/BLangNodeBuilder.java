@@ -1184,9 +1184,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) bLangNode;
                 simpleVariable.flagSet.add(Flag.OBJECT_CTOR);
                 BLangExpression expression = simpleVariable.expr;
-                if (expression != null && expression.getKind() == NodeKind.LAMBDA) {
-                    classDefinition.oceEnvData.lambdaFunctionsList.add((BLangLambdaFunction) expression);
-                }
                 classDefinition.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
                 dlog.error(bLangNode.pos, DiagnosticErrorCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
