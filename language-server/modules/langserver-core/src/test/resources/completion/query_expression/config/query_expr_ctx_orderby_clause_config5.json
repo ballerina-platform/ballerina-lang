@@ -103,6 +103,15 @@
       "filterText": "select",
       "insertText": "select ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outer",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "outer",
+      "insertText": "outer ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

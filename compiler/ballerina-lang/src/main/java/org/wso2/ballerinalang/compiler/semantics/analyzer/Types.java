@@ -1788,7 +1788,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BObjectType objectType = (BObjectType) getReferredType(iteratorSymbol.retType);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation(objectType);
@@ -1809,7 +1809,7 @@ public class Types {
             return;
         }
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), env);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) getReferredType(iteratorSymbol.retType));
         bLangInputClause.varType = varType;
@@ -2428,7 +2428,7 @@ public class Types {
             // There should be at least one listener compatible type and all the member types, except error type
             // should be listener compatible.
             int listenerCompatibleTypeCount = 0;
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            for (BType memberType : getAllTypes(type, true)) {
                 if (memberType.tag != TypeTags.ERROR) {
                     if (!checkListenerCompatibility(memberType)) {
                         return false;
@@ -2897,7 +2897,8 @@ public class Types {
                 if (sourceTypes.contains(symTable.nilType) != targetTypes.contains(symTable.nilType)) {
                     return false;
                 }
-                return checkValueSpaceHasSameType(((BFiniteType) target.getMemberTypes().iterator().next()),
+                BType type = target.getMemberTypes().iterator().next();
+                return checkValueSpaceHasSameType(((BFiniteType) getReferredType(type)),
                         sUnionType.getMemberTypes().iterator().next());
             }
 
@@ -3062,7 +3063,8 @@ public class Types {
     }
 
     private boolean checkUnionHasAllFiniteOrNilMembers(LinkedHashSet<BType> memberTypes) {
-        for (BType type : memberTypes) {
+        for (BType bType : memberTypes) {
+            BType type = getReferredType(bType);
             if (type.tag != TypeTags.FINITE && type.tag != TypeTags.NIL) {
                 return false;
             }
@@ -5785,7 +5787,19 @@ public class Types {
             Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
             for (BType member : memberTypes) {
                 BType memType = getReferredType(member);
+                if (memType.tag == TypeTags.FINITE || memType.tag == TypeTags.UNION) {
+                    isNonNilSimpleBasicTypeOrString(memType);
+                    continue;
+                }
                 if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (type.tag == TypeTags.FINITE) {
+            for (BLangExpression expression: ((BFiniteType) type).getValueSpace()) {
+                BType exprType = getReferredType(expression.getBType());
+                if (exprType.tag == TypeTags.NIL || !isSimpleBasicType(exprType.tag)) {
                     return false;
                 }
             }

@@ -109,6 +109,7 @@ include(':formatter:formatter-cli')
 include(':ls-extensions:json-to-record-converter')
 include(':ls-extensions:performance-analyzer-services')
 include(':ls-extensions:partial-parser')
+include(':ls-extensions:trigger-service')
 include(':project-api-test-artifact:event-logger-compiler-plugin')
 include(':project-api-test-artifact:compiler-plugin-with-one-dependency')
 include(':project-api-test-artifact:compiler-plugin-with-codeactions')
@@ -119,6 +120,8 @@ include(':project-api-test-artifact:function-node-analyzer-compiler-plugin')
 include(':project-api-test-artifact:bad-sad-compiler-plugin')
 include(':project-api-test-artifact:logging-file-appender-plugin')
 include(':project-api-test-artifact:init-function-codegen-compiler-plugin')
+include(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
+include(':identifier-util')
 
 //include(':ballerina-libs')
 include(':bir-spec')
@@ -139,6 +142,7 @@ project(':project-api-test-artifact:function-node-analyzer-compiler-plugin').pro
 project(':project-api-test-artifact:bad-sad-compiler-plugin').projectDir = file('project-api/test-artifacts/bad-sad-compiler-plugin')
 project(':project-api-test-artifact:logging-file-appender-plugin').projectDir = file('project-api/test-artifacts/logging-file-appender-plugin')
 project(':project-api-test-artifact:init-function-codegen-compiler-plugin').projectDir = file('project-api/test-artifacts/init-function-codegen-compiler-plugin')
+project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen').projectDir = file('project-api/test-artifacts/simple-code-gen-plugin-with-resource-gen')
 project(':ballerina-lang:internal').projectDir = file('langlib/lang.__internal')
 project(':ballerina-lang:annotations').projectDir = file('langlib/lang.annotations')
 project(':ballerina-lang:jballerina.java').projectDir = file('langlib/jballerina.java')
@@ -222,6 +226,7 @@ project(':testerina:report-tools').projectDir = file('misc/testerina/modules/rep
 project(':testerina-integration-test').projectDir = file('tests/testerina-integration-test')
 project(':jballerina-debugger-integration-test').projectDir = file('tests/jballerina-debugger-integration-test')
 project(':bir-spec').projectDir = file('docs/bir-spec')
+project(':identifier-util').projectDir = file('misc/identifier-util')
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
@@ -233,6 +238,7 @@ project(':formatter:formatter-cli').projectDir = file('misc/formatter/modules/fo
 project(':ls-extensions:json-to-record-converter').projectDir = file('misc/ls-extensions/modules/json-to-record-converter')
 project(':ls-extensions:performance-analyzer-services').projectDir = file('misc/ls-extensions/modules/performance-analyzer-services')
 project(':ls-extensions:partial-parser').projectDir = file('misc/ls-extensions/modules/partial-parser')
+project(':ls-extensions:trigger-service').projectDir = file('misc/ls-extensions/modules/trigger-service')
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"

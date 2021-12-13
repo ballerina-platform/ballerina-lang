@@ -49,10 +49,6 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     boolean hasBody();
 
-    void addWorker(WorkerNode worker);
-
-    List<? extends WorkerNode> getWorkers();
-
     SimpleVariableNode getRestParameters();
 
     void setRestParameter(SimpleVariableNode restParam);

@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -664,15 +664,15 @@ public class JvmPackageGen {
             BIRFunction func = findFunction(node, funcName);
             if (func != null) {
                 dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
-                        IdentifierUtils.decodeIdentifier(func.name.value));
+                        Utils.decodeIdentifier(func.name.value));
             } else {
                 dlog.error(node.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
-                        IdentifierUtils.decodeIdentifier(funcName));
+                        Utils.decodeIdentifier(funcName));
             }
             result = new byte[0];
         } catch (ClassTooLargeException e) {
             dlog.error(node.pos, DiagnosticErrorCode.FILE_TOO_LARGE,
-                    IdentifierUtils.decodeIdentifier(e.getClassName()));
+                    Utils.decodeIdentifier(e.getClassName()));
             result = new byte[0];
         } catch (Throwable e) {
             throw new BLangCompilerException(e.getMessage(), e);
@@ -706,7 +706,7 @@ public class JvmPackageGen {
             assert id != null;
             BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
-                Name lookupKey = new Name(IdentifierUtils.decodeIdentifier(objectNewIns.objectName));
+                Name lookupKey = new Name(Utils.decodeIdentifier(objectNewIns.objectName));
                 BSymbol typeSymbol = symbol.scope.lookup(lookupKey).symbol;
                 BObjectTypeSymbol objectTypeSymbol;
                 if (typeSymbol.kind == SymbolKind.TYPE_DEF) {

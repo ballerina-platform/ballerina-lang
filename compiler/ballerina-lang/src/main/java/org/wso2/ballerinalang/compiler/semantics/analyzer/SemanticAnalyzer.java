@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -80,12 +81,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -93,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
@@ -153,7 +151,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -178,9 +175,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -462,19 +457,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol)
                 .returnTypeAnnots.addAll(funcNode.returnTypeAnnAttachments);
 
-        this.processWorkers(funcNode, funcEnv);
-    }
-
-    private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
-        if (invNode.workers.size() > 0) {
-            invEnv.scope.entries.putAll(invNode.body.scope.entries);
-            for (BLangWorker worker : invNode.workers) {
-                this.symbolEnter.defineNode(worker, invEnv);
-            }
-            for (BLangWorker e : invNode.workers) {
-                analyzeNode(e, invEnv);
-            }
-        }
     }
 
     @Override
@@ -970,7 +952,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return;
         }
-
 
         // Here we create a new symbol environment to catch self references by keep the current
         // variable symbol in the symbol environment
@@ -1510,6 +1491,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (simpleVariable.symbol.type == symTable.semanticError) {
                     simpleVariable.symbol.state = DiagnosticState.UNKNOWN_TYPE;
                 }
+
+                variable.annAttachments.forEach(annotationAttachment -> {
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
+                    annotationAttachment.accept(this);
+                    variable.symbol.addAnnotation(annotationAttachment.annotationSymbol);
+                });
+
+                validateAnnotationAttachmentCount(variable.annAttachments);
                 break;
             case TUPLE_VARIABLE:
                 if (varRefExpr == null) {
@@ -1765,7 +1754,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case RECORD_VARIABLE:
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.variableList.forEach(value -> recursivelySetFinalFlag(value.valueBindingPattern));
-                recursivelySetFinalFlag((BLangVariable) recordVariable.restParam);
+                recursivelySetFinalFlag(recordVariable.restParam);
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
@@ -3677,35 +3666,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void inferServiceTypeFromListeners(BLangService serviceNode) {
+        List<BLangType> typeRefs = serviceNode.serviceClass.typeRefs;
+        if (!typeRefs.isEmpty()) {
+            serviceNode.inferredServiceType = typeRefs.get(0).getBType();
+            return;
+        }
+
         LinkedHashSet<BType> listenerTypes = new LinkedHashSet<>();
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             BType type = typeChecker.checkExpr(attachExpr, env);
             flatMapAndGetObjectTypes(listenerTypes, type);
         }
         BType inferred;
+        BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
         if (listenerTypes.size() == 1) {
             inferred = listenerTypes.iterator().next();
+            typeIdSet.add(getTypeIds(inferred));
         } else {
-            BTypeIdSet typeIdSet = null;
             for (BType attachType : listenerTypes) {
-                BObjectType objectType = (BObjectType) attachType;
-                // todo: distinct union is only allowed when all types have the same type-ids,
-                // we need to improve this here.
-                if (objectType.typeIdSet == null || objectType.typeIdSet.isEmpty()) {
-                    continue;
-                }
-                if (typeIdSet == null) {
-                    typeIdSet = objectType.typeIdSet;
-                } else if (!(typeIdSet.isAssignableFrom(objectType.typeIdSet)
-                        && objectType.typeIdSet.isAssignableFrom(typeIdSet))) {
-                    dlog.error(serviceNode.attachedExprs.get(0).pos,
-                            DiagnosticErrorCode.CANNOT_INFER_SERVICE_TYPES_FROM_LISTENERS);
-                }
+                typeIdSet.add(getTypeIds(attachType));
             }
             inferred = BUnionType.create(null, listenerTypes);
         }
 
         serviceNode.inferredServiceType = inferred;
+        BType tServiceClass = serviceNode.serviceClass.getBType();
+        getTypeIds(tServiceClass).add(typeIdSet);
+    }
+
+    private BTypeIdSet getTypeIds(BType type) {
+        int tag = type.tag;
+        if (tag == TypeTags.SERVICE || tag == TypeTags.OBJECT) {
+            return ((BObjectType) type).typeIdSet;
+        } else if (tag == TypeTags.TYPEREFDESC) {
+            return getTypeIds(((BTypeReferenceType) type).referredType);
+        }
+        return BTypeIdSet.emptySet();
     }
 
     private void flatMapAndGetObjectTypes(Set<BType> result, BType type) {
@@ -3803,26 +3799,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResource resourceNode) {
-    }
-
-    @Override
-    public void visit(BLangTryCatchFinally tryCatchFinally) {
-        dlog.error(tryCatchFinally.pos, DiagnosticErrorCode.TRY_STMT_NOT_SUPPORTED);
-    }
-
-    @Override
-    public void visit(BLangCatch bLangCatch) {
-        SymbolEnv catchBlockEnv = SymbolEnv.createBlockEnv(bLangCatch.body, env);
-        analyzeNode(bLangCatch.param, catchBlockEnv);
-        if (bLangCatch.param.getBType().tag != TypeTags.ERROR) {
-            dlog.error(bLangCatch.param.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.errorType,
-                       bLangCatch.param.getBType());
-        }
-        analyzeStmt(bLangCatch.body, catchBlockEnv);
-    }
-
-    @Override
     public void visit(BLangTransaction transactionNode) {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
 
@@ -3906,12 +3882,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorker workerNode) {
-        SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
-        this.analyzeNode(workerNode.body, workerEnv);
-    }
-
-    @Override
     public void visit(BLangWorkerSend workerSendNode) {
         // TODO Need to remove this cached env
         workerSendNode.env = this.env;
@@ -3955,11 +3925,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangBreak breakNode) {
         this.notCompletedNormally = true;
         this.breakFound = true;
-    }
-
-    @Override
-    public void visit(BLangThrow throwNode) {
-        dlog.error(throwNode.pos, DiagnosticErrorCode.THROW_STMT_NOT_SUPPORTED);
     }
 
     @Override

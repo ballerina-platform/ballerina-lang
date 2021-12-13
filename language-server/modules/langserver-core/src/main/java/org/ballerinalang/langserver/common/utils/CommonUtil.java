@@ -82,6 +82,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -113,7 +114,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -156,6 +156,7 @@ public class CommonUtil {
     public static final String BALLERINA_CMD;
 
     public static final String URI_SCHEME_BALA = "bala";
+    public static final String URI_SCHEME_EXPR = "expr";
     public static final String URI_SCHEME_FILE = "file";
     public static final String LANGUAGE_ID_BALLERINA = "ballerina";
 
@@ -164,6 +165,8 @@ public class CommonUtil {
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
     public static final String SDK_VERSION = System.getProperty("ballerina.version");
+
+    public static final String EXPR_SCHEME = "expr";
 
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
@@ -175,7 +178,7 @@ public class CommonUtil {
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
             SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
 
-    private static final String SELF_KW = "self";
+    public static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
@@ -397,7 +400,7 @@ public class CommonUtil {
             default:
                 return getDefaultValueForTypeDescKind(typeKind);
         }
-        
+
         return Optional.of(typeString);
     }
 
@@ -765,7 +768,7 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
-        // In some scenarios the compiler sends the symbol name as empty string. Hence add the check
+        // In some scenarios the compiler sends the symbol name as empty string. Hence, add the check
         if (symbol != null && symbol.getName().isPresent() && !symbol.getName().get().isEmpty()) {
             // Start naming with symbol-name
             return generateVariableName(1, symbol.getName().get(), names);
@@ -817,7 +820,7 @@ public class CommonUtil {
                 List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
                 newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
             }
-            // If empty, revert back to original name
+            // If empty, revert to original name
             if (newName.isEmpty()) {
                 newName = name;
             }
@@ -1018,6 +1021,16 @@ public class CommonUtil {
     }
 
     /**
+     * Escapes the escape characters present in an identifier.
+     *
+     * @param identifier Identifier
+     * @return The identifier with escape characters escaped
+     */
+    public static String escapeEscapeCharsInIdentifier(String identifier) {
+        return identifier.replaceAll("\\\\", "\\\\\\\\");
+    }
+
+    /**
      * Returns module prefix and process imports required.
      *
      * @param importsAcceptor import acceptor
@@ -1085,38 +1098,23 @@ public class CommonUtil {
     }
 
     /**
-     * Node comparator to compare the nodes by position.
-     */
-    public static class BLangNodeComparator implements Comparator<BLangNode> {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compare(BLangNode node1, BLangNode node2) {
-            // TODO: Fix?
-            Location node1Loc = node1.getPosition();
-            Location node2Loc = node2.getPosition();
-            if (node1Loc == null || node2Loc == null) {
-                return -1;
-            }
-            return node1Loc.lineRange().startLine().line() - node2Loc.lineRange().startLine().line();
-        }
-    }
-
-    /**
-     * Get the path from given string URI.
+     * Get the path from given string URI. Even if the given URI's scheme is expr, we convert it to file scheme and
+     * provide a valid Path
      *
      * @param uri file uri
      * @return {@link Optional} Path from the URI
      */
     public static Optional<Path> getPathFromURI(String uri) {
-        try {
-            return Optional.of(Paths.get(new URL(uri).toURI()));
-        } catch (URISyntaxException | MalformedURLException e) {
-            // ignore
+        URI fileUri = URI.create(uri);
+        if (fileUri.getScheme().equals(EXPR_SCHEME)) {
+            String newUri = fileUri.toString().replace(EXPR_SCHEME + ":", "file:");
+            try {
+                return Optional.of(Paths.get(new URL(newUri).toURI()));
+            } catch (URISyntaxException | MalformedURLException e) {
+                return Optional.empty();
+            }
         }
-        return Optional.empty();
+        return Optional.of(Paths.get(fileUri));
     }
 
     /**
@@ -1335,19 +1333,37 @@ public class CommonUtil {
                 .findFirst();
     }
 
+    /**
+     * Returns the type name (derived from signature) with version infromation removed.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol
+     * @return Signature
+     */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
         String typeSignature = typeSymbol.signature();
-        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(typeSignature);
+        return getModifiedSignature(context, typeSignature);
+    }
+
+    /**
+     * Given a signature, this method will remove the version information from the signature.
+     *
+     * @param context   Context
+     * @param signature Signature to be modified.
+     * @return Modified signature
+     */
+    public static String getModifiedSignature(DocumentServiceContext context, String signature) {
+        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(signature);
         while (matcher.find()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
             String matchedString = matcher.group();
             String modulePrefix = getModulePrefix(context, orgName, moduleName);
             String replaceText = modulePrefix.isEmpty() ? matchedString + Names.VERSION_SEPARATOR : matchedString;
-            typeSignature = typeSignature.replace(replaceText, modulePrefix);
+            signature = signature.replace(replaceText, modulePrefix);
         }
 
-        return typeSignature;
+        return signature;
     }
 
     public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
@@ -1416,7 +1432,7 @@ public class CommonUtil {
     }
 
     private static List<String> getBallerinaKeywords() {
-        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we comeup with a proper api.
+        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we come up with a proper api.
         // Related discussion can be found in https://github.com/ballerina-platform/ballerina-lang/discussions/28827
         try {
             Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");
@@ -1830,5 +1846,16 @@ public class CommonUtil {
             }
         }
         return true;
+    }
+    
+    public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
+        URI original = URI.create(uri);
+        try {
+            return new URI(workspaceManager.uriScheme(),
+                    original.getSchemeSpecificPart(),
+                    original.getFragment()).toString();
+        } catch (URISyntaxException e) {
+            return uri;
+        }
     }
 }

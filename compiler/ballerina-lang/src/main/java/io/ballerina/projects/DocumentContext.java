@@ -30,7 +30,7 @@ import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.SourceKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.parser.BLangNodeBuilder;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -99,16 +99,16 @@ class DocumentContext {
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
+        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
+        SyntaxTree syntaxTree = syntaxTree();
+        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
+
         nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
             return nodeCloner.cloneCUnit(compilationUnit);
         }
-        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
-
-        SyntaxTree syntaxTree = syntaxTree();
-        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
-        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, pkgID, this.name);
-        compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.rootNode()).get(0);
+        BLangNodeBuilder bLangNodeBuilder = new BLangNodeBuilder(compilerContext, pkgID, this.name);
+        compilationUnit = (BLangCompilationUnit) bLangNodeBuilder.accept(syntaxTree.rootNode()).get(0);
         compilationUnit.setSourceKind(sourceKind);
         return nodeCloner.cloneCUnit(compilationUnit);
     }

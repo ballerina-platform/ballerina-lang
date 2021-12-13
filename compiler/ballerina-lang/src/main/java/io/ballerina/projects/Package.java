@@ -490,6 +490,11 @@ public class Package {
                 CompilerContext compilerContext = project.projectEnvironmentContext()
                         .getService(CompilerContext.class);
                 PackageCache packageCache = PackageCache.getInstance(compilerContext);
+
+                io.ballerina.projects.environment.PackageCache environmentPackageCache =
+                        project.projectEnvironmentContext().environment().getService(
+                        io.ballerina.projects.environment.PackageCache.class);
+
                 for (ResolvedPackageDependency dependency : diff) {
                     for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
                         if (!dependency.packageInstance().descriptor().isLangLibPackage()) {
@@ -497,8 +502,9 @@ public class Package {
                             PackageID packageID = module.descriptor().moduleCompilationId();
                             // remove the module from the compiler packageCache
                             packageCache.remove(packageID);
-                            // we need to also reset the module in the project environment packageCache
-                            // to make the module recompile and add symbols
+                            // reset the module in the project environment packageCache to make the module recompile
+                            // and add symbols
+                            environmentPackageCache.removePackage(module.moduleId().packageId());
                             module.moduleContext().setCompilationState(null);
                         }
                     }
@@ -550,10 +556,20 @@ public class Package {
                     testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
                 }
 
+                Map<DocumentId, ResourceContext> resourceMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.resourceIds()) {
+                    resourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
+                }
+
+                Map<DocumentId, ResourceContext> testResourceMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.testResourceIds()) {
+                    testResourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
+                }
+
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies()));
+                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
             }
             updateModules(moduleContextSet);
         }
