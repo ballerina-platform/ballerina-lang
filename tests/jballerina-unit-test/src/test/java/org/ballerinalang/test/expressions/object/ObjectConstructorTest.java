@@ -89,7 +89,13 @@ public class ObjectConstructorTest {
     public void testClosureSupportForObjectCtorAnnotations() {
         BRunUtil.invoke(annotations, "testAnnotations");
         BRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
-//        Assert.assertEquals(annotations.getWarnCount(), 0);
+    }
+
+    @Test
+    public void testUnusedVariableWarnings() {
+        Assert.assertEquals(compiledConstructedObjects.getWarnCount(), 1);
+        Assert.assertEquals(closures.getWarnCount(), 16);
+        Assert.assertEquals(annotations.getWarnCount(), 1); // unused variable 'obj'
     }
 
     @Test
