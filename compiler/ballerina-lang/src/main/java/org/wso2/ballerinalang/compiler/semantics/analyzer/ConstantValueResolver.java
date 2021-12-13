@@ -102,6 +102,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        if (!unresolvedConstants.containsKey(constant.symbol)) {
+            return; // Already visit
+        }
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
         this.resolvingConstants.add(this.currentConstSymbol);
