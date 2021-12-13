@@ -75,7 +75,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
-    private Map<BConstantSymbol, BType> updatedTypes = new HashMap<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -494,13 +493,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constantMap.containsKey(symbol.name.value)) { // Check and skip duplicate constants
             return;
         }
-        if (symbol.type.getKind() == TypeKind.FINITE) {
-            updatedTypes.put(symbol, symbol.type); // Constant has a singleton type. Store it to reuse.
-        } else if (symbol.value != null) {
+        if (symbol.type.getKind() != TypeKind.FINITE && symbol.value != null) {
             BType singletonType = checkType(constant.expr, constant, symbol.value.value, symbol.type, symbol.pos);
             if (singletonType != null) {
                 symbol.type = singletonType;
-                updatedTypes.put(symbol, singletonType); // Store resolved constant to reuse.
             }
         }
     }
@@ -516,32 +512,24 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BType checkType(BLangExpression expr, BLangConstant constant, Object value, BType type, Location pos) {
         if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                updatedTypes.containsKey(((BLangSimpleVarRef) expr).symbol)) {
-            return updatedTypes.get(((BLangSimpleVarRef) expr).symbol); // Reference is already resolved.
+                ((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.FINITE) {
+            return ((BLangSimpleVarRef) expr).symbol.type; // Reference is already resolved.
         }
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
-                return createFiniteType(constant, createConstantNumericLiteralExpression(value, type, pos));
+                BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                return createFiniteType(constant, updateLiteral(numericLiteral, value, type, pos));
             case TypeTags.STRING:
             case TypeTags.NIL:
             case TypeTags.BOOLEAN:
-                return createFiniteType(constant, createConstantLiteralExpression(value, type, pos));
+                BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                return createFiniteType(constant, updateLiteral(literal, value, type, pos));
             default:
                 return null;
         }
-    }
-
-    private BLangNumericLiteral createConstantNumericLiteralExpression(Object value, BType type, Location pos) {
-        BLangNumericLiteral literal = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-        return (BLangNumericLiteral) updateLiteral(literal, value, type, pos);
-    }
-
-    private BLangLiteral createConstantLiteralExpression(Object value, BType type, Location pos) {
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        return updateLiteral(literal, value, type, pos);
     }
 
     private BLangLiteral updateLiteral(BLangLiteral literal, Object value, BType type, Location pos) {
