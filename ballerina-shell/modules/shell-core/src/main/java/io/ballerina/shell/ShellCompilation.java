@@ -23,9 +23,8 @@ import io.ballerina.projects.PackageCompilation;
 import java.util.Optional;
 
 /**
- * Main shell entry point.
- * Creates an virtual shell which will accept input from
- * a terminal and evaluate each expression.
+ * Shell Compilation class.
+ * Contains package compilation & exception status related to compilation
  *
  * @since 2.0.0
  */
