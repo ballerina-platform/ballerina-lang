@@ -113,7 +113,7 @@ public class EnumDeclSymbolTest {
 
     @Test(dataProvider = "EnumMemberDeclarationProvider")
     public void testEnumMemberDeclarations(int line, int col, String expName, String expDoc,
-                                           String expAnnot, List<Qualifier> expQuals, TypeDescKind typeDescKind) {
+                                           String expAnnot, List<Qualifier> expQuals) {
         ConstantSymbol symbol = (ConstantSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                           expName, SymbolKind.ENUM_MEMBER);
         // check docs (metadata)
@@ -152,14 +152,14 @@ public class EnumDeclSymbolTest {
     @DataProvider(name = "EnumMemberDeclarationProvider")
     public Object[][] getEnumMemberDeclInfo() {
         return new Object[][]{
-                {18, 4, "RED", null, null, List.of(), TypeDescKind.SINGLETON},
-                {19, 4, "BLUE", null, null, List.of(), TypeDescKind.SINGLETON},
-                {28, 4, "TWO", "This kind two", null, List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {30, 4, "THREE", null, "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {38, 4, "AMERICA", null, "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {41, 4, "AUSTRALIA", "Australia", "enumMemberDecl", List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
-                {42, 4, "EUROPE", null, null, List.of(Qualifier.PUBLIC), TypeDescKind.STRING},
-                {44, 4, "OTHER", "Other", null, List.of(Qualifier.PUBLIC), TypeDescKind.SINGLETON},
+                {18, 4, "RED", null, null, List.of()},
+                {19, 4, "BLUE", null, null, List.of()},
+                {28, 4, "TWO", "This kind two", null, List.of(Qualifier.PUBLIC)},
+                {30, 4, "THREE", null, "enumMemberDecl", List.of(Qualifier.PUBLIC)},
+                {38, 4, "AMERICA", null, "enumMemberDecl", List.of(Qualifier.PUBLIC)},
+                {41, 4, "AUSTRALIA", "Australia", "enumMemberDecl", List.of(Qualifier.PUBLIC)},
+                {42, 4, "EUROPE", null, null, List.of(Qualifier.PUBLIC)},
+                {44, 4, "OTHER", "Other", null, List.of(Qualifier.PUBLIC)},
         };
     }
 }

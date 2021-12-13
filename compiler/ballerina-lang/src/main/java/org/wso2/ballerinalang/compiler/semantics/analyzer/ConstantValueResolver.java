@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -29,6 +28,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -50,12 +50,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +73,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
     private Location currentPos;
+    private SymbolTable symbolTable;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
@@ -83,6 +82,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
     }
 
     public static ConstantValueResolver getInstance(CompilerContext context) {
@@ -103,7 +103,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         if (!unresolvedConstants.containsKey(constant.symbol)) {
-            return; // Already visit
+            return; // Already visited.
         }
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
@@ -522,9 +522,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BFiniteType createFiniteType(BLangConstant constant, BLangExpression expr) {
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, constant.symbol.pkgID, null,
-                constant.symbol.owner, constant.symbol.pos, VIRTUAL);
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, 0, Names.EMPTY,
+                constant.symbol.pkgID, null, constant.symbol.owner, constant.symbol.pos, VIRTUAL);
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         finiteType.addValue(expr);
         return finiteType;
@@ -537,11 +536,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
         switch (type.tag) {
             case TypeTags.INT:
-            case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
                 BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
                 return createFiniteType(constant, updateLiteral(numericLiteral, value, type, pos));
+            case TypeTags.BYTE:
+                BLangNumericLiteral byteLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                return createFiniteType(constant, updateLiteral(byteLiteral, value, symbolTable.intType, pos));
             case TypeTags.STRING:
             case TypeTags.NIL:
             case TypeTags.BOOLEAN:

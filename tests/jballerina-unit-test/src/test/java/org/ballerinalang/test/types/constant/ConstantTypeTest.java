@@ -27,6 +27,8 @@ import org.testng.annotations.Test;
 
 /**
  * Constant type test cases.
+ *
+ * @since 2.0.0
  */
 public class ConstantTypeTest {
 
@@ -38,7 +40,7 @@ public class ConstantTypeTest {
     }
 
     @Test
-    public void testBitwiseConstExpressions() {
+    public void testTypesOfConstants() {
         BRunUtil.invoke(compileResult, "testTypesOfConstants");
     }
 
