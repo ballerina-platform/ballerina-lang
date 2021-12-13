@@ -106,6 +106,10 @@ public class ErrorUtils {
                 BLangExceptionHelper.getErrorDetails(RuntimeErrors.INT_RANGE_OVERFLOW_ERROR));
     }
 
+    public static BError createIntOverflowError(BString errorMsg) {
+        throw createError(errorMsg, BLangExceptionHelper.getErrorDetails(RuntimeErrors.INT_RANGE_OVERFLOW_ERROR));
+    }
+
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorDetails(RuntimeErrors.TYPE_CAST_ERROR,

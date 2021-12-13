@@ -17,13 +17,13 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
@@ -352,7 +352,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName());
+        String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
 
         // clean file name from pkgName since we print the file name after the method name.
@@ -370,7 +370,7 @@ public class ErrorValue extends BError implements RefValue {
         }
 
         // Append the method name
-        sb.append(IdentifierUtils.decodeIdentifier(stackTraceElement.getMethodName()));
+        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
         // Append the filename
         sb.append("(").append(stackTraceElement.getFileName());
         // Append the line number

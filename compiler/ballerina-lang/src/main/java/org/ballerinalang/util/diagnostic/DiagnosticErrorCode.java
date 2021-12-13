@@ -172,6 +172,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
     FLOAT_TOO_LARGE("BCE2129", "float.too.large"),
     FLOAT_TOO_SMALL("BCE2130", "float.too.small"),
+    CONSTANT_CYCLIC_REFERENCE("BCE2131", "constant.cyclic.reference"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -449,8 +450,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SAFE_NAVIGATION_NOT_REQUIRED("BCE3000", "safe.navigation.not.required"),
     OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS("BCE3001", "optional.field.access.not.required.on.lhs"),
 
-    // Checked expression related errors
-    CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE3030", "checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
 

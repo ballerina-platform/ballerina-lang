@@ -314,7 +314,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public K[] getKeys() {
-        return (K[]) keys.values().toArray(new Object[]{});
+        Object[] keyArr = new Object[keys.size()];
+        int i = 0;
+        for (K key : keys.values()) {
+            keyArr[i] = key;
+            i++;
+        }
+        return (K[]) keyArr;
     }
 
     @Override

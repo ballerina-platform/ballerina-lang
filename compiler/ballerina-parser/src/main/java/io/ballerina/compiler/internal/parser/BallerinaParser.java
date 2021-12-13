@@ -5521,7 +5521,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr, isInConditionalExpr);
                 break;
             case QUESTION_MARK_TOKEN:
-                newLhsExpr = parseConditionalExpression(lhsExpr);
+                newLhsExpr = parseConditionalExpression(lhsExpr, isInConditionalExpr);
                 break;
             case DOT_LT_TOKEN:
                 newLhsExpr = parseXMLFilterExpression(lhsExpr);
@@ -8787,23 +8787,32 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkKeyword, expr);
         }
 
-        STNode funcName;
-        if (expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE || expr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            funcName = SyntaxErrors.addDiagnostic(expr,
-                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
-        } else {
-            checkKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(checkKeyword, expr,
-                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
-            funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-            funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
-        }
-
         STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
         STNode arguments = STNodeFactory.createEmptyNodeList();
         STNode closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-        STNode funcCallExpr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
-                closeParenToken);
-        return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkKeyword, funcCallExpr);
+
+        STNode funcOrMethodCall;
+        if (expr.kind == SyntaxKind.FIELD_ACCESS) {
+            STFieldAccessExpressionNode fieldAccessExpr = (STFieldAccessExpressionNode) expr;
+            funcOrMethodCall = STNodeFactory.createMethodCallExpressionNode(fieldAccessExpr.expression,
+                    fieldAccessExpr.dotToken, fieldAccessExpr.fieldName, openParenToken, arguments, closeParenToken);
+            funcOrMethodCall = SyntaxErrors.addDiagnostic(funcOrMethodCall,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+        } else if (expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE || expr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            STNode funcName = SyntaxErrors.addDiagnostic(expr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+            funcOrMethodCall = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
+                    closeParenToken);
+        } else {
+            checkKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(checkKeyword, expr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+            STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
+            funcOrMethodCall = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
+                    closeParenToken);
+        }
+
+        return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkKeyword, funcOrMethodCall);
     }
 
     private STNode parseActionStatement(STNode action) {
@@ -12962,62 +12971,96 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>conditional-expr := expression ? expression : expression</code>
      *
-     * @param lhsExpr Preceding expression of the question mark
+     * @param lhsExpr             Preceding expression of the question mark
+     * @param isInConditionalExpr whether calling from a conditional-expr
      * @return Parsed node
      */
-    private STNode parseConditionalExpression(STNode lhsExpr) {
+    private STNode parseConditionalExpression(STNode lhsExpr, boolean isInConditionalExpr) {
         startContext(ParserRuleContext.CONDITIONAL_EXPRESSION);
         STNode questionMark = parseQuestionMark();
         // start parsing middle-expr, by giving higher-precedence to the middle-expr, over currently
         // parsing conditional expr. That is done by lowering the current precedence.
         STNode middleExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false, true);
 
+        // There are special cases when the nextToken is not `:`. Any expression that contains qualified name ref at
+        // the beginning or at the end, is a possible match for conditionalExpr.
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            // There are special cases when the nextToken is not `:`. Any expression that contains qualified name ref at
-            // the beginning or at the end, is a possible match for conditionalExpr.
+            if (middleExpr.kind == SyntaxKind.CONDITIONAL_EXPRESSION) {
+                STConditionalExpressionNode innerConditionalExpr = (STConditionalExpressionNode) middleExpr;
+                STNode innerMiddleExpr = innerConditionalExpr.middleExpression;
+
+                // eg1 `a? b? c:d:e` reaches here as `a? (b? (c:d) : e)`
+                // eg2 `a? b? c:d.e:f` reaches here as `a? (b? (c:d.e) : f)`
+                // eg3 `a? b? c.d:e:f` reaches here as `a? (b? (c.d:e) : f)`
+                STNode rightMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(innerMiddleExpr, false);
+                if (rightMostQNameRef != null) {
+                    middleExpr = generateConditionalExprForRightMost(innerConditionalExpr.lhsExpression,
+                            innerConditionalExpr.questionMarkToken, innerMiddleExpr, rightMostQNameRef);
+                    endContext();
+                    return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr,
+                            innerConditionalExpr.colonToken, innerConditionalExpr.endExpression);
+                }
+
+                STNode leftMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(innerMiddleExpr, true);
+                if (leftMostQNameRef != null) {
+                    middleExpr = generateConditionalExprForLeftMost(innerConditionalExpr.lhsExpression,
+                            innerConditionalExpr.questionMarkToken, innerMiddleExpr, leftMostQNameRef);
+                    endContext();
+                    return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr,
+                            innerConditionalExpr.colonToken, innerConditionalExpr.endExpression);
+                }
+            }
 
             // eg1. `a ? b : c`, since `b:c` matches to var-ref due to expr-precedence.
             // eg2. `a ? b : c()`, since `b:c()` matches to func-call due to expr-precedence.
             // eg3. `a ? <TargetType> b : c` since `b:c` matches to var-ref due to expr-precedence.
-            STNode leftMostQualifiedNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, true);
-            if (leftMostQualifiedNameRef != null) {
-                STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) leftMostQualifiedNameRef;
-                STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
-                STNode endExpr = middleExpr.replace(leftMostQualifiedNameRef, simpleNameRef);
-
-                middleExpr = ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
-                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, middleExpr, endExpr);
+            STNode rightMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, false);
+            if (rightMostQNameRef != null) {
+                endContext();
+                return generateConditionalExprForRightMost(lhsExpr, questionMark, middleExpr, rightMostQNameRef);
             }
 
-            STNode rightMostQualifiedNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, false);
-            if (rightMostQualifiedNameRef != null) {
-                STQualifiedNameReferenceNode qualifiedNameRef =
-                        (STQualifiedNameReferenceNode) rightMostQualifiedNameRef;
-                STNode endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
-
-                STNode simpleNameRef =
-                        ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
-                middleExpr = middleExpr.replace(rightMostQualifiedNameRef, simpleNameRef);
-                return generateConditionalExpr(lhsExpr, qualifiedNameRef, questionMark, middleExpr, endExpr);
+            STNode leftMostQNameRef = ConditionalExprResolver.getQualifiedNameRefNode(middleExpr, true);
+            if (leftMostQNameRef != null) {
+                endContext();
+                return generateConditionalExprForLeftMost(lhsExpr, questionMark, middleExpr, leftMostQNameRef);
             }
         }
 
-        return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr);
+        return parseConditionalExprRhs(lhsExpr, questionMark, middleExpr, isInConditionalExpr);
     }
 
-    private STNode parseConditionalExprRhs(STNode lhsExpr, STNode questionMark, STNode middleExpr) {
+    private STNode generateConditionalExprForRightMost(STNode lhsExpr, STNode questionMark, STNode middleExpr,
+                                                       STNode rightMostQualifiedNameRef) {
+        STQualifiedNameReferenceNode qualifiedNameRef =
+                (STQualifiedNameReferenceNode) rightMostQualifiedNameRef;
+        STNode endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+
+        STNode simpleNameRef =
+                ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
+        middleExpr = middleExpr.replace(rightMostQualifiedNameRef, simpleNameRef);
+        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, qualifiedNameRef.colon,
+                endExpr);
+    }
+
+    private STNode generateConditionalExprForLeftMost(STNode lhsExpr, STNode questionMark, STNode middleExpr,
+                                                      STNode leftMostQualifiedNameRef) {
+        STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) leftMostQualifiedNameRef;
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
+        STNode endExpr = middleExpr.replace(leftMostQualifiedNameRef, simpleNameRef);
+        middleExpr = ConditionalExprResolver.getSimpleNameRefNode(qualifiedNameRef.modulePrefix);
+        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, qualifiedNameRef.colon,
+                endExpr);
+    }
+
+    private STNode parseConditionalExprRhs(STNode lhsExpr, STNode questionMark, STNode middleExpr,
+                                           boolean isInConditionalExpr) {
         STNode colon = parseColon();
         endContext();
         // start parsing end-expr, by giving higher-precedence to the end-expr, over currently
         // parsing conditional expr. That is done by lowering the current precedence.
-        STNode endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false);
-        return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
-    }
-
-    private STNode generateConditionalExpr(STNode lhsExpr, STQualifiedNameReferenceNode qualifiedNameRef,
-                                           STNode questionMark, STNode middleExpr, STNode endExpr) {
-        STNode colon = qualifiedNameRef.colon;
-        endContext();
+        STNode endExpr = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, true, false,
+                isInConditionalExpr);
         return STNodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
     }
 
@@ -14856,7 +14899,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode expr = getExpression(typedBindingPatternOrExpr);
-        expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, expr, false, true);
+        expr = getExpression(parseExpressionRhs(DEFAULT_OP_PRECEDENCE, expr, false, true));
         return parseStatementStartWithExprRhs(expr);
     }
 
@@ -14883,7 +14926,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnonFuncExprOrTypedBPWithFuncType(qualifiers);
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
-                typeOrExpr = parseTupleTypeDescOrExprStartsWithOpenBracket();
+                typeOrExpr = parseTupleTypeDescOrListConstructor(STNodeFactory.createEmptyNodeList());
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             // Can be a singleton type or expression.
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -15031,7 +15074,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isDefiniteTypeDesc(SyntaxKind kind) {
-        return kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 && kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0;
+        return kind.compareTo(SyntaxKind.RECORD_TYPE_DESC) >= 0 && kind.compareTo(SyntaxKind.FUTURE_TYPE_DESC) <= 0;
     }
 
     private boolean isDefiniteExpr(SyntaxKind kind) {
@@ -15039,8 +15082,12 @@ public class BallerinaParser extends AbstractParser {
             return false;
         }
 
-        return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
+        return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 && kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0;
+    }
+
+    private boolean isDefiniteAction(SyntaxKind kind) {
+        return kind.compareTo(SyntaxKind.REMOTE_METHOD_CALL_ACTION) >= 0 && 
+                kind.compareTo(SyntaxKind.COMMIT_ACTION) <= 0;
     }
 
     /**
@@ -15108,7 +15155,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeDescOrExprRhs(typeOrExpr);
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
-                typeOrExpr = parseTupleTypeDescOrExprStartsWithOpenBracket();
+                typeOrExpr = parseTupleTypeDescOrListConstructor(STNodeFactory.createEmptyNodeList());
                 break;
             // Can be a singleton type or expression.
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -15168,7 +15215,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode params = STNodeFactory.createEmptyNodeList();
                 STNode anonFuncParam =
                         STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
-                return anonFuncParam;
+                return parseImplicitAnonFunc(anonFuncParam, false);
             default:
                 return STNodeFactory.createNilLiteralNode(openParen, closeParen);
         }
@@ -15408,35 +15455,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
-    }
-
-    private STNode parseTupleTypeDescOrExprStartsWithOpenBracket() {
-        startContext(ParserRuleContext.BRACKETED_LIST);
-        STNode openBracket = parseOpenBracket();
-        List<STNode> members = new ArrayList<>();
-        STNode memberEnd;
-        while (!isEndOfListConstructor(peek().kind)) {
-            STNode expr = parseTypeDescOrExpr();
-            expr = getTypeDescFromExpr(expr);
-            // Tuple type desc can contain rest descriptor which is not a regular type desc,
-            // hence handle it here.
-            if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN && isDefiniteTypeDesc(expr.kind)) {
-                STNode ellipsis = consume();
-                expr = STNodeFactory.createRestDescriptorNode(expr, ellipsis);
-            }
-            members.add(expr);
-
-            memberEnd = parseBracketedListMemberEnd();
-            if (memberEnd == null) {
-                break;
-            }
-            members.add(memberEnd);
-        }
-
-        STNode memberNodes = STNodeFactory.createNodeList(members);
-        STNode closeBracket = parseCloseBracket();
-        endContext();
-        return STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberNodes, closeBracket);
     }
 
     // ------------------------ Typed binding patterns ---------------------------
@@ -17068,7 +17086,9 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case COMMA_TOKEN: // [a, b, c],
             case CLOSE_BRACE_TOKEN: // [a, b, c]}
-            case CLOSE_BRACKET_TOKEN:// [a, b, c]]
+            case CLOSE_BRACKET_TOKEN: // [a, b, c]]
+            case PIPE_TOKEN: // [a, b, c] |
+            case BITWISE_AND_TOKEN: // [a, b, c] &
                 if (!isRoot) {
                     endContext();
                     return new STAmbiguousCollectionNode(SyntaxKind.TUPLE_TYPE_DESC_OR_LIST_CONST, openBracket, members,
@@ -18371,6 +18391,10 @@ public class BallerinaParser extends AbstractParser {
      * @return Type descriptor
      */
     private STNode getTypeDescFromExpr(STNode expression) {
+        if (isDefiniteTypeDesc(expression.kind) || expression.kind == SyntaxKind.COMMA_TOKEN) {
+            return expression;
+        }
+        
         switch (expression.kind) {
             case INDEXED_EXPRESSION:
                 return parseArrayTypeDescriptorNode((STIndexedExpressionNode) expression);
@@ -18378,6 +18402,7 @@ public class BallerinaParser extends AbstractParser {
             case BOOLEAN_LITERAL:
             case STRING_LITERAL:
             case NULL_LITERAL:
+            case UNARY_EXPRESSION:
                 return STNodeFactory.createSingletonTypeDescriptorNode(expression);
             case TYPE_REFERENCE_TYPE_DESC:
                 // TODO: this is a temporary workaround
@@ -18392,6 +18417,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createNilTypeDescriptorNode(nilLiteral.openParenToken, nilLiteral.closeParenToken);
             case BRACKETED_LIST:
             case LIST_BP_OR_LIST_CONSTRUCTOR:
+            case TUPLE_TYPE_DESC_OR_LIST_CONST:    
                 STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) expression;
                 STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(innerList.members));
                 return STNodeFactory.createTupleTypeDescriptorNode(innerList.collectionStartToken, memberTypeDescs,
@@ -18408,12 +18434,15 @@ public class BallerinaParser extends AbstractParser {
                         break;
                 }
                 return expression;
-            case UNARY_EXPRESSION:
-                return STNodeFactory.createSingletonTypeDescriptorNode(expression);
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
-            default:
                 return expression;
+            default:
+                STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(
+                        SyntaxKind.IDENTIFIER_TOKEN, DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+                simpleTypeDescIdentifier = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(simpleTypeDescIdentifier, 
+                        expression);
+                return STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
         }
     }
 
@@ -18517,7 +18546,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode getExpression(STNode ambiguousNode) {
-        if (isEmpty(ambiguousNode)) {
+        if (isEmpty(ambiguousNode) || 
+                (isDefiniteExpr(ambiguousNode.kind) && ambiguousNode.kind != SyntaxKind.INDEXED_EXPRESSION) || 
+                isDefiniteAction(ambiguousNode.kind) || ambiguousNode.kind == SyntaxKind.COMMA_TOKEN) {
             return ambiguousNode;
         }
 
@@ -18572,23 +18603,30 @@ public class BallerinaParser extends AbstractParser {
             case INDEXED_EXPRESSION:
                 STIndexedExpressionNode indexedExpressionNode = (STIndexedExpressionNode) ambiguousNode;
                 STNodeList keys = (STNodeList) indexedExpressionNode.keyExpression;
-                if (keys.size() == 0) {
-                    STNode lhsExpr = indexedExpressionNode.containerExpression;
-                    STNode openBracket = indexedExpressionNode.openBracket;
-                    STNode closeBracket = indexedExpressionNode.closeBracket;
-                    STNode missingVarRef = STNodeFactory
-                           .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
-                    STNode keyExpr = STNodeFactory.createNodeList(missingVarRef);
-                    closeBracket = SyntaxErrors.addDiagnostic(closeBracket,
-                            DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
-                    ambiguousNode = STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr,
-                            closeBracket);
+                
+                if (keys.size() != 0) {
+                    return ambiguousNode;
                 }
-                return ambiguousNode;
+                
+                STNode lhsExpr = indexedExpressionNode.containerExpression;
+                STNode openBracket = indexedExpressionNode.openBracket;
+                STNode closeBracket = indexedExpressionNode.closeBracket;
+                STNode missingVarRef = STNodeFactory
+                        .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+                STNode keyExpr = STNodeFactory.createNodeList(missingVarRef);
+                closeBracket = SyntaxErrors.addDiagnostic(closeBracket,
+                        DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+                return STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr, closeBracket);
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
-            default:
+            case COMPUTED_NAME_FIELD:
+            case SPREAD_FIELD:    
                 return ambiguousNode;
+            default:
+                STNode simpleVarRef = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+                simpleVarRef = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(simpleVarRef, ambiguousNode);
+                return STNodeFactory.createSimpleNameReferenceNode(simpleVarRef);
         }
     }
 

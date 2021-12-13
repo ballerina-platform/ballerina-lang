@@ -5,4 +5,5 @@ public function foo() {
     float?|int a;
     float|()|int a;
     T|A a;
+    ([Foo, Person]|()|error) res = wait f;
 }
