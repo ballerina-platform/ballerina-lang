@@ -88,6 +88,7 @@ public class ObjectConstructorTest {
     @Test
     public void testClosureSupportForObjectCtorAnnotations() {
         BRunUtil.invoke(annotations, "testAnnotations");
+        BRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
     }
 
     @Test

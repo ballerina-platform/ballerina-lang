@@ -41,6 +41,29 @@ public function testAnnotations() {
 
 }
 
+public type ObjectData record {|
+    string descriptor = "";
+|};
+
+public annotation ObjectData OBJAnnots on class;
+
+function testObjectConstructorAnnotationAttachment() {
+    string constructed = "ConstructedObject";
+
+    var obj = @OBJAnnots {
+        descriptor: constructed
+        }
+    object {
+        int n = 0;
+        function inc() {
+            self.n += 1;
+        }
+    };
+    typedesc<object {}> t = typeof obj;
+    ObjectData annotationVal = <ObjectData>t.@OBJAnnots;
+    assertValueEquality("ConstructedObject", annotationVal.descriptor);
+}
+
 type AssertionError distinct error;
 const ASSERTION_ERROR_REASON = "AssertionError";
 
