@@ -19,9 +19,11 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -91,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -793,8 +796,13 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        find(indexAccessExpr.indexExpr);
         find(indexAccessExpr.expr);
+
+        if (indexAccessExpr.indexExpr instanceof BLangLiteral) {
+            addIfSameSymbol(indexAccessExpr.symbol, getLocationForLiteral(indexAccessExpr.indexExpr.pos));
+        } else {
+            find(indexAccessExpr.indexExpr);
+        }
     }
 
     @Override
@@ -1282,5 +1290,22 @@ public class ReferenceFinder extends BaseVisitor {
 
     private boolean isGeneratedClassDefForService(BLangClassDefinition clazz) {
         return clazz.flagSet.contains(Flag.ANONYMOUS) && clazz.flagSet.contains(Flag.SERVICE);
+    }
+
+    /**
+     * This method is intended to be used for getting the location of a string value with the surrounding quotes
+     * disregarded. If we give the original location, it'd be problematic for use cases such as renaming since we only
+     * return a list of locations of references. Without further contextual info, it'll be hard to determine whether a
+     * particular reference location is a string value.
+     *
+     * @param location Location of the string
+     * @return The modified location with the quotes diregarded
+     */
+    private Location getLocationForLiteral(Location location) {
+        LineRange lineRange = location.lineRange();
+        return new BLangDiagnosticLocation(lineRange.filePath(),
+                                           lineRange.startLine().line(), lineRange.endLine().line(),
+                                           lineRange.startLine().offset() + 1, lineRange.endLine().offset() - 1,
+                                           location.textRange().startOffset(), location.textRange().length());
     }
 }

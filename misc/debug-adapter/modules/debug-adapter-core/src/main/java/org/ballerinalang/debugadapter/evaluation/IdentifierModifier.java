@@ -20,9 +20,9 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.unescapeUnicodeCodepoints;
+import static io.ballerina.identifier.Utils.unescapeUnicodeCodepoints;
 
 /**
  * Identifier specific expression modifier implementation.
@@ -58,13 +58,23 @@ public class IdentifierModifier extends TreeModifier {
         if (identifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
             identifier = identifier.substring(1);
         }
-        identifier = IdentifierUtils.unescapeUnicodeCodepoints(identifier);
-        return type == IdentifierType.METHOD_NAME ? IdentifierUtils.encodeFunctionIdentifier(identifier) :
-                IdentifierUtils.encodeNonFunctionIdentifier(identifier);
+        identifier = Utils.unescapeUnicodeCodepoints(identifier);
+        return type == IdentifierType.METHOD_NAME ? Utils.encodeFunctionIdentifier(identifier) :
+                Utils.encodeNonFunctionIdentifier(identifier);
     }
 
     public static String decodeIdentifier(String encodedIdentifier) {
-        return IdentifierUtils.decodeIdentifier(encodedIdentifier);
+        return Utils.decodeIdentifier(encodedIdentifier);
+    }
+
+    public static String decodeAndEscapeIdentifier(String encodedIdentifier) {
+        String decodedIdentifier = decodeIdentifier(encodedIdentifier);
+        decodedIdentifier = Utils.escapeSpecialCharacters(decodedIdentifier);
+        if (!decodedIdentifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
+            decodedIdentifier = QUOTED_IDENTIFIER_PREFIX + decodedIdentifier;
+        }
+
+        return decodedIdentifier;
     }
 
     public static String decodeAndEscapeIdentifier(String encodedIdentifier) {

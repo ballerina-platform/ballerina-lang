@@ -8787,23 +8787,32 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkKeyword, expr);
         }
 
-        STNode funcName;
-        if (expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE || expr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            funcName = SyntaxErrors.addDiagnostic(expr,
-                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
-        } else {
-            checkKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(checkKeyword, expr,
-                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
-            funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-            funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
-        }
-
         STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
         STNode arguments = STNodeFactory.createEmptyNodeList();
         STNode closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-        STNode funcCallExpr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
-                closeParenToken);
-        return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkKeyword, funcCallExpr);
+
+        STNode funcOrMethodCall;
+        if (expr.kind == SyntaxKind.FIELD_ACCESS) {
+            STFieldAccessExpressionNode fieldAccessExpr = (STFieldAccessExpressionNode) expr;
+            funcOrMethodCall = STNodeFactory.createMethodCallExpressionNode(fieldAccessExpr.expression,
+                    fieldAccessExpr.dotToken, fieldAccessExpr.fieldName, openParenToken, arguments, closeParenToken);
+            funcOrMethodCall = SyntaxErrors.addDiagnostic(funcOrMethodCall,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+        } else if (expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE || expr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            STNode funcName = SyntaxErrors.addDiagnostic(expr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+            funcOrMethodCall = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
+                    closeParenToken);
+        } else {
+            checkKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(checkKeyword, expr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+            STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
+            funcOrMethodCall = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
+                    closeParenToken);
+        }
+
+        return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkKeyword, funcOrMethodCall);
     }
 
     private STNode parseActionStatement(STNode action) {

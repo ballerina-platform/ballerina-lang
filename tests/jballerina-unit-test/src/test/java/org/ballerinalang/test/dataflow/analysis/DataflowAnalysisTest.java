@@ -19,8 +19,11 @@ package org.ballerinalang.test.dataflow.analysis;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -30,6 +33,32 @@ import org.testng.annotations.Test;
  */
 @Test
 public class DataflowAnalysisTest {
+    private CompileResult positiveResult;
+
+    @BeforeClass
+    public void setup() {
+        positiveResult = BCompileUtil.compile(
+                "test-src/dataflow/analysis/dataflow_analysis_initialized_var_test.bal");
+    }
+
+    @Test(dataProvider = "dataToTestInitializedVarsWithWhile", description = "Test initialized variables with while " +
+            "loops")
+    public void testInitializedVarsWithWhile(String functionName) {
+        BRunUtil.invoke(positiveResult, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestInitializedVarsWithWhile() {
+        return new Object[]{
+                "testInitializedVarWithWhile1",
+                "testInitializedVarWithWhile2",
+                "testInitializedVarWithWhile3",
+                "testInitializedVarWithWhile4",
+                "testInitializedVarWithWhile5",
+                "testInitializedVarWithWhile6",
+                "testInitializedVarWithWhile7"
+        };
+    }
 
     @Test(description = "Test uninitialized variables")
     public void testSemanticsOfUninitializedVariables() {
@@ -116,11 +145,11 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 702, 12);
         BAssertUtil.validateError(result, i++, "unreachable code", 708, 9);
         BAssertUtil.validateError(result, i++, "unreachable code", 711, 13);
-        BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 715, 13);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 715, 13);
         BAssertUtil.validateError(result, i++, "unreachable code", 719, 9);
         BAssertUtil.validateError(result, i++, "unreachable code", 722, 13);
         BAssertUtil.validateWarning(result, i++, "unused variable 'k'", 726, 5);
-        BAssertUtil.validateError(result, i++, "variable 'b' may not have been initialized", 726, 13);
+        BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 726, 13);
         BAssertUtil.validateWarning(result, i++, "unused variable 'j'", 741, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 741, 13);
         BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 742, 16);
@@ -161,6 +190,26 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'condition' is not initialized", 870, 16);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 870, 28);
         BAssertUtil.validateError(result, i++, "variable 'b' may not have been initialized", 870, 32);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 886, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 897, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 908, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 919, 13);
+        BAssertUtil.validateError(result, i++, "unreachable code", 929, 5);
+        BAssertUtil.validateError(result, i++, "unreachable code", 936, 9);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 939, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 950, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 964, 13);
+        BAssertUtil.validateError(result, i++, "unreachable code", 972, 9);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 978, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 992, 13);
+        BAssertUtil.validateError(result, i++, "unreachable code", 1001, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 1006, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 1022, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 1036, 17);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 1056, 13);
+        BAssertUtil.validateError(result, i++, "unreachable code", 1067, 21);
+        BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 1074, 13);
+        BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 1096, 13);
 
         Assert.assertEquals(result.getErrorCount(), i - 32);
         Assert.assertEquals(result.getWarnCount(), 32);
