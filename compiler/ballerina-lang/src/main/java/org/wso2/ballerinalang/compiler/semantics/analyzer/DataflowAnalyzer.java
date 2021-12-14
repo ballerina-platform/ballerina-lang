@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -312,6 +313,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (isModuleInitFunction((BLangNode) topLevelNode)) {
                 analyzeModuleInitFunc((BLangFunction) topLevelNode);
             } else {
+                if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
+                    BLangClassDefinition classDef = (BLangClassDefinition) topLevelNode;
+                    if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+                        continue;
+                    }
+                }
                 analyzeNode((BLangNode) topLevelNode, env);
             }
         }
@@ -478,6 +485,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangService service) {
         this.currDependentSymbolDeque.push(service.serviceClass.symbol);
+        visit(service.serviceClass);
         for (BLangExpression attachedExpr : service.attachedExprs) {
             analyzeNode(attachedExpr, env);
         }
@@ -506,8 +514,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, Location> prevUnusedLocalVariables = null;
         Map<BSymbol, InitStatus> prevUninitializedVars = null;
         boolean visitedOCE = false;
-        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null) {
-            env = classDef.oceEnvData.capturedClosureEnv;
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
+            env = classDef.oceEnvData.capturedClosureEnv.enclEnv;
             prevUnusedLocalVariables = this.unusedLocalVariables;
             prevUninitializedVars = this.uninitializedVars;
             this.unusedLocalVariables = new HashMap<>();
@@ -577,7 +585,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (visitedOCE) {
             this.uninitializedVars = prevUninitializedVars;
             prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
-            this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
+            this.unusedLocalVariables = prevUnusedLocalVariables;
         }
 
         this.currDependentSymbolDeque.pop();
@@ -585,6 +593,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        BLangClassDefinition classDef = objectConstructorExpression.classNode;
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            for (BSymbol symbol : oceData.closureFuncSymbols) {
+                this.unusedLocalVariables.remove(symbol);
+            }
+            for (BSymbol symbol : oceData.closureBlockSymbols) {
+                this.unusedLocalVariables.remove(symbol);
+            }
+        }
         visit(objectConstructorExpression.classNode);
         visit(objectConstructorExpression.typeInit);
         addDependency(objectConstructorExpression.getBType().tsymbol, objectConstructorExpression.classNode.symbol);
