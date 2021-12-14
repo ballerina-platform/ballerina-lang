@@ -3497,13 +3497,6 @@ public class Types {
         int candidateTypeTag = candidateLiteral.getBType().tag;
         int baseTypeTag = baseLiteral.getBType().tag;
 
-        // If candidateValue value is a string and its base type is an integer type, it suggests that this is
-        // out of range
-        if (candidateValue instanceof String && (TypeTags.isIntegerTypeTag(baseTypeTag) ||
-                baseTypeTag == TypeTags.BYTE)) {
-            return false;
-        }
-
         // Numeric literal assignability is based on assignable type and numeric equivalency of values.
         // If the base numeric literal is,
         // (1) byte: we can assign byte or a int simple literal (Not an int constant) with the same value.

@@ -491,6 +491,12 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.BYTE)) {
             setLiteralValueForFiniteType(literalExpr, symTable.byteType);
             return symTable.byteType;
+        } else if (literalExpr.value instanceof Double) {
+            setLiteralValueForFiniteType(literalExpr, symTable.floatType);
+            return symTable.floatType;
+        } else if (literalExpr.value instanceof String) {
+            setLiteralValueForFiniteType(literalExpr, symTable.decimalType);
+            return symTable.decimalType;
         } else {
             for (int tag = TypeTags.SIGNED32_INT; tag <= TypeTags.UNSIGNED8_INT; tag++) {
                 if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
@@ -499,17 +505,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        if (literalExpr.value instanceof String) {
-            resultType = symTable.semanticError;
-            return resultType;
-        }
         return symTable.noType;
     }
 
     private BType getFiniteTypeMatchWithIntLiteral(BLangLiteral literalExpr, BFiniteType finiteType,
                                                    Object literalValue) {
         BType intLiteralType = getFiniteTypeMatchWithIntType(literalExpr, finiteType);
-        if (intLiteralType != symTable.noType || intLiteralType == symTable.semanticError) {
+        if (intLiteralType != symTable.noType) {
             return intLiteralType;
         }
         int typeTag = getPreferredMemberTypeTag(finiteType);
@@ -530,19 +532,18 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expectedType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(expectedType.tag)) {
             BType resultType = getIntLiteralType(expType, literalValue);
             if (resultType == symTable.semanticError) {
-                dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalValue);
+                dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue);
             }
             return resultType;
         } else if (expectedType.tag == TypeTags.FLOAT) {
             // The literalValue will be a string if it was not within the bounds of what is supported by Java Long
-            // when it was parsed in BLangNodeBuilder
+            // or Double when it was parsed in BLangNodeBuilder
             if (literalValue instanceof String) {
-                try {
-                    literalExpr.value = Double.parseDouble((String) literalValue);
-                } catch (Exception e) {
-                    dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalValue);
-                    return symTable.semanticError;
-                }
+                dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue);
+                return symTable.semanticError;
+            }
+            if (literalValue instanceof Double) {
+                literalExpr.value = ((Double) literalValue).doubleValue();
             } else {
                 literalExpr.value = ((Long) literalValue).doubleValue();
             }
@@ -552,11 +553,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.decimalType;
         } else if (expectedType.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) expectedType;
-            BType resultType = getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
-            if (resultType == symTable.semanticError) {
-                dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalValue);
-            }
-            return resultType;
+            return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
         } else if (expectedType.tag == TypeTags.UNION) {
             for (BType memType : types.getAllTypes(expectedType, true)) {
                 BType memberRefType = types.getReferredType(memType);
@@ -567,6 +564,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 } else if (memberRefType.tag == TypeTags.JSON || memberRefType.tag == TypeTags.ANYDATA ||
                         memberRefType.tag == TypeTags.ANY) {
+                    if (literalValue instanceof Double) {
+                        return symTable.floatType;
+                    } else if (literalValue instanceof String) {
+                        return symTable.decimalType;
+                    }
                     return symTable.intType;
                 }
             }
@@ -593,6 +595,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
             Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
             return getTypeMatchingFloatOrDecimal(finiteType, memberTypes, literalExpr, (BUnionType) expectedType);
+        }
+        // If expected type is none of the above it suggests that it is invalid
+        if (literalValue instanceof Double) {
+            return symTable.floatType;
+        } else if (literalValue instanceof String) {
+            return symTable.decimalType;
         }
         return symTable.intType;
     }
@@ -875,7 +883,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getIntLiteralType(BType expType, Object literalValue) {
         // The literalValue will be a string if it is not within the bounds of what is supported by Java Long,
         // indicating that it is an overflown Ballerina int
-        if (literalValue instanceof String) {
+        if (!(literalValue instanceof Long)) {
             resultType = symTable.semanticError;
             return resultType;
         }
@@ -4491,10 +4499,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = new BTypedescType(exprType, null);
             }
         } else {
-            //allow both addition and subtraction operators to get expected type as Decimal
-            boolean decimalAddNegate = expType.tag == TypeTags.DECIMAL &&
-                    (OperatorKind.ADD.equals(unaryExpr.operator) || OperatorKind.SUB.equals(unaryExpr.operator));
-            exprType = decimalAddNegate ? checkExpr(unaryExpr.expr, env, expType) : checkExpr(unaryExpr.expr, env);
+            //allow both addition and subtraction operators to get expected type
+            boolean allowExpTypeForPlusAndMinus = (expType.tag == TypeTags.DECIMAL && (OperatorKind.ADD.equals(unaryExpr.operator)
+                    || OperatorKind.SUB.equals(unaryExpr.operator)));
+            exprType = allowExpTypeForPlusAndMinus ?
+                    checkExpr(unaryExpr.expr, env, expType) : checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {

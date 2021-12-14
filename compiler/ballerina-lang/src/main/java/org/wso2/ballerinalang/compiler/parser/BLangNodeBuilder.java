@@ -472,7 +472,6 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
-    public static final String INT_MIN_OVERFLOW_VAL = "-9223372036854775808";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
 
@@ -1965,12 +1964,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(UnaryExpressionNode unaryExprNode) {
         Location pos = getPosition(unaryExprNode);
-        SyntaxKind expressionKind = unaryExprNode.expression().kind();
-        SyntaxKind unaryOperatorKind = unaryExprNode.unaryOperator().kind();
-        if (expressionKind == SyntaxKind.NUMERIC_LITERAL &&
-                         (unaryOperatorKind == SyntaxKind.MINUS_TOKEN || unaryOperatorKind == SyntaxKind.PLUS_TOKEN)) {
-            return createSimpleLiteral(unaryExprNode);
-        }
         OperatorKind operator = OperatorKind.valueFrom(unaryExprNode.unaryOperator().text());
         BLangExpression expr = createExpression(unaryExprNode.expression());
         return createBLangUnaryExpr(pos, operator, expr);
@@ -5282,8 +5275,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
                     literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
                 kind = NodeKind.INTEGER_LITERAL;
-                typeTag = TypeTags.INT;
+//                typeTag = TypeTags.INT;
                 value = getIntegerLiteral(literal, textValue, sign);
+                if (value instanceof Double) {
+                    typeTag = TypeTags.FLOAT;
+                } else if (value instanceof String) {
+                    typeTag = TypeTags.DECIMAL;
+                } else {
+                    typeTag = TypeTags.INT;
+                }
                 originalValue = textValue;
                 if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
                     typeTag = TypeTags.BYTE;
@@ -5851,18 +5851,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private Object parseLong(String originalNodeValue, String processedNodeValue, int radix) {
-        // Since 9223372036854775808 is to overflow in Ballerina and -9223372036854775808 is a unary-expr where the
-        // expression is 9223372036854775808, -9223372036854775808 should also overflow even though it is
-        // within bounds for Java Long
-        if (originalNodeValue.equals(INT_MIN_OVERFLOW_VAL)) {
-            return originalNodeValue;
-        }
         try {
             return Long.parseLong(processedNodeValue, radix);
         } catch (Exception e) {
-            // Out of range values for Java Long will be returned as string values and evaluated in
-            // the TypeChecker
-            return originalNodeValue;
+            try {
+                return Double.parseDouble(processedNodeValue);
+            } catch (Exception f) {
+                // Out of range values for Java Long and Double will be returned as a string and evaluated in
+                // the TypeChecker
+                return originalNodeValue;
+            }
         }
     }
 
