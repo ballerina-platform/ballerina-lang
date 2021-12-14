@@ -57,10 +57,12 @@ public class TypeOfInCallStatementsTest {
     public Object[][] getPos() {
         return new Object[][]{
                 {23, 14, 23, 17, null},
-                {23, 14, 23, 23, INT},
-                {29, 18, 29, 19, null},
+                {23, 14, 23, 23, null},
+                {23, 20, 23, 23, INT},
+                {29, 22, 29, 29, STRING},
                 {44, 28, 44, 29, null},
-                {44, 28, 44, 37, STRING},
+                {44, 28, 44, 37, null},
+                {44, 32, 44, 37, STRING},
         };
     }
 
