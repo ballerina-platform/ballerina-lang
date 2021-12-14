@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -475,9 +474,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangClassDefinition classDef) {
         SymbolEnv preEnv = env;
-        if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
-            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
-            env = oceData.capturedClosureEnv;
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null) {
+            env = classDef.oceEnvData.capturedClosureEnv;
         }
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
         this.currDependentSymbolDeque.push(classDef.symbol);
