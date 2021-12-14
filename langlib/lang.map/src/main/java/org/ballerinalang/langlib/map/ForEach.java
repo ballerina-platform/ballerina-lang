@@ -45,10 +45,11 @@ public class ForEach {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
+        Object[] keys = m.getKeys();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                         () -> new Object[]{parentStrand,
-                                                                 m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                         result -> {
-                                                         }, () -> null, Scheduler.getStrand().scheduler);
+                () -> new Object[]{parentStrand,
+                        m.get(keys[index.incrementAndGet()]), true},
+                result -> {
+                }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

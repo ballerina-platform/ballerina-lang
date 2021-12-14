@@ -59,6 +59,8 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 33, 22);
         BAssertUtil.validateError(compileResult1, i++, "operator '-' not defined for 'boolean'", 35, 21);
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 37, 22);
+        BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[A, B, C]'", 40, 15);
+        BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[E, F]'", 45, 17);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 

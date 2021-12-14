@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 8,
+    "character": 34
+  },
+  "source": "service_decl/source/source6h.bal",
+  "items": [
+    {
+      "label": "Listener(int port)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
+        }
+      },
+      "sortText": "A",
+      "insertText": "Listener(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

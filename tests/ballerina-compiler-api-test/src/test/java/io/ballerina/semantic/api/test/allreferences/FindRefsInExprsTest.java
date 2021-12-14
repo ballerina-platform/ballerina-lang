@@ -106,7 +106,8 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {92, 15, location(92, 15, 19),
                         List.of(location(92, 15, 19),
                                 location(94, 17, 21),
-                                location(95, 18, 22))
+                                location(95, 18, 22),
+                                location(98, 27, 31))
                 },
                 {93, 12, location(93, 12, 15),
                         List.of(location(93, 12, 15),
@@ -121,7 +122,8 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {98, 26, location(92, 15, 19),
                         List.of(location(92, 15, 19),
                                 location(94, 17, 21),
-                                location(95, 18, 22))
+                                location(95, 18, 22),
+                                location(98, 27, 31))
                 },
                 // Query exprs
                 {114, 22, location(114, 21, 23),

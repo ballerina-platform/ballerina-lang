@@ -237,6 +237,16 @@ function testTupleVariableWithErrorBP() {
     assertEquality(n, "");
 }
 
+type T [int, int];
+
+function testTupleVarDeclWithTypeReferenceTypedExpr() {
+    T t = [1, 2];
+    var [a, b] = t;
+
+    assertEquality(1, a);
+    assertEquality(2, b);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {
