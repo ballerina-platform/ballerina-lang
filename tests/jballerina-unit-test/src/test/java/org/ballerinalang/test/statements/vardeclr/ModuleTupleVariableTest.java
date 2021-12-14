@@ -81,6 +81,9 @@ public class ModuleTupleVariableTest {
                 "invalid list binding pattern: expected an array or a tuple, but found 'int'",
                 47, 6);
         validateError(compileResultNegative, index++,
+                "invalid mapping binding pattern; can only bind required fields",
+                47, 17);
+        validateError(compileResultNegative, index++,
                 "invalid error binding pattern with type 'float'", 47, 30);
         validateError(compileResultNegative, index++,
                 "invalid list binding pattern; member variable count mismatch with member type count", 51, 1);

@@ -69,11 +69,11 @@ function testDeclaredWithVar() {
 
 var [[intVar], {a: intVar2}, error(message), ...restBp] = getComplexTuple();
 
-function getComplexTuple() returns [[int], map<int>, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
+function getComplexTuple() returns [[int], record {int a;}, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
 
 var [{b: [intVar3, _]}] = getComplexTuple2();
 
-function getComplexTuple2() returns [map<[int, string]>] => [{b: [20, "Ballerina"]}];
+function getComplexTuple2() returns [record {[int, string] b;}] => [{b: [20, "Ballerina"]}];
 
 function testDeclaredWithVar2() {
     assertEquality(5, intVar);

@@ -240,5 +240,5 @@ function testOptionalFieldsInRecordBindingPattern(){
 function testMappingBindingPatternWithMap() {
     map<string> stringMap = {"a":"Foo"};
     string? foo;
-    {a:foo} = stringMap;
+    {a: foo} = stringMap;
 }
