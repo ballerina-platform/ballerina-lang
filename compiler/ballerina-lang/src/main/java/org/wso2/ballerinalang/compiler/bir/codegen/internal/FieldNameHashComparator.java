@@ -32,8 +32,8 @@ public class FieldNameHashComparator implements Comparator<NamedNode> {
 
     @Override
     public int compare(NamedNode o1, NamedNode o2) {
-        String name1 = Utils.decodeIdentifier(o1.getName().value);
-        String name2 = Utils.decodeIdentifier(o2.getName().value);
+        String name1 = IdentifierUtils.decodeIdentifier(o1.getName().value);
+        String name2 = IdentifierUtils.decodeIdentifier(o2.getName().value);
         return Integer.compare(name1.hashCode(), name2.hashCode());
     }
 }

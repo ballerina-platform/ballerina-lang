@@ -745,7 +745,7 @@ public class JvmTerminatorGen {
                                String methodName, String methodLookupName) {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        String encodedMethodName = Utils.encodeFunctionIdentifier(methodLookupName);
+        String encodedMethodName = IdentifierUtils.encodeFunctionIdentifier(methodLookupName);
         String packageName = JvmCodeGenUtil.getPackageName(packageID);
 
 
@@ -763,7 +763,7 @@ public class JvmTerminatorGen {
             functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
         } else {
             // If the callee function from different module, we need to use decoded function name as lookup key.
-            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + Utils
+            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + IdentifierUtils
                     .decodeIdentifier(methodLookupName));
         }
         String methodDesc;
@@ -774,7 +774,7 @@ public class JvmTerminatorGen {
         } else {
             BPackageSymbol symbol = packageCache.getSymbol(
                     packageID.orgName.getValue() + "/" + packageID.name.getValue());
-            Name decodedMethodName = new Name(Utils.decodeIdentifier(methodName));
+            Name decodedMethodName = new Name(IdentifierUtils.decodeIdentifier(methodName));
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(decodedMethodName).symbol;
             BInvokableType type = (BInvokableType) funcSymbol.type;
             ArrayList<BType> params = new ArrayList<>(type.paramTypes);
@@ -934,7 +934,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
-        String funcName = Utils.encodeFunctionIdentifier(callIns.name.value);
+        String funcName = IdentifierUtils.encodeFunctionIdentifier(callIns.name.value);
         String lambdaName = "$" + funcName + "$lambda$_" + asyncDataCollector.getLambdaIndex() + "$";
 
         JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(), lambdaName);

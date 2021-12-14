@@ -157,7 +157,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
      * Todo - remove
      */
     public static String modifyName(String identifier) {
-        return Utils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
+        return IdentifierUtils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
                 IdentifierModifier.IdentifierType.OTHER));
     }
 }

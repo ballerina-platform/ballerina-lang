@@ -129,7 +129,7 @@ public class JvmValueGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
     static final String ENCODED_RECORD_INIT =
-            Utils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
+            IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;

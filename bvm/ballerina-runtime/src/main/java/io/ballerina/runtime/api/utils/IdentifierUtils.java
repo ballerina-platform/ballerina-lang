@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  *
  * @since 2.0.0
  */
-public class Utils {
+public class IdentifierUtils {
 
     private static final String UNICODE_REGEX = "\\\\(\\\\*)u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
@@ -42,7 +42,7 @@ public class Utils {
             Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
     private static final String GENERATED_METHOD_PREFIX = "$gen$";
 
-    private Utils() {
+    private IdentifierUtils() {
     }
 
     private static String encodeSpecialCharacters(String identifier) {
@@ -185,7 +185,7 @@ public class Utils {
      * @return unescaped ballerina string
      */
     public static String unescapeBallerina(String text) {
-        return unescapeJava(Utils.unescapeUnicodeCodepoints(text));
+        return unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text));
     }
 
     /**

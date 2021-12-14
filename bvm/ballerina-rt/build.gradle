@@ -124,8 +124,6 @@ dependencies {
     dist project(':ballerina-core')
     dist project(':toml-parser')
     dist project(':ballerina-tools-api')
-    dist project(':identifier-util')
-
 }
 
 jar {

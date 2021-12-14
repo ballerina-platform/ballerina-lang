@@ -128,6 +128,6 @@ public class TesterinaFunction {
     }
 
     private static String cleanupFunctionName(String name) {
-        return Utils.encodeFunctionIdentifier(name);
+        return IdentifierUtils.encodeFunctionIdentifier(name);
     }
 }

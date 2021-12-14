@@ -170,8 +170,8 @@ public class InitMethodGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, 1);
-        mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.orgName.getValue()));
-        mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.name.getValue()));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.orgName.getValue()));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.name.getValue()));
         mv.visitLdcInsn(getMajorVersion(module.packageID.version.getValue()));
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "addValueCreator", ADD_VALUE_CREATOR, false);

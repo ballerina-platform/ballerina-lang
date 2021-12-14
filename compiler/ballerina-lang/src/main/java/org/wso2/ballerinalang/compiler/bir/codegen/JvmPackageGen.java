@@ -664,15 +664,15 @@ public class JvmPackageGen {
             BIRFunction func = findFunction(node, funcName);
             if (func != null) {
                 dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
-                        Utils.decodeIdentifier(func.name.value));
+                        IdentifierUtils.decodeIdentifier(func.name.value));
             } else {
                 dlog.error(node.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
-                        Utils.decodeIdentifier(funcName));
+                        IdentifierUtils.decodeIdentifier(funcName));
             }
             result = new byte[0];
         } catch (ClassTooLargeException e) {
             dlog.error(node.pos, DiagnosticErrorCode.FILE_TOO_LARGE,
-                    Utils.decodeIdentifier(e.getClassName()));
+                    IdentifierUtils.decodeIdentifier(e.getClassName()));
             result = new byte[0];
         } catch (Throwable e) {
             throw new BLangCompilerException(e.getMessage(), e);
@@ -706,7 +706,7 @@ public class JvmPackageGen {
             assert id != null;
             BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
-                Name lookupKey = new Name(Utils.decodeIdentifier(objectNewIns.objectName));
+                Name lookupKey = new Name(IdentifierUtils.decodeIdentifier(objectNewIns.objectName));
                 BSymbol typeSymbol = symbol.scope.lookup(lookupKey).symbol;
                 BObjectTypeSymbol objectTypeSymbol;
                 if (typeSymbol.kind == SymbolKind.TYPE_DEF) {

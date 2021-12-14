@@ -1613,7 +1613,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.setOriginalValue(workerName);
-            workerName = Utils.unescapeUnicodeCodepoints(workerName.substring(1));
+            workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
 
         bLFunction.defaultWorkerName.value = workerName;
@@ -5216,10 +5216,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value.substring(1)));
+            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1)));
             bLIdentifer.setLiteral(true);
         } else {
-            bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value));
+            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
         bLIdentifer.setOriginalValue(value);
@@ -5334,7 +5334,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
-                    text = Utils.unescapeBallerina(text);
+                    text = IdentifierUtils.unescapeBallerina(text);
                 } catch (Exception e) {
                     // We may reach here when the string literal has syntax diagnostics.
                     // Therefore mock the compiler with an empty string.
@@ -5380,10 +5380,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private void validateUnicodePoints(String text, Location pos) {
-        Matcher matcher = Utils.UNICODE_PATTERN.matcher(text);
+        Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
         while (matcher.find()) {
             String leadingBackSlashes = matcher.group(1);
-            if (Utils.isEscapedNumericEscape(leadingBackSlashes)) {
+            if (IdentifierUtils.isEscapedNumericEscape(leadingBackSlashes)) {
                 // e.g. \\u{61}, \\\\u{61}
                 continue;
             }
@@ -5604,7 +5604,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangIdentifier paraName = new BLangIdentifier();
                     Token parameterName = parameterDocLineNode.parameterName();
                     String parameterNameValue = parameterName.isMissing() ? "" :
-                            Utils.unescapeUnicodeCodepoints(parameterName.text());
+                            IdentifierUtils.unescapeUnicodeCodepoints(parameterName.text());
                     if (stringStartsWithSingleQuote(parameterNameValue)) {
                         parameterNameValue = parameterNameValue.substring(1);
                     }
@@ -5800,13 +5800,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 throw new IllegalArgumentException("Invalid backtick content transformation");
         }
         if (bLangRefDoc.identifier != null) {
-            bLangRefDoc.identifier = Utils.unescapeUnicodeCodepoints(bLangRefDoc.identifier);
+            bLangRefDoc.identifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.identifier);
             if (stringStartsWithSingleQuote(bLangRefDoc.identifier)) {
                 bLangRefDoc.identifier = bLangRefDoc.identifier.substring(1);
             }
         }
         if (bLangRefDoc.qualifier != null) {
-            bLangRefDoc.qualifier = Utils.unescapeUnicodeCodepoints(bLangRefDoc.qualifier);
+            bLangRefDoc.qualifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.qualifier);
             if (stringStartsWithSingleQuote(bLangRefDoc.qualifier)) {
                 bLangRefDoc.qualifier = bLangRefDoc.qualifier.substring(1);
             }

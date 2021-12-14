@@ -86,7 +86,7 @@ public class BErrorType extends BAnnotatableType implements ErrorType {
 
     @Override
     public String getAnnotationKey() {
-        return Utils.decodeIdentifier(typeName);
+        return IdentifierUtils.decodeIdentifier(typeName);
     }
 
     public Type getDetailType() {

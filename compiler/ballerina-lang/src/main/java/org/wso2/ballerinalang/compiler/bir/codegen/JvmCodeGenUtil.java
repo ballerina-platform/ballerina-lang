@@ -184,7 +184,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String rewriteVirtualCallTypeName(String value) {
-        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+        return IdentifierUtils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
     }
 
     private static String cleanupBalExt(String name) {
@@ -273,8 +273,8 @@ public class JvmCodeGenUtil {
                                                String varName, ScheduleFunctionInfo metaData) {
         mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
-        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
         mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
@@ -311,8 +311,8 @@ public class JvmCodeGenUtil {
 
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
         String packageName = "";
-        String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.value);
-        String moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
+        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value);
+        String moduleName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value);
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!packageID.version.value.equals("")) {
                 packageName = getMajorVersion(packageID.version.value) + separator;
@@ -524,10 +524,10 @@ public class JvmCodeGenUtil {
         BTypeSymbol typeSymbol = t.tsymbol;
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
                 ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol != null) {
-            return Utils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
+            return IdentifierUtils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
                     .typeDefinitionSymbol.name.value);
         }
-        return Utils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
+        return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
@@ -615,8 +615,8 @@ public class JvmCodeGenUtil {
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
-        Name org = new Name(Utils.encodeNonFunctionIdentifier(pkgID.orgName.value));
-        Name module = new Name(Utils.encodeNonFunctionIdentifier(pkgID.name.value));
+        Name org = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.orgName.value));
+        Name module = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.name.value));
         return new PackageID(org, module, pkgID.version);
     }
 

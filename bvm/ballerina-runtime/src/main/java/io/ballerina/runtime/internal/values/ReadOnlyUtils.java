@@ -216,7 +216,7 @@ public class ReadOnlyUtils {
                 }
 
                 BRecordType immutableRecordType = new BRecordType(
-                        Utils.decodeIdentifier(origRecordType.getName().concat(" & readonly")),
+                        IdentifierUtils.decodeIdentifier(origRecordType.getName().concat(" & readonly")),
                         origRecordType.getPackage(),
                         origRecordType.flags |= SymbolFlags.READONLY, fields,
                         null, origRecordType.sealed,
@@ -253,7 +253,7 @@ public class ReadOnlyUtils {
                 Map<String, Field> originalObjectFields = origObjectType.getFields();
                 Map<String, Field> immutableObjectFields = new HashMap<>(originalObjectFields.size());
                 BObjectType immutableObjectType = new BObjectType(
-                        Utils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
+                        IdentifierUtils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
                         origObjectType.getPackage(), origObjectType.flags |= SymbolFlags.READONLY);
                 immutableObjectType.setFields(immutableObjectFields);
                 immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;

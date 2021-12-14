@@ -289,11 +289,11 @@ public class CodeCoverageUtils {
      * @return
      */
     private static String normalizeFileName(String fileName, Package packageInstance) {
-        String orgName = Utils.encodeNonFunctionIdentifier(
+        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(
                 packageInstance.packageOrg().toString());
         //Get package instance and traverse through all the modules
         for (Module module : packageInstance.modules()) {
-            String packageName = Utils.encodeNonFunctionIdentifier(
+            String packageName = IdentifierUtils.encodeNonFunctionIdentifier(
                     module.moduleName().toString());
             String sourceRoot = module.project().sourceRoot().getFileName().toString();
             if (!module.isDefaultModule()) {

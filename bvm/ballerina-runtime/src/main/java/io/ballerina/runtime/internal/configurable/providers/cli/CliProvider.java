@@ -230,7 +230,7 @@ public class CliProvider implements ConfigProvider {
             }
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
-                                  Utils.decodeIdentifier(unionType.toString()), cliArg.value);
+                                  IdentifierUtils.decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
     @Override

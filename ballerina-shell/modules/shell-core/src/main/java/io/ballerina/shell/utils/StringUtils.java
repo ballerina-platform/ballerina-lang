@@ -125,7 +125,7 @@ public class StringUtils {
      * @return modified identifier with unicode character
      */
     public static String unescapeUnicodeCodepoints(String identifier) {
-        return Utils.unescapeUnicodeCodepoints(identifier);
+        return IdentifierUtils.unescapeUnicodeCodepoints(identifier);
     }
 
     /**

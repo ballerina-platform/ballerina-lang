@@ -141,7 +141,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public String getAnnotationKey() {
-        return Utils.decodeIdentifier(this.typeName);
+        return IdentifierUtils.decodeIdentifier(this.typeName);
     }
 
     @Override

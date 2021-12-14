@@ -194,8 +194,8 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
 
     private String unescapedUnicode(String value) {
         if (value.startsWith("'")) {
-            return Utils.unescapeUnicodeCodepoints(value.substring(1));
+            return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
         }
-        return Utils.unescapeUnicodeCodepoints(value);
+        return IdentifierUtils.unescapeUnicodeCodepoints(value);
     }
 }

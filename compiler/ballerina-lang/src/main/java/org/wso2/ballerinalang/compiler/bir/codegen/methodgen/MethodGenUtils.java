@@ -79,7 +79,7 @@ public class MethodGenUtils {
     }
 
     public static String encodeModuleSpecialFuncName(String funcSuffix) {
-        return Utils.encodeFunctionIdentifier(funcSuffix);
+        return IdentifierUtils.encodeFunctionIdentifier(funcSuffix);
     }
 
     static String calculateLambdaStopFuncName(PackageID id) {
@@ -101,7 +101,7 @@ public class MethodGenUtils {
             funcName = orgName + "/" + funcName;
         }
 
-        return "$lambda$" + Utils.encodeFunctionIdentifier(funcName);
+        return "$lambda$" + IdentifierUtils.encodeFunctionIdentifier(funcName);
     }
 
     private MethodGenUtils() {

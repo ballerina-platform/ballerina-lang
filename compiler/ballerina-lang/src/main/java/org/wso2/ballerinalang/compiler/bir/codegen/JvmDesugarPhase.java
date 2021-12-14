@@ -436,7 +436,7 @@ public class JvmDesugarPhase {
         if (encodedVsInitialIds.containsKey(identifier)) {
             return identifier;
         }
-        String encodedString = Utils.encodeFunctionIdentifier(identifier);
+        String encodedString = IdentifierUtils.encodeFunctionIdentifier(identifier);
         encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }
@@ -445,7 +445,7 @@ public class JvmDesugarPhase {
         if (encodedVsInitialIds.containsKey(identifier)) {
             return identifier;
         }
-        String encodedString = Utils.encodeNonFunctionIdentifier(identifier);
+        String encodedString = IdentifierUtils.encodeNonFunctionIdentifier(identifier);
         encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }

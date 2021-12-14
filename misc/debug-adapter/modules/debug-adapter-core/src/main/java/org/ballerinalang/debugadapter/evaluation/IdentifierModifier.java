@@ -59,18 +59,18 @@ public class IdentifierModifier extends TreeModifier {
         if (identifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
             identifier = identifier.substring(1);
         }
-        identifier = Utils.unescapeUnicodeCodepoints(identifier);
-        return type == IdentifierType.METHOD_NAME ? Utils.encodeFunctionIdentifier(identifier) :
-                Utils.encodeNonFunctionIdentifier(identifier);
+        identifier = IdentifierUtils.unescapeUnicodeCodepoints(identifier);
+        return type == IdentifierType.METHOD_NAME ? IdentifierUtils.encodeFunctionIdentifier(identifier) :
+                IdentifierUtils.encodeNonFunctionIdentifier(identifier);
     }
 
     public static String decodeIdentifier(String encodedIdentifier) {
-        return Utils.decodeIdentifier(encodedIdentifier);
+        return IdentifierUtils.decodeIdentifier(encodedIdentifier);
     }
 
     public static String decodeAndEscapeIdentifier(String encodedIdentifier) {
         String decodedIdentifier = decodeIdentifier(encodedIdentifier);
-        decodedIdentifier = Utils.escapeSpecialCharacters(decodedIdentifier);
+        decodedIdentifier = IdentifierUtils.escapeSpecialCharacters(decodedIdentifier);
         if (!decodedIdentifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
             decodedIdentifier = QUOTED_IDENTIFIER_PREFIX + decodedIdentifier;
         }

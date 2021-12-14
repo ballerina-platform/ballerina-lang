@@ -675,7 +675,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         ArrayList<Variable> globalVars = new ArrayList<>();
         ReferenceType initClassReference = cls.get(0);
         for (Field field : initClassReference.allFields()) {
-            String fieldName = Utils.decodeIdentifier(field.name());
+            String fieldName = IdentifierUtils.decodeIdentifier(field.name());
             if (!field.isPublic() || !field.isStatic() || fieldName.startsWith(GENERATED_VAR_PREFIX)) {
                 continue;
             }

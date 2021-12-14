@@ -209,7 +209,7 @@ public class ConfigMethodGen {
         if (module.packageID.equals(JvmConstants.DEFAULT)) {
             return oneBasedLineTrace;
         }
-        return Utils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
+        return IdentifierUtils.decodeIdentifier(module.packageID.toString()) + "(" + oneBasedLineTrace + ")";
     }
 
     private int calculateConfigArraySize(List<BIRNode.BIRGlobalVariableDcl> globalVars) {

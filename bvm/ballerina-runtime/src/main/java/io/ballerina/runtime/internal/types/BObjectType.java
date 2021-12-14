@@ -77,7 +77,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String getAnnotationKey() {
-        return Utils.decodeIdentifier(this.typeName);
+        return IdentifierUtils.decodeIdentifier(this.typeName);
     }
 
     @Override

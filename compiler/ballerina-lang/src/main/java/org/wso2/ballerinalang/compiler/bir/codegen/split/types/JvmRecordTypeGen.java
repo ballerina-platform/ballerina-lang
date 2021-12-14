@@ -151,7 +151,7 @@ public class JvmRecordTypeGen {
 
         // Load type name
         String name = getFullName(recordType);
-        mv.visitLdcInsn(Utils.decodeIdentifier(name));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package path
         // TODO: get it from the type

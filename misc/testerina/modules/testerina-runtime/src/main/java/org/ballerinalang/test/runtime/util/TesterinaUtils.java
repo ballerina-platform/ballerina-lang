@@ -289,7 +289,7 @@ public class TesterinaUtils {
     }
 
     private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
+        String pkgName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
 
         // clean file name from pkgName since we print the file name after the method name.
@@ -307,7 +307,7 @@ public class TesterinaUtils {
         }
 
         // Append the method name
-        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
+        sb.append(IdentifierUtils.decodeIdentifier(stackTraceElement.getMethodName()));
         // Append the filename
         sb.append("(").append(stackTraceElement.getFileName());
         // Append the line number

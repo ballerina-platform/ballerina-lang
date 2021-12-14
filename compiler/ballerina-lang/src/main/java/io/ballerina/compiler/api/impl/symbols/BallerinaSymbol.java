@@ -86,7 +86,7 @@ public class BallerinaSymbol implements Symbol {
                     && moduleID.orgName().startsWith("ballerina") && this.name.startsWith("'")) {
                 if (!(moduleID.moduleName().equals("lang.string") && this.name.equals("'join"))) {
                     // Related discussion: https://github.com/ballerina-platform/ballerina-lang/discussions/31830
-                    this.unEscapedName = Utils.unescapeUnicodeCodepoints(this.name.substring(1));
+                    this.unEscapedName = IdentifierUtils.unescapeUnicodeCodepoints(this.name.substring(1));
                     return Optional.ofNullable(this.unEscapedName);
                 }
             }
@@ -200,9 +200,9 @@ public class BallerinaSymbol implements Symbol {
 
     protected String unescapedUnicode(String value) {
         if (value.startsWith("'")) {
-            return Utils.unescapeUnicodeCodepoints(value.substring(1));
+            return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
         }
-        return Utils.unescapeUnicodeCodepoints(value);
+        return IdentifierUtils.unescapeUnicodeCodepoints(value);
     }
 
     public boolean isReservedKeyword(String value) {

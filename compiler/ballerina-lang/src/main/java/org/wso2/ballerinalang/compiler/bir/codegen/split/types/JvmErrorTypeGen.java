@@ -96,7 +96,7 @@ public class JvmErrorTypeGen {
         mv.visitInsn(DUP);
 
         // Load error type name
-        mv.visitLdcInsn(Utils.decodeIdentifier(name));
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package
         String varName = jvmConstantsGen.getModuleConstantVar(errorType.tsymbol.pkgID);

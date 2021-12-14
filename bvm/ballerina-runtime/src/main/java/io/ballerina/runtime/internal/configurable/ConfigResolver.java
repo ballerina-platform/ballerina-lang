@@ -144,12 +144,12 @@ public class ConfigResolver {
                                     .getAsUnionAndMark(module, key));
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                            Utils.decodeIdentifier(effectiveType.toString()));
+                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
                 }
                 break;
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                    Utils.decodeIdentifier(type.toString()));
+                                    IdentifierUtils.decodeIdentifier(type.toString()));
         }
         return Optional.empty();
     }

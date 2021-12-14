@@ -184,7 +184,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     @Override
     public String getAnnotationKey() {
-        return Utils.decodeIdentifier(this.typeName);
+        return IdentifierUtils.decodeIdentifier(this.typeName);
     }
 
     @Override

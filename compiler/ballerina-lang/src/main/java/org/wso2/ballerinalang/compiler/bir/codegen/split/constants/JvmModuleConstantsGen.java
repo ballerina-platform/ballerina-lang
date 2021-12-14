@@ -124,8 +124,8 @@ public class JvmModuleConstantsGen {
             String varName = entry.getValue();
             mv.visitTypeInsn(NEW, MODULE);
             mv.visitInsn(DUP);
-            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
-            mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
             mv.visitLdcInsn(getMajorVersion(packageID.version.value));
             mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                     INIT_MODULE, false);

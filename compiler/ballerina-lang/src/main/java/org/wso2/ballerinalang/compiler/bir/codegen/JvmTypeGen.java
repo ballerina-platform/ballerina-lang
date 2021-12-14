@@ -677,9 +677,9 @@ public class JvmTypeGen {
 
     public boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {
         if ((unionType.tsymbol != null) && (unionType.tsymbol.name != null)) {
-            mv.visitLdcInsn(Utils.decodeIdentifier(unionType.tsymbol.name.getValue()));
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.tsymbol.name.getValue()));
         } else if (unionType.name != null) {
-            mv.visitLdcInsn(Utils.decodeIdentifier(unionType.name.getValue()));
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.name.getValue()));
         } else {
             return false;
         }
@@ -826,7 +826,7 @@ public class JvmTypeGen {
         String defName = "";
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT)
                 && typeSymbol.name.value.isEmpty()) {
-            defName = Utils
+            defName = IdentifierUtils
                     .encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol.name.value);
         }
         //class symbols
@@ -1044,7 +1044,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = Utils.decodeIdentifier(toNameString(finiteType));
+        String name = IdentifierUtils.decodeIdentifier(toNameString(finiteType));
         mv.visitLdcInsn(name);
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);

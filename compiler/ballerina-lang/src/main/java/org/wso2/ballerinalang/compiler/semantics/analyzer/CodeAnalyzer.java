@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -3049,7 +3049,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
-                    String unescapedName = Utils.unescapeJava(name);
+                    String unescapedName = IdentifierUtils.unescapeJava(name);
                     if (names.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
                                         types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
@@ -3090,7 +3090,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private LinkedHashMap<String, BField> getUnescapedFieldList(LinkedHashMap<String, BField> fieldMap) {
         LinkedHashMap<String, BField> newMap = new LinkedHashMap<>();
         for (String key : fieldMap.keySet()) {
-            newMap.put(Utils.unescapeJava(key), fieldMap.get(key));
+            newMap.put(IdentifierUtils.unescapeJava(key), fieldMap.get(key));
         }
 
         return newMap;

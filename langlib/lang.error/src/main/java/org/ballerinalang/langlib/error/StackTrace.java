@@ -89,7 +89,7 @@ public class StackTrace {
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
 
-        String moduleName = Utils.decodeIdentifier(stackTraceElement.getClassName())
+        String moduleName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName())
                 .replace(FILE_NAME_PERIOD_SEPARATOR, DOT);
         String fileName = stackTraceElement.getFileName().replace(BLANG_SRC_FILE_SUFFIX, EMPTY);
         if (!moduleName.equals(fileName)) {

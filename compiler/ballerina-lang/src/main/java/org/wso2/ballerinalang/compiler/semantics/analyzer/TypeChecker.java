@@ -8081,7 +8081,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (currentType.tag) {
             case TypeTags.STRING:
                 if (isConstExpr(indexExpr)) {
-                    String fieldName = Utils.escapeSpecialCharacters(getConstFieldName(indexExpr));
+                    String fieldName = IdentifierUtils.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
                         return actualType;

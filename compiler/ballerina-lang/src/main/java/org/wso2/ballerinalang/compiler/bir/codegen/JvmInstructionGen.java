@@ -1705,7 +1705,7 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
 
-        String lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
+        String lambdaName = IdentifierUtils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
                 asyncDataCollector.getLambdaIndex() + "$";
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
