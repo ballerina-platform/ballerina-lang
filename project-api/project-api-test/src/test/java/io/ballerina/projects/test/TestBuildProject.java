@@ -875,6 +875,7 @@ public class TestBuildProject extends BaseTest {
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
+        DocumentId myProjectDocumentId = project.documentId(projectPath.resolve("main.bal"));
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
@@ -916,6 +917,9 @@ public class TestBuildProject extends BaseTest {
             Assert.assertTrue(
                     project.currentPackage().module(moduleId).moduleName().toString().contains("yourproject"));
         }
+        DocumentId yourProjectPackageId = newPackage.project().documentId(projectPath.resolve("main.bal"));
+
+        Assert.assertEquals(myProjectDocumentId, yourProjectPackageId);
 
         newPackageCompilation = newPackage.getCompilation();
         // imports within the package should not be resolved since the package name has changed

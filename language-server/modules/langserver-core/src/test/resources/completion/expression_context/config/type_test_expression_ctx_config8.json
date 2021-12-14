@@ -1,10 +1,45 @@
 {
   "position": {
-    "line": 4,
-    "character": 33
+    "line": 16,
+    "character": 16
   },
-  "source": "expression_context/source/type_test_expression_ctx_source2.bal",
+  "source": "expression_context/source/type_test_expression_ctx_source8.bal",
   "items": [
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "ABM",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "AAL",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Type2",
+      "kind": "TypeParameter",
+      "detail": "String",
+      "sortText": "AAN",
+      "insertText": "Type2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Type4",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AAM",
+      "insertText": "Type4",
+      "insertTextFormat": "Snippet"
+    },
     {
       "label": "Thread",
       "kind": "TypeParameter",
@@ -14,22 +49,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
+      "label": "Type3",
       "kind": "Struct",
       "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "BBM",
-      "insertText": "StrandData",
+      "sortText": "AAM",
+      "insertText": "Type3",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "BAM",
-      "insertText": "TestRecord1",
+      "label": "Type1",
+      "kind": "Enum",
+      "detail": "Union",
+      "sortText": "AAI",
+      "insertText": "Type1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -178,30 +210,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "BCE",
-      "filterText": "array",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -226,12 +234,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCE",
-      "filterText": "test",
-      "insertText": "test",
+      "filterText": "value",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -245,7 +253,31 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BCE",
+      "filterText": "array",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -274,12 +306,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCE",
-      "filterText": "value",
-      "insertText": "value",
+      "filterText": "test",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -293,7 +325,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -407,6 +439,22 @@
       "detail": "type",
       "sortText": "BG",
       "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "module1:TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "module1:TestMap3",
       "insertTextFormat": "Snippet"
     }
   ]

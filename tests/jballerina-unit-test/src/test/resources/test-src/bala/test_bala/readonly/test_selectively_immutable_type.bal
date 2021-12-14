@@ -559,3 +559,18 @@ function testIterationWithImportedImmutableType() {
     }
     assertEquality(2, count);
 }
+
+function testReadOnlyObjectIntersectionMethodParams() {
+    se:Zone zone = object {
+        public isolated function utcToCivil(se:Utc utc) returns se:Civil => {
+            year: 1970,
+            month: 1,
+            day: 1,
+            hour: 5,
+            minute: 30,
+            second: 1
+        };
+    };
+    se:Civil civil = zone.utcToCivil([1, 0]);
+    assertEquality(<se:Civil> {year: 1970, month: 1, day: 1, hour: 5, minute: 30, second: 1}, civil);
+}
