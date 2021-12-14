@@ -124,6 +124,7 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'b'", 606, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 607, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 's'", 615, 22);
+        BAssertUtil.validateError(result, i++, "uninitialized field 's'", 615, 22);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 625, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 647, 12);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 654, 9);
