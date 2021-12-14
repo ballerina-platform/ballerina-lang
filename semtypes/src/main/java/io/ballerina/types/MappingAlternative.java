@@ -51,8 +51,10 @@ public class MappingAlternative {
                     BddPath.from());
             List<MappingAlternative> alts = new ArrayList<>();
             for (BddPath bddPath : paths) {
-                alts.add(from(cx, ComplexSemType.createComplexSemType(0,
-                        UniformSubtype.from(UniformTypeCode.UT_MAPPING_RW, bddPath.bdd)), bddPath.pos, bddPath.neg));
+                SemType semType = Core.createUniformSemType(UniformTypeCode.UT_MAPPING_RW, bddPath.bdd);
+                if (semType != PredefinedType.NEVER) {
+                    alts.add(from(cx, semType, bddPath.pos, bddPath.neg));
+                }
             }
             return alts.toArray(new MappingAlternative[]{});
         }
