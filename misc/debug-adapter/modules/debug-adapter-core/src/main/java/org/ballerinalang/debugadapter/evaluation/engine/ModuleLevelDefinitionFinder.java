@@ -50,6 +50,8 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
     private final Set<SyntaxKind> filters = new HashSet<>();
     private final List<NonTerminalNode> result = new ArrayList<>();
 
+    private static final String ANNOTATION_BUILTINSUBTYPE = "builtinSubtype";
+
     public ModuleLevelDefinitionFinder(SuspendedContext context) {
         this.context = context;
     }
@@ -112,9 +114,9 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
         }
 
         // Ignores type definitions with @builtinSubtype annotations (specific to Ballerina library sources).
-        if (node instanceof TypeDefinitionNode && ((TypeDefinitionNode) node).metadata().isPresent() &&
-                ((TypeDefinitionNode) node).metadata().get().annotations().stream().anyMatch(annotationNode ->
-                        annotationNode.annotReference().toSourceCode().trim().equalsIgnoreCase("builtinSubtype"))) {
+        if (node instanceof TypeDefinitionNode && ((TypeDefinitionNode) node).metadata().isPresent()
+                && ((TypeDefinitionNode) node).metadata().get().annotations().stream().anyMatch(annotationNode ->
+                annotationNode.annotReference().toSourceCode().trim().equalsIgnoreCase(ANNOTATION_BUILTINSUBTYPE))) {
             return;
         }
 
