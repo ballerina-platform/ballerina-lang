@@ -514,7 +514,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, Location> prevUnusedLocalVariables = null;
         Map<BSymbol, InitStatus> prevUninitializedVars = null;
         boolean visitedOCE = false;
-        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null && 
+                        classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
             env = classDef.oceEnvData.capturedClosureEnv.enclEnv;
             prevUnusedLocalVariables = this.unusedLocalVariables;
             prevUninitializedVars = this.uninitializedVars;
