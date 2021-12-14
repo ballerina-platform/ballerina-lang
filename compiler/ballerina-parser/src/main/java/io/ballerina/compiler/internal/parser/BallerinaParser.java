@@ -5119,7 +5119,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseErrorConstructorExpr(consume());
             case LET_KEYWORD:
-                return parseLetExpression(isRhsExpr);
+                return parseLetExpression(isRhsExpr, isInConditionalExpr);
             case BACKTICK_TOKEN:
                 return parseTemplateExpression();
             case OBJECT_KEYWORD:
@@ -10521,7 +10521,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseLetExpression(boolean isRhsExpr) {
+    private STNode parseLetExpression(boolean isRhsExpr, boolean isInConditionalExpr) {
         STNode letKeyword = parseLetKeyword();
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr);
         STNode inKeyword = parseInKeyword();
@@ -10532,7 +10532,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false, isInConditionalExpr);
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
     }
 
