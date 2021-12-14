@@ -4002,6 +4002,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
             objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
+            objType.originalFields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
+                    field.symbol));
         }
     }
 
@@ -5012,7 +5014,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                                     accessor, pathParamSymbols, restPathParamSym, 
+                                     accessor, pathParamSymbols, restPathParamSym,
                 (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
     }
 
@@ -5041,7 +5043,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcNode.symbol.flags |= Flags.PUBLIC;
 
         if (!isNetworkQualified(objectSymbol)) {
-            this.dlog.error(funcNode.pos, 
+            this.dlog.error(funcNode.pos,
                     DiagnosticErrorCode.RESOURCE_METHODS_ARE_ONLY_ALLOWED_IN_SERVICE_OR_CLIENT_OBJECTS);
         }
     }

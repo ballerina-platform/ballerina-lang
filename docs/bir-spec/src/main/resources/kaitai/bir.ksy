@@ -310,6 +310,12 @@ types:
         type: object_field
         repeat: expr
         repeat-expr: object_fields_count
+      - id: object_original_fields_count
+        type: s4
+      - id: object_original_fields
+        type: object_field
+        repeat: expr
+        repeat-expr: object_original_fields_count
       - id: has_generated_init_function
         type: s1
       - id: generated_init_function
@@ -461,6 +467,12 @@ types:
         type: record_field
         repeat: expr
         repeat-expr: record_fields_count
+      - id: record_original_fields_count
+        type: s4
+      - id: record_original_fields
+        type: record_field
+        repeat: expr
+        repeat-expr: record_original_fields_count
       - id: has_init_function
         type: s1
       - id: record_init_function

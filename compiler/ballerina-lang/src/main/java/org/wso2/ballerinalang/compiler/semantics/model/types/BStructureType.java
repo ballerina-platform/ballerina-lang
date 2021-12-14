@@ -37,6 +37,7 @@ public abstract class BStructureType extends BType {
     private static final String DOLLAR = "$";
 
     public LinkedHashMap<String, BField> fields;
+    public LinkedHashMap<String, BField> originalFields;
     public List<BType> typeInclusions;
 
     public BStructureType(int tag, BTypeSymbol tSymbol) {

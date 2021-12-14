@@ -412,6 +412,15 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(field.type);
         }
 
+        buff.writeInt(bRecordType.originalFields.size());
+        for (BField field : bRecordType.originalFields.values()) {
+            BVarSymbol symbol = field.symbol;
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeLong(symbol.flags);
+            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
+            writeTypeCpIndex(field.type);
+        }
+
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;
         if (initializerFunc == null) {
             buff.writeByte(0);
@@ -452,6 +461,7 @@ public class BIRTypeWriter implements TypeVisitor {
         //TODO below two line are a temp solution, introduce a generic concept
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)); // Abstract object or not
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
+
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
             buff.writeInt(addStringCPEntry(field.name.value));
@@ -461,6 +471,17 @@ public class BIRTypeWriter implements TypeVisitor {
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
+
+        buff.writeInt(bObjectType.originalFields.size());
+        for (BField field : bObjectType.originalFields.values()) {
+            buff.writeInt(addStringCPEntry(field.name.value));
+            // TODO add position
+            buff.writeLong(field.symbol.flags);
+            buff.writeBoolean(field.symbol.isDefaultable);
+            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
+            writeTypeCpIndex(field.type);
+        }
+
         List<BAttachedFunction> attachedFuncs;
         //TODO cleanup, there cannot be objects without attached function list and symbol kind other than object
         if (tSymbol.kind == SymbolKind.OBJECT) {
