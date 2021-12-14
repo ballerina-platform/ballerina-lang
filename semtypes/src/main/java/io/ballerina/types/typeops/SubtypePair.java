@@ -18,7 +18,6 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.ProperSubtypeData;
-import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeCode;
 
 /**

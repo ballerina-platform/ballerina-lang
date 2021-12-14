@@ -20,7 +20,6 @@ package io.ballerina.types.typeops;
 import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformSubtype;
 import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.UniformTypeCode;
