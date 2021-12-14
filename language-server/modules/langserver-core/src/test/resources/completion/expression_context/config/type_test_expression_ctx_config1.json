@@ -9,7 +9,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "N",
+      "sortText": "ABN",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -20,7 +20,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "M",
+      "sortText": "BBM",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -28,7 +28,7 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "M",
+      "sortText": "BAM",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -36,7 +36,7 @@
       "label": "readonly",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -44,7 +44,7 @@
       "label": "handle",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -52,7 +52,7 @@
       "label": "never",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -60,7 +60,7 @@
       "label": "json",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -68,7 +68,7 @@
       "label": "anydata",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -76,7 +76,7 @@
       "label": "any",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -84,7 +84,7 @@
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
@@ -92,7 +92,7 @@
       "label": "service",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BR",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -100,7 +100,7 @@
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BZ",
       "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
@@ -109,7 +109,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BZ",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -118,7 +118,7 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "BX",
       "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
@@ -127,7 +127,7 @@
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "BX",
       "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
@@ -136,7 +136,7 @@
       "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BZ",
       "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
@@ -145,7 +145,7 @@
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "BX",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -154,7 +154,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BZ",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -163,7 +163,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BZ",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -172,7 +172,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "O",
+      "sortText": "BBO",
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
@@ -181,7 +181,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "BCE",
       "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
@@ -205,7 +205,7 @@
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "BCE",
       "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
@@ -229,7 +229,7 @@
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "BCE",
       "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
@@ -253,7 +253,7 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "BCF",
       "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
@@ -277,7 +277,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "BCE",
       "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
@@ -301,7 +301,7 @@
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -309,7 +309,7 @@
       "label": "decimal",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -317,7 +317,7 @@
       "label": "error",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -325,7 +325,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -333,7 +333,7 @@
       "label": "future",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -341,7 +341,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -349,7 +349,7 @@
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -357,7 +357,7 @@
       "label": "object",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "object",
       "insertTextFormat": "Snippet"
     },
@@ -365,7 +365,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -373,7 +373,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -381,7 +381,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -389,7 +389,7 @@
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
@@ -397,7 +397,7 @@
       "label": "typedesc",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -405,7 +405,7 @@
       "label": "xml",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "BG",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     }

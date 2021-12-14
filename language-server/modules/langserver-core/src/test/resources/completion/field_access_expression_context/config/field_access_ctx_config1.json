@@ -453,7 +453,7 @@
     {
       "label": "testOptional",
       "kind": "Field",
-      "detail": "int",
+      "detail": "int?",
       "sortText": "CA",
       "insertText": "testOptional",
       "insertTextFormat": "Snippet"

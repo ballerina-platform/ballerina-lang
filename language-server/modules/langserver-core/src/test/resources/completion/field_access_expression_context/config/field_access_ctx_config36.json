@@ -213,7 +213,7 @@
     {
       "label": "id",
       "kind": "Field",
-      "detail": "string",
+      "detail": "string?",
       "sortText": "CA",
       "insertText": "id",
       "insertTextFormat": "Snippet"
