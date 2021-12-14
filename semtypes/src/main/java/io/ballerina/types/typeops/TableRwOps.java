@@ -17,7 +17,6 @@
  */
 package io.ballerina.types.typeops;
 
-import io.ballerina.types.Bdd;
 import io.ballerina.types.Context;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeOps;
@@ -34,42 +33,36 @@ public class TableRwOps implements UniformTypeOps {
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         RwTableSubtype rwt1 = (RwTableSubtype) t1;
         RwTableSubtype rwt2 = (RwTableSubtype) t2;
-        Bdd ro = BddCommonOps.bddUnion(rwt1.ro, rwt2.ro);
-        Bdd rw = BddCommonOps.bddUnion(rwt1.rw, rwt2.rw);
-        return RwTableSubtype.createRwTableSubtype(ro, rw);
+        return RwTableSubtype.createRwTableSubtype(BddCommonOps.bddUnion(rwt1.ro, rwt2.ro),
+                BddCommonOps.bddUnion(rwt1.rw, rwt2.rw));
     }
 
     @Override
     public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
         RwTableSubtype rwt1 = (RwTableSubtype) t1;
         RwTableSubtype rwt2 = (RwTableSubtype) t2;
-        Bdd ro = BddCommonOps.bddIntersect(rwt1.ro, rwt2.ro);
-        Bdd rw = BddCommonOps.bddIntersect(rwt1.rw, rwt2.rw);
-        return RwTableSubtype.createRwTableSubtype(ro, rw);
+        return RwTableSubtype.createRwTableSubtype(BddCommonOps.bddIntersect(rwt1.ro, rwt2.ro),
+                BddCommonOps.bddIntersect(rwt1.rw, rwt2.rw));
     }
 
     @Override
     public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
         RwTableSubtype rwt1 = (RwTableSubtype) t1;
         RwTableSubtype rwt2 = (RwTableSubtype) t2;
-        Bdd ro = BddCommonOps.bddDiff(rwt1.ro, rwt2.ro);
-        Bdd rw = BddCommonOps.bddDiff(rwt1.rw, rwt2.rw);
-        return RwTableSubtype.createRwTableSubtype(ro, rw);
+        return RwTableSubtype.createRwTableSubtype(BddCommonOps.bddDiff(rwt1.ro, rwt2.ro),
+                BddCommonOps.bddDiff(rwt1.rw, rwt2.rw));
     }
 
     @Override
     public SubtypeData complement(SubtypeData t) {
         RwTableSubtype rwt = (RwTableSubtype) t;
-        Bdd ro = BddCommonOps.bddComplement(rwt.ro);
-        Bdd rw = BddCommonOps.bddComplement(rwt.rw);
-        return RwTableSubtype.createRwTableSubtype(ro, rw);
+        return RwTableSubtype.createRwTableSubtype(BddCommonOps.bddComplement(rwt.ro),
+                BddCommonOps.bddComplement(rwt.rw));
     }
 
     @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
         RwTableSubtype rwt = (RwTableSubtype) t;
-        boolean ro = MappingRoOps.mappingSubtypeIsEmpty(cx, rwt.ro);
-        boolean rw = MappingCommonOps.mappingSubtypeIsEmpty(cx, rwt.rw);
-        return ro && rw;
+        return MappingRoOps.mappingSubtypeIsEmpty(cx, rwt.ro) && MappingCommonOps.mappingSubtypeIsEmpty(cx, rwt.rw);
     }
 }

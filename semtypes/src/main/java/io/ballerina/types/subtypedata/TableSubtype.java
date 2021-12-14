@@ -18,11 +18,8 @@
 package io.ballerina.types.subtypedata;
 
 import io.ballerina.types.Bdd;
-import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.SemType;
-import io.ballerina.types.SubtypeData;
-import io.ballerina.types.UniformSubtype;
 import io.ballerina.types.UniformTypeCode;
 
 /**
@@ -35,11 +32,9 @@ public class TableSubtype {
     public static SemType tableContaining(SemType memberType) {
         Bdd ro = (Bdd) Core.subtypeData(memberType, UniformTypeCode.UT_MAPPING_RO);
         Bdd rw = (Bdd) Core.subtypeData(memberType, UniformTypeCode.UT_MAPPING_RW);
-        SubtypeData rwt = RwTableSubtype.createRwTableSubtype(ro, rw);
-        return ComplexSemType.createComplexSemType(0,
-                UniformSubtype.from(UniformTypeCode.UT_TABLE_RO, ro),
-                UniformSubtype.from(UniformTypeCode.UT_TABLE_RW, rwt));
+        SemType roSemtype = Core.createUniformSemType(UniformTypeCode.UT_TABLE_RO, ro);
+        SemType rwSemtype = Core.createUniformSemType(UniformTypeCode.UT_TABLE_RW,
+                RwTableSubtype.createRwTableSubtype(ro, rw));
+        return Core.union(roSemtype, rwSemtype);
     }
-
 }
-

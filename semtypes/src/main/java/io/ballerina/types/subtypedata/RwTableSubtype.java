@@ -19,7 +19,6 @@ package io.ballerina.types.subtypedata;
 
 import io.ballerina.types.Bdd;
 import io.ballerina.types.ProperSubtypeData;
-import io.ballerina.types.SubtypeData;
 
 /**
  * Contains 2 bdds for readonly and readwrite mappings.
@@ -35,7 +34,7 @@ public class RwTableSubtype implements ProperSubtypeData {
         this.rw = rw;
     }
 
-    public static SubtypeData createRwTableSubtype(Bdd ro, Bdd rw)  {
+    public static ProperSubtypeData createRwTableSubtype(Bdd ro, Bdd rw)  {
         return new RwTableSubtype(ro, rw);
     }
 
