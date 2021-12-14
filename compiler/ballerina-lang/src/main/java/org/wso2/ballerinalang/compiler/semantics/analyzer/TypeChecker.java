@@ -596,7 +596,6 @@ public class TypeChecker extends BLangNodeVisitor {
             Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
             return getTypeMatchingFloatOrDecimal(finiteType, memberTypes, literalExpr, (BUnionType) expectedType);
         }
-        // If expected type is none of the above it suggests that it is invalid
         if (literalValue instanceof Double) {
             return symTable.floatType;
         } else if (literalValue instanceof String) {
@@ -4500,10 +4499,9 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else {
             //allow both addition and subtraction operators to get expected type
-            boolean allowExpTypeForPlusAndMinus = (expType.tag == TypeTags.DECIMAL && (OperatorKind.ADD.equals(unaryExpr.operator)
-                    || OperatorKind.SUB.equals(unaryExpr.operator)));
-            exprType = allowExpTypeForPlusAndMinus ?
-                    checkExpr(unaryExpr.expr, env, expType) : checkExpr(unaryExpr.expr, env);
+            boolean isExpTypeAllowed = (OperatorKind.ADD.equals(unaryExpr.operator)
+                    || OperatorKind.SUB.equals(unaryExpr.operator));
+            exprType = isExpTypeAllowed ? checkExpr(unaryExpr.expr, env, expType) : checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
