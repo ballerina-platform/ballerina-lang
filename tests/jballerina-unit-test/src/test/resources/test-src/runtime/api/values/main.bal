@@ -16,6 +16,7 @@
 
 import testorg/runtime_api.records;
 import testorg/runtime_api.objects;
+import testorg/runtime_api.maps;
 import ballerina/lang.test as test;
 
 public function main() {
@@ -38,5 +39,7 @@ public function main() {
 
     test:assertValueEqual(e1.message(), "No such object: Person2");
     test:assertValueEqual(e2.message(), "No such record: Address2");
-}
 
+    maps:validateAPI();
+    records:validateAPI();
+}
