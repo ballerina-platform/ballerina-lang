@@ -18,7 +18,7 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.ComplexSemType;
-import io.ballerina.types.SubtypeData;
+import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.UniformSubtype;
 import io.ballerina.types.UniformTypeCode;
 
@@ -37,7 +37,7 @@ public class UnpackComplexSemType {
     public static List<UniformSubtype> unpack(ComplexSemType t) {
         int some = t.some.bitset;
         List<UniformSubtype> subtypeList = new ArrayList<>();
-        for (SubtypeData data : t.subtypeDataList) {
+        for (ProperSubtypeData data : t.subtypeDataList) {
             int code = Integer.numberOfTrailingZeros(some);
             subtypeList.add(UniformSubtype.from(UniformTypeCode.from(code), data));
             some ^= (1 << code);

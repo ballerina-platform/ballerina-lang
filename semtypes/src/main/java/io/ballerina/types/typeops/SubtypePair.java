@@ -17,7 +17,7 @@
  */
 package io.ballerina.types.typeops;
 
-import io.ballerina.types.SubtypeData;
+import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.UniformTypeCode;
 
 /**
@@ -27,17 +27,18 @@ import io.ballerina.types.UniformTypeCode;
  */
 public class SubtypePair {
     public final UniformTypeCode uniformTypeCode;
-    public final SubtypeData subtypeData1;
-    public final SubtypeData subtypeData2;
+    public final ProperSubtypeData subtypeData1;
+    public final ProperSubtypeData subtypeData2;
 
-    private SubtypePair(UniformTypeCode uniformTypeCode, SubtypeData subtypeData1, SubtypeData subtypeData2) {
+    private SubtypePair(UniformTypeCode uniformTypeCode, ProperSubtypeData subtypeData1,
+                        ProperSubtypeData subtypeData2) {
         this.uniformTypeCode = uniformTypeCode;
         this.subtypeData1 = subtypeData1;
         this.subtypeData2 = subtypeData2;
     }
 
     public static SubtypePair create(UniformTypeCode uniformTypeCode,
-                                     SubtypeData subtypeData1, SubtypeData subtypeData2) {
+                                     ProperSubtypeData subtypeData1, ProperSubtypeData subtypeData2) {
         return new SubtypePair(uniformTypeCode, subtypeData1, subtypeData2);
     }
 }
