@@ -407,104 +407,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "club",
-      "kind": "Field",
-      "detail": "Club",
-      "sortText": "CA",
-      "insertText": "?.club",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 32,
-              "character": 23
-            },
-            "end": {
-              "line": 32,
-              "character": 24
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
       "label": "age",
       "kind": "Field",
       "detail": "int",
       "sortText": "CA",
       "insertText": "age",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "appearances",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "CA",
-      "insertText": "?.appearances",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 32,
-              "character": 23
-            },
-            "end": {
-              "line": 32,
-              "character": 24
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "internationalCaps",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "CA",
-      "insertText": "?.internationalCaps",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 32,
-              "character": 23
-            },
-            "end": {
-              "line": 32,
-              "character": 24
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "goals",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "CA",
-      "insertText": "?.goals",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 32,
-              "character": 23
-            },
-            "end": {
-              "line": 32,
-              "character": 24
-            }
-          },
-          "newText": ""
-        }
-      ]
     },
     {
       "label": "fromJsonWithType(typedesc<anydata> t)",
@@ -543,6 +451,38 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "club",
+      "kind": "Field",
+      "detail": "Club?",
+      "sortText": "CA",
+      "insertText": "club",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "appearances",
+      "kind": "Field",
+      "detail": "int?",
+      "sortText": "CA",
+      "insertText": "appearances",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "internationalCaps",
+      "kind": "Field",
+      "detail": "int?",
+      "sortText": "CA",
+      "insertText": "internationalCaps",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "goals",
+      "kind": "Field",
+      "detail": "int?",
+      "sortText": "CA",
+      "insertText": "goals",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

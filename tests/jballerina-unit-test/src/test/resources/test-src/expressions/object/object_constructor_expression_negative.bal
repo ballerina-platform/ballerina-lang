@@ -128,3 +128,20 @@ function foo() {
 
     };
 }
+
+type Bar readonly & object {
+    any i;
+};
+
+stream<int> s = new;
+
+function testObjectConstructorWithReferredIntersectionType() {
+    Bar b = object {
+        any i = s;
+        int j;
+
+        function init() {
+            self.j = 1;
+        }
+    };
+}

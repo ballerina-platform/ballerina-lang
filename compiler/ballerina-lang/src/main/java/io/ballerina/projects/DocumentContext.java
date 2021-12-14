@@ -113,16 +113,16 @@ class DocumentContext {
         return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests(ModuleId currentModuleId, PackageDependencyScope scope) {
+    Set<ModuleLoadRequest> moduleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests(currentModuleId, scope);
+        this.moduleLoadRequests = getModuleLoadRequests(currentModuleName, scope);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleId currentModuleId, PackageDependencyScope scope) {
+    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
@@ -132,8 +132,9 @@ class DocumentContext {
         // TODO This is a temporary solution for SLP6 release
         // TODO Traverse the syntax tree to see whether to import the ballerinai/transaction package or not
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
+
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-               !currentModuleId.moduleName().equals(Names.TRANSACTION.value)) {
+               !currentModuleName.toString().equals(Names.TRANSACTION.value)) {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
