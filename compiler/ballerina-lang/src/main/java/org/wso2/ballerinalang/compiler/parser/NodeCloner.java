@@ -61,7 +61,9 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBin
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -863,7 +865,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangFieldBindingPattern source) {
         BLangFieldBindingPattern clone = new BLangFieldBindingPattern();
         source.cloneRef = clone;
-        clone.fieldName = source.fieldName;
+        clone.fieldName = clone(source.fieldName);
         clone.bindingPattern = clone(source.bindingPattern);
     }
 
@@ -871,7 +873,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangRestBindingPattern source) {
         BLangRestBindingPattern clone = new BLangRestBindingPattern();
         source.cloneRef = clone;
-        clone.variableName = source.variableName;
+        clone.variableName = clone(source.variableName);
     }
 
     @Override
@@ -886,14 +888,33 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorFieldBindingPatterns source) {
-
-
+        BLangErrorFieldBindingPatterns clone = new BLangErrorFieldBindingPatterns();
+        source.cloneRef = clone;
+        clone.namedArgBindingPatterns = cloneList(source.namedArgBindingPatterns);
+        clone.restBindingPattern = clone(source.restBindingPattern);
     }
 
     @Override
     public void visit(BLangErrorMessageBindingPattern source) {
+        BLangErrorMessageBindingPattern clone = new BLangErrorMessageBindingPattern();
+        source.cloneRef = clone;
+        clone.simpleBindingPattern = clone(source.simpleBindingPattern);
+    }
 
+    @Override
+    public void visit(BLangSimpleBindingPattern source) {
+        BLangSimpleBindingPattern clone = new BLangSimpleBindingPattern();
+        source.cloneRef = clone;
+        clone.captureBindingPattern = clone(source.captureBindingPattern);
+        clone.wildCardBindingPattern = clone(source.wildCardBindingPattern);
+    }
 
+    @Override
+    public void visit(BLangNamedArgBindingPattern source) {
+        BLangNamedArgBindingPattern clone = new BLangNamedArgBindingPattern();
+        source.cloneRef = clone;
+        clone.argName = source.argName;
+        clone.bindingPattern = clone(source.bindingPattern);
     }
 
     @Override
