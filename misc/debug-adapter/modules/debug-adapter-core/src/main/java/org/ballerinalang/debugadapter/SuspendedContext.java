@@ -143,7 +143,7 @@ public class SuspendedContext {
     public Optional<Path> getBreakPointSourcePath(Project project) {
         if (breakPointSourcePath == null) {
             Optional<Path> sourcePath = getSourcePath(project, frame);
-            sourcePath.ifPresent(path -> breakPointSourcePath = path);
+            sourcePath.ifPresent(path -> breakPointSourcePath = path.normalize());
         }
         return Optional.ofNullable(breakPointSourcePath);
     }
