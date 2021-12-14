@@ -12330,6 +12330,8 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
             case ISOLATED_KEYWORD:
+            case BASE16_KEYWORD:
+            case BASE64_KEYWORD:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -13372,7 +13374,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nodeKind) {
             case FINAL_KEYWORD:
 
-                // Statements starts other than var-decl
+                // Statement starts other than var-decl
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case DO_KEYWORD:
