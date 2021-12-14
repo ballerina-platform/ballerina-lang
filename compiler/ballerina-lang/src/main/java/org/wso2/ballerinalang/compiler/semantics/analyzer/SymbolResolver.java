@@ -961,7 +961,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 entry = entry.next;
                 continue;
             }
-            symTable.errorType = (BErrorType) entry.symbol.type;
+            symTable.errorType = (BErrorType) types.getReferredType(entry.symbol.type);
             symTable.detailType = (BMapType) symTable.errorType.detailType;
             return;
         }
@@ -979,7 +979,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 entry = entry.next;
                 continue;
             }
-            BUnionType type = (BUnionType) entry.symbol.type;
+            BUnionType type = (BUnionType) types.getReferredType(entry.symbol.type);
             symTable.anydataType = new BAnydataType(type);
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
             entry.symbol.type = symTable.anydataType;
@@ -999,7 +999,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 entry = entry.next;
                 continue;
             }
-            BUnionType type = (BUnionType) entry.symbol.type;
+            BUnionType type = (BUnionType) types.getReferredType(entry.symbol.type);
             symTable.jsonType = new BJSONType(type);
             symTable.jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS,
                     symTable.jsonType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
@@ -1018,7 +1018,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     entry = entry.next;
                     continue;
                 }
-                symTable.cloneableType = (BUnionType) entry.symbol.type;
+                symTable.cloneableType = (BUnionType) types.getReferredType(entry.symbol.type);
                 symTable.cloneableType.tsymbol =
                         new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE,
                                 PackageID.VALUE, symTable.cloneableType, symTable.langValueModuleSymbol,
@@ -1078,7 +1078,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 entry = entry.next;
                 continue;
             }
-            symTable.iterableType = (BObjectType) entry.symbol.type;
+            symTable.iterableType = (BObjectType) types.getReferredType(entry.symbol.type);
             return;
         }
         throw new IllegalStateException("built-in distinct Iterable type not found ?");
@@ -1941,6 +1941,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
         if (!validNumericTypeExists) {
             return symTable.notFoundSymbol;
+        }
+        if (opKind == OperatorKind.ADD) {
+            return createUnaryOperator(opKind, type, type);
         }
         if (type.isNullable()) {
             BType compatibleType = types.findCompatibleType(types.getSafeType(type, true, false));

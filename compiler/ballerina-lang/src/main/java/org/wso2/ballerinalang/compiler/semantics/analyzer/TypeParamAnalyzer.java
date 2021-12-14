@@ -696,14 +696,14 @@ public class TypeParamAnalyzer {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) expType).eType;
                 BType matchingBoundElementType = getMatchingBoundType(elementType, env, resolvedTypes);
-                if (matchingBoundElementType == types.getReferredType(elementType)) {
+                if (!isDifferentTypes(elementType, matchingBoundElementType)) {
                     return expType;
                 }
                 return new BArrayType(matchingBoundElementType);
             case TypeTags.MAP:
                 BType constraint = ((BMapType) expType).constraint;
                 BType matchingBoundMapConstraintType = getMatchingBoundType(constraint, env, resolvedTypes);
-                if (matchingBoundMapConstraintType == types.getReferredType(constraint)) {
+                if (!isDifferentTypes(constraint, matchingBoundMapConstraintType)) {
                     return expType;
                 }
                 return new BMapType(TypeTags.MAP, matchingBoundMapConstraintType, symTable.mapType.tsymbol);
@@ -718,8 +718,8 @@ public class TypeParamAnalyzer {
                     completionType = symTable.nilType;
                 }
 
-                if (types.getReferredType(expStreamConstraint) == constraintType
-                        && types.getReferredType(expStreamCompletionType) == completionType) {
+                if (!isDifferentTypes(expStreamConstraint, constraintType)
+                        && !isDifferentTypes(expStreamCompletionType, completionType)) {
                     return expStreamType;
                 }
 
@@ -728,14 +728,13 @@ public class TypeParamAnalyzer {
                 BTableType expTableType = (BTableType) expType;
                 BType expTableConstraint = expTableType.constraint;
                 BType tableConstraint = getMatchingBoundType(expTableConstraint, env, resolvedTypes);
-                boolean differentTypes = types.getReferredType(expTableConstraint) != tableConstraint;
+                boolean differentTypes = isDifferentTypes(expTableConstraint, tableConstraint);
 
                 BType expTableKeyTypeConstraint = expTableType.keyTypeConstraint;
                 BType keyTypeConstraint = null;
                 if (expTableKeyTypeConstraint != null) {
                     keyTypeConstraint = getMatchingBoundType(expTableKeyTypeConstraint, env, resolvedTypes);
-                    differentTypes = differentTypes ||
-                            types.getReferredType(expTableKeyTypeConstraint) != keyTypeConstraint;
+                    differentTypes = differentTypes || isDifferentTypes(expTableKeyTypeConstraint, keyTypeConstraint);
                 }
 
                 if (!differentTypes) {
@@ -762,7 +761,7 @@ public class TypeParamAnalyzer {
             case TypeTags.TYPEDESC:
                 constraint = ((BTypedescType) expType).constraint;
                 BType matchingBoundType = getMatchingBoundType(constraint, env, resolvedTypes);
-                if (matchingBoundType == constraint) {
+                if (!isDifferentTypes(constraint, matchingBoundType)) {
                     return expType;
                 }
 
@@ -774,6 +773,14 @@ public class TypeParamAnalyzer {
             default:
                 return expType;
         }
+    }
+
+    private boolean isDifferentTypes(BType expType, BType boundType) {
+        if (expType == boundType) {
+            return false;
+        }
+
+        return types.getReferredType(expType) != types.getReferredType(boundType);
     }
 
     private BType getMatchingReadonlyIntersectionBoundType(BIntersectionType intersectionType, SymbolEnv env,
@@ -790,7 +797,7 @@ public class TypeParamAnalyzer {
 
             matchingBoundNonReadOnlyType = getMatchingBoundType(type, env, resolvedTypes);
 
-            if (!hasDifferentType && type != matchingBoundNonReadOnlyType) {
+            if (!hasDifferentType && isDifferentTypes(type, matchingBoundNonReadOnlyType)) {
                 hasDifferentType = true;
             }
         }
@@ -820,7 +827,7 @@ public class TypeParamAnalyzer {
         List<BType> tupleTypes = new ArrayList<>();
         for (BType type : expType.tupleTypes) {
             BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
-            if (!hasDifferentType && type != matchingBoundType) {
+            if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
 
@@ -830,7 +837,7 @@ public class TypeParamAnalyzer {
         BType restType = expType.restType;
         if (restType != null) {
             BType matchingBoundRestType = getMatchingBoundType(restType, env, resolvedTypes);
-            if (!hasDifferentType && restType != matchingBoundRestType) {
+            if (!hasDifferentType && isDifferentTypes(restType, matchingBoundRestType)) {
                 hasDifferentType = true;
             }
         }
@@ -859,7 +866,7 @@ public class TypeParamAnalyzer {
         for (BField expField : expType.fields.values()) {
             BType type = expField.type;
             BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
-            if (!hasDifferentType && type != matchingBoundType) {
+            if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
             BField field = new BField(expField.name, expField.pos,
@@ -879,7 +886,7 @@ public class TypeParamAnalyzer {
         }
         BType restFieldType = expType.restFieldType;
         bRecordType.restFieldType = getMatchingBoundType(restFieldType, env, resolvedTypes);
-        if (!hasDifferentType && restFieldType != bRecordType.restFieldType) {
+        if (!hasDifferentType && isDifferentTypes(restFieldType, bRecordType.restFieldType)) {
             hasDifferentType = true;
         }
 
@@ -896,7 +903,7 @@ public class TypeParamAnalyzer {
         List<BType> paramTypes = new ArrayList<>();
         for (BType type : expType.paramTypes) {
             BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
-            if (!hasDifferentType && type != matchingBoundType) {
+            if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
             paramTypes.add(matchingBoundType);
@@ -912,7 +919,7 @@ public class TypeParamAnalyzer {
 
         BType retType = expType.retType;
         BType matchingBoundType = getMatchingBoundType(retType, env, resolvedTypes);
-        if (!hasDifferentType && retType != matchingBoundType) {
+        if (!hasDifferentType && isDifferentTypes(retType, matchingBoundType)) {
             hasDifferentType = true;
         }
 
@@ -952,7 +959,7 @@ public class TypeParamAnalyzer {
         for (BField expField : expType.fields.values()) {
             BType type = expField.type;
             BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
-            if (!hasDifferentType && matchingBoundType != type) {
+            if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
 
@@ -966,7 +973,7 @@ public class TypeParamAnalyzer {
         for (BAttachedFunction expFunc : ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs) {
             BInvokableType type = expFunc.type;
             BInvokableType matchType = getMatchingFunctionBoundType(type, env, resolvedTypes);
-            if (!hasDifferentType && type != matchType) {
+            if (!hasDifferentType && isDifferentTypes(type, matchType)) {
                 hasDifferentType = true;
             }
 
@@ -1017,7 +1024,7 @@ public class TypeParamAnalyzer {
                 members.add(boundType);
             }
 
-            if (!hasDifferentType && type != boundType) {
+            if (!hasDifferentType && isDifferentTypes(type, boundType)) {
                 hasDifferentType = true;
             }
         }
@@ -1037,7 +1044,7 @@ public class TypeParamAnalyzer {
         BType expDetailType = expType.detailType;
         BType detailType = getMatchingBoundType(expDetailType, env, resolvedTypes);
 
-        if (expDetailType == detailType) {
+        if (!isDifferentTypes(expDetailType, detailType)) {
             return expType;
         }
 

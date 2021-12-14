@@ -43,7 +43,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * This class represents the "bal build" command.
@@ -129,9 +128,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private Boolean experimentalFlag;
 
-    @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
-    private String debugPort;
-
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
@@ -157,6 +153,10 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
+
+    @CommandLine.Option(names = "--export-openapi", description = "generate openAPI contract files for all" +
+            " the services in the current package")
+    private Boolean exportOpenAPI;
 
     public void execute() {
         long start = 0;
@@ -228,11 +228,6 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
-        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
-        if (!project.buildOptions().skipTests() && this.debugPort != null) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
-        }
-
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
@@ -282,7 +277,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
-                .setConfigSchemaGen(configSchemaGen);
+                .setConfigSchemaGen(configSchemaGen)
+                .setExportOpenAPI(exportOpenAPI);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

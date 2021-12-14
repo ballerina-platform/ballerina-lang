@@ -9,7 +9,7 @@
       "label": "ascending",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "ascending",
       "insertText": "ascending",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "descending",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "descending",
       "insertText": "descending",
       "insertTextFormat": "Snippet"
@@ -27,7 +27,7 @@
       "label": "where",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "where",
       "insertText": "where ",
       "insertTextFormat": "Snippet"
@@ -36,7 +36,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -45,7 +45,7 @@
       "label": "let clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "BP",
       "filterText": "let",
       "insertText": "let ${1:var} ${2:varName} = ${3}",
       "insertTextFormat": "Snippet"
@@ -54,7 +54,7 @@
       "label": "join",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "join",
       "insertText": "join ",
       "insertTextFormat": "Snippet"
@@ -63,7 +63,7 @@
       "label": "join clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "BP",
       "filterText": "join",
       "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}",
       "insertTextFormat": "Snippet"
@@ -72,7 +72,7 @@
       "label": "order by",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "order by",
       "insertText": "order by ",
       "insertTextFormat": "Snippet"
@@ -81,7 +81,7 @@
       "label": "limit",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "limit",
       "insertText": "limit ",
       "insertTextFormat": "Snippet"
@@ -90,7 +90,7 @@
       "label": "do",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "BP",
       "filterText": "do",
       "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
@@ -99,9 +99,18 @@
       "label": "select",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "BQ",
       "filterText": "select",
       "insertText": "select ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outer",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "outer",
+      "insertText": "outer ",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -39,7 +39,7 @@ We appreciate your help!
 
 ## Build the source code 
 
-For instructions, see <a href="https://ballerina.io/swan-lake/learn/getting-started/installing-ballerina/#building-from-source">Building from source</a>.
+For instructions, see <a href="https://ballerina.io/learn/installing-ballerina/building-from-source/">Building from source</a>.
 
 ## Set up the development environment
 

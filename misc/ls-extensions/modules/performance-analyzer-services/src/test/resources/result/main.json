@@ -79,5 +79,7 @@
         }
       }
     }
-  }
+  },
+  "type": "Success",
+  "message": "Success"
 }

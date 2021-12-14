@@ -26,9 +26,8 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -37,7 +36,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Objects;
 
 
 /**
@@ -46,8 +44,6 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class NewCommandTest extends BaseCommandTest {
-    private Path testResources;
-    private Path centralCache;
     private Path homeCache;
 
     @DataProvider(name = "invalidProjectNames")
@@ -61,21 +57,13 @@ public class NewCommandTest extends BaseCommandTest {
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        try {
-            this.testResources = super.tmpDir.resolve("build-test-resources");
-            URI testResourcesURI = Objects.requireNonNull(
-                    getClass().getClassLoader().getResource("test-resources")).toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new Copy(Paths.get(testResourcesURI),
-                    this.testResources));
-        } catch (URISyntaxException e) {
-            Assert.fail("error loading resources");
-        }
+        Path testResources = Paths.get("src/test/resources/test-resources");
         homeCache = Paths.get("build", "userHome");
         Path centralCache = homeCache.resolve("repositories/central.ballerina.io").resolve("bala");
         Files.createDirectories(centralCache);
 
-        Path centralPackagePath = this.testResources.resolve("balacache-template");
-        Files.copy(centralPackagePath, centralCache.resolve("admin"), StandardCopyOption.REPLACE_EXISTING);
+        Path testTemplatesDir = testResources.resolve("balacache-template");
+        Files.walkFileTree(testTemplatesDir, new Copy(testTemplatesDir, centralCache));
     }
 
     @Test(description = "Create a new project")
@@ -238,7 +226,7 @@ public class NewCommandTest extends BaseCommandTest {
     public void testNewCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"myproject", "-t", "invalid"};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
         Assert.assertTrue(readOutput().contains("invalid package name provided"));
@@ -261,13 +249,14 @@ public class NewCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"admin\"\n" +
-                "name = \"Sample\"\n" +
+                "name = \"sample_pull_local\"\n" +
                 "version = \"0.1.5\"\n" +
-                "export = [\"Sample\"]\n" +
+                "export = [\"sample_pull_local\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
-                "template = true";
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -280,7 +269,7 @@ public class NewCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String templateArg = "parkavik/Sample";
         String[] args = {"sample_pull_WO_Module_Version", "-t", templateArg};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
@@ -292,17 +281,16 @@ public class NewCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"parkavik\"\n" +
-                "name = \"Sample\"\n" +
+                "name = \"sample_pull_WO_Module_Version\"\n" +
                 "version = \"1.0.1\"\n" +
-                "export = [\"Sample\"]\n" +
+                "export = [\"sample_pull_WO_Module_Version\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
-                "template = true";
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
@@ -311,7 +299,7 @@ public class NewCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String templateArg = "parkavik/Sample:1.0.0";
         String[] args = {"sample_pull", "-t", templateArg};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
@@ -323,17 +311,56 @@ public class NewCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"parkavik\"\n" +
-                "name = \"Sample\"\n" +
+                "name = \"sample_pull\"\n" +
                 "version = \"1.0.0\"\n" +
-                "export = [\"Sample\"]\n" +
+                "export = [\"sample_pull\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
-                "template = true";
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+    }
 
+    @Test
+    public void testMultiModuleTemplate() throws IOException {
+        // Test if no arguments was passed in
+        String templateArg = "ballerina/protobuf:1.0.1";
+        String[] args = {"sample-multi_module", "-t", templateArg};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Path packageDir = tmpDir.resolve("sample-multi_module");
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("natives.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("libs/protobuf-native-1.0.1.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.timestamp")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.timestamp/timestamp.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/int.bal")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/string.bal")));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedTomlContent = "[package]\n" +
+                "org = \"ballerina\"\n" +
+                "name = \"sample_multi_module\"\n" +
+                "version = \"1.0.1\"\n" +
+                "export = [\"sample_multi_module\",\"sample_multi_module.types.timestamp\"," +
+                "\"sample_multi_module.types.wrappers\"]\n" +
+                "ballerina_version = \"slbeta4\"\n" +
+                "implementation_vendor = \"WSO2\"\n" +
+                "language_spec_version = \"2021R1\"\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n" +
+                "\n[[platform.java11.dependency]]\n" +
+                "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
+        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
@@ -354,7 +381,7 @@ public class NewCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String templateArg = "admin/lib_project:0.1.0";
         String[] args = {"sample_pull_libs", "-t", templateArg};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
@@ -367,13 +394,12 @@ public class NewCommandTest extends BaseCommandTest {
 
         String expectedTomlPkgContent = "[package]\n" +
                 "org = \"admin\"\n" +
-                "name = \"lib_project\"\n" +
+                "name = \"sample_pull_libs\"\n" +
                 "version = \"0.1.0\"\n" +
-                "export = [\"lib_project\"]\n" +
+                "export = [\"sample_pull_libs\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"\n" +
-                "template = true";
+                "language_spec_version = \"2021R1\"\n";
         String expectedTomlLibContent =
                 "artifactId = \"snakeyaml\"\n" +
                 "groupId = \"org.yaml\"\n" +
@@ -505,6 +531,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n" + errMessage));
     }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;

@@ -35,13 +35,21 @@ public class CheckedExprNegativeTest {
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_semantics_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 4, compile.toString());
-        BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
+        int i = 0;
+        BAssertUtil.validateWarning(compile, i++, "invalid usage of the 'check' expression " +
                 "operator: no expression type is equivalent to error type", 6, 25);
-        BAssertUtil.validateError(compile, 1, "incompatible types: expected '(string|error)'" +
+        BAssertUtil.validateError(compile, i++, "incompatible types: expected '(string|error)'" +
                                               ", found '(string|int)'", 19, 25);
-        BAssertUtil.validateError(compile, 2, "invalid expression, expected a call expression", 34, 11);
-        BAssertUtil.validateError(compile, 3, "undefined function 'line'", 34, 11);
+        BAssertUtil.validateError(compile, i++, "invalid expression, expected a call expression", 34, 11);
+        BAssertUtil.validateError(compile, i++, "undefined function 'line'", 34, 11);
+        BAssertUtil.validateWarning(compile, i++, "invalid usage of the 'check' expression " +
+                "operator: no expression type is equivalent to error type", 39, 19);
+        BAssertUtil.validateWarning(compile, i++, "invalid usage of the 'check' expression " +
+                "operator: no expression type is equivalent to error type", 44, 26);
+        BAssertUtil.validateWarning(compile, i++, "invalid usage of the 'check' expression " +
+                "operator: no expression type is equivalent to error type", 44, 38);
+        Assert.assertEquals(compile.getErrorCount(), 3);
+        Assert.assertEquals(compile.getWarnCount(), i - 3);
     }
 
     @Test
@@ -85,8 +93,12 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 57, 20);
         BAssertUtil.validateWarning(compile, i++, "unused variable 'q'", 58, 5);
         BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 58, 23);
-        Assert.assertEquals(compile.getErrorCount(), i - 6);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 71, 13);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 20);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 76, 31);
+        BAssertUtil.validateError(compile, i++, ERROR_MISMATCH_ERR_MSG, 85, 13);
         Assert.assertEquals(compile.getWarnCount(), 6);
+        Assert.assertEquals(compile.getErrorCount(), i - 6);
     }
 
     @Test

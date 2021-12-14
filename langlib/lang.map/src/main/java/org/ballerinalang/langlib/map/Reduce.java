@@ -47,11 +47,15 @@ public class Reduce {
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
+        Object[] keys = m.getKeys();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand, accum.get(), true,
-                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                       accum::set, accum::get, Scheduler.getStrand().scheduler);
+                        () -> new Object[]{parentStrand, accum.get(), true,
+                                m.get(keys[index.incrementAndGet()]), true},
+                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
+    }
+
+    private Reduce() {
     }
 }

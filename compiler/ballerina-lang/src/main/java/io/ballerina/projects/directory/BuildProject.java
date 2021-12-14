@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -170,25 +171,32 @@ public class BuildProject extends Project {
                 String moduleDirName;
                 // Check for the module name contains a dot and not being the default module
                 if (!this.currentPackage().getDefaultModule().moduleId().equals(moduleId)) {
-                    moduleDirName = moduleId.moduleName()
+                    moduleDirName = currentPackage().module(moduleId).moduleName().toString()
                             .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }
 
-                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
-                        Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
-                    Module module = this.currentPackage().module(moduleId);
+                Module module = this.currentPackage().module(moduleId);
+                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)) {
+                    // this is a source file
                     for (DocumentId documentId : module.documentIds()) {
                         if (module.document(documentId).name().equals(
                                 Optional.of(file.getFileName()).get().toString())) {
                             return documentId;
                         }
                     }
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
-                                .equals(Optional.of(file.getFileName()).get().toString())) {
-                            return documentId;
+                } else if (Optional.of(parent.getFileName()).get().toString().equals(ProjectConstants.TEST_DIR_NAME)) {
+                    // this is a test file
+                    if (Optional.of(Optional.of(parent.getParent()).get().getFileName()).get().toString()
+                            .equals(moduleDirName)) {
+                        for (DocumentId documentId : module.testDocumentIds()) {
+                            String[] splitName = module.document(documentId).name()
+                                    .split(ProjectConstants.TEST_DIR_NAME + "/");
+                            if (splitName.length > 1 && splitName[1]
+                                    .equals(Optional.of(file.getFileName()).get().toString())) {
+                                return documentId;
+                            }
                         }
                     }
                 }
@@ -425,4 +433,12 @@ public class BuildProject extends Project {
         }
     }
 
+    @Override
+    public Path targetDir() {
+        if (this.buildOptions().getTargetPath() == null) {
+            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        } else {
+            return Paths.get(this.buildOptions().getTargetPath());
+        }
+    }
 }

@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -151,7 +151,7 @@ public class JvmRecordTypeGen {
 
         // Load type name
         String name = getFullName(recordType);
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
+        mv.visitLdcInsn(Utils.decodeIdentifier(name));
 
         // Load package path
         // TODO: get it from the type

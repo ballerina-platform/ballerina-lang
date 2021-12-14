@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -475,10 +476,12 @@ public class BIRPackageSymbolEnter {
 
         BType type = readBType(dataInStream);
 
-        BType referenceType = null;
+        BTypeReferenceType referenceType = null;
         boolean hasReferenceType = dataInStream.readBoolean();
         if (hasReferenceType) {
-            referenceType = readBType(dataInStream);
+            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, names.fromString(typeDefName),
+                    this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
+            referenceType = new BTypeReferenceType(type, typeSymbol, flags);
         }
 
         if (type.tag == TypeTags.INVOKABLE) {
@@ -499,7 +502,7 @@ public class BIRPackageSymbolEnter {
         } else {
             symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
                     this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
-            ((BTypeDefinitionSymbol) symbol).referenceType = (BTypeReferenceType) referenceType;
+            ((BTypeDefinitionSymbol) symbol).referenceType = referenceType;
         }
         symbol.originalName = names.fromString(typeDefOrigName);
         symbol.origin = toOrigin(origin);
@@ -1110,8 +1113,8 @@ public class BIRPackageSymbolEnter {
             Name name = names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
 
-            // read and ignore type flags. These are only needed for runtime.
-            inputStream.readInt();
+            // Read the type flags to identify if type reference types are nullable.
+            int typeFlags = inputStream.readInt();
 
             switch (tag) {
                 case TypeTags.INT:
@@ -1244,7 +1247,10 @@ public class BIRPackageSymbolEnter {
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
-                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags);
+
+                    boolean nullable = (typeFlags & TypeFlags.NILABLE) == TypeFlags.NILABLE;
+
+                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null, typeSymbol, flags, nullable);
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.referredType = readTypeFromCp();
@@ -1713,11 +1719,17 @@ public class BIRPackageSymbolEnter {
                                 env.pkgSymbol.pkgID, attachedFuncType,
                                 env.pkgSymbol, false, symTable.builtinPos,
                                 COMPILED_SOURCE);
-                attachedFuncSymbol.retType = attachedFuncType.retType;
                 BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
                         attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
 
                 setInvokableTypeSymbol(attachedFuncType);
+
+                if (!Symbols.isFlagOn(attachedFuncType.flags, Flags.ANY_FUNCTION)) {
+                    BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) attachedFuncType.tsymbol;
+                    attachedFuncSymbol.params = tsymbol.params;
+                    attachedFuncSymbol.restParam = tsymbol.restParam;
+                    attachedFuncSymbol.retType = tsymbol.returnType;
+                }
 
                 objectSymbol.referencedFunctions.add(attachedFunction);
                 objectSymbol.attachedFuncs.add(attachedFunction);

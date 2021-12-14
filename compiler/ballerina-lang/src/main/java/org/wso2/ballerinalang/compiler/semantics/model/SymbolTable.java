@@ -626,7 +626,7 @@ public class SymbolTable {
         BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
                 unsigned16IntType, unsigned8IntType};
         for (BType type : intTypes) {
-            defineUnaryOperator(OperatorKind.ADD, type, intType);
+            defineUnaryOperator(OperatorKind.ADD, type, type);
             defineUnaryOperator(OperatorKind.SUB, type, intType);
             defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, type, intType);
         }

@@ -93,6 +93,10 @@ public class CliProviderNegativeTest {
                 {new String[]{"-Cmyorg.mod.x = 27.5 "}, "myorg", "mod", "x", PredefinedTypes.TYPE_DECIMAL,
                         "error: [myorg.mod.x= 27.5 ] configurable variable 'x' is expected to be of type 'decimal', " +
                                 "but found ' 27.5 '"},
+                {new String[]{"-Cmyorg.mod.x =99999999.9e9999999999"}, "myorg", "mod", "x",
+                        PredefinedTypes.TYPE_DECIMAL,
+                        "error: [myorg.mod.x=99999999.9e9999999999] configurable variable 'x' is expected to be of " +
+                                "type 'decimal', but found '99999999.9e9999999999'"},
                 // Config byte value with invalid byte range
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
                         "error: [myorg.mod.x=345] value provided for byte variable 'x' is out of range. Expected " +
