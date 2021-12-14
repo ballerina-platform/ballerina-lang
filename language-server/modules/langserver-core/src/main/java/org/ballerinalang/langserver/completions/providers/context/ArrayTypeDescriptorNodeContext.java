@@ -19,8 +19,10 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -31,7 +33,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -54,11 +55,11 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ArrayTypeDescriptorNode node) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<Node> arrayLength = node.arrayLength();
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (arrayLength.isPresent() && QNameReferenceUtil.onQualifiedNameIdentifier(context, arrayLength.get())) {
-            QualifiedNameReferenceNode qName = (QualifiedNameReferenceNode) arrayLength.get();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qName = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> moduleConstants = QNameReferenceUtil.getModuleContent(context, qName, constantFilter());
 
             completionItems.addAll(this.getCompletionItemList(moduleConstants, context));
@@ -93,9 +94,17 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
         (1) TypeName[<cursor>] ...
          */
         int cursor = context.getCursorPositionInTree();
-        Token openBracket = node.openBracket();
-        Token closeBracket = node.closeBracket();
+        for (ArrayDimensionNode arrayDimension : node.dimensions()) {
+            Token openBracket = arrayDimension.openBracket();
+            Token closeBracket = arrayDimension.closeBracket();
+            if (cursor <= openBracket.textRange().startOffset()) {
+                break;
+            }
+            if (cursor < closeBracket.textRange().endOffset()) {
+                return true;
+            }
+        }
         
-        return cursor > openBracket.textRange().startOffset() && cursor < closeBracket.textRange().endOffset();
+        return false;
     }
 }
