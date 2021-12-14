@@ -85,6 +85,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.elements.Flag;
@@ -1801,6 +1802,29 @@ public class CommonUtil {
             }
         });
         return qualifiers;
+    }
+
+    /**
+     * Check whether the completion item type belongs to the types list passed.
+     *
+     * @param lsCItem   Completion item
+     * @param typesList List of types           
+     * @return {@link Boolean}
+     */
+    public static boolean isCompletionItemOfType(LSCompletionItem lsCItem, List<TypeDescKind> typesList) {
+
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
+            return false;
+        }
+
+        Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().orElse(null);
+        Optional<TypeSymbol> typeDesc = SymbolUtil.getTypeDescriptor(symbol);
+        
+        if (typeDesc.isPresent()) {
+            TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
+            return typesList.contains(rawType.typeKind());
+        }
+        return false;
     }
 
     private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
