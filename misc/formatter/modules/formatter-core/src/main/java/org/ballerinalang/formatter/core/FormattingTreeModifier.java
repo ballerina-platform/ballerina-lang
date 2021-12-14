@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
@@ -3376,16 +3377,24 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         TypeDescriptorNode memberTypeDesc = formatNode(arrayTypeDescriptorNode.memberTypeDesc(), 0, 0);
-        Token openBracket = formatToken(arrayTypeDescriptorNode.openBracket(), 0, 0);
-        Node arrayLength = formatNode(arrayTypeDescriptorNode.arrayLength().orElse(null), 0, 0);
-        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), env.trailingWS, env.trailingNL);
+        NodeList<ArrayDimensionNode> dimensions = formatNodeList(arrayTypeDescriptorNode.dimensions(), 0, 
+                0, env.trailingWS, env.trailingNL);
         return arrayTypeDescriptorNode.modify()
+                .withMemberTypeDesc(memberTypeDesc)
+                .withDimensions(dimensions)
+                .apply();
+    }
+    
+    @Override
+    public ArrayDimensionNode transform(ArrayDimensionNode arrayDimensionNode) {
+        Token openBracket = formatToken(arrayDimensionNode.openBracket(), 0, 0);
+        Node arrayLength = formatNode(arrayDimensionNode.arrayLength().orElse(null), 0, 0);
+        Token closeBracket = formatToken(arrayDimensionNode.closeBracket(), 0, 0);
+        return arrayDimensionNode.modify()
                 .withOpenBracket(openBracket)
                 .withArrayLength(arrayLength)
                 .withCloseBracket(closeBracket)
-                .withMemberTypeDesc(memberTypeDesc)
                 .apply();
-
     }
 
     @Override
