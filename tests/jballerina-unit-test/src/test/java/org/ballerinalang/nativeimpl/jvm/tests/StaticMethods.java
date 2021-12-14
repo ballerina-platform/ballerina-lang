@@ -675,7 +675,7 @@ public class StaticMethods {
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("id"), 123L)};
-        return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
+        return ValueCreator.createRecordValue(recordType, mapInitialValueEntries);
     }
 
     public static BDecimal defaultDecimalArgsAddition(BDecimal a, BDecimal b) {

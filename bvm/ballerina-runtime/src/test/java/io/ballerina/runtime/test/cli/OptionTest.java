@@ -55,7 +55,7 @@ public class OptionTest {
         Map<String, Field> fields = Map.ofEntries(Map.entry("name", stringField));
         RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
         Operand[] operands = {new Operand(false, "birth", PredefinedTypes.TYPE_STRING)};
-        Option option = new Option(type, ValueCreator.createMapValue(type), operands.length);
+        Option option = new Option(type, ValueCreator.createRecordValue(type), operands.length);
         String[] args = {"--name", "Riyafa", "-Ckey=value", "--", "--Sri Lanka"};
         CliSpec cliSpec = new CliSpec(option, operands, args);
         Object[] mainArgs = cliSpec.getMainArgs();
@@ -97,7 +97,7 @@ public class OptionTest {
         fields.put(floatField.getFieldName(), floatField);
         fields.put(decimalField.getFieldName(), decimalField);
         RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        Option option = new Option(type, ValueCreator.createMapValue(type));
+        Option option = new Option(type, ValueCreator.createRecordValue(type));
         CliSpec cliSpec = new CliSpec(option, new Operand[0], args);
         Object[] mainArgs = cliSpec.getMainArgs();
         BMap map = (BMap) mainArgs[1];
@@ -117,7 +117,7 @@ public class OptionTest {
         Map<String, Field> fields = new HashMap<>();
         fields.put(anyField.getFieldName(), anyField);
         RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        Option option = new Option(type, ValueCreator.createMapValue(type));
+        Option option = new Option(type, ValueCreator.createRecordValue(type));
         String[] args = {"--union=e-fac"};
         CliSpec cliSpec = new CliSpec(option, new Operand[0], args);
         try {
@@ -224,7 +224,7 @@ public class OptionTest {
         }
     }
     private BArray getMap(RecordType type, String[] args) {
-        Option option = new Option(type, ValueCreator.createMapValue(type));
+        Option option = new Option(type, ValueCreator.createRecordValue(type));
         CliSpec cliSpec = new CliSpec(option, new Operand[0], args);
         Object[] mainArgs = cliSpec.getMainArgs();
         return (BArray) ((BMap) mainArgs[1]).get(StringUtils.fromString(ARRAY_NAME));
@@ -271,7 +271,7 @@ public class OptionTest {
         Field field = TypeCreator.createField(optionType, paramName, 1);
         Map<String, Field> fields = Map.ofEntries(Map.entry(field.getFieldName(), field));
         RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
-        return new Option(type, ValueCreator.createMapValue(type));
+        return new Option(type, ValueCreator.createRecordValue(type));
     }
 
 

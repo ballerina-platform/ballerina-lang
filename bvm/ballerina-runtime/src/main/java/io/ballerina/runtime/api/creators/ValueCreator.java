@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -689,7 +690,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create a runtime map value with given type.
+     * Create a runtime map value with given map type.
      *
      * @param mapType map type.
      * @return map value
@@ -712,7 +713,7 @@ public class ValueCreator {
     }
 
     /**
-     * Create a runtime map value with given initial values and given type.
+     * Create a runtime map value with given initial values and given map type.
      *
      * @param mapType   map type.
      * @param keyValues initial map values to be populated.
@@ -751,6 +752,27 @@ public class ValueCreator {
      */
     public static BListInitialValueEntry createListInitialValueEntry(Object value) {
         return new ListInitialValueEntry.ExpressionEntry(value);
+    }
+
+    /**
+     * Create a runtime record value with given record type.
+     *
+     * @param recordType record type.
+     * @return record value
+     */
+    public static BMap<BString, Object> createRecordValue(RecordType recordType) {
+        return new MapValueImpl<>(recordType);
+    }
+
+    /**
+     * Create a runtime record value with given initial values and given record type.
+     *
+     * @param recordType   record type.
+     * @param keyValues initial map values to be populated.
+     * @return record value
+     */
+    public static BMap<BString, Object> createRecordValue(RecordType recordType, BMapInitialValueEntry[] keyValues) {
+        return new MapValueImpl<>(recordType, keyValues);
     }
 
     /**
