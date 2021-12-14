@@ -12307,7 +12307,14 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 SyntaxKind nextNextTokenKind = peek(nextTokenIndex).kind;
-                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN || nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
+                if (nextNextTokenKind == SyntaxKind.PIPE_TOKEN || nextNextTokenKind == SyntaxKind.BITWISE_AND_TOKEN) {
+                    // e.g. -2|0 t1;
+                    nextTokenIndex++;
+                    return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
+                }
+
+                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN ||
+                        nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
                         nextNextTokenKind == SyntaxKind.CLOSE_BRACKET_TOKEN ||
                         isValidExprRhsStart(nextNextTokenKind, SyntaxKind.SIMPLE_NAME_REFERENCE);
             case IDENTIFIER_TOKEN:
