@@ -42,7 +42,7 @@ public class Core {
     public static List<UniformSubtype> unpackComplexSemType(ComplexSemType t) {
         int some = t.some.bitset;
         List<UniformSubtype> subtypeList = new ArrayList<>();
-        for (SubtypeData data : t.subtypeDataList) {
+        for (ProperSubtypeData data : t.subtypeDataList) {
             UniformTypeCode code = UniformTypeCode.from(Integer.numberOfTrailingZeros(some));
             subtypeList.add(UniformSubtype.from(code, data));
             int c = code.code;
@@ -120,7 +120,7 @@ public class Core {
                 int c = code.code;
                 all = UniformTypeBitSet.from(all.bitset | 1 << c);
             } else {
-                subtypes.add(UniformSubtype.from(code, data));
+                subtypes.add(UniformSubtype.from(code, (ProperSubtypeData) data));
             }
         }
 
@@ -195,7 +195,7 @@ public class Core {
                 data = OpsTable.OPS[code.code].intersect(data1, data2);
             }
             if (!(data instanceof AllOrNothingSubtype) || ((AllOrNothingSubtype) data).isAllSubtype()) {
-                subtypes.add(UniformSubtype.from(code, data));
+                subtypes.add(UniformSubtype.from(code, (ProperSubtypeData) data));
             }
         }
         if (subtypes.isEmpty()) {
@@ -286,11 +286,11 @@ public class Core {
                     }
                 }
             }
-            if (data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isAllSubtype()) {
+            if (!(data instanceof AllOrNothingSubtype)) {
+                subtypes.add(UniformSubtype.from(code, (ProperSubtypeData) data));
+            } else if (((AllOrNothingSubtype) data).isAllSubtype()) {
                 int c = code.code;
                 all = UniformTypeBitSet.from(all.bitset | (1 << c));
-            } else if (!(data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isNothingSubtype())) {
-                subtypes.add(UniformSubtype.from(code, data));
             }
         }
         if (subtypes.isEmpty()) {
@@ -617,5 +617,18 @@ public class Core {
         listDef.define(env, new ArrayList<>(), j);
         mapDef.define(env, new ArrayList<>(), j);
         return j;
+    }
+
+    public static SemType createUniformSemType(UniformTypeCode typeCode, SubtypeData subtypeData) {
+        if (subtypeData instanceof AllOrNothingSubtype) {
+            if (Common.isAllSubtype(subtypeData)) {
+                return UniformTypeBitSet.from(1 << typeCode.code);
+            } else {
+                return UniformTypeBitSet.from(0);
+            }
+        } else {
+            return ComplexSemType.createComplexSemType(0,
+                    UniformSubtype.from(typeCode, (ProperSubtypeData) subtypeData));
+        }
     }
 }

@@ -18,6 +18,7 @@
 package io.ballerina.types.typeops;
 
 import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformSubtype;
@@ -117,7 +118,7 @@ public class SubtypePairIterator implements Iterator<SubtypePair> {
                 }
                 UniformSubtype t = get2();
                 UniformTypeCode code = t.uniformTypeCode;
-                SubtypeData data2 = t.subtypeData;
+                ProperSubtypeData data2 = t.subtypeData;
                 this.i2 += 1;
                 if (include(code)) {
                     return SubtypePair.create(code, null, data2);
@@ -126,18 +127,18 @@ public class SubtypePairIterator implements Iterator<SubtypePair> {
                 UniformSubtype t = this.get1();
                 this.i1 += 1;
                 UniformTypeCode code = t.uniformTypeCode;
-                SubtypeData data1 = t.subtypeData;
+                ProperSubtypeData data1 = t.subtypeData;
                 if (include(code)) {
                     return SubtypePair.create(code, data1, null);
                 }
             } else {
                 UniformSubtype t1 = get1();
                 UniformTypeCode code1 = t1.uniformTypeCode;
-                SubtypeData data1 = t1.subtypeData;
+                ProperSubtypeData data1 = t1.subtypeData;
 
                 UniformSubtype t2 = get2();
                 UniformTypeCode code2 = t2.uniformTypeCode;
-                SubtypeData data2 = t2.subtypeData;
+                ProperSubtypeData data2 = t2.subtypeData;
 
                 if (code1.code == code2.code) {
                     this.i1 += 1;
