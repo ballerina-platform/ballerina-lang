@@ -20,6 +20,8 @@ package org.ballerinalang.langserver.completions.builder;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -134,6 +136,11 @@ public class FieldCompletionItemBuilder {
             evalNode = evalNode.parent();
         }
 
+        // If the field is optional and doesn't have nil type, we allow direct field access
+        if (!hasNilType(recordFieldSymbol)) {
+            return Optional.empty();
+        }
+
         LineRange dotTokenLineRange;
         if (evalNode.kind() == SyntaxKind.FIELD_ACCESS) {
             dotTokenLineRange = ((FieldAccessExpressionNode) evalNode).dotToken().lineRange();
@@ -154,5 +161,19 @@ public class FieldCompletionItemBuilder {
         textEdit.setNewText("");
 
         return Optional.of(textEdit);
+    }
+    
+    public static boolean hasNilType(RecordFieldSymbol recordFieldSymbol) {
+        if (recordFieldSymbol.typeDescriptor().typeKind() == TypeDescKind.NIL) {
+            return true;
+        }
+
+        if (recordFieldSymbol.typeDescriptor().typeKind() != TypeDescKind.UNION) {
+            return false;
+        }
+        
+        UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) recordFieldSymbol.typeDescriptor();
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(member -> member.typeKind() == TypeDescKind.NIL);
     }
 }

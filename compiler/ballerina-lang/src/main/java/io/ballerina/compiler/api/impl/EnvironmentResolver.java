@@ -51,22 +51,39 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
@@ -257,7 +274,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangExprFunctionBody exprFuncBody) {
-        if (PositionUtil.withinBlock(this.linePosition, exprFuncBody.getPosition())
+        if (PositionUtil.withinRightInclusive(this.linePosition, exprFuncBody.getPosition())
                 && isNarrowerEnclosure(exprFuncBody.getPosition())) {
             SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
             this.scope = exprBodyEnv;
@@ -283,9 +300,6 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        if (!(exprStmtNode.expr instanceof BLangInvocation)) {
-            return;
-        }
         this.acceptNode(exprStmtNode.expr, symbolEnv);
     }
 
@@ -612,6 +626,105 @@ public class EnvironmentResolver extends BaseVisitor {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, this.symbolEnv);
             this.scope = blockEnv;
             this.acceptNode(matchClause.blockStmt, blockEnv);
+        }
+    }
+
+    // Expressions. Need to implement these since there can be some expressions which may contain query
+    // expressions/actions within them.
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr) {
+        this.acceptNode(checkedExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
+        this.acceptNode(checkPanickedExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTrapExpr trapExpr) {
+        this.acceptNode(trapExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        this.acceptNode(fieldAccessExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+        this.acceptNode(indexAccessExpr.expr, this.symbolEnv);
+        this.acceptNode(indexAccessExpr.indexExpr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTernaryExpr ternaryExpr) {
+        this.acceptNode(ternaryExpr.expr, this.symbolEnv);
+        this.acceptNode(ternaryExpr.thenExpr, this.symbolEnv);
+        this.acceptNode(ternaryExpr.elseExpr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangWaitExpr awaitExpr) {
+        this.acceptNodes(awaitExpr.exprList, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangElvisExpr elvisExpr) {
+        this.acceptNode(elvisExpr.lhsExpr, this.symbolEnv);
+        this.acceptNode(elvisExpr.rhsExpr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        this.acceptNodes(tableConstructorExpr.recordLiteralList, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
+        this.acceptNode(bLangVarArgsExpression.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+        this.acceptNode(serviceConstructorExpr.serviceNode, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangTypeTestExpr typeTestExpr) {
+        this.acceptNode(typeTestExpr.expr, this.symbolEnv);
+        this.acceptNode(typeTestExpr.typeNode, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        this.acceptNode(annotAccessExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
+        this.acceptNode(bLangObjectConstructorExpression.classNode, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        this.acceptNode(syncSendExpr.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitForAllExpr) {
+        this.acceptNodes(waitForAllExpr.keyValuePairs, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        this.acceptNodes(bLangArrowFunction.params, this.symbolEnv);
+        this.acceptNode(bLangArrowFunction.body, this.symbolEnv);
+    }
+
+    private void acceptNodes(List<? extends BLangNode> nodes, SymbolEnv env) {
+        for (BLangNode node : nodes) {
+            this.acceptNode(node, env);
         }
     }
 
