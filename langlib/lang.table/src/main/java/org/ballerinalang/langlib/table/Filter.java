@@ -59,14 +59,14 @@ public class Filter {
         AtomicInteger index = new AtomicInteger(-1);
         // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
-
+        Object[] keys = tbl.getKeys();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{parentStrand,
-                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
+                                tbl.get(keys[index.incrementAndGet()]), true},
                         result -> {
                             if ((Boolean) result) {
-                                Object key = tbl.getKeys()[index.get()];
+                                Object key = keys[index.get()];
                                 Object value = tbl.get(key);
                                 newTable.put(key, value);
                             }
@@ -74,7 +74,4 @@ public class Filter {
         return newTable;
     }
 
-    public static BTable filter_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Boolean> func) {
-        return filter(tbl, func);
-    }
 }

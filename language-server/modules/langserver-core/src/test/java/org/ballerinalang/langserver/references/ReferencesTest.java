@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -69,7 +70,7 @@ public class ReferencesTest {
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
+        String actualStr = TestUtil.getReferencesResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
@@ -89,9 +90,7 @@ public class ReferencesTest {
         Path sourcePath = ballerinaHome.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        String actualStr = getReferencesResponseWithinStdLib(sourcePath, position);
 
         JsonArray expected = configObject.getAsJsonArray("result");
         JsonArray actual = parser.parse(actualStr).getAsJsonObject().get("result").getAsJsonArray();
@@ -99,6 +98,16 @@ public class ReferencesTest {
         this.alterActualStdLibUri(actual);
 
         expected.forEach(jsonElement -> Assert.assertTrue(actual.contains(jsonElement)));
+    }
+    
+    protected String getReferencesResponseWithinStdLib(Path sourcePath, Position position) 
+            throws IOException, URISyntaxException {
+        String fileUri = CommonUtil.getUriForPath(sourcePath, getExpectedUriScheme());
+        byte[] encodedContent = Files.readAllBytes(sourcePath);
+        TestUtil.openDocument(serviceEndpoint, fileUri, new String(encodedContent));
+        String actualStr = TestUtil.getReferencesResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, fileUri);
+        return actualStr;
     }
 
     @DataProvider
