@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
@@ -59,6 +60,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
+import static io.ballerina.runtime.test.TestUtils.getIntersectionType;
 import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM_UNION;
 
@@ -592,8 +594,7 @@ public class TomlProviderTest {
 
     @Test(dataProvider = "union-data-provider")
     public void testTomlProviderUnions(String variableName, Type type, Object expectedValues) {
-        IntersectionType unionType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
-                , type, 1, true);
+        IntersectionType unionType = getIntersectionType(ROOT_MODULE, type);
         VariableKey unionVar = new VariableKey(ROOT_MODULE, variableName, unionType, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{unionVar}));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
@@ -650,9 +651,7 @@ public class TomlProviderTest {
 
     @Test(dataProvider = "finite-data-provider")
     public void testTomlProviderFiniteType(String variableName, Type type, Object expectedValues) {
-        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{type,
-                PredefinedTypes.TYPE_READONLY}, type, 1, true);
-        VariableKey finiteVar = new VariableKey(ROOT_MODULE, variableName, intersectionType, true);
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, variableName, type, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar}));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
@@ -668,14 +667,28 @@ public class TomlProviderTest {
         String typeName = "Singleton";
         BString strVal = fromString("test");
         BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        FiniteType stringFinite = TypeCreator.createFiniteType(typeName, Set.of(strVal), 0);
+        FiniteType intFinite = TypeCreator.createFiniteType(typeName, Set.of(2L), 0);
+        FiniteType floatFinite = TypeCreator.createFiniteType(typeName, Set.of(2.2d), 0);
+        FiniteType decimalFinite = TypeCreator.createFiniteType(typeName, Set.of(decimalVal), 0);
+        FiniteType unionFinite1 = TypeCreator.createFiniteType(typeName, Set.of(strVal, 1.34d, decimalVal), 0);
+        FiniteType unionFinite2 = TypeCreator.createFiniteType(typeName, Set.of(3.24d, decimalVal), 0);
+        FiniteType unionFinite3 = TypeCreator.createFiniteType(typeName, Set.of(3.23d, decimalVal, strVal), 0);
         return new Object[][]{
-                {"stringSingleton", TypeCreator.createFiniteType(typeName, Set.of(strVal), 0), strVal},
-                {"intSingleton", TypeCreator.createFiniteType(typeName, Set.of(2L), 0), 2L},
-                {"floatSingleton", TypeCreator.createFiniteType(typeName, Set.of(2.2d), 0), 2.2d},
-                {"decimalSingleton", TypeCreator.createFiniteType(typeName, Set.of(decimalVal), 0), decimalVal},
-                {"unionVar1", TypeCreator.createFiniteType(typeName, Set.of(strVal, 1.34d, decimalVal), 0), 1.34d},
-                {"unionVar2", TypeCreator.createFiniteType(typeName, Set.of(3.24d, decimalVal), 0), decimalVal},
-                {"unionVar3", TypeCreator.createFiniteType(typeName, Set.of(3.23d, decimalVal, strVal), 0), strVal},
+                {"stringSingleton", stringFinite, strVal},
+                {"intSingleton", intFinite, 2L},
+                {"floatSingleton", floatFinite, 2.2d},
+                {"decimalSingleton", decimalFinite, decimalVal},
+                {"unionVar1", unionFinite1, 1.34d},
+                {"unionVar2", unionFinite2, decimalVal},
+                {"unionVar3", unionFinite3, strVal},
+                {"stringSingleton2", getIntersectionType(ROOT_MODULE, stringFinite), strVal},
+                {"intSingleton2", getIntersectionType(ROOT_MODULE, intFinite), 2L},
+                {"floatSingleton2", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d},
+                {"decimalSingleton2", getIntersectionType(ROOT_MODULE, decimalFinite), decimalVal},
+                {"unionVar4", getIntersectionType(ROOT_MODULE, unionFinite1), 1.34d},
+                {"unionVar5", getIntersectionType(ROOT_MODULE, unionFinite2), decimalVal},
+                {"unionVar6", getIntersectionType(ROOT_MODULE, unionFinite3), strVal},
         };
     }
 }
