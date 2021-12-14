@@ -34,7 +34,6 @@ dependencies {
     implementation "javax.transaction:javax.transaction-api:${project.javaxTransactionApiVersion}"
     implementation project(':toml-parser')
     implementation project(':ballerina-tools-api')
-    implementation project(':identifier-util')
 
     testCompile 'org.testng:testng'
 }

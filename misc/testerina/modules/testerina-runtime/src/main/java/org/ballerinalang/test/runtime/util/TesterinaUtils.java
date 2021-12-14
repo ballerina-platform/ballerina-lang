@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 

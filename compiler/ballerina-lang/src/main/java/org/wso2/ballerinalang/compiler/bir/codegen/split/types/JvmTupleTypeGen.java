@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.identifier.Utils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;

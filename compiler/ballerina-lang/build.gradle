@@ -24,7 +24,6 @@ dependencies {
     implementation project(':toml-parser')
     implementation project(':central-client')
     implementation project(':maven-resolver')
-    implementation project(':identifier-util')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
     implementation 'io.netty:netty-buffer'

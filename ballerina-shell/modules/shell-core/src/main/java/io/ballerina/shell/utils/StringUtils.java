@@ -18,7 +18,7 @@
 
 package io.ballerina.shell.utils;
 
-import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;

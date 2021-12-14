@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 
-import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 
 import java.util.Comparator;

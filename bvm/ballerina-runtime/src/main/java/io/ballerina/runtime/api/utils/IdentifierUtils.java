@@ -16,7 +16,8 @@
  * under the License.
  */
 
-package io.ballerina.identifier;
+
+package io.ballerina.runtime.api.utils;
 
 import org.apache.commons.text.StringEscapeUtils;
 

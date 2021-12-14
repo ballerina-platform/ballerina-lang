@@ -18,7 +18,7 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.Location;
 
-import static io.ballerina.identifier.Utils.decodeIdentifier;
+import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQModuleNameParts;
 
 /**

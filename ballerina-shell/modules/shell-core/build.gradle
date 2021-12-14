@@ -29,7 +29,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
-    implementation project(':identifier-util')
     implementation 'com.github.spullara.mustache.java:compiler'
 
     testImplementation('org.testng:testng')
