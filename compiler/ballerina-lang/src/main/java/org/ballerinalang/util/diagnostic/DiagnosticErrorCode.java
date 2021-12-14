@@ -414,7 +414,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
-            "invalid.optional.field.in.mapping.binding.pattern"),
+            "invalid.field.binding.pattern.with.non.required.field"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
