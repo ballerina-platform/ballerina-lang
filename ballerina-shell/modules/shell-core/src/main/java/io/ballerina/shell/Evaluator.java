@@ -60,6 +60,19 @@ public abstract class Evaluator extends DiagnosticReporter {
     public abstract void initialize() throws BallerinaShellException;
 
     /**
+     * Base evaluation function which evaluates an input line.
+     * <p>
+     * An input line may contain one or more statements separated by semicolons.
+     * The result will be written via the {@code ShellResultController}.
+     * <p>
+     * If the execution failed, an error will be thrown instead.
+     *
+     * @param source Input line from user.
+     * @return String output from the evaluator. This will be the last output.
+     */
+    public abstract String evaluate(String source) throws BallerinaShellException;
+
+    /**
      * Base evaluation function which returns compilation.
      * <p>
      * An input line may contain one or more statements separated by semicolons.

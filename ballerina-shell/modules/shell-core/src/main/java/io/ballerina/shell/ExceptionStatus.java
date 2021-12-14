@@ -29,7 +29,7 @@ public enum ExceptionStatus {
     SNIPPET_FAILED("snippet_failed"),
     INVOKER_FAILED("invoker_failed");
 
-    String status;
+    private final String status;
 
     ExceptionStatus(String value) {
         status = value;

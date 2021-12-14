@@ -120,8 +120,7 @@ public class BallerinaShell {
                     if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
                         String result = evaluator.getValue(compilation);
                         terminal.result(result);
-                    }
-                    if (ExceptionStatus.INVOKER_FAILED == shellCompilation.getExceptionStatus()) {
+                    } else if (ExceptionStatus.INVOKER_FAILED == shellCompilation.getExceptionStatus()) {
                         if (isContainsUndefinedModules(evaluator.diagnostics())) {
                             ModuleImporter moduleImporter = new ModuleImporter();
                             List<String> modules = moduleImporter.undefinedModules(evaluator.diagnostics());
@@ -277,7 +276,7 @@ public class BallerinaShell {
         List<String> requiredModules = new ArrayList<>();
         terminal.info("Found following undefined module(s).");
         for (String module : modules) {
-            module = module.replaceAll("'", "");
+            module = module.replace("'", "");
             if (moduleImporter.isModuleInDistRepo(module)) {
                 requiredModules.add(module);
             } else {

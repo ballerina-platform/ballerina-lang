@@ -61,6 +61,24 @@ class EvaluatorImpl extends Evaluator {
         }
     }
 
+    @Override
+    public String evaluate(String source) throws BallerinaShellException {
+        try {
+            Collection<Node> nodes = treeParser.parseString(source);
+            Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
+            Optional<PackageCompilation> compilation = Optional.ofNullable(invoker.getCompilation(snippets));
+            Optional<Object> invokerOut = invoker.execute(compilation);
+            return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
+        } finally {
+            addAllDiagnostics(treeParser.diagnostics());
+            addAllDiagnostics(snippetFactory.diagnostics());
+            addAllDiagnostics(invoker.diagnostics());
+            treeParser.resetDiagnostics();
+            snippetFactory.resetDiagnostics();
+            invoker.resetDiagnostics();
+        }
+    }
+
     public ShellCompilation getCompilation(String source) {
         PackageCompilation compilation;
         ExceptionStatus exceptionStatus;
@@ -74,15 +92,15 @@ class EvaluatorImpl extends Evaluator {
         } catch (TreeParserException e) {
             exceptionStatus = ExceptionStatus.TREE_PARSER_FAILED;
             clearDiagnostics(exceptionStatus);
-            return new ShellCompilation(null, exceptionStatus);
+            return new ShellCompilation(exceptionStatus);
         } catch (SnippetException e) {
             exceptionStatus = ExceptionStatus.SNIPPET_FAILED;
             clearDiagnostics(exceptionStatus);
-            return new ShellCompilation(null, exceptionStatus);
+            return new ShellCompilation(exceptionStatus);
         } catch (InvokerException e) {
             exceptionStatus = ExceptionStatus.INVOKER_FAILED;
             clearDiagnostics(exceptionStatus);
-            return new ShellCompilation(null, exceptionStatus);
+            return new ShellCompilation(exceptionStatus);
         }
     }
 
