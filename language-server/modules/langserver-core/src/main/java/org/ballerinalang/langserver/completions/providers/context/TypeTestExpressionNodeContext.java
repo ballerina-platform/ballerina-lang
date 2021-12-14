@@ -98,6 +98,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             return completionItems;
         }
         completionItems = typeReferences.stream().filter(typeRef -> isQualifiedTypeReference(context, typeRef))
+                .map(CommonUtil::getRawType)
                 .map(typeRef -> {
                     String symbolRef = getQualifiedSymbolReference(typeRef);
                     return new SymbolCompletionItem(context, typeRef,
