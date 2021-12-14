@@ -94,7 +94,7 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
                 TypeDescKind.DECIMAL);
 
         completionItems.forEach(lsCItem -> {
-            if (CommonUtil.isTypeCompletionItem(lsCItem, basicTypes)) {
+            if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
             } else {

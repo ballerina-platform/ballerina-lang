@@ -125,7 +125,7 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                 TypeDescKind.STREAM, TypeDescKind.XML);
         
         completionItems.forEach(lsCItem -> {
-            if (CommonUtil.isTypeCompletionItem(lsCItem, iterables)) {
+            if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
                 return;

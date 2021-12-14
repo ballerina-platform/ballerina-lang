@@ -1811,7 +1811,7 @@ public class CommonUtil {
      * @param typesList List of types           
      * @return {@link Boolean}
      */
-    public static boolean isTypeCompletionItem(LSCompletionItem lsCItem, List<TypeDescKind> typesList) {
+    public static boolean isCompletionItemOfType(LSCompletionItem lsCItem, List<TypeDescKind> typesList) {
 
         if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
             return false;
