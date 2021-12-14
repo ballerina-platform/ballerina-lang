@@ -38,6 +38,11 @@ public class ShellCompilation {
         this.exceptionStatus = exceptionStatus;
     }
 
+    ShellCompilation(Enum<ExceptionStatus> exceptionStatus) {
+        this.packageCompilation = null;
+        this.exceptionStatus = exceptionStatus;
+    }
+
     public Optional<PackageCompilation> getPackageCompilation() {
         return Optional.ofNullable(packageCompilation);
     }
