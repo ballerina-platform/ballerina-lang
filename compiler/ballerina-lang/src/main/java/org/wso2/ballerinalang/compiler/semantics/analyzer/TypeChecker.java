@@ -6068,8 +6068,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
     }
 
-    private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env, BLangInvokableNode encInvokable,
-                                                       BLangNode bLangNode) {
+    private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
+                                                       BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
                 && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
