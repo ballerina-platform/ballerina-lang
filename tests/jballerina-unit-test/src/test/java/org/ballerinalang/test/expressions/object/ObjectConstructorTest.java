@@ -93,9 +93,9 @@ public class ObjectConstructorTest {
 
     @Test
     public void testUnusedVariableWarnings() {
-        Assert.assertEquals(compiledConstructedObjects.getWarnCount(), 1);
-        Assert.assertEquals(closures.getWarnCount(), 16);
-        Assert.assertEquals(annotations.getWarnCount(), 1); // unused variable 'obj'
+        Assert.assertEquals(compiledConstructedObjects.getWarnCount(), 0);
+        Assert.assertEquals(closures.getWarnCount(), 0);
+        Assert.assertEquals(annotations.getWarnCount(), 0);
     }
 
     @Test

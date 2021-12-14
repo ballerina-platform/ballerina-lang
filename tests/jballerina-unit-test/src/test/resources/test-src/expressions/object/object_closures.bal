@@ -285,7 +285,7 @@ public function testAttachedMethodClosuresMapFromFunctionBlock() {
         }
     };
     int getValue = x.t1();
-    assertValueEquality(x.t1(), 13);
+    assertValueEquality(getValue, 13);
 }
 
 type Sum2 function (int x, int y) returns int;

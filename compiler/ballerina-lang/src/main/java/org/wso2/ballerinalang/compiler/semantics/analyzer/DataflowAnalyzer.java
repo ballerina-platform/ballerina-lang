@@ -384,25 +384,53 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        boolean steppedIntoFunction = false;
-        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
-        if (!funcNode.flagSet.contains(Flag.ATTACHED)) {
-            this.unusedLocalVariables = new HashMap<>();
-            steppedIntoFunction = true;
-        }
-
-        this.currDependentSymbolDeque.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+        this.currDependentSymbolDeque.push(funcNode.symbol);
+
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
         analyzeNode(funcNode.restParam, funcEnv);
-        analyzeBranch(funcNode.body, funcEnv);
+
+        if (funcNode.flagSet.contains(Flag.OBJECT_CTOR)) {
+            visitFunctionBodyWithDynamicEnv(funcNode, funcEnv);
+        } else {
+            analyzeBranch(funcNode.body, funcEnv);
+        }
+
         this.currDependentSymbolDeque.pop();
 
         emitUnusedVariableWarnings(this.unusedLocalVariables);
-        if (steppedIntoFunction) {
-            this.unusedLocalVariables = prevUnusedLocalVariables;
-        }
+        this.unusedLocalVariables = prevUnusedLocalVariables;
+    }
+
+    private void visitFunctionBodyWithDynamicEnv(BLangFunction funcNode, SymbolEnv funcEnv) {
+        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+        this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+
+        // Get a snapshot of the current uninitialized vars before visiting the node.
+        // This is done so that the original set of uninitialized vars will not be
+        // updated/marked as initialized.
+        this.uninitializedVars = copyUninitializedVars();
+        this.flowTerminated = false;
+
+        analyzeNode(funcNode.body, funcEnv);
+
+        // Restore the original set of uninitialized vars
+        this.uninitializedVars = prevUninitializedVars;
+
+        prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
+
+        // Remove the entries added from the previous context since errors should be logged after the analysis
+        // completes for that context.
+        this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
+
+        emitUnusedVariableWarnings(this.unusedLocalVariables);
+        this.unusedLocalVariables = prevUnusedLocalVariables;
     }
 
     @Override
@@ -474,8 +502,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangClassDefinition classDef) {
         SymbolEnv preEnv = env;
+        SymbolEnv env = this.env;
+        Map<BSymbol, Location> prevUnusedLocalVariables = null;
+        Map<BSymbol, InitStatus> prevUninitializedVars = null;
+        boolean visitedOCE = false;
         if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null) {
             env = classDef.oceEnvData.capturedClosureEnv;
+            prevUnusedLocalVariables = this.unusedLocalVariables;
+            prevUninitializedVars = this.uninitializedVars;
+            this.unusedLocalVariables = new HashMap<>();
+            this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
+            this.uninitializedVars = copyUninitializedVars();
+            this.flowTerminated = false;
+            visitedOCE = true;
         }
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
         this.currDependentSymbolDeque.push(classDef.symbol);
@@ -499,7 +538,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
 
             if (classDef.initFunction.body != null) {
-                Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+                Map<BSymbol, Location> prevUnusedLocalVars = this.unusedLocalVariables;
                 this.unusedLocalVariables = new HashMap<>();
 
                 if (classDef.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
@@ -512,7 +551,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
 
                 emitUnusedVariableWarnings(this.unusedLocalVariables);
-                this.unusedLocalVariables = prevUnusedLocalVariables;
+                this.unusedLocalVariables = prevUnusedLocalVars;
             }
         }
 
@@ -527,9 +566,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     }
                 });
 
-        classDef.functions.forEach(function -> analyzeNode(function, env));
-        classDef.typeRefs.forEach(type -> analyzeNode(type, env));
-        env = preEnv;
+        for (BLangFunction function : classDef.functions) {
+            analyzeNode(function, env);
+        }
+        for (BLangType type : classDef.typeRefs) {
+            analyzeNode(type, env);
+        }
+        this.env = preEnv;
+
+        if (visitedOCE) {
+            this.uninitializedVars = prevUninitializedVars;
+            prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
+            this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
+        }
+
         this.currDependentSymbolDeque.pop();
     }
 
@@ -1552,35 +1602,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
-        this.unusedLocalVariables = new HashMap<>();
-        this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
-
-        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
-
         BLangFunction funcNode = bLangLambdaFunction.function;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-
-        // Get a snapshot of the current uninitialized vars before visiting the node.
-        // This is done so that the original set of uninitialized vars will not be
-        // updated/marked as initialized.
-        this.uninitializedVars = copyUninitializedVars();
-        this.flowTerminated = false;
-
-        analyzeNode(funcNode.body, funcEnv);
-
-        // Restore the original set of uninitialized vars
-        this.uninitializedVars = prevUninitializedVars;
-
-        prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
-
-        // Remove the entries added from the previous context since errors should be logged after the analysis
-        // completes for that context.
-        this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
-
-        emitUnusedVariableWarnings(this.unusedLocalVariables);
-
-        this.unusedLocalVariables = prevUnusedLocalVariables;
+        visitFunctionBodyWithDynamicEnv(funcNode, funcEnv);
     }
 
     @Override
