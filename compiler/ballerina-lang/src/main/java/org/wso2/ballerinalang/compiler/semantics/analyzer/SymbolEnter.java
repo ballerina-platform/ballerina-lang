@@ -2815,13 +2815,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                     dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                                variable.getKey().getValue(), recordVar.getBType());
                 } else {
-                    dlog.error(variable.key.pos, DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                    dlog.error(variable.key.pos,
+                            DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
                 }
                 continue;
             } else {
                 if (Symbols.isOptional(recordVarTypeFields.get(variable.key.value).symbol)) {
                     validRecord = false;
-                    dlog.error(variable.key.pos, DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                    dlog.error(variable.key.pos,
+                            DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
                 }
             }
             defineMemberNode(value, env, recordVarTypeFields.get((variable.getKey().getValue())).type);
