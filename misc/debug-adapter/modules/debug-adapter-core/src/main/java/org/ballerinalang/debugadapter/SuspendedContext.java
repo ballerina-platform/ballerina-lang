@@ -148,10 +148,10 @@ public class SuspendedContext {
         return Optional.ofNullable(breakPointSourcePath);
     }
 
-    private Optional<Path> getSourcePath(Project soureceProject, StackFrameProxyImpl frame) {
+    private Optional<Path> getSourcePath(Project sourceProject, StackFrameProxyImpl frame) {
         try {
             Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(),
-                    soureceProject);
+                    sourceProject);
             if (pathAndType.isEmpty()) {
                 return Optional.empty();
             }
