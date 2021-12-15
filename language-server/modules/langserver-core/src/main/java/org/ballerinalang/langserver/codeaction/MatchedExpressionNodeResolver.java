@@ -62,11 +62,7 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
 
         Optional<ExpressionNode> exprNode = node.apply(this);
         // Due to the way apply() method is implemented in some cases, this can return null
-        if (exprNode == null) {
-            return Optional.empty();
-        }
-        
-        return exprNode;
+        return exprNode == null ? Optional.empty() : exprNode;
     }
     
     @Override
