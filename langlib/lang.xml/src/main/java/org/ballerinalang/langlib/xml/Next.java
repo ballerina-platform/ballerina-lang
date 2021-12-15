@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
@@ -51,8 +52,8 @@ public class Next {
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
             if (((BXml) xmlValue).getType() != PredefinedTypes.TYPE_XML_NEVER) {
-                return ValueCreator.createRecordValue(ValueCreator.createMapValue(bXml.getIteratorNextReturnType()),
-                        xmlValue);
+                return ValueCreator.createRecordValue(ValueCreator.createRecordValue(
+                        (RecordType) bXml.getIteratorNextReturnType()), xmlValue);
             }
         }
         return null;

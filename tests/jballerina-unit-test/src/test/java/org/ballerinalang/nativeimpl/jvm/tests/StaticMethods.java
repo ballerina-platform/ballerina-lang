@@ -155,7 +155,7 @@ public class StaticMethods {
             case 4:
                 return null;
             case 5:
-                return ValueCreator.createMapValue(PredefinedTypes.TYPE_ANYDATA);
+                return ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
             default:
                 return true;
         }
@@ -644,7 +644,7 @@ public class StaticMethods {
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("Riyafa")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("birth"), StringUtils.fromString("Sri Lanka"))};
-        return ValueCreator.createMapValue(bmap.getType(), mapInitialValueEntries);
+        return ValueCreator.createRecordValue((RecordType) bmap.getType(), mapInitialValueEntries);
     }
 
     public static BMap<BString, Object> createStudent() {
