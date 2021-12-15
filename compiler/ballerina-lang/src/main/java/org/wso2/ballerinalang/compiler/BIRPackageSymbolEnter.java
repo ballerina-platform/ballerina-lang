@@ -1171,11 +1171,13 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.TYPEREFDESC:
                     int pkgIndex = inputStream.readInt();
                     PackageID pkg = getPackageId(pkgIndex);
+                    BPackageSymbol pkgSymbol = pkg.equals(env.pkgSymbol.pkgID) ? env.pkgSymbol :
+                            packageCache.getSymbol(pkg);
 
                     String typeDefName = getStringCPEntryValue(inputStream);
                     BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                            names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                            names.fromString(typeDefName), pkg, null, pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
 
                     boolean nullable = (typeFlags & TypeFlags.NILABLE) == TypeFlags.NILABLE;
