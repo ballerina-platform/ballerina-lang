@@ -8,7 +8,6 @@ on:
       - release-stage
       - stage
       - ballerina-1.2.x
-      - stage-swan-lake
 
 jobs:
   ubuntu_build:

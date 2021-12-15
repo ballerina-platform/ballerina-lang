@@ -7,7 +7,6 @@ on:
       - next-release
       - release-stage
       - stage
-      - stage-swan-lake
       - ballerina-[0-9]+.[0-9]+.x
 
 jobs:
