@@ -58,7 +58,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
     private ClassLoaderReference myClassLoader;
     private ThreeState myIsObsolete = ThreeState.UNSURE;
     private Map<LocalVariable, Value> myAllValues;
-    private static final int RETRY_COUNT = 5;
+    private static final int RETRY_COUNT = 20;
 
     public StackFrameProxyImpl(ThreadReferenceProxyImpl threadProxy, StackFrame frame, int fromBottomIndex) {
         super(threadProxy.getVirtualMachine());

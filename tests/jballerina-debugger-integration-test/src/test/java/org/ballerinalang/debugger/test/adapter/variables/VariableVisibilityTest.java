@@ -304,6 +304,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
 
         // xml child variable visibility test
+        Assert.assertNotNull(localVariables.get("xmlVar"));
         Map<String, Variable> xmlChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("xmlVar"));
         debugTestRunner.assertVariable(xmlChildVariables, "attributes", "XMLAttributeMap (size = 16)", "map");
         debugTestRunner.assertVariable(xmlChildVariables, "children", "XMLSequence (size = 2)", "xml");
