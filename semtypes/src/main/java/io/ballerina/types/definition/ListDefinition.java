@@ -23,6 +23,7 @@ import io.ballerina.types.ComplexSemType;
 import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
+import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.RecAtom;
@@ -33,8 +34,6 @@ import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
 import java.util.List;
-
-import static io.ballerina.types.Core.isReadOnly;
 
 /**
  * Represent list/tuple type desc.
@@ -62,9 +61,13 @@ public class ListDefinition implements Definition {
             return s;
         }
     }
+    public ComplexSemType define(Env env, List<SemType> initial) {
+        return define(env, initial, initial.size(), PredefinedType.NEVER);
+    }
 
-    public ComplexSemType define(Env env, List<SemType> members, SemType rest) {
-        ListAtomicType rwType = ListAtomicType.from(members.toArray(new SemType[]{}), rest);
+    public ComplexSemType define(Env env, List<SemType> initial, int fixedLength , SemType rest) {
+        FixedLengthArray members = fixedLengthNormalize(FixedLengthArray.from(initial, fixedLength));
+        ListAtomicType rwType = ListAtomicType.from(members, rest);
         Atom rw;
         RecAtom rwRec = this.rwRec;
         if (rwRec != null) {
@@ -75,7 +78,8 @@ public class ListDefinition implements Definition {
         }
 
         Atom ro;
-        if (Common.typeListIsReadOnly(rwType.members) && isReadOnly(rwType.rest)) {
+        ListAtomicType roType = readOnlyListAtomicType(rwType);
+        if (roType == rwType) {
             RecAtom roRec = this.roRec;
             if (roRec == null) {
                 // share the definitions
@@ -85,10 +89,6 @@ public class ListDefinition implements Definition {
                 env.setRecListAtomType(roRec, rwType);
             }
         } else {
-            ListAtomicType roType = ListAtomicType.from(
-                    Common.readOnlyTypeList(rwType.members),
-                    Core.intersect(rwType.rest, PredefinedType.READONLY));
-
             ro = env.listAtom(roType);
             RecAtom roRec = this.roRec;
             if (roRec != null) {
@@ -96,6 +96,33 @@ public class ListDefinition implements Definition {
             }
         }
         return this.createSemType(env, ro, rw);
+    }
+
+    private ListAtomicType readOnlyListAtomicType(ListAtomicType ty) {
+        if ((Common.typeListIsReadOnly(ty.members.initial.toArray(new SemType[0])))
+                && Core.isReadOnly(ty.rest)) {
+            return ty;
+        }
+        return ListAtomicType.from(
+                FixedLengthArray.from(List.of(Common.readOnlyTypeList(ty.members.initial.toArray(new SemType[0]))),
+                        ty.members.fixedLength), Core.intersect(ty.rest, PredefinedType.READONLY));
+    }
+
+    private FixedLengthArray fixedLengthNormalize(FixedLengthArray array) {
+        List<SemType> initial = array.initial;
+        int i = initial.size() - 1;
+        if (i <= 0) {
+            return array;
+        }
+        SemType last = initial.get(i);
+        i -= 1;
+        while (i >= 0) {
+            if (last != initial.get(i)) {
+                break;
+            }
+            i -= 1;
+        }
+        return FixedLengthArray.from(initial.subList(0, i + 2), array.fixedLength);
     }
 
     private ComplexSemType createSemType(Env env, Atom ro, Atom rw) {
@@ -117,6 +144,6 @@ public class ListDefinition implements Definition {
 
     public static SemType tuple(Env env, SemType... members) {
         ListDefinition def = new ListDefinition();
-        return def.define(env, List.of(members), PredefinedType.NEVER);
+        return def.define(env, List.of(members));
     }
 }
