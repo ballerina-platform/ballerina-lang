@@ -49,4 +49,9 @@ public class UniformTypeBitSet implements SemType {
         UniformTypeBitSet s = (UniformTypeBitSet) o;
         return (s.bitset == this.bitset);
     }
+
+    @Override
+    public int hashCode() {
+        return bitset;
+    }
 }
