@@ -89,7 +89,7 @@ public class ServiceTemplateGenerator {
     private final Map<Pair<String, String>, List<ListenerMetaData>> moduleListenerMetaDataMap;
 
     private boolean isInitialized;
-    private static final String TITLE_INITIALIZE = "Initialize Service Template Generator";
+    private static final String TITLE_INITIALIZE = "Service Template Generator";
 
     public boolean initialized() {
         return isInitialized;
@@ -113,7 +113,7 @@ public class ServiceTemplateGenerator {
                 WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
                 beginNotification.setTitle(TITLE_INITIALIZE);
                 beginNotification.setCancellable(false);
-                beginNotification.setMessage("Loading listener symbols from the distribution");
+                beginNotification.setMessage("Initializing...");
                 languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                         Either.forLeft(beginNotification)));
             }
@@ -122,7 +122,7 @@ public class ServiceTemplateGenerator {
             clientLogger
                     .logTrace("Finished loading listener symbols from the distribution");
             WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Listener symbols are loaded successfully!");
+            endNotification.setMessage("Initialized Successfully!");
             languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                     Either.forLeft(endNotification)));
         });
