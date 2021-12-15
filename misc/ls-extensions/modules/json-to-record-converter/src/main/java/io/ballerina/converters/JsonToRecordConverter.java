@@ -384,7 +384,7 @@ public class JsonToRecordConverter {
 
         ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openBracketToken, arrayLengthNode,
                 closeBracketToken);
-        arrayDimensions.add(arrayDimension);
+        arrayDimensions = arrayDimensions.add(arrayDimension);
 
         return NodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, arrayDimensions);
     }

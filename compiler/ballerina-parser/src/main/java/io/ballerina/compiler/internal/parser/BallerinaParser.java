@@ -8413,9 +8413,9 @@ public class BallerinaParser extends AbstractParser {
         STNode arrayDimension = STNodeFactory.createArrayDimensionNode(openBracketToken, arrayLengthNode, 
                 closeBracketToken);
         arrayDimensions.add(arrayDimension);
-        STNode arrayDimensionNode = STNodeFactory.createNodeList(arrayDimensions);
+        STNode arrayDimensionNodeList = STNodeFactory.createNodeList(arrayDimensions);
         
-        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, arrayDimensionNode);
+        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, arrayDimensionNodeList);
     }
 
     /**

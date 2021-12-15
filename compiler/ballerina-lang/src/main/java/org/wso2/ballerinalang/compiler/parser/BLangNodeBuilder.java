@@ -3512,11 +3512,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                             lengthCheck = Long.parseLong(literalToken.text().substring(2), 16);
                         }
                     } catch (NumberFormatException e) {
-                        dlog.error((literalToken).location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
+                        dlog.error(literalToken.location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     }
 
                     if (lengthCheck > MAX_ARRAY_SIZE) {
-                        dlog.error((literalToken).location(),
+                        dlog.error(literalToken.location(),
                                 DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
                     } else {
                         length = (int) lengthCheck;
