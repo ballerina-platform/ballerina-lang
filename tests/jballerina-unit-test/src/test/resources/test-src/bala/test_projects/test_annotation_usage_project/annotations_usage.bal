@@ -25,10 +25,10 @@ public class TestListener {
     public function init(string token, @defn:Expose @Allow int? listenOn = 8090) {
     }
 
-    public function attach(service object {} s, string[]|string? name) returns error? {
+    public function attach(@defn:Annot {i: 1} service object {} s, string[]|string? name) returns error? {
     }
 
-    public function detach(service object {} s) returns error? {
+    public function detach(@defn:Annots {i: 1} @defn:Annots {i: 2} service object {} s) returns error? {
     }
 
     public function 'start() returns error? {

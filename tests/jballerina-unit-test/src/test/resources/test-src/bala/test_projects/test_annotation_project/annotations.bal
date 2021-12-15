@@ -15,3 +15,12 @@
 // under the License.
 
 public const annotation Expose on parameter;
+
+public type Rec record {
+    int i;
+};
+
+public const annotation Rec Annot on parameter;
+
+public const annotation Rec[] Annots on parameter;
+

@@ -29,12 +29,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 import java.util.Map;
@@ -96,9 +101,12 @@ public class AnnotationTests {
         Assert.assertEquals(pkgID.pkgName.value, "usage");
         Assert.assertEquals(pkgID.version.value, "0.2.0");
         Assert.assertEquals(annotationSymbol.name.value, "Allow");
+        Assert.assertEquals(annotationSymbol.attachedType.tag, TypeTags.FINITE);
 
-        List<BVarSymbol> params = ((BClassSymbol) importedModuleEntries.get(Names.fromString("TestListener")).symbol)
-                .initializerFunc.symbol.params;
+        BClassSymbol testListener =
+                (BClassSymbol) importedModuleEntries.get(Names.fromString("TestListener")).symbol;
+
+        List<BVarSymbol> params = testListener.initializerFunc.symbol.params;
         annotationAttachmentSymbols = params.get(0).getAnnotations();
         Assert.assertEquals(annotationAttachmentSymbols.size(), 0);
         annotationAttachmentSymbols = params.get(1).getAnnotations();
@@ -120,6 +128,55 @@ public class AnnotationTests {
             Assert.assertEquals(value, "usage");
             Assert.assertEquals(pkgID.version.value, "0.2.0");
             Assert.assertEquals(annotationSymbol.name.value, "Allow");
+        }
+
+        BAttachedFunction attachMethod = null;
+        BAttachedFunction detachMethod = null;
+
+        for (BAttachedFunction attachedFunc : testListener.attachedFuncs) {
+            String value = attachedFunc.funcName.value;
+
+            if ("attach".equals(value)) {
+                attachMethod = attachedFunc;
+                continue;
+            }
+
+            if ("detach".equals(value)) {
+                detachMethod = attachedFunc;
+            }
+        }
+
+        params = attachMethod.symbol.params;
+        annotationAttachmentSymbols = params.get(1).getAnnotations();
+        Assert.assertEquals(annotationAttachmentSymbols.size(), 0);
+        annotationAttachmentSymbols = params.get(0).getAnnotations();
+        Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
+        annotationSymbol = (BAnnotationSymbol) annotationAttachmentSymbols.get(0);
+        pkgID = annotationSymbol.pkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "defn");
+        Assert.assertEquals(pkgID.version.value, "0.0.1");
+        Assert.assertEquals(annotationSymbol.name.value, "Annot");
+        BType type = annotationSymbol.attachedType;
+        Assert.assertEquals(type.tag, TypeTags.TYPEREFDESC);
+        BType referredType = ((BTypeReferenceType) type).referredType;
+        Assert.assertEquals(referredType.tag, TypeTags.RECORD);
+        Assert.assertEquals(referredType.tsymbol.toString(), "annots/defn:0.0.1:Rec");
+
+        params = detachMethod.symbol.params;
+        annotationAttachmentSymbols = params.get(0).getAnnotations();
+        Assert.assertEquals(annotationAttachmentSymbols.size(), 2);
+
+        for (AnnotationSymbol annotationAttachmentSymbol : annotationAttachmentSymbols) {
+            annotationSymbol = (BAnnotationSymbol) annotationAttachmentSymbol;
+            pkgID = annotationSymbol.pkgID;
+            Assert.assertEquals(pkgID.orgName.value, "annots");
+            Assert.assertEquals(pkgID.pkgName.value, "defn");
+            Assert.assertEquals(pkgID.version.value, "0.0.1");
+            Assert.assertEquals(annotationSymbol.name.value, "Annots");
+            type = annotationSymbol.attachedType;
+            Assert.assertEquals(type.tag, TypeTags.ARRAY);
+            Assert.assertEquals(((BArrayType) type).eType.tsymbol.toString(), "annots/defn:0.0.1:Rec");
         }
     }
 
