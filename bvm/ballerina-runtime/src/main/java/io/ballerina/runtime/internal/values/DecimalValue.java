@@ -278,10 +278,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
         if (augend.valueKind == DecimalValueKind.ZERO) {
             return this;
         }
-        if (augend.valueKind == DecimalValueKind.OTHER) {
-            return new DecimalValue(this.decimalValue().add(augend.decimalValue(), MathContext.DECIMAL128));
-        }
-        return augend;
+        return new DecimalValue(this.decimalValue().add(augend.decimalValue(), MathContext.DECIMAL128));
     }
 
     /**
@@ -293,18 +290,15 @@ public class DecimalValue implements SimpleValue, BDecimal {
 
         if (this.valueKind == DecimalValueKind.ZERO) {
             if (subtrahend.valueKind == DecimalValueKind.ZERO) {
-                throw ErrorUtils.createInvalidDecimalError(NAN);
+                return subtrahend;
             }
             return subtrahend.negate();
         }
         if (subtrahend.valueKind == DecimalValueKind.ZERO) {
             return this;
         }
-        if (subtrahend.valueKind == DecimalValueKind.OTHER) {
-            return new DecimalValue(this.decimalValue().subtract(subtrahend.decimalValue(),
-                    MathContext.DECIMAL128));
-        }
-        return subtrahend.negate();
+        return new DecimalValue(this.decimalValue().subtract(subtrahend.decimalValue(),
+                MathContext.DECIMAL128));
     }
 
     /**
@@ -316,20 +310,13 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public DecimalValue multiply(DecimalValue multiplicand) {
 
         if (this.valueKind == DecimalValueKind.ZERO) {
-            if (multiplicand.valueKind == DecimalValueKind.ZERO ||
-                    multiplicand.valueKind == DecimalValueKind.OTHER) {
-                return this;
-            }
-            throw ErrorUtils.createInvalidDecimalError(NAN);
+            return this;
         }
         if (multiplicand.valueKind == DecimalValueKind.OTHER) {
             return new DecimalValue(this.decimalValue().multiply(multiplicand.decimalValue(),
                     MathContext.DECIMAL128));
         }
-        if (this.decimalValue().compareTo(BigDecimal.ZERO) > 0) {
-            return multiplicand;
-        }
-        return multiplicand.negate();
+        return multiplicand;
     }
 
     /**
@@ -363,20 +350,11 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return {@code this % divisor}
      */
     public DecimalValue remainder(DecimalValue divisor) {
-        switch (this.valueKind) {
-            case ZERO:
-            case OTHER:
-                if (divisor.valueKind == DecimalValueKind.OTHER) {
-                    return new DecimalValue(this.decimalValue().remainder(divisor.decimalValue(),
-                                                                          MathContext.DECIMAL128));
-                }
-                if (divisor.valueKind == DecimalValueKind.ZERO) {
-                    throw ErrorUtils.createInvalidDecimalError(NAN);
-                }
-                return this;
-            default:
-                throw ErrorUtils.createInvalidDecimalError(NAN);
+        if (divisor.valueKind == DecimalValueKind.OTHER) {
+            return new DecimalValue(this.decimalValue().remainder(divisor.decimalValue(),
+                    MathContext.DECIMAL128));
         }
+        throw ErrorUtils.createInvalidDecimalError(NAN);
     }
 
     /**

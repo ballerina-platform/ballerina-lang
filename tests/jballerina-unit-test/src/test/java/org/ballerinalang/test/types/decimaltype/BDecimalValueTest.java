@@ -274,8 +274,8 @@ public class BDecimalValueTest {
     }
 
     @Test()
-    public void testInvalidDecimalValue() {
-        BRunUtil.invoke(result, "testInvalidDecimalValue");
+    public void testDecimalZeroOperations() {
+        BRunUtil.invoke(result, "testDecimalZeroOperations");
     }
 
     @AfterClass
