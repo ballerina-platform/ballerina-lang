@@ -6012,8 +6012,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
-                        updateObjectCtorClosureSymbol(pos, (BLangFunction) encInvokable, currentFunc,
-                                resolvedSymbol, classDef);
+                        updateObjectCtorClosureSymbol(pos, currentFunc, resolvedSymbol, classDef);
                         return;
                     }
                 }
@@ -6043,13 +6042,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
-                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                BLangClassDefinition classDef = (BLangClassDefinition) node;
                 if (resolvedSymbol != symTable.notFoundSymbol) {
                     if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
                         break;
                     }
-                    updateObjectCtorClosureSymbol(pos, (BLangFunction) encInvokable, currentFunction, resolvedSymbol,
-                            classDefinition);
+                    updateObjectCtorClosureSymbol(pos, currentFunction, resolvedSymbol, classDef);
                     return;
                 }
                 break;
@@ -6108,14 +6106,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private void updateObjectCtorClosureSymbol(Location pos, BLangFunction encInvokable, BLangFunction currentFunction,
-                                               BSymbol resolvedSymbol, BLangClassDefinition classDefinition) {
-        classDefinition.hasClosureVars = true;
+    private void updateObjectCtorClosureSymbol(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
+                                               BLangClassDefinition classDef) {
+        classDef.hasClosureVars = true;
         resolvedSymbol.closure = true;
-        if (encInvokable != null) {
-            encInvokable.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+        if (currentFunction != null) {
+            currentFunction.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            // TODO: can identify if attached here
         }
-        OCEDynamicEnvironmentData oceEnvData = classDefinition.oceEnvData;
+        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
         if (currentFunction != null && currentFunction.symbol.params.contains(resolvedSymbol)) {
             oceEnvData.closureFuncSymbols.add(resolvedSymbol);
         } else {
