@@ -37,4 +37,16 @@ public class UniformTypeBitSet implements SemType {
     public String toString() {
         return PredefinedType.toString(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UniformTypeBitSet)) {
+            return false;
+        }
+        UniformTypeBitSet s = (UniformTypeBitSet) o;
+        return (s.bitset == this.bitset);
+    }
 }
