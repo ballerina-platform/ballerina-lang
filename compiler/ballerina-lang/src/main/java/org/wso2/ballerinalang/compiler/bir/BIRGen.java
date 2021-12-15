@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -427,8 +428,19 @@ public class BIRGen extends BLangNodeVisitor {
                                                           displayName,
                                                           astTypeDefinition.symbol.originalName);
         if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
-            typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
-            typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            if (type.tsymbol.owner == astTypeDefinition.symbol.owner) {
+                typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
+                typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            } else {
+                BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+                typeDef.referenceType = referenceType;
+
+                if (referenceType != null) {
+                    typeDef.type = referenceType;
+                }
+
+                typeDefs.put(astTypeDefinition.symbol, typeDef);
+            }
         } else {
             //enum symbols
             typeDefs.put(astTypeDefinition.symbol, typeDef);

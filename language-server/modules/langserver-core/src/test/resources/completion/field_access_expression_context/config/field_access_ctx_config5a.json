@@ -401,25 +401,10 @@
     {
       "label": "testOptional",
       "kind": "Field",
-      "detail": "int",
+      "detail": "int?",
       "sortText": "AA",
-      "insertText": "?.testOptional",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 4,
-              "character": 30
-            },
-            "end": {
-              "line": 4,
-              "character": 31
-            }
-          },
-          "newText": ""
-        }
-      ]
+      "insertText": "testOptional",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

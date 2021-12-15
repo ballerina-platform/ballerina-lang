@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -72,16 +73,24 @@ public class DefinitionTest {
 
     @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
     public void testStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
-        performStdLibDefinitionTest(sourceRoot, configPath, configDir);
+        performStdLibDefinitionTest(sourceRoot, configPath, configDir, true);
+        performStdLibDefinitionTest(sourceRoot, configPath, configDir, false);
     }
 
     @Test(dataProvider = "testInterStdLibDataProvider")
     public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         Path ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME);
-        performStdLibDefinitionTest(ballerinaHome, configPath, configDir);
+        performStdLibDefinitionTest(ballerinaHome, configPath, configDir, true);
+        performStdLibDefinitionTest(ballerinaHome, configPath, configDir, false);
     }
 
-    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir)
+    /**
+     * Perform goto def tests for std lib files.
+     *
+     * @param withBalaScheme Whether to use bala scheme or not when fetching definition.
+     */
+    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir, 
+                                             boolean withBalaScheme)
             throws IOException, URISyntaxException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
@@ -89,9 +98,15 @@ public class DefinitionTest {
         Path sourcePath = sourceRootPath.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        String fileUri = sourcePath.toUri().toString();
+        if (withBalaScheme) {
+            fileUri = CommonUtil.getUriForPath(sourcePath, CommonUtil.URI_SCHEME_BALA);
+        }
+
+        byte[] encodedContent = Files.readAllBytes(sourcePath);
+        TestUtil.openDocument(serviceEndpoint, fileUri, new String(encodedContent));
+        String actualStr = TestUtil.getDefinitionResponse(fileUri, position, serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, fileUri);
 
         JsonArray expected = configObject.getAsJsonArray("result");
         JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result")
@@ -104,7 +119,7 @@ public class DefinitionTest {
     protected void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
             throws IOException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
+        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
