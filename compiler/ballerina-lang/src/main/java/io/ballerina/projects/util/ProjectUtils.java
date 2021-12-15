@@ -38,6 +38,14 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -870,5 +878,32 @@ public class ProjectUtils {
             // Find the latest version
             return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
         }
+    }
+
+    /**
+     * Creates a no-location {@code Diagnostic} instances from the given details.
+     *
+     * @param message             diagnostic message
+     * @param diagnosticErrorCode diagnostic error code
+     * @param severity severity of the diagnostic
+     *
+     * @return a {@code Diagnostic} instance
+     */
+    public static Diagnostic createDiagnostic(String message, String diagnosticErrorCode, DiagnosticSeverity severity) {
+        var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
+
+        Location nullLocation = new Location() {
+            @Override
+            public LineRange lineRange() {
+                LinePosition from = LinePosition.from(0, 0);
+                return LineRange.from("", from, from);
+            }
+
+            @Override
+            public TextRange textRange() {
+                return TextRange.from(0, 0);
+            }
+        };
+        return DiagnosticFactory.createDiagnostic(diagnosticInfo, nullLocation);
     }
 }

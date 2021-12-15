@@ -23,13 +23,16 @@ import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,14 +46,17 @@ import static io.ballerina.projects.PackageVersion.BUILTIN_PACKAGE_VERSION;
  */
 public class BlendedManifest {
     private final PackageContainer<Dependency> depContainer;
+    private final List<Diagnostic> diagnostics;
 
-    private BlendedManifest(PackageContainer<Dependency> pkgContainer) {
+    private BlendedManifest(PackageContainer<Dependency> pkgContainer, List<Diagnostic> diagnostics) {
         this.depContainer = pkgContainer;
+        this.diagnostics = diagnostics;
     }
 
     public static BlendedManifest from(DependencyManifest dependencyManifest,
                                        PackageManifest packageManifest,
                                        AbstractPackageRepository localPackageRepository) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
         for (DependencyManifest.Package pkgInDepManifest : dependencyManifest.packages()) {
             PackageOrg pkgOrg = pkgInDepManifest.org();
@@ -91,17 +97,20 @@ public class BlendedManifest {
                             moduleNames(depInPkgManifest, localPackageRepository), DependencyOrigin.USER_SPECIFIED);
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
                 } else if (compatibilityResult == VersionCompatibilityResult.INCOMPATIBLE) {
-                    // TODO update with proper diagnostics
-                    // TODO report a diagnostic, skip this version and continue.
-                    throw new ProjectException("Dependency version (" + depInPkgManifest.version() + ") " +
-                            "specified in Ballerina.toml is incompatible with the " +
-                            "dependency version (" + existingDep.version + ") locked in Dependencies.toml. " +
-                            "org: `" + existingDep.org() + "` name: " + existingDep.name() + "");
+                    // TODO we can add the location to the diagnostic
+                    Diagnostic diagnostic = ProjectUtils.createDiagnostic(
+                            "Dependency version (" + depInPkgManifest.version() + ") " +
+                                    "specified in Ballerina.toml is incompatible with the " +
+                                    "dependency version (" + existingDep.version + ") locked in Dependencies.toml. " +
+                                    "org: `" + existingDep.org() + "` name: " + existingDep.name() + "",
+                            ProjectDiagnosticErrorCode.INCOMPATIBLE_DEPENDENCY_VERSIONS.diagnosticId(),
+                            DiagnosticSeverity.ERROR);
+                    diagnostics.add(diagnostic);
                 }
             }
         }
 
-        return new BlendedManifest(depContainer);
+        return new BlendedManifest(depContainer, diagnostics);
     }
 
     private static DependencyRelation getRelation(boolean isTransitive) {
@@ -151,6 +160,10 @@ public class BlendedManifest {
     public Dependency dependencyOrThrow(PackageOrg org, PackageName name) {
         return depContainer.get(org, name).orElseThrow(() -> new IllegalStateException("Dependency with org `" +
                 org + "` and name `" + name + "` must exists."));
+    }
+
+    public List<Diagnostic> diagnostics() {
+        return diagnostics;
     }
 
     private Optional<Dependency> dependency(PackageOrg org, PackageName name, DependencyOrigin origin) {

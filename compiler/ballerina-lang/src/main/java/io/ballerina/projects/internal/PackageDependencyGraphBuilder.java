@@ -24,17 +24,21 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,6 +65,7 @@ public class PackageDependencyGraphBuilder {
 
     private final DependencyNode rootDepNode;
     private final Vertex rootNodeVertex;
+    private final List<Diagnostic> diagnostics;
 
     public PackageDependencyGraphBuilder(PackageDescriptor rootNode, ResolutionOptions resolutionOptions) {
         this.rootNodeVertex = new Vertex(rootNode.org(), rootNode.name());
@@ -68,6 +73,7 @@ public class PackageDependencyGraphBuilder {
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
         this.resolutionOptions = resolutionOptions;
         this.rawGraphBuilder = DependencyGraphBuilder.getBuilder(rootDepNode);
+        this.diagnostics = new ArrayList<>();
 
         Vertex dependentVertex = new Vertex(rootDepNode.pkgDesc().org(), rootDepNode.pkgDesc().name());
         addNewVertex(dependentVertex, rootDepNode, false);
@@ -174,6 +180,10 @@ public class PackageDependencyGraphBuilder {
         return rawGraphBuilder.build();
     }
 
+    List<Diagnostic> diagnostics() {
+        return this.diagnostics;
+    }
+
     private NodeStatus addDependencyInternal(PackageDescriptor dependent,
                                              DependencyNode dependencyNode,
                                              boolean unresolved) {
@@ -226,6 +236,10 @@ public class PackageDependencyGraphBuilder {
         // There exists another version in the graph.
         DependencyNode existingPkgDep = vertices.get(vertex);
         PackageDescriptor resolvedPkgDesc = handleDependencyConflict(newPkgDep, existingPkgDep);
+        if (resolvedPkgDesc == null) {
+            unresolvedVertices.add(vertex);
+            return NodeStatus.ACCEPTED;
+        }
 
         // If the existing dependency scope is DEFAULT, use it. Otherwise use the new dependency scope.
         PackageDependencyScope depScope =
@@ -322,11 +336,17 @@ public class PackageDependencyGraphBuilder {
                 return newPkgDesc;
             case INCOMPATIBLE:
                 // Incompatible versions exist in the graph.
-                // TODO can we report this issue with more information. dependency graph etc.
-                // Convert this to a diagnostic
-                throw new ProjectException("Two incompatible versions exist in the dependency graph: " +
-                        existingPkgDesc.org() + "/" + existingPkgDesc.name() +
-                        " versions: " + existingPkgDesc.version() + ", " + newPkgDesc.version());
+                // TODO can we report this issue with more information. location, dependency graph etc.
+                Diagnostic diagnostic = ProjectUtils.createDiagnostic(
+                        "Two incompatible versions exist in the dependency graph: " +
+                                existingPkgDesc.org() + "/" + existingPkgDesc.name() +
+                                " versions: " + existingPkgDesc.version() + ", " + newPkgDesc.version(),
+                        ProjectDiagnosticErrorCode.INCOMPATIBLE_DEPENDENCY_VERSIONS.diagnosticId(),
+                        DiagnosticSeverity.ERROR
+                );
+                this.diagnostics.add(diagnostic);
+                return null;
+
             default:
                 throw new IllegalStateException("Unsupported VersionCompatibilityResult: " + compatibilityResult);
         }

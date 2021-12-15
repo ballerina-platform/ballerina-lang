@@ -32,16 +32,11 @@ import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
-import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticFactory;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -139,15 +134,6 @@ public class PackageResolution {
             this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
         }
         return diagnosticResult;
-    }
-
-    void reportDiagnostic(String message, String diagnosticErrorCode, DiagnosticSeverity severity, Location location,
-                          ModuleDescriptor moduleDescriptor) {
-        var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
-        var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
-        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
-        this.diagnosticList.add(packageDiagnostic);
-        this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
 
     public boolean autoUpdate() {
@@ -268,6 +254,7 @@ public class PackageResolution {
                 blendedManifest, packageResolver, moduleResolver, resolutionOptions);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
+        this.diagnosticList.addAll(resolutionEngine.diagnostics());
 
         //3 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
@@ -416,9 +403,12 @@ public class PackageResolution {
 
     private BlendedManifest createBlendedManifest(PackageContext rootPackageContext,
                                                   ProjectEnvironment projectEnvContext) {
-        return BlendedManifest.from(rootPackageContext.dependencyManifest(),
+        BlendedManifest blendedManifest = BlendedManifest.from(rootPackageContext.dependencyManifest(),
                 rootPackageContext.packageManifest(),
                 projectEnvContext.getService(LocalPackageRepository.class));
+
+        diagnosticList.addAll(blendedManifest.diagnostics());
+        return blendedManifest;
     }
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,

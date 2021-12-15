@@ -266,10 +266,16 @@ public class VersionConflictResolutionTests {
         assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
     }
 
-    @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp =
-            "Two incompatible versions exist in the dependency graph: samjs/package_b versions: 1.1.0, 2.1.0")
+    @Test
     public void testVersionConflictsMajor() throws IOException {
-        getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"));
+        DependencyGraph<DependencyNode> dependencyGraph = getDependencyGraph(
+                testSourcesDirectory.resolve("conflicts_negative_1.json"));
+        for (DependencyNode node : dependencyGraph.getNodes()) {
+            if (node.pkgDesc().toString().equals("samjs/package_b:1.1.0") ||
+                    node.pkgDesc().toString().equals("samjs/package_b:2.1.0")) {
+                Assert.fail("samjs/package_b is not expected to be in the dependency graph");
+            }
+        }
     }
 
     private void compareGraphs(DependencyGraph<DependencyNode> actualDependencyGraph,
