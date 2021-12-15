@@ -3389,7 +3389,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ArrayDimensionNode transform(ArrayDimensionNode arrayDimensionNode) {
         Token openBracket = formatToken(arrayDimensionNode.openBracket(), 0, 0);
         Node arrayLength = formatNode(arrayDimensionNode.arrayLength().orElse(null), 0, 0);
-        Token closeBracket = formatToken(arrayDimensionNode.closeBracket(), 0, 0);
+        Token closeBracket = formatToken(arrayDimensionNode.closeBracket(), env.trailingWS, env.trailingNL);
         return arrayDimensionNode.modify()
                 .withOpenBracket(openBracket)
                 .withArrayLength(arrayLength)
