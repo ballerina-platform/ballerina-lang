@@ -1623,8 +1623,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private void updateClosureVarsForAttachedObjects(BLangClassDefinition classDef,
                                                      BVarSymbol selfSymbol,
                                                      BLangSimpleVarRef varRefExpr) {
-        BLangNode nodeKeepingClosureMap = classDef.oceEnvData.capturedClosureEnv.enclEnv.node;
-        if (!classDef.oceEnvData.capturedClosureEnv.enclEnv.scope.entries.containsKey(varRefExpr.symbol.name)) {
+        SymbolEnv enclEnv = classDef.oceEnvData.capturedClosureEnv.enclEnv;
+        BLangNode nodeKeepingClosureMap = enclEnv.node;
+        if (!enclEnv.scope.entries.containsKey(varRefExpr.symbol.name)) {
             if (nodeKeepingClosureMap.getKind() == NodeKind.FUNCTION) {
                 BLangBlockFunctionBody blockFunctionBody =
                         (BLangBlockFunctionBody) ((BLangFunction) nodeKeepingClosureMap).body;
