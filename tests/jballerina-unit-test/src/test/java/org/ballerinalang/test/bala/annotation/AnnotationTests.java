@@ -103,10 +103,33 @@ public class AnnotationTests {
         Assert.assertEquals(annotationSymbol.name.value, "Allow");
         Assert.assertEquals(annotationSymbol.attachedType.tag, TypeTags.FINITE);
 
+        BInvokableSymbol otherFunc = (BInvokableSymbol) importedModuleEntries.get(
+                Names.fromString("otherFunc")).symbol;
+        List<BVarSymbol> params = otherFunc.params;
+        annotationAttachmentSymbols = params.get(0).getAnnotations();
+        Assert.assertEquals(annotationAttachmentSymbols.size(), 0);
+        annotationAttachmentSymbols = params.get(1).getAnnotations();
+        Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
+        annotationSymbol = (BAnnotationSymbol) annotationAttachmentSymbols.get(0);
+        pkgID = annotationSymbol.pkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "defn");
+        Assert.assertEquals(pkgID.version.value, "0.0.1");
+        Assert.assertEquals(annotationSymbol.name.value, "Annot");
+
+        annotationAttachmentSymbols = otherFunc.restParam.getAnnotations();
+        Assert.assertEquals(annotationAttachmentSymbols.size(), 1);
+        annotationSymbol = (BAnnotationSymbol) annotationAttachmentSymbols.get(0);
+        pkgID = annotationSymbol.pkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationSymbol.name.value, "Allow");
+
         BClassSymbol testListener =
                 (BClassSymbol) importedModuleEntries.get(Names.fromString("TestListener")).symbol;
 
-        List<BVarSymbol> params = testListener.initializerFunc.symbol.params;
+        params = testListener.initializerFunc.symbol.params;
         annotationAttachmentSymbols = params.get(0).getAnnotations();
         Assert.assertEquals(annotationAttachmentSymbols.size(), 0);
         annotationAttachmentSymbols = params.get(1).getAnnotations();

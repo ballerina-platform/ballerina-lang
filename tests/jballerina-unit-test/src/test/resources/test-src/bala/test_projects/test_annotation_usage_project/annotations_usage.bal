@@ -21,6 +21,9 @@ public const annotation Allow on parameter;
 public function func(@Allow int i) {
 }
 
+public function otherFunc(int i, @defn:Annot {i: 456} int j = 1, @Allow int... k) {
+}
+
 public class TestListener {
     public function init(string token, @defn:Expose @Allow int? listenOn = 8090) {
     }
