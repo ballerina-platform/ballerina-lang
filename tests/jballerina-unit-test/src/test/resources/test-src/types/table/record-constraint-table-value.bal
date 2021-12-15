@@ -518,6 +518,7 @@ function testTableTypeInferenceWithVarType() {
     testTableTypeInferenceWithVarType8();
     testTableTypeInferenceWithVarType9();
     testTableTypeInferenceWithVarType10();
+    testTableTypeInferenceWithVarType11();
 }
 
 function testTableTypeInferenceWithVarType1() {
@@ -656,6 +657,20 @@ function testTableTypeInferenceWithVarType10() {
     table<record {|(int[]|int) a;|}> _ = v1;
     v1.add({a: intArr});
     v1.add({a: 1});
+}
+
+type Zero 0;
+
+type NaturalNums 1|2|3;
+
+type WholeNums Zero|NaturalNums;
+
+function testTableTypeInferenceWithVarType11() {
+    WholeNums f = 2;
+
+    var v1 = table [{a: f}];
+    table<record {|(0|1|2|3) a;|}> _ = v1;
+    v1.add({a: f});
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
