@@ -671,6 +671,7 @@ public class TomlProviderTest {
         FiniteType intFinite = TypeCreator.createFiniteType(typeName, Set.of(2L), 0);
         FiniteType floatFinite = TypeCreator.createFiniteType(typeName, Set.of(2.2d), 0);
         FiniteType decimalFinite = TypeCreator.createFiniteType(typeName, Set.of(decimalVal), 0);
+        FiniteType booleanFinite = TypeCreator.createFiniteType(typeName, Set.of(true), 0);
         FiniteType unionFinite1 = TypeCreator.createFiniteType(typeName, Set.of(strVal, 1.34d, decimalVal), 0);
         FiniteType unionFinite2 = TypeCreator.createFiniteType(typeName, Set.of(3.24d, decimalVal), 0);
         FiniteType unionFinite3 = TypeCreator.createFiniteType(typeName, Set.of(3.23d, decimalVal, strVal), 0);
@@ -679,6 +680,7 @@ public class TomlProviderTest {
                 {"intSingleton", intFinite, 2L},
                 {"floatSingleton", floatFinite, 2.2d},
                 {"decimalSingleton", decimalFinite, decimalVal},
+                {"booleanSingleton", booleanFinite, true},
                 {"unionVar1", unionFinite1, 1.34d},
                 {"unionVar2", unionFinite2, decimalVal},
                 {"unionVar3", unionFinite3, strVal},
@@ -686,6 +688,7 @@ public class TomlProviderTest {
                 {"intSingleton2", getIntersectionType(ROOT_MODULE, intFinite), 2L},
                 {"floatSingleton2", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d},
                 {"decimalSingleton2", getIntersectionType(ROOT_MODULE, decimalFinite), decimalVal},
+                {"booleanSingleton2", getIntersectionType(ROOT_MODULE, booleanFinite), true},
                 {"unionVar4", getIntersectionType(ROOT_MODULE, unionFinite1), 1.34d},
                 {"unionVar5", getIntersectionType(ROOT_MODULE, unionFinite2), decimalVal},
                 {"unionVar6", getIntersectionType(ROOT_MODULE, unionFinite3), strVal},
