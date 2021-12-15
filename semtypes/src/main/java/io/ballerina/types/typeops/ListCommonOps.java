@@ -31,7 +31,6 @@ import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
 import static io.ballerina.types.PredefinedType.TOP;
@@ -102,7 +101,8 @@ public class ListCommonOps {
                 return true;
             }
             // Ensure that we can use isNever on rest in listInhabited
-            if (rest != PredefinedType.NEVER && Core.isEmpty(cx, rest)) {
+            // XXX equals method for UniformTypeBitset will be overridden in #33756
+            if (!PredefinedType.NEVER.equals(rest) && Core.isEmpty(cx, rest)) {
                 rest = PredefinedType.NEVER;
             }
         }
@@ -121,7 +121,7 @@ public class ListCommonOps {
             fixedArrayFill(members, newLen, rest);
         }
         int nonRepeatedLen = Integer.max(members.initial.size(), lt.members.initial.size());
-        for(int i = 0; i < nonRepeatedLen; i++){
+        for (int i = 0; i < nonRepeatedLen; i++) {
             fixedArraySet(members, i,
                     Core.intersect(listMemberAt(members, rest, i), listMemberAt(lt.members, lt.rest, i)));
         }
@@ -129,7 +129,7 @@ public class ListCommonOps {
             if (Core.isNever(lt.rest)) {
                 return null;
             }
-            for(int i = ltLen; i < newLen; i++){
+            for (int i = ltLen; i < newLen; i++) {
                 fixedArraySet(members, i, Core.intersect(listMemberAt(members, rest, i), lt.rest));
             }
         }
@@ -207,7 +207,7 @@ public class ListCommonOps {
     }
 
     private static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
-        for(var t : array.initial) {
+        for (var t : array.initial) {
             if (Core.isEmpty(cx, t)) {
                 return true;
             }

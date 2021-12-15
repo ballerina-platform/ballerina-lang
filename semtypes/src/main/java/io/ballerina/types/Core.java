@@ -398,7 +398,7 @@ public class Core {
                     && (bn.middle instanceof BddAllOrNothing && !((BddAllOrNothing) bn.middle).isAll())
                     && (bn.right instanceof BddAllOrNothing && !((BddAllOrNothing) ((BddNode) bdd).right).isAll())) {
                 ListAtomicType atomic = env.listAtomType(bn.atom);
-                if (atomic.members.length == 0) {
+                if (atomic.members.initial.size() == 0) {
                     SemType memberType = atomic.rest;
                     if (memberType instanceof UniformTypeBitSet) {
                         return Optional.of((UniformTypeBitSet) memberType);
@@ -461,7 +461,7 @@ public class Core {
     }
 
     public static Optional<Value> singleShape(SemType t) {
-        if (t == PredefinedType.NIL) {
+        if (PredefinedType.NIL.equals(t)) {
             return Optional.of(Value.from(null));
         } else if (t instanceof UniformTypeBitSet) {
             return Optional.empty();
@@ -614,7 +614,7 @@ public class Core {
         ListDefinition listDef = new ListDefinition();
         MappingDefinition mapDef = new MappingDefinition();
         SemType j = union(PredefinedType.SIMPLE_OR_STRING, union(listDef.getSemType(env), mapDef.getSemType(env)));
-        listDef.define(env, new ArrayList<>(), j);
+        listDef.define(env, new ArrayList<>(), 0,  j);
         mapDef.define(env, new ArrayList<>(), j);
         return j;
     }
