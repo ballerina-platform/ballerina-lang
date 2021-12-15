@@ -25,8 +25,6 @@ package io.ballerina.runtime.internal;
  */
 public enum DecimalValueKind {
     ZERO("0"),
-    POSITIVE_INFINITY("Infinity"),
-    NEGATIVE_INFINITY("-Infinity"),
     OTHER("Other");
 
     private final String value;

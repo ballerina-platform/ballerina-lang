@@ -299,8 +299,6 @@ public class ValueComparisonUtils {
 
     private static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
         switch (lhsValue.valueKind) {
-            case POSITIVE_INFINITY:
-                return isDecimalRealNumber(rhsValue);
             case ZERO:
             case OTHER:
                 return (isDecimalRealNumber(rhsValue) &&
