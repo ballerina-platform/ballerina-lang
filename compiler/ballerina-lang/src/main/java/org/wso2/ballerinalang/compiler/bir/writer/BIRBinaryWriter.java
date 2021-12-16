@@ -391,10 +391,6 @@ public class BIRBinaryWriter {
     }
 
     private void writeConstValue(ByteBuf buf, ConstValue constValue) {
-//        if (constValue.type.tag == TypeTags.INTERSECTION) {
-//            writeConstValue(buf, new ConstValue(constValue.value, ((BIntersectionType) constValue.type).effectiveType));
-//            return;
-//        }
 //        writeType(buf, constValue.type);
         switch (constValue.type.tag) {
             case TypeTags.INT:

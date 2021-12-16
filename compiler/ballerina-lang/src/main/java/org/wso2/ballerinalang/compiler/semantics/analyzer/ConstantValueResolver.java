@@ -35,9 +35,29 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
-import org.wso2.ballerinalang.compiler.semantics.model.types.*;
-import org.wso2.ballerinalang.compiler.tree.*;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -48,8 +68,18 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.types.*;
-import org.wso2.ballerinalang.compiler.util.*;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
@@ -639,7 +669,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordSymbol.typeDefinitionSymbol = typeDefinitionSymbol;
         recordSymbol.markdownDocumentation = new MarkdownDocAttachment(0);
         recordSymbol.scope = new Scope(recordSymbol);
-        for(BField field : recordType.fields.values()) {
+        for (BField field : recordType.fields.values()) {
             recordSymbol.scope.define(field.name, field.symbol);
         }
 
@@ -796,7 +826,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         Set<BType> constituentTypes = ((BRecordType)
                 typeDefinition.typeNode.getDeterminedType()).getIntersectionType().get().getConstituentTypes();
 
-        for(BType type : constituentTypes) {
+        for (BType type : constituentTypes) {
             if (type.getKind() == TypeKind.READONLY) {
                 BLangValueType readonly = new BLangValueType(TypeKind.READONLY);
                 readonly.setBType(type.tsymbol.type);
@@ -844,7 +874,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constValueMap.size() == 0) {
             return null;
         }
-        for(BLangConstantValue memberValue : constValueMap.values()) {
+        for (BLangConstantValue memberValue : constValueMap.values()) {
             if (memberValue == null) {
                 return null;
             }
