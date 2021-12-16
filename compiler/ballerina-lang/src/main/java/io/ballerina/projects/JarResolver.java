@@ -111,7 +111,9 @@ public class JarResolver {
             }
         }
 
-        // TODO Filter out duplicate jar entries
+        List<JarLibrary> duplicate = new ArrayList<>();
+        jarFiles.removeIf(e->!duplicate.add(e));
+
         return jarFiles;
     }
 
@@ -176,7 +178,9 @@ public class JarResolver {
         // 6 Add other dependencies required to run Ballerina test cases
         allJarFileForTestExec.addAll(ProjectUtils.testDependencies());
 
-        // TODO Filter out duplicate jar entries
+        List<JarLibrary> duplicate = new ArrayList<>();
+        allJarFileForTestExec.removeIf(e->!duplicate.add(e));
+
         return allJarFileForTestExec;
     }
 
