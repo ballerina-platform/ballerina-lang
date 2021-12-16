@@ -377,7 +377,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private void addMapToCalleeExpression(BVarSymbol mapSymbol, OCEDynamicEnvironmentData oceData) {
         BLangSimpleVarRef.BLangLocalVarRef blockLevelMapLocalVarRef = new BLangSimpleVarRef.BLangLocalVarRef(mapSymbol);
         oceData.attachedFunctionInvocation.requiredArgs.add(blockLevelMapLocalVarRef);
-        visit(oceData.attachedFunctionInvocation);
     }
 
     private void addMapSymbolAsAField(BLangClassDefinition classDef, BVarSymbol mapSymbol) {
@@ -441,12 +440,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 node = function.body;
             }
             BVarSymbol blockMap = createMapSymbolIfAbsent(node, oceData.closureBlockSymbols.size());
-            addMapToCalleeExpression(blockMap, oceData);
+            addClosureMapToInit(classDef, blockMap);
         }
         if (!oceData.closureFuncSymbols.isEmpty()) {
             BLangFunction function = (BLangFunction) oceData.capturedClosureEnv.enclInvokable;
             BVarSymbol functionMap = createMapSymbolIfAbsent(function, oceData.closureFuncSymbols.size());
-            addMapToCalleeExpression(functionMap, oceData);
+            addClosureMapToInit(classDef, functionMap);
         }
 
         if (oceData.mapBlockMapSymbol == null && oceData.mapFunctionMapSymbol == null) {

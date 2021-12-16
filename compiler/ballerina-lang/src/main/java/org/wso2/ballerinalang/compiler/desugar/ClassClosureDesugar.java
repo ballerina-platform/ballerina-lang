@@ -1532,7 +1532,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         
         addMapSymbolAsAField(classDef, mapSymbol);
         createClosureMapUpdateExpression(classDef, blockMap, mapSymbol);
-        addClosureMapToInit(classDef, blockMap);
 
         oceData.blockMapUpdatedInInitMethod = true;
     }
@@ -1556,7 +1555,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
         addMapSymbolAsAField(classDef, mapSymbol);
         createClosureMapUpdateExpression(classDef, functionMap, mapSymbol);
-        addClosureMapToInit(classDef, functionMap);
 
         oceData.functionMapUpdatedInInitMethod = true;
     }

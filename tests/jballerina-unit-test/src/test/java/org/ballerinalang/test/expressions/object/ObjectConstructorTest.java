@@ -69,7 +69,7 @@ public class ObjectConstructorTest {
                 {"testClosureVariableUsedInsideAttachedMethodBodyAndField"},
                 {"testClosureVariableUsedInsideAttachedMethodBodyOnly"},
                 {"testClosureVariableUsedInsideWithDifferentType"},
-//                {"testClosureButAsArgument"},
+                {"testClosureButAsArgument"},
                 {"testAttachedMethodClosuresMapFromFunctionBlock"},
                 {"testFunctionPointerAsFieldValue"},
         };
