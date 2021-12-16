@@ -87,9 +87,9 @@ public class RecordDefNegativeTest {
         BAssertUtil.validateError(compileResult, indx++, "'_' is a keyword, and may not be used as an identifier",
                 27, 31);
         BAssertUtil.validateError(compileResult, indx++,
-                "invalid mapping binding pattern; can only bind required fields", 50, 28);
+                "invalid field binding pattern; can only bind required fields", 50, 28);
         BAssertUtil.validateError(compileResult, indx++,
-                "invalid mapping binding pattern; can only bind required fields", 55, 24);
+                "invalid field binding pattern; can only bind required fields", 55, 24);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 

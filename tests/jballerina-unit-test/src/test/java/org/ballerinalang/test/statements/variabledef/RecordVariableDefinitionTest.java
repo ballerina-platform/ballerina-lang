@@ -305,17 +305,17 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '(int|float)', found '(int|float)?'", 142, 31);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 149, 10);
+                "invalid field binding pattern; can only bind required fields", 149, 10);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 149, 16);
+                "invalid field binding pattern; can only bind required fields", 149, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 149, 22);
+                "invalid field binding pattern; can only bind required fields", 149, 22);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 150, 10);
+                "invalid field binding pattern; can only bind required fields", 150, 10);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 150, 17);
+                "invalid field binding pattern; can only bind required fields", 150, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 150, 24);
+                "invalid field binding pattern; can only bind required fields", 150, 24);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -323,11 +323,11 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "'_' is a keyword, and may not be used as an identifier", 157, 20);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 157, 20);
+                "invalid field binding pattern; can only bind required fields", 157, 20);
         BAssertUtil.validateError(resultNegative, ++i,
                 "'_' is a keyword, and may not be used as an identifier", 157, 30);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 157, 30);
+                "invalid field binding pattern; can only bind required fields", 157, 30);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'XY', " +
@@ -369,11 +369,11 @@ public class RecordVariableDefinitionTest {
                 "a wildcard binding pattern can be used only with a value that belong to type 'any'",
                 301, 20);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 310, 16);
+                "invalid field binding pattern; can only bind required fields", 310, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 313, 11);
+                "invalid field binding pattern; can only bind required fields", 313, 11);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid mapping binding pattern; can only bind required fields", 316, 40);
+                "invalid field binding pattern; can only bind required fields", 316, 40);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
