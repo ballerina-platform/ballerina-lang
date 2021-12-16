@@ -42,10 +42,10 @@ function redeclaredSymbol() {
 
 function bindingPatternError() {
     Person p1 = {name: "John", married: true, "age": 12};
-    Person {name1: fName1, married: maritalStatus1} = p1;
+    Person {name: fName1, married: maritalStatus1} = p1;
 
     Person p2 = {"name1": "John", married: true, "age": 12};
-    Person {name1: fName2, married: maritalStatus2} = p2;
+    Person {name: fName2, married: maritalStatus2} = p2;
 
     Person p3 = {"name1": "John", married: true, "age": 12};
     Person {name: fName3, married: maritalStatus3} = p3;
@@ -299,4 +299,19 @@ var {i, e: _} = n;
 
 function testWildCardBindingAssignability() {
     var {i: i2, e: _} = n;
+}
+
+type EmployeeNew record {
+    string name;
+};
+
+function testInvalidFieldBindingPattern() {
+    EmployeeNew e = {name: ""};
+    var {name, id} = e;
+
+    [record {int i?;}] y = [{}];
+    var [{i: i2}] = y;
+
+    record {| int i; int...; |} a = {i: 1};
+    record {| int i; int...; |} {i: _, j} = a;
 }
