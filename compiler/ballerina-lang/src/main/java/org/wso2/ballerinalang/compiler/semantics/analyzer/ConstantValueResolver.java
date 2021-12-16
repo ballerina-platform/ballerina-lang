@@ -644,9 +644,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return field;
     }
 
-    private void createTypeDefinition(BRecordType originalType, BIntersectionType immutableType, Location pos) {
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(originalType.tsymbol.flags, 
-                originalType.tsymbol.name, pkgID, null, symEnv.scope.owner, pos, VIRTUAL);
+    private void createTypeDefinition(BRecordType originalType, Location pos) {
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) originalType.tsymbol;
 
         BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(originalType.tsymbol.flags,
                 originalType.tsymbol.name, pkgID, null, symEnv.scope.owner, pos, VIRTUAL);
@@ -658,30 +657,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             originalType.tsymbol.scope.define(field.name, field.symbol);
             field.symbol.owner = recordSymbol;
         }
-
-        BRecordType recordType = new BRecordType(originalType.tsymbol, originalType.flags);
-        recordType.immutableType = immutableType;
-        recordSymbol.type = recordType;
-        recordType.tsymbol = recordSymbol;
-        typeDefinitionSymbol.type = recordType;
-        recordType.sealed = true;
-
+        typeDefinitionSymbol.type = originalType;
+        recordSymbol.type = originalType;
         recordSymbol.typeDefinitionSymbol = typeDefinitionSymbol;
         recordSymbol.markdownDocumentation = new MarkdownDocAttachment(0);
-        recordSymbol.scope = new Scope(recordSymbol);
-        for (BField field : recordType.fields.values()) {
-            recordSymbol.scope.define(field.name, field.symbol);
-        }
 
-        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), recordType,
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), originalType,
                 pos);
-        populateMutableStructureFields(symTable, recordTypeNode, recordType, originalType, pos, symEnv, pkgID);
-//        TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, symEnv, names, symTable);
+        populateMutableStructureFields(symTable, recordTypeNode, originalType, originalType, pos, symEnv, pkgID);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
                 typeDefinitionSymbol, recordTypeNode, symEnv);
         typeDefinition.pos = pos;
         typeDefinition.symbol.scope = new Scope(typeDefinition.symbol);
-        typeDefinition.symbol.type = recordType;
+        typeDefinition.symbol.type = originalType;
         typeDefinition.flagSet = new HashSet<>();
         typeDefinition.flagSet.add(Flag.PUBLIC);
         typeDefinition.flagSet.add(Flag.ANONYMOUS);
@@ -975,9 +963,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
         }
 
+        createTypeDefinition(recordType, pos);
         BIntersectionType intersectionType = ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                 recordType, symEnv, symTable, anonymousModelHelper, names, new HashSet<>());
-        createTypeDefinition(recordType, intersectionType, pos);
         return intersectionType;
     }
 }
