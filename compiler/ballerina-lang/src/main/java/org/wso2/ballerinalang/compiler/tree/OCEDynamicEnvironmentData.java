@@ -10,6 +10,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -45,11 +46,15 @@ public class OCEDynamicEnvironmentData {
     public OCEDynamicEnvironmentData cloneRef;
     public int cloneAttempt;
     public BLangClassDefinition originalClass;
+    public LinkedList<BLangClassDefinition> parents;
+    public LinkedList<BLangClassDefinition> siblings;
 
     public OCEDynamicEnvironmentData() {
         lambdaFunctionsList = new ArrayList<>(1);
         closureBlockSymbols = new HashSet<>();
         closureFuncSymbols = new HashSet<>();
+        parents = new LinkedList<>();
+        siblings = new LinkedList<>();
         cloneAttempt = 0;
     }
 }

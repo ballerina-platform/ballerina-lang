@@ -34,16 +34,16 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 @Test
 public class ObjectConstructorTest {
 
-    private CompileResult compiledConstructedObjects, closures, annotations;
+    private CompileResult compiledConstructedObjects, closures, annotations, multiLevelClosures;
+    private static String path = "test-src/expressions/object/";
+
 
     @BeforeClass
     public void setup() {
-        compiledConstructedObjects = BCompileUtil.compile(
-                "test-src/expressions/object/object_constructor_expression.bal");
-        closures = BCompileUtil.compile(
-                "test-src/expressions/object/object_closures.bal");
-        annotations = BCompileUtil.compile(
-                "test-src/expressions/object/object_closures_annotations.bal");
+        compiledConstructedObjects = BCompileUtil.compile(path + "object_constructor_expression.bal");
+        closures = BCompileUtil.compile(path + "object_closures.bal");
+        multiLevelClosures = BCompileUtil.compile(path + "object_multilevel_closures.bal");
+        annotations = BCompileUtil.compile(path + "object_closures_annotations.bal");
     }
 
     @DataProvider(name = "ObjectCtorTestFunctionList")
@@ -96,6 +96,7 @@ public class ObjectConstructorTest {
         Assert.assertEquals(compiledConstructedObjects.getWarnCount(), 0);
         Assert.assertEquals(closures.getWarnCount(), 0);
         Assert.assertEquals(annotations.getWarnCount(), 0);
+        Assert.assertEquals(multiLevelClosures.getWarnCount(), 0);
     }
 
     @Test
@@ -151,10 +152,24 @@ public class ObjectConstructorTest {
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
+
+    @DataProvider(name = "MultiLevelClosureTestFunctionList")
+    public Object[][] multiLevelClosureTestFunctionList() {
+        return new Object[][]{
+                {"closureArrayPush"},
+        };
+    }
+
+    @Test(dataProvider = "MultiLevelClosureTestFunctionList")
+    public void testMultiLevelClosures(String funcName) {
+        BRunUtil.invoke(multiLevelClosures, funcName);
+    }
+
     @AfterClass
     public void tearDown() {
         compiledConstructedObjects = null;
         closures = null;
         annotations = null;
+        multiLevelClosures = null;
     }
 }

@@ -6012,7 +6012,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
-                        updateObjectCtorClosureSymbol(pos, currentFunc, resolvedSymbol, classDef);
+                        updateObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol, classDef);
                         return;
                     }
                 }
@@ -6047,7 +6047,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
                         break;
                     }
-                    updateObjectCtorClosureSymbol(pos, currentFunction, resolvedSymbol, classDef);
+                    updateObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol, classDef);
                     return;
                 }
                 break;
@@ -6106,7 +6106,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private void updateObjectCtorClosureSymbol(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
+    private void updateObjectCtorClosureSymbols(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
                                                BLangClassDefinition classDef) {
         classDef.hasClosureVars = true;
         resolvedSymbol.closure = true;
@@ -6119,6 +6119,34 @@ public class TypeChecker extends BLangNodeVisitor {
             oceEnvData.closureFuncSymbols.add(resolvedSymbol);
         } else {
             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
+        }
+        updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
+    }
+
+    private void updateProceedingClasses(SymbolEnv env, OCEDynamicEnvironmentData oceEnvData,
+                                         BLangClassDefinition origClassDef) {
+        while (env != null) {
+            BLangNode node = env.node;
+            if (node.getKind() == NodeKind.PACKAGE) {
+                break;
+            }
+
+            if (node.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDef = (BLangClassDefinition) node;
+                if (classDef != origClassDef) {
+                    classDef.hasClosureVars = true;
+                    OCEDynamicEnvironmentData parentOceData = classDef.oceEnvData;
+                    oceEnvData.parents.push(classDef);
+                    parentOceData.siblings.push(origClassDef);
+                    // TODO : find symbols and then add
+                    parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
+                    parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
+                    System.out.println("Found parent class : " + classDef);
+                    System.out.println("\t of : " + oceEnvData.originalClass);
+                }
+            }
+
+            env = env.enclEnv;
         }
     }
 
