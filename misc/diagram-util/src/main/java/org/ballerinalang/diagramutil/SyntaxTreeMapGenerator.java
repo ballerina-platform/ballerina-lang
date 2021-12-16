@@ -96,7 +96,16 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeJson.add(childNodeEntry.name(), apply(childNodeEntry.node().get()));
             }
         }
-        nodeJson.addProperty("source", node.toSourceCode());
+        if (node.kind() != SyntaxKind.FUNCTION_DEFINITION
+                && node.kind() != SyntaxKind.RESOURCE_ACCESSOR_DEFINITION
+                && node.kind() != SyntaxKind.SERVICE_DECLARATION
+                && node.kind() != SyntaxKind.RECORD_TYPE_DESC
+                && node.kind() != SyntaxKind.CLASS_DEFINITION
+                && node.kind() != SyntaxKind.FUNCTION_BODY_BLOCK
+                && node.kind() != SyntaxKind.MODULE_PART
+            ) {
+            nodeJson.addProperty("source", node.toSourceCode());
+        }
 
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
         // TODO: Generalize the diagnostic implementation.
