@@ -120,6 +120,7 @@ public class Core {
                 int c = code.code;
                 all = UniformTypeBitSet.from(all.bitset | 1 << c);
             } else {
+                // data cannot be false since data1 and data2 are not both false
                 subtypes.add(UniformSubtype.from(code, (ProperSubtypeData) data));
             }
         }
@@ -286,6 +287,8 @@ public class Core {
                     }
                 }
             }
+            // JBUG [in nballerina] `data` is not narrowed properly if you swap the order by doing
+            // `if data == true {} else if data != false {}`
             if (!(data instanceof AllOrNothingSubtype)) {
                 subtypes.add(UniformSubtype.from(code, (ProperSubtypeData) data));
             } else if (((AllOrNothingSubtype) data).isAllSubtype()) {
