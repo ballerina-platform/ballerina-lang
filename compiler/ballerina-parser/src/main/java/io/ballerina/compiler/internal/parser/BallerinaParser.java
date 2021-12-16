@@ -1295,8 +1295,15 @@ public class BallerinaParser extends AbstractParser {
         STNode resourcePath;
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case DOT_TOKEN:
             case IDENTIFIER_TOKEN:
+                if (nextToken.isMissing() && getNextNextToken().kind == SyntaxKind.SLASH_TOKEN) {
+                    // special case `/` to improve the error message for `/hello`
+                    consume(); // consume previously recovered identifier token
+                    addInvalidTokenToNextToken(consume());
+                    return parseOptionalRelativePath(isObjectMember);
+                }
+                // fall through
+            case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
                 resourcePath = parseRelativeResourcePath();
                 break;
