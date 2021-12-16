@@ -407,19 +407,29 @@
                                   ]
                                 },
                                 {
-                                  "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                  "kind": "NUMERIC_LITERAL",
+                                  "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                      "value": "5"
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "NUMERIC_LITERAL",
+                                          "children": [
+                                            {
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                              "value": "5"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "CLOSE_BRACKET_TOKEN"
                                 }
                               ]
                             },
