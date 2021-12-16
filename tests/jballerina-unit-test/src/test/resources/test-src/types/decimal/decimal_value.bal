@@ -189,7 +189,8 @@ function testDecimalZeroOperations() {
     result = 0 / 1.2;
     assertEquality(0d, result);
 
-    result = -0;
+    result = 0;
+    result = - result;
     assertEquality(0d, result);
 
     decimal|error d2 = trap 12d / 0d;
@@ -224,6 +225,14 @@ function testDecimalZeroOperations() {
     messageString = message is error ? message.toString() : message.toString();
     assertEquality("{ballerina}UnsupportedDecimalError", err.message());
     assertEquality("decimal operation resulting in unsupported decimal value 'Infinity'", messageString);
+
+    d2 = trap 1.0d % d1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
 
     float inf = 1.0 / 0.0;
     d2 = trap <decimal>inf;
