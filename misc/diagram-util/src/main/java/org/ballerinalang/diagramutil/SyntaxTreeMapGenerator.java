@@ -97,10 +97,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             }
         }
         nodeJson.addProperty("source", node.toSourceCode());
+
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
         // TODO: Generalize the diagnostic implementation.
         Iterable<Diagnostic> syntaxDiagnostics = node.diagnostics();
-        if (syntaxDiagnostics != null) {
+        if (syntaxDiagnostics != null && syntaxDiagnostics.iterator().hasNext()) {
             nodeJson.add("syntaxDiagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(syntaxDiagnostics));
         }
 
