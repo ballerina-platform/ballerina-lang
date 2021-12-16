@@ -31,6 +31,8 @@ import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.UniformTypeCode;
 import io.ballerina.types.typeops.BddCommonOps;
 
+import java.util.ArrayList;
+
 /**
  * Implementation specific to basic type xml.
  *
@@ -79,7 +81,7 @@ public class XmlSubtype implements ProperSubtypeData {
         if (constituentType instanceof UniformTypeBitSet) {
             return constituentType;
         } else {
-            ComplexSemType cct = (ComplexSemType) constituentType; 
+            ComplexSemType cct = (ComplexSemType) constituentType;
             SubtypeData ro = Core.getComplexSubtypeData(cct, UniformTypeCode.UT_XML_RO);
             ro = (ro instanceof AllOrNothingSubtype) ? ro : makeSequence(true, (XmlSubtype) ro);
 
@@ -99,14 +101,23 @@ public class XmlSubtype implements ProperSubtypeData {
     }
 
     public static ComplexSemType createXmlSemtype(SubtypeData ro, SubtypeData rw) {
-        if (Common.isNothingSubtype(ro)) {
-            return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_XML_RW, rw));
-        } else if (Common.isNothingSubtype(rw)) {
-            return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_XML_RO, ro));
+        ArrayList<UniformSubtype> subtypes = new ArrayList<>();
+        int all = 0;
+        if (ro instanceof AllOrNothingSubtype) {
+            if (Common.isAllSubtype(ro)) {
+                all = 1 << UniformTypeCode.UT_XML_RO.code;
+            }
         } else {
-            return ComplexSemType.createComplexSemType(0, UniformSubtype.from(UniformTypeCode.UT_XML_RO, ro),
-                    UniformSubtype.from(UniformTypeCode.UT_XML_RW, rw));
+            subtypes.add(UniformSubtype.from(UniformTypeCode.UT_XML_RO, (XmlSubtype) ro));
         }
+        if (rw instanceof AllOrNothingSubtype) {
+            if (Common.isAllSubtype(rw)) {
+                all |= 1 << UniformTypeCode.UT_XML_RO.code;
+            }
+        } else {
+            subtypes.add(UniformSubtype.from(UniformTypeCode.UT_XML_RW, (XmlSubtype) rw));
+        }
+        return ComplexSemType.createComplexSemType(all, subtypes);
     }
 
     public static SubtypeData createXmlSubtype(boolean isRo, int primitives, Bdd sequence) {
