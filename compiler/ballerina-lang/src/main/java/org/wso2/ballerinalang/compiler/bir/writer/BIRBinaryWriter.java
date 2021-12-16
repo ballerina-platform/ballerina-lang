@@ -225,13 +225,16 @@ public class BIRBinaryWriter {
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
             buf.writeLong(parameter.flags);
+            writeAnnotations(buf, typeWriter, parameter.annotAttachmentSymbols);
         }
 
         // TODO find a better way
-        boolean restParamExist = birFunction.restParam != null;
+        BIRParameter restParam = birFunction.restParam;
+        boolean restParamExist = restParam != null;
         buf.writeBoolean(restParamExist);
         if (restParamExist) {
-            buf.writeInt(addStringCPEntry(birFunction.restParam.name.value));
+            buf.writeInt(addStringCPEntry(restParam.name.value));
+            writeAnnotations(buf, typeWriter, restParam.annotAttachmentSymbols);
         }
 
         boolean hasReceiverType = birFunction.receiver != null;
@@ -338,8 +341,9 @@ public class BIRBinaryWriter {
         birAnnotationList.forEach(annotation -> writeAnnotation(buf, typeWriter, annotation));
     }
 
-    private void writeAnnotation(ByteBuf buf, BIRTypeWriter typeWriter,
-                                 BIRNode.BIRAnnotation birAnnotation) {
+    private void writeAnnotation(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRAnnotation birAnnotation) {
+        buf.writeInt(BIRWriterUtils.addPkgCPEntry(birAnnotation.packageID, this.cp));
+
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
         // Annotation original name CP Index
