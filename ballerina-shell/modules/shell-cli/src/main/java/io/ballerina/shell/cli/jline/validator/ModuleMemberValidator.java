@@ -42,7 +42,7 @@ public class ModuleMemberValidator implements Validator {
     @Override
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
-        boolean moduleMember = NodeParser.parseModuleMemberDeclaration(source).apply(incompleteInputFinder);
+        boolean isIncomplete = NodeParser.parseModuleMemberDeclaration(source).apply(incompleteInputFinder);
         if (!NodeParser.parseModuleMemberDeclaration(source).hasDiagnostics()) {
             return false;
         } else {
@@ -51,7 +51,7 @@ public class ModuleMemberValidator implements Validator {
             }
         }
 
-        if (!moduleMember) {
+        if (!isIncomplete) {
             return  nextInValidator.evaluate(source);
         } else {
             return true;

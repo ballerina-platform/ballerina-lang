@@ -42,7 +42,7 @@ public class ExpressionValidator implements Validator {
     @Override
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
-        boolean expression = NodeParser.parseExpression(source).apply(incompleteInputFinder);
+        boolean isIncomplete = NodeParser.parseExpression(source).apply(incompleteInputFinder);
         if (!NodeParser.parseExpression(source).hasDiagnostics()) {
             return false;
         } else {
@@ -51,7 +51,7 @@ public class ExpressionValidator implements Validator {
             }
         }
 
-        if (!expression) {
+        if (!isIncomplete) {
             return nextInValidator.evaluate(source);
         } else {
             return true;

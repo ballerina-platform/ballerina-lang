@@ -123,6 +123,9 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(QueryExpressionNode node) {
+        if (node.queryPipeline().fromClause().fromKeyword().isMissing()) {
+            return false;
+        }
         return node.selectClause().isMissing() || node.selectClause().apply(this);
     }
 

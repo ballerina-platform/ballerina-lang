@@ -26,16 +26,17 @@ package io.ballerina.shell.cli.jline.validator;
 public class InputValidator {
 
     public boolean isIncomplete(String source) {
-        Validator moduleMemberValidator = new ModuleMemberValidator();
-        Validator expressionValidator = new ExpressionValidator();
-        Validator statementValidator = new StatementValidator();
+        if (source.length() == 0) {
+            return false;
+        } else {
+            Validator moduleMemberValidator = new ModuleMemberValidator();
+            Validator expressionValidator = new ExpressionValidator();
+            Validator statementValidator = new StatementValidator();
 
-        moduleMemberValidator.setNextValidator(expressionValidator);
-        expressionValidator.setNextValidator(statementValidator);
+            moduleMemberValidator.setNextValidator(expressionValidator);
+            expressionValidator.setNextValidator(statementValidator);
 
-        return moduleMemberValidator.evaluate(source);
+            return moduleMemberValidator.evaluate(source);
+        }
     }
-
-
-
 }
