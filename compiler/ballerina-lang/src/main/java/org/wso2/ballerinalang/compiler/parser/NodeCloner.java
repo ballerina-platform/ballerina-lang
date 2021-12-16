@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
@@ -851,6 +852,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangListBindingPattern clone = new BLangListBindingPattern();
         source.cloneRef = clone;
         clone.bindingPatterns = cloneList(source.bindingPatterns);
+        clone.restBindingPattern = clone(source.restBindingPattern);
     }
 
     @Override
@@ -899,6 +901,14 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangErrorMessageBindingPattern clone = new BLangErrorMessageBindingPattern();
         source.cloneRef = clone;
         clone.simpleBindingPattern = clone(source.simpleBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseBindingPattern source) {
+        BLangErrorCauseBindingPattern clone = new BLangErrorCauseBindingPattern();
+        source.cloneRef = clone;
+        clone.simpleBindingPattern = clone(source.simpleBindingPattern);
+        clone.errorBindingPattern = clone(source.errorBindingPattern);
     }
 
     @Override
