@@ -2697,9 +2697,13 @@ public class TypeChecker extends BLangNodeVisitor {
             return env;
         }
         NodeKind kind = env.enclEnv.node.getKind();
-        if (kind == NodeKind.ARROW_EXPR || kind == NodeKind.ON_FAIL || kind == NodeKind.CLASS_DEFN) {
+        if (kind == NodeKind.ARROW_EXPR || kind == NodeKind.ON_FAIL) {
             // TODO : check if we need ON_FAIL now
             return env.enclEnv;
+        }
+
+        if (kind == NodeKind.CLASS_DEFN) {
+            return env.enclEnv.enclEnv;
         }
 
         if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
@@ -3464,7 +3468,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangType> typeRefs = classNode.typeRefs;
         SymbolEnv typeDefEnv = SymbolEnv.createObjectConstructorObjectEnv(classNode, env);
         classNode.oceEnvData.typeInit = objectCtorExpression.typeInit;
-        classNode.oceEnvData.capturedClosureEnv = typeDefEnv;
+        classNode.oceEnvData.capturedClosureEnv = env;
         dlog.unmute();
         if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
             handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, false);
@@ -6115,10 +6119,11 @@ public class TypeChecker extends BLangNodeVisitor {
             // TODO: can identify if attached here
         }
         OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
-        if (currentFunction != null && currentFunction.symbol.params.contains(resolvedSymbol)) {
+        if (currentFunction != null && (currentFunction.symbol.params.contains(resolvedSymbol)
+                || (currentFunction.symbol.restParam == resolvedSymbol))) {
             oceEnvData.closureFuncSymbols.add(resolvedSymbol);
         } else {
-            oceEnvData.closureBlockSymbols.add(resolvedSymbol);
+             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
         }
         updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
     }

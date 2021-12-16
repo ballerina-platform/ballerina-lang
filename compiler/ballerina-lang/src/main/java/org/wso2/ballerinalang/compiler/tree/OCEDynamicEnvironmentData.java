@@ -30,7 +30,7 @@ public class OCEDynamicEnvironmentData {
     public SymbolEnv objMethodsEnv;
     public SymbolEnv fieldEnv;
 
-    public boolean mapUpdatedInInitMethod;
+    public boolean blockMapUpdatedInInitMethod;
     public boolean functionMapUpdatedInInitMethod;
     public BVarSymbol blockMap;
     public BVarSymbol classEnclosedFunctionMap;

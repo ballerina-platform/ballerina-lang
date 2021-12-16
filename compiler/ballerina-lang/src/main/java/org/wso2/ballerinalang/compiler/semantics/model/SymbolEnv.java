@@ -153,7 +153,7 @@ public class SymbolEnv {
     public static SymbolEnv createObjectConstructorObjectEnv(BLangClassDefinition node, SymbolEnv env) {
         SymbolEnv nodeEnv = env.shallowClone();
         SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, nodeEnv.scope, nodeEnv);
-        objectEnv.enclEnv = env.enclEnv != null ? env.enclEnv.createClone() : null;
+        objectEnv.enclEnv = env;
         objectEnv.enclPkg = env.enclPkg;
         objectEnv.envCount = env.envCount + 1;
         objectEnv.enclInvokable = env.enclInvokable;

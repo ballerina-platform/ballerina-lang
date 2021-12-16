@@ -376,6 +376,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonModelHelper;
     private Unifier unifier;
     private MockDesugar mockDesugar;
+    private ClassClosureDesugar classClosureDesugar;
 
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
     private BLangOnFailClause onFailClause;
@@ -440,6 +441,7 @@ public class Desugar extends BLangNodeVisitor {
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.mockDesugar = MockDesugar.getInstance(context);
+        this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.unifier = new Unifier();
     }
 
@@ -1053,9 +1055,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction generatedInitFunction = classDefinition.generatedInitFunction;
         if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
             generatedInitFunction.flagSet.add(Flag.OBJECT_CTOR);
-            generatedInitFunction.parent = classDef;
-            // do class map desugar here
+            generatedInitFunction.parent = classDef; // improve debug
+            classClosureDesugar.desugar(classDef);
         }
+
         // Add object level variables default values to the init function.
         Map<BSymbol, BLangStatement> initFuncStmts = generatedInitFunction.initFunctionStmts;
         for (BLangSimpleVariable field : classDefinition.fields) {
@@ -1083,13 +1086,13 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatement[] initStmts = initFuncStmts.values().toArray(new BLangStatement[0]);
         BLangBlockFunctionBody generatedInitFnBody =
                 (BLangBlockFunctionBody) generatedInitFunction.body;
-        int i;
-        for (i = 0; i < initStmts.length; i++) {
+//        int i;
+        for (int i = 0; i < initStmts.length; i++) {
             generatedInitFnBody.stmts.add(i, initStmts[i]);
         }
 
         if (classDefinition.initFunction != null) {
-            ((BLangReturn) generatedInitFnBody.stmts.get(i)).expr =
+            ((BLangReturn) generatedInitFnBody.stmts.get(generatedInitFnBody.stmts.size() - 1)).expr =
                     createUserDefinedInitInvocation(classDefinition.pos,
                             (BObjectTypeSymbol) classDefinition.symbol, generatedInitFunction);
         }
