@@ -217,6 +217,14 @@ public class RecordVariableReferenceTest {
                         "found 'record {| never name?; boolean married; Object...; |}'",
                 164, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 220, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 226, 18);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 237, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 243, 6);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

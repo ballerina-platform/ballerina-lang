@@ -1983,39 +1983,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                               Location rhsPos) {
         rhsType = types.getReferredType(rhsType);
         if (rhsType.tag == TypeTags.MAP) {
-            BMapType rhsMapType = (BMapType) rhsType;
-            BType expectedType;
-            switch (rhsMapType.constraint.tag) {
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.JSON:
-                    expectedType = rhsMapType.constraint;
-                    break;
-                case TypeTags.UNION:
-                    BUnionType unionType = (BUnionType) rhsMapType.constraint;
-                    LinkedHashSet<BType> unionMemberTypes = new LinkedHashSet<BType>() {{
-                        addAll(unionType.getMemberTypes());
-                        add(symTable.nilType);
-                    }};
-                    expectedType = BUnionType.create(null, unionMemberTypes);
-                    break;
-                default:
-                    expectedType = BUnionType.create(null, new LinkedHashSet<BType>() {{
-                        add(rhsMapType.constraint);
-                        add(symTable.nilType);
-                    }});
-                    break;
+            for (BLangRecordVarRefKeyValue field: lhsVarRef.recordRefFields) {
+                dlog.error(field.variableName.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
-            lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
-                                                                       expectedType, field.variableReference.getBType(),
-                                                                       DiagnosticErrorCode.INCOMPATIBLE_TYPES));
-
-            if (lhsVarRef.restParam != null) {
-                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, rhsMapType,
-                                ((BLangSimpleVarRef) lhsVarRef.restParam).getBType(),
-                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-            }
-
             return;
         }
 
@@ -2032,6 +2003,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (!rhsRecordType.fields.containsKey(lhsField.variableName.value)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                         lhsField.variableName.value, rhsType);
+            } else if (Symbols.isOptional(rhsRecordType.fields.get(lhsField.variableName.value).symbol)) {
+                dlog.error(lhsField.variableName.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
             mappedFields.add(lhsField.variableName.value);
         }
