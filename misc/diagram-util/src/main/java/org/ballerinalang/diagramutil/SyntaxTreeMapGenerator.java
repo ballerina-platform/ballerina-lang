@@ -35,8 +35,6 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
-import io.ballerina.compiler.syntax.tree.Minutiae;
-import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
@@ -86,6 +84,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     protected JsonElement transformSyntaxNode(Node node) {
         JsonObject nodeJson = new JsonObject();
         NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
+        
         for (ChildNodeEntry childNodeEntry : nonTerminalNode.childEntries()) {
             if (childNodeEntry.isList()) {
                 JsonArray childList = new JsonArray();
@@ -104,8 +103,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (syntaxDiagnostics != null) {
             nodeJson.add("syntaxDiagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(syntaxDiagnostics));
         }
-        nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
-        nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
@@ -445,8 +442,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
-        nodeInfo.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
-        nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
         return nodeInfo;
     }
 
@@ -455,18 +450,5 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
-    }
-
-    private JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
-        JsonArray nodeMinutiae = new JsonArray();
-        for (Minutiae minutiae : minutiaeList) {
-            JsonObject minutiaeJson = new JsonObject();
-            minutiaeJson.addProperty("kind", minutiae.kind().toString());
-            minutiaeJson.addProperty("minutiae", minutiae.text());
-            minutiaeJson.addProperty("isInvalid", minutiae.isInvalidNodeMinutiae());
-            nodeMinutiae.add(minutiaeJson);
-        }
-
-        return nodeMinutiae;
     }
 }
