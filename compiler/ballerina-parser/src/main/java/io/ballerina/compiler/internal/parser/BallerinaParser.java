@@ -11506,9 +11506,11 @@ public class BallerinaParser extends AbstractParser {
             }
 
             selectClause = intermediateClause;
-            
-            // Break the loop for nested query expressions, as remaining clauses belong to the parent.
-            if (isNestedQueryExpr()) {
+
+            if (isNestedQueryExpr() || !isValidIntermediateQueryStart(peek().kind)) {
+                // Break the loop for,
+                // 1. nested query expressions as remaining clauses belong to the parent.
+                // 2. next token not being an intermediate-clause start as that token could belong to the parent node.
                 break;
             }
         }
@@ -11554,7 +11556,26 @@ public class BallerinaParser extends AbstractParser {
     private boolean isNestedQueryExpr() {
         return Collections.frequency(this.errorHandler.getContextStack(), ParserRuleContext.QUERY_EXPRESSION) > 1;
     }
-    
+
+    private boolean isValidIntermediateQueryStart(SyntaxKind syntaxKind) {
+        switch (syntaxKind) {
+            case FROM_KEYWORD:
+            case WHERE_KEYWORD:
+            case LET_KEYWORD:
+            case SELECT_KEYWORD:
+            case JOIN_KEYWORD:
+            case OUTER_KEYWORD:
+            case ORDER_KEYWORD:
+            case BY_KEYWORD:
+            case ASCENDING_KEYWORD:
+            case DESCENDING_KEYWORD:
+            case LIMIT_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Parse an intermediate clause.
      * <p>
