@@ -80,11 +80,9 @@ const map<map<decimal>> CMD2 = {c : {d : 0.11, e : 2.12}, f : CMD1};
 const map<byte> CMBT = {a : 127, b : 255}; // Uncomment after fixing #33889
 const map<boolean> CMB1 = {a : true, b : false};
 const map<string> CMS1 = {a : "C", b : "S"};
-const map<string> CMS2 = {b : "C", c : "S"};
 const map<map<string>> CMS3 = {a : {e : "C", f : "S"}, b : {g : "C", h : "S"}};
 const map<map<string>> CMS4 = {d : {i : "C", j : "S"}, e : {k : "C", l : "S"}};
 
-// const map<string> CMS12_CLONE = {...CMS1, ...CMS2}; // need to fix
 const map<map<string>> CMS34_CLONE = {...CMS3, ...CMS4};
 
 const int a = 1;
