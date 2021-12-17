@@ -153,6 +153,16 @@ public class ObjectConstructorTest {
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
+    @Test
+    public void testMultilevelUnsupportedClosureVarScenarios() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/expressions/object/object_constructor_closure_unsupported_negative.bal");
+        int index = 0;
+        validateError(negativeResult, index++, "closure variable 'i' : closures not yet supported for object " +
+                        "constructors which are fields", 18, 29);
+        validateError(negativeResult, index++, "closure variable 'i' : closures not yet supported for object " +
+                "constructors which are fields", 49, 25);
+    }
 
     @DataProvider(name = "MultiLevelClosureTestFunctionList")
     public Object[][] multiLevelClosureTestFunctionList() {

@@ -6,6 +6,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.ArrayList;
@@ -25,7 +26,6 @@ public class OCEDynamicEnvironmentData {
     public BLangTypeInit typeInit;
     public BObjectType objectType;
     public BLangInvocation.BLangAttachedFunctionInvocation attachedFunctionInvocation;
-//    public BLangClassDefinition classDefinition;
 
     public SymbolEnv objMethodsEnv;
     public SymbolEnv fieldEnv;
@@ -47,14 +47,26 @@ public class OCEDynamicEnvironmentData {
     public int cloneAttempt;
     public BLangClassDefinition originalClass;
     public LinkedList<BLangClassDefinition> parents;
-    public LinkedList<BLangClassDefinition> siblings;
+    public boolean closureDesugaringInProgress;
+    public boolean isDirty;
+    public List<BLangSimpleVarRef> desugaredClosureVars;
 
     public OCEDynamicEnvironmentData() {
         lambdaFunctionsList = new ArrayList<>(1);
         closureBlockSymbols = new HashSet<>();
         closureFuncSymbols = new HashSet<>();
         parents = new LinkedList<>();
-        siblings = new LinkedList<>();
+        desugaredClosureVars = new ArrayList<>();
         cloneAttempt = 0;
+    }
+
+    public void cleanUp() {
+        parents.clear();
+        closureFuncSymbols.clear();
+        lambdaFunctionsList.clear();
+        closureBlockSymbols.clear();
+        desugaredClosureVars.clear();
+        mapFunctionMapSymbol = null;
+        mapBlockMapSymbol = null;
     }
 }

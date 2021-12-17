@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -173,16 +174,15 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private static final String OBJECT_CTOR_FUNCTION_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE + "function";
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
-    private SymbolTable symTable;
     private int blockClosureMapCount = 1;
     private BLangClassDefinition classDef;
-
     private BLangNode result;
-    private Types types;
-    private Desugar desugar;
-    private Names names;
-
     private SymbolEnv env;
+
+    private final SymbolTable symTable;
+    private final Desugar desugar;
+    private final Names names;
+    private final BLangDiagnosticLog dlog;
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -199,9 +199,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private ClassClosureDesugar(CompilerContext context) {
         context.put(CLASS_CLOSURE_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
-        this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.names = Names.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
     }
 
@@ -522,12 +522,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangAssignment assignNode) {
         assignNode.varRef = rewriteExpr(assignNode.varRef);
-        if (assignNode.expr.impConversionExpr != null) {
-            types.setImplicitCastExpr(assignNode.expr.impConversionExpr, assignNode.expr.impConversionExpr.getBType(),
-                                      assignNode.varRef.getBType());
-        } else {
-            types.setImplicitCastExpr(assignNode.expr, assignNode.expr.getBType(), assignNode.varRef.getBType());
-        }
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
     }
@@ -723,6 +717,13 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BVarSymbol symbol = (BVarSymbol) varRefExpr.symbol;
+        if (symbol.closure && classDef.oceEnvData.isDirty) {
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNSUPPORTED_MULTILEVEL_CLOSURES,
+                    varRefExpr);
+            varRefExpr.setBType(symTable.semanticError);
+            result = null;
+            return;
+        }
         BVarSymbol mapSymbol = getVarMapSymbol(symbol);
 
         if (!symbol.closure || mapSymbol == null) {
@@ -734,6 +735,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         localVarRef.desugared = true;
         localVarRef.setBType(varRefExpr.getBType());
         updateClosureVars(localVarRef, mapSymbol);
+        classDef.oceEnvData.desugaredClosureVars.add(varRefExpr);
     }
 
     private BVarSymbol getVarMapSymbol(BVarSymbol symbol) {
@@ -783,6 +785,25 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.initInvocation = rewriteExpr(typeInitExpr.initInvocation);
+        BLangNode parent = typeInitExpr.initInvocation.parent;
+        if (parent != null && parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
+            BLangObjectConstructorExpression oce = (BLangObjectConstructorExpression) parent;
+            BLangClassDefinition dirtyOceClass = oce.classNode;
+            if (dirtyOceClass.hasClosureVars && classDef.oceEnvData.closureDesugaringInProgress) {
+                // below lines are probably not needed after proper handling
+                dirtyOceClass.hasClosureVars = false;
+                OCEDynamicEnvironmentData dirtyOceEnvData = dirtyOceClass.oceEnvData;
+                dirtyOceEnvData.isDirty = true;
+                OCEDynamicEnvironmentData currentClassOceData = classDef.oceEnvData;
+                currentClassOceData.closureBlockSymbols.removeAll(dirtyOceEnvData.closureBlockSymbols);
+                currentClassOceData.closureFuncSymbols.removeAll(dirtyOceEnvData.closureFuncSymbols);
+                dirtyOceEnvData.parents.remove(classDef);
+                for (BLangSimpleVarRef simpleVarRef : dirtyOceEnvData.desugaredClosureVars) {
+                    dlog.error(simpleVarRef.pos, DiagnosticErrorCode.UNSUPPORTED_MULTILEVEL_CLOSURES, simpleVarRef);
+                }
+                visit(dirtyOceClass);
+            }
+        }
         result = typeInitExpr;
     }
 
@@ -1006,46 +1027,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         castExpr.targetType = varRefExpr.getBType();
 
         result = desugar.rewriteExpr(castExpr);
-    }
-
-    /**
-     * Update the closure variables with the relevant map access expression.
-     *  a + b can become a + self[$map$func_4][b]
-     *  a + b ==> a + self[$map$func_4][b]
-     *  we are dealing with the simple var ref `b` here
-     * @param classDef   OCE class definition
-     * @param selfSymbol self symbol of attached method
-     * @param varRefExpr closure variable reference to be updated
-     */
-    private void updateClosureVarsWithMapAccessExpression(BLangClassDefinition classDef,
-                                                          BVarSymbol selfSymbol,
-                                                          BLangSimpleVarRef varRefExpr,
-                                                          BVarSymbol classFunctionMapSymbol) {
-        // self
-        BLangSimpleVarRef.BLangLocalVarRef localSelfVarRef = new BLangSimpleVarRef.BLangLocalVarRef(selfSymbol);
-        localSelfVarRef.setBType(classDef.getBType());
-        Location pos = varRefExpr.pos;
-
-        // self[classFunctionMapSymbol]
-        BLangIndexBasedAccess.BLangStructFieldAccessExpr accessExprForClassField =
-                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(pos, localSelfVarRef,
-                        ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                                classFunctionMapSymbol.name), classFunctionMapSymbol, false, true);
-        accessExprForClassField.setBType(classFunctionMapSymbol.type);
-        accessExprForClassField.isLValue = true;
-
-        // self[classFunctionMapSymbol][varRefExpr]
-        BLangIndexBasedAccess.BLangMapAccessExpr closureMapAccessForField =
-                new BLangIndexBasedAccess.BLangMapAccessExpr(pos, accessExprForClassField,
-                        ASTBuilderUtil.createLiteral(pos, symTable.stringType, varRefExpr.symbol.name));
-        closureMapAccessForField.setBType(varRefExpr.symbol.type);
-        closureMapAccessForField.isLValue = false;
-
-        // <varRefExpr.type> self[classFunctionMapSymbol][varRefExpr]
-        BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-        castExpr.expr = closureMapAccessForField;
-        castExpr.setBType(varRefExpr.symbol.type);
-        castExpr.targetType = varRefExpr.symbol.type;
     }
 
     @Override
@@ -1430,6 +1411,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     public void desugar(BLangClassDefinition classDef) {
         this.classDef = classDef;
         if (!classDef.hasClosureVars) {
+            if (classDef.oceEnvData.isDirty) {
+                updateFields(classDef);
+            }
             return;
         }
         createMapSymbolsIfAbsent(classDef);
@@ -1442,15 +1426,21 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private void updateFields(BLangClassDefinition classDef) {
 
+        classDef.oceEnvData.closureDesugaringInProgress = true;
         for (BLangSimpleVariable field : classDef.fields) {
             if (!field.symbol.isDefaultable) {
                 continue;
             }
             if (field.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
+                if (classDef.oceEnvData.isDirty && varRef.symbol.closure) {
+                    dlog.error(varRef.pos, DiagnosticErrorCode.UNSUPPORTED_MULTILEVEL_CLOSURES, varRef);
+                }
                 continue;
             }
             field.expr = rewrite(field.expr, this.env);
         }
+        classDef.oceEnvData.closureDesugaringInProgress = false;
     }
 
     private BLangNode getNextPossibleNode(SymbolEnv envArg) {

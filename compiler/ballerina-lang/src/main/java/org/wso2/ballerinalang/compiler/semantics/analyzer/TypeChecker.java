@@ -6143,8 +6143,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     classDef.hasClosureVars = true;
                     OCEDynamicEnvironmentData parentOceData = classDef.oceEnvData;
                     oceEnvData.parents.push(classDef);
-                    parentOceData.siblings.push(origClassDef);
-                    // TODO : find symbols and then add
                     parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
                     parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
                 }

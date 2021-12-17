@@ -388,22 +388,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         classDef.fields.add(0, mapVar);
     }
 
-    private void addFunctionLevelClosureMapToClassDefinition(BLangClassDefinition classDef) {
-        if (classDef.oceEnvData.functionMapUpdatedInInitMethod || classDef.oceEnvData.mapFunctionMapSymbol == null) {
-            return;
-        }
-
-        BLangFunction function = (BLangFunction) classDef.oceEnvData.capturedClosureEnv.enclInvokable;
-        BVarSymbol functionMap = createMapSymbolIfAbsent(function, blockClosureMapCount);
-        BVarSymbol mapSymbol = classDef.oceEnvData.mapFunctionMapSymbol;
-
-        addMapSymbolAsAField(classDef, mapSymbol);
-        createClosureMapUpdateExpression(classDef, functionMap, mapSymbol);
-        addClosureMapToInit(classDef, functionMap);
-
-        classDef.oceEnvData.functionMapUpdatedInInitMethod = true;
-    }
-
     private BVarSymbol addFunctionMapMapToClassDefinition(BLangClassDefinition classDef,
                                                           BVarSymbol functionMapSymbol) {
         if (classDef.oceEnvData.classEnclosedFunctionMap != null) {
