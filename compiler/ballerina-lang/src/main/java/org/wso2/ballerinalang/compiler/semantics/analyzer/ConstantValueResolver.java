@@ -943,19 +943,18 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) exprSpreadField;
                     if (updatedTypes.containsKey(simpleVarRef.symbol)) {
-                        exprSpreadField.setBType(simpleVarRef.symbol.getType());
-                        // Already type resolved constant
+                        // Already type resolved constant.
                         BRecordType resolvedType = (BRecordType) ((BIntersectionType)
-                                                                    simpleVarRef.symbol.type).effectiveType;
+                                                                                simpleVarRef.symbol.type).effectiveType;
+                        exprSpreadField.setBType(resolvedType);
 
                         for (String spreadFieldKeys : ((HashMap<String, BField>) resolvedType.fields).keySet()) {
-                            if (!recordType.fields.containsKey(spreadFieldKeys)) { // Skip duplicate members.
-                                newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(spreadFieldKeys),
-                                        constant.symbol.pkgID, null, constant.symbol.owner, pos, VIRTUAL);
-                                BType spreadFieldType = resolvedType.fields.get(spreadFieldKeys).type;
-                                recordType.fields.put(spreadFieldKeys, createField(newSymbol, spreadFieldType,
-                                        spreadFieldKeys, pos));
-                            }
+                            newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(spreadFieldKeys),
+                                                constant.symbol.pkgID, null, constant.symbol.owner, pos, VIRTUAL);
+                            BType spreadFieldType = resolvedType.fields.get(spreadFieldKeys).type;
+                            recordType.fields.put(spreadFieldKeys, createField(newSymbol, spreadFieldType,
+                                                spreadFieldKeys, pos));
+
                         }
                     }
                     continue;
