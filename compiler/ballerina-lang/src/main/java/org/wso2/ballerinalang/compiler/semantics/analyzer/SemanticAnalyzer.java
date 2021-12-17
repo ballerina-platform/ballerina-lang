@@ -58,20 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -132,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
@@ -626,7 +614,61 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        finiteTypeNode.valueSpace.forEach(value -> analyzeNode(value, env));
+        boolean foundUnaryExpr = false;
+        Set<BLangExpression> newValueSpace = new LinkedHashSet<>();
+
+        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
+            BLangExpression value = finiteTypeNode.valueSpace.get(i);
+            newValueSpace.add(value);
+
+            if (value instanceof BLangUnaryExpr) {
+                foundUnaryExpr = true;
+                BType resultType = typeChecker.checkExpr(value, env, symTable.noType);
+
+                // Replacing unary expression with numeric literal type for + and - numeric values
+                if (resultType != symTable.semanticError) {
+                    BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
+                    BLangExpression exprInUnary = unaryExpr.expr;
+                    BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
+                    Object objectValueInUnary = numericLiteralInUnary.value;
+                    String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+
+                    if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+                        strValueInUnary = "+" + strValueInUnary;
+                    } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+                        strValueInUnary = "-" + strValueInUnary;
+                    }
+
+                    if (objectValueInUnary instanceof Long) {
+                        objectValueInUnary = Long.parseLong(strValueInUnary);
+                    } else if (objectValueInUnary instanceof Double) {
+                        objectValueInUnary = Double.parseDouble(strValueInUnary);
+                    } else if (objectValueInUnary instanceof String) {
+                        objectValueInUnary = strValueInUnary;
+                    }
+
+                    BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
+                            TreeBuilder.createNumericLiteralExpression();
+                    newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
+                    newNumericLiteral.pos = value.pos;
+                    newNumericLiteral.setBType(exprInUnary.getBType());
+                    newNumericLiteral.value = objectValueInUnary;
+                    newNumericLiteral.originalValue = strValueInUnary;
+                    finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+
+                    // Remove unary expression and add the constructed literal
+                    newValueSpace.remove(value);
+                    newValueSpace.add(newNumericLiteral);
+                }
+            } else {
+                analyzeNode(value, env);
+            }
+        }
+        // Modify BType if Unary expressions were found
+        if (foundUnaryExpr) {
+            BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
+            finiteType.setValueSpace(newValueSpace);
+        }
     }
 
     @Override

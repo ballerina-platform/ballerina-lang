@@ -32,16 +32,18 @@ function unaryPlus(any value) returns any|error {
 
 function unaryMinus(any value) returns any|error {
     any|error result;
-    if (value is int) {
-        result = trap -value;
-    } else if (value is float) {
-        result = trap -value;
-    } else if (value is decimal) {
-        result = trap -value;
-    } else {
-        result = error("operator '-' not defined for '" + check getType(value) + "'");
-    }
-    return result;
+    //if (value is int) {
+    //    result = trap -value;
+    //} else if (value is float) {
+    //    result = trap -value;
+    //} else if (value is decimal) {
+    //    result = trap -value;
+    //} else {
+    //    result = error("operator '-' not defined for '" + check getType(value) + "'");
+    //}
+    //return result;
+    return ();
+
 }
 
 function unaryInvert(any value) returns any|error {

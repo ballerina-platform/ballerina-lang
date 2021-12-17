@@ -896,8 +896,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
         for (TypeDescriptorNode finiteTypeEl : finiteTypeElements) {
             SingletonTypeDescriptorNode singletonTypeNode = (SingletonTypeDescriptorNode) finiteTypeEl;
-            BLangLiteral literal = createSimpleLiteral(singletonTypeNode.simpleContExprNode(), true);
-            bLangFiniteTypeNode.addValue(literal);
+            BLangExpression literalOrExpression = createLiteralOrExpression(singletonTypeNode.simpleContExprNode(),
+                    true);
+            bLangFiniteTypeNode.addValue(literalOrExpression);
         }
 
         if (unionElements.isEmpty()) {
@@ -5234,19 +5235,25 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createSimpleLiteral(literal, false);
     }
 
-    private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
-        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
-            UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
-            BLangLiteral bLangLiteral =
-                    createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), isFiniteType);
-            bLangLiteral.pos = getPosition(unaryExpr); // setting the proper pos, else only the expr pos is set
-            return bLangLiteral;
-        }
+//    private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
+//        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
+//            UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
+//            BLangLiteral bLangLiteral =
+//                    createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), isFiniteType);
+//            bLangLiteral.pos = getPosition(unaryExpr); // setting the proper pos, else only the expr pos is set
+//            return bLangLiteral;
+//        }
+//        return createSimpleLiteral(literal, SyntaxKind.NONE, isFiniteType);
+//    }
 
-        return createSimpleLiteral(literal, SyntaxKind.NONE, isFiniteType);
+    private BLangExpression createLiteralOrExpression(Node literal, boolean isFiniteType) {
+        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
+            return createExpression(literal);
+        }
+        return createSimpleLiteral(literal, isFiniteType);
     }
 
-    private BLangLiteral createSimpleLiteral(Node literal, SyntaxKind sign, boolean isFiniteType) {
+    private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         SyntaxKind type = literal.kind();
         int typeTag = -1;
@@ -5262,11 +5269,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             textValue = "";
         }
 
-        if (sign == SyntaxKind.PLUS_TOKEN) {
-            textValue = "+" + textValue;
-        } else if (sign == SyntaxKind.MINUS_TOKEN) {
-            textValue = "-" + textValue;
-        }
+//        if (sign == SyntaxKind.PLUS_TOKEN) {
+//            textValue = "+" + textValue;
+//        } else if (sign == SyntaxKind.MINUS_TOKEN) {
+//            textValue = "-" + textValue;
+//        }
 
         //TODO: Verify all types, only string type tested
         if (type == SyntaxKind.NUMERIC_LITERAL) {
@@ -5275,15 +5282,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
                     literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
                 kind = NodeKind.INTEGER_LITERAL;
-//                typeTag = TypeTags.INT;
-                value = getIntegerLiteral(literal, textValue, sign);
-                if (value instanceof Double) {
-                    typeTag = TypeTags.FLOAT;
-                } else if (value instanceof String) {
-                    typeTag = TypeTags.DECIMAL;
-                } else {
-                    typeTag = TypeTags.INT;
-                }
+                typeTag = TypeTags.INT;
+//                value = getIntegerLiteral(literal, textValue, sign);
+                value = getIntegerLiteral(literal, textValue);
                 originalValue = textValue;
                 if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
                     typeTag = TypeTags.BYTE;
@@ -5839,7 +5840,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
     }
 
-    private Object getIntegerLiteral(Node literal, String nodeValue, SyntaxKind sign) {
+    private Object getIntegerLiteral(Node literal, String nodeValue) {
         SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
         if (literalTokenKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
             return parseLong(nodeValue, nodeValue, 10);
