@@ -42,7 +42,7 @@ public class MappingAlternative {
                 return new MappingAlternative[]{};
             } else {
                 return new MappingAlternative[]{
-                        from(cx, PredefinedType.MAPPING_RW, new ArrayList<>(), new ArrayList<>())
+                        from(cx, PredefinedType.MAPPING_RW, List.of(), List.of())
                 };
             }
         } else {

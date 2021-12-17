@@ -37,8 +37,8 @@ public class BddPath {
 
     private BddPath(BddPath bddPath) {
         this.bdd = bddPath.bdd;
-        this.pos = bddPath.pos;
-        this.neg = bddPath.neg;
+        this.pos = new ArrayList<>(bddPath.pos); // pos: path.pos.clone()
+        this.neg = new ArrayList<>(bddPath.neg); // pos: path.pos.clone()
     }
 
     public BddPath() {
