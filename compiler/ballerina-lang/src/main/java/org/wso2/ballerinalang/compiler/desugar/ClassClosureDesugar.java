@@ -166,7 +166,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private static final String BLOCK_MAP_SYM_NAME = "$map$block$oce$" + UNDERSCORE;
     private static final String FUNCTION_MAP_SYM_NAME = "$map$func$oce$" + UNDERSCORE;
     private static final String OBJECT_CTOR_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE;
-    private static final String PARAMETER_MAP_NAME = "$paramMap$oce$" + UNDERSCORE;
     private static final String OBJECT_CTOR_BLOCK_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE + "block";
     private static final String OBJECT_CTOR_FUNCTION_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE + "function";
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
@@ -360,9 +359,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
                 ASTBuilderUtil.createIndexBasesAccessExpr(varDefNode.pos, varDefNode.getBType(), mapSymbol,
-                                                          ASTBuilderUtil
-                                                                  .createLiteral(varDefNode.pos, symTable.stringType,
-                                                                                 varDefNode.var.name.value));
+                        ASTBuilderUtil
+                                .createLiteral(varDefNode.pos, symTable.stringType,
+                                        varDefNode.var.name.value));
         accessExpr.setBType(((BMapType) mapSymbol.type).constraint);
         accessExpr.isLValue = true;
         // Written to: 'map["x"] = 8'.
@@ -976,7 +975,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
      */
     private BVarSymbol createMapSymbol(String mapName, SymbolEnv symbolEnv) {
         return new BVarSymbol(0, names.fromString(mapName), symbolEnv.scope.owner.pkgID,
-                              symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, VIRTUAL);
+                symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
     /**
@@ -986,14 +985,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
      * @param mapSymbol  map symbol to be used
      */
     private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
-        BVarSymbol selfSymbol = classDef.generatedInitFunction.receiver.symbol;
-        BLangSimpleVarRef.BLangLocalVarRef localSelfVarRef = new BLangSimpleVarRef.BLangLocalVarRef(selfSymbol);
-        localSelfVarRef.setBType(classDef.getBType());
-        localSelfVarRef.closureDesugared = true;
-        BLangIndexBasedAccess.BLangStructFieldAccessExpr accessExprForClassField =
-                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(varRefExpr.pos, localSelfVarRef,
-                        ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
-                                mapSymbol.name), mapSymbol, false, true);
+        BLangIndexBasedAccess.BLangStructFieldAccessExpr
+                accessExprForClassField = ClassClosureDesugarUtils.getClassMapAccessExpression(varRefExpr.pos,
+                mapSymbol, classDef, symTable.stringType);
 
         accessExprForClassField.setBType(mapSymbol.type);
 
