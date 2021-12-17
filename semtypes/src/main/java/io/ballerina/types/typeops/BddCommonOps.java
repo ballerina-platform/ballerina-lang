@@ -119,12 +119,16 @@ public abstract class BddCommonOps {
                         bddDiff(b1, bddUnion(((BddNode) b2).right, ((BddNode) b2).middle)));
 
             } else {
-                // This is incorrect in the AMK tutorial
-                // but correct in the Castagna paper
+                // There is an error in the Castagna paper for this formula.
+                // The union needs to be materialized here.
+                // The original formula does not work in a case like (a0|a1) - a0.
+                // Castagna confirms that the following formula is the correct one.
                 return bddCreate(((BddNode) b1).atom,
-                        bddDiff(((BddNode) b1).left, ((BddNode) b2).left),
-                        bddDiff(((BddNode) b1).middle, ((BddNode) b2).middle),
-                        bddDiff(((BddNode) b1).right, ((BddNode) b2).right));
+                        bddDiff(bddUnion(((BddNode) b1).left, ((BddNode) b1).middle),
+                                bddUnion(((BddNode) b2).left, ((BddNode) b2).middle)),
+                        BddAllOrNothing.bddNothing(),
+                        bddDiff(bddUnion(((BddNode) b1).right, ((BddNode) b1).middle),
+                                bddUnion(((BddNode) b2).right, ((BddNode) b2).middle)));
             }
         }
     }
@@ -135,22 +139,25 @@ public abstract class BddCommonOps {
         } else {
             BddNode bdd = (BddNode) b;
             BddAllOrNothing bddNothing = BddAllOrNothing.bddNothing();
-            if (bdd.right == bddNothing) {
+            if (bdd.right.equals(bddNothing)) {
                 return bddCreate(bdd.atom,
                         bddNothing,
                         bddComplement(bddUnion(bdd.left, bdd.middle)),
                         bddComplement(bdd.middle));
-            } else if (bdd.left == bddNothing) {
+            } else if (bdd.left.equals(bddNothing)) {
                 return bddCreate(bdd.atom,
                         bddComplement(bdd.middle),
                         bddComplement(bddUnion(bdd.right, bdd.middle)),
                         bddNothing);
-            } else if (bdd.middle == bddNothing) {
+            } else if (bdd.middle.equals(bddNothing)) {
                 return bddCreate(bdd.atom,
                         bddComplement(bdd.left),
                         bddComplement(bddUnion(bdd.left, bdd.right)),
                         bddComplement(bdd.right));
             } else {
+                // There is a typo in the Frisch PhD thesis for this formula.
+                // (It has left and right swapped.)
+                // Castagna (the PhD supervisor) confirms that this is the correct formula.
                 return bddCreate(bdd.atom,
                         bddComplement(bddUnion(bdd.left, bdd.middle)),
                         bddNothing,
