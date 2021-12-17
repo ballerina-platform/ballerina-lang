@@ -1423,8 +1423,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     // I am a parameter
                     BVarSymbol classFunctionMapSymbol = addFunctionMapMapToClassDefinition(classDef,
                             enclosedFunction.mapSymbol);
-                    updateClosureVarsWithMapAccessExpression(classDef, invokableFunc.receiver.symbol,
-                            localVarRef, classFunctionMapSymbol);
+                    BLangTypeConversionExpr typeConversionExpr =
+                            ClassClosureDesugarUtils.updateClosureVarsWithMapAccessExpression(classDef,
+                            invokableFunc.receiver.symbol,
+                            localVarRef, classFunctionMapSymbol, symTable.stringType);
+                    result = desugar.rewrite(typeConversionExpr, classDef.oceEnvData.objMethodsEnv);
                 } else {
                     updateClosureVarsForAttachedObjects(classDef, invokableFunc.receiver.symbol, localVarRef);
                 }
@@ -1677,7 +1680,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
         }
 
-        updateClosureVarsWithMapAccessExpression(classDef, classSelfSymbol, varRefExpr, classMapSymbol);
+        BLangTypeConversionExpr typeConversionExpr =
+                ClassClosureDesugarUtils.updateClosureVarsWithMapAccessExpression(classDef, classSelfSymbol, varRefExpr,
+                    classMapSymbol, symTable.stringType);
+        result = desugar.rewrite(typeConversionExpr, classDef.oceEnvData.objMethodsEnv);
     }
 
     @Override
