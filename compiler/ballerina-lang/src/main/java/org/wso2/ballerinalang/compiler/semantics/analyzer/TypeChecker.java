@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
@@ -4666,6 +4667,44 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symbol.type.getReturnType();
                 }
             }
+        }
+        // Explicitly set actual type - Remove in future
+        if (exprType != symTable.semanticError &&  unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+            BLangExpression exprInUnary = unaryExpr.expr;
+            BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
+            Object objectValueInUnary = numericLiteralInUnary.value;
+            String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+
+            if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+                strValueInUnary = "+" + strValueInUnary;
+            } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+                strValueInUnary = "-" + strValueInUnary;
+            }
+
+            if (objectValueInUnary instanceof Long) {
+                objectValueInUnary = Long.parseLong(strValueInUnary);
+            } else if (objectValueInUnary instanceof Double) {
+                objectValueInUnary = Double.parseDouble(strValueInUnary);
+            } else if (objectValueInUnary instanceof String) {
+                objectValueInUnary = strValueInUnary;
+            }
+
+            BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
+                    TreeBuilder.createNumericLiteralExpression();
+            newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
+            newNumericLiteral.pos = unaryExpr.pos;
+            newNumericLiteral.setBType(exprInUnary.getBType());
+            newNumericLiteral.value = objectValueInUnary;
+            newNumericLiteral.originalValue = strValueInUnary;
+
+            BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+                    0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                    unaryExpr.pos, SOURCE);
+
+            BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+            finiteType.addValue(newNumericLiteral);
+            finiteTypeSymbol.type = finiteType;
+            actualType = finiteType;
         }
 
         resultType = types.checkType(unaryExpr, actualType, expType);
