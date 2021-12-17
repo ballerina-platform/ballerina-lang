@@ -36,7 +36,7 @@ public class RwTableSubtype implements ProperSubtypeData {
 
     public static ProperSubtypeData createRwTableSubtype(Bdd ro, Bdd rw)  {
         if (ro instanceof AllOrNothingSubtype && rw instanceof AllOrNothingSubtype &&
-                ((AllOrNothingSubtype) ro).isAllSubtype() == ((AllOrNothingSubtype) rw).isAllSubtype()){
+                ((AllOrNothingSubtype) ro).isAllSubtype() == ((AllOrNothingSubtype) rw).isAllSubtype()) {
             return ro;
         }
         return new RwTableSubtype(ro, rw);
