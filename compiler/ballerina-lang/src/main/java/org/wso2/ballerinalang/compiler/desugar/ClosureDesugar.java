@@ -1634,8 +1634,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
                         BVarSymbol selfSymbol = function.receiver.symbol;
                         BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
 
-                        BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos, parentBlockMap.name.value);
-                        BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, identifierNode);
+                        BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos,
+                                parentBlockMap.name.value);
+                        BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef,
+                                identifierNode);
                         fieldAccess.symbol = parentBlockMap;
                         fieldAccess.setBType(classMapSymbol.type);
                         fieldAccess.expectedType = classMapSymbol.type;
@@ -1646,7 +1648,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
                         SymbolEnv env = parentData.capturedClosureEnv;
 
-                        BVarSymbol parentBlockSymbol = new BVarSymbol(0, names.fromString("$passThroughMap"),
+                        BVarSymbol parentBlockSymbol = new BVarSymbol(0,
+                                names.fromString("$passThroughMap"),
                                 env.scope.owner.pkgID, parentBlockMap.getType(), env.scope.owner, body.pos, VIRTUAL);
 
                         BLangSimpleVariable blockMapVar = ASTBuilderUtil.createVariable(body.pos,
@@ -1658,17 +1661,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
                                 blockMapVar);
                         returnResultDef = desugar.rewrite(returnResultDef, env);
 
+                        BLangSimpleVarRef blockRef = ASTBuilderUtil.createVariableRef(function.pos, blockMap);
+                        BLangSimpleVarRef rempVar = ASTBuilderUtil.createVariableRef(function.pos, parentBlockSymbol);
 
-
-
-                        // $map$block$_3
-                        BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(function.pos, blockMap);
-                        BLangSimpleVarRef passThroughVar = ASTBuilderUtil.createVariableRef(function.pos, parentBlockSymbol);
-//
                         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-                        assignmentStmt.expr = passThroughVar;//;
+                        assignmentStmt.expr = rempVar;
                         assignmentStmt.pos = function.pos;
-                        assignmentStmt.setVariable(refToBlockClosureMap);
+                        assignmentStmt.setVariable(blockRef);
 
                         assignmentStmt = desugar.rewrite(assignmentStmt, env);
 

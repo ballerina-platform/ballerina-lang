@@ -161,8 +161,8 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  */
 public class ClassClosureDesugar extends BLangNodeVisitor {
 
-    private static final CompilerContext.Key<ClassClosureDesugar> CLASS_CLOSURE_DESUGAR_KEY = new CompilerContext.Key<>();
-
+    private static final CompilerContext.Key<ClassClosureDesugar> CLASS_CLOSURE_DESUGAR_KEY =
+            new CompilerContext.Key<>();
 
     private static final String BLOCK_MAP_SYM_NAME = "$map$block$oce$" + UNDERSCORE;
     private static final String FUNCTION_MAP_SYM_NAME = "$map$func$oce$" + UNDERSCORE;

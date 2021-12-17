@@ -6128,10 +6128,11 @@ public class TypeChecker extends BLangNodeVisitor {
         updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
     }
 
-    private void updateProceedingClasses(SymbolEnv env, OCEDynamicEnvironmentData oceEnvData,
+    private void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvironmentData oceEnvData,
                                          BLangClassDefinition origClassDef) {
-        while (env != null) {
-            BLangNode node = env.node;
+        SymbolEnv localEnv = envArg;
+        while (localEnv != null) {
+            BLangNode node = localEnv.node;
             if (node.getKind() == NodeKind.PACKAGE) {
                 break;
             }
@@ -6148,7 +6149,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
                 }
             }
-            env = env.enclEnv;
+            localEnv = localEnv.enclEnv;
         }
     }
 
