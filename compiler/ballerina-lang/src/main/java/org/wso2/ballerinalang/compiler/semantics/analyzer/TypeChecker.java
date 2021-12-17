@@ -6146,11 +6146,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     // TODO : find symbols and then add
                     parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
                     parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
-                    System.out.println("Found parent class : " + classDef);
-                    System.out.println("\t of : " + oceEnvData.originalClass);
                 }
             }
-
             env = env.enclEnv;
         }
     }

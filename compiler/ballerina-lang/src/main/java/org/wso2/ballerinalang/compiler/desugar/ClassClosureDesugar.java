@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -151,7 +150,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -184,8 +182,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private Names names;
 
     private SymbolEnv env;
-    private Set<BSymbol> functionMapSymbols;
-    private Set<BSymbol> blockMapSymbols;
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -210,6 +206,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private void reset() {
         this.classDef = null;
+        this.env = null;
     }
 
     @Override
@@ -505,17 +502,14 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             result = classDefinition;
             return;
         }
+        var preClass = this.classDef;
+        var prevEnv = this.env;
 
-        OCEDynamicEnvironmentData oceData = classDefinition.oceEnvData;
-        BVarSymbol mapSymbol = oceData.mapBlockMapSymbol;
-        if (mapSymbol == null) {
-            // This cannot happen.
-            result = classDefinition;
-            return;
-        }
-
-        desugar.visit(classDefinition);
+        desugar(classDefinition);
         result = classDefinition;
+
+        this.classDef = preClass;
+        this.env = prevEnv;
     }
 
     @Override
@@ -789,9 +783,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private BVarSymbol getVarMapSymbol(BVarSymbol symbol) {
         BVarSymbol mapSymbol = null;
-        if (functionMapSymbols.contains(symbol)) {
+        if (classDef.oceEnvData.closureFuncSymbols.contains(symbol)) {
             mapSymbol = classDef.oceEnvData.mapFunctionMapSymbol;
-        } else if (blockMapSymbols.contains(symbol)) {
+        } else if (classDef.oceEnvData.closureBlockSymbols.contains(symbol)) {
             mapSymbol = classDef.oceEnvData.mapBlockMapSymbol;
         }
         return mapSymbol;
@@ -1486,8 +1480,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         createMapSymbolsIfAbsent(classDef);
         addFunctionLevelClosureMapToClassDefinition(classDef);
         addBlockLevelClosureMapToClassDefinition(classDef);
-        this.functionMapSymbols = classDef.oceEnvData.closureFuncSymbols;
-        this.blockMapSymbols = classDef.oceEnvData.closureBlockSymbols;
         updateFields(classDef);
 
         OCEDynamicEnvironmentData oceData = this.classDef.oceEnvData;
