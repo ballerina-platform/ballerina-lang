@@ -114,4 +114,13 @@ public class ServiceDeclTest {
                 "(ListenerWithNonNilInitReturnType|Int)'", 264, 12);
         Assert.assertEquals(i, result.getErrorCount());
     }
+
+
+    @Test
+    public void testRelativePathStartsWithSlashSyntaxError() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/" +
+                "service_relative_resource_path_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        validateError(compileResult, 0, "relative resource path should not begin with slash", 35, 27);
+    }
 }
