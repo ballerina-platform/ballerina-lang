@@ -1,0 +1,127 @@
+package org.wso2.ballerinalang.compiler.desugar;
+
+import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
+
+/**
+ * This class contains static util methods commonly used to desugar class closure access desugaring.
+ *
+ * @since 2.0.0
+ */
+public class ClassClosureDesugarUtils {
+
+    public static void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvironmentData oceEnvData,
+                                               BLangClassDefinition origClassDef) {
+        SymbolEnv localEnv = envArg;
+        while (localEnv != null) {
+            BLangNode node = localEnv.node;
+            if (node.getKind() == NodeKind.PACKAGE) {
+                break;
+            }
+
+            if (node.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDef = (BLangClassDefinition) node;
+                if (classDef != origClassDef) {
+                    classDef.hasClosureVars = true;
+                    OCEDynamicEnvironmentData parentOceData = classDef.oceEnvData;
+                    oceEnvData.parents.push(classDef);
+                    parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
+                    parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
+                }
+            }
+            localEnv = localEnv.enclEnv;
+        }
+    }
+
+    public static void updateObjectCtorClosureSymbols(Location pos, BLangFunction enclosedFunc,
+                                                      BSymbol resolvedSymbol,
+                                                      BLangClassDefinition classDef, SymbolEnv env) {
+        classDef.hasClosureVars = true;
+        resolvedSymbol.closure = true;
+        if (enclosedFunc != null) {
+            enclosedFunc.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            // TODO: can identify if attached here
+        }
+        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
+        if (enclosedFunc != null && (enclosedFunc.symbol.params.contains(resolvedSymbol)
+                || (enclosedFunc.symbol.restParam == resolvedSymbol))) {
+            oceEnvData.closureFuncSymbols.add(resolvedSymbol);
+        } else {
+            oceEnvData.closureBlockSymbols.add(resolvedSymbol);
+        }
+        ClassClosureDesugarUtils.updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
+    }
+
+    /**
+     * Update the closure variables with the relevant map access expression.
+     * a + b can become a + self[$map$func_4][b]
+     * a + b ==> a + self[$map$func_4][b]
+     * we are dealing with the simple var ref `b` here
+     *
+     * @param classDef   OCE class definition
+     * @param selfSymbol self symbol of attached method
+     * @param varRefExpr closure variable reference to be updated
+     */
+    public static BLangTypeConversionExpr updateClosureVarsWithMapAccessExpression(BLangClassDefinition classDef,
+                                                                                   BVarSymbol selfSymbol,
+                                                                                   BLangSimpleVarRef varRefExpr,
+                                                                                   BVarSymbol mapSymbol,
+                                                                                   BType stringType) {
+        // self
+        BLangSimpleVarRef.BLangLocalVarRef localSelfVarRef = new BLangSimpleVarRef.BLangLocalVarRef(selfSymbol);
+        localSelfVarRef.setBType(classDef.getBType());
+        Location pos = varRefExpr.pos;
+
+        // self[mapSymbol]
+        BLangIndexBasedAccess.BLangStructFieldAccessExpr accessExprForClassField =
+                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(pos, localSelfVarRef,
+                        ASTBuilderUtil.createLiteral(pos, stringType,
+                                mapSymbol.name), mapSymbol, false, true);
+        accessExprForClassField.setBType(mapSymbol.type);
+        accessExprForClassField.isLValue = true;
+
+        // self[mapSymbol][varRefExpr]
+        BLangIndexBasedAccess.BLangMapAccessExpr closureMapAccessForField =
+                new BLangIndexBasedAccess.BLangMapAccessExpr(pos, accessExprForClassField,
+                        ASTBuilderUtil.createLiteral(pos, stringType, varRefExpr.symbol.name));
+        closureMapAccessForField.setBType(varRefExpr.symbol.type);
+        closureMapAccessForField.isLValue = false;
+
+        // <varRefExpr.type> self[mapSymbol][varRefExpr]
+        BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        castExpr.expr = closureMapAccessForField;
+        castExpr.setBType(varRefExpr.symbol.type);
+        castExpr.targetType = varRefExpr.symbol.type;
+        return castExpr;
+    }
+
+    public static BLangIndexBasedAccess.BLangStructFieldAccessExpr
+    getClassMapAccessExpression(Location pos, BVarSymbol mapSymbol, BLangClassDefinition classDef, BType stringType) {
+        BVarSymbol selfSymbol = classDef.generatedInitFunction.receiver.symbol;
+
+        // self
+        BLangSimpleVarRef.BLangLocalVarRef localSelfVarRef = new BLangSimpleVarRef.BLangLocalVarRef(selfSymbol);
+        localSelfVarRef.setBType(classDef.getBType());
+        localSelfVarRef.closureDesugared = true;
+
+        // self[mapSymbol]
+        BLangIndexBasedAccess.BLangStructFieldAccessExpr accessExprForClassField =
+                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(pos, localSelfVarRef,
+                        ASTBuilderUtil.createLiteral(pos, stringType,
+                                mapSymbol.name), mapSymbol, false, true);
+        return accessExprForClassField;
+    }
+}

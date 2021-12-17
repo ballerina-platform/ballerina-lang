@@ -42,6 +42,7 @@ import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.desugar.ClassClosureDesugarUtils;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -6019,7 +6020,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
-                        updateObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol, classDef);
+                        ClassClosureDesugarUtils.updateObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol,
+                                classDef, env);
                         return;
                     }
                 }
@@ -6054,7 +6056,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
                         break;
                     }
-                    updateObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol, classDef);
+                    ClassClosureDesugarUtils.updateObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol,
+                            classDef, cEnv);
                     return;
                 }
                 break;
@@ -6111,47 +6114,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return false;
-    }
-
-    private void updateObjectCtorClosureSymbols(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
-                                               BLangClassDefinition classDef) {
-        classDef.hasClosureVars = true;
-        resolvedSymbol.closure = true;
-        if (currentFunction != null) {
-            currentFunction.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-            // TODO: can identify if attached here
-        }
-        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
-        if (currentFunction != null && (currentFunction.symbol.params.contains(resolvedSymbol)
-                || (currentFunction.symbol.restParam == resolvedSymbol))) {
-            oceEnvData.closureFuncSymbols.add(resolvedSymbol);
-        } else {
-             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
-        }
-        updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
-    }
-
-    private void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvironmentData oceEnvData,
-                                         BLangClassDefinition origClassDef) {
-        SymbolEnv localEnv = envArg;
-        while (localEnv != null) {
-            BLangNode node = localEnv.node;
-            if (node.getKind() == NodeKind.PACKAGE) {
-                break;
-            }
-
-            if (node.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDef = (BLangClassDefinition) node;
-                if (classDef != origClassDef) {
-                    classDef.hasClosureVars = true;
-                    OCEDynamicEnvironmentData parentOceData = classDef.oceEnvData;
-                    oceEnvData.parents.push(classDef);
-                    parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
-                    parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
-                }
-            }
-            localEnv = localEnv.enclEnv;
-        }
     }
 
     private boolean isNotFunction(BSymbol funcSymbol) {
