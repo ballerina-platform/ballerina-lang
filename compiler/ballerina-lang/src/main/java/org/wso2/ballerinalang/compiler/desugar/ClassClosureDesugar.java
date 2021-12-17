@@ -1519,6 +1519,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             node = function.body;
         }
         BVarSymbol blockMap = createMapSymbolIfAbsent(node, oceData.closureBlockSymbols.size());
+        if (blockMap.name == null) { // TODO: just to fix a crash
+            blockMap.name = names.fromString(BLOCK_MAP_SYM_NAME + blockClosureMapCount);
+        }
         BVarSymbol mapSymbol = oceData.mapBlockMapSymbol;
         
         addMapSymbolAsAField(classDef, mapSymbol);
@@ -1542,6 +1545,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         }
         BLangFunction function = (BLangFunction) oceData.capturedClosureEnv.enclInvokable;
         BVarSymbol functionMap = createMapSymbolIfAbsent(function, oceData.closureFuncSymbols.size());
+        if (functionMap.name == null) { // TODO: just to fix a crash
+            functionMap.name = names.fromString(FUNCTION_MAP_SYM_NAME + blockClosureMapCount);
+        }
         BVarSymbol mapSymbol = oceData.mapFunctionMapSymbol;
 
         addMapSymbolAsAField(classDef, mapSymbol);
