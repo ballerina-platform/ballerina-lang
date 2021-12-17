@@ -155,6 +155,6 @@ public class EvaluatorMiscTest {
     private String evaluate(String source, Evaluator evaluator) throws  BallerinaShellException {
         ShellCompilation shellCompilation = evaluator.getCompilation(source);
         Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-        return evaluator.getValue(compilation);
+        return evaluator.getValue(compilation).get().getResult();
     }
 }

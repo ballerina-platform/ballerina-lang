@@ -24,6 +24,7 @@ import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.ExceptionStatus;
 import io.ballerina.shell.ShellCompilation;
+import io.ballerina.shell.ShellReturnValue;
 import io.ballerina.shell.cli.handlers.CommandHandler;
 import io.ballerina.shell.cli.handlers.DeleteCommand;
 import io.ballerina.shell.cli.handlers.ExitCommand;
@@ -69,6 +70,7 @@ public class BallerinaShell {
     protected final Evaluator evaluator;
     protected final CommandHandler commandHandler;
     protected boolean isRunning;
+    private boolean isRequiredModules;
 
     public BallerinaShell(BShellConfiguration configuration, TerminalAdapter terminal) {
         this.configuration = configuration;
@@ -76,6 +78,7 @@ public class BallerinaShell {
         this.isRunning = true;
         this.evaluator = configuration.getEvaluator();
         this.commandHandler = createCommandHandler();
+        this.isRequiredModules = false;
     }
 
     /**
@@ -110,7 +113,7 @@ public class BallerinaShell {
             Duration previousDuration = Duration.between(start, end);
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
-            boolean isRequiredModules = false;
+            String result;
             try {
                 String source = terminal.readLine(leftPrompt, rightPrompt).trim();
                 start = Instant.now();
@@ -118,25 +121,20 @@ public class BallerinaShell {
                     ShellCompilation shellCompilation = evaluator.getCompilation(source);
                     Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
                     if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
-                        String result = evaluator.getValue(compilation);
-                        terminal.result(result);
+                        Optional<ShellReturnValue> shellReturnValue = evaluator.getValue(compilation);
+                        if (shellReturnValue.isPresent() &&
+                                shellReturnValue.get().getExceptionStatus() == ExceptionStatus.SUCCESS) {
+                            result = shellReturnValue.get().getResult();
+                            terminal.result(result);
+                        } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
+                                ExceptionStatus.INVOKER_FAILED) {
+                            if (isContainsUndefinedModules(evaluator.diagnostics())) {
+                                executeChanges(source);
+                            }
+                        }
                     } else if (ExceptionStatus.INVOKER_FAILED == shellCompilation.getExceptionStatus()) {
                         if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                            ModuleImporter moduleImporter = new ModuleImporter();
-                            List<String> modules = moduleImporter.undefinedModules(evaluator.diagnostics());
-                            if (modules.size() > 0) {
-                                isRequiredModules = true;
-                                importModules(moduleImporter, modules);
-                                try {
-                                    terminal.println("");
-                                    shellCompilation = evaluator.getCompilation(source);
-                                    compilation = shellCompilation.getPackageCompilation();
-                                    String result = evaluator.getValue(compilation);
-                                    terminal.result(result);
-                                } catch (BallerinaShellException error) {
-                                    terminal.error("\nCompilation aborted due to errors.");
-                                }
-                            }
+                            executeChanges(source);
                         }
                     }
                 }
@@ -330,6 +328,22 @@ public class BallerinaShell {
      * @param diagnostics collection of evaluator diagnostics.
      * @return distinct list of module errors.
      */
+    public boolean addImports(Collection<Diagnostic> diagnostics) {
+        for (Diagnostic diagnostic : diagnostics) {
+            if (diagnostic.toString().contains("undefined module")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Return found undefined modules.
+     *
+     * @param diagnostics collection of evaluator diagnostics.
+     * @return distinct list of module errors.
+     */
     public boolean isContainsUndefinedModules(Collection<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.toString().contains("undefined module")) {
@@ -338,5 +352,30 @@ public class BallerinaShell {
         }
 
         return false;
+    }
+
+    /**
+     * Execute with updated imports.
+     *
+     * @param source source.
+     */
+    private void executeChanges(String source) {
+        ModuleImporter moduleImporter = new ModuleImporter();
+        List<String> modules = moduleImporter.undefinedModules(evaluator.diagnostics());
+        if (modules.size() > 0) {
+            isRequiredModules = true;
+            importModules(moduleImporter, modules);
+            try {
+                terminal.println("");
+                ShellCompilation shellCompilation = evaluator.getCompilation(source);
+                Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
+                String result = evaluator.getValue(compilation).get().getResult();
+                terminal.result(result);
+            } catch (BallerinaShellException error) {
+                terminal.error("\nCompilation aborted due to errors.");
+            } catch (Exception e) {
+                throw e;
+            }
+        }
     }
 }

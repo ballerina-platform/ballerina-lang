@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.exceptions.PreprocessorException;
 import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.exceptions.TreeParserException;
@@ -105,19 +106,29 @@ class EvaluatorImpl extends Evaluator {
     }
 
     @Override
-    public String getValue(Optional<PackageCompilation> compilation) throws BallerinaShellException {
+    public Optional<ShellReturnValue> getValue(Optional<PackageCompilation> compilation) throws
+            BallerinaShellException {
         String result;
+        ExceptionStatus exceptionStatus;
         try {
             Optional<Object> invokerOut = invoker.execute(compilation);
             result = invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
+            exceptionStatus = ExceptionStatus.SUCCESS;
             addAllDiagnostics(invoker.diagnostics());
             invoker.resetDiagnostics();
-        } catch (BallerinaShellException e) {
+            return Optional.of(new ShellReturnValue(result, exceptionStatus));
+        } catch (InvokerPanicException e) {
             addAllDiagnostics(invoker.diagnostics());
             invoker.resetDiagnostics();
             throw e;
+        } catch (InvokerException e) {
+            exceptionStatus = ExceptionStatus.INVOKER_FAILED;
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            return Optional.of(new ShellReturnValue(exceptionStatus));
+        } catch (Exception e) {
+            throw e;
         }
-        return result;
     }
 
     @Override

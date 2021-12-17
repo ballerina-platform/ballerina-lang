@@ -96,7 +96,8 @@ public abstract class Evaluator extends DiagnosticReporter {
      * @param compilation compilation.
      * @return String output from the evaluator. This will be the last output.
      */
-    public abstract String getValue(Optional<PackageCompilation> compilation) throws BallerinaShellException;
+    public abstract Optional<ShellReturnValue> getValue(Optional<PackageCompilation> compilation)
+            throws BallerinaShellException;
 
     /**
      * Evaluate a ballerina file as if it was entered to the shell.

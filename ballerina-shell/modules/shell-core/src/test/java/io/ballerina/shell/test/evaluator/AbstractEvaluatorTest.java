@@ -83,7 +83,7 @@ public abstract class AbstractEvaluatorTest {
 
                 ShellCompilation shellCompilation = evaluator.getCompilation(testCase.getCode());
                 Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                String expr = evaluator.getValue(compilation);
+                String expr = evaluator.getValue(compilation).get().getResult();
                 Assert.assertEquals(invoker.getStdOut(), testCase.getStdout(), testCase.getDescription());
                 Assert.assertEquals(expr, testCase.getExpr(), testCase.getDescription());
                 Assert.assertNull(testCase.getError(), testCase.getDescription());
