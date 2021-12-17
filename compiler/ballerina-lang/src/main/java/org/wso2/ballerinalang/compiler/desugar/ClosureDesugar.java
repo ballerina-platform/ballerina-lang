@@ -423,6 +423,29 @@ public class ClosureDesugar extends BLangNodeVisitor {
         return classDef.oceEnvData.classEnclosedFunctionMap;
     }
 
+    private BLangNode getNextPossibleNode(SymbolEnv envArg) {
+        SymbolEnv localEnv = envArg;
+        BLangNode node = localEnv.node;
+        while (localEnv != null) {
+            NodeKind kind = node.getKind();
+            if (kind == NodeKind.PACKAGE) {
+                break;
+            }
+            if (kind == NodeKind.CLASS_DEFN) {
+                break;
+            }
+
+            if (kind == NodeKind.BLOCK_FUNCTION_BODY || kind == NodeKind.BLOCK ||
+                    kind == NodeKind.FUNCTION || kind == NodeKind.RESOURCE_FUNC) {
+                break;
+            }
+
+            localEnv = localEnv.enclEnv;
+            node = localEnv.node;
+        }
+        return node;
+    }
+
     private void updateClassClosureMap(BLangClassDefinition classDef) {
 
         if (!classDef.hasClosureVars) {
@@ -434,7 +457,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
         if (!oceData.closureBlockSymbols.isEmpty()) {
-            BLangNode node = env.enclEnv.node;
+            BLangNode node = getNextPossibleNode(env.enclEnv);
             if (node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction function = (BLangFunction) node;
                 node = function.body;
