@@ -55,6 +55,7 @@ public class AddCheckCodeActionTest extends AbstractCodeActionTest {
     public Object[][] negativeDataProvider() {
         return new Object[][]{
                 {"negative_add_check_codeaction_config1.json", "negative_add_check_codeaction_source1.bal"},
+                {"negative_add_check_external_treenode_list.json", "negative_add_check_external_treenode_list.bal"},
         };
     }
 

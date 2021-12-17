@@ -36,6 +36,9 @@ import java.util.Optional;
 /**
  * Node Transformer to find the container expression node for a given node.
  *
+ * <strong>Note</strong>: Rather than doing {@code node.apply(expressionResolver)}, 
+ * please use {@link #findExpression(Node)} since the {@code node.apply()} method may return {@code null}.
+ *
  * @since 2.0.0
  */
 public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<ExpressionNode>> {
@@ -46,6 +49,22 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
         this.matchedNode = matchedNode;
     }
 
+    /**
+     * Given the node, this method returns the optional expression in which the provided node is located.
+     *
+     * @param node Node
+     * @return Optional enclosing expression node
+     */
+    public Optional<ExpressionNode> findExpression(Node node) {
+        if (node == null) {
+            return Optional.empty();
+        }
+
+        Optional<ExpressionNode> exprNode = node.apply(this);
+        // Due to the way apply() method is implemented in some cases, this can return null
+        return exprNode == null ? Optional.empty() : exprNode;
+    }
+    
     @Override
     protected Optional<ExpressionNode> transformSyntaxNode(Node node) {
         if (node.parent() == null) {
