@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
 import com.github.zafarkhaja.semver.Version;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
@@ -210,14 +211,38 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return incompatibleVersions;
     }
 
+    /**
+     * Returns if a package is compatible with the current platform version
+     * (ballerinaShortVersion of the current distribution).
+     *
+     * A package is considered to be compatible with the current platform
+     * if the platform version that the package is built on has the same major
+     * version and is not greater than the version of the current platform.
+     *
+     * slbeta versions are considered compatible which is a special case.
+     * TODO: we can check if this is necessary after the SL GA
+     *
+     * @param pkgBalVer version of the platform that the package is built on
+     * @param distBalVer version of the current platform
+     *
+     * @return true if compatible
+     */
     private boolean isCompatible(String pkgBalVer, String distBalVer) {
         if (pkgBalVer.equals(distBalVer) || pkgBalVer.startsWith("slbeta")) {
             return true;
         }
-        Version pkgSemVer = Version.valueOf(pkgBalVer);
-        Version distSemVer = Version.valueOf(distBalVer);
-        if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
-            return !pkgSemVer.greaterThan(distSemVer);
+        Version pkgSemVer;
+        Version distSemVer;
+        try {
+            pkgSemVer = Version.valueOf(pkgBalVer);
+            distSemVer = Version.valueOf(distBalVer);
+
+
+            if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
+                return !pkgSemVer.greaterThan(distSemVer);
+            }
+        } catch (UnexpectedCharacterException ignore) {
+            // this is mainly to avoid slalpha versions
         }
 
         return false;
