@@ -26,8 +26,8 @@ import io.ballerina.types.ProperSubtypeData;
  * @since 3.0.0
  */
 public class RwTableSubtype implements ProperSubtypeData {
-    public Bdd ro;
-    public Bdd rw;
+    public final Bdd ro;
+    public final Bdd rw;
 
     private RwTableSubtype(Bdd ro, Bdd rw) {
         this.ro = ro;
@@ -35,7 +35,10 @@ public class RwTableSubtype implements ProperSubtypeData {
     }
 
     public static ProperSubtypeData createRwTableSubtype(Bdd ro, Bdd rw)  {
+        if (ro instanceof AllOrNothingSubtype && rw instanceof AllOrNothingSubtype &&
+                ((AllOrNothingSubtype) ro).isAllSubtype() == ((AllOrNothingSubtype) rw).isAllSubtype()){
+            return ro;
+        }
         return new RwTableSubtype(ro, rw);
     }
-
 }
