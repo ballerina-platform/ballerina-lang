@@ -1230,7 +1230,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         });
 
         anonClass.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
-//        addToTop(anonClass);
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
