@@ -593,12 +593,18 @@ public class TypeConverter {
                     false, unresolvedValues, errors);
             if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "array element '" +
-                        elementIndex + "' should be of type '" + targetTypeElementType.toString() + "', found '" +
+                        elementIndex + "' should be of type '" + targetTypeElementType + "', found '" +
                         getShortSourceValue(source.get(i)) + "'");
-                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
-                    return false;
-                }
                 returnVal = false;
+            } else if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(source.get(i))) &&
+                    !hasIntegerSubTypes(convertibleTypes)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors,
+                        "array element '" + elementIndex + "' cannot be converted to '" +
+                                targetTypeElementType + "': ambiguous target type");
+                returnVal = false;
+            }
+            if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                return false;
             }
         }
         return returnVal;
@@ -634,10 +640,16 @@ public class TypeConverter {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetTypes.get(i).toString() + "', found '" +
                         getShortSourceValue(source.getRefValue(i)) + "'");
-                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
-                    return false;
-                }
                 returnVal = false;
+            } else if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(
+                    source.getRefValue(i))) && !hasIntegerSubTypes(convertibleTypes)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors,
+                        "tuple element '" + elementIndex + "' cannot be converted to '" +
+                                targetTypes.get(i) + "': ambiguous target type");
+                returnVal = false;
+            }
+            if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                return false;
             }
         }
 
@@ -650,6 +662,15 @@ public class TypeConverter {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetRestType + "', found '" +
                         getShortSourceValue(source.getRefValue(i)) + "'");
+                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                    return false;
+                }
+                returnVal = false;
+            } else if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(
+                    source.getRefValue(i))) && !hasIntegerSubTypes(convertibleTypes)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors,
+                        "tuple element '" + elementIndex + "' cannot be converted to '" +
+                                targetRestType + "': ambiguous target type");
                 if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
                     return false;
                 }
