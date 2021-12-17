@@ -54,7 +54,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type 'bm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type .*")
     public void updateReturnedConstantBooleanMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMapWithExistingKey");
     }
@@ -67,7 +67,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type 'bm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type .*")
     public void updateConstantBooleanMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantBooleanMapValueInArrayWithExistingKey");
     }
@@ -82,7 +82,7 @@ public class MapConstantPanicTest {
     // int ---------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type 'im11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type .*")
     public void updateNestedConstantIntMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantIntMapValueWithExistingKey");
     }
@@ -95,7 +95,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type 'im11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type .*")
     public void updateReturnedConstantIntMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantIntMapWithExistingKey");
     }
@@ -108,7 +108,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type 'im11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type .*")
     public void updateConstantIntMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantIntMapValueInArrayWithExistingKey");
     }
@@ -123,8 +123,7 @@ public class MapConstantPanicTest {
     // byte --------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type " +
-                    "'bytem11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateNestedConstantByteMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantByteMapValueWithExistingKey");
     }
@@ -137,8 +136,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type " +
-                    "'bytem11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateReturnedConstantByteMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantByteMapWithExistingKey");
     }
@@ -151,15 +149,13 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type " +
-                    "'bytem11.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateConstantByteMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type " +
-                    "'bytem11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateConstantByteMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithNewKey");
     }
@@ -167,7 +163,7 @@ public class MapConstantPanicTest {
     // float -------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type 'fm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type .*")
     public void updateNestedConstantFloatMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantFloatMapValueWithExistingKey");
     }
@@ -180,7 +176,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type 'fm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type .*")
     public void updateReturnedConstantFloatMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantFloatMapWithExistingKey");
     }
@@ -193,7 +189,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type 'fm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type .*")
     public void updateConstantFloatMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantFloatMapValueInArrayWithExistingKey");
     }
@@ -208,7 +204,7 @@ public class MapConstantPanicTest {
     // decimal -----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type 'dm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type .*")
     public void updateNestedConstantDecimalMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantDecimalMapValueWithExistingKey");
     }
@@ -235,7 +231,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type 'dm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type .*")
     public void updateConstantDecimalMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantDecimalMapValueInArrayWithExistingKey");
     }
@@ -250,7 +246,7 @@ public class MapConstantPanicTest {
     // string ------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type 'sm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type .*")
     public void updateNestedConstantStringMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantStringMapValueWithExistingKey");
     }
@@ -263,7 +259,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type 'sm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type .*")
     public void updateReturnedConstantStringMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantStringMapWithExistingKey");
     }
@@ -276,7 +272,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type 'sm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type .*")
     public void updateConstantStringMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantStringMapValueInArrayWithExistingKey");
     }
@@ -291,7 +287,7 @@ public class MapConstantPanicTest {
     // nil ---------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type 'nm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type .*")
     public void updateNestedConstantNilMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantNilMapValueWithExistingKey");
     }
@@ -304,7 +300,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type 'nm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type .*")
     public void updateReturnedConstantNilMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantNilMapWithExistingKey");
     }
@@ -317,7 +313,7 @@ public class MapConstantPanicTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type 'nm11'.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type .*")
     public void updateConstantNilMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantNilMapValueInArrayWithExistingKey");
     }
