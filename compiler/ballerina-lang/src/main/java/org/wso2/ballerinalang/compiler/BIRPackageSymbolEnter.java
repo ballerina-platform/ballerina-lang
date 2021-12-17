@@ -632,6 +632,14 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
+        BAnnotationSymbol annotationSymbol = defineAnnotation(dataInStream);
+        this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
+    }
+
+    private BAnnotationSymbol defineAnnotation(DataInputStream dataInStream) throws IOException {
+        int pkgCpIndex = dataInStream.readInt();
+        PackageID pkgId = getPackageId(pkgCpIndex);
+
         String name = getStringCPEntryValue(dataInStream);
         String originalName = getStringCPEntryValue(dataInStream);
 
@@ -644,23 +652,25 @@ public class BIRPackageSymbolEnter {
 
         for (int i = 0; i < attachPointCount; i++) {
             attachPoints.add(AttachPoint.getAttachmentPoint(getStringCPEntryValue(dataInStream),
-                    dataInStream.readBoolean()));
+                                                            dataInStream.readBoolean()));
         }
 
         BType annotationType = readBType(dataInStream);
 
+        BPackageSymbol pkgSymbol = pkgId.equals(env.pkgSymbol.pkgID) ? this.env.pkgSymbol :
+                packageCache.getSymbol(pkgId);
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                                                                             names.fromString(originalName),
-                                                                            this.env.pkgSymbol.pkgID, null,
-                                                                            this.env.pkgSymbol, pos, toOrigin(origin));
+                                                                            pkgId, null, pkgSymbol, pos,
+                                                                            toOrigin(origin));
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
         defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
 
-        this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (annotationType != symTable.noType) { //TODO fix properly
             annotationSymbol.attachedType = annotationType;
         }
+        return annotationSymbol;
     }
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
@@ -820,14 +830,18 @@ public class BIRPackageSymbolEnter {
                                                   invokableType.paramTypes.get(i), invokableSymbol,
                                                   symTable.builtinPos, COMPILED_SOURCE);
             varSymbol.isDefaultable = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
+
+            defineParamAnnotSymbols(dataInStream, varSymbol);
             invokableSymbol.params.add(varSymbol);
         }
 
         if (dataInStream.readBoolean()) { //if rest param exist
             String paramName = getStringCPEntryValue(dataInStream);
-            invokableSymbol.restParam = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                                                       invokableType.restType, invokableSymbol, symTable.builtinPos,
-                                                       COMPILED_SOURCE);
+            BVarSymbol restParam = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
+                                                  invokableType.restType, invokableSymbol, symTable.builtinPos,
+                                                  COMPILED_SOURCE);
+            invokableSymbol.restParam = restParam;
+            defineParamAnnotSymbols(dataInStream, restParam);
         }
 
         if (Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.PARAMETERIZED)) {
@@ -851,6 +865,13 @@ public class BIRPackageSymbolEnter {
             dataInStream.readByte();
             readBType(dataInStream);
             getStringCPEntryValue(dataInStream);
+        }
+    }
+
+    private void defineParamAnnotSymbols(DataInputStream dataInStream, BVarSymbol varSymbol) throws IOException {
+        int annotSymbolCount = dataInStream.readInt();
+        for (int j = 0; j < annotSymbolCount; j++) {
+            varSymbol.addAnnotation(defineAnnotation(dataInStream));
         }
     }
 
@@ -1150,11 +1171,13 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.TYPEREFDESC:
                     int pkgIndex = inputStream.readInt();
                     PackageID pkg = getPackageId(pkgIndex);
+                    BPackageSymbol pkgSymbol = pkg.equals(env.pkgSymbol.pkgID) ? env.pkgSymbol :
+                            packageCache.getSymbol(pkg);
 
                     String typeDefName = getStringCPEntryValue(inputStream);
                     BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                            names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                            names.fromString(typeDefName), pkg, null, pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
 
                     boolean nullable = (typeFlags & TypeFlags.NILABLE) == TypeFlags.NILABLE;

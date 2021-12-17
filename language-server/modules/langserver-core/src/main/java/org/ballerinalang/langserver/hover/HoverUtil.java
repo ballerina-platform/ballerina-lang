@@ -91,7 +91,7 @@ public class HoverUtil {
             NonTerminalNode nodeAtCursor = CommonUtil.findNode(nodeRange, srcFile.get().syntaxTree());
             if (nodeAtCursor != null) {
                 MatchedExpressionNodeResolver expressionResolver = new MatchedExpressionNodeResolver(nodeAtCursor);
-                Optional<ExpressionNode> expr = nodeAtCursor.apply(expressionResolver);
+                Optional<ExpressionNode> expr = expressionResolver.findExpression(nodeAtCursor);
                 if (expr.isPresent()) {
                     return getHoverForExpression(context, expr.get());
                 }

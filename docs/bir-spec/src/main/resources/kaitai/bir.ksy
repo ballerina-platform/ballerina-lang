@@ -577,6 +577,8 @@ types:
         type: s4
   annotation:
     seq:
+      - id: package_id_cp_index
+        type: s4
       - id: name_cp_index
         type: s4
       - id: original_name_cp_index
@@ -755,6 +757,14 @@ types:
       - id: rest_param_name_cp_index
         type: s4
         if: has_rest_param != 0
+      - id: annotation_attachment_symbol_count
+        type: s4
+        if: has_rest_param != 0
+      - id: annotation_attachment_symbols
+        type: annotation
+        repeat: expr
+        repeat-expr: annotation_attachment_symbol_count
+        if: has_rest_param != 0
       - id: has_receiver
         type: u1
       - id: reciever
@@ -865,6 +875,12 @@ types:
         type: s4
       - id: flags
         type: s8
+      - id: annotation_attachment_symbol_count
+        type: s4
+      - id: annotation_attachment_symbols
+        type: annotation
+        repeat: expr
+        repeat-expr: annotation_attachment_symbol_count
   reciever:
     seq:
       - id: kind

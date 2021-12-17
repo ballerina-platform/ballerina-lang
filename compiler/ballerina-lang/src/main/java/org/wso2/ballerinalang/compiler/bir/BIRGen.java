@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -939,13 +940,18 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangAnnotation astAnnotation) {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
+        BIRAnnotation birAnn = getBirAnnotation(annSymbol, astAnnotation.pos);
+        this.env.enclPkg.annotations.add(birAnn);
+    }
 
-        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.originalName,
+    private BIRAnnotation getBirAnnotation(BAnnotationSymbol annSymbol, Location pos) {
+        BIRAnnotation birAnn = new BIRAnnotation(pos, annSymbol.name, annSymbol.originalName,
                                                  annSymbol.flags, annSymbol.points,
                                                  annSymbol.attachedType == null ? symTable.trueType :
                                                          annSymbol.attachedType, annSymbol.origin.toBIROrigin());
+        birAnn.packageID = annSymbol.pkgID;
         birAnn.setMarkdownDocAttachment(annSymbol.markdownDocumentation);
-        this.env.enclPkg.annotations.add(birAnn);
+        return birAnn;
     }
 
 
@@ -1012,15 +1018,16 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void addParam(BIRFunction birFunc, BLangVariable functionParam) {
-        addParam(birFunc, functionParam.symbol, functionParam.expr, functionParam.pos);
+        addParam(birFunc, functionParam.symbol, functionParam.expr, functionParam.pos,
+                 functionParam.symbol.getAnnotations());
     }
 
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
-        addParam(birFunc, paramSymbol, null, pos);
+        addParam(birFunc, paramSymbol, null, pos, paramSymbol.getAnnotations());
     }
 
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
-                          Location pos) {
+                          Location pos, List<? extends AnnotationSymbol> annots) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
                 paramSymbol.name.value, defaultValExpr != null);
@@ -1043,6 +1050,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.Return(birFunc.pos);
         }
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
+        populateParamAnnotationAttachmentSymbols(parameter, annots);
         birFunc.requiredParams.add(parameter);
         birFunc.parameters.put(birVarDcl, bbsOfDefaultValueExpr);
 
@@ -1057,11 +1065,23 @@ public class BIRGen extends BLangNodeVisitor {
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
         birFunc.localVars.add(birVarDcl);
 
-        birFunc.restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
+        BIRParameter restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
+        birFunc.restParam = restParam;
+        populateParamAnnotationAttachmentSymbols(restParam, paramSymbol.getAnnotations());
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
+    }
+
+    private void populateParamAnnotationAttachmentSymbols(BIRParameter parameter,
+                                                          List<? extends AnnotationSymbol> annotations) {
+        List<BIRAnnotation> annotAttachmentSymbols = parameter.annotAttachmentSymbols;
+        for (AnnotationSymbol annot : annotations) {
+            BAnnotationSymbol annotSymbol = (BAnnotationSymbol) annot;
+            BIRAnnotation birAnnotation = getBirAnnotation(annotSymbol, annotSymbol.pos);
+            annotAttachmentSymbols.add(birAnnotation);
+        }
     }
 
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
