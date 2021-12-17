@@ -861,7 +861,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         ListDefinition d = new ListDefinition();
         td.defn = d;
         SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
-        return d.define(semtypeEnv, Collections.emptyList(), elementType);
+
+        BArrayType type = ((BArrayType) td.getBType());
+        for (BLangExpression t : td.sizes) {
+            int size = type.getSize();
+            if (size >= 0) {
+                elementType = d.define(semtypeEnv, new ArrayList<>(List.of(elementType)), size);
+            } else {
+                elementType = d.define(semtypeEnv, elementType);
+            }
+
+            if (type.getElementType() instanceof BArrayType) {
+                type = (BArrayType) type.getElementType();
+            }
+        }
+
+        return elementType;
     }
 
     private SemType resolveTypeDesc(BLangTupleTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,

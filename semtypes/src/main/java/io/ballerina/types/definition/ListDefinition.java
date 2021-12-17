@@ -33,6 +33,7 @@ import io.ballerina.types.UniformTypeCode;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -61,8 +62,22 @@ public class ListDefinition implements Definition {
             return s;
         }
     }
+
+    // Overload define method for commonly used default parameter values
     public ComplexSemType define(Env env, List<SemType> initial) {
         return define(env, initial, initial.size(), PredefinedType.NEVER);
+    }
+
+    public ComplexSemType define(Env env, List<SemType> initial, int size) {
+        return define(env, initial, size, PredefinedType.NEVER);
+    }
+
+    public ComplexSemType define(Env env, SemType rest) {
+        return define(env, new ArrayList<>(), 0, rest);
+    }
+
+    public ComplexSemType define(Env env, List<SemType> initial, SemType rest) {
+        return define(env, initial, initial.size(), rest);
     }
 
     public ComplexSemType define(Env env, List<SemType> initial, int fixedLength , SemType rest) {
