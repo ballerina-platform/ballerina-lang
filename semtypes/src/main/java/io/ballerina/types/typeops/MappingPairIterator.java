@@ -101,22 +101,22 @@ public class MappingPairIterator implements Iterator<FieldPair> {
             if (this.i2 >= this.len2) {
                 return null;
             }
-            p = FieldPair.create(curName2(), this.rest1, curType2());
+            p = FieldPair.create(curName2(), this.rest1, curType2(), null, this.i2);
             this.i2 += 1;
         } else if (this.i2 >= this.len2) {
-            p = FieldPair.create(curName1(), curType1(), this.rest2);
+            p = FieldPair.create(curName1(), curType1(), this.rest2, this.i1, null);
             this.i1 += 1;
         } else {
             String name1 = curName1();
             String name2 = curName2();
             if (Common.codePointCompare(name1, name2)) {
-                p = FieldPair.create(name1, curType1(), this.rest2);
+                p = FieldPair.create(name1, curType1(), this.rest2, this.i1, null);
                 this.i1 += 1;
             } else if (Common.codePointCompare(name2, name1)) {
-                p = FieldPair.create(name2, this.rest1, curType2());
+                p = FieldPair.create(name2, this.rest1, curType2(), null, this.i2);
                 this.i2 += 1;
             } else {
-                p = FieldPair.create(name1, curType1(), curType2());
+                p = FieldPair.create(name1, curType1(), curType2(), this.i1, this.i2);
                 this.i1 += 1;
                 this.i2 += 1;
             }

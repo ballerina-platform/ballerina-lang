@@ -48,6 +48,8 @@
             <Class name="io.ballerina.types.typeops.DecimalOps"/>
             <Class name="io.ballerina.types.typeops.XmlCommonOps"/>
             <Class name="io.ballerina.types.Common"/>
+            <Class name="io.ballerina.types.BddPath"/>
+            <Class name="io.ballerina.types.MappingAlternative"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
@@ -77,6 +79,8 @@
             <Class name="io.ballerina.types.definition.Field"/>
             <Class name="io.ballerina.types.Value"/>
             <Class name="io.ballerina.types.TypeAtom"/>
+            <Class name="io.ballerina.types.typeops.FieldPair"/>
+            <Class name="io.ballerina.types.MappingAlternative"/>
         </Or>
         <Or>
             <Bug pattern="URF_UNREAD_FIELD"/>

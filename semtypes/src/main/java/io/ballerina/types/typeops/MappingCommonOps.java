@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Common mapping related methods operate on SubtypeData.
@@ -114,13 +113,12 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
                 SemType d = Core.diff(fieldPair.type1, fieldPair.type2);
                 if (!Core.isEmpty(cx, d)) {
                     MappingAtomicType mt;
-                    Optional<Integer> i = pairing.itr.index1(fieldPair.name);
-                    if (i.isEmpty()) {
+                    if (fieldPair.index1 == null) {
                         // the posType came from the rest type
                         mt = insertField(pos, fieldPair.name, d);
                     } else {
                         SemType[] posTypes = Common.shallowCopyTypes(pos.types);
-                        posTypes[i.get()] = d;
+                        posTypes[fieldPair.index1] = d;
                         mt = MappingAtomicType.from(pos.names, posTypes, pos.rest);
                     }
                     if (mappingInhabited(cx, mt, negList.next)) {
