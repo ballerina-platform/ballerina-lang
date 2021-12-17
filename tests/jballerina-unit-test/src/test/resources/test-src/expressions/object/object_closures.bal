@@ -164,6 +164,27 @@ function testClosureVariableUsedInsideWithDifferentType() {
     assertValueEquality("4510", y);
 }
 
+function testClosureVariableAsFieldValueWithExpression() {
+    final int i = 10;
+    object {
+        int x;
+        function bar(int b) returns int;
+
+    } bOceVariable = object {
+        int x = i + 4;
+
+        function bar(int b) returns int {
+            return b + self.x;
+        }
+    };
+
+    var lambda = bOceVariable.bar;
+    int y = lambda(45);
+
+    assertValueEquality(59, y);
+    assertValueEquality(14, bOceVariable.x);
+}
+
 function testClosureButAsArgument() {
     closureVariableUsedInsideMethodNoBlockMap("10");
     closureArgumentAsClassFieldDefaultValue("10");

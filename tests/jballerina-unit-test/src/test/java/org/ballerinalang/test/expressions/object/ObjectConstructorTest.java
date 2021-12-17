@@ -66,6 +66,7 @@ public class ObjectConstructorTest {
         return new Object[][]{
                 {"testClosureVariableAsFieldValue"},
                 {"testClosureVariableAsFieldValueUsedInAttachedFunctions"},
+                {"testClosureVariableAsFieldValueWithExpression"},
                 {"testClosureVariableUsedInsideAttachedMethodBodyAndField"},
                 {"testClosureVariableUsedInsideAttachedMethodBodyOnly"},
                 {"testClosureVariableUsedInsideWithDifferentType"},

@@ -460,11 +460,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
             if (!field.symbol.isDefaultable) {
                 continue;
             }
-            BLangSimpleVarRef varRef = null;
             if (field.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                 continue;
             }
-            varRef = (BLangSimpleVarRef) field.expr;
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
             if (!varRef.symbol.closure) {
                 continue;
             }
