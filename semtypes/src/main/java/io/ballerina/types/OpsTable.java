@@ -65,7 +65,7 @@ public class OpsTable {
         OPS[i++] = PANIC_IMPL;          // RW stream
         OPS[i++] = new ListTypeRwOps(); // RW list
         OPS[i++] = new MappingRwOps();  // RW mapping
-        OPS[i++] = new TableRwOps();  // RW table
+        OPS[i++] = new TableRwOps();    // RW table
         OPS[i++] = new XmlRwOps();      // RW xml
         OPS[i] = PANIC_IMPL;            // RW object
     }
