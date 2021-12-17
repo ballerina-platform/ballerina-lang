@@ -242,7 +242,8 @@ public class FileSystemRepository extends AbstractPackageRepository {
                 return !pkgSemVer.greaterThan(distSemVer);
             }
         } catch (UnexpectedCharacterException ignore) {
-            // this is mainly to avoid slalpha versions
+            // SemVer incompatible versions will throw this exception.
+            // Catching this is mainly to handle slalpha versions
         }
 
         return false;
