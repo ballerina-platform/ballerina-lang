@@ -1,19 +1,5 @@
 [
   {
-    "description": "Define final variable",
-    "code": "final int t = 0"
-  },
-  {
-    "description": "Try to assign to final variable",
-    "code": "t = 100",
-    "error": "InvokerException"
-  },
-  {
-    "description": "Try to declare function that assigns to t",
-    "code": "function f() { t = 10; }",
-    "error": "InvokerException"
-  },
-  {
     "description": "Declare public function",
     "code": "public function p() { println(\"Hello\"); }"
   },
