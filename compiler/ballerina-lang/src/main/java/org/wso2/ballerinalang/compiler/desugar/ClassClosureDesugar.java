@@ -155,11 +155,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * Closure desugar for closure related scenarios.
+ * ClassClosure Desugar for object ctor closure related scenarios.
  *
- * @since 0.990.5
+ * @since 2.0.0
  */
 public class ClassClosureDesugar extends BLangNodeVisitor {
+    // TODO: use the new visitors
 
     private static final CompilerContext.Key<ClassClosureDesugar> CLASS_CLOSURE_DESUGAR_KEY =
             new CompilerContext.Key<>();

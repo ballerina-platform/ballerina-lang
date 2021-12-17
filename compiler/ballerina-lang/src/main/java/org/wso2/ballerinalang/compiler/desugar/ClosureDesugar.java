@@ -1442,14 +1442,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         updatePrecedingFunc(env, absoluteLevel);
     }
 
-    private void updateEnclosedFunctions(BLangFunction enclosedFunction, SymbolEnv symbolEnv) {
-        while (symbolEnv != null && symbolEnv.node.getKind() != NodeKind.PACKAGE) {
-            // If the symbol env count equals to the resolved level then return.
-
-            symbolEnv = symbolEnv.enclEnv;
-        }
-    }
-
     @Override
     public void visit(BLangIgnoreExpr ignoreExpr) {
         result = ignoreExpr;
@@ -1625,7 +1617,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 parentBlockMap = parentData.mapBlockMapSymbol; // TODO: use createMapSymbolIfAbsent
             }
 
-
+            // This is a work-around. Every function which has closures which are not arguments has a block level
+            // closure map. This should not be added attached methods. But at the moment since we leverage closure
+            // desugar infrastructure they are being populated. This is fixed by reassigning block level closure map
+            // again to block function body map.
+            // TODO: ideally this should be done for all needed attached functions properly and we dont need to
+            //  populate block map. Block map is currently initialized with a empty literal in desugar.
+            //
+            // map<any|error> blockFunctionBodyMap = {}
+            // map<any|error> $passThroughMap = self[blockLevelClosureMap]
+            // blockMap = $$passThroughMap;
             if (nodeKeepingClosureMap.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                 BLangFunction function = (BLangFunction) nodeKeepingClosureMap.parent;
                 BLangBlockFunctionBody body = (BLangBlockFunctionBody) nodeKeepingClosureMap;
@@ -1678,8 +1679,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
         }
 
-
-//        addBlockLevelClosureMapToClassDefinition(classDef, blockMap);
         updateClosureVarsWithMapAccessExpression(classDef, classSelfSymbol, varRefExpr, classMapSymbol);
     }
 
