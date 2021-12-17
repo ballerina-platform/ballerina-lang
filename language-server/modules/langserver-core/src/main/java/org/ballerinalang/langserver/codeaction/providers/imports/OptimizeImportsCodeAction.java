@@ -104,7 +104,10 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             // Remove any matching imports on-the-go
             for (int j = 0; j < toBeRemovedImportsLocations.size(); j++) {
                 LineRange rmLineRange = toBeRemovedImportsLocations.get(j);
-                if (importPkg.lineRange().equals(rmLineRange)) {
+                LineRange prefixLineRange = importPkg.prefix().isPresent()
+                        ? importPkg.prefix().get().prefix().lineRange()
+                        : importPkg.moduleName().get(importPkg.moduleName().size() - 1).lineRange();
+                if (prefixLineRange.equals(rmLineRange)) {
                     fileImports.remove(i);
                     toBeRemovedImportsLocations.remove(j);
                     i--;

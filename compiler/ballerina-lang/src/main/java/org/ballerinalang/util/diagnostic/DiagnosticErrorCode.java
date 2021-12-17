@@ -165,6 +165,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
     CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
+    CONSTANT_CYCLIC_REFERENCE("BCE2131", "constant.cyclic.reference"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),

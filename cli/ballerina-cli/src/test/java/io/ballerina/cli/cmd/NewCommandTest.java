@@ -327,7 +327,7 @@ public class NewCommandTest extends BaseCommandTest {
     @Test
     public void testMultiModuleTemplate() throws IOException {
         // Test if no arguments was passed in
-        String templateArg = "ballerina/protobuf";
+        String templateArg = "ballerina/protobuf:1.0.1";
         String[] args = {"sample-multi_module", "-t", templateArg};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);

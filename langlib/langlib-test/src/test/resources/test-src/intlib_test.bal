@@ -115,3 +115,113 @@ function testIntOverflow() {
     test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
     test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
 }
+
+function testIntOverflowWithSum() {
+    int a1 = int:MIN_VALUE;
+    int|error result = trap a1.sum(-1);
+    test:assertValueEqual(true, result is error);
+    error err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    result = trap int:sum(a1, -1);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    int a2 = int:MAX_VALUE;
+    result = trap a2.sum(1);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    result = trap int:sum(a2, 1);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    int a3 = 9223372036854775807;
+    result = trap a3.sum(1, 2);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    result = trap int:sum(a3, 1, 2);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    int a4 = -9223372036854775807;
+    result = trap a4.sum(-1, -2);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    result = trap int:sum(a4, -1, -2);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    int a5 = 9223372036854775805;
+    result = trap a5.sum(1, 2, 3, 4, 5, 6);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    result = trap int:sum(a5, 1, 2, 3, 4, 5, 6);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    int a6 = -9223372036854775805;
+    result = trap a6.sum(-1, -2, -3, -4);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+
+    result = trap int:sum(a6, -1, -2, -3, -4);
+    test:assertValueEqual(true, result is error);
+    err = <error>result;
+    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
+    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
+}
+
+function testIntNonOverflowWithSum() {
+    int a1 = int:MIN_VALUE;
+    int result = a1.sum();
+    test:assertValueEqual(-9223372036854775808, result);
+
+    int a2 = -9223372036854775807;
+    result = int:sum(a2, -1);
+    test:assertValueEqual(-9223372036854775808, result);
+
+    int a3 = -9223372036854775805;
+    result = a3.sum(-1, -2);
+    test:assertValueEqual(-9223372036854775808, result);
+
+    int a4 = int:MAX_VALUE;
+    result = a4.sum();
+    test:assertValueEqual(9223372036854775807, result);
+
+    int a5 = 9223372036854775806;
+    result = int:sum(a5, 1);
+    test:assertValueEqual(9223372036854775807, result);
+
+    int a6 = 9223372036854775803;
+    result = a6.sum(1, 3);
+    test:assertValueEqual(9223372036854775807, result);
+
+    int a7 = 10;
+    result = a7.sum(a1, a6);
+    test:assertValueEqual(5, result);
+}

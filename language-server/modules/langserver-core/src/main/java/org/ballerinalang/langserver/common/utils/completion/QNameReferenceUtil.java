@@ -50,8 +50,19 @@ public class QNameReferenceUtil {
      */
     public static List<Symbol> getExpressionContextEntries(BallerinaCompletionContext ctx,
                                                            QualifiedNameReferenceNode qNameRef) {
-        String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
-        Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, moduleAlias);
+        return getExpressionContextEntries(ctx, qNameRef.modulePrefix().text());
+    }
+
+    /**
+     * Get the completions for the qualified name reference context.
+     *
+     * @param ctx           language server operation context
+     * @param moduleAlias   module alias of the qualified name reference
+     * @return {@link List} of completion items
+     */
+    public static List<Symbol> getExpressionContextEntries(BallerinaCompletionContext ctx, String moduleAlias) {
+        String alias = getAlias(moduleAlias);
+        Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, alias);
 
         return moduleSymbol.map(value -> value.allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
@@ -69,6 +80,16 @@ public class QNameReferenceUtil {
      */
     public static String getAlias(QualifiedNameReferenceNode qNameRef) {
         String alias = qNameRef.modulePrefix().text();
+        return getAlias(alias);
+    }
+
+    /**
+     * Get the unquoted module alias identifier if the module alias is a quoted identifier.
+     *
+     * @param alias qualified name reference
+     * @return {@link String} extracted alias
+     */
+    public static String getAlias(String alias) {
         return alias.startsWith("'") ? alias.substring(1) : alias;
     }
 

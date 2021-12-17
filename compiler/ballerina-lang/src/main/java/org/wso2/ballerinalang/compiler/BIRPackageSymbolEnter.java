@@ -1628,11 +1628,17 @@ public class BIRPackageSymbolEnter {
                                 env.pkgSymbol.pkgID, attachedFuncType,
                                 env.pkgSymbol, false, symTable.builtinPos,
                                 COMPILED_SOURCE);
-                attachedFuncSymbol.retType = attachedFuncType.retType;
                 BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
                         attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
 
                 setInvokableTypeSymbol(attachedFuncType);
+
+                if (!Symbols.isFlagOn(attachedFuncType.flags, Flags.ANY_FUNCTION)) {
+                    BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) attachedFuncType.tsymbol;
+                    attachedFuncSymbol.params = tsymbol.params;
+                    attachedFuncSymbol.restParam = tsymbol.restParam;
+                    attachedFuncSymbol.retType = tsymbol.returnType;
+                }
 
                 objectSymbol.referencedFunctions.add(attachedFunction);
                 objectSymbol.attachedFuncs.add(attachedFunction);

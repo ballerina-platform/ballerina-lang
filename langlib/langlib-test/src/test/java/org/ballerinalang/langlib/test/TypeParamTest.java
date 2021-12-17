@@ -138,4 +138,19 @@ public class TypeParamTest {
                 "test-src/type-param/type_param_resolution_with_exprs_four.bal"
         };
     }
+
+    @Test(dataProvider = "typeParamAnalysisWithTypeReferenceTypesTestFiles")
+    public void testTypeParamAnalysisWithTypeReferenceTypes(String fileName) {
+        CompileResult result = BCompileUtil.compile(fileName);
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testFn");
+    }
+
+    @DataProvider
+    public Object[] typeParamAnalysisWithTypeReferenceTypesTestFiles() {
+        return new Object[]{
+                "test-src/type-param/type_param_analysis_with_type_reference_types_test_1.bal",
+                "test-src/type-param/type_param_analysis_with_type_reference_types_test_2.bal"
+        };
+    }
 }

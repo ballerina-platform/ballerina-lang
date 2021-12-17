@@ -43,7 +43,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * This class represents the "bal build" command.
@@ -128,9 +127,6 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private Boolean experimentalFlag;
-
-    @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
-    private String debugPort;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
@@ -230,11 +226,6 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-        }
-
-        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
-        if (!project.buildOptions().skipTests() && this.debugPort != null) {
-            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
         // Validate Settings.toml file

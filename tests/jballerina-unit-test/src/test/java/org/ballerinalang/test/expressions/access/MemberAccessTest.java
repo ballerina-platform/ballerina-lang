@@ -46,7 +46,7 @@ public class MemberAccessTest {
         negativeResult = BCompileUtil.compile("test-src/expressions/access/member_access_negative.bal");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testNegativeCases() {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
@@ -370,6 +370,23 @@ public class MemberAccessTest {
         BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
     }
 
+    @Test(dataProvider = "memberAccessWithBinaryExprAsIndex")
+    public void testMemberAccessWithBinaryExprAsIndex(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "memberAccessWithBinaryExprAsIndex")
+    public Object[][] memberAccessWithBinaryExprAsIndex() {
+        return new Object[][] {
+                { "testMemberAccessWithBinaryExprAsIndex" },
+                { "testMemberAccessWithGroupExprAsIndex" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr1" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr2" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr3" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr4" }
+        };
+    }
+    
     @Test
     public void testNestedMemberAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedMemberAccessOnIntersectionTypes");

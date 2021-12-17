@@ -7,8 +7,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Remove the artifacts generated inside the `target` directory during
-       the build. This command is only valid from within a Ballerina package.
+       Remove the `target` directory created during the build.
 
 
 OPTIONS
