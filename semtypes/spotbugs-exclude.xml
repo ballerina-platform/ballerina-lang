@@ -47,6 +47,7 @@
             <Class name="io.ballerina.types.Context"/>
             <Class name="io.ballerina.types.typeops.DecimalOps"/>
             <Class name="io.ballerina.types.typeops.XmlCommonOps"/>
+            <Class name="io.ballerina.types.typeops.TableRwOps"/>
             <Class name="io.ballerina.types.Common"/>
             <Class name="io.ballerina.types.BddPath"/>
             <Class name="io.ballerina.types.MappingAlternative"/>

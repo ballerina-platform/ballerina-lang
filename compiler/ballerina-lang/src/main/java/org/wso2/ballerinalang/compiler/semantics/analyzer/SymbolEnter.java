@@ -579,6 +579,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return resolveTypeDesc((BLangBuiltInRefTypeNode) td, semtypeEnv);
             case FINITE_TYPE_NODE:
                 return resolveSingletonType((BLangFiniteTypeNode) td, semtypeEnv);
+            case TABLE_TYPE:
+                return resolveTypeDesc((BLangTableTypeNode) td, semtypeEnv, mod, depth);
             default:
                 throw new AssertionError("not implemented");
         }
@@ -642,6 +644,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             default:
                 throw new AssertionError("Unknown type kind: " + td.typeKind);
         }
+    }
+
+    private SemType resolveTypeDesc(BLangTableTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
+        SemType memberType =
+                resolveTypeDesc(semtypeEnv, mod, (BLangTypeDefinition) td.constraint.defn, depth, td.constraint);
+        return SemTypes.tableContaining(memberType);
     }
 
     private SemType resolveTypeDesc(BLangUserDefinedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
