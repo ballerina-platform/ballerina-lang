@@ -759,18 +759,6 @@ public class Desugar extends BLangNodeVisitor {
 
         for (BLangConstant constant : pkgNode.constants) {
             BType constType = types.getReferredType(constant.symbol.type);
-            if (constType.tag == TypeTags.MAP) {
-                BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-                constant.expr = rewrite(constant.expr, SymbolEnv.createTypeEnv(constant.typeNode,
-                                                                               pkgNode.initFunction.symbol.scope, env));
-                BLangInvocation frozenConstValExpr =
-                        createLangLibInvocationNode(
-                                "cloneReadOnly", constant.expr, new ArrayList<>(), constant.expr.getBType(),
-                                constant.pos);
-                BLangAssignment constInit =
-                        ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, frozenConstValExpr);
-                initFnBody.stmts.add(constInit);
-            }
             if (constType.tag == TypeTags.INTERSECTION) {
                 for (BType memberType : ((IntersectionType) constType).getImmutableType().getConstituentTypes()) {
                     if (memberType.tag == TypeTags.RECORD) {
@@ -778,10 +766,6 @@ public class Desugar extends BLangNodeVisitor {
                         constant.expr = rewrite(constant.expr,
                                                 SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
                                                                         pkgNode.initFunction.symbol.scope, env));
-//                        BLangInvocation frozenConstValExpr =
-//                                createLangLibInvocationNode(
-//                                        "cloneReadOnly", constant.expr, new ArrayList<>(), constant.expr.getBType(),
-//                                        constant.pos);
                         BLangAssignment constInit =
                                 ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
                         initFnBody.stmts.add(constInit);

@@ -391,7 +391,6 @@ public class BIRBinaryWriter {
     }
 
     private void writeConstValue(ByteBuf buf, ConstValue constValue) {
-//        writeType(buf, constValue.type);
         switch (constValue.type.tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
@@ -423,7 +422,6 @@ public class BIRBinaryWriter {
             case TypeTags.NIL:
                 break;
             case TypeTags.RECORD:
-            case TypeTags.MAP:
                 Map<String, ConstValue> mapConstVal = (Map<String, ConstValue>) constValue.value;
                 buf.writeInt(mapConstVal.size());
                 mapConstVal.forEach((key, value) -> {

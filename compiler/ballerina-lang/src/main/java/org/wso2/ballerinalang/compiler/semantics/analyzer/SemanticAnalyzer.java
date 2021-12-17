@@ -4026,7 +4026,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return; // This has to return, because constant.symbol.type is required for further validations.
         }
 
-//        expression.cloneAttempt++; nodeCloner.cloneNode(expression)
         typeChecker.checkExpr(expression, env, constant.symbol.type);
 
         // Check nested expressions.
