@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
@@ -2300,6 +2301,21 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.generatedInitFunction = clone(source.generatedInitFunction);
         clone.receiver = clone(source.receiver);
         clone.isServiceDecl = source.isServiceDecl;
+        clone.isObjectContructorDecl = source.isObjectContructorDecl;
+        clone.internal = source.internal;
+        clone.oceEnvData = cloneOceEnvData(source.oceEnvData);
+    }
+
+    private OCEDynamicEnvironmentData cloneOceEnvData(OCEDynamicEnvironmentData source) {
+        if (source.cloneRef != null) {
+            return source.cloneRef;
+        }
+        OCEDynamicEnvironmentData clone = new OCEDynamicEnvironmentData();
+        source.cloneAttempt = this.currentCloneAttempt;
+        clone.originalClass = source.originalClass; // dont copy me
+        clone.typeInit = clone(source.typeInit);
+        source.cloneRef = clone;
+        return clone;
     }
 
     @Override
@@ -2326,13 +2342,17 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression source) {
+        if (source.cloneRef != null) {
+            return;
+        }
         BLangObjectConstructorExpression clone = new BLangObjectConstructorExpression();
 
         clone.pos = source.pos;
-        clone.classNode = clone(source.classNode);
-        clone.typeInit = clone(source.typeInit);
         clone.referenceType = clone(source.referenceType);
+        clone.typeInit = clone(source.typeInit);
+        clone.classNode = clone(source.classNode);
         clone.isClient = source.isClient;
+        clone.isService = source.isService;
 
         source.cloneRef = clone;
     }

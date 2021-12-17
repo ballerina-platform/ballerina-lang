@@ -627,29 +627,21 @@ public class BIRGen extends BLangNodeVisitor {
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
 
         this.env.unlockVars.push(new BIRLockDetailsHolder());
-        BIRFunction birFunc;
-
+        Name funcName;
         if (isTypeAttachedFunction) {
-            Name funcName = names.fromString(astFunc.symbol.name.value);
-            birFunc = new BIRFunction(astFunc.pos, funcName,
-                                      names.fromString(astFunc.symbol.getOriginalName().value),
-                                      astFunc.symbol.flags, type, workerName, astFunc.sendsToThis.size(),
-                                      astFunc.symbol.origin.toBIROrigin());
+            funcName = names.fromString(astFunc.symbol.name.value);
         } else {
-            Name funcName = getFuncName(astFunc.symbol);
-            birFunc = new BIRFunction(astFunc.pos, funcName, names.fromString(astFunc.symbol.getOriginalName().value),
-                                      astFunc.symbol.flags, type, workerName,
-                                      astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
+            funcName = getFuncName(astFunc.symbol);
         }
+        BIRFunction birFunc = new BIRFunction(astFunc.pos, funcName,
+                names.fromString(astFunc.symbol.getOriginalName().value), astFunc.symbol.flags, type, workerName,
+                astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
         this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
             BIRFunctionParameter birVarDcl = new BIRFunctionParameter(astFunc.pos, astFunc.receiver.getBType(),
                                                                       this.env.nextLocalVarId(names), VarScope.FUNCTION,
                                                                       VarKind.ARG, astFunc.receiver.name.value, false);
             this.env.symbolVarMap.put(astFunc.receiver.symbol, birVarDcl);
-        }
-
-        if (astFunc.receiver != null) {
             birFunc.receiver = getSelf(astFunc.receiver.symbol);
         }
 
@@ -1001,7 +993,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private List<BIROperand> getClosureMapOperands(BLangLambdaFunction lambdaExpr) {
-        List<BIROperand> closureMaps = new ArrayList<>();
+        List<BIROperand> closureMaps = new ArrayList<>(lambdaExpr.function.paramClosureMap.size());
 
         lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
             BVarSymbol symbol = lambdaExpr.enclMapSymbols.get(k);
@@ -1435,7 +1427,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
-        List<BIRArgument> args = new ArrayList<>();
+        List<BIRArgument> args = new ArrayList<>(requiredArgs.size() + restArgs.size());
         boolean transactional = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.TRANSACTIONAL);
 
         for (BLangExpression requiredArg : requiredArgs) {

@@ -299,6 +299,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("BCE2551", "cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("BCE2552", "cannot.update.readonly.record.field"),
     CANNOT_UPDATE_FINAL_OBJECT_FIELD("BCE2553", "cannot.update.final.object.field"),
+    UNSUPPORTED_MULTILEVEL_CLOSURES("BCE2554", "unsupported.multilevel.closures"),
 
     OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2555", "operation.does.not.support.member.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2556", "operation.does.not.support.field.access"),

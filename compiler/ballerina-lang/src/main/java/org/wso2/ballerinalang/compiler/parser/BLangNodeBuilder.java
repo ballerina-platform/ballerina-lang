@@ -1166,6 +1166,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
+                bLangFunction.flagSet.add(Flag.OBJECT_CTOR);
                 if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     classDefinition.addFunction(bLangFunction);
                     continue;
@@ -1181,6 +1182,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 bLangFunction.objInitFunction = true;
                 classDefinition.initFunction = bLangFunction;
             } else if (nodeKind == NodeKind.VARIABLE) {
+                BLangSimpleVariable simpleVariable = (BLangSimpleVariable) bLangNode;
+                simpleVariable.flagSet.add(Flag.OBJECT_CTOR);
+                BLangExpression expression = simpleVariable.expr;
                 classDefinition.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
                 dlog.error(bLangNode.pos, DiagnosticErrorCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
@@ -1207,9 +1211,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
         Location pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
+        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         BLangClassDefinition anonClass = transformObjectCtorExpressionBody(objectConstructorExpressionNode.members());
         anonClass.pos = pos;
-        BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         objectCtorExpression.pos = pos;
         objectCtorExpression.classNode = anonClass;
 
@@ -1218,6 +1222,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         anonClass.setName(anonTypeGenName);
         anonClass.flagSet.add(Flag.PUBLIC);
+        anonClass.flagSet.add(Flag.OBJECT_CTOR);
+        anonClass.isObjectContructorDecl = true; // not available for service
 
         Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
         typeReference.ifPresent(typeReferenceNode -> {
@@ -1225,7 +1231,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         });
 
         anonClass.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
-        addToTop(anonClass);
+//        addToTop(anonClass);
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
@@ -1243,8 +1249,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
+        addToTop(anonClass);
+        anonClass.oceEnvData.originalClass = anonClass;
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClass.name);
+        userDefinedType.flagSet.add(Flag.OBJECT_CTOR);
 
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = pos;
@@ -3893,6 +3902,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 createMarkdownDocumentationAttachment(getDocumentationString(serviceDeclarationNode.metadata()));
 
         addToTop(anonClassDef);
+        anonClassDef.oceEnvData.originalClass = anonClassDef;
 
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClassDef.name);
@@ -3974,17 +3984,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
-                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
-                    if (blangClass.initFunction == null) {
-                        bLangFunction.objInitFunction = true;
-                        // TODO: verify removing NULL check for blangClass.initFunction has no side-effects
-                        blangClass.initFunction = bLangFunction;
-                    } else {
-                        blangClass.addFunction(bLangFunction);
-                    }
-                } else {
+                if (!Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
                     blangClass.addFunction(bLangFunction);
+                    continue;
                 }
+                if (blangClass.initFunction != null) {
+                    blangClass.addFunction(bLangFunction);
+                    continue;
+                }
+                bLangFunction.objInitFunction = true;
+                blangClass.initFunction = bLangFunction;
             } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
                 blangClass.addField((BLangSimpleVariable) bLangNode);
             } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {

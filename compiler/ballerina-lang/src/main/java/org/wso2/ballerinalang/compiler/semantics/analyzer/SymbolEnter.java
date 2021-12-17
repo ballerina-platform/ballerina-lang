@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -276,6 +277,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         return pkgNode;
     }
 
+    public void defineClassDefinition(BLangClassDefinition classNode, SymbolEnv env) {
+//        if (classNode.symbol != null) {
+//            return;
+//        }
+//        defineNode(classNode, env);
+        if (classNode.definitionCompleted) {
+            return;
+        }
+        populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
+        defineFieldsOfClassDef(classNode, env);
+        defineFunctionsOfClassDef(env, classNode);
+        setReadOnlynessOfClassDef(classNode, env);
+        defineReadOnlyIncludedFieldsAndMethods(classNode, env);
+        classNode.definitionCompleted = true;
+    }
+
     public void defineNode(BLangNode node, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
@@ -420,7 +437,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
-        defineMembers(typeAndClassDefs, pkgEnv);
+        defineFunctions(typeAndClassDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
@@ -474,9 +491,29 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    private boolean isObjectCtor(BLangNode node) {
+        if (node.getKind() == NodeKind.CLASS_DEFN) {
+            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+            return isObjectCtor(classDefinition);
+        }
+        return false;
+    }
+
+    private boolean isObjectCtor(BLangClassDefinition classDefinition) {
+        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
+                !classDefinition.flagSet.contains(Flag.CLASS)) {
+            return true;
+        }
+        return false;
+    }
+
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
         for (BLangNode node : typDefs) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
                 populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) node);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
                 populateDistinctTypeIdsFromIncludedTypeReferences((BLangTypeDefinition) node);
@@ -545,7 +582,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         };
     }
 
-    private void defineMembersOfClassDef(SymbolEnv pkgEnv, BLangClassDefinition classDefinition) {
+    private void defineFunctionsOfClassDef(SymbolEnv pkgEnv, BLangClassDefinition classDefinition) {
+        validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
         BObjectType objectType = (BObjectType) classDefinition.symbol.type;
 
         if (objectType.mutableType != null) {
@@ -557,6 +595,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         SymbolEnv objMethodsEnv =
                 SymbolEnv.createClassMethodsEnv(classDefinition, (BObjectTypeSymbol) classDefinition.symbol, pkgEnv);
+        if (classDefinition.isObjectContructorDecl) {
+            classDefinition.oceEnvData.objMethodsEnv = objMethodsEnv;
+        }
 
         // Define the functions defined within the object
         defineClassInitFunction(classDefinition, objMethodsEnv);
@@ -618,15 +659,18 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineReferencedClassFields(BLangClassDefinition classDefinition, SymbolEnv typeDefEnv,
                                              BObjectType objType, boolean defineReadOnlyInclusionsOnly) {
-        Set<BSymbol> referencedTypes = new HashSet<>();
-        List<BLangType> invalidTypeRefs = new ArrayList<>();
-        // Get the inherited fields from the type references
+        if (classDefinition.typeRefs.isEmpty()) {
+            return;
+        }
+        Set<BSymbol> referencedTypes = new HashSet<>(classDefinition.typeRefs.size());
+        List<BLangType> invalidTypeRefs = new ArrayList<>(classDefinition.typeRefs.size());
 
-        Map<String, BLangSimpleVariable> fieldNames = new HashMap<>();
+        Map<String, BLangSimpleVariable> fieldNames = new HashMap<>(classDefinition.fields.size());
         for (BLangSimpleVariable fieldVariable : classDefinition.fields) {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
+        // Get the inherited fields from the type references
         List<BLangSimpleVariable> referencedFields = new ArrayList<>();
 
         for (BLangType typeRef : classDefinition.typeRefs) {
@@ -685,7 +729,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     objectType = (BObjectType) referredType;
                 }
 
-                if (classDefinition.getBType().tsymbol.owner != referredType.tsymbol.owner) {
+                if (!classDefinition.symbol.pkgID.equals(referredType.tsymbol.pkgID)) {
                     boolean errored = false;
                     for (BField field : objectType.fields.values()) {
                         if (!Symbols.isPublic(field.symbol)) {
@@ -768,6 +812,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangObjectConstructorExpression objectCtorExpression) {
+        visit(objectCtorExpression.classNode);
+        objectCtorExpression.setBType(objectCtorExpression.classNode.getBType());
+    }
+
+    @Override
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
@@ -801,6 +851,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BObjectType objectType = new BObjectType(tSymbol, typeFlags);
+        if (classDefinition.isObjectContructorDecl || flags.contains(Flag.OBJECT_CTOR)) {
+            classDefinition.oceEnvData.objectType = objectType;
+            objectType.classDef = classDefinition;
+        }
 
         if (flags.contains(Flag.DISTINCT)) {
             objectType.typeIdSet = BTypeIdSet.from(env.enclPkg.symbol.pkgID, classDefinition.name.value, isPublicType);
@@ -834,7 +888,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
             env.scope.define(tSymbol.name, tSymbol);
         }
-        env.scope.define(tSymbol.name, tSymbol);
+        // TODO : check
+        // env.scope.define(tSymbol.name, tSymbol);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -1137,6 +1192,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
                 continue;
             }
+//            if (isObjectCtor(typeDef)) {
+//                continue;
+//            }
 
             defineNode(typeDef, env);
         }
@@ -2011,7 +2069,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if ("/".equals(serviceNode.absoluteResourcePath.get(0).getValue())) {
                 serviceSymbol.setAbsResourcePath(Collections.emptyList());
             } else {
-                List<String> list = new ArrayList<>();
+                List<String> list = new ArrayList<>(serviceNode.absoluteResourcePath.size());
                 for (IdentifierNode identifierNode : serviceNode.absoluteResourcePath) {
                     list.add(identifierNode.getValue());
                 }
@@ -3705,17 +3763,25 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode typeDef : typeDefNodes) {
             if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
-                defineFieldsOfClassDef((BLangClassDefinition) typeDef, pkgEnv);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
+                defineFieldsOfClassDef(classDefinition, pkgEnv);
             } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineFieldsOfObjectOrRecordTypeDef((BLangTypeDefinition) typeDef, pkgEnv);
             }
         }
     }
 
-    private void defineFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
+    public void defineFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
         SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
         BObjectType objType = (BObjectType) tSymbol.type;
+
+        if (classDefinition.isObjectContructorDecl) {
+            classDefinition.oceEnvData.fieldEnv = typeDefEnv;
+        }
 
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
@@ -3820,7 +3886,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         resolveIncludedFields(structureTypeNode, typeDefEnv);
 
         // collect resolved type refs from structural type
-        structureType.typeInclusions = new ArrayList<>();
+        structureType.typeInclusions = new ArrayList<>(structureTypeNode.typeRefs.size());
         for (BLangType tRef : structureTypeNode.typeRefs) {
             BType type = tRef.getBType();
             structureType.typeInclusions.add(type);
@@ -3842,21 +3908,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineMembers(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+    private void defineFunctions(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode node : typeDefNodes) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-                validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
-                defineMembersOfClassDef(pkgEnv, classDefinition);
-            } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
-                BLangType typeNode = typeDefinition.typeNode;
-
-                if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-                    validateInclusionsForNonPrivateMembers(((BLangObjectTypeNode) typeNode).typeRefs);
+                BLangClassDefinition classDef = (BLangClassDefinition) node;
+                if (isObjectCtor(classDef)) {
+                    continue;
                 }
-
-                defineMemberOfObjectTypeDef(pkgEnv, typeDefinition);
+                defineFunctionsOfClassDef(pkgEnv, classDef);
+            } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineFunctionsOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
             }
         }
     }
@@ -3895,7 +3956,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineMemberOfObjectTypeDef(SymbolEnv pkgEnv, BLangTypeDefinition node) {
+    private void defineFunctionsOfObjectTypeDef(SymbolEnv pkgEnv, BLangTypeDefinition node) {
+        BLangTypeDefinition typeDefinition = node;
+        BLangType typeNode = typeDefinition.typeNode;
+
+        if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            validateInclusionsForNonPrivateMembers(((BLangObjectTypeNode) typeNode).typeRefs);
+        }
+
         BLangTypeDefinition typeDef = node;
         if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             BObjectType objectType = (BObjectType) typeDef.symbol.type;
@@ -4068,7 +4136,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (int i = 0; i < origSize; i++) {
             BLangNode typeDefOrClass = typeDefNodes.get(i);
             if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
-                setReadOnlynessOfClassDef((BLangClassDefinition) typeDefOrClass, pkgEnv);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefOrClass;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
+                setReadOnlynessOfClassDef(classDefinition, pkgEnv);
                 continue;
             } else if (typeDefOrClass.getKind() != NodeKind.TYPE_DEFINITION) {
                 continue;
@@ -4162,17 +4234,24 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDef.getKind() != NodeKind.CLASS_DEFN) {
                 continue;
             }
-
             BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-            SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, pkgEnv);
-            BObjectType objType = (BObjectType) ((BObjectTypeSymbol) classDefinition.symbol).type;
-            defineReferencedClassFields(classDefinition, typeDefEnv, objType, true);
-
-            SymbolEnv objMethodsEnv = SymbolEnv.createClassMethodsEnv(classDefinition,
-                                                                      (BObjectTypeSymbol) classDefinition.symbol,
-                                                                      pkgEnv);
-            defineIncludedMethods(classDefinition, objMethodsEnv, true);
+            if (isObjectCtor(classDefinition)) {
+                continue;
+            }
+            defineReadOnlyIncludedFieldsAndMethods(classDefinition, pkgEnv);
+            classDefinition.definitionCompleted = true;
         }
+    }
+
+    public void defineReadOnlyIncludedFieldsAndMethods(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {
+        SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, pkgEnv);
+        BObjectType objType = (BObjectType) classDefinition.symbol.type;
+        defineReferencedClassFields(classDefinition, typeDefEnv, objType, true);
+
+        SymbolEnv objMethodsEnv = SymbolEnv.createClassMethodsEnv(classDefinition,
+                (BObjectTypeSymbol) classDefinition.symbol,
+                pkgEnv);
+        defineIncludedMethods(classDefinition, objMethodsEnv, true);
     }
 
     private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
@@ -4704,7 +4783,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
 
                 BObjectType objectType = (BObjectType) referredType;
-                if (structureTypeNode.getBType().tsymbol.owner != referredType.tsymbol.owner) {
+                if (!structureTypeNode.symbol.pkgID.equals(referredType.tsymbol.pkgID)) {
                     for (BField field : objectType.fields.values()) {
                         if (!Symbols.isPublic(field.symbol)) {
                             dlog.error(typeRef.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
