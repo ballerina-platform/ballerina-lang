@@ -36,6 +36,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
@@ -761,17 +762,18 @@ public class Desugar extends BLangNodeVisitor {
 
         for (BLangConstant constant : pkgNode.constants) {
             BType constType = types.getReferredType(constant.symbol.type);
-            if (constType.tag == TypeTags.MAP) {
-                BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-                constant.expr = rewrite(constant.expr, SymbolEnv.createTypeEnv(constant.typeNode,
-                                                                               pkgNode.initFunction.symbol.scope, env));
-                BLangInvocation frozenConstValExpr =
-                        createLangLibInvocationNode(
-                                "cloneReadOnly", constant.expr, new ArrayList<>(), constant.expr.getBType(),
-                                constant.pos);
-                BLangAssignment constInit =
-                        ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, frozenConstValExpr);
-                initFnBody.stmts.add(constInit);
+            if (constType.tag == TypeTags.INTERSECTION) {
+                for (BType memberType : ((IntersectionType) constType).getImmutableType().getConstituentTypes()) {
+                    if (memberType.tag == TypeTags.RECORD) {
+                        BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
+                        constant.expr = rewrite(constant.expr,
+                                                SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
+                                                                        pkgNode.initFunction.symbol.scope, env));
+                        BLangAssignment constInit =
+                                ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
+                        initFnBody.stmts.add(constInit);
+                    }
+                }
             }
         }
 

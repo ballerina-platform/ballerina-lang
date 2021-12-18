@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -596,6 +597,20 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
+        if (constValue.type.tag == TypeTags.INTERSECTION) {
+            ConstValue resultantConstValue = getBIRConstantVal(new BLangConstantValue(constValue.value,
+                    ((BIntersectionType) constValue.type).effectiveType));
+            resultantConstValue.type = constValue.type;
+            return resultantConstValue;
+//            return new ConstValue(getBIRConstantVal(new BLangConstantValue(constValue.value,
+//                    ((BIntersectionType) constValue.type).effectiveType)).value, constValue.type);
+        }
+        if (constValue.type.tag == TypeTags.RECORD) {
+            Map<String, ConstValue> mapConstVal = new HashMap<>();
+            ((Map<String, BLangConstantValue>) constValue.value)
+                    .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
+            return new ConstValue(mapConstVal, constValue.type);
+        }
         if (constValue.type.tag == TypeTags.MAP) {
             Map<String, ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
