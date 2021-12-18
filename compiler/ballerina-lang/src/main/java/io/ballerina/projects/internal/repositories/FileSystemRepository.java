@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
+import com.github.zafarkhaja.semver.Version;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleDescriptor;
@@ -209,25 +211,42 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return incompatibleVersions;
     }
 
+    /**
+     * Returns if a package is compatible with the current platform version
+     * (ballerinaShortVersion of the current distribution).
+     *
+     * A package is considered to be compatible with the current platform
+     * if the platform version that the package is built on has the same major
+     * version and is not greater than the version of the current platform.
+     *
+     * slbeta versions are considered compatible which is a special case.
+     * TODO: we can check if this is necessary after the SL GA
+     *
+     * @param pkgBalVer version of the platform that the package is built on
+     * @param distBalVer version of the current platform
+     *
+     * @return true if compatible
+     */
     private boolean isCompatible(String pkgBalVer, String distBalVer) {
-        if (!pkgBalVer.equals(distBalVer)) {
-            String pkgBalVerPrefix = pkgBalVer.substring(0, pkgBalVer.length() - 1);
-            String distBalVerPerfix = distBalVer.substring(0, distBalVer.length() - 1);
+        if (pkgBalVer.equals(distBalVer) || pkgBalVer.startsWith("slbeta")) {
+            return true;
+        }
+        Version pkgSemVer;
+        Version distSemVer;
+        try {
+            pkgSemVer = Version.valueOf(pkgBalVer);
+            distSemVer = Version.valueOf(distBalVer);
 
-            // If the prefixes are equal, we need to check the versions
-            if (pkgBalVerPrefix.equals(distBalVerPerfix)) {
-                String pkgBalVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
-                String distBalVerValue = distBalVer.substring(distBalVer.length() - 1);
-                // If package version is greater than distribution version
-                if (Integer.parseInt(pkgBalVerValue) > Integer.parseInt(distBalVerValue)) {
-                    return false;
-                }
-            } else {
-                return false;
+
+            if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
+                return !pkgSemVer.greaterThan(distSemVer);
             }
+        } catch (UnexpectedCharacterException ignore) {
+            // SemVer incompatible versions will throw this exception.
+            // Catching this is mainly to handle slalpha versions
         }
 
-        return true;
+        return false;
     }
 
     @Override
