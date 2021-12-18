@@ -359,7 +359,7 @@ types:
         type: s4
         repeat: expr
         repeat-expr: constituent_types_count
-      - id: effective_type_count
+      - id: effective_type_cp_index
         type: s4
   type_xml:
     seq:
@@ -645,7 +645,7 @@ types:
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
-            'type_tag_enum::type_tag_map': map_constant_info
+            'type_tag_enum::type_tag_intersection': map_constant_info
     instances:
       type:
         value: _root.constant_pool.constant_pool_entries[constant_value_type_cp_index].cp_info.as<shape_cp_info>
