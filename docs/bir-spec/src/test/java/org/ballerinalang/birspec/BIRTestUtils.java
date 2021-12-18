@@ -714,8 +714,15 @@ class BIRTestUtils {
 
     private static void assertConstantValue(Bir.ConstantValue actualConstantValue, Object expectedValue,
                                             ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        assertConstantValue(actualConstantValue, expectedValue, constantPoolEntries,
+                            actualConstantValue.type().shape());
+    }
+
+    private static void assertConstantValue(Bir.ConstantValue actualConstantValue, Object expectedValue,
+                                            ArrayList<Bir.ConstantPoolEntry> constantPoolEntries,
+                                            Bir.TypeInfo typeInfo) {
+        Bir.TypeTagEnum typeTag = typeInfo.typeTag();
         KaitaiStruct constantValueInfo = actualConstantValue.constantValueInfo();
-        Bir.TypeTagEnum typeTag = actualConstantValue.type().shape().typeTag();
         switch (typeTag) {
             case TYPE_TAG_INT:
                 Bir.IntConstantInfo intConstantInfo = (Bir.IntConstantInfo) constantValueInfo;
@@ -737,10 +744,16 @@ class BIRTestUtils {
                 Bir.DecimalConstantInfo decimalConstantInfo = (Bir.DecimalConstantInfo) constantValueInfo;
                 assertConstantPoolEntry(constantPoolEntries.get(decimalConstantInfo.valueCpIndex()), expectedValue);
                 break;
-            case TYPE_TAG_MAP:
+            case TYPE_TAG_RECORD:
                 Bir.MapConstantInfo actualMapConst = (Bir.MapConstantInfo) constantValueInfo;
                 Map<String, BIRNode.ConstValue> expectedMapConst = (Map<String, BIRNode.ConstValue>) expectedValue;
                 Assert.assertEquals(actualMapConst.mapConstantSize(), expectedMapConst.size());
+                break;
+            case TYPE_TAG_INTERSECTION:
+                Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(
+                        ((Bir.TypeIntersection) typeInfo.typeStructure()).effectiveTypeCpIndex());
+                Bir.TypeInfo effectiveTypeInfo = ((Bir.ShapeCpInfo) constantPoolEntry.cpInfo()).shape();
+                assertConstantValue(actualConstantValue, expectedValue, constantPoolEntries, effectiveTypeInfo);
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
