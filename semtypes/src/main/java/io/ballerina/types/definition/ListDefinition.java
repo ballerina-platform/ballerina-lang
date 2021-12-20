@@ -66,28 +66,28 @@ public class ListDefinition implements Definition {
     // Overload define method for commonly used default parameter values
 
     /***
-     * Define a tuple type without a rest type
+     * Define a tuple type without a rest type.
      */
     public ComplexSemType define(Env env, List<SemType> initial) {
         return define(env, initial, initial.size(), PredefinedType.NEVER);
     }
 
     /***
-     * Define a fixed length array type
+     * Define a fixed length array type.
      */
     public ComplexSemType define(Env env, List<SemType> initial, int size) {
         return define(env, initial, size, PredefinedType.NEVER);
     }
 
     /***
-     * define an array type
+     * define an array type.
      */
     public ComplexSemType define(Env env, SemType rest) {
         return define(env, new ArrayList<>(), 0, rest);
     }
 
     /***
-     * Define a tuple type with a rest type
+     * Define a tuple type with a rest type.
      */
     public ComplexSemType define(Env env, List<SemType> initial, SemType rest) {
         return define(env, initial, initial.size(), rest);
