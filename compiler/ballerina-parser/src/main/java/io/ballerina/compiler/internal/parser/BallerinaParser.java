@@ -11666,6 +11666,8 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
             case DO_KEYWORD:
+            case ON_KEYWORD:
+            case CONFLICT_KEYWORD:
                 return true;
             default:
                 return isValidExprRhsStart(tokenKind, SyntaxKind.NONE);
