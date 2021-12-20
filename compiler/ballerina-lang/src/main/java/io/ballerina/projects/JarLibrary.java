@@ -100,7 +100,7 @@ public class JarLibrary extends PlatformLibrary {
 
         JarLibrary that = (JarLibrary) other;
 
-        return path().toFile().toString().equals(that.path().toFile().toString());
+        return path().toFile().getName().equals(that.path().toFile().getName());
     }
 
 }
