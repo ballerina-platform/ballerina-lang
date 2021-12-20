@@ -25,8 +25,9 @@ import java.util.List;
  * { initial: [int], fixedLength: 3, } is same as { initial: [int, int, int], fixedLength: 3 }
  * { initial: [string, int], fixedLength: 100 } means `int` is repeated 99 times to get a list of 100 members.
  * `fixedLength` must be `0` when `inital` is empty and the `fixedLength` must be at least `initial.length()`
+ *
+ * @since 3.0.0
  */
-
 public class FixedLengthArray {
     public List<SemType> initial;
     public int fixedLength;

@@ -64,18 +64,31 @@ public class ListDefinition implements Definition {
     }
 
     // Overload define method for commonly used default parameter values
+
+    /***
+     * Define a tuple type without a rest type
+     */
     public ComplexSemType define(Env env, List<SemType> initial) {
         return define(env, initial, initial.size(), PredefinedType.NEVER);
     }
 
+    /***
+     * Define a fixed length array type
+     */
     public ComplexSemType define(Env env, List<SemType> initial, int size) {
         return define(env, initial, size, PredefinedType.NEVER);
     }
 
+    /***
+     * define an array type
+     */
     public ComplexSemType define(Env env, SemType rest) {
         return define(env, new ArrayList<>(), 0, rest);
     }
 
+    /***
+     * Define a tuple type with a rest type
+     */
     public ComplexSemType define(Env env, List<SemType> initial, SemType rest) {
         return define(env, initial, initial.size(), rest);
     }
@@ -94,6 +107,7 @@ public class ListDefinition implements Definition {
 
         Atom ro;
         ListAtomicType roType = readOnlyListAtomicType(rwType);
+        // Represents `===` exact equality in ballerina
         if (roType == rwType) {
             RecAtom roRec = this.roRec;
             if (roRec == null) {
@@ -114,13 +128,15 @@ public class ListDefinition implements Definition {
     }
 
     private ListAtomicType readOnlyListAtomicType(ListAtomicType ty) {
-        if ((Common.typeListIsReadOnly(ty.members.initial.toArray(new SemType[0])))
+        if (Common.typeListIsReadOnly(ty.members.initial)
                 && Core.isReadOnly(ty.rest)) {
             return ty;
         }
         return ListAtomicType.from(
-                FixedLengthArray.from(List.of(Common.readOnlyTypeList(ty.members.initial.toArray(new SemType[0]))),
-                        ty.members.fixedLength), Core.intersect(ty.rest, PredefinedType.READONLY));
+                FixedLengthArray.from(
+                        List.of(Common.readOnlyTypeList(ty.members.initial.toArray(new SemType[0]))),
+                        ty.members.fixedLength),
+                Core.intersect(ty.rest, PredefinedType.READONLY));
     }
 
     private FixedLengthArray fixedLengthNormalize(FixedLengthArray array) {

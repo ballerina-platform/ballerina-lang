@@ -101,7 +101,6 @@ public class ListCommonOps {
                 return true;
             }
             // Ensure that we can use isNever on rest in listInhabited
-            // XXX equals method for UniformTypeBitset will be overridden in #33756
             if (!PredefinedType.NEVER.equals(rest) && Core.isEmpty(cx, rest)) {
                 rest = PredefinedType.NEVER;
             }

@@ -42,6 +42,15 @@ public class Common {
         return true;
     }
 
+    public static boolean typeListIsReadOnly(Iterable<SemType> list) {
+        for (SemType t : list) {
+            if (!Core.isReadOnly(t)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static SemType[] readOnlyTypeList(SemType[] mt) {
         List<SemType> types = new ArrayList<>();
         for (SemType s : mt) {
