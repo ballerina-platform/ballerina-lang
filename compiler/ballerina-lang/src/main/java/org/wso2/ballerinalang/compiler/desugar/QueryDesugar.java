@@ -83,7 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -123,7 +122,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
@@ -137,7 +135,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -158,9 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -1014,7 +1009,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             case RECORD_VARIABLE:
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.variableList.forEach(value -> setSymbolOwner(value.valueBindingPattern, owner));
-                setSymbolOwner((BLangVariable) recordVariable.restParam, owner);
+                setSymbolOwner(recordVariable.restParam, owner);
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
@@ -1048,7 +1043,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     symbols.addAll(getIntroducedSymbols(keyValue.valueBindingPattern));
                 }
                 if (record.hasRestParam()) {
-                    symbols.addAll(getIntroducedSymbols((BLangVariable) record.restParam));
+                    symbols.addAll(getIntroducedSymbols(record.restParam));
                 }
             } else if (variable.getKind() == NodeKind.TUPLE_VARIABLE) {
                 // Tuple binding
@@ -1357,7 +1352,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
         this.acceptNode(bLangRecordVariable.expr);
         if (bLangRecordVariable.hasRestParam()) {
-            ((BLangNode) bLangRecordVariable.restParam).accept(this);
+            bLangRecordVariable.restParam.accept(this);
         }
     }
 
@@ -1668,11 +1663,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangLetVariable letVariable) {
-        //do nothing
-    }
-
-    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         listConstructorExpr.exprs.forEach(this::acceptNode);
     }
@@ -1761,18 +1751,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(this::acceptNode);
-        this.acceptNode(bLangArrowFunction.function);
         this.acceptNode(bLangArrowFunction.body);
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-    }
-
-    @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        this.acceptNode(intRangeExpression.startExpr);
-        this.acceptNode(intRangeExpression.endExpr);
     }
 
     @Override
@@ -1946,12 +1925,10 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        this.acceptNode(lockStmtNode.body);
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        this.acceptNode(unLockNode.body);
     }
 
     @Override
@@ -1971,11 +1948,6 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBreak breakNode) {
-    }
-
-    @Override
-    public void visit(BLangThrow throwNode) {
-        this.acceptNode(throwNode.expr);
     }
 
     @Override
@@ -2097,13 +2069,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTryCatchFinally tryNode) {
-        this.acceptNode(tryNode.tryBody);
-        tryNode.catchBlocks.forEach(block -> this.acceptNode(block));
-        this.acceptNode(tryNode.finallyBody);
-    }
-
-    @Override
     public void visit(BLangTupleDestructure stmt) {
         this.acceptNode(stmt.varRef);
         this.acceptNode(stmt.expr);
@@ -2119,12 +2084,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangErrorDestructure stmt) {
         this.acceptNode(stmt.expr);
         this.acceptNode(stmt.varRef);
-    }
-
-    @Override
-    public void visit(BLangCatch catchNode) {
-        this.acceptNode(catchNode.param);
-        this.acceptNode(catchNode.body);
     }
 
     @Override

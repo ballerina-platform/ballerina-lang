@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
@@ -79,7 +79,7 @@ public class MethodGenUtils {
     }
 
     public static String encodeModuleSpecialFuncName(String funcSuffix) {
-        return IdentifierUtils.encodeFunctionIdentifier(funcSuffix);
+        return Utils.encodeFunctionIdentifier(funcSuffix);
     }
 
     static String calculateLambdaStopFuncName(PackageID id) {
@@ -101,7 +101,7 @@ public class MethodGenUtils {
             funcName = orgName + "/" + funcName;
         }
 
-        return "$lambda$" + IdentifierUtils.encodeFunctionIdentifier(funcName);
+        return "$lambda$" + Utils.encodeFunctionIdentifier(funcName);
     }
 
     private MethodGenUtils() {

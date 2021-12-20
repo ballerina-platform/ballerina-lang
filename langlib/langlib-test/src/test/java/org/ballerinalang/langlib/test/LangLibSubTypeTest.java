@@ -224,8 +224,8 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 275, 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 276, 17);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 277, 22);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 278, 23);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 279, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_32, 278, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_32, 279, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 280, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 281, 22);
 
@@ -234,8 +234,8 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 297, 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'decimal'," + FOUND_BYTE, 298, 17);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_16, 299, 22);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_16, 300, 23);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_8, 301, 22);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_16 + FOUND_UNSIGNED_32, 300, 23);
+        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_UNSIGNED_32, 301, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 302, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 303, 22);
 

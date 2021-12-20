@@ -78,3 +78,32 @@ function checkCastInNamedArg() {
 public function func1(int arg1) {
 
 }
+
+public type MyType record {|int field1;int field2;|};
+
+public function func2() {
+    record {|int field1;int field2;|} a =  <MyType> {field1: 10,field2: 1.0};
+    record {|int field1;int field2;|} b =  {field1: 10,field2: <float> 1.0};
+}
+
+function myFunction() {
+    int[] intArr = [1,2,3];
+    decimal[] result = from int num in intArr 
+                    let decimal dec = addOne(num) select dec;
+}
+
+function addOne(int num) returns int {
+    return num + 1;
+}
+
+function testListConstructor() {
+    int[] arr = <int[]> [<int> 10.5, 11.6];
+}
+
+function testWaitAction() {
+    worker A returns int {
+            return 10;
+    }
+    
+    decimal result = wait A;
+}

@@ -228,4 +228,46 @@ public class PackCommandTest extends BaseCommandTest {
                 .resolve("wso2-emptyNonDefaultModule-any-0.1.0.bala").toFile().exists());
     }
 
+    @Test(description = "Tests packing with a custom dir")
+    public void testCustomTargetDir() throws IOException {
+        Path projectPath = this.testResources.resolve(VALID_PROJECT);
+        Path customTargetDir = projectPath.resolve("customTargetDir");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
+                customTargetDir);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-bal-project-custom-dir.txt"));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("bala")));
+        Assert.assertTrue(customTargetDir.resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+    }
+
+    @Test(description = "Tests packing with a custom dir")
+    public void testCustomTargetDirWithRelativePath() throws IOException {
+        Path projectPath = this.testResources.resolve(VALID_PROJECT);
+        Path customTargetDir = projectPath.resolve("./customTargetDir");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true,
+                customTargetDir);
+        new CommandLine(packCommand).parse();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-bal-project-custom-dir.txt"));
+        Assert.assertFalse(Files.exists(customTargetDir.resolve("bin")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("cache")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("build")));
+        Assert.assertTrue(Files.exists(customTargetDir.resolve("bala")));
+        Assert.assertTrue(customTargetDir.resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+    }
+
 }

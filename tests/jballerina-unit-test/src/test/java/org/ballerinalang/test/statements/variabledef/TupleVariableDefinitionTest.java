@@ -365,6 +365,16 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 24);
     }
 
+    @Test(description = "Test tuple variable with error BP")
+    public void testTupleVariableWithErrorBP() {
+        BRunUtil.invoke(result, "testTupleVariableWithErrorBP");
+    }
+
+    @Test
+    public void testTupleVarDeclWithTypeReferenceTypedExpr() {
+        BRunUtil.invoke(result, "testTupleVarDeclWithTypeReferenceTypedExpr");
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
 
@@ -418,6 +428,12 @@ public class TupleVariableDefinitionTest {
                 "no new variables on left side", 106, 26);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: " +
                         "expected an array or a tuple, but found '(string|int)'", 110, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; member variable count mismatch " +
+                "with member type count", 120, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
+                "but found 'Ints'", 128, 10);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
+                "but found 'IntsOrStrings'", 129, 19);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

@@ -30,6 +30,7 @@ import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -149,6 +150,7 @@ public abstract class BalaWriter {
         packageJson.setKeywords(packageManifest.keywords());
         packageJson.setExport(packageManifest.exportedModules());
         packageJson.setVisibility(packageManifest.visibility());
+        packageJson.setTemplate(packageManifest.template());
 
         packageJson.setPlatform(target);
         packageJson.setBallerinaVersion(BALLERINA_SHORT_VERSION);
@@ -240,13 +242,14 @@ public abstract class BalaWriter {
         for (ModuleId moduleId : this.packageContext.moduleIds()) {
             Module module = this.packageContext.project().currentPackage().module(moduleId);
 
-            // copy resources directory
-            Path moduleRoot = this.packageContext.project().sourceRoot();
-            if (module.moduleName() != this.packageContext.project().currentPackage().getDefaultModule().moduleName()) {
-                moduleRoot = moduleRoot.resolve(MODULES_ROOT).resolve(module.moduleName().moduleNamePart());
+            // copy resources
+            for (DocumentId documentId : module.resourceIds()) {
+                Resource resource = module.resource(documentId);
+                Path resourcePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(module.moduleName().toString())
+                        .resolve(RESOURCE_DIR_NAME).resolve(resource.name());
+                putZipEntry(balaOutputStream, resourcePath, new ByteArrayInputStream(resource.content()));
             }
-            Path resourcesPathInBala = Paths.get(MODULES_ROOT, module.moduleName().toString(), RESOURCE_DIR_NAME);
-            putDirectoryToZipFile(moduleRoot.resolve(RESOURCE_DIR_NAME), resourcesPathInBala, balaOutputStream);
+
 
             // only add .bal files of module
             for (DocumentId docId : module.documentIds()) {

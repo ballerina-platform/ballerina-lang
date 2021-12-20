@@ -44,8 +44,8 @@ public abstract class Project {
                       ProjectEnvironmentBuilder projectEnvironmentBuilder, BuildOptions buildOptions) {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
-        this.projectEnvironment = projectEnvironmentBuilder.build(this);
         this.buildOptions = buildOptions;
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
     }
 
     protected Project(ProjectKind projectKind,
@@ -54,7 +54,7 @@ public abstract class Project {
         this.projectKind = projectKind;
         this.sourceRoot = projectPath;
         this.projectEnvironment = projectEnvironmentBuilder.build(this);
-        this.buildOptions = new BuildOptionsBuilder().build();
+        this.buildOptions = BuildOptions.builder().build();
     }
 
     void setBuildOptions(BuildOptions buildOptions) {
@@ -78,6 +78,8 @@ public abstract class Project {
     public Path sourceRoot() {
         return this.sourceRoot;
     }
+
+    public abstract Path targetDir();
 
     protected void setCurrentPackage(Package currentPackage) {
         // TODO Handle concurrent read/write to the currentPackage variable

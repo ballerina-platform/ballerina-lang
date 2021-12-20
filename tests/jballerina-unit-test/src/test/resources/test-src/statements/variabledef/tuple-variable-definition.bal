@@ -227,6 +227,26 @@ function testIgnoreVariable() returns [int, int] {
     return [a, b];
 }
 
+type myErrorDetail record { int i; };
+
+function testTupleVariableWithErrorBP() {
+    [error<myErrorDetail>, [int, string]] [error(m, i = i, ...k), [p, n]] = [error("err", i = 1), [1, ""]];
+    assertEquality(m, "err");
+    assertEquality(i, 1);
+    assertEquality(p, 1);
+    assertEquality(n, "");
+}
+
+type T [int, int];
+
+function testTupleVarDeclWithTypeReferenceTypedExpr() {
+    T t = [1, 2];
+    var [a, b] = t;
+
+    assertEquality(1, a);
+    assertEquality(2, b);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {

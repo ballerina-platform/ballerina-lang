@@ -130,6 +130,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.ConstDeclSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.EnumDeclSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.FunctionSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.ErrorTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.FunctionTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ImportDeclSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ObjectTypeSymbolTest" />
@@ -161,6 +162,7 @@
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInCompoundStatementsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInExpressionsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInModuleLevelDeclsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInQueryActionsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInQueryExprsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInStatementsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />
@@ -168,6 +170,7 @@
             <!--Type Of-->
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfRegressionTest" />
 
         </classes>
     </test>

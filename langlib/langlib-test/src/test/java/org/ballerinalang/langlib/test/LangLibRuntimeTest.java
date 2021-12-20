@@ -42,4 +42,10 @@ public class LangLibRuntimeTest {
     public void testGetStackTraceToString() {
         BRunUtil.invoke(compileResult, "getCallStacktoStringTest");
     }
+
+    @Test
+    public void testSleepDecimalValue() {
+        BRunUtil.invoke(compileResult, "testSleepDecimalValue");
+    }
+
 }

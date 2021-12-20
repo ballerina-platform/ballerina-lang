@@ -18,7 +18,6 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
@@ -27,6 +26,8 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.PackageConfigCreator;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -35,6 +36,8 @@ import java.util.Optional;
  */
 public class SingleFileProject extends Project {
 
+    private Path targetDir;
+
     /**
      * Loads a single file project from the provided path.
      *
@@ -42,7 +45,7 @@ public class SingleFileProject extends Project {
      * @return single file project
      */
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
-        final BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        final BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         return load(environmentBuilder, filePath, buildOptionsBuilder.build());
     }
 
@@ -56,7 +59,7 @@ public class SingleFileProject extends Project {
     }
 
     public static SingleFileProject load(Path filePath) {
-        return load(filePath, new BuildOptionsBuilder().build());
+        return load(filePath, BuildOptions.builder().build());
     }
 
     public static SingleFileProject load(Path filePath, BuildOptions buildOptions) {
@@ -69,12 +72,19 @@ public class SingleFileProject extends Project {
 
     private SingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path filePath, BuildOptions buildOptions) {
         super(ProjectKind.SINGLE_FILE_PROJECT, filePath, environmentBuilder, buildOptions);
+
+        try {
+            this.targetDir = Files.createTempDirectory("ballerina-cache" + System.nanoTime());
+        } catch (IOException e) {
+            // ignore
+        }
+
         populateCompilerContext();
     }
 
     @Override
     public Project duplicate() {
-        BuildOptions duplicateBuildOptions = new BuildOptionsBuilder().build().acceptTheirs(buildOptions());
+        BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
         SingleFileProject singleFileProject = new SingleFileProject(
                 ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
         return cloneProject(singleFileProject);
@@ -99,5 +109,10 @@ public class SingleFileProject extends Project {
 
     @Override
     public void save() {
+    }
+
+    @Override
+    public Path targetDir() {
+        return this.targetDir;
     }
 }

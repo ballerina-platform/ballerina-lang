@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -184,7 +184,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String rewriteVirtualCallTypeName(String value) {
-        return IdentifierUtils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
+        return Utils.encodeFunctionIdentifier(cleanupObjectTypeName(value));
     }
 
     private static String cleanupBalExt(String name) {
@@ -273,8 +273,8 @@ public class JvmCodeGenUtil {
                                                String varName, ScheduleFunctionInfo metaData) {
         mv.visitTypeInsn(Opcodes.NEW, STRAND_METADATA);
         mv.visitInsn(Opcodes.DUP);
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
+        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
+        mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
         mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
@@ -311,8 +311,8 @@ public class JvmCodeGenUtil {
 
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
         String packageName = "";
-        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value);
-        String moduleName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value);
+        String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.value);
+        String moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!packageID.version.value.equals("")) {
                 packageName = getMajorVersion(packageID.version.value) + separator;
@@ -524,10 +524,10 @@ public class JvmCodeGenUtil {
         BTypeSymbol typeSymbol = t.tsymbol;
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
                 ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol != null) {
-            return IdentifierUtils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
+            return Utils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
                     .typeDefinitionSymbol.name.value);
         }
-        return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
+        return Utils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
@@ -615,8 +615,8 @@ public class JvmCodeGenUtil {
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {
-        Name org = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.orgName.value));
-        Name module = new Name(IdentifierUtils.encodeNonFunctionIdentifier(pkgID.name.value));
+        Name org = new Name(Utils.encodeNonFunctionIdentifier(pkgID.orgName.value));
+        Name module = new Name(Utils.encodeNonFunctionIdentifier(pkgID.name.value));
         return new PackageID(org, module, pkgID.version);
     }
 
@@ -699,7 +699,7 @@ public class JvmCodeGenUtil {
             case TypeTags.DECIMAL:
                 mv.visitTypeInsn(NEW, DECIMAL_VALUE);
                 mv.visitInsn(DUP);
-                mv.visitLdcInsn(String.valueOf(constVal));
+                mv.visitLdcInsn(removeDecimalDiscriminator(String.valueOf(constVal)));
                 mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
                 break;
             case TypeTags.NIL:
@@ -707,9 +707,20 @@ public class JvmCodeGenUtil {
                 mv.visitInsn(ACONST_NULL);
                 break;
             default:
-                throw new BLangCompilerException("JVM generation is not supported for type : " +
-                                                         bType);
+                throw new BLangCompilerException("JVM generation is not supported for type : " + bType);
         }
+    }
+
+    private static String removeDecimalDiscriminator(String value) {
+        int length = value.length();
+        if (length < 2) {
+            return value;
+        }
+        char lastChar = value.charAt(length - 1);
+        if (lastChar == 'd' || lastChar == 'D') {
+            return value.substring(0, length - 1);
+        }
+        return value;
     }
 
     public static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex,

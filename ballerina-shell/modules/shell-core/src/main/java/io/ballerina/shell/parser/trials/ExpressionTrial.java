@@ -46,9 +46,9 @@ public class ExpressionTrial extends TreeParserTrial {
         ExpressionNode expressionNode;
         Node parsedNode;
         if (source.endsWith(SEMICOLON)) {
-            parsedNode = NodeParser.parseStatements("assignment = " + source).get(0);
+            parsedNode = NodeParser.parseStatement("assignment = " + source);
         } else {
-            parsedNode = NodeParser.parseStatements("assignment = " + source + ";").get(0);
+            parsedNode = NodeParser.parseStatement("assignment = " + source + ";");
         }
         if (parsedNode.hasDiagnostics()) {
             throw new ParserTrialFailedException("Error occurred during parsing node as statement node");

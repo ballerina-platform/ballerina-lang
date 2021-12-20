@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -78,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -145,7 +145,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -429,8 +428,19 @@ public class BIRGen extends BLangNodeVisitor {
                                                           displayName,
                                                           astTypeDefinition.symbol.originalName);
         if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
-            typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
-            typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            if (type.tsymbol.owner == astTypeDefinition.symbol.owner) {
+                typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
+                typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            } else {
+                BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+                typeDef.referenceType = referenceType;
+
+                if (referenceType != null) {
+                    typeDef.type = referenceType;
+                }
+
+                typeDefs.put(astTypeDefinition.symbol, typeDef);
+            }
         } else {
             //enum symbols
             typeDefs.put(astTypeDefinition.symbol, typeDef);
@@ -1098,19 +1108,9 @@ public class BIRGen extends BLangNodeVisitor {
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
-        if (astBlockStmt.isLetExpr) {
-            breakBBForLetExprVariables(astBlockStmt.pos);
-        }
         this.env.enclInnerOnFailEndBB = currentWithinOnFailEndBB;
         this.env.enclOnFailEndBB = currentOnFailEndBB;
         this.currentBlock = prevBlock;
-    }
-
-    private void breakBBForLetExprVariables(Location pos) {
-        BIRBasicBlock letExprEndBB = new BIRBasicBlock(this.env.nextBBId(names));
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, letExprEndBB, this.currentScope);
-        this.env.enclBasicBlocks.add(letExprEndBB);
-        this.env.enclBB = letExprEndBB;
     }
 
     @Override
@@ -1585,17 +1585,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             // If a terminator statement has not been set for the else-block then just add it.
             if (this.env.enclBB.terminator == null) {
-                if (astIfStmt.elseStmt.pos != null) {
-                    Location newLocation = new BLangDiagnosticLocation(
-                            astIfStmt.elseStmt.pos.lineRange().filePath(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset());
-                    this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB, this.currentScope);
-                } else {
-                    this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
-                }
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
             }
         } else {
             branchIns.falseBB = nextBB;
@@ -2281,28 +2271,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLAccessExpr xmlAccessExpr) {
         generateMappingAccess(xmlAccessExpr, false);
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        if (xmlAttributeAccessExpr.indexExpr != null) {
-            generateMappingAccess(xmlAttributeAccessExpr, false);
-            return;
-        }
-
-        // This is getting xml attributes as a map. i.e.: x@
-        // Model as a conversion where source type is xml, and target type is map<string>.
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.mapStringType, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        xmlAttributeAccessExpr.expr.accept(this);
-        BIROperand xmlVarOp = this.env.targetOperand;
-        setScopeAndEmit(
-                new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType,
-                        true));
-        this.env.targetOperand = toVarRef;
     }
 
     @Override

@@ -31,14 +31,14 @@ import java.util.List;
  */
 public class BLangCompilationUnit extends BLangNode implements CompilationUnitNode {
 
-    public String name;
-
-    // Fields for caching.
-    public int hash;
-    public int length;
-
+    // BLangNodes
     public List<TopLevelNode> topLevelNodes;
+
+    // Parser Flags and Data
+    public String name;
     private PackageID packageID;
+
+    // Semantic Data
     private SourceKind sourceKind;
 
     public BLangCompilationUnit() {
@@ -99,5 +99,15 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 }

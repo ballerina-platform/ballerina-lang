@@ -16,7 +16,9 @@
 package org.ballerinalang.langserver.completions;
 
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
@@ -209,6 +211,11 @@ public class CompleteExpressionValidator extends NodeTransformer<Boolean> {
     }
 
     @Override
+    public Boolean transform(BasicLiteralNode basicLiteralNode) {
+        return true;
+    }
+
+    @Override
     public Boolean transform(QueryExpressionNode node) {
         return (node.onConflictClause().isEmpty()
                 && node.onConflictClause().get().expression().apply(this))
@@ -219,7 +226,12 @@ public class CompleteExpressionValidator extends NodeTransformer<Boolean> {
     public Boolean transform(XMLFilterExpressionNode node) {
         return !node.xmlPatternChain().gtToken().isMissing();
     }
-    
+
+    @Override
+    public Boolean transform(BuiltinSimpleNameReferenceNode node) {
+        return true;
+    }
+
     @Override
     protected Boolean transformSyntaxNode(Node node) {
         return false;

@@ -99,7 +99,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -107,7 +106,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1550,7 +1548,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (definedType.tsymbol.kind == SymbolKind.OBJECT || definedType.tsymbol.kind == SymbolKind.RECORD) {
+        if ((definedType.tsymbol.kind == SymbolKind.OBJECT || definedType.tsymbol.kind == SymbolKind.RECORD) &&
+                typeDefSymbol.owner == definedType.tsymbol.owner) {
             ((BStructureTypeSymbol) definedType.tsymbol).typeDefinitionSymbol = (BTypeDefinitionSymbol) typeDefSymbol;
         }
 
@@ -1996,19 +1995,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorker workerNode) {
-        BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
-                                                                   names.fromIdNode(workerNode.name),
-                                                                   names.originalNameFromIdNode(workerNode.name),
-                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   workerNode.pos, SOURCE);
-        workerSymbol.markdownDocumentation = getMarkdownDocAttachment(workerNode.markdownDocumentationAttachment);
-        workerSymbol.originalName = names.originalNameFromIdNode(workerNode.name);
-        workerNode.symbol = workerSymbol;
-        defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
-    }
-
-    @Override
     public void visit(BLangService serviceNode) {
         defineNode(serviceNode.serviceVariable, env);
 
@@ -2122,10 +2108,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResource resourceNode) {
-    }
-
-    @Override
     public void visit(BLangConstant constant) {
         BType staticType;
         if (constant.typeNode != null) {
@@ -2147,18 +2129,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         NodeKind nodeKind = constant.expr.getKind();
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
             if (constant.typeNode != null) {
-                if (types.isValidLiteral((BLangLiteral) constant.expr, staticType)) {
+                BType referredType = types.getReferredType(staticType);
+                if (types.isValidLiteral((BLangLiteral) constant.expr, referredType)) {
                     // A literal type constant is defined with correct type.
                     // Update the type of the finiteType node to the static type.
                     // This is done to make the type inferring work.
                     // eg: const decimal d = 5.0;
                     BLangFiniteTypeNode finiteType = (BLangFiniteTypeNode) constant.associatedTypeDefinition.typeNode;
                     BLangExpression valueSpaceExpr = finiteType.valueSpace.iterator().next();
-                    valueSpaceExpr.setBType(staticType);
+                    valueSpaceExpr.setBType(referredType);
                     defineNode(constant.associatedTypeDefinition, env);
 
                     constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
-                    constantSymbol.literalType = staticType;
+                    constantSymbol.literalType = referredType;
                 } else {
                     // A literal type constant is defined with some incorrect type. Set the original
                     // types and continue the flow and let it fail at semantic analyzer.
@@ -2332,9 +2315,11 @@ public class SymbolEnter extends BLangNodeVisitor {
           Consider anydata (a, b) = foo();
           Here, the type of 'a'and type of 'b' will be both anydata.
          */
-            switch (varNode.getBType().tag) {
+            BType bType = varNode.getBType();
+            BType referredType = types.getReferredType(bType);
+            switch (referredType.tag) {
                 case TypeTags.UNION:
-                    Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.getBType());
+                    Set<BType> unionType = types.expandAndGetMemberTypesRecursive(referredType);
                     List<BType> possibleTypes = new ArrayList<>();
                     for (BType type : unionType) {
                         if (!(TypeTags.TUPLE == type.tag &&
@@ -2351,8 +2336,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                             dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN);
                             return false;
                         }
-                        dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL,
-                                   varNode.getBType());
+                        dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, bType);
                         return false;
                     }
 
@@ -2366,7 +2350,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
-                                    memberTupleTypes.add(varNode.getBType());
+                                    memberTupleTypes.add(referredType);
                                 }
                             }
 
@@ -2398,26 +2382,26 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.ANYDATA:
                     List<BType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTupleTypes.add(varNode.getBType());
+                        memberTupleTypes.add(referredType);
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
                     if (varNode.restVariable != null) {
-                        tupleTypeNode.restType = varNode.getBType();
+                        tupleTypeNode.restType = referredType;
                     }
                     break;
                 case TypeTags.TUPLE:
-                    tupleTypeNode = (BTupleType) varNode.getBType();
+                    tupleTypeNode = (BTupleType) referredType;
                     break;
                 case TypeTags.ARRAY:
                     List<BType> tupleTypes = new ArrayList<>();
-                    BArrayType arrayType = (BArrayType) varNode.getBType();
+                    BArrayType arrayType = (BArrayType) referredType;
                     for (int i = 0; i < arrayType.size; i++) {
                         tupleTypes.add(arrayType.eType);
                     }
                     tupleTypeNode = new BTupleType(tupleTypes);
                     break;
                 default:
-                    dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, varNode.getBType());
+                    dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, bType);
                     return false;
             }
         }
@@ -2799,11 +2783,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangRecordVariable.BLangRecordVariableKeyValue variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
-            if (names.fromIdNode(variable.getKey()) == Names.IGNORE) {
-                dlog.error(recordVar.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
-                continue;
-            }
-
             BLangVariable value = variable.getValue();
             if (value.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in record variables. Not allowed if all variables are named as '_'
@@ -2856,7 +2835,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     .collect(Collectors.toList());
             BRecordType restConstraint = createRecordTypeForRestField(recordVar.restParam.getPosition(), env,
                     recordVarType, varList, restType);
-            defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
+            defineMemberNode(recordVar.restParam, env, restConstraint);
         }
 
         return validRecord;
@@ -3138,6 +3117,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.ERROR:
                 errorType = (BErrorType) varType;
                 break;
+            case TypeTags.SEMANTIC_ERROR:
+                // we assume that we have already given an error
+                return false;
             default:
                 dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
                         varType);
@@ -4946,12 +4928,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
+        // TODO : Fix me. Calling createInvokableType is not correct.
         BType resolvedInvokableType = symResolver.createInvokableType(function.getParameters(),
-                                                                      function.restParam,
-                                                                      function.returnTypeNode,
-                                                                      Flags.asMask(variable.flagSet),
-                                                                      env,
-                                                                      function.pos);
+                function.restParam,
+                function.returnTypeNode,
+                new SymbolResolver.AnalyzerData(),
+                Flags.asMask(variable.flagSet),
+                env,
+                function.pos);
 
         if (resolvedInvokableType.tag == TypeTags.NONE) {
             return;

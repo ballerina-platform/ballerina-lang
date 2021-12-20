@@ -21,11 +21,15 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
+import io.ballerina.projects.plugins.CodeGenerator;
+import io.ballerina.projects.plugins.CodeGeneratorContext;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.samjs.jarlibrary.diagnosticutils.DiagnosticUtils;
+
+import java.nio.charset.Charset;
 
 /**
  * A sample {@code CompilerPlugin} that generated files for each function definition.
@@ -38,6 +42,21 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
     public void init(CompilerPluginContext pluginContext) {
         pluginContext.addCodeAnalyzer(new FunctionNodeAnalyzer());
         pluginContext.addCodeGenerator(new InitFunctionCodeGenerator());
+        pluginContext.addCodeGenerator(new OpenApiSpecGenerator());
+    }
+
+    /**
+     * A sample {@code CodeGenerator} that creates a resource file.
+     *
+     * @since 2.0.0
+     */
+    public static class OpenApiSpecGenerator extends CodeGenerator {
+        @Override
+        public void init(CodeGeneratorContext generatorContext) {
+            generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
+                sourceGeneratorContext.addResourceFile("".getBytes(Charset.defaultCharset()), "openapi-spec.yaml");
+            });
+        }
     }
 
     /**

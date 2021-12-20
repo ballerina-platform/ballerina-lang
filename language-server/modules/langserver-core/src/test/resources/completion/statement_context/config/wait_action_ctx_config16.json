@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 15,
+    "character": 55
+  },
+  "source": "statement_context/source/wait_action_ctx_source16.bal",
+  "items": [
+    {
+      "label": "TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "G",
+      "insertText": "TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

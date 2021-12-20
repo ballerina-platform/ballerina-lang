@@ -189,9 +189,6 @@ public class BIRBinaryWriter {
 
         boolean hasReferenceType = typeDef.referenceType != null;
         buf.writeBoolean(hasReferenceType);
-        if (hasReferenceType) {
-            writeType(buf, typeDef.referenceType);
-        }
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter,

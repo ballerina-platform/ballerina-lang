@@ -21,7 +21,7 @@ import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
 
 /**
- * Parses a given input and produces a {@code Node} / {@code NodeList}.
+ * Parses a given input and produces a {@code Node}.
  *
  * @since 1.3.0
  */
@@ -47,6 +47,17 @@ public class NodeParser {
     public static BindingPatternNode parseBindingPattern(String text) {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parseAsBindingPattern().createUnlinkedFacade();
+    }
+
+    /**
+     * Parses the input as a block statement.
+     *
+     * @param text the input
+     * @return a {@code BlockStatementNode}
+     */
+    public static BlockStatementNode parseBlockStatement(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsBlockStatement().createUnlinkedFacade();
     }
 
     /**
@@ -91,17 +102,6 @@ public class NodeParser {
     public static ModuleMemberDeclarationNode parseModuleMemberDeclaration(String text) {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parseAsModuleMemberDeclaration().createUnlinkedFacade();
-    }
-
-    /**
-     * Parses the input as statements.
-     *
-     * @param text the input
-     * @return a {@code NodeList<StatementNode>}
-     */
-    public static NodeList<StatementNode> parseStatements(String text) {
-        BallerinaParser parser = ParserFactory.getParser(text);
-        return new NodeList<>(parser.parseAsStatements().createUnlinkedFacade());
     }
 
     /**

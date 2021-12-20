@@ -30,7 +30,6 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -52,14 +51,13 @@ import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.FileUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -73,6 +71,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeAndEscapeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -146,25 +145,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             BuildProject project = createProject(evaluationSnippet);
             Path executablePath = createExecutables(project);
             String mainClassName = constructMainClassName(project);
-
-            List<String> argTypes = new ArrayList<>();
-            argTypes.add(JAVA_STRING_CLASS);
-            argTypes.add(JAVA_STRING_CLASS);
-            argTypes.add(JAVA_STRING_CLASS);
-            argTypes.add(JAVA_OBJECT_ARRAY_CLASS);
-            RuntimeStaticMethod classLoadAndInvokeMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
-                    CLASSLOAD_AND_INVOKE_METHOD, argTypes);
-
-            List<Value> argList = new ArrayList<>();
-            argList.add(getAsJString(context, executablePath.toAbsolutePath().toString()));
-            argList.add(getAsJString(context, mainClassName));
-            argList.add(getAsJString(context, EVALUATION_FUNCTION_NAME));
-
-            // adds all the captured variable values as rest arguments.
-            argList.addAll(externalVariableValues);
-            classLoadAndInvokeMethod.setArgValues(argList);
-            Value expressionResult = classLoadAndInvokeMethod.invokeSafely();
-            return new BExpressionValue(context, expressionResult);
+            return classAndInvokeExecutable(executablePath, mainClassName);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
@@ -180,7 +161,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @return Ballerina program snippet
      */
     private String generateEvaluationSnippet() throws EvaluationException {
-        // Generates top level declarations snippet
+        // Generates top-level declarations snippet.
         String moduleDeclarations = extractModuleDefinitions(context.getModule(), false);
 
         // Generates function signature (parameter definitions) for the snippet function template.
@@ -190,7 +171,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
 
         // Generates required import declarations based on the expression.
         String functionSnippet = String.format(EVALUATION_FUNCTION_TEMPLATE, EVALUATION_FUNCTION_NAME,
-                parameters, syntaxNode.toSourceCode().trim());
+                parameters, evaluationContext.getExpression());
         String importDeclarations = generateImportDeclarations(functionSnippet);
 
         return String.format(EVALUATION_SNIPPET_TEMPLATE, importDeclarations, moduleDeclarations, functionSnippet);
@@ -220,7 +201,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 fillOtherModuleDefinitions();
             }
 
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
             return BuildProject.load(this.tempProjectDir, buildOptions);
         } catch (EvaluationException e) {
             throw e;
@@ -288,6 +269,29 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         return classNameJoiner.toString();
     }
 
+    private BExpressionValue classAndInvokeExecutable(Path executablePath, String mainClassName)
+            throws EvaluationException {
+
+        List<String> argTypes = new ArrayList<>();
+        argTypes.add(JAVA_STRING_CLASS);
+        argTypes.add(JAVA_STRING_CLASS);
+        argTypes.add(JAVA_STRING_CLASS);
+        argTypes.add(JAVA_OBJECT_ARRAY_CLASS);
+        RuntimeStaticMethod classLoadAndInvokeMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
+                CLASSLOAD_AND_INVOKE_METHOD, argTypes);
+
+        List<Value> argList = new ArrayList<>();
+        argList.add(getAsJString(context, executablePath.toAbsolutePath().toString()));
+        argList.add(getAsJString(context, mainClassName));
+        argList.add(getAsJString(context, EVALUATION_FUNCTION_NAME));
+
+        // adds all the captured variable values as rest arguments.
+        argList.addAll(externalVariableValues);
+        classLoadAndInvokeMethod.setArgValues(argList);
+        Value expressionResult = classLoadAndInvokeMethod.invokeSafely();
+        return new BExpressionValue(context, expressionResult);
+    }
+
     /**
      * Returns the file name without extension.
      *
@@ -308,7 +312,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
         mainBalFile.deleteOnExit();
 
-        writeToFile(mainBalFile, content);
+        FileUtils.writeToFile(mainBalFile, content);
     }
 
     /**
@@ -327,7 +331,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         balTomlContent.add(String.format("name = \"%s\"", EVALUATION_PACKAGE_NAME));
         balTomlContent.add(String.format("version = \"%s\"", EVALUATION_PACKAGE_VERSION));
 
-        writeToFile(balTomlFile, balTomlContent.toString());
+        FileUtils.writeToFile(balTomlFile, balTomlContent.toString());
     }
 
     /**
@@ -426,27 +430,27 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         File moduleMainFile = Files.createTempFile(filePath, MAIN_FILE_PREFIX, BAL_FILE_EXT).toFile();
         moduleMainFile.deleteOnExit();
         String moduleDefinitions = extractModuleDefinitions(module, true);
-        writeToFile(moduleMainFile, moduleDefinitions);
+        FileUtils.writeToFile(moduleMainFile, moduleDefinitions);
     }
 
-    private String extractModuleDefinitions(Module module, boolean shouldIncludeImports) {
+    private String extractModuleDefinitions(Module module, boolean includeImports) {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.LISTENER_DECLARATION);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ANNOTATION_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
 
-        if (shouldIncludeImports) {
+        if (includeImports) {
             moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
         }
 
         List<NonTerminalNode> declarationList = moduleDefinitionFinder.getModuleDeclarations(module);
-        if (shouldIncludeImports) {
+        if (includeImports) {
             declarationList = convertImports(declarationList);
         }
 
@@ -547,7 +551,6 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             case DECIMAL:
             case STRING:
             case XML:
-            case MAP:
             case TABLE:
             case ERROR:
             case FUNCTION:
@@ -560,9 +563,12 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             case ANYDATA:
             case NEVER:
             case BYTE:
-            case JSON:
             case SERVICE:
                 return bVar.getBType().getString();
+            case JSON:
+                return "map<json>";
+            case MAP:
+                return VariableUtils.getMapType(context, bVar.getJvmValue());
             case NIL:
                 return "()";
             case ARRAY:
@@ -588,54 +594,17 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             BImport bImport = entry.getValue();
             if (bImport.orgName().equals(packageOrgAndName.getKey()) &&
                     bImport.moduleName().equals(packageOrgAndName.getValue())) {
-                return alias + ":" + bVar.computeValue();
+                return alias + ":" + decodeAndEscapeIdentifier(bVar.computeValue());
             }
         }
-        return bVar.computeValue();
-    }
 
-    /**
-     * Helper method to write a string source to a file.
-     *
-     * @param content Content to write to the file.
-     * @throws EvaluationException If writing was unsuccessful.
-     */
-    private void writeToFile(File file, String content) throws EvaluationException {
-        try (FileWriter fileWriter = new FileWriter(file, Charset.defaultCharset())) {
-            fileWriter.write(content);
-        } catch (Exception e) {
-            throw createEvaluationException(String.format("error occurred while writing to a temp file at: '%s'",
-                    file.getPath()));
-        }
-    }
-
-    /**
-     * Delete the given directory along with all files and sub directories.
-     *
-     * @param directoryPath Directory to delete.
-     */
-    private boolean deleteDirectory(Path directoryPath) {
-        try {
-            File directory = new File(String.valueOf(directoryPath));
-            if (directory.isDirectory()) {
-                File[] files = directory.listFiles();
-                if (files != null) {
-                    for (File f : files) {
-                        boolean success = deleteDirectory(f.toPath());
-                        if (!success) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return directory.delete();
-        } catch (Exception ignored) {
-            return false;
-        }
+        // since the variable.computeValue returns the encoded type name, need to decode it before injecting to the
+        // source code snippet.
+        return decodeAndEscapeIdentifier(bVar.computeValue());
     }
 
     private void dispose() {
         // Todo - anything else to be disposed?
-        deleteDirectory(this.tempProjectDir);
+        FileUtils.deleteDirectory(this.tempProjectDir);
     }
 }

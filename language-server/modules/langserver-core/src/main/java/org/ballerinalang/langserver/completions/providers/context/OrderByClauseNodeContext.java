@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
@@ -24,13 +25,16 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,17 +83,36 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
         return !node.orderKeyword().isMissing();
     }
 
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     OrderByClauseNode node,
+                     List<LSCompletionItem> completionItems) {
+        
+        List<TypeDescKind> basicTypes = Arrays.asList(
+                TypeDescKind.STRING, TypeDescKind.INT,
+                TypeDescKind.BOOLEAN, TypeDescKind.FLOAT,
+                TypeDescKind.DECIMAL);
+
+        completionItems.forEach(lsCItem -> {
+            if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            } else {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2) +
+                        SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            }
+        });
+    }
+
+    
+    
     private boolean onSuggestDirectionKeywords(BallerinaCompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();
-        int cursor = context.getCursorPositionInTree();
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        if (orderKeyNodes.isEmpty() || nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        if (orderKeyNodes.isEmpty()) {
             return false;
         }
-
+        int cursor = context.getCursorPositionInTree();
         OrderKeyNode lastOrderKey = orderKeyNodes.get(orderKeyNodes.size() - 1);
-
         return cursor > lastOrderKey.textRange().endOffset();
     }
 
