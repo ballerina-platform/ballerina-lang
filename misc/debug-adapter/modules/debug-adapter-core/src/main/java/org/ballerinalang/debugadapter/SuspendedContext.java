@@ -62,11 +62,11 @@ public class SuspendedContext {
     SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef,
                      StackFrameProxyImpl frame) {
         this.executionContext = executionContext;
-        this.project = executionContext.getSourceProject();
-        this.attachedVm = executionContext.getDebuggeeVM();
         this.owningThread = threadRef;
         this.frame = frame;
+        this.attachedVm = executionContext.getDebuggeeVM();
         this.lineNumber = -1;
+        this.project = resolveCurrentProject(executionContext.getSourceProject());
     }
 
     public ExecutionContext getExecutionContext() {
@@ -140,17 +140,18 @@ public class SuspendedContext {
         return Optional.ofNullable(project.currentPackage().getDefaultModule().moduleName().toString());
     }
 
-    public Optional<Path> getBreakPointSourcePath() {
+    public Optional<Path> getBreakPointSourcePath(Project project) {
         if (breakPointSourcePath == null) {
-            Optional<Path> sourcePath = getSourcePath(frame);
-            sourcePath.ifPresent(path -> breakPointSourcePath = path);
+            Optional<Path> sourcePath = getSourcePath(project, frame);
+            sourcePath.ifPresent(path -> breakPointSourcePath = path.normalize());
         }
         return Optional.ofNullable(breakPointSourcePath);
     }
 
-    private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
+    private Optional<Path> getSourcePath(Project sourceProject, StackFrameProxyImpl frame) {
         try {
-            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(), project);
+            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(),
+                    sourceProject);
             if (pathAndType.isEmpty()) {
                 return Optional.empty();
             }
@@ -176,7 +177,7 @@ public class SuspendedContext {
 
     public Optional<String> getFileName() {
         if (fileName == null) {
-            Optional<Path> breakPointPath = getBreakPointSourcePath();
+            Optional<Path> breakPointPath = getBreakPointSourcePath(project);
             if (breakPointPath.isEmpty()) {
                 return Optional.empty();
             }
@@ -211,7 +212,7 @@ public class SuspendedContext {
     }
 
     private void loadModule() {
-        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath(project);
         if (breakPointSourcePath.isEmpty()) {
             return;
         }
@@ -220,12 +221,26 @@ public class SuspendedContext {
     }
 
     private void loadDocument() {
-        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath(project);
         if (breakPointSourcePath.isEmpty()) {
             return;
         }
         DocumentId documentId = project.documentId(breakPointSourcePath.get());
         module = project.currentPackage().module(documentId.moduleId());
         document = module.document(documentId);
+    }
+
+    /**
+     * This util method is used to resolve the project instance related to the current debug hit. (Can be a
+     * BuildProject, SingleFileProject or BalaProject).
+     *
+     * @param sourceProject source project (Either BuildProject or SingleFileProject).
+     */
+    private Project resolveCurrentProject(Project sourceProject) {
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath(sourceProject);
+        if (breakPointSourcePath.isPresent()) {
+            return executionContext.getProjectCache().getProject(breakPointSourcePath.get());
+        }
+        return sourceProject;
     }
 }
