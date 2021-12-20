@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -294,7 +295,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         NodeFinder nodeFinder = new NodeFinder(false);
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
 
-        if (!(node instanceof BLangExpression) && !isObjectConstructorExpr(node) && !isAnonFunctionExpr(node)) {
+        if (!isNonNamedArgExprNode(node) && !isObjectConstructorExpr(node) && !isAnonFunctionExpr(node)) {
             return Optional.empty();
         }
 
@@ -571,5 +572,9 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isAnonFunctionExpr(BLangNode node) {
         return (node instanceof BLangFunction && ((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
                 || node instanceof BLangArrowFunction;
+    }
+
+    private boolean isNonNamedArgExprNode(BLangNode node) {
+        return node instanceof BLangExpression && !(node instanceof BLangNamedArgsExpression);
     }
 }
