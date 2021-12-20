@@ -134,7 +134,7 @@ public class ListDefinition implements Definition {
         }
         return ListAtomicType.from(
                 FixedLengthArray.from(
-                        List.of(Common.readOnlyTypeList(ty.members.initial.toArray(new SemType[0]))),
+                        List.of(Common.readOnlyTypeList(ty.members.initial)),
                         ty.members.fixedLength),
                 Core.intersect(ty.rest, PredefinedType.READONLY));
     }
