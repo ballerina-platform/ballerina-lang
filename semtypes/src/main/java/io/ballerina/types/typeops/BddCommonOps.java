@@ -46,22 +46,24 @@ public abstract class BddCommonOps {
         } else if (b2 instanceof BddAllOrNothing) {
             return ((BddAllOrNothing) b2).isAll() ? BddAllOrNothing.bddAll() : b1;
         } else {
-            long cmp = atomCmp(((BddNode) b1).atom, ((BddNode) b2).atom);
+            BddNode b1Bdd = (BddNode) b1;
+            BddNode b2Bdd = (BddNode) b2;
+            long cmp = atomCmp(b1Bdd.atom, b2Bdd.atom);
             if (cmp < 0L) {
-                return bddCreate(((BddNode) b1).atom,
-                        ((BddNode) b1).left,
-                        bddUnion(((BddNode) b1).middle, b2),
-                        ((BddNode) b1).right);
+                return bddCreate(b1Bdd.atom,
+                        b1Bdd.left,
+                        bddUnion(b1Bdd.middle, b2),
+                        b1Bdd.right);
             } else if (cmp > 0L) {
-                return bddCreate(((BddNode) b2).atom,
-                        ((BddNode) b2).left,
-                        bddUnion(b1, ((BddNode) b2).middle),
-                        ((BddNode) b2).right);
+                return bddCreate(b2Bdd.atom,
+                        b2Bdd.left,
+                        bddUnion(b1, b2Bdd.middle),
+                        b2Bdd.right);
             } else {
-                return bddCreate(((BddNode) b1).atom,
-                        bddUnion(((BddNode) b1).left, ((BddNode) b2).left),
-                        bddUnion(((BddNode) b1).middle, ((BddNode) b2).middle),
-                        bddUnion(((BddNode) b1).right, ((BddNode) b2).right));
+                return bddCreate(b1Bdd.atom,
+                        bddUnion(b1Bdd.left, b2Bdd.left),
+                        bddUnion(b1Bdd.middle, b2Bdd.middle),
+                        bddUnion(b1Bdd.right, b2Bdd.right));
             }
         }
     }
@@ -74,26 +76,28 @@ public abstract class BddCommonOps {
         } else if (b2 instanceof BddAllOrNothing) {
             return ((BddAllOrNothing) b2).isAll() ? b1 : BddAllOrNothing.bddNothing();
         } else {
-            long cmp = atomCmp(((BddNode) b1).atom, ((BddNode) b2).atom);
+            BddNode b1Bdd = (BddNode) b1;
+            BddNode b2Bdd = (BddNode) b2;
+            long cmp = atomCmp(b1Bdd.atom, b2Bdd.atom);
             if (cmp < 0L) {
-                return bddCreate(((BddNode) b1).atom,
-                        bddIntersect(((BddNode) b1).left, b2),
-                        bddIntersect(((BddNode) b1).middle, b2),
-                        bddIntersect(((BddNode) b1).right, b2));
+                return bddCreate(b1Bdd.atom,
+                        bddIntersect(b1Bdd.left, b2),
+                        bddIntersect(b1Bdd.middle, b2),
+                        bddIntersect(b1Bdd.right, b2));
             } else if (cmp > 0L) {
-                return bddCreate(((BddNode) b2).atom,
-                        bddIntersect(b1, ((BddNode) b2).left),
-                        bddIntersect(b1, ((BddNode) b2).middle),
-                        bddIntersect(b1, ((BddNode) b2).right));
+                return bddCreate(b2Bdd.atom,
+                        bddIntersect(b1, b2Bdd.left),
+                        bddIntersect(b1, b2Bdd.middle),
+                        bddIntersect(b1, b2Bdd.right));
             } else {
-                return bddCreate(((BddNode) b1).atom,
+                return bddCreate(b1Bdd.atom,
                         bddIntersect(
-                                bddUnion(((BddNode) b1).left, ((BddNode) b1).middle),
-                                bddUnion(((BddNode) b2).left, ((BddNode) b2).middle)),
+                                bddUnion(b1Bdd.left, b1Bdd.middle),
+                                bddUnion(b2Bdd.left, b2Bdd.middle)),
                         BddAllOrNothing.bddNothing(),
                         bddIntersect(
-                                bddUnion(((BddNode) b1).right, ((BddNode) b1).middle),
-                                bddUnion(((BddNode) b2).right, ((BddNode) b2).middle)));
+                                bddUnion(b1Bdd.right, b1Bdd.middle),
+                                bddUnion(b2Bdd.right, b2Bdd.middle)));
             }
         }
     }
@@ -106,29 +110,31 @@ public abstract class BddCommonOps {
         } else if (b1 instanceof BddAllOrNothing) {
             return ((BddAllOrNothing) b1).isAll() ? bddComplement(b2) : BddAllOrNothing.bddNothing();
         } else {
-            long cmp = atomCmp(((BddNode) b1).atom, ((BddNode) b2).atom);
+            BddNode b1Bdd = (BddNode) b1;
+            BddNode b2Bdd = (BddNode) b2;
+            long cmp = atomCmp(b1Bdd.atom, b2Bdd.atom);
             if (cmp < 0L) {
-                return bddCreate(((BddNode) b1).atom,
-                        bddDiff(bddUnion(((BddNode) b1).left, ((BddNode) b1).middle), b2),
+                return bddCreate(b1Bdd.atom,
+                        bddDiff(bddUnion(b1Bdd.left, b1Bdd.middle), b2),
                         BddAllOrNothing.bddNothing(),
-                        bddDiff(bddUnion(((BddNode) b1).right, ((BddNode) b1).middle), b2));
+                        bddDiff(bddUnion(b1Bdd.right, b1Bdd.middle), b2));
             } else if (cmp > 0L) {
-                return bddCreate(((BddNode) b2).atom,
-                        bddDiff(b1, bddUnion(((BddNode) b2).left, ((BddNode) b2).middle)),
+                return bddCreate(b2Bdd.atom,
+                        bddDiff(b1, bddUnion(b2Bdd.left, b2Bdd.middle)),
                         BddAllOrNothing.bddNothing(),
-                        bddDiff(b1, bddUnion(((BddNode) b2).right, ((BddNode) b2).middle)));
+                        bddDiff(b1, bddUnion(b2Bdd.right, b2Bdd.middle)));
 
             } else {
                 // There is an error in the Castagna paper for this formula.
                 // The union needs to be materialized here.
                 // The original formula does not work in a case like (a0|a1) - a0.
                 // Castagna confirms that the following formula is the correct one.
-                return bddCreate(((BddNode) b1).atom,
-                        bddDiff(bddUnion(((BddNode) b1).left, ((BddNode) b1).middle),
-                                bddUnion(((BddNode) b2).left, ((BddNode) b2).middle)),
+                return bddCreate(b1Bdd.atom,
+                        bddDiff(bddUnion(b1Bdd.left, b1Bdd.middle),
+                                bddUnion(b2Bdd.left, b2Bdd.middle)),
                         BddAllOrNothing.bddNothing(),
-                        bddDiff(bddUnion(((BddNode) b1).right, ((BddNode) b1).middle),
-                                bddUnion(((BddNode) b2).right, ((BddNode) b2).middle)));
+                        bddDiff(bddUnion(b1Bdd.right, b1Bdd.middle),
+                                bddUnion(b2Bdd.right, b2Bdd.middle)));
             }
         }
     }
@@ -189,6 +195,30 @@ public abstract class BddCommonOps {
             return 1L;
         } else {
             return ((TypeAtom) a1).index - ((TypeAtom) a2).index;
+        }
+    }
+
+    // This is for debugging purposes.
+    // It uses the Frisch/Castagna notation.
+    public static String bddToString(Bdd b, boolean inner) {
+        if (b instanceof BddAllOrNothing) {
+            return ((BddAllOrNothing) b).isAll() ? "1" : "0";
+        } else {
+            String str;
+            BddNode bdd = (BddNode) b;
+            Atom a = bdd.atom;
+
+            if (a instanceof RecAtom) {
+                str = "r" + a;
+            } else {
+                str = "a" + ((TypeAtom) a).index;
+            }
+            str += "?" + bddToString(bdd.left, true) + ":" + bddToString(bdd.middle, true) +
+                    ":" + bddToString(bdd.right, true);
+            if (inner) {
+                str = "(" + str + ")";
+            }
+            return str;
         }
     }
 }
