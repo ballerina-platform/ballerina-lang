@@ -48,8 +48,8 @@ public class TypeParamTest {
                 "next () returns (record {| string value; |}?); }', found 'object { public isolated function next ()" +
                 " returns (record {| record {| string x; anydata...; |} value; |}?); }'", 38, 12);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'string'", 48, 18);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'Foo', found 'string'", 50, 14);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'string'", 51, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '\"Foo\"', found 'string'", 50, 14);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '\"Bar\"', found 'string'", 51, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found " +
                 "'(BarDetail & readonly)'", 65, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'int'", 72, 15);

@@ -47,8 +47,8 @@ function testError1() {
     FooError f = error("Foo");
     boolean f1 = f.message();    // incompatible types: expected 'boolean', found 'string'
     string f2 = f.message(); // No error;
-    Foo x1 = f.message(); // incompatible types: expected 'Foo', found 'string'
-    Bar x2 = f.message(); // incompatible types: expected 'Bar', found 'Foo'
+    Foo x1 = f.message(); // incompatible types: expected '"Foo"', found 'string'
+    Bar x2 = f.message(); // incompatible types: expected '"Bar"', found 'Foo'
 }
 
 type BarDetail record {

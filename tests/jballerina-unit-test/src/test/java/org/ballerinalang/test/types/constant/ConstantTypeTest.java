@@ -55,14 +55,14 @@ public class ConstantTypeTest {
 //        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 37, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'",
                 38, 15);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '12', found 'string'", 39, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '\"12\"', found 'string'", 39, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE1', found '3'", 41, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE2', found '3.0f'", 42, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE3', found '3.0d'", 43, 16);
         // Activate this after fixing #33889
 //        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE4', found '3'", 44, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE5', found 'false'", 45, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE6', found '12'", 46, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE6', found '\"12\"'", 46, 16);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 }

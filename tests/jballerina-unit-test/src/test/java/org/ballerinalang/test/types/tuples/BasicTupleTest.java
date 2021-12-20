@@ -309,7 +309,7 @@ public class BasicTupleTest {
     @Test(description = "Test ambiguous tuple assignment to unions of tuple types")
     public void testAmbiguousTupleTupeNegative() {
         int i = 39;
-        BAssertUtil.validateError(resultNegative, i, "ambiguous type '([1,hello]|[1])'", 208, 10);
+        BAssertUtil.validateError(resultNegative, i, "ambiguous type '([1,\"hello\"]|[1])'", 208, 10);
     }
 
     @Test

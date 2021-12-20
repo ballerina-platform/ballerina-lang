@@ -229,11 +229,14 @@ public class TypeGuardTest {
                 "string s; |}? & readonly)'", 499, 21);
         BAssertUtil.validateError(negativeResult, i++, "field access cannot be used to access an optional field of " +
                 "a type that includes nil, use optional field access or member access", 500, 50);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g', found 'Colour'", 512, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '\"r\"|\"g\"', found 'Colour'",
+                512, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '1', found 'Ints'", 518, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '2|3', found 'Ints'", 524, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r', found 'Colour'", 530, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g|x', found 'Colour'", 536, 26);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '\"r\"', found 'Colour'",
+                530, 18);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '\"r\"|\"g\"|\"x\"', " +
+                "found 'Colour'", 536, 26);
         BAssertUtil.validateError(negativeResult, i++, "missing non-defaultable required record field 'b'", 556, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 556, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '" +

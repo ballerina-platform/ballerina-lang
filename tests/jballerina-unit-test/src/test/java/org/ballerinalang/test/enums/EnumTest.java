@@ -80,7 +80,7 @@ public class EnumTest {
         validateError(negativeTest, i++, "incompatible types: expected 'float', found 'string'", 56, 16);
         validateError(negativeTest, i++, "incompatible types: expected 'Shape', found 'string'", 60, 15);
         validateError(negativeTest, i++, "incompatible types: expected 'Artist', found 'string'", 61, 16);
-        validateError(negativeTest, i++, "incompatible types: expected 'Ed Shereen', found 'string'", 62, 12);
+        validateError(negativeTest, i++, "incompatible types: expected '\"Ed Shereen\"', found 'string'", 62, 12);
         validateError(negativeTest, i++, "expression is not a constant expression", 65, 18);
         validateError(negativeTest, i++, "undefined symbol 'x'", 65, 18);
         validateError(negativeTest, i++, "symbol 'A' is already initialized", 69, 5);

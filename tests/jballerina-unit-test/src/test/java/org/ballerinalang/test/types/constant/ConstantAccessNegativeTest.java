@@ -38,6 +38,6 @@ public class ConstantAccessNegativeTest {
         BAssertUtil.validateError(compileResult, 2, "cannot update constant value", 7, 5);
         BAssertUtil.validateError(compileResult, 3, "incompatible types: expected 'int', found 'string'", 9, 13);
         BAssertUtil.validateError(compileResult, 4, "incompatible types: expected " +
-                "'test_org/constant_types:1.0.0:CD', found 'A'", 11, 13);
+                "'test_org/constant_types:1.0.0:CD', found '\"A\"'", 11, 13);
     }
 }

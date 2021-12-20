@@ -36,7 +36,7 @@ function userDefinedTypeTests() {
     CD1 cd1 = 4.0; // expected '3.0d', found 'float'
 //  CBT3 cbt3 = 4; // expected '3', found 'int' // Uncomment after fixing #33889
     CB2 cb2 = true; // expected 'false', found 'boolean'
-    CS2 cs2 = "4"; // expected '12', found 'string'
+    CS2 cs2 = "4"; // expected '"12"', found 'string'
 
     TYPE1 t1 = CI6; // expected 'TYPE1', found '3'
     TYPE2 t2 = CF1; // expected 'TYPE2', found '3.0f'
