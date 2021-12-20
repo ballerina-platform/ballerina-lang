@@ -117,6 +117,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -151,6 +153,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Integer, Integer> scopeIdToFrameIds = new HashMap<>();
     private final Map<Integer, Integer> variableToStackFrames = new ConcurrentHashMap<>();
     private final Map<Integer, BCompoundVariable> loadedCompoundVariables = new ConcurrentHashMap<>();
+    private final ExecutorService variableExecutor = Executors.newCachedThreadPool();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String SCOPE_NAME_LOCAL = "Local";
@@ -956,11 +959,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 updateVariableToStackFrameMap(stackFrameRef, variableReference);
             }
             return variable.getDapVariable();
-        });
+        }, variableExecutor);
     }
 
     private CompletableFuture<Variable[]> computeChildVariablesAsync(VariablesArguments args) {
-        return CompletableFuture.supplyAsync(() -> computeChildVariables(args));
+        return CompletableFuture.supplyAsync(() -> computeChildVariables(args), variableExecutor);
     }
 
     private Variable[] computeChildVariables(VariablesArguments args) {
