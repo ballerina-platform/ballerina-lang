@@ -1216,7 +1216,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
         int i = (int) index;
-        ensureCapacity(this.size - i + 1, this.size);
+        ensureCapacity(this.size + unshiftByN, this.size);
         Object arr = getArrayFromType(elementType.getTag());
         System.arraycopy(arr, i, arr, i + unshiftByN, this.size - i);
     }
