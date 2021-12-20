@@ -86,4 +86,21 @@ public class JarLibrary extends PlatformLibrary {
     public Optional<String> groupId() {
         return Optional.ofNullable(groupId);
     }
+
+    @Override
+    public boolean equals(Object other) {
+
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        JarLibrary that = (JarLibrary) other;
+
+        return path().toFile().toString().equals(that.path().toFile().toString());
+    }
+
 }

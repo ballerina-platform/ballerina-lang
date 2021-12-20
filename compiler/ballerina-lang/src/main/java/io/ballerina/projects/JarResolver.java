@@ -31,9 +31,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.projects.util.ProjectConstants.ANON_ORG;
@@ -65,7 +63,7 @@ public class JarResolver {
     // TODO These method names are too long. Refactor them soon
     public Collection<JarLibrary> getJarFilePathsRequiredForExecution() {
         // 1) Add this root package related jar files
-        List<JarLibrary> jarFiles = new ArrayList<>();
+        Set<JarLibrary> jarFiles = new HashSet<>();
         addCodeGeneratedLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
         addPlatformLibraryPaths(rootPackageContext, PlatformLibraryScope.DEFAULT, jarFiles);
 
@@ -116,7 +114,7 @@ public class JarResolver {
     }
 
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
-            List<JarLibrary> libraryPaths) {
+            Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
@@ -127,7 +125,7 @@ public class JarResolver {
 
     private void addPlatformLibraryPaths(PackageContext packageContext,
                                          PlatformLibraryScope scope,
-                                         List<JarLibrary> libraryPaths) {
+                                         Set<JarLibrary> libraryPaths) {
         // Add all the jar library dependencies of current package (packageId)
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
@@ -139,7 +137,7 @@ public class JarResolver {
 
     public Collection<JarLibrary> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         // 1) Get all the jars excepts for test scope package and platform-specific dependencies
-        List<JarLibrary> allJarFileForTestExec = new ArrayList<>(getJarFilePathsRequiredForExecution());
+        Set<JarLibrary> allJarFileForTestExec = new HashSet<>(getJarFilePathsRequiredForExecution());
 
         // 2) Replace given modules thin jar with it's test-thin jar
         if (!rootPackageContext.packageManifest().org().anonymous()) {
