@@ -15,13 +15,17 @@
 // under the License.
 
 public function main() {
-    worker w1 {
-        int x = 10;
-        x -> w2;
-    }
+    int a = 5;
 
-    worker w2 {
-        int y = <- w1;
-        int z = y;
+    fork {
+        worker w1 {
+            int x = 10;
+            x -> w2;
+        }
+
+        worker w2 {
+            int y = <- w1;
+            int z = y;
+        }
     }
 }
