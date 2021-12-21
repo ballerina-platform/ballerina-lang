@@ -23,4 +23,4 @@ function sum(int a, int b) returns int => {
 function add(int a, int b) returns int => external
 
 // Statement as the body
-function sum(int a, int b) returns int => int x = 10;
+function sum(int a1, int b1) returns int => int x = 10;
