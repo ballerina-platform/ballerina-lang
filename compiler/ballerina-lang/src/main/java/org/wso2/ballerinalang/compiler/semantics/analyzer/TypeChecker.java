@@ -4662,6 +4662,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        if (env.enclInvokable != null || env.node.getKind() == NodeKind.ARROW_EXPR) {
+            symbolEnter.defineNode(bLangLambdaFunction.function, env);
+        }
         bLangLambdaFunction.setBType(bLangLambdaFunction.function.getBType());
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();

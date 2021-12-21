@@ -449,12 +449,24 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
         // Define function nodes.
-        pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
+        for (BLangFunction bLangFunction : pkgNode.functions) {
+            if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
+                defineNode(bLangFunction, pkgEnv);
+            }
+        }
 
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
-        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
+        for (BLangVariable variable : pkgNode.globalVars) {
+            if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA) {
+                defineNode(((BLangLambdaFunction) variable.expr).function, pkgEnv);
+                if (variable.isDeclaredWithVar) {
+                    setTypeFromLambdaExpr(variable);
+                }
+            }
+            defineNode(variable, pkgEnv);
+        }
 
         // Update globalVar for endpoints.
         for (BLangVariable var : pkgNode.globalVars) {
@@ -468,6 +480,22 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
+    }
+
+    private void setTypeFromLambdaExpr(BLangVariable variable) {
+        BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
+        BInvokableType invokableType = (BInvokableType) function.symbol.type;
+        if (function.flagSet.contains(Flag.ISOLATED)) {
+            invokableType.flags |= Flags.ISOLATED;
+            invokableType.tsymbol.flags |= Flags.ISOLATED;
+        }
+
+        if (function.flagSet.contains(Flag.TRANSACTIONAL)) {
+            invokableType.flags |= Flags.TRANSACTIONAL;
+            invokableType.tsymbol.flags |= Flags.TRANSACTIONAL;
+        }
+
+        variable.setBType(invokableType);
     }
 
     private void defineIntersectionTypes(SymbolEnv env) {
@@ -4300,7 +4328,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
+    public void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
         boolean foundIncludedRecordParam = false;
@@ -4462,9 +4490,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
         varSymbol.originalName = origName;
-        boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
-                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
-                flagSet.contains(Flag.INCLUDED);
+        boolean isMemberOfFunc = (flagSet.contains(Flag.REQUIRED_PARAM) || flagSet.contains(Flag.DEFAULTABLE_PARAM) ||
+                flagSet.contains(Flag.REST_PARAM) || flagSet.contains(Flag.INCLUDED));
+        boolean considerAsMemberSymbol;
+        if (isMemberOfFunc) {
+            considerAsMemberSymbol = env.enclEnv.enclInvokable == null;
+        } else {
+            considerAsMemberSymbol = flagSet.contains(Flag.FIELD);
+        }
 
         if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol) ||
                 !considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
