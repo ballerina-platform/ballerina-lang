@@ -186,7 +186,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_RELATIVE_RESOURCE_PATH_SHOULD_NOT_BEGIN_WITH_SLASH"
+                            "ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH"
                           ]
                         },
                         {

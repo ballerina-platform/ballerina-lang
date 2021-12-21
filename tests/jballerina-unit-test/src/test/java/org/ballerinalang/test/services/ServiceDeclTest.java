@@ -121,6 +121,6 @@ public class ServiceDeclTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/" +
                 "service_relative_resource_path_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        validateError(compileResult, 0, "relative resource path should not begin with slash", 35, 27);
+        validateError(compileResult, 0, "resource path cannot begin with slash", 35, 27);
     }
 }

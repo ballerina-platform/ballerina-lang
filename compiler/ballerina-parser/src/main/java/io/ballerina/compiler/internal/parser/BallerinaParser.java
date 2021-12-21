@@ -6881,7 +6881,7 @@ public class BallerinaParser extends AbstractParser {
                     // special case `[MISSING]/` to improve the error message for `/hello`
                     consume(); // to ignore current missing identifier diagnostic
                     return SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN, 
-                            DiagnosticErrorCode.ERROR_RELATIVE_RESOURCE_PATH_SHOULD_NOT_BEGIN_WITH_SLASH);
+                            DiagnosticErrorCode.ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH);
                 }
                 return consume();
             case OPEN_BRACKET_TOKEN:
