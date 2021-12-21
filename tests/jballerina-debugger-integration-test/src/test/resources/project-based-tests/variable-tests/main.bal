@@ -259,8 +259,8 @@ public function main() {
 
     // let expression
     string letVar = let string hello = "Hello ",
-                          string ballerina = "Ballerina!"
-                      in hello + ballerina;    
+                        string ballerina = "Ballerina!"
+                    in hello + ballerina;
 
     // variable visibility in 'if' statement
     if (true) {

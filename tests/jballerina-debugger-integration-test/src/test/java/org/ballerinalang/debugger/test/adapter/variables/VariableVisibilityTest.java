@@ -207,7 +207,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // variable visibility test for closure
         // A closure is an inner anonymous function that has visibility to the scope of its enclosing environment.
-        // It can access its own scope, its enclosing environment’s scope, and variables defined in the global scope
+        // It can access its own scope, its enclosing environment’s scope, and variables defined in the global scope.
         debugTestRunner.assertVariable(localVariables, "a", "3", "int");
         debugTestRunner.assertVariable(localVariables, "b", "3", "int");
         debugTestRunner.assertVariable(localVariables, "c", "34", "int");
