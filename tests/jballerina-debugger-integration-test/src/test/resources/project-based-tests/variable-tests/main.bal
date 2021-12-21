@@ -345,7 +345,7 @@ function addition(int a, int b) returns int {
 
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
-    var foo = function (int b) returns int {
+    var foo = function(int b) returns int {
         int c = 34;
         if (b == 3) {
             c = c + b + a + port;
