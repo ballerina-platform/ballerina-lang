@@ -1067,6 +1067,18 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     + "\n\t\ttuple element '[3]' should be of type '(decimal|int)', found '5.2'");
 }
 
+function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
+    [1|"1"|"2", 2|"2"|"3"] tupleVal = [1, "2"];
+    ["1", 2]|error ans = trap tupleVal.cloneWithType();
+    assert(ans is error, true);
+    error err = <error> ans;
+    string message = <string> checkpanic err.detail()["message"];
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(message, "'[(1|\"1\"|\"2\"),(2|\"2\"|\"3\")]' value cannot be converted to '[\"1\",2]': "
+    + "\n\t\ttuple element '[0]' should be of type '\"1\"', found '1'"
+    + "\n\t\ttuple element '[1]' should be of type '2', found '\"2\"'");
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
