@@ -3417,8 +3417,10 @@ public class Desugar extends BLangNodeVisitor {
         // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
         BLangExpression var = varRef;
         for (int ref = 0; ref < varRefs.size(); ref++) {
-            var = ASTBuilderUtil.createIndexAccessExpr(var, varRefs.get(ref));
-            var.setBType(types.get(ref));
+            BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(var, varRefs.get(ref));
+            indexAccessExpr.originalType = types.get(ref);
+            var = indexAccessExpr;
+            var.setBType(indexAccessExpr.originalType);
         }
         var.setBType(compoundAssignment.varRef.getBType());
 
@@ -9927,8 +9929,10 @@ public class Desugar extends BLangNodeVisitor {
                 errorConstructorExpr.setBType(symbol.type);
                 errorConstructorExpr.pos = expr.pos;
                 List<BLangExpression> positionalArgs = new ArrayList<>();
+                List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
                 positionalArgs.add(literal);
                 errorConstructorExpr.positionalArgs = positionalArgs;
+                errorConstructorExpr.namedArgs = namedArgs;
 
                 BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
                 panicNode.expr = errorConstructorExpr;

@@ -495,6 +495,11 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(negativeResult, i, "cannot assign a value to final 'j'", 23, 5);
     }
 
+    @Test
+    public void testCompoundAssignmentMemberAccess() {
+        BRunUtil.invoke(result, "testCompoundAssignmentMemberAccess");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

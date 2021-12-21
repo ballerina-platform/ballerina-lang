@@ -1200,6 +1200,12 @@ function testCompoundAssignmentBitwiseXOROperation() {
     assertEqual(a11, 9);
 }
 
+function testCompoundAssignmentMemberAccess() {
+       map<int>? m = {x:2};
+       m["x"] += 1;
+       assertEqual(m["x"], 3);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
