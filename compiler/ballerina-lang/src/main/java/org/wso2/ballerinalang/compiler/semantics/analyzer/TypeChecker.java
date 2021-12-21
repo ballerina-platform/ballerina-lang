@@ -1195,35 +1195,12 @@ public class TypeChecker extends BLangNodeVisitor {
      * @return {@code BUnionType} if effective members in list is > 1. {@code BType} Otherwise.
      */
     private BType getResultantType(List<BType> bTypes) {
-        LinkedHashSet<BType> bTypeSet = new LinkedHashSet<>(bTypes);
-        List<BType> flattenBTypes = new ArrayList<>(bTypes.size());
-        addFlattenMemberTypes(flattenBTypes, bTypeSet);
-
-        return getRepresentativeBroadType(flattenBTypes);
-    }
-
-    private void addFlattenMemberTypes(List<BType> flattenBTypes, LinkedHashSet<BType> bTypes) {
-        for (BType memberType : bTypes) {
-            BType bType;
-            switch (memberType.tag) {
-                case TypeTags.UNION:
-                    addFlattenMemberTypes(flattenBTypes, ((BUnionType) memberType).getMemberTypes());
-                    continue;
-                case TypeTags.TYPEREFDESC:
-                    BType constraint = types.getReferredType(memberType);
-                    if (constraint.tag == TypeTags.UNION) {
-                        addFlattenMemberTypes(flattenBTypes, ((BUnionType) constraint).getMemberTypes());
-                        continue;
-                    }
-                    bType = constraint;
-                    break;
-                default:
-                    bType = memberType;
-                    break;
-            }
-
-            flattenBTypes.add(bType);
+        List<BType> flattenedBTypes = new ArrayList<>();
+        for (BType bType : bTypes) {
+            flattenedBTypes.addAll(types.getAllTypes(bType, true));
         }
+
+        return getRepresentativeBroadType(flattenedBTypes);
     }
 
     private boolean hasOptionalFields(List<BField> fields) {
