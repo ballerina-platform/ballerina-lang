@@ -278,16 +278,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineClassDefinition(BLangClassDefinition classNode, SymbolEnv env) {
-//        if (classNode.symbol != null) {
-//            return;
-//        }
-//        defineNode(classNode, env);
         if (classNode.definitionCompleted) {
             return;
         }
         populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
         defineFieldsOfClassDef(classNode, env);
-        defineFunctionsOfClassDef(env, classNode);
+        defineFunctionsOfClassDef(classNode, env);
         setReadOnlynessOfClassDef(classNode, env);
         defineReadOnlyIncludedFieldsAndMethods(classNode, env);
         classNode.definitionCompleted = true;
@@ -610,7 +606,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         };
     }
 
-    private void defineFunctionsOfClassDef(SymbolEnv pkgEnv, BLangClassDefinition classDefinition) {
+    private void defineFunctionsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
         validateInclusionsForNonPrivateMembers(classDefinition.typeRefs);
         BObjectType objectType = (BObjectType) classDefinition.symbol.type;
 
@@ -622,18 +618,23 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         SymbolEnv objMethodsEnv =
-                SymbolEnv.createClassMethodsEnv(classDefinition, (BObjectTypeSymbol) classDefinition.symbol, pkgEnv);
+                SymbolEnv.createClassMethodsEnv(classDefinition, (BObjectTypeSymbol) classDefinition.symbol, env);
         if (classDefinition.isObjectContructorDecl) {
             classDefinition.oceEnvData.objMethodsEnv = objMethodsEnv;
         }
 
         // Define the functions defined within the object
         defineClassInitFunction(classDefinition, objMethodsEnv);
-        classDefinition.functions.forEach(f -> {
+        for (BLangFunction f : classDefinition.functions) {
             f.flagSet.add(Flag.FINAL); // Method can't be changed
             f.setReceiver(ASTBuilderUtil.createReceiver(classDefinition.pos, objectType));
             defineNode(f, objMethodsEnv);
-        });
+            if (classDefinition.isObjectContructorDecl) {
+                for (BLangSimpleVariable simpleVariable : f.requiredParams) {
+                    symResolver.checkForUniqueSymbol(simpleVariable.pos, env.enclEnv, simpleVariable.symbol);
+                }
+            }
+        }
 
         defineIncludedMethods(classDefinition, objMethodsEnv, false);
     }
@@ -3943,7 +3944,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (isObjectCtor(classDef)) {
                     continue;
                 }
-                defineFunctionsOfClassDef(pkgEnv, classDef);
+                defineFunctionsOfClassDef(classDef, pkgEnv);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineFunctionsOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
             }
