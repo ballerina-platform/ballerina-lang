@@ -309,11 +309,11 @@ public function testAttachedMethodClosuresMapFromFunctionBlock() {
     assertValueEquality(getValue, 13);
 }
 
-type Sum2 function (int x, int y) returns int;
+// type Sum2 function (int x, int y) returns int;
 
-final Sum2 sumF = function (int x, int y) returns int {
-    return x + y;
-};
+// final Sum2 sumF = function (int x, int y) returns int {
+//     return x + y;
+// };
 
 // function testFunctionPointerAsFieldValue() {
 //     final int i = 10;
