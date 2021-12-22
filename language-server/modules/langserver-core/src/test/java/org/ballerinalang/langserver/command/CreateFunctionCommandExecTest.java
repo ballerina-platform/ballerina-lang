@@ -125,7 +125,9 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_in_error_constructor3.json", "create_function_in_error_constructor3.bal"},
                 
                 // Variable Declaration
-                {"create_function_in_var_decl1.json", "create_function_in_var_decl1.bal"}
+                {"create_function_in_var_decl1.json", "create_function_in_var_decl1.bal"},
+                {"create_function_in_var_decl12.json", "create_function_in_var_decl2.bal"},
+                {"create_function_in_var_decl13.json", "create_function_in_var_decl3.bal"}
         };
     }
 
