@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Customers(
-  customerId INTEGER NOT NULL IDENTITY,
+  customerId INTEGER AUTO_INCREMENT,
   name  VARCHAR(300),
   creditLimit DOUBLE,
   country  VARCHAR(300),
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS Customers(
 /
 CREATE ALIAS JAVAFUNC FOR "org.ballerinax.jdbc.actions.H2ActionsTest.javafunc";
 /
-INSERT INTO Customers VALUES (1, 'Oliver', 200000, 'UK');
+INSERT INTO Customers(name, creditLimit, country) VALUES ('Oliver', 200000, 'UK');
 /
-INSERT INTO Customers VALUES (2, 'Barry', 200000, 'UK');
+INSERT INTO Customers(name, creditLimit, country) VALUES ('Barry', 200000, 'UK');
 /

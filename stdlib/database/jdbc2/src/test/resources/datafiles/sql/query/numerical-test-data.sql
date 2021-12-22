@@ -1,5 +1,5 @@
 CREATE TABLE NumericTypes (
-   id INT IDENTITY,
+   id INT AUTO_INCREMENT,
    int_type INT NOT NULL,
    bigint_type BIGINT NOT NULL,
    smallint_type SMALLINT NOT NULL ,
@@ -12,13 +12,13 @@ CREATE TABLE NumericTypes (
    PRIMARY KEY (id)
 );
 /
-INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
-    float_type, real_type) VALUES (1, 2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
+INSERT INTO NumericTypes (int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
+    float_type, real_type) VALUES (2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
     1234.567);
 /
 
 CREATE TABLE NumericNullTypes (
-   id INT IDENTITY,
+   id INT AUTO_INCREMENT,
    int_type INT,
    bigint_type BIGINT,
    smallint_type SMALLINT,
@@ -31,12 +31,12 @@ CREATE TABLE NumericNullTypes (
    PRIMARY KEY (id)
 );
 /
-INSERT INTO NumericNullTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
-    float_type, real_type) VALUES (1, 2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
+INSERT INTO NumericNullTypes (int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
+    float_type, real_type) VALUES (2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
     1234.567);
 /
 
-INSERT INTO NumericNullTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
-    float_type, real_type) VALUES (2, null , null , null , null , null , null , null , null ,
+INSERT INTO NumericNullTypes (int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
+    float_type, real_type) VALUES (null , null , null , null , null , null , null , null ,
     null );
 /

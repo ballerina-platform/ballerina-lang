@@ -82,7 +82,7 @@ public class ExecuteTest {
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
-        Assert.assertNull(result.get(Constants.LAST_INSERTED_ID_FIELD));
+        Assert.assertEquals(((BInteger) result.get(Constants.LAST_INSERTED_ID_FIELD)).intValue(), 20);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class ExecuteTest {
         numericRecord.getMap().forEach(((k, v) -> {
             String key = (String) k;
             if (!key.equalsIgnoreCase("id")) {
-                Assert.assertTrue(((BString) v).stringValue().startsWith("str"));
+                Assert.assertFalse(((BString) v).stringValue().isEmpty());
             }
         }));
     }
@@ -179,7 +179,7 @@ public class ExecuteTest {
         numericRecord.getMap().forEach(((k, v) -> {
             String key = (String) k;
             if (!key.equalsIgnoreCase("id")) {
-                Assert.assertTrue(((BString) v).stringValue().isEmpty());
+                Assert.assertTrue(((BString) v).stringValue().trim().isEmpty());
             }
         }));
     }
@@ -231,7 +231,7 @@ public class ExecuteTest {
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
         Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
                 .contains("Data conversion error converting \"'This is wrong type' " +
-                        "(NUMERICTYPES: \"\"INT_TYPE\"\" INT)\""));
+                        "(NUMERICTYPES: \"\"INT_TYPE\"\" INTEGER)\""));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), 22018);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "22018");
     }

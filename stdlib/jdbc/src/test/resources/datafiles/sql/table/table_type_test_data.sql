@@ -54,29 +54,29 @@ INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
 /
 CREATE TABLE IF NOT EXISTS ArrayTypes(
   row_id        INTEGER NOT NULL,
-  int_array     ARRAY,
-  long_array    ARRAY,
-  float_array   ARRAY,
-  double_array  ARRAY,
-  boolean_array ARRAY,
-  string_array  ARRAY,
+  int_array     INTEGER ARRAY,
+  long_array    BIGINT ARRAY,
+  float_array   FLOAT ARRAY,
+  double_array  DOUBLE ARRAY,
+  boolean_array BOOLEAN ARRAY,
+  string_array  VARCHAR ARRAY,
   PRIMARY KEY (row_id)
 );
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
-  VALUES (1, (1, 2, 3), (100000000, 200000000, 300000000), (245.23, 5559.49, 8796.123),
-  (245.23, 5559.49, 8796.123), (TRUE, FALSE, TRUE), ('Hello', 'Ballerina'));
+  VALUES (1, ARRAY[1, 2, 3], ARRAY[100000000, 200000000, 300000000], ARRAY[245.23, 5559.49, 8796.123],
+  ARRAY[245.23, 5559.49, 8796.123], ARRAY[TRUE, FALSE, TRUE], ARRAY['Hello', 'Ballerina']);
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
-  VALUES (2, (NULL, 2, 3), (100000000, NULL, 300000000), (NULL, 5559.49, NULL),
-  (NULL, NULL, 8796.123), (NULL , NULL, TRUE), (NULL, 'Ballerina'));
+  VALUES (2, ARRAY[NULL, 2, 3], ARRAY[100000000, NULL, 300000000], ARRAY[NULL, 5559.49, NULL],
+  ARRAY[NULL, NULL, 8796.123], ARRAY[NULL , NULL, TRUE], ARRAY[NULL, 'Ballerina']);
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
   VALUES (3, NULL, NULL, NULL, NULL, NULL, NULL);
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
-  VALUES (5, (NULL, NULL, NULL), (NULL, NULL, NULL), (NULL, NULL, NULL),
-  (NULL, NULL, NULL), (NULL , NULL, NULL), (NULL, NULL));
+  VALUES (5, ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL],
+  ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL, NULL], ARRAY[NULL, NULL]);
 /
 CREATE TABLE IF NOT EXISTS MixTypes (
   row_id INTEGER NOT NULL,
@@ -87,23 +87,23 @@ CREATE TABLE IF NOT EXISTS MixTypes (
   boolean_type BOOLEAN,
   string_type VARCHAR (50),
   decimal_type decimal,
-  int_array ARRAY,
-  long_array ARRAY,
-  float_array ARRAY,
-  double_array ARRAY,
-  boolean_array ARRAY,
-  string_array ARRAY,
+  int_array INTEGER ARRAY,
+  long_array BIGINT ARRAY,
+  float_array FLOAT ARRAY,
+  double_array DOUBLE ARRAY,
+  boolean_array BOOLEAN ARRAY,
+  string_array VARCHAR ARRAY,
   PRIMARY KEY (row_id)
 );
 /
 INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type,
   int_array, long_array, float_array, double_array, boolean_array, string_array)
-VALUES (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', 342452151425.4556, (1, 2, 3),
-  (100000000, 200000000, 300000000), (245.23, 5559.49, 8796.123),
-  (245.23, 5559.49, 8796.123), (TRUE, FALSE, TRUE), ('Hello', 'Ballerina'));
+VALUES (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', 342452151425.4556, ARRAY[1, 2, 3],
+  ARRAY[100000000, 200000000, 300000000], ARRAY[245.23, 5559.49, 8796.123],
+  ARRAY[245.23, 5559.49, 8796.123], ARRAY[TRUE, FALSE, TRUE], ARRAY['Hello', 'Ballerina']);
 /
 CREATE TABLE IF NOT EXISTS DateTimeTypes(
-  row_id         INTEGER NOT NULL,
+  row_id         INTEGER AUTO_INCREMENT,
   date_type      DATE,
   time_type      TIME,
   timestamp_type timestamp,

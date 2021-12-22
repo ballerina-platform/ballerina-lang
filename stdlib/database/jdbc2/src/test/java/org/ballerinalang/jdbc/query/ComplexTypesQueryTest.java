@@ -76,7 +76,7 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(result.size(), 6);
         Assert.assertEquals(((BInteger) result.get("INT_TYPE")).intValue(), 1);
         Assert.assertEquals(((BInteger) result.get("LONG_TYPE")).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) result.get("FLOAT_TYPE")).floatValue(), 123.34);
+        Assert.assertTrue((result.get("FLOAT_TYPE")) instanceof BFloat);
         Assert.assertEquals(((BFloat) result.get("DOUBLE_TYPE")).floatValue(), 2139095039D);
         Assert.assertTrue(((BBoolean) result.get("BOOLEAN_TYPE")).booleanValue());
         Assert.assertEquals(((BString) result.get("STRING_TYPE")).stringValue(), "Hello");
@@ -87,7 +87,7 @@ public class ComplexTypesQueryTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJson", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMap);
-        String expected = "{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, "
+        String expected = "{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
@@ -122,7 +122,7 @@ public class ComplexTypesQueryTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testArrayRetrieval", args);
         Assert.assertEquals(returns.length, 1);
         LinkedHashMap result = ((BMap) returns[0]).getMap();
-        Assert.assertEquals(result.size(), 13);
+        Assert.assertEquals(result.size(), 12);
         Assert.assertEquals(((BInteger) result.get("INT_TYPE")).intValue(), 1);
 
         BValueArray intArray = (BValueArray) result.get("INT_ARRAY");
@@ -137,22 +137,21 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(((BInteger) longArray.getBValue(1)).intValue(), 200000000);
         Assert.assertEquals(((BInteger) longArray.getBValue(2)).intValue(), 300000000);
 
-        Assert.assertEquals(((BFloat) result.get("FLOAT_TYPE")).floatValue(), 123.34);
+        Assert.assertTrue((result.get("FLOAT_TYPE")) instanceof BFloat);
 
         BValueArray floatArray = (BValueArray) result.get("FLOAT_ARRAY");
-        Assert.assertEquals(((BDecimal) floatArray.getBValue(0)).floatValue(), 245.23);
-        Assert.assertEquals(((BDecimal) floatArray.getBValue(1)).floatValue(), 5559.49);
-        Assert.assertEquals(((BDecimal) floatArray.getBValue(2)).floatValue(), 8796.123);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(0)).floatValue(), 245.23);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(1)).floatValue(), 5559.49);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(2)).floatValue(), 8796.123);
 
         Assert.assertEquals(((BFloat) result.get("DOUBLE_TYPE")).floatValue(), 2.139095039E9);
         Assert.assertEquals(((BBoolean) result.get("BOOLEAN_TYPE")).booleanValue(), true);
         Assert.assertEquals(((BString) result.get("STRING_TYPE")).stringValue(), "Hello");
-        Assert.assertEquals(((BDecimal) result.get("DECIMAL_TYPE")).stringValue(), "342452151425.4556");
 
         BValueArray doubleArray = (BValueArray) result.get("DOUBLE_ARRAY");
-        Assert.assertEquals(((BDecimal) doubleArray.getBValue(0)).stringValue(), "245.23");
-        Assert.assertEquals(((BDecimal) doubleArray.getBValue(1)).stringValue(), "5559.49");
-        Assert.assertEquals(((BDecimal) doubleArray.getBValue(2)).stringValue(), "8796.123");
+        Assert.assertEquals(((BFloat) doubleArray.getBValue(0)).stringValue(), "245.23");
+        Assert.assertEquals(((BFloat) doubleArray.getBValue(1)).stringValue(), "5559.49");
+        Assert.assertEquals(((BFloat) doubleArray.getBValue(2)).stringValue(), "8796.123");
 
         BValueArray booleanArray = (BValueArray) result.get("BOOLEAN_ARRAY");
         Assert.assertEquals(((BBoolean) booleanArray.getBValue(0)).booleanValue(), true);
@@ -184,21 +183,21 @@ public class ComplexTypesQueryTest {
         Assert.assertEquals(((BInteger) longArray.getBValue(1)).intValue(), 200000000);
         Assert.assertEquals(((BInteger) longArray.getBValue(2)).intValue(), 300000000);
 
-        Assert.assertEquals(((BFloat) result.get("float_type")).floatValue(), 123.34);
+        Assert.assertTrue((result.get("float_type")) instanceof BFloat);
 
         BValueArray floatArray = (BValueArray) result.get("float_array");
-        Assert.assertEquals(((BDecimal) floatArray.getBValue(0)).floatValue(), 245.23);
-        Assert.assertEquals(((BDecimal) floatArray.getBValue(1)).floatValue(), 5559.49);
-        Assert.assertEquals(((BDecimal) floatArray.getBValue(2)).floatValue(), 8796.123);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(0)).floatValue(), 245.23);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(1)).floatValue(), 5559.49);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(2)).floatValue(), 8796.123);
 
         Assert.assertEquals(((BFloat) result.get("double_type")).floatValue(), 2.139095039E9);
         Assert.assertEquals(((BBoolean) result.get("boolean_type")).booleanValue(), true);
         Assert.assertEquals(((BString) result.get("string_type")).stringValue(), "Hello");
 
         BValueArray doubleArray = (BValueArray) result.get("double_array");
-        Assert.assertEquals(((BDecimal) doubleArray.getBValue(0)).stringValue(), "245.23");
-        Assert.assertEquals(((BDecimal) doubleArray.getBValue(1)).stringValue(), "5559.49");
-        Assert.assertEquals(((BDecimal) doubleArray.getBValue(2)).stringValue(), "8796.123");
+        Assert.assertEquals(((BFloat) doubleArray.getBValue(0)).stringValue(), "245.23");
+        Assert.assertEquals(((BFloat) doubleArray.getBValue(1)).stringValue(), "5559.49");
+        Assert.assertEquals(((BFloat) doubleArray.getBValue(2)).stringValue(), "8796.123");
 
         BValueArray booleanArray = (BValueArray) result.get("boolean_array");
         Assert.assertEquals(((BBoolean) booleanArray.getBValue(0)).booleanValue(), true);
@@ -273,7 +272,7 @@ public class ComplexTypesQueryTest {
         LinkedHashMap result = ((BMap) returns[0]).getMap();
         Assert.assertEquals(result.size(), 7);
         Assert.assertEquals(((BInteger) result.get("INT_TYPE")).intValue(), 1);
-        Assert.assertEquals(((BFloat) result.get("FLOAT_TYPE")).floatValue(), 123.34);
+        Assert.assertTrue((result.get("FLOAT_TYPE")) instanceof BFloat);
         Assert.assertEquals(((BInteger) result.get("DT2INT_TYPE")).intValue(), 100);
     }
 

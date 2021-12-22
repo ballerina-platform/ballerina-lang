@@ -62,7 +62,7 @@ type ResultObject record {
 type ResultMap record {
     int[] INT_ARRAY;
     int[] LONG_ARRAY;
-    decimal[] FLOAT_ARRAY;
+    float[] FLOAT_ARRAY;
     boolean[] BOOLEAN_ARRAY;
     string[] STRING_ARRAY;
 };
@@ -307,7 +307,7 @@ function toXmlComplex(string jdbcURL) returns xml {
         poolOptions: {maximumPoolSize: 1}
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type," +
-                    "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
+                    "float_array, double_type, boolean_type, string_type, double_array, boolean_array," +
                     "string_array from MixTypes where row_id =1", ());
 
     xml convertedVal = getXMLConversionResult(tableOrError);
@@ -340,7 +340,7 @@ function testToJsonComplex(string jdbcURL) returns @tainted json {
         poolOptions: {maximumPoolSize: 1}
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type," +
-        "float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array " +
+        "float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array " +
         "from MixTypes where row_id =1", ());
 
     json convertedVal = getJsonConversionResult(tableOrError);
@@ -494,7 +494,7 @@ function testGetComplexTypes(string jdbcURL) returns @tainted [byte[], string, b
     return [blobData, clob, binaryData];
 }
 
-function testArrayData(string jdbcURL) returns @tainted [int[], int[], decimal[], string[], boolean[]] {
+function testArrayData(string jdbcURL) returns @tainted [int[], int[], float[], string[], boolean[]] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -506,7 +506,7 @@ function testArrayData(string jdbcURL) returns @tainted [int[], int[], decimal[]
               "string_array from ArrayTypes where row_id = 1", ResultMap);
     int[] int_arr = [];
     int[] long_arr = [];
-    decimal[] float_arr = [];
+    float[] float_arr = [];
     string[] string_arr = [];
     boolean[] boolean_arr = [];
     if (tableOrError is table<ResultMap>) {
@@ -532,7 +532,7 @@ function testArrayDataInsertAndPrint(string jdbcURL) returns @tainted [int, int,
     });
 
     int[] dataint = [1, 2, 3];
-    decimal[] datafloat = [33.4, 55.4];
+    float[] datafloat = [33.4, 55.4];
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 

@@ -127,7 +127,7 @@ returns @tainted [sql:ExecuteResult?, StringData?]|error? {
     string intIDVal = "25";
     string insertQuery = "Insert into StringTypes (id, varchar_type, charmax_type, char_type, charactermax_type,"
         + "character_type, nvarcharmax_type, longvarchar_type, clob_type) values ("
-        + intIDVal + ",'str1','str2','str3','str4','str5','str6','str7','str8')";
+        + intIDVal + ",'str1','str2','3','str4','5','str6','str7','str8')";
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
 
     StringData? insertedData = ();

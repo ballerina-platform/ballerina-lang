@@ -1,5 +1,5 @@
 CREATE TABLE NumericTypes (
-   id INT IDENTITY,
+   id INT AUTO_INCREMENT,
    int_type INT,
    bigint_type BIGINT,
    smallint_type SMALLINT,

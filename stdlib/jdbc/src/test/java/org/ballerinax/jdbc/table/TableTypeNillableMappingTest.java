@@ -610,9 +610,9 @@ public class TableTypeNillableMappingTest {
 
         Assert.assertTrue(returns[2] instanceof BValueArray);
         BValueArray doubleArray = (BValueArray) returns[2];
-        Assert.assertEquals(doubleArray.getRefValue(0).value(), new BigDecimal("245.23"));
-        Assert.assertEquals(doubleArray.getRefValue(1).value(), new BigDecimal("5559.49"));
-        Assert.assertEquals(doubleArray.getRefValue(2).value(), new BigDecimal("8796.123"));
+        Assert.assertEquals(doubleArray.getFloat(0), 245.23);
+        Assert.assertEquals(doubleArray.getFloat(1), 5559.49);
+        Assert.assertEquals(doubleArray.getFloat(2), 8796.123   );
 
         Assert.assertTrue(returns[3] instanceof BValueArray);
         BValueArray stringArray = (BValueArray) returns[3];
@@ -644,7 +644,7 @@ public class TableTypeNillableMappingTest {
         Assert.assertTrue(returns[2] instanceof BValueArray);
         BValueArray doubleArray = (BValueArray) returns[2];
         Assert.assertNull(doubleArray.getRefValue(0));
-        Assert.assertEquals(doubleArray.getRefValue(1).value(), new BigDecimal("5559.49"));
+        Assert.assertEquals(doubleArray.getRefValue(1).value(), 5559.49);
         Assert.assertNull(doubleArray.getRefValue(2));
 
         Assert.assertTrue(returns[3] instanceof BValueArray);

@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Customers(
-  customerId INTEGER NOT NULL IDENTITY,
+  customerId INTEGER AUTO_INCREMENT,
   firstName  VARCHAR(300),
   lastName  VARCHAR(300),
   registrationID INTEGER,
@@ -12,7 +12,7 @@ INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country)
   VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA');
 /
 CREATE TABLE IF NOT EXISTS CustomersTrx(
-  customerId INTEGER NOT NULL IDENTITY,
+  customerId INTEGER AUTO_INCREMENT,
   firstName  VARCHAR(300),
   lastName  VARCHAR(300),
   registrationID INTEGER,

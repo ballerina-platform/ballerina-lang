@@ -193,7 +193,6 @@ public class TableTypeTest {
                 + "<FLOAT_ARRAY><element>245.23</element><element>5559.49</element>"
                 + "<element>8796.123</element></FLOAT_ARRAY><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
                 + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE>"
-                + "<DECIMAL_TYPE>342452151425.4556</DECIMAL_TYPE>"
                 + "<DOUBLE_ARRAY><element>245.23</element><element>5559.49</element><element>8796.123</element>"
                 + "</DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element><element>false</element>"
                 + "<element>true</element></BOOLEAN_ARRAY><STRING_ARRAY><element>Hello</element>"
@@ -227,7 +226,7 @@ public class TableTypeTest {
                 + "\"LONG_TYPE\":9223372036854774807, \"LONG_ARRAY\":[100000000, 200000000, 300000000], "
                 + "\"FLOAT_TYPE\":123.34, \"FLOAT_ARRAY\":[245.23, 5559.49, 8796.123], "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\", "
-                + "\"DECIMAL_TYPE\":342452151425.4556, \"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
+                + "\"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
                 + "\"BOOLEAN_ARRAY\":[true, false, true], \"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
@@ -538,11 +537,11 @@ public class TableTypeTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
         String expectedJson, expectedXML1, expectedXML2;
         expectedJson = "[{\"ROW_ID\":100, \"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\", \"CLOB_TYPE\":\"Sample Text\", "
-                + "\"BINARY_TYPE\":\"U2FtcGxlIFRleHQ=\"}, {\"ROW_ID\":200, \"BLOB_TYPE\":null, "
+                + "\"BINARY_TYPE\":\"U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA\"}, {\"ROW_ID\":200, \"BLOB_TYPE\":null, "
                 + "\"CLOB_TYPE\":null, \"BINARY_TYPE\":null}]";
         expectedXML1 = "<results><result><ROW_ID>100</ROW_ID>"
                 + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
-                + "<BINARY_TYPE>U2FtcGxlIFRleHQ=</BINARY_TYPE></result>"
+                + "<BINARY_TYPE>U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA</BINARY_TYPE></result>"
                 + "<result><ROW_ID>200</ROW_ID>"
                 + "<BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></BLOB_TYPE>"
                 + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></CLOB_TYPE>"
@@ -550,7 +549,7 @@ public class TableTypeTest {
                 + "</BINARY_TYPE></result></results>";
         expectedXML2 = "<results><result><ROW_ID>100</ROW_ID>"
                 + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
-                + "<BINARY_TYPE>U2FtcGxlIFRleHQ=</BINARY_TYPE></result>"
+                + "<BINARY_TYPE>U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA</BINARY_TYPE></result>"
                 + "<result><ROW_ID>200</ROW_ID>"
                 + "<BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
                 + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
@@ -641,7 +640,7 @@ public class TableTypeTest {
     @AfterSuite
     public void cleanup() {
         if (testDatabase != null) {
-            testDatabase.stop();
+        //    testDatabase.stop();
         }
     }
 
@@ -702,9 +701,9 @@ public class TableTypeTest {
 
         Assert.assertTrue(returns[2] instanceof BValueArray);
         BValueArray doubleArray = (BValueArray) returns[2];
-        Assert.assertEquals(doubleArray.getRefValue(0).value(), new BigDecimal("245.23"));
-        Assert.assertEquals(doubleArray.getRefValue(1).value(), new BigDecimal("5559.49"));
-        Assert.assertEquals(doubleArray.getRefValue(2).value(), new BigDecimal("8796.123"));
+        Assert.assertEquals(doubleArray.getFloat(0), 245.23);
+        Assert.assertEquals(doubleArray.getFloat(1), 5559.49);
+        Assert.assertEquals(doubleArray.getFloat(2), 8796.123);
 
         Assert.assertTrue(returns[3] instanceof BValueArray);
         BValueArray stringArray = (BValueArray) returns[3];

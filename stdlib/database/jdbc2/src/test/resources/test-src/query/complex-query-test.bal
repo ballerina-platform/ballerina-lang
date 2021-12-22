@@ -68,7 +68,7 @@ function testGetPrimitiveTypes(string jdbcURL, string user, string password) ret
 
 function testToJson(string jdbcURL, string user, string password) returns @tainted json|error {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
-  stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type,"
+    stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, double_type,"
         + "boolean_type, string_type from DataTable WHERE row_id = 1");
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
@@ -104,7 +104,7 @@ function testArrayRetrieval(string jdbcURL, string user, string password)
 returns @tainted record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, " +
-        "float_type, float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
+        "float_type, float_array, double_type, boolean_type, string_type, double_array, boolean_array," +
         "string_array from MixTypes where row_id =1");
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();

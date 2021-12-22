@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Customers(
-  customerId INTEGER NOT NULL AUTO_INCREMENT,
+  customerId INTEGER AUTO_INCREMENT,
   firstName  VARCHAR(300),
   lastName  VARCHAR(300),
   registrationID INTEGER,

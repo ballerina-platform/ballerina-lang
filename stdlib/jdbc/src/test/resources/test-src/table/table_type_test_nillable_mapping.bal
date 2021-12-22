@@ -95,7 +95,7 @@ type NillableBlob record {
 type ResultMapNonNillableTypeNillableElements record {
     int?[] INT_ARRAY;
     int?[] LONG_ARRAY;
-    decimal?[] FLOAT_ARRAY;
+    float?[] FLOAT_ARRAY;
     boolean?[] BOOLEAN_ARRAY;
     string?[] STRING_ARRAY;
 };
@@ -103,7 +103,7 @@ type ResultMapNonNillableTypeNillableElements record {
 type ResultMapNillable record {
     int?[]? INT_ARRAY;
     int?[]? LONG_ARRAY;
-    decimal?[]? FLOAT_ARRAY;
+    float?[]? FLOAT_ARRAY;
     boolean?[]? BOOLEAN_ARRAY;
     string?[]? STRING_ARRAY;
 };
@@ -111,7 +111,7 @@ type ResultMapNillable record {
 type ResultMapNillableTypeNonNillableElements record {
     int[]? INT_ARRAY;
     int[]? LONG_ARRAY;
-    decimal[]? FLOAT_ARRAY;
+    float[]? FLOAT_ARRAY;
     boolean[]? BOOLEAN_ARRAY;
     string[]? STRING_ARRAY;
 };
@@ -409,7 +409,7 @@ function testMappingNullToNillableTypesBlob(string jdbcURL) returns @tainted byt
 }
 
 function testMapArrayToNonNillableTypeWithNillableElementType(string jdbcURL) returns
-    @tainted [int?[], int?[], decimal?[], string?[], boolean?[]] {
+    @tainted [int?[], int?[], float?[], string?[], boolean?[]] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -422,7 +422,7 @@ function testMapArrayToNonNillableTypeWithNillableElementType(string jdbcURL) re
 
     int?[] int_arr = [];
     int?[] long_arr = [];
-    decimal?[] float_arr = [];
+    float?[] float_arr = [];
     string?[] string_arr = [];
     boolean?[] boolean_arr = [];
 
@@ -441,7 +441,7 @@ function testMapArrayToNonNillableTypeWithNillableElementType(string jdbcURL) re
 }
 
 function testMapArrayToNillableTypeWithNillableElementType(string jdbcURL) returns
-    @tainted [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
+    @tainted [int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -454,7 +454,7 @@ function testMapArrayToNillableTypeWithNillableElementType(string jdbcURL) retur
 
     int?[]? int_arr = ();
     int?[]? long_arr = ();
-    decimal?[]? float_arr = ();
+    float?[]? float_arr = ();
     string?[]? string_arr = ();
     boolean?[]? boolean_arr = ();
 
@@ -473,7 +473,7 @@ function testMapArrayToNillableTypeWithNillableElementType(string jdbcURL) retur
 }
 
 function testMapArrayToNillableTypeWithNonNillableElementType(string jdbcURL) returns
-    @tainted [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
+    @tainted [int[]?, int[]?, float[]?, string[]?, boolean[]?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -485,7 +485,7 @@ function testMapArrayToNillableTypeWithNonNillableElementType(string jdbcURL) re
 
     int[]? int_arr = ();
     int[]? long_arr = ();
-    decimal[]? float_arr = ();
+    float[]? float_arr = ();
     string[]? string_arr = ();
     boolean[]? boolean_arr = ();
 
@@ -504,7 +504,7 @@ function testMapArrayToNillableTypeWithNonNillableElementType(string jdbcURL) re
 }
 
 function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(string jdbcURL) returns
-    @tainted [int?[], int?[], decimal?[], string?[], boolean?[]] {
+    @tainted [int?[], int?[], float?[], string?[], boolean?[]] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -517,7 +517,7 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(string j
 
     int?[] int_arr = [];
     int?[] long_arr = [];
-    decimal?[] float_arr = [];
+    float?[] float_arr = [];
     string?[] string_arr = [];
     boolean?[] boolean_arr = [];
 
@@ -536,7 +536,7 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(string j
 }
 
 function testMapNillIncludedArrayNillableTypeWithNillableElementType(string jdbcURL) returns
-    @tainted [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
+    @tainted [int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -549,7 +549,7 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType(string jdbc
 
     int?[]? int_arr = ();
     int?[]? long_arr = ();
-    decimal?[]? float_arr = ();
+    float?[]? float_arr = ();
     string?[]? string_arr = ();
     boolean?[]? boolean_arr = ();
 
@@ -568,7 +568,7 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType(string jdbc
 }
 
 function testMapNilArrayToNillableTypeWithNonNillableElementTypes(string jdbcURL) returns
-    @tainted [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
+    @tainted [int[]?, int[]?, float[]?, string[]?, boolean[]?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -581,7 +581,7 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes(string jdbcURL
 
     int[]? int_arr = ();
     int[]? long_arr = ();
-    decimal[]? float_arr = ();
+    float[]? float_arr = ();
     string[]? string_arr = ();
     boolean[]? boolean_arr = ();
 
@@ -600,7 +600,7 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes(string jdbcURL
 }
 
 function testMapNilArrayToNillableTypeWithNillableElementTypes(string jdbcURL) returns
-    @tainted [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
+    @tainted [int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -613,7 +613,7 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes(string jdbcURL) r
 
     int?[]? int_arr = ();
     int?[]? long_arr = ();
-    decimal?[]? float_arr = ();
+    float?[]? float_arr = ();
     string?[]? string_arr = ();
     boolean?[]? boolean_arr = ();
 
@@ -632,7 +632,7 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes(string jdbcURL) r
 }
 
 function testMapNillElementsOnlyArray(string jdbcURL) returns
-    @tainted [int?[], int?[], decimal?[], string?[], boolean?[]] {
+    @tainted [int?[], int?[], float?[], string?[], boolean?[]] {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -645,7 +645,7 @@ function testMapNillElementsOnlyArray(string jdbcURL) returns
 
     int?[] int_arr = [];
     int?[] long_arr = [];
-    decimal?[] float_arr = [];
+    float?[] float_arr = [];
     string?[] string_arr = [];
     boolean?[] boolean_arr = [];
 
