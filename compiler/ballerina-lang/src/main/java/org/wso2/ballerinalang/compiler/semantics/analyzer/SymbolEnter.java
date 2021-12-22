@@ -516,7 +516,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isObjectCtor(BLangClassDefinition classDefinition) {
-        return classDefinition.flagSet.contains(Flag.OBJECT_CTOR);
+        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
+                !classDefinition.flagSet.contains(Flag.CLASS)) {
+            return true;
+        }
+        return false;
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
