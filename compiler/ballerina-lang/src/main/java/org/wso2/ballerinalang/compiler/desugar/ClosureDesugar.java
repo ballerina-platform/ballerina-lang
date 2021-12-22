@@ -18,28 +18,23 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -176,7 +171,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,7 +180,6 @@ import java.util.TreeMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -211,7 +204,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private Names names;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
-    private int funcParamCount = 1;
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -239,14 +231,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-
-        for (BLangFunction bLangFunction : pkgNode.functions) {
-            if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
-                SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(bLangFunction, bLangFunction.originalFuncSymbol.scope,
-                                                                pkgEnv);
-                rewriteParamsOfFunction(bLangFunction, funcEnv);
-            }
-        }
 
         pkgNode.services.forEach(service -> rewrite(service, pkgEnv));
         pkgNode.globalVars.forEach(globalVar -> rewrite(globalVar, pkgEnv));
@@ -315,24 +299,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
             addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.getBType());
         }
-
-        if (funcNode.flagSet.contains(Flag.LAMBDA)) {
-            rewriteParamsOfFunction(funcNode, funcEnv);
-        }
+        rewriteParamsAndReturnTypeOfFunction(funcNode, funcEnv);
         funcNode.body = rewrite(funcNode.body, funcEnv);
         result = funcNode;
     }
 
-    public void rewriteParamsOfFunction(BLangFunction funcNode, SymbolEnv funcEnv) {
+    public void rewriteParamsAndReturnTypeOfFunction(BLangFunction funcNode, SymbolEnv funcEnv) {
         for (BLangSimpleVariable bLangSimpleVariable : funcNode.requiredParams) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, funcEnv);
-            if (!Symbols.isFlagOn(bLangSimpleVariable.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
-                continue;
-            }
-            Map<String, BLangLambdaFunction> defaultValues =
-                                                ((BInvokableTypeSymbol) funcNode.getBType().tsymbol).defaultValues;
-            BLangLambdaFunction lambdaExpr = defaultValues.get(bLangSimpleVariable.symbol.name.value);
-            rewriteExpr(lambdaExpr, funcEnv);
         }
         if (funcNode.restParam != null) {
             funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
@@ -702,14 +676,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
-        Map<String, BLangLambdaFunction> defaultValues = (functionTypeNode.symbol).defaultValues;
         for (BLangVariable bLangSimpleVariable : functionTypeNode.params) {
-            bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
-            if (!bLangSimpleVariable.symbol.isDefaultable) {
-                continue;
-            }
-            BLangLambdaFunction lambdaExpr = defaultValues.get(bLangSimpleVariable.symbol.name.value);
-            rewriteExpr(lambdaExpr, typeDefEnv);
+            bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, typeDefEnv);
         }
         if (functionTypeNode.restParam != null) {
             functionTypeNode.restParam.typeNode = rewrite(functionTypeNode.restParam.typeNode, env);
@@ -719,15 +687,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         }
 
         result = functionTypeNode;
-    }
-
-    private BLangInvocation getInvocation(BInvokableSymbol symbol) {
-        BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        funcInvocation.setBType(symbol.retType);
-        funcInvocation.expr = null;
-        funcInvocation.symbol = symbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
-        return funcInvocation;
     }
 
     @Override
@@ -1004,96 +963,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     public void rewriteInvocationExpr(BLangInvocation invocation) {
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
         invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
-        BInvokableTypeSymbol invokableTypeSymbol;
-        BType type = invocation.symbol.type;
-        if (type.getKind() == TypeKind.TYPEREFDESC) {
-            invokableTypeSymbol = (BInvokableTypeSymbol) ((BTypeReferenceType) type).referredType.tsymbol;
-        } else {
-            invokableTypeSymbol = (BInvokableTypeSymbol) type.tsymbol;
-        }
-        if (invokableTypeSymbol == null) {
-            result = invocation;
-            return;
-        }
-        TreeMap<String, BLangExpression> arguments = new TreeMap<>();
-        Map<String, BLangLambdaFunction> defaultValues = invokableTypeSymbol.defaultValues;
-
-        for (int i = 0; i < invokableTypeSymbol.params.size(); i++) {
-            BLangExpression arg;
-            BLangSimpleVariableDef variableDef;
-            BLangSimpleVarRef simpleVarRef;
-            if (invocation instanceof BLangInvocation.BLangAttachedFunctionInvocation) {
-                arg = invocation.requiredArgs.get(i + 1);
-            } else {
-                arg = invocation.requiredArgs.get(i);
-            }
-            BVarSymbol param = invokableTypeSymbol.params.get(i);
-            String paramName = param.name.value;
-            if (arg.getKind() != NodeKind.IGNORE_EXPR) {
-                if (invocation.expr == arg) {
-                    arguments.put(paramName, arg);
-                    continue;
-                }
-                variableDef = createVarDef("$" + paramName + "$" + funcParamCount++, arg.getBType(), arg, arg.pos);
-                simpleVarRef = ASTBuilderUtil.createVariableRef(invocation.pos, variableDef.var.symbol);
-                simpleVarRef = desugar.rewrite(simpleVarRef, env);
-                blockStmt.addStatement(variableDef);
-                arguments.put(paramName, simpleVarRef);
-                if (invocation instanceof BLangInvocation.BLangAttachedFunctionInvocation) {
-                    invocation.requiredArgs.set(i + 1, simpleVarRef);
-                } else {
-                    invocation.requiredArgs.set(i, simpleVarRef);
-                }
-                continue;
-            }
-
-            BLangLambdaFunction lambdaExpr = defaultValues.get(paramName);
-            Name funcName = names.fromIdNode(lambdaExpr.function.name);
-            BSymbol pkgSymbol = getPackageSymbol(invocation.symbol);
-            BSymbol closureSymbol =
-                    symResolver.lookupMainSpaceSymbolInPackage(pkgSymbol, invocation.pos, env, funcName);
-            BLangInvocation closureInvocation = getInvocation((BInvokableSymbol) closureSymbol);
-            for (int m = 0; m < ((BInvokableSymbol) closureSymbol).params.size(); m++) {
-                String langLibFuncParam = ((BInvokableSymbol) closureSymbol).params.get(m).name.value;
-                closureInvocation.requiredArgs.add(arguments.get(langLibFuncParam));
-            }
-            lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
-                if (k < 0) {
-                    BLangExpression expr = arguments.get(v.name.value);
-                    closureInvocation.argExprs.add(expr);
-                    closureInvocation.requiredArgs.add(expr);
-                } else {
-                    BSymbol varSymbol;
-                    if (lambdaExpr.enclMapSymbols.containsKey(k)) {
-                        varSymbol = lambdaExpr.enclMapSymbols.get(k);
-                    } else {
-                        varSymbol = ((BLangFunction) env.enclInvokable).paramClosureMap.get(k);
-                    }
-                    BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(env.enclInvokable.body.pos, varSymbol);
-                    desugar.rewriteExpr(varRef);
-                    closureInvocation.argExprs.add(varRef);
-                    closureInvocation.requiredArgs.add(new BLangSimpleVarRef.
-                                                        BLangLocalVarRef((BVarSymbol) varRef.symbol));
-                }
-            });
-            variableDef = createVarDef(paramName, closureInvocation.getBType(), closureInvocation, arg.pos);
-            simpleVarRef = ASTBuilderUtil.createVariableRef(invocation.pos, variableDef.var.symbol);
-            simpleVarRef = desugar.rewrite(simpleVarRef, env);
-            blockStmt.addStatement(variableDef);
-            arguments.put(paramName, simpleVarRef);
-            if (invocation instanceof BLangInvocation.BLangAttachedFunctionInvocation) {
-                invocation.requiredArgs.set(i + 1, simpleVarRef);
-            } else {
-                invocation.requiredArgs.set(i, simpleVarRef);
-            }
-        }
         invocation.restArgs = rewriteExprs(invocation.restArgs);
-        BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, invocation);
-        stmtExpr.setBType(invocation.getBType());
-        result = stmtExpr;
-
+        result = invocation;
     }
 
     public BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, Location location) {
@@ -1325,32 +1197,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BSymbol varRefSym = localVarRef.symbol;
         BLangInvokableNode enclInvokable = env.enclInvokable;
         if (!varRefSym.closure || localVarRef.closureDesugared || enclInvokable == null) {
-            result = localVarRef;
-            return;
-        }
-
-        if (enclInvokable.flagSet.contains(Flag.LAMBDA) && !enclInvokable.flagSet.contains(Flag.QUERY_LAMBDA) &&
-                !enclInvokable.flagSet.contains(Flag.ANONYMOUS) && (varRefSym.owner == enclInvokable.symbol.owner)) {
-            TreeMap<Integer, BVarSymbol> paramClosureMap = ((BLangFunction) enclInvokable).paramClosureMap;
-            if (paramClosureMap.containsValue(varRefSym)) {
-                result = localVarRef;
-                return;
-            }
-            if (paramClosureMap.size() == 0) {
-                paramClosureMap.putIfAbsent(-1, (BVarSymbol) varRefSym);
-                result = localVarRef;
-                return;
-            }
-            int index = paramClosureMap.firstKey();
-            paramClosureMap.putIfAbsent(index - 1, (BVarSymbol) varRefSym);
-            result = localVarRef;
-            return;
-        }
-
-        boolean isMemberOfFunction = Symbols.isFlagOn(varRefSym.flags, Flags.REQUIRED_PARAM) ||
-                                     Symbols.isFlagOn(varRefSym.flags, Flags.DEFAULTABLE_PARAM);
-
-        if (isMemberOfFunction && !enclInvokable.flagSet.contains(Flag.LAMBDA)) {
             result = localVarRef;
             return;
         }
