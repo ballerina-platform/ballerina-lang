@@ -91,7 +91,7 @@ dependencies {
     dist 'io.opentracing:opentracing-util:0.33.0'
     dist 'org.awaitility:awaitility:3.1.6'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
-    dist 'com.h2database:h2:1.4.199'
+    dist 'com.h2database:h2:2.0.202'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     
     // observability extensions
@@ -103,7 +103,7 @@ dependencies {
     dist 'io.jaegertracing:jaeger-core:1.6.0'
     dist 'io.jaegertracing:jaeger-thrift:1.6.0'
     dist 'org.apache.thrift:libthrift:0.14.1'
-    dist 'com.squareup.okhttp3:okhttp:3.14.0'
+    dist 'com.squareup.okhttp3:okhttp:3.14.9'
     dist 'com.squareup.okio:okio:2.2.2'
 
     // Temporary adding . Need to Remove once fix #17878

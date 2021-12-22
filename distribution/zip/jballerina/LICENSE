@@ -38,7 +38,7 @@ okio-1.13.0.jar                                                                 
 ballerina-task-1.1.0.jar                                                                            jar            apache2
 kafka.jar                                                                                           jar            apache2
 ballerina-auth-1.1.0.jar                                                                            jar            apache2
-commons-beanutils-1.9.3.jar                                                                         bundle         apache2
+commons-beanutils-1.9.4.jar                                                                         bundle         apache2
 nats.jar                                                                                            jar            apache2
 ballerina-jsonutils-1.1.0.jar                                                                       jar            apache2
 lang.decimal.jar                                                                                    jar            apache2
@@ -146,7 +146,7 @@ grpc.jar                                                                        
 jzlib-1.1.3.jar                                                                                     jar            bsd
 netty-codec-http-4.1.39.Final.jar                                                                   bundle         apache2
 kotlin-stdlib-1.3.31.jar                                                                            jar            apache2
-okhttp-3.9.1.jar                                                                                    jar            apache2
+okhttp-3.14.9.jar                                                                                    jar            apache2
 geronimo-json_1.0_spec-1.0-alpha-1.jar                                                              bundle         apache2
 ballerina-math-1.1.0.jar                                                                            jar            apache2
 ballerina-runtime-api-1.1.0.jar                                                                     jar            apache2
@@ -226,7 +226,7 @@ lang.value.jar                                                                  
 ballerina-cli-utils-1.1.0.jar                                                                       jar            apache2
 lang.annotations.jar                                                                                jar            apache2
 netty-handler-proxy-4.1.39.Final.jar                                                                bundle         apache2
-guava-19.0.jar                                                                                      bundle         apache2
+guava-31.0.1-jre.jar                                                                                      bundle         apache2
 lang.__internal.jar                                                                                 jar            apache2
 jvm.jar                                                                                             jar            apache2
 org.wso2.transport.http.netty-6.2.34.jar                                                            bundle         apache2
@@ -241,9 +241,9 @@ org.wso2.securevault-1.0.0-wso2v2.jar                                           
 kubernetes.jar                                                                                      jar            apache2
 debug-adapter-core-1.1.0.jar                                                                        jar            apache2
 debug-adapter-cli-1.1.0.jar                                                                         jar            apache2
-h2-1.4.199.jar                                                                                      bundle         apache2
+h2-2.0.202.jar                                                                                      bundle         apache2
 org.eclipse.lsp4j-0.8.1.jar                                                                         bundle         epl1
-commons-io-2.6.jar                                                                                  bundle         apache2
+commons-io-2.11.0.jar                                                                                  bundle         apache2
 language-server-stdio-launcher-1.1.0.jar                                                            jar            apache2
 language-server-cli-1.1.0.jar                                                                       jar            apache2
 org.eclipse.lsp4j.jsonrpc-0.8.1.jar                                                                 bundle         epl1
