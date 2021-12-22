@@ -3047,6 +3047,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             // Param doesn't have a name and also is not a missing node
             // Therefore, assigning the built-in location
             simpleVar.name.pos = symTable.builtinPos;
+        } else {
+            simpleVar.name.pos = simpleVar.typeNode.pos;
         }
         simpleVar.flagSet.add(Flag.REQUIRED_PARAM);
         return simpleVar;
@@ -3122,7 +3124,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 if (child.kind() == SyntaxKind.REST_PARAM) {
                     functionTypeNode.restParam = (BLangSimpleVariable) param;
                 } else {
-                    functionTypeNode.params.add((BLangVariable) param);
+                    functionTypeNode.params.add((BLangSimpleVariable) param);
                 }
             }
 

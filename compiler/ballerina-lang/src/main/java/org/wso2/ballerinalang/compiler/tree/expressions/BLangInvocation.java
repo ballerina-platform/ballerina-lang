@@ -183,6 +183,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         }
 
         public BFunctionPointerInvocation(BLangInvocation parent, BLangExpression varRef) {
+            this.pkgAlias = parent.pkgAlias;
             this.pos = parent.pos;
             this.name = parent.name;
             this.requiredArgs = parent.requiredArgs;

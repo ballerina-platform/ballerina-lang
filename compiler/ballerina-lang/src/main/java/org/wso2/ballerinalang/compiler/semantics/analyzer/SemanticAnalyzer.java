@@ -496,7 +496,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.TABLE_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
+                || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE
+                || typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
             analyzeDef(typeDefinition.typeNode, env);
         }
 
@@ -534,6 +535,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
         validateBuiltinTypeAnnotationAttachment(typeDefinition.annAttachments);
+    }
+
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        SymbolEnv funcEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
+        for (BLangVariable param : functionTypeNode.params) {
+            analyzeDef(param, funcEnv);
+        }
+        if (functionTypeNode.restParam != null) {
+            analyzeDef(functionTypeNode.restParam.typeNode, funcEnv);
+        }
+        if (functionTypeNode.returnTypeNode != null) {
+            analyzeDef(functionTypeNode.returnTypeNode, funcEnv);
+        }
+        functionTypeNode.analyzed = true;
     }
 
     @Override
@@ -764,20 +780,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstrainedType constrainedType) {
         analyzeDef(constrainedType.constraint, env);
-    }
-
-    @Override
-    public void visit(BLangFunctionTypeNode functionTypeNode) {
-        List<BLangVariable> params = functionTypeNode.params;
-        for (BLangVariable param : params) {
-            analyzeDef(param.typeNode, env);
-        }
-        if (functionTypeNode.restParam != null) {
-            analyzeDef(functionTypeNode.restParam.typeNode, env);
-        }
-        if (functionTypeNode.returnTypeNode != null) {
-            analyzeDef(functionTypeNode.returnTypeNode, env);
-        }
     }
 
     @Override
@@ -1143,7 +1145,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeDef(varNode.typeNode, env);
         }
 
-        List<AttachPoint.Point> attachPointsList = Arrays.asList(attachPoints);
+        if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE &&
+                !((BLangFunctionTypeNode) varNode.typeNode).analyzed) {
+            analyzeDef(varNode.typeNode, env);
+        }
+            List<AttachPoint.Point> attachPointsList = Arrays.asList(attachPoints);
         for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
             annotationAttachment.attachPoints.addAll(attachPointsList);
             annotationAttachment.accept(this);

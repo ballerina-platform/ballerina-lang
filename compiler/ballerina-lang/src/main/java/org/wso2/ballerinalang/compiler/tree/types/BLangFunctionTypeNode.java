@@ -21,9 +21,11 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.ArrayList;
@@ -40,13 +42,16 @@ import java.util.stream.Collectors;
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
     // BLangNodes
-    public List<BLangVariable> params = new ArrayList<>();
+    public List<BLangSimpleVariable> params = new ArrayList<>();
     public BLangVariable restParam;
     public BLangType returnTypeNode;
+    public BInvokableTypeSymbol symbol;
 
     // Parser Flags and Data
     public Set<Flag> flagSet = new HashSet<>();
     public boolean returnsKeywordExists = false;
+    public boolean isInTypeDefinitionContext;
+    public boolean analyzed;
 
     @Override
     public BLangVariable getRestParam() {
@@ -54,7 +59,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     }
 
     @Override
-    public List<BLangVariable> getParams() {
+    public List<BLangSimpleVariable> getParams() {
         return this.params;
     }
 
@@ -106,7 +111,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
         return br.toString();
     }
 
-    private String getParamNames(List<BLangVariable> paramTypes) {
+    private String getParamNames(List<BLangSimpleVariable> paramTypes) {
         return paramTypes.stream().map(paramType -> {
             if (paramType.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 return ((UserDefinedTypeNode) paramType).getTypeName().getValue();
