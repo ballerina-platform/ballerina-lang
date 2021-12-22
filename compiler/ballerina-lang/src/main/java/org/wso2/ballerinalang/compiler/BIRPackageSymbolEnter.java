@@ -83,9 +83,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -1040,16 +1037,36 @@ public class BIRPackageSymbolEnter {
             int defaultValues = inputStream.readInt();
             for (int i = 0; i < defaultValues; i++) {
                 String paramName = getStringCPEntryValue(inputStream);
-                String closureName = getStringCPEntryValue(inputStream);
-                BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-                BLangFunction function = (BLangFunction) TreeBuilder.createFunctionNode();
-                BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-                funcName.value = closureName;
-                function.name = funcName;
-                lambdaFunction.function = function;
-                tSymbol.defaultValues.put(paramName, lambdaFunction);
+                BInvokableSymbol invokableSymbol = getSymbolOfClosure();
+                tSymbol.defaultValues.put(paramName, invokableSymbol);
             }
             return bInvokableType;
+        }
+
+        private BInvokableSymbol getSymbolOfClosure() throws IOException {
+            String name = getStringCPEntryValue(inputStream);
+            var flags = inputStream.readLong();
+            BType type = readTypeFromCp();
+            int pkgCpIndex = inputStream.readInt();
+            PackageID pkgId = getPackageId(pkgCpIndex);
+
+            BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, Names.fromString(name),
+                                               Names.fromString(name), pkgId, type, null, false,
+                                               symTable.builtinPos, VIRTUAL);
+            invokableSymbol.retType = invokableSymbol.type.getReturnType();
+
+            int parameters = inputStream.readInt();
+            for (int i = 0; i < parameters; i++) {
+                String fieldName = getStringCPEntryValue(inputStream);
+                var fieldFlags = inputStream.readLong();
+                byte[] docBytes = readDocBytes(inputStream);
+                BType fieldType = readTypeFromCp();
+                BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName), pkgId, fieldType, null,
+                                                      symTable.builtinPos, COMPILED_SOURCE);
+                defineMarkDownDocAttachment(varSymbol, docBytes);
+                invokableSymbol.params.add(varSymbol);
+            }
+            return invokableSymbol;
         }
 
         public BType readType(int cpI) throws IOException {

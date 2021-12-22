@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -228,8 +229,23 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(invokableTypeSymbol.defaultValues.size());
         invokableTypeSymbol.defaultValues.forEach((k, v) -> {
             buff.writeInt(addStringCPEntry(k));
-            buff.writeInt(addStringCPEntry(v.function.name.value));
+            writeSymbolOfClosure(v);
         });
+    }
+
+    private void writeSymbolOfClosure(BInvokableSymbol invokableSymbol) {
+        buff.writeInt(addStringCPEntry(invokableSymbol.name.value));
+        buff.writeLong(invokableSymbol.flags);
+        writeTypeCpIndex(invokableSymbol.type);
+        writePackageIndex(invokableSymbol.type.tsymbol);
+
+        buff.writeInt(invokableSymbol.params.size());
+        for (BVarSymbol symbol : invokableSymbol.params) {
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeLong(symbol.flags);
+            writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
+            writeTypeCpIndex(symbol.type);
+        }
     }
 
     @Override
