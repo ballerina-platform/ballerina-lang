@@ -203,7 +203,7 @@ java.arrays.jar                                                                 
 xml-1.1.0.jar                                                                                       jar            apache2
 lang.string.jar                                                                                     jar            apache2
 netty-codec-4.1.39.Final.jar                                                                        bundle         apache2
-netty-tcnative-boringssl-static-2.0.31.Final.jar                                                    bundle         apache2
+netty-tcnative-boringssl-static-2.0.45.Final.jar                                                    bundle         apache2
 axiom-dom-1.2.22.jar                                                                                bundle         apache2
 ballerina-system-1.1.0.jar                                                                          jar            apache2
 lang.float.jar                                                                                      jar            apache2

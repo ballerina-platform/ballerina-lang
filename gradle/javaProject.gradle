@@ -112,7 +112,7 @@ dependencies {
         implementation 'io.netty:netty-codec-http:4.1.72.Final'
         implementation 'io.netty:netty-codec-http2:4.1.72.Final'
         implementation 'io.netty:netty-handler:4.1.72.Final'
-        implementation 'io.netty:netty-tcnative-boringssl-static:2.0.31.Final'
+        implementation 'io.netty:netty-tcnative-boringssl-static:2.0.45.Final'
         implementation 'io.netty:netty-transport:4.1.72.Final'
         implementation 'io.nats:java-nats-streaming:2.2.1'
         implementation 'io.nats:jnats:2.6.0'

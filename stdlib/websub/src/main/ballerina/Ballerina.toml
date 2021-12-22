@@ -112,8 +112,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static"
-    version = "2.0.31.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.31.Final.jar"
+    version = "2.0.45.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.45.Final.jar"
     groupId = "io.netty"
     modules = ["web-sub"]
 

@@ -65,7 +65,7 @@ dependencies {
     dist 'io.netty:netty-handler-proxy:4.1.72.Final'
     dist 'io.netty:netty-handler:4.1.72.Final'
     dist 'io.netty:netty-resolver:4.1.72.Final'
-    dist 'io.netty:netty-tcnative-boringssl-static:2.0.31.Final'
+    dist 'io.netty:netty-tcnative-boringssl-static:2.0.45.Final'
     dist 'io.netty:netty-transport:4.1.72.Final'
     dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
     dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
