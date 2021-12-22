@@ -612,7 +612,7 @@ public class TableTypeNillableMappingTest {
         BValueArray doubleArray = (BValueArray) returns[2];
         Assert.assertEquals(doubleArray.getFloat(0), 245.23);
         Assert.assertEquals(doubleArray.getFloat(1), 5559.49);
-        Assert.assertEquals(doubleArray.getFloat(2), 8796.123   );
+        Assert.assertEquals(doubleArray.getFloat(2), 8796.123);
 
         Assert.assertTrue(returns[3] instanceof BValueArray);
         BValueArray stringArray = (BValueArray) returns[3];
