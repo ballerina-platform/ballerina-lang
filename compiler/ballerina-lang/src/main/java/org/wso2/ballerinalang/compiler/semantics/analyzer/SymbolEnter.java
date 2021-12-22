@@ -617,13 +617,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             f.flagSet.add(Flag.FINAL); // Method can't be changed
             f.setReceiver(ASTBuilderUtil.createReceiver(classDefinition.pos, objectType));
             defineNode(f, objMethodsEnv);
-//            if (classDefinition.isObjectContructorDecl) {
-//                for (BLangSimpleVariable simpleVariable : f.requiredParams) {
-//                    if (!symResolver.checkForUniqueSymbol(simpleVariable.pos, env.enclEnv, simpleVariable.symbol)) {
-//                        simpleVariable.setBType(symTable.errorType);
-//                    }
-//                }
-//            }
         }
 
         defineIncludedMethods(classDefinition, objMethodsEnv, false);
