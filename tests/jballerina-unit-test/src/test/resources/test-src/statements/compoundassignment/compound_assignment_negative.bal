@@ -161,3 +161,18 @@ function incompatibleTypesInBinaryBitwiseOpInCompoundAssignment() {
     a |= d;
     a ^= d;
 }
+
+function testCompoundAssignmentNotAllowedWithNullableOperands() {
+    map<int>? m = {x: 2};
+    m["x"] += 1;
+
+    int? a = ();
+    a += 2;
+
+    record {|int name?; int? age;|} b = {age: ()};
+    b.name += 4;
+    b.age += 4;
+
+    ()|int c = 5;
+    c += 4;
+}

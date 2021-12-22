@@ -1879,23 +1879,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         checkConstantAssignment(varRef);
 
         if (expType != symTable.semanticError && compoundAssignment.expr.getBType() != symTable.semanticError) {
+            BType expressionType = compoundAssignment.expr.getBType();
+            if (expType.isNullable() || expressionType.isNullable()) {
+                dlog.error(compoundAssignment.pos, 
+                        DiagnosticErrorCode.COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS);
+            }
+            
             BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expType,
-                                                                      compoundAssignment.expr.getBType());
+                    expressionType);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType,
-                                                                   compoundAssignment.expr.getBType());
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType, expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType,
-                                                                     compoundAssignment.expr.getBType());
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType, 
+                        expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver.getBinaryBitwiseOpsForTypeSets(compoundAssignment.opKind, expType,
-                        compoundAssignment.expr.getBType());
+                        expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                           compoundAssignment.opKind, expType, compoundAssignment.expr.getBType());
+                           compoundAssignment.opKind, expType, expressionType);
             } else {
                 compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
                         compoundAssignment.expr,

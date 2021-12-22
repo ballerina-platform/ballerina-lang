@@ -419,13 +419,15 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 305);
     }
 
-    @Test(description = "Test compound operator negative cases.", groups = "disableOnOldParser")
+    @Test(description = "Test compound operator negative cases.")
     public void testCompoundAssignmentNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 30);
+        Assert.assertEquals(compileResult.getErrorCount(), 38);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands", 13, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 25, 5);
@@ -433,6 +435,7 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 41, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '(int|error)'", 47, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 53, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands", 59, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 59, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'string'", 65, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'float', found 'int'", 73, 12);
@@ -462,8 +465,18 @@ public class CompoundAssignmentTest {
                 160, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and 'SomeType2'",
                 161, 5);
-        BAssertUtil.validateError(compileResult, i, "operator '^' not defined for '(int|string)' and 'SomeType2'",
+        BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for '(int|string)' and 'SomeType2'",
                 162, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
+                167, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
+                170, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
+                173, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
+                174, 5);
+        BAssertUtil.validateError(compileResult, i, "compound assignment not allowed with nullable operands",
+                177, 5);
     }
 
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
