@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -97,18 +98,24 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             //check for intersection as well.
             return completionItems;
         }
-        completionItems = typeReferences.stream().filter(typeRef -> isQualifiedTypeReference(context, typeRef))
-                .map(CommonUtil::getRawType)
+        completionItems = typeReferences.stream()
+                .filter(typeRef -> isQualifiedTypeReference(context, typeRef)
+                        && getQualifiedSymbolReference(typeRef).isPresent())
                 .map(typeRef -> {
-                    String symbolRef = getQualifiedSymbolReference(typeRef);
-                    return new SymbolCompletionItem(context, typeRef,
-                            TypeCompletionItemBuilder.build(typeRef, symbolRef));
+                    String symbolRef = getQualifiedSymbolReference(typeRef).get();
+                    TypeSymbol rawType = CommonUtil.getRawType(typeRef);
+                    return new SymbolCompletionItem(context, rawType,
+                            TypeCompletionItemBuilder.build(rawType, symbolRef));
                 }).collect(Collectors.toList());
         return completionItems;
     }
 
-    private String getQualifiedSymbolReference(TypeSymbol typeSymbol) {
-        ModuleID moduleID = typeSymbol.getModule().get().id();
+    private Optional<String> getQualifiedSymbolReference(TypeSymbol typeSymbol) {
+        Optional<ModuleSymbol> module = typeSymbol.getModule();
+        if (module.isEmpty()) {
+            return Optional.empty();
+        }
+        ModuleID moduleID = module.get().id();
         String moduleName = moduleID.moduleName();
         String modulePrefix = moduleID.modulePrefix();
         if (modulePrefix.isEmpty()) {
@@ -121,7 +128,11 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
                 modulePrefix = moduleNameComponents.get(moduleNameComponents.size() - 1);
             }
         }
-        return modulePrefix + ":" + typeSymbol.getName().get();
+        Optional<String> name = typeSymbol.getName();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(modulePrefix + ":" + typeSymbol.getName().get());
     }
 
     private boolean isQualifiedTypeReference(BallerinaCompletionContext context, TypeSymbol typeSymbol) {

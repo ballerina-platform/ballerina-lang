@@ -71,7 +71,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         //Check if there is a type cast expression already present.
-        MatchedExpressionNodeResolver expressionResolver = 
+        MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
         Optional<ExpressionNode> expressionNode = expressionResolver.findExpression(positionDetails.matchedNode());
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
@@ -114,7 +114,18 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
                 || !isNumeric(rhsTypeSymbol.get()))) {
             return Collections.emptyList();
         }
-        String typeName = lhsTypeSymbol.get().signature();
+
+        String typeName;
+        if (lhsTypeSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            Optional<String> name = lhsTypeSymbol.get().getName();
+            if (name.isEmpty()) {
+                return Collections.emptyList();
+            }
+            typeName = name.get();
+        } else {
+            typeName = lhsTypeSymbol.get().signature();
+        }
+        
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }

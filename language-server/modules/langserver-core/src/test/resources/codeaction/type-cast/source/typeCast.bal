@@ -111,3 +111,13 @@ function testWaitAction() {
 function () returns int anonFunc = function () returns int {
         return 1.2;
 };
+
+type MyRecord record {|
+    string field1;
+|};
+
+function testMapCast() {
+    map<string> myMap = {field1:"Test"};
+    MyRecord rec = myMap;
+}
+
