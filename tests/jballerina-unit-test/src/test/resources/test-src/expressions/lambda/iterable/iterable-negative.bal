@@ -43,7 +43,7 @@ function test4() {
 function test5(){
     string[] s = ["1", "a"];
     int x;
-    x = s.forEach(function (string s) {word = word + s;});
+    x = s.forEach(function (string s1) {word = word + s;});
 
     var [z, y] = s.map(function (string value) returns string {
                            return value.toUpperAscii;
@@ -62,10 +62,10 @@ function test7(){
     string[] s = ["foo", "bar"];
     s.forEach(function ([string, string, string] z) {});
     s.forEach(function () {});
-    s.filter(function (string s) returns [boolean, int] {return [true, 1];});
-    s.filter(function (string s) {});
+    s.filter(function (string s1) returns [boolean, int] {return [true, 1];});
+    s.filter(function (string s1) {});
     s.filter(function (person p) {});
-    _ = s.filter(function (string s) returns (person) {return ();});
+    _ = s.filter(function (string s1) returns (person) {return ();});
 }
 
 function test8() {

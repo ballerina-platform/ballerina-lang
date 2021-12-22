@@ -1158,6 +1158,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangClassDefinition classDefinition = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         classDefinition.flagSet.add(Flag.ANONYMOUS);
         classDefinition.flagSet.add(Flag.OBJECT_CTOR);
+        classDefinition.isObjectContructorDecl = true;
 
         for (Node node : members) {
             BLangNode bLangNode = node.apply(this);
@@ -1222,7 +1223,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         anonClass.setName(anonTypeGenName);
         anonClass.flagSet.add(Flag.PUBLIC);
-        anonClass.flagSet.add(Flag.OBJECT_CTOR);
         anonClass.isObjectContructorDecl = true; // not available for service
 
         Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
@@ -3863,6 +3863,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location pos = getPositionWithoutMetadata(serviceDeclarationNode);
         BLangClassDefinition anonClassDef = transformObjectCtorExpressionBody(serviceDeclarationNode.members());
         anonClassDef.isServiceDecl = true;
+        anonClassDef.isObjectContructorDecl = false;
         anonClassDef.pos = pos;
         anonClassDef.flagSet.add(SERVICE);
 

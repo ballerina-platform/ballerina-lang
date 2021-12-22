@@ -306,6 +306,23 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             // If the symbol being defined is inside a let expression and the existing symbol is defined inside a
             // function both symbols are in the same scope.
             return  true;
+        }  else if (((symbol.owner.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // If the symbol being defined is inside a function type and the existing symbol is defined inside a
+            // function both symbols are in the same scope.
+            return true;
+        } else if (Symbols.isFlagOn(symbol.owner.flags, Flags.OBJECT_CTOR) &&
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+            // object ctor is using a symbol inside a function masking the symbol in the function scope
+            // This is preventing outer scope variable name crashes with method names inside object ctor
+            if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED) || Symbols.isFlagOn(foundSym.flags, Flags.ATTACHED)) {
+                return false;
+            }
+            // This prevents `self` symbol crash between multilevel object ctors
+            if (foundSym.name.value.equals(Names.SELF.value) || symbol.name.value.equals(Names.SELF.value)) {
+                return false;
+            }
+            return true;
         }
         return  false;
     }
