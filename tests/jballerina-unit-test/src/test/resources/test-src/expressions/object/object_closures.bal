@@ -315,19 +315,19 @@ final Sum2 sumF = function (int x, int y) returns int {
     return x + y;
 };
 
-function testFunctionPointerAsFieldValue() {
-    final int i = 10;
-    object {
-        function summer() returns int ;
-    } obj = object {
-        private Sum2 func = sumF;
-        function summer() returns int {
-            return self.func(4, i);
-        }
-    };
+// function testFunctionPointerAsFieldValue() {
+//     final int i = 10;
+//     object {
+//         function summer() returns int ;
+//     } obj = object {
+//         private Sum2 func = sumF;
+//         function summer() returns int {
+//             return self.func(4, i);
+//         }
+//     };
 
-    assertValueEquality(14, obj.summer());
-}
+//     assertValueEquality(14, obj.summer());
+// }
 
 type AssertionError distinct error;
 const ASSERTION_ERROR_REASON = "AssertionError";

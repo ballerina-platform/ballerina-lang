@@ -515,20 +515,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
-    private boolean isObjectCtor(BLangNode node) {
-        if (node.getKind() == NodeKind.CLASS_DEFN) {
-            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-            return isObjectCtor(classDefinition);
-        }
-        return false;
-    }
-
     private boolean isObjectCtor(BLangClassDefinition classDefinition) {
-        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
-                !classDefinition.flagSet.contains(Flag.CLASS)) {
-            return true;
-        }
-        return false;
+        return classDefinition.flagSet.contains(Flag.OBJECT_CTOR);
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
@@ -629,11 +617,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             f.flagSet.add(Flag.FINAL); // Method can't be changed
             f.setReceiver(ASTBuilderUtil.createReceiver(classDefinition.pos, objectType));
             defineNode(f, objMethodsEnv);
-            if (classDefinition.isObjectContructorDecl) {
-                for (BLangSimpleVariable simpleVariable : f.requiredParams) {
-                    symResolver.checkForUniqueSymbol(simpleVariable.pos, env.enclEnv, simpleVariable.symbol);
-                }
-            }
+//            if (classDefinition.isObjectContructorDecl) {
+//                for (BLangSimpleVariable simpleVariable : f.requiredParams) {
+//                    if (!symResolver.checkForUniqueSymbol(simpleVariable.pos, env.enclEnv, simpleVariable.symbol)) {
+//                        simpleVariable.setBType(symTable.errorType);
+//                    }
+//                }
+//            }
         }
 
         defineIncludedMethods(classDefinition, objMethodsEnv, false);
@@ -4490,7 +4480,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
-        varSymbol.originalName = origName;
+        if (varSymbol.name == Names.EMPTY) {
+            return varSymbol;
+        }
         boolean isMemberOfFunc = (flagSet.contains(Flag.REQUIRED_PARAM) || flagSet.contains(Flag.DEFAULTABLE_PARAM) ||
                 flagSet.contains(Flag.REST_PARAM) || flagSet.contains(Flag.INCLUDED));
         boolean considerAsMemberSymbol;
@@ -4499,7 +4491,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             considerAsMemberSymbol = flagSet.contains(Flag.FIELD);
         }
-
+        varSymbol.originalName = origName;
         if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol) ||
                 !considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;

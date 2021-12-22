@@ -4662,12 +4662,31 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (env.enclInvokable != null || env.node.getKind() == NodeKind.ARROW_EXPR) {
+        if (this.nonErrorLoggingCheck) {
+            BLangFunction funcNode = bLangLambdaFunction.function;
+            BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                    names.fromIdNode(funcNode.name), Names.EMPTY,
+                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                    funcNode.hasBody(), funcNode.pos, VIRTUAL);
+            funcSymbol.scope = new Scope(funcSymbol);
+            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+            invokableEnv.scope = funcSymbol.scope;
+            symbolEnter.defineInvokableSymbolParams(bLangLambdaFunction.function, funcSymbol, invokableEnv);
+            funcNode.setBType(funcSymbol.type);
+        } else if (bLangLambdaFunction.function.symbol == null) {
             symbolEnter.defineNode(bLangLambdaFunction.function, env);
         }
         bLangLambdaFunction.setBType(bLangLambdaFunction.function.getBType());
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
+
+        if (!this.nonErrorLoggingCheck) {
+            if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
+                env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+            } else {
+                semanticAnalyzer.analyzeDef(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+            }
+        }
 
         if (!this.nonErrorLoggingCheck) {
             env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
@@ -6488,7 +6507,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         BInvokableType bInvokableType = (BInvokableType) types.getReferredType(invokableSymbol.type);
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
-        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableTypeSymbol.params);
+        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableSymbol.params);
 
         List<BLangExpression> nonRestArgs = iExpr.requiredArgs;
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
