@@ -182,6 +182,22 @@ types:
         type: s4
       - id: value
         size: value_length
+  closure_symbol_body:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s8
+      - id: type_cp_index
+        type: s4
+      - id: pkd_id_cp_index
+        type: s4
+      - id: param_count
+        type: s4
+      - id: params
+        type: function_parameter
+        repeat: expr
+        repeat-expr: param_count
   type_invokable_body:
     seq:
       - id: param_types_count
@@ -216,8 +232,8 @@ types:
     seq:
       - id: param_name_cp_index
         type: s4
-      - id: closure_name_cp_index
-        type: s4
+      - id: closure_symbol
+        type: closure_symbol_body
   invokable_type_symbol_body:
     seq:
       - id: param_count
