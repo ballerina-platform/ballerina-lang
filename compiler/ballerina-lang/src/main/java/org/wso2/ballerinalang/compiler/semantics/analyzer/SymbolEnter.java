@@ -3260,7 +3260,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                     boundVar.setBType(symTable.semanticError);
                     return false;
                 } else {
-                    boundVar.setBType(BUnionType.create(null, recordType.restFieldType, symTable.nilType));
+                    dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
+                            errorDetailEntry.key.value);
+                    isValidErrorVariable = false;
+                    continue;
                 }
             }
 
