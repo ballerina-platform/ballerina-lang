@@ -632,7 +632,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         analyzeReachability(body, doEnv);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                this.statementReturnsPanicsOrFails, true);
+                this.statementReturnsPanicsOrFails, true,
+                DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION);
         this.loopAndDoClauseCount--;
     }
 
@@ -785,14 +786,22 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.potentiallyInvalidAssignmentInLoopsInfo.peek().locations.add(location);
     }
 
-    private void handleInvalidAssignmentToTypeNarrowedVariableInLoop(List<Location> locations) {
+    private void handleInvalidAssignmentToTypeNarrowedVariableInLoop(List<Location> locations,
+                                                                     DiagnosticErrorCode errorCode) {
         for (Location location : locations) {
-            dlog.error(location, DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP);
+            dlog.error(location, errorCode);
         }
     }
 
     private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
             boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt) {
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+                branchTerminates, isLoopBodyOrBranchWithContinueAsLastStmt,
+                DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP);
+    }
+
+    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+            boolean branchTerminates, boolean isLoopBodyOrBranchWithContinueAsLastStmt, DiagnosticErrorCode errorCode) {
 
         PotentiallyInvalidAssignmentInfo
                 currentBranchInfo = this.potentiallyInvalidAssignmentInLoopsInfo.pop();
@@ -804,7 +813,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         List<Location> currentBranchLocations = currentBranchInfo.locations;
 
         if (isLoopBodyOrBranchWithContinueAsLastStmt) {
-            handleInvalidAssignmentToTypeNarrowedVariableInLoop(currentBranchLocations);
+            handleInvalidAssignmentToTypeNarrowedVariableInLoop(currentBranchLocations, errorCode);
             return;
         }
 

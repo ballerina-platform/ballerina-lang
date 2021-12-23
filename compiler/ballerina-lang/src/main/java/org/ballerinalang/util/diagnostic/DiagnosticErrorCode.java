@@ -755,7 +755,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
     INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard"),
     ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found"),
-    SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs")
+    SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs"),
+
+    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION("BCE4023", "invalid.assignment.to.narrowed.var.in.query.action")
     ;
 
     private String diagnosticId;
