@@ -784,7 +784,7 @@ function testUninitializedVariablesWithFunctionCalls() {
     boolean[] k;
     f2(i, j, ...k); // uninitialized `f2`, `i`, `j`, `k`
 
-    function (int i, string j = "", boolean... k) f3 = function (int i, string j = "", boolean... k) {};
+    function (int x, string y = "", boolean... z) f3 = function (int m, string n = "", boolean... o) {};
     int i2 = 0;
     string j2 = "";
     boolean[] k2 = [true];
@@ -797,7 +797,7 @@ function testUninitializedVariablesWithFunctionCalls() {
     b.method(); // uninitialized `b`
 
     i = 1;
-    b = new(function (int i) {});
+    b = new(function (int v) {});
     b.fn(i); // OK
     b.method(); // OK
 }
