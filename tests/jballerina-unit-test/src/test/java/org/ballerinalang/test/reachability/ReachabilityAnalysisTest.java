@@ -260,6 +260,7 @@ public class ReachabilityAnalysisTest {
         validateWarning(result, i++, "this function should explicitly return a value", 1006, 56);
         validateWarning(result, i++, "this function should explicitly return a value", 1016, 56);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1031, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1041, 9);
         Assert.assertEquals(result.getErrorCount(), i - 35 - 11);
         Assert.assertEquals(result.getHintCount(), 35);
         Assert.assertEquals(result.getWarnCount(), 11);
