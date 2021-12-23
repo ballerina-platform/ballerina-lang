@@ -36,7 +36,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.INTERNAL_VERSION;
  */
 public class InvokeAsExternal {
 
-    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, INTERNAL_LANG_LIB,
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, "lang.internal",
             INTERNAL_VERSION, "invokeAsExternal");
 
     public static Object invokeAsExternal(Object func, Object[] args) {
