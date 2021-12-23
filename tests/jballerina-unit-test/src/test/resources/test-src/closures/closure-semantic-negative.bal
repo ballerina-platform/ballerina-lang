@@ -59,10 +59,10 @@ function testVariableShadowingInClosure(int a) returns function (float) returns 
         }
         string s = "Out" + b.toString();
 
-        var fooIn = function (float f, boolean boo) returns (string) {
-            if (a > 8 && !boo) {
-                int a = 6;
-                b = a + <int>f + b;
+        var fooIn = function (float f2, boolean boo1) returns (string) {
+            if (a > 8 && !boo1) {
+                int a1 = 6;
+                b = a1 + <int>f1 + b;
             }
             return s + "In" + b.toString() + "Ballerina!!!";
         };

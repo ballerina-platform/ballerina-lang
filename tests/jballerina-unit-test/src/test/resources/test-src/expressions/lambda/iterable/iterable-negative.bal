@@ -43,7 +43,7 @@ function test4() {
 function test5(){
     string[] s = ["1", "a"];
     int x;
-    x = s.forEach(function (string s1) {word = word + s;});
+    x = s.forEach(function (string s1) {word = word + s1;});
 
     var [z, y] = s.map(function (string value) returns string {
                            return value.toUpperAscii;

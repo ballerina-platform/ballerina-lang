@@ -338,7 +338,7 @@ public class FunctionPointersTest {
                 BCompileUtil.compile("test-src/expressions/lambda/fps_hiding_block_scope_symbols.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 3, 26);
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 11, 50);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 11, 55);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'z'", 11, 58);
         Assert.assertEquals(result.getErrorCount(), i);
     }
