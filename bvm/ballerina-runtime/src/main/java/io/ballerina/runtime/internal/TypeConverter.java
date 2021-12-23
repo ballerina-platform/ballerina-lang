@@ -274,7 +274,9 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    if (TypeChecker.getType(inputValue) == memType) {
+                    if (TypeChecker.getType(inputValue) == memType
+                            || isIntegerSubtypeAndConvertible(inputValue, memType)
+                    ) {
                         return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
@@ -506,6 +508,20 @@ public class TypeConverter {
         }
     }
 
+    private static boolean isIntegerSubtypeAndConvertible(Object inputValue, Type targetType) {
+        Type inputValueType = TypeChecker.getType(inputValue);
+        if (!TypeTags.isIntegerTypeTag(inputValueType.getTag()) && inputValueType.getTag() != TypeTags.BYTE_TAG) {
+            return false;
+        }
+        if (targetType.getTag() == TypeTags.INT_TAG) {
+            return true;
+        } else if (targetType.getTag() == TypeTags.BYTE_TAG) {
+            return isConvertibleToByte(inputValue);
+        } else {
+            return isConvertibleToIntSubType(inputValue, targetType);
+        }
+    }
+
     private static boolean isConvertibleToTableType(Type tableConstrainedType) {
         switch (tableConstrainedType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
@@ -561,18 +577,26 @@ public class TypeConverter {
         int initialErrorCount;
         String elementIndex;
         boolean returnVal = true;
+        Set<Type> convertibleTypes;
         for (int i = 0; i < source.size(); i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
-            if (!isConvertibleToArrayInstance(source.get(i), targetTypeElementType, unresolvedValues, elementIndex,
-                    errors)) {
+            convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, elementIndex,
+                    false, unresolvedValues, errors);
+            if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "array element '" +
-                        elementIndex + "' should be of type '" + targetTypeElementType.toString() + "', found '" +
+                        elementIndex + "' should be of type '" + targetTypeElementType + "', found '" +
                         getShortSourceValue(source.get(i)) + "'");
-                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
-                    return false;
-                }
                 returnVal = false;
+            } else if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(source.get(i))) &&
+                    !hasIntegerSubTypes(convertibleTypes)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors,
+                        "array element '" + elementIndex + "' cannot be converted to '" +
+                                targetTypeElementType + "': ambiguous target type");
+                returnVal = false;
+            }
+            if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                return false;
             }
         }
         return returnVal;
@@ -598,29 +622,47 @@ public class TypeConverter {
         int initialErrorCount;
         String elementIndex;
         boolean returnVal = true;
+        Set<Type> convertibleTypes;
         for (int i = 0; i < targetTypeSize; i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
-            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetTypes.get(i), unresolvedValues,
-                    elementIndex, errors)) {
+            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetTypes.get(i), elementIndex,
+                    false, unresolvedValues, errors);
+            if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetTypes.get(i).toString() + "', found '" +
                         getShortSourceValue(source.getRefValue(i)) + "'");
-                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
-                    return false;
-                }
                 returnVal = false;
+            } else if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(
+                    source.getRefValue(i))) && !hasIntegerSubTypes(convertibleTypes)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors,
+                        "tuple element '" + elementIndex + "' cannot be converted to '" +
+                                targetTypes.get(i) + "': ambiguous target type");
+                returnVal = false;
+            }
+            if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                return false;
             }
         }
 
         for (int i = targetTypeSize; i < sourceTypeSize; i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
-            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetRestType, unresolvedValues,
-                    elementIndex, errors)) {
+            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetRestType, elementIndex,
+                    false, unresolvedValues, errors);
+            if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetRestType + "', found '" +
                         getShortSourceValue(source.getRefValue(i)) + "'");
+                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                    return false;
+                }
+                returnVal = false;
+            } else if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(
+                    source.getRefValue(i))) && !hasIntegerSubTypes(convertibleTypes)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors,
+                        "tuple element '" + elementIndex + "' cannot be converted to '" +
+                                targetRestType + "': ambiguous target type");
                 if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
                     return false;
                 }
@@ -636,19 +678,6 @@ public class TypeConverter {
         } else {
             return varName + "[" + index + "]";
         }
-    }
-
-    private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
-                                                        List<TypeValuePair> unresolvedValues, String varName,
-                                                        List<String> errors) {
-        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, varName, false,
-                unresolvedValues, errors);
-        return !convertibleTypes.isEmpty() && isConvertible(convertibleTypes, sourceElement);
-    }
-
-    private static boolean isConvertible(Set<Type> convertibleTypes, Object sourceElement) {
-        return convertibleTypes.size() <= 1 || convertibleTypes.contains(TypeChecker.getType(sourceElement))
-                || hasIntegerSubTypes(convertibleTypes);
     }
 
     public static boolean hasIntegerSubTypes(Set<Type> convertibleTypes) {
