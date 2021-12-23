@@ -52,7 +52,7 @@ public class IterableOperationsTests {
 
     @Test()
     public void testNegative() {
-//        Assert.assertEquals(negative.getErrorCount(), 33);
+        Assert.assertEquals(negative.getErrorCount(), 33);
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'forEach' in type 'int'", 6, 7);
         BAssertUtil.validateError(negative, index++, "undefined function 'map' in type 'string'", 8, 7);
