@@ -7,9 +7,9 @@ function name(int y) returns function (int) returns int {
     return func;
 }
 
-function nameArrow(int y) returns int {
-    function (int, int) returns int lambda = (x, y) => x + y;
-    return lambda(12, 32);
+function nameArrow(int y, int z) returns int {
+    function (int, int, int) returns int lambda = (x, y, z) => x + y + z;
+    return lambda(12, 32, 33);
 }
 
 int z = 34;

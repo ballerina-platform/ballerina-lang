@@ -4667,15 +4667,7 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
 
         BLangFunction function = bLangLambdaFunction.function;
-        for (BLangSimpleVariable simpleVariable : function.requiredParams) {
-            if (simpleVariable.symbol != null) {
-                symResolver.checkForUniqueSymbol(simpleVariable.pos, env, simpleVariable.symbol);
-            }
-        }
-        BLangSimpleVariable restParam = function.restParam;
-        if (restParam != null && restParam.symbol != null) {
-            symResolver.checkForUniqueSymbol(restParam.pos, env, restParam.symbol);
-        }
+        symResolver.checkRedeclaredSymbols(bLangLambdaFunction);
 
         if (!this.nonErrorLoggingCheck) {
             env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
@@ -4715,6 +4707,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // if function return type is none, assign the inferred return type
         if (expectedInvocation.retType.tag == TypeTags.NONE) {
             expectedInvocation.retType = bLangArrowFunction.body.expr.getBType();
+        }
+        for (BLangSimpleVariable simpleVariable : bLangArrowFunction.params) {
+            if (simpleVariable.symbol != null) {
+                symResolver.checkForUniqueSymbol(simpleVariable.pos, env, simpleVariable.symbol);
+            }
         }
         resultType = bLangArrowFunction.funcType = expectedInvocation;
     }

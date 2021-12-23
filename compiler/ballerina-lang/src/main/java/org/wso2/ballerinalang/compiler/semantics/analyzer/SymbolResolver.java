@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -175,6 +176,20 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public BType transformNode(BLangNode node, AnalyzerData props) {
         // Should not reach here
         return symTable.neverType;
+    }
+
+    public void checkRedeclaredSymbols(BLangLambdaFunction bLangLambdaFunction)  {
+        SymbolEnv env = bLangLambdaFunction.capturedClosureEnv;
+        BLangFunction function = bLangLambdaFunction.function;
+        for (BLangSimpleVariable simpleVariable : function.requiredParams) {
+            if (simpleVariable.symbol != null) {
+                checkForUniqueSymbol(simpleVariable.pos, env, simpleVariable.symbol);
+            }
+        }
+        BLangSimpleVariable restParam = function.restParam;
+        if (restParam != null && restParam.symbol != null) {
+            checkForUniqueSymbol(restParam.pos, env, restParam.symbol);
+        }
     }
 
     public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {

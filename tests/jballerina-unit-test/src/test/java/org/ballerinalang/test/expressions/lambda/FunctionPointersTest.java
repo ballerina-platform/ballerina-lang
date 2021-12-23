@@ -334,14 +334,12 @@ public class FunctionPointersTest {
 
     @Test(description = "Test compile time errors for redeclared symbols")
     public void testRedeclaredSymbolsNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/fps_hiding_block_scope_symbols" +
-                ".bal");
+        CompileResult result =
+                BCompileUtil.compile("test-src/expressions/lambda/fps_hiding_block_scope_symbols.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 3, 30);
-        BAssertUtil.validateError(result, i++,
-                "incompatible types: expected 'function (int) returns (int)', " +
-                        "found 'function (other) returns (int)'", 7, 12);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 3, 26);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 11, 50);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'z'", 11, 58);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
