@@ -27,3 +27,12 @@ function nameArrowP() returns int {
     function (int, int) returns int lambda = (x, z) => x + z;
     return lambda(12, 32);
 }
+
+function nameX(int y) returns function (int) returns int {
+
+    var func = function (int z) returns int {
+        int y = 3;
+        return y + y;
+    };
+    return func;
+}
