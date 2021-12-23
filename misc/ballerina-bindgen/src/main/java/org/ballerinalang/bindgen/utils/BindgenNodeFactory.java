@@ -98,6 +98,8 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.PARAM_TYPES;
 
+//import static org.ballerinalang.bindgen.utils.BindgenConstants.*;
+
 /**
  * Class for generating the Ballerina syntax tree util nodes and tokens.
  *
@@ -114,7 +116,7 @@ class BindgenNodeFactory {
      * @return the import declaration node created
      */
     static ImportDeclarationNode createImportDeclarationNode(String orgNameValue, String prefixValue,
-                                                                    List<String> moduleNames) {
+                                                             List<String> moduleNames) {
         Token importKeyword = AbstractNodeFactory.createToken(SyntaxKind.IMPORT_KEYWORD, emptyML(), singleWSML());
         ImportOrgNameNode orgName = null;
         if (orgNameValue != null) {
@@ -542,15 +544,26 @@ class BindgenNodeFactory {
         return statementNodes;
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     private static List<StatementNode> getFieldGetStringArrayStatements(JField jField) {
-        List<StatementNode> statementNodes = new LinkedList<>();
-        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
-                jField.getExternalFunctionName(), getParameterArgumentList(jField));
-        statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode("string[]",
-                createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
-                        Arrays.asList(innerFunctionCall.toSourceCode(), "\"string\""))))));
-
-        return statementNodes;
+        return List.of(
+            //   handle externalObj = <call external method>;
+            getExternalFunctionCallStatement(HANDLE, jField),
+            //   if java:isNull(externalObj) {
+            //       return null;
+            //   }
+            createReturnIfHandleIsNullStatement("externalObj"),
+            //   return <string[]> check jarrays:fromHandle(externalObj, "string");
+            createReturnStatementNode(
+                createTypeCastExpressionNode("string[]",
+                createCheckExpressionNode(
+                    createFunctionCallExpressionNode(
+                        "jarrays:fromHandle",
+                        new LinkedList<>(Arrays.asList("externalObj", "\"string\""))
+                    )
+                )
+            ))
+        );
     }
 
     private static List<StatementNode> getFieldGetPrimitiveStatement(JField jField) {
@@ -811,15 +824,117 @@ class BindgenNodeFactory {
         return statementNodes;
     }
 
+
+    private static final Token OPEN_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+    private static final Token CLOSED_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+    private static final Token SEMICOLON_TOKEN = NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+    private static final Token COLON_TOKEN = NodeFactory.createToken(SyntaxKind.COLON_TOKEN);
+    private static final MinutiaeList EMPTY_WHITE_SPACE = NodeFactory.createEmptyMinutiaeList();
+    private static final MinutiaeList SINGLE_SPACE_WHITE_SPACE = NodeFactory.createMinutiaeList(
+        NodeFactory.createWhitespaceMinutiae(" ")
+    );
+    private static final ExpressionNode NULL_TOKEN_EXPRESSION = NodeFactory.createSimpleNameReferenceNode(
+        NodeFactory.createToken(SyntaxKind.NULL_KEYWORD)
+    );
+
+    private static NameReferenceNode createNameReferenceNode(String namespace, String name) {
+        if (name == null || "".equals(name.trim())) {
+            throw new IllegalArgumentException("name must not be null, blank, or empty");
+        }
+        if (namespace == null) {
+            return NodeFactory.createSimpleNameReferenceNode(
+                NodeFactory.createIdentifierToken(name)
+            );
+        } else {
+            if (namespace.isBlank()) {
+                throw new IllegalArgumentException("namespace must not be blank or empty");
+            }
+            return NodeFactory.createQualifiedNameReferenceNode(
+                NodeFactory.createIdentifierToken(namespace),
+                COLON_TOKEN,
+                NodeFactory.createIdentifierToken(name)
+            );
+        }
+    }
+
+    private static NameReferenceNode createNameReferenceNode(String name) {
+        return createNameReferenceNode(null /* no namespace */, name);
+    }
+
+    /**
+     * Creates a {@link StatementNode} for the following ballerina block.
+     * <code>
+     *     if java:isNull(<handleName>) {
+     *         return null;
+     *     }
+     * </code>
+     * @param handleName the variable name of the handle
+     * @return the ballerina block as statement node
+     */
+    private static StatementNode createReturnIfHandleIsNullStatement(final String handleName) {
+
+        // builds the code fragment 'java:isNull(<handleName>)'
+        final FunctionCallExpressionNode checkIsNullExpression = NodeFactory.createFunctionCallExpressionNode(
+            createNameReferenceNode("java", "isNull"),
+            OPEN_PAREN_TOKEN,
+            NodeFactory.createSeparatedNodeList(
+                NodeFactory.createPositionalArgumentNode(
+                    createNameReferenceNode(handleName)
+                )
+            ),
+            CLOSED_PAREN_TOKEN
+        );
+
+        // builds the code fragment 'return null;'
+        final ReturnStatementNode returnStatement = NodeFactory.createReturnStatementNode(
+            NodeFactory.createToken(
+                SyntaxKind.RETURN_KEYWORD,
+                EMPTY_WHITE_SPACE,       // no leading whitespace
+                SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+            ),
+            NULL_TOKEN_EXPRESSION,
+            SEMICOLON_TOKEN
+        );
+
+        // builds the code fragment
+        //   if java:isNull(<handleName>) {
+        //       return null;
+        //   }
+        return NodeFactory.createIfElseStatementNode(
+            NodeFactory.createToken(
+                SyntaxKind.IF_KEYWORD,
+                EMPTY_WHITE_SPACE,       // no leading whitespace
+                SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+            ),
+            // the expression
+            checkIsNullExpression,
+            // the if block
+            createBlockStatementNode(
+                NodeFactory.createNodeList(returnStatement)
+            ),
+            null // no else block
+        );
+    }
+
+    @SuppressWarnings("SpellCheckingInspection")
     private static List<StatementNode> getStringArrayReturnStatements(JMethod jMethod) {
-        List<StatementNode> statementNodes = new LinkedList<>();
-
-        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jMethod));
-        statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode("string[]",
-                createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
-                        new LinkedList<>(Arrays.asList("externalObj", "\"string\"")))))));
-
-        return statementNodes;
+        return List.of(
+            //   handle externalObj = <call external method>;
+            getExternalFunctionCallStatement(HANDLE, jMethod),
+            //   if java:isNull(externalObj) {
+            //       return null;
+            //   }
+            createReturnIfHandleIsNullStatement("externalObj"),
+            //   return <string[]> check jarrays:fromHandle(externalObj, "string");
+            createReturnStatementNode(createTypeCastExpressionNode("string[]",
+                createCheckExpressionNode(
+                    createFunctionCallExpressionNode(
+                        "jarrays:fromHandle",
+                        new LinkedList<>(Arrays.asList("externalObj", "\"string\""))
+                    )
+                )
+            ))
+        );
     }
 
     private static List<StatementNode> getPrimitiveArrayReturnStatements(JMethod jMethod) {
@@ -1097,9 +1212,8 @@ class BindgenNodeFactory {
      * Creates an if else statement node using the condition, if body and the else body provided.
      */
     private static IfElseStatementNode createIfElseStatementNode(ExpressionNode condition, BlockStatementNode ifBody,
-                                                                Node elseBody) {
+                                                                 Node elseBody) {
         Token ifKeyword = AbstractNodeFactory.createToken(SyntaxKind.IF_KEYWORD, emptyML(), singleWSML());
-
         return NodeFactory.createIfElseStatementNode(ifKeyword, condition, ifBody, elseBody);
     }
 
