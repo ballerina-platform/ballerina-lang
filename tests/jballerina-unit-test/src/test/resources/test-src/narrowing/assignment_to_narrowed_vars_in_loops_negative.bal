@@ -629,3 +629,53 @@ function f20() {
         }
     }
 }
+
+function f21() {
+    any x = 1;
+
+    if x is int {
+        error? m = from int i in 0 ..< 2
+        do {
+            int _ = x;
+            x = "str";
+        };
+        boolean _ = m is error;
+    }
+}
+
+function f22() {
+    any x = 1;
+
+    if x is int {
+        error? m = from int i in 0 ..< 2
+        do {
+            error? n = from int i in 0 ..< 2
+            do {
+                boolean b = false;
+
+                if b {
+                    x = "str";
+                }
+
+                x = 1;
+            };
+            boolean _ = n is error;
+        };
+        boolean _ = m is error;
+    }
+}
+
+function f23() {
+    any x = 1;
+
+    if x is int {
+        error? m = from int i in 0 ..< 2
+        do {
+            int _ = x;
+            if x is int {
+                x = "str";
+            }
+        };
+        boolean _ = m is error;
+    }
+}
