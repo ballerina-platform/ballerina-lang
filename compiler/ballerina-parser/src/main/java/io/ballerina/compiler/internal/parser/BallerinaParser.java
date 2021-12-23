@@ -6806,7 +6806,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first resource path segment, that has no leading slash
-        STNode pathSegment = parseResourcePathSegment();
+        STNode pathSegment = parseResourcePathSegment(true);
         pathElementList.add(pathSegment);
 
         STNode leadingSlash;
@@ -6817,7 +6817,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             pathElementList.add(leadingSlash);
-            pathSegment = parseResourcePathSegment();
+            pathSegment = parseResourcePathSegment(false);
             pathElementList.add(pathSegment);
             nextToken = peek();
         }
@@ -6873,16 +6873,22 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseResourcePathSegment() {
+    private STNode parseResourcePathSegment(boolean isFirstSegment) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
+                if (isFirstSegment && nextToken.isMissing() && getNextNextToken().kind == SyntaxKind.SLASH_TOKEN) {
+                    // special case `[MISSING]/` to improve the error message for `/hello`
+                    consume(); // to ignore current missing identifier diagnostic
+                    return SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN, 
+                            DiagnosticErrorCode.ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH);
+                }
                 return consume();
             case OPEN_BRACKET_TOKEN:
                 return parseResourcePathParameter();
             default:
                 recover(nextToken, ParserRuleContext.RESOURCE_PATH_SEGMENT);
-                return parseResourcePathSegment();
+                return parseResourcePathSegment(isFirstSegment);
         }
     }
 
