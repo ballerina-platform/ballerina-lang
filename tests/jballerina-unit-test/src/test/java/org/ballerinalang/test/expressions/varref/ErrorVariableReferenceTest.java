@@ -48,7 +48,7 @@ public class ErrorVariableReferenceTest {
     @Test(description = "Test simple error var def with string and map")
     public void testBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 10);
         Assert.assertEquals(returns[0].stringValue(), "Error One");
         Assert.assertEquals(returns[1].stringValue(), "Error One");
         Assert.assertEquals(returns[2].stringValue(), "Error Two");
@@ -56,18 +56,16 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg One");
         Assert.assertEquals(returns[5].stringValue(), "Msg One");
         Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Two");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Two");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
+        Assert.assertEquals(((BMap) returns[7]).get("message").stringValue(), "Msg Two");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[7]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[8].stringValue(), "Msg Two");
+        Assert.assertTrue(((BBoolean) returns[9]).booleanValue());
     }
 
     @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
-        Assert.assertEquals(returns.length, 13);
+        Assert.assertEquals(returns.length, 11);
         Assert.assertEquals(returns[0].stringValue(), "Some Error One");
         Assert.assertEquals(returns[1].stringValue(), "Some Error One");
         Assert.assertEquals(returns[2].stringValue(), "Some Error Two");
@@ -75,13 +73,11 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg Three");
         Assert.assertEquals(returns[5].stringValue(), "Msg Three");
         Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Four");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Four");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
-        Assert.assertEquals(returns[12].stringValue(), "Some Error One {message:\"Msg Three\", detail:\"Detail Msg\"}");
+        Assert.assertEquals(((BMap) returns[7]).get("message").stringValue(), "Msg Four");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[7]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[8].stringValue(), "Msg Four");
+        Assert.assertTrue(((BBoolean) returns[9]).booleanValue());
+        Assert.assertEquals(returns[10].stringValue(), "Some Error One {message:\"Msg Three\", detail:\"Detail Msg\"}");
     }
 
     @Test(description = "Test simple error var def with record as detail")
@@ -228,18 +224,16 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'map<int>', found 'map<(string|error)>'", 31, 26);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found 'string?'", 32, 43);
-        BAssertUtil.validateError(resultNegative, ++i,
                                   incompatibleTypes + "expected 'map<string>', found 'map<(string|error|boolean)>'",
                 41, 25);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
+                incompatibleTypes + "expected 'string', found '(string|boolean)'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 22);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 62);
+                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 60);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +

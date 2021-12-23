@@ -2227,7 +2227,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     matchedType = BUnionType.create(null, symTable.nilType, rhsDetailType.restFieldType);
                 }
             } else if (Symbols.isOptional(matchedDetailItem.symbol)) {
-                matchedType = BUnionType.create(null, symTable.nilType, matchedDetailItem.type);
+                dlog.error(detailItem.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                continue;
             } else {
                 matchedType = matchedDetailItem.type;
             }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <record {| string message?; error cause?; string detail?; string...; |}>;
+type SMS error <record {| string message; error cause?; string detail; string...; |}>;
 
 function testDuplicateBinding() {
     string? s;
@@ -35,4 +35,4 @@ public function testAssigningValuesToFinalVars() {
     error(_, message = message3, abc = abc3) = e3;
 }
 
-type BarError error<record {string message?; error cause?; int code;}>;
+type BarError error<record {string message; error cause?; int code;}>;
