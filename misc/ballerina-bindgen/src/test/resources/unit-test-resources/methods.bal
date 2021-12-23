@@ -488,8 +488,11 @@ distinct class MethodsTestResource {
     # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray() returns string[]|error {
+    function returnStringArray() returns string[]?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray(self.jObj);
+        if java:isNull(externalObj) {
+            return null;
+        }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
 
@@ -499,8 +502,11 @@ distinct class MethodsTestResource {
     # + arg1 - The `StringBuffer` value required to map with the Java method parameter.
     # + arg2 - The `int` value required to map with the Java method parameter.
     # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray1(string[] arg0, StringBuffer arg1, int arg2) returns string[]|error {
+    function returnStringArray1(string[] arg0, StringBuffer arg1, int arg2) returns string[]?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
+        if java:isNull(externalObj) {
+            return null;
+        }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
 
@@ -510,7 +516,7 @@ distinct class MethodsTestResource {
     # + arg1 - The `StringBuffer` value required to map with the Java method parameter.
     # + arg2 - The `int` value required to map with the Java method parameter.
     # + return - The `string[]` or the `InterruptedException` value returning from the Java mapping.
-    function returnStringArray2(string[] arg0, StringBuffer arg1, int arg2) returns string[]|InterruptedException|error {
+    function returnStringArray2(string[] arg0, StringBuffer arg1, int arg2) returns string[]?|InterruptedException|error {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
         if (externalObj is error) {
             InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
