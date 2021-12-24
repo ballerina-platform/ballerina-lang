@@ -771,18 +771,6 @@ class BindgenNodeFactory {
                     )
                 )
             );
-//        List<StatementNode> statementNodes = new LinkedList<>();
-//
-//        statementNodes.add(getExternalFunctionCallStatement("handle|error", jMethod));
-//        statementNodes.add(createIfElseStatementNode(
-//                createBracedExpressionNode(createSimpleNameReferenceNode("externalObj is error")),
-//                getCheckExceptionBlock(jMethod.getExceptionName(), jMethod.getExceptionConstName()),
-//                createElseBlockNode(createBlockStatementNode(AbstractNodeFactory.createNodeList(
-//                        createReturnStatementNode(createTypeCastExpressionNode("string[]",
-//                                createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
-//                                        new LinkedList<>(Arrays.asList("externalObj", "\"string\"")))))))))));
-//
-//        return statementNodes;
     }
 
     private static List<StatementNode> getPrimitiveReturnWithException(JMethod jMethod) {
