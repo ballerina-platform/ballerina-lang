@@ -518,6 +518,9 @@ distinct class MethodsTestResource {
     # + return - The `string[]` or the `InterruptedException` value returning from the Java mapping.
     function returnStringArray2(string[] arg0, StringBuffer arg1, int arg2) returns string[]?|InterruptedException|error {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
+        if java:isNull(externalObj) {
+            return null;
+        }
         if (externalObj is error) {
             InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;

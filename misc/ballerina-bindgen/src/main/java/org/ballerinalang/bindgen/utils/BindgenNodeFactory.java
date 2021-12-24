@@ -733,18 +733,56 @@ class BindgenNodeFactory {
     }
 
     private static List<StatementNode> getStringArrayWithException(JMethod jMethod) {
-        List<StatementNode> statementNodes = new LinkedList<>();
-
-        statementNodes.add(getExternalFunctionCallStatement("handle|error", jMethod));
-        statementNodes.add(createIfElseStatementNode(
-                createBracedExpressionNode(createSimpleNameReferenceNode("externalObj is error")),
-                getCheckExceptionBlock(jMethod.getExceptionName(), jMethod.getExceptionConstName()),
-                createElseBlockNode(createBlockStatementNode(AbstractNodeFactory.createNodeList(
-                        createReturnStatementNode(createTypeCastExpressionNode("string[]",
-                                createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
-                                        new LinkedList<>(Arrays.asList("externalObj", "\"string\"")))))))))));
-
-        return statementNodes;
+        return List.of(
+                //   handle externalObj = <call external method>;
+                getExternalFunctionCallStatement("handle|error", jMethod),
+                //   if java:isNull(externalObj) {
+                //       return null;
+                //   }
+                createReturnIfHandleIsNullStatement("externalObj"),
+                //  if (externalObj is error) {
+                //      InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj,
+                //           message = externalObj.message());
+                //      return e;
+                //  } else {
+                //      return <string[]>check jarrays:fromHandle(externalObj, "string");
+                //  }
+                createIfElseStatementNode(
+                    createBracedExpressionNode(
+                        createSimpleNameReferenceNode("externalObj is error")
+                    ),
+                    getCheckExceptionBlock(jMethod.getExceptionName(), jMethod.getExceptionConstName()),
+                    createElseBlockNode(
+                        createBlockStatementNode(
+                            AbstractNodeFactory.createNodeList(
+                                createReturnStatementNode(
+                                    createTypeCastExpressionNode(
+                                        "string[]",
+                                        createCheckExpressionNode(
+                                            createFunctionCallExpressionNode(
+                                                    "jarrays:fromHandle",
+                                                    new LinkedList<>(Arrays.asList("externalObj", "\"string\""))
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+//        List<StatementNode> statementNodes = new LinkedList<>();
+//
+//        statementNodes.add(getExternalFunctionCallStatement("handle|error", jMethod));
+//        statementNodes.add(createIfElseStatementNode(
+//                createBracedExpressionNode(createSimpleNameReferenceNode("externalObj is error")),
+//                getCheckExceptionBlock(jMethod.getExceptionName(), jMethod.getExceptionConstName()),
+//                createElseBlockNode(createBlockStatementNode(AbstractNodeFactory.createNodeList(
+//                        createReturnStatementNode(createTypeCastExpressionNode("string[]",
+//                                createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
+//                                        new LinkedList<>(Arrays.asList("externalObj", "\"string\"")))))))))));
+//
+//        return statementNodes;
     }
 
     private static List<StatementNode> getPrimitiveReturnWithException(JMethod jMethod) {
