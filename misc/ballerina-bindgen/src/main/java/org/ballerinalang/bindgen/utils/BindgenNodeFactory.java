@@ -98,8 +98,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.PARAM_TYPES;
 
-//import static org.ballerinalang.bindgen.utils.BindgenConstants.*;
-
 /**
  * Class for generating the Ballerina syntax tree util nodes and tokens.
  *
