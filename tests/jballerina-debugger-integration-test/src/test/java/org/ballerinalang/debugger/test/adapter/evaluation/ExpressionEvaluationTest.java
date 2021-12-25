@@ -187,6 +187,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "other:constMap", "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
+        debugTestRunner.assertExpression(context, "other:publicModuleVariable", "\"public\"", "string");
+
         // qualified name references with import alias
         debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
     }
