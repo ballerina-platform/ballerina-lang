@@ -210,6 +210,11 @@ public class CommandUtil {
             Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
         }
 
+        // Create default .gitignore
+        createDefaultGitignore(projectPath);
+        // Create default devcontainer.json
+        createDefaultDevContainer(projectPath);
+
         // Create modules
         String templatePkgName = packageJson.getName();
         Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
@@ -471,22 +476,27 @@ public class CommandUtil {
         } else {
             initPackage(path);
         }
+        createDefaultGitignore(path);
+        createDefaultDevContainer(path);
+    }
+
+    private static void createDefaultGitignore(Path path) throws IOException {
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
         if (Files.notExists(gitignore)) {
             Files.createFile(gitignore);
         }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
-        // Create dev container
-        Path devcontainer = path.resolve(ProjectConstants.DEVCONTAINER);
-        if (Files.notExists(devcontainer)) {
-            Files.createFile(devcontainer);
+    }
+
+    private static void createDefaultDevContainer(Path path) throws IOException {
+        Path devContainer = path.resolve(ProjectConstants.DEVCONTAINER);
+        if (Files.notExists(devContainer)) {
+            Files.createFile(devContainer);
         }
-
-
-        String defaultDevcontainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
-        defaultDevcontainer = defaultDevcontainer.replace("latest", RepoUtils.getBallerinaVersion());
-        Files.write(devcontainer, defaultDevcontainer.getBytes(StandardCharsets.UTF_8));
+        String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+        defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
+        Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

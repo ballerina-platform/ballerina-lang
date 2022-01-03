@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
@@ -2692,14 +2693,17 @@ public class TypeChecker extends BLangNodeVisitor {
      * enclosing invokable node's environment, which are outside of the scope of a lambda function.
      */
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
-        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
-            // if enclosing env's node is arrow expression
+        if (env.enclEnv.node == null) {
+            return env;
+        }
+        NodeKind kind = env.enclEnv.node.getKind();
+        if (kind == NodeKind.ARROW_EXPR || kind == NodeKind.ON_FAIL) {
+            // TODO : check if we need ON_FAIL now
             return env.enclEnv;
         }
 
-        if (env.enclEnv.node != null && (env.enclEnv.node.getKind() == NodeKind.ON_FAIL)) {
-            // if enclosing env's node is a transaction, retry or a on-fail
-            return env.enclEnv;
+        if (kind == NodeKind.CLASS_DEFN) {
+            return env.enclEnv.enclEnv;
         }
 
         if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
@@ -2709,14 +2713,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangRecordTypeNode recordTypeNode) {
-        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
-            // if enclosing env's node is arrow expression
-            return env.enclEnv;
-        }
-
-        if (env.enclEnv.node != null && (env.enclEnv.node.getKind() == NodeKind.ON_FAIL)) {
-            // if enclosing env's node is a transaction, retry or on-fail
-            return env.enclEnv;
+        if (env.enclEnv.node != null) {
+            NodeKind kind = env.enclEnv.node.getKind();
+            if (kind == NodeKind.ARROW_EXPR || kind == NodeKind.ON_FAIL || kind == NodeKind.CLASS_DEFN) {
+                return env.enclEnv;
+            }
         }
 
         if (env.enclType != null && env.enclType == recordTypeNode) {
@@ -3430,8 +3431,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectCtorExpression) {
+        BLangClassDefinition classNode = objectCtorExpression.classNode;
+
+        BLangClassDefinition originalClass = classNode.oceEnvData.originalClass;
+        if (originalClass.cloneRef != null && !objectCtorExpression.defined) {
+            classNode = (BLangClassDefinition) originalClass.cloneRef;
+            symbolEnter.defineClassDefinition(classNode, env);
+            objectCtorExpression.defined = true;
+        }
+
+        // TODO: check referenced type
+        BObjectType objectType;
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
-            BObjectType objectType = (BObjectType) objectCtorExpression.classNode.getBType();
+            objectType = (BObjectType) objectCtorExpression.classNode.getBType();
             if (types.getReferredType(objectCtorExpression.expectedType).tag == TypeTags.OBJECT) {
                 BObjectType expObjType = (BObjectType) types
                         .getReferredType(objectCtorExpression.expectedType);
@@ -3445,7 +3457,46 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        visit(objectCtorExpression.typeInit);
+        BLangTypeInit cIExpr = objectCtorExpression.typeInit;
+        BType actualType = symResolver.resolveTypeNode(cIExpr.userDefinedType, env);
+        if (actualType == symTable.semanticError) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        BObjectType actualObjectType = (BObjectType) actualType;
+        List<BLangType> typeRefs = classNode.typeRefs;
+        SymbolEnv typeDefEnv = SymbolEnv.createObjectConstructorObjectEnv(classNode, env);
+        classNode.oceEnvData.typeInit = objectCtorExpression.typeInit;
+        classNode.oceEnvData.capturedClosureEnv = env;
+        dlog.unmute();
+        if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
+            handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, false);
+        } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).getBType().flags,
+                Flags.READONLY)) {
+            handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, true);
+        } else {
+            semanticAnalyzer.analyzeNode(classNode, typeDefEnv);
+        }
+        dlog.unmute();
+        markConstructedObjectIsolatedness(actualObjectType);
+
+        if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
+            cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
+            checkInvocationParam(cIExpr.initInvocation);
+            cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
+        } else {
+            // If the initializerFunc is null then this is a default constructor invocation. Hence should not
+            // pass any arguments.
+            if (!isValidInitInvocation(cIExpr, (BObjectType) actualType)) {
+                return;
+            }
+        }
+        if (cIExpr.initInvocation.getBType() == null) {
+            cIExpr.initInvocation.setBType(symTable.nilType);
+        }
+        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType());
+        resultType = types.checkType(cIExpr, actualTypeInitType, expType);
     }
 
     private boolean isDefiniteObjectType(BType bType, Set<BTypeIdSet> typeIdSets) {
@@ -3529,27 +3580,6 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.OBJECT:
                 BObjectType actualObjectType = (BObjectType) actualType;
 
-                if (isObjectConstructorExpr(cIExpr, actualObjectType)) {
-                    BLangClassDefinition classDefForConstructor = getClassDefinitionForObjectConstructorExpr(cIExpr,
-                                                                                                             env);
-                    List<BLangType> typeRefs = classDefForConstructor.typeRefs;
-
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
-
-                    if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
-                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
-                                                          false);
-                    } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).getBType().flags,
-                                                                       Flags.READONLY)) {
-                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
-                                                          true);
-                    } else {
-                        analyzeObjectConstructor(classDefForConstructor, pkgEnv);
-                    }
-
-                    markConstructedObjectIsolatedness(actualObjectType);
-                }
-
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
                             actualType.tsymbol);
@@ -3558,6 +3588,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
 
+                if (actualObjectType.classDef != null && actualObjectType.classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+                    if (cIExpr.initInvocation != null && actualObjectType.classDef.oceEnvData.typeInit != null) {
+                        actualObjectType.classDef.oceEnvData.typeInit = cIExpr;
+                    }
+                    markConstructedObjectIsolatedness(actualObjectType);
+                }
                 if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
@@ -5956,37 +5992,162 @@ public class TypeChecker extends BLangNodeVisitor {
 
     protected void markAndRegisterClosureVariable(BSymbol symbol, Location pos, SymbolEnv env) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
-                env.node.getKind() != NodeKind.ARROW_EXPR && env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
-                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA)) {
+        BLangNode bLangNode = env.node;
+        if ((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                bLangNode.getKind() != NodeKind.ARROW_EXPR && bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
+                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA) &&
+                !encInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
             return;
         }
+        if (!symbol.closure) {
+            if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, bLangNode)) {
+                return;
+            }
+        }
+
+        BLangNode node = bLangNode;
+        if (isObjectCtorClass(node))  {
+            BLangClassDefinition classDef = (BLangClassDefinition) node;
+            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            BLangFunction currentFunc = (BLangFunction) encInvokable;
+            if ((currentFunc != null) && !currentFunc.attachedFunction &&
+                    !(currentFunc.symbol.receiverSymbol == symbol)) {
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(oceData.capturedClosureEnv, symbol.name,
+                        SymTag.VARIABLE);
+                if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
+                    if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
+                        updateObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol, classDef);
+                        return;
+                    }
+                }
+            }
+        }
+
+        SymbolEnv cEnv = env;
+        while (node != null) {
+            if (node.getKind() == NodeKind.FUNCTION) {
+                BLangFunction function = (BLangFunction) node;
+                if (!function.flagSet.contains(Flag.OBJECT_CTOR) && !function.flagSet.contains(Flag.ATTACHED)) {
+                    break;
+                }
+            }
+            if (!symbol.closure) {
+                if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node)) {
+                    return;
+                }
+            }
+            if (isObjectCtorClass(node)) {
+                BLangFunction currentFunction = (BLangFunction) encInvokable;
+                if ((currentFunction != null) && currentFunction.attachedFunction &&
+                        (currentFunction.symbol.receiverSymbol == symbol)) {
+                    // self symbol
+                    return;
+                }
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                        SymTag.VARIABLE);
+                BLangClassDefinition classDef = (BLangClassDefinition) node;
+                if (resolvedSymbol != symTable.notFoundSymbol) {
+                    if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
+                        break;
+                    }
+                    updateObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol, classDef);
+                    return;
+                }
+                break;
+            }
+            SymbolEnv enclEnv = cEnv.enclEnv;
+            if (enclEnv == null) {
+                break;
+            }
+            cEnv = enclEnv;
+            node = cEnv.node;
+        }
+    }
+
+    private boolean isObjectCtorClass(BLangNode node) {
+        return node.getKind() == NodeKind.CLASS_DEFN &&
+                ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
+    }
+
+    private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
+                                                       BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
                 && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
             if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return true;
             }
         }
-        if (env.node.getKind() == NodeKind.ARROW_EXPR
-                && !isFunctionArgument(symbol, ((BLangArrowFunction) env.node).params)) {
+
+        if (bLangNode.getKind() == NodeKind.ARROW_EXPR
+                && !isFunctionArgument(symbol, ((BLangArrowFunction) bLangNode).params)) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
             if (resolvedSymbol != symTable.notFoundSymbol) {
                 resolvedSymbol.closure = true;
-                ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                ((BLangArrowFunction) bLangNode).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return true;
             }
         }
+
         if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
-            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            BSymbol resolvedSymbol =
+                    symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
             if (resolvedSymbol != symTable.notFoundSymbol && encInvokable != null &&
                     !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+                return true;
             }
+        }
+        return false;
+    }
+
+    private void updateObjectCtorClosureSymbols(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
+                                               BLangClassDefinition classDef) {
+        classDef.hasClosureVars = true;
+        resolvedSymbol.closure = true;
+        if (currentFunction != null) {
+            currentFunction.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            // TODO: can identify if attached here
+        }
+        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
+        if (currentFunction != null && (currentFunction.symbol.params.contains(resolvedSymbol)
+                || (currentFunction.symbol.restParam == resolvedSymbol))) {
+            oceEnvData.closureFuncSymbols.add(resolvedSymbol);
+        } else {
+             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
+        }
+        updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
+    }
+
+    private void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvironmentData oceEnvData,
+                                         BLangClassDefinition origClassDef) {
+        SymbolEnv localEnv = envArg;
+        while (localEnv != null) {
+            BLangNode node = localEnv.node;
+            if (node.getKind() == NodeKind.PACKAGE) {
+                break;
+            }
+
+            if (node.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDef = (BLangClassDefinition) node;
+                if (classDef != origClassDef) {
+                    classDef.hasClosureVars = true;
+                    OCEDynamicEnvironmentData parentOceData = classDef.oceEnvData;
+                    oceEnvData.parents.push(classDef);
+                    parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
+                    parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
+                }
+            }
+            localEnv = localEnv.enclEnv;
         }
     }
 
@@ -6329,8 +6490,9 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangExpression> nonRestArgs = iExpr.requiredArgs;
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
 
-        List<BVarSymbol> requiredParams = new ArrayList<>();
-        List<BVarSymbol> requiredIncRecordParams = new ArrayList<>();
+        int nonRestArgCount = nonRestArgs.size();
+        List<BVarSymbol> requiredParams = new ArrayList<>(nonRestParams.size() + nonRestArgCount);
+        List<BVarSymbol> requiredIncRecordParams = new ArrayList<>(incRecordParams.size() + nonRestArgCount);
 
         for (BVarSymbol nonRestParam : nonRestParams) {
             if (nonRestParam.isDefaultable) {
@@ -6347,7 +6509,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         int i = 0;
-        for (; i < nonRestArgs.size(); i++) {
+        for (; i < nonRestArgCount; i++) {
             BLangExpression arg = nonRestArgs.get(i);
 
             // Special case handling for the first param because for parameterized invocations, we have added the
@@ -8619,29 +8781,11 @@ public class TypeChecker extends BLangNodeVisitor {
         actualType.tsymbol.flags |= Flags.ISOLATED;
     }
 
-    private boolean isObjectConstructorExpr(BLangTypeInit cIExpr, BType actualType) {
-        return cIExpr.getType() != null && Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS);
-    }
+    private void handleObjectConstrExprForReadOnly(
+            BLangObjectConstructorExpression objectCtorExpr, BObjectType actualObjectType, SymbolEnv env,
+            boolean logErrors) {
 
-    private BLangClassDefinition getClassDefinitionForObjectConstructorExpr(BLangTypeInit cIExpr, SymbolEnv env) {
-        List<BLangClassDefinition> classDefinitions = env.enclPkg.classDefinitions;
-
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) cIExpr.getType();
-        BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(userDefinedType.pos, env,
-                                                                    names.fromIdNode(userDefinedType.pkgAlias),
-                                                                    names.fromIdNode(userDefinedType.typeName));
-
-        for (BLangClassDefinition classDefinition : classDefinitions) {
-            if (classDefinition.symbol == symbol) {
-                return classDefinition;
-            }
-        }
-        return null; // Won't reach here.
-    }
-
-    private void handleObjectConstrExprForReadOnly(BLangTypeInit cIExpr, BObjectType actualObjectType,
-                                                   BLangClassDefinition classDefForConstructor, SymbolEnv env,
-                                                   boolean logErrors) {
+        BLangClassDefinition classDefForConstructor = objectCtorExpr.classNode;
         boolean hasNeverReadOnlyField = false;
 
         for (BField field : actualObjectType.fields.values()) {
@@ -8669,12 +8813,15 @@ public class TypeChecker extends BLangNodeVisitor {
         actualObjectType.tsymbol.flags |= Flags.READONLY;
 
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
-                                                  anonymousModelHelper, symTable, names, cIExpr.pos);
+                                                  anonymousModelHelper, symTable, names, objectCtorExpr.pos);
 
         analyzeObjectConstructor(classDefForConstructor, env);
     }
 
     private void markConstructedObjectIsolatedness(BObjectType actualObjectType) {
+        if (actualObjectType.markedIsolatedness) {
+            return;
+        }
         if (Symbols.isFlagOn(actualObjectType.flags, Flags.READONLY)) {
             markTypeAsIsolated(actualObjectType);
             return;
@@ -8688,6 +8835,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         markTypeAsIsolated(actualObjectType);
+        actualObjectType.markedIsolatedness = true;
     }
 
     private void markLeafNode(BLangAccessExpression accessExpression) {

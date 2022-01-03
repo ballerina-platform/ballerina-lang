@@ -124,16 +124,16 @@ function testErrorVarDeclaredWithVar() {
 
 type VarTestErrorDetail record {
     [int] fieldA;
-    map<boolean> fieldB;
+    boolean fieldB;
     error fieldC;
 };
 
 type VarTestError error<VarTestErrorDetail>;
 
-var error(m, error(c), fieldA = [varA], fieldB = {a: varB}, fieldC = error(msgVar)) = foo();
+var error(m, error(c), fieldA = [varA], fieldB = varB, fieldC = error(msgVar)) = foo();
 
 function foo() returns VarTestError =>
-        error VarTestError("message", error("cause"), fieldA = [3], fieldB = {a: true}, fieldC = error("fieldC message"));
+        error VarTestError("message", error("cause"), fieldA = [3], fieldB =true, fieldC = error("fieldC message"));
 
 function testErrorVarDeclaredWithVar2() {
     assertEquality("message", m);

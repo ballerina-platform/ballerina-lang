@@ -40,6 +40,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -124,7 +125,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -260,6 +260,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private BType resType;
     private Unifier unifier;
+    private NodeCloner nodeCloner;
 
     private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
     // Stack holding the fall-back environments. fall-back env is the env to go back
@@ -292,6 +293,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
         this.unifier = new Unifier();
     }
 
@@ -313,21 +315,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Visit constants first.
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
-        this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID);
+        this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
 
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
             NodeKind kind = pkgLevelNode.getKind();
-            if (kind == NodeKind.CONSTANT ||
-                    ((kind == NodeKind.FUNCTION && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))) {
+            if (kind == NodeKind.CONSTANT) {
                 continue;
             }
 
-            if (pkgLevelNode.getKind() == NodeKind.CLASS_DEFN &&
-                    ((BLangClassDefinition) pkgLevelNode).flagSet.contains(Flag.ANONYMOUS)) {
+            if (kind == NodeKind.FUNCTION) {
+                BLangFunction blangFunction = (BLangFunction) pkgLevelNode;
+                if (blangFunction.flagSet.contains(Flag.LAMBDA) || blangFunction.flagSet.contains(Flag.ATTACHED)) {
+                    continue;
+                }
+            }
+
+            if (kind == NodeKind.CLASS_DEFN && ((BLangClassDefinition) pkgLevelNode).isObjectContructorDecl) {
                 // This is a class defined for an object-constructor-expression (OCE). This will be analyzed when
-                // visiting the OCE in the type checker.
-                // This is a temporary workaround until we fix
+                // visiting the OCE in the type checker. This is a temporary workaround until we fix
                 // https://github.com/ballerina-platform/ballerina-lang/issues/27009
                 continue;
             }
@@ -554,11 +560,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateInclusions(flagSet, classDefinition.typeRefs, false,
                            Symbols.isFlagOn(classDefinition.getBType().tsymbol.flags, Flags.ANONYMOUS));
-    }
-
-    @Override
-    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-        visit(objectConstructorExpression.typeInit);
     }
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition) {
@@ -1983,39 +1984,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                               Location rhsPos) {
         rhsType = types.getReferredType(rhsType);
         if (rhsType.tag == TypeTags.MAP) {
-            BMapType rhsMapType = (BMapType) rhsType;
-            BType expectedType;
-            switch (rhsMapType.constraint.tag) {
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.JSON:
-                    expectedType = rhsMapType.constraint;
-                    break;
-                case TypeTags.UNION:
-                    BUnionType unionType = (BUnionType) rhsMapType.constraint;
-                    LinkedHashSet<BType> unionMemberTypes = new LinkedHashSet<BType>() {{
-                        addAll(unionType.getMemberTypes());
-                        add(symTable.nilType);
-                    }};
-                    expectedType = BUnionType.create(null, unionMemberTypes);
-                    break;
-                default:
-                    expectedType = BUnionType.create(null, new LinkedHashSet<BType>() {{
-                        add(rhsMapType.constraint);
-                        add(symTable.nilType);
-                    }});
-                    break;
+            for (BLangRecordVarRefKeyValue field: lhsVarRef.recordRefFields) {
+                dlog.error(field.variableName.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
-            lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
-                                                                       expectedType, field.variableReference.getBType(),
-                                                                       DiagnosticErrorCode.INCOMPATIBLE_TYPES));
-
-            if (lhsVarRef.restParam != null) {
-                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, rhsMapType,
-                                ((BLangSimpleVarRef) lhsVarRef.restParam).getBType(),
-                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-            }
-
             return;
         }
 
@@ -2032,6 +2004,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (!rhsRecordType.fields.containsKey(lhsField.variableName.value)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                         lhsField.variableName.value, rhsType);
+            } else if (Symbols.isOptional(rhsRecordType.fields.get(lhsField.variableName.value).symbol)) {
+                dlog.error(lhsField.variableName.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
             mappedFields.add(lhsField.variableName.value);
         }

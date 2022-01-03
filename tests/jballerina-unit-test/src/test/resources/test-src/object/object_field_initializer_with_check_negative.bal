@@ -223,7 +223,7 @@ function testObjectConstructor() {
         int i = let int x = check fn() in x + 2 * check fn();
     };
     var y = object {
-        int i = let int x = check fn() in x + 2 * check fn();
+        int i = let int y = check fn() in y + 2 * check fn();
 
         function init() returns MyError? {
             return;

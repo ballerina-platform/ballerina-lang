@@ -25,7 +25,9 @@ group = 'io.ballerina'
 
 dependencies {
     implementation project(":ballerina-shell:shell-core")
+    implementation project(':ballerina-parser')
     implementation('org.jline:jline:3.11.0')
+    implementation project(':ballerina-lang')
 
     testImplementation('org.testng:testng')
     implementation 'com.google.code.gson:gson:2.8.7'
