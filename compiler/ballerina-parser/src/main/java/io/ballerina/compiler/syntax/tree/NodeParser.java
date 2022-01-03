@@ -21,7 +21,7 @@ import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
 
 /**
- * Parses a given input and produces a {@code Node} / {@code NodeList}.
+ * Parses a given input and produces a {@code Node}.
  *
  * @since 1.3.0
  */
@@ -102,21 +102,6 @@ public class NodeParser {
     public static ModuleMemberDeclarationNode parseModuleMemberDeclaration(String text) {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parseAsModuleMemberDeclaration().createUnlinkedFacade();
-    }
-
-    /**
-     * Parses the input as statements.
-     *
-     * @param text the input
-     * @return a {@code NodeList<StatementNode>}
-     * @deprecated This method is no longer acceptable to parse statements due to
-     * issue <a href="https://github.com/ballerina-platform/ballerina-lang/issues/33323">#33323</a>.
-     * <p> Use {@link #parseBlockStatement(String)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static NodeList<StatementNode> parseStatements(String text) {
-        BallerinaParser parser = ParserFactory.getParser(text);
-        return new NodeList<>(parser.parseAsStatements().createUnlinkedFacade());
     }
 
     /**

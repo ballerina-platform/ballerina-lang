@@ -166,11 +166,7 @@ public class CommandUtil {
         try {
             addModules(balaPath, projectPath, packageName, platform);
         } catch (IOException e) {
-            try {
-                FileUtils.deletePath(projectPath);
-            } catch (IOException exception) {
-                // ignore
-            }
+            ProjectUtils.deleteDirectory(projectPath);
             CommandUtil.printError(errStream,
                     "error occurred while creating the package: " + e.getMessage(),
                     null,
@@ -354,6 +350,9 @@ public class CommandUtil {
                 + "\"", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nlanguage_spec_version = \"" + packageJson.getLanguageSpecVersion()
                 + "\"", StandardOpenOption.APPEND);
+
+        Files.writeString(balTomlPath, "\n\n[build-options]", StandardOpenOption.APPEND);
+        Files.writeString(balTomlPath, "\nobservabilityIncluded = true\n", StandardOpenOption.APPEND);
 
         JsonArray platformLibraries = packageJson.getPlatformDependencies();
         if (platformLibraries == null) {

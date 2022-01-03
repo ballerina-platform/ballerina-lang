@@ -19,15 +19,22 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -41,14 +48,19 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * @since 0.990.4
@@ -61,12 +73,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
     private Location currentPos;
+    private SymbolTable symbolTable;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
+    private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
+    private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.symbolTable = SymbolTable.getInstance(context);
     }
 
     public static ConstantValueResolver getInstance(CompilerContext context) {
@@ -82,14 +98,20 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
         constants.forEach(constant -> constant.accept(this));
         constantMap.clear();
-        constants.forEach(constant -> checkUniqueness(constant));
     }
 
     @Override
     public void visit(BLangConstant constant) {
+        if (!unresolvedConstants.containsKey(constant.symbol)) {
+            return; // Already visited.
+        }
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
+        this.resolvingConstants.add(this.currentConstSymbol);
         this.currentConstSymbol.value = visitExpr(constant.expr);
+        this.resolvingConstants.remove(this.currentConstSymbol);
+        updateSymbolType(constant);
+        checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
         this.currentConstSymbol = tempCurrentConstSymbol;
     }
@@ -129,7 +151,21 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         if (!this.unresolvedConstants.containsKey(constSymbol)) {
+            if (this.unresolvableConstants.contains(constSymbol)) {
+                this.result = null;
+                return;
+            }
+            this.unresolvableConstants.add(constSymbol);
             dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.value);
+            this.result = null;
+            return;
+        }
+
+        if (this.resolvingConstants.contains(constSymbol)) {
+            for (BConstantSymbol symbol : this.resolvingConstants) {
+                this.unresolvableConstants.add(symbol);
+            }
+            dlog.error(varRef.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE, this.resolvingConstants);
             this.result = null;
             return;
         }
@@ -473,5 +509,55 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 constantMap.put(nameString, value);
             }
         }
+    }
+
+    private void updateSymbolType(BLangConstant constant) {
+        BConstantSymbol symbol = constant.symbol;
+        if (symbol.type.getKind() != TypeKind.FINITE && symbol.value != null) {
+            BType singletonType = checkType(constant.expr, constant, symbol.value.value, symbol.type, symbol.pos);
+            if (singletonType != null) {
+                symbol.type = singletonType;
+            }
+        }
+    }
+
+    private BFiniteType createFiniteType(BLangConstant constant, BLangExpression expr) {
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, 0, Names.EMPTY,
+                constant.symbol.pkgID, null, constant.symbol.owner, constant.symbol.pos, VIRTUAL);
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        finiteType.addValue(expr);
+        return finiteType;
+    }
+
+    private BType checkType(BLangExpression expr, BLangConstant constant, Object value, BType type, Location pos) {
+        if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                ((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.FINITE) {
+            return ((BLangSimpleVarRef) expr).symbol.type; // Reference is already resolved.
+        }
+        switch (type.tag) {
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+                BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                return createFiniteType(constant, updateLiteral(numericLiteral, value, type, pos));
+            case TypeTags.BYTE:
+                BLangNumericLiteral byteLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                return createFiniteType(constant, updateLiteral(byteLiteral, value, symbolTable.intType, pos));
+            case TypeTags.STRING:
+            case TypeTags.NIL:
+            case TypeTags.BOOLEAN:
+                BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                return createFiniteType(constant, updateLiteral(literal, value, type, pos));
+            default:
+                return null;
+        }
+    }
+
+    private BLangLiteral updateLiteral(BLangLiteral literal, Object value, BType type, Location pos) {
+        literal.value = value;
+        literal.isConstant = true;
+        literal.setBType(type);
+        literal.pos = pos;
+        return literal;
     }
 }

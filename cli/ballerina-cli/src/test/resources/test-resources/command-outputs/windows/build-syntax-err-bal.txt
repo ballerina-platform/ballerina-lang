@@ -1,3 +1,4 @@
 Compiling source
 	hello_world.bal
+WARNING [:(1:1,1:1)] Skipped adding the generated source file with prefix "dummyfunc". Source file generation is not supported with standalone bal files
 ERROR [hello_world.bal:(2:2,2:3)] invalid token ';'

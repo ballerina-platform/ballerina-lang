@@ -254,7 +254,9 @@ public class NewCommandTest extends BaseCommandTest {
                 "export = [\"sample_pull_local\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"";
+                "language_spec_version = \"2021R1\"\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -284,7 +286,9 @@ public class NewCommandTest extends BaseCommandTest {
                 "export = [\"sample_pull_WO_Module_Version\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"";
+                "language_spec_version = \"2021R1\"\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
@@ -312,7 +316,9 @@ public class NewCommandTest extends BaseCommandTest {
                 "export = [\"sample_pull\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"";
+                "language_spec_version = \"2021R1\"\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
@@ -321,7 +327,7 @@ public class NewCommandTest extends BaseCommandTest {
     @Test
     public void testMultiModuleTemplate() throws IOException {
         // Test if no arguments was passed in
-        String templateArg = "ballerina/protobuf";
+        String templateArg = "ballerina/protobuf:1.0.1";
         String[] args = {"sample-multi_module", "-t", templateArg};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
@@ -350,7 +356,9 @@ public class NewCommandTest extends BaseCommandTest {
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
-                "[[platform.java11.dependency]]\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n" +
+                "\n[[platform.java11.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));

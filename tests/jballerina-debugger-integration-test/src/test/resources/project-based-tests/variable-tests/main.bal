@@ -187,6 +187,18 @@ public function main() {
         }
     };
 
+    Pet pet2 = {
+        id: 2,
+        name: "Rova",
+        'type: { 
+            'type: "Dog",
+            owner: {
+                name: "lnash",
+                address: ()
+            }
+        }
+    };
+
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
     EmployeeTable tableWithKeyVar = table [
