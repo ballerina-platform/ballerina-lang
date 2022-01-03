@@ -46,6 +46,7 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -243,6 +244,11 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(ExplicitNewExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ObjectConstructorExpressionNode node) {
         return this.context.currentSemanticModel().get().typeOf(node);
     }
 
