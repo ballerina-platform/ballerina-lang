@@ -162,6 +162,7 @@
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInCompoundStatementsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInExpressionsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInModuleLevelDeclsTest" />
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInQueryActionsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInQueryExprsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInStatementsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInWorkersTest" />

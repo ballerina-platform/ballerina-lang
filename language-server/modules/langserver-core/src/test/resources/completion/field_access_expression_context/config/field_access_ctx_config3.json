@@ -461,7 +461,7 @@
     {
       "label": "optionalInt",
       "kind": "Field",
-      "detail": "int",
+      "detail": "int?",
       "sortText": "CA",
       "insertText": "optionalInt",
       "insertTextFormat": "Snippet"

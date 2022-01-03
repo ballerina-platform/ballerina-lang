@@ -64,7 +64,6 @@ import org.eclipse.lsp4j.Range;
 
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Visitor to discover the program structure.
@@ -88,6 +87,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     private Node currentNode;
     private Document document;
     private boolean withinRange = false;
+    private int uuid;
 
     public PerformanceAnalyzerNodeVisitor(SemanticModel model, String file, Range range) {
 
@@ -435,7 +435,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             return referenceMap.get(lineRange);
         }
 
-        String uuid = UUID.randomUUID().toString();
+        String uuid = String.valueOf(this.uuid++);
         referenceMap.put(lineRange, uuid);
         return uuid;
     }

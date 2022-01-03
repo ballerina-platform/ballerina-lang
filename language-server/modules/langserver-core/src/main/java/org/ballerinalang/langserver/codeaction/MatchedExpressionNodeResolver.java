@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
@@ -93,7 +94,10 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
         return Optional.of(fromClauseNode.expression());
     }
 
-    @Override
+    public Optional<ExpressionNode> transform(BracedExpressionNode node) {
+        return Optional.of(node);
+    }
+
     public Optional<ExpressionNode> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
         return Optional.of(implicitNewExpressionNode);
     }

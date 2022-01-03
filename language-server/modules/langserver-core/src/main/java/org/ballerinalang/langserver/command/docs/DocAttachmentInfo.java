@@ -154,7 +154,7 @@ public class DocAttachmentInfo implements Documentation {
         }
 
         if (newlineAtEnd) {
-            return result.toString().trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
+            return result.toString().trim() + CommonUtil.LINE_SEPARATOR + padding;
         } else {
             return result.toString().trim();
         }
