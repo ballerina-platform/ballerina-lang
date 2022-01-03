@@ -127,7 +127,9 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 // Variable Declaration
                 {"create_function_in_var_decl1.json", "create_function_in_var_decl1.bal"},
                 {"create_function_in_var_decl12.json", "create_function_in_var_decl2.bal"},
-                {"create_function_in_var_decl13.json", "create_function_in_var_decl3.bal"}
+                {"create_function_in_var_decl13.json", "create_function_in_var_decl3.bal"},
+                // TODO Blocked by #34448
+                // {"create_function_in_var_decl14.json", "create_function_in_var_decl4.bal"}
         };
     }
 
