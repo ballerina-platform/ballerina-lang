@@ -8,7 +8,6 @@ on:
       - release-stage
       - stage
       - stage-swan-lake
-      - stage-swan-lake-rc1
       - ballerina-[0-9]+.[0-9]+.x
 
 jobs:
