@@ -2446,14 +2446,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
-        if (safeNavigateLHS(assignNode.varRef)) {
-            BLangAccessExpression accessExpr = (BLangAccessExpression) assignNode.varRef;
-            accessExpr.leafNode = true;
-            result = rewriteSafeNavigationAssignment(accessExpr, assignNode.expr);
-            result = rewrite(result, env);
-            return;
-        }
-
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
         assignNode.expr = addConversionExprIfRequired(rewriteExpr(assignNode.expr), assignNode.varRef.getBType());
@@ -9830,121 +9822,6 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
         this.safeNavigationAssignment = assignmentStmt;
         return successPattern;
-    }
-
-    private boolean safeNavigateLHS(BLangExpression expr) {
-        if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR && expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return false;
-        }
-
-        BLangExpression varRef = ((BLangAccessExpression) expr).expr;
-        if (varRef.getBType().isNullable()) {
-            return true;
-        }
-
-        return safeNavigateLHS(varRef);
-    }
-
-    private BLangStatement rewriteSafeNavigationAssignment(BLangAccessExpression accessExpr, BLangExpression rhsExpr) {
-        // --- original code ---
-        // A? a = ();
-        // a.b = 4;
-        // --- desugared code ---
-        // A? a = ();
-        // if(a is ()) {
-        //    panic error("NullReferenceException");
-        // }
-        // (<A> a).b = 4;
-        // This will get chained and will get added more if cases as required,
-        // For invocation exprs, this will create a temp var to store that, so it won't get executed
-        // multiple times.
-        this.accessExprStack = new Stack<>();
-        List<BLangStatement> stmts = new ArrayList<>();
-        createLHSSafeNavigation(stmts, accessExpr.expr);
-        BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(accessExpr.pos,
-                cloneExpression(accessExpr), rhsExpr);
-        stmts.add(assignment);
-        return ASTBuilderUtil.createBlockStmt(accessExpr.pos, stmts);
-    }
-
-    private void createLHSSafeNavigation(List<BLangStatement> stmts, BLangExpression expr) {
-        NodeKind kind = expr.getKind();
-        boolean root = false;
-        if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INVOCATION) {
-            BLangAccessExpression accessExpr = (BLangAccessExpression) expr;
-            createLHSSafeNavigation(stmts, accessExpr.expr);
-            accessExpr.expr = accessExprStack.pop();
-        } else {
-            root = true;
-        }
-
-        // If expression is an invocation, then create a temp var to store the invocation value, so that
-        // invocation will happen only one time
-        if (expr.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation invocation = (BLangInvocation) expr;
-            BVarSymbol interMediateSymbol = new BVarSymbol(0,
-                                                           names.fromString(GEN_VAR_PREFIX.value + "i_intermediate"),
-                                                           this.env.scope.owner.pkgID, invocation.getBType(),
-                                                           this.env.scope.owner, expr.pos, VIRTUAL);
-            BLangSimpleVariable intermediateVariable = ASTBuilderUtil.createVariable(expr.pos,
-                                                                                     interMediateSymbol.name.value,
-                                                                                     invocation.getBType(), invocation,
-                                                                                     interMediateSymbol);
-            BLangSimpleVariableDef intermediateVariableDefinition = ASTBuilderUtil.createVariableDef(invocation.pos,
-                    intermediateVariable);
-            stmts.add(intermediateVariableDefinition);
-
-            expr = ASTBuilderUtil.createVariableRef(invocation.pos, interMediateSymbol);
-        }
-
-        if (expr.getBType().isNullable()) {
-            BLangTypeTestExpr isNillTest = ASTBuilderUtil.createTypeTestExpr(expr.pos, expr, getNillTypeNode());
-            isNillTest.setBType(symTable.booleanType);
-
-            BLangBlockStmt thenStmt = ASTBuilderUtil.createBlockStmt(expr.pos);
-
-            //Cloning the expression and set the nil lifted type.
-            expr = cloneExpression(expr);
-            expr.setBType(types.getSafeType(expr.getBType(), true, false));
-
-            // TODO for records, type should be defaultable as well
-            if (isDefaultableMappingType(expr.getBType()) && !root) {
-                // This will properly get desugered later to a json literal
-                BLangRecordLiteral jsonLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-                jsonLiteral.setBType(expr.getBType());
-                jsonLiteral.pos = expr.pos;
-                BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(expr.pos,
-                        expr, jsonLiteral);
-                thenStmt.addStatement(assignment);
-            } else {
-                BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                literal.value = ERROR_REASON_NULL_REFERENCE_ERROR;
-                literal.setBType(symTable.stringType);
-
-                BLangErrorConstructorExpr errorConstructorExpr =
-                        (BLangErrorConstructorExpr) TreeBuilder.createErrorConstructorExpressionNode();
-                BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(errorConstructorExpr.pos, env,
-                        names.fromString(""), names.fromString("error"));
-                errorConstructorExpr.setBType(symbol.type);
-                errorConstructorExpr.pos = expr.pos;
-                List<BLangExpression> positionalArgs = new ArrayList<>();
-                List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-                positionalArgs.add(literal);
-                errorConstructorExpr.positionalArgs = positionalArgs;
-                errorConstructorExpr.namedArgs = namedArgs;
-
-                BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
-                panicNode.expr = errorConstructorExpr;
-                panicNode.pos = expr.pos;
-                thenStmt.addStatement(panicNode);
-            }
-
-            BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(expr.pos, isNillTest, thenStmt, null);
-            stmts.add(ifelse);
-        }
-
-        accessExprStack.push(expr);
     }
 
     BLangValueType getNillTypeNode() {

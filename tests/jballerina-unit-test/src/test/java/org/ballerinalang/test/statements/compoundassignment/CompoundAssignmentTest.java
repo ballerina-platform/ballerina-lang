@@ -424,7 +424,7 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 38);
+        Assert.assertEquals(compileResult.getErrorCount(), 40);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands", 13, 5);
@@ -467,16 +467,20 @@ public class CompoundAssignmentTest {
                 161, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for '(int|string)' and 'SomeType2'",
                 162, 5);
-        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
-                167, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid operation: type 'map<int>?' does not support" +
+                        " member access for assignment", 167, 5);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
                 170, 5);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
                 173, 5);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
-                174, 5);
-        BAssertUtil.validateError(compileResult, i, "compound assignment not allowed with nullable operands",
+                176, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
                 177, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
+                180, 5);
+        BAssertUtil.validateError(compileResult, i, "compound assignment not allowed with nullable operands",
+                184, 5);
     }
 
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +

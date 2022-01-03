@@ -165,6 +165,9 @@ function incompatibleTypesInBinaryBitwiseOpInCompoundAssignment() {
 function testCompoundAssignmentNotAllowedWithNullableOperands() {
     map<int>? m = {x: 2};
     m["x"] += 1;
+    
+    map<int> n = {x: 2};
+    n["x"] += 1;
 
     int? a = ();
     a += 2;
@@ -175,4 +178,8 @@ function testCompoundAssignmentNotAllowedWithNullableOperands() {
 
     ()|int c = 5;
     c += 4;
+    
+    int? x =  4;
+    int? y = 5;
+    x += y;
 }

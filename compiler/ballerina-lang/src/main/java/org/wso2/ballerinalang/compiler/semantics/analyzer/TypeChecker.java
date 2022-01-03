@@ -7839,7 +7839,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return symTable.semanticError;
                     }
 
-                    if (indexBasedAccessExpr.isLValue) {
+                    if (indexBasedAccessExpr.isLValue || indexBasedAccessExpr.isCompoundAssignmentLValue) {
                         dlog.error(indexBasedAccessExpr.pos,
                                 DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS_FOR_ASSIGNMENT,
                                    indexBasedAccessExpr.expr.getBType());
