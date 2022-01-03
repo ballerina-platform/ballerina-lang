@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: Leak_Suspects-${{ matrix.branch }}.zip
+          name: Leak_Suspects-${{ matrix.branch }}
           path: 'dump_Leak_Suspects.zip'
 
       - name: Notify failure
