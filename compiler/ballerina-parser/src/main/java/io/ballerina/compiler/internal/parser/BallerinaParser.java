@@ -5119,7 +5119,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseErrorConstructorExpr(consume());
             case LET_KEYWORD:
-                return parseLetExpression(isRhsExpr);
+                return parseLetExpression(isRhsExpr, isInConditionalExpr);
             case BACKTICK_TOKEN:
                 return parseTemplateExpression();
             case OBJECT_KEYWORD:
@@ -10539,7 +10539,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseLetExpression(boolean isRhsExpr) {
+    private STNode parseLetExpression(boolean isRhsExpr, boolean isInConditionalExpr) {
         STNode letKeyword = parseLetKeyword();
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr);
         STNode inKeyword = parseInKeyword();
@@ -10550,7 +10550,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false, isInConditionalExpr);
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
     }
 
@@ -12325,7 +12325,14 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 SyntaxKind nextNextTokenKind = peek(nextTokenIndex).kind;
-                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN || nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
+                if (nextNextTokenKind == SyntaxKind.PIPE_TOKEN || nextNextTokenKind == SyntaxKind.BITWISE_AND_TOKEN) {
+                    // e.g. -2|0 t1;
+                    nextTokenIndex++;
+                    return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
+                }
+
+                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN ||
+                        nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
                         nextNextTokenKind == SyntaxKind.CLOSE_BRACKET_TOKEN ||
                         isValidExprRhsStart(nextNextTokenKind, SyntaxKind.SIMPLE_NAME_REFERENCE);
             case IDENTIFIER_TOKEN:
