@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
@@ -249,7 +250,7 @@ public class TypesFactory {
 
                 if (valueSpace.size() == 1) {
                     BLangExpression shape = valueSpace.iterator().next();
-                    return new BallerinaSingletonTypeSymbol(this.context, moduleID, shape, bType);
+                    return new BallerinaSingletonTypeSymbol(this.context, moduleID, (BLangLiteral) shape, bType);
                 }
 
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
@@ -331,7 +332,7 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == PARAMETERIZED || tSymbol.kind == SymbolKind.TYPE_DEF
+        return kind == PARAMETERIZED
                 || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
     }
 
@@ -385,6 +386,9 @@ public class TypesFactory {
                 return TypeDescKind.INTERSECTION;
             case ERROR:
                 return TypeDescKind.ERROR;
+            case NONE:
+            case OTHER:
+                return TypeDescKind.NONE;
             case PARAMETERIZED:
             case ANNOTATION:
             case BLOB:
@@ -392,8 +396,6 @@ public class TypesFactory {
             case CONNECTOR:
             case ENDPOINT:
             case FINITE:
-            case NONE:
-            case OTHER:
             case PACKAGE:
             case READONLY:
             case SERVICE:

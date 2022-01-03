@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
@@ -86,8 +86,7 @@ public class CoverageReport {
                           List<ISourceFileCoverage> packageSourceCoverageList, List<ExecutionData> packageExecData,
                           List<SessionInfo> sessionInfoList) throws IOException {
         this.module = module;
-        this.target = new Target(module.project().sourceRoot());
-
+        this.target = new Target(module.project().targetDir());
         this.coverageDir = target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR);
         this.title = coverageDir.toFile().getName();
         this.classesDirectory = coverageDir.resolve(TesterinaConstants.BIN_DIR);

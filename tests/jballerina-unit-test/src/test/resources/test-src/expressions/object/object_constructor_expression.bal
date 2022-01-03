@@ -139,7 +139,7 @@ distinct class DistinctFooB {
     int i = 0;
 }
 
-function testObjectConstructorWithDistintExpectedType() {
+function testObjectConstructorWithDistinctExpectedType() {
     DistinctFoo distinctObject = object {
                                         int i;
                                         function init() {
@@ -149,7 +149,7 @@ function testObjectConstructorWithDistintExpectedType() {
     assertValueEquality(20, distinctObject.i);
 }
 
-function testObjectConstructorWithDistintTypeReference() {
+function testObjectConstructorWithDistinctTypeReference() {
     DistinctFooA distinctObject = object DistinctFooA {
                                             int i;
                                             function init() {
@@ -159,7 +159,7 @@ function testObjectConstructorWithDistintTypeReference() {
     assertValueEquality(30, distinctObject.i);
 }
 
-function testObjectConstructorWithDistintTypeReferenceVar() {
+function testObjectConstructorWithDistinctTypeReferenceVar() {
     var distinctObject = object DistinctFooB {
                                             int i;
                                             function init() {
@@ -313,6 +313,19 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
     error err2 = <error> res2;
     assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err2.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
+}
+
+type Bar readonly & object {
+    int i;
+};
+
+function testObjectConstructorWithReferredIntersectionType() {
+    Bar b = object {
+        int i = 1;
+        int j = 2;
+    };
+    assertTrue(b is readonly & object {int i; int j;});
+    assertValueEquality(1, b.i);
 }
 
 // assertion helpers

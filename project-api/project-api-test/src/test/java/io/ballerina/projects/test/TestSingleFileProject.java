@@ -18,7 +18,6 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -73,6 +72,22 @@ public class TestSingleFileProject {
         Assert.assertEquals(moduleIds.size(), 1);
         Assert.assertEquals(moduleIds.iterator().next(), currentPackage.getDefaultModule().moduleId());
 
+    }
+
+    @Test (description = "tests if the target directory for single files is resolved properly")
+    public void testSingleFileTargetDirectory() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
+        SingleFileProject project = null;
+        try {
+            project = TestUtils.loadSingleFileProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        Path targetDirPath = project.targetDir();
+        Assert.assertNotNull(targetDirPath);
+        Assert.assertTrue(targetDirPath.toFile().exists());
+        Assert.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), targetDirPath.getParent());
     }
 
     @Test (description = "tests loading a valid standalone Ballerina file")
@@ -141,9 +156,9 @@ public class TestSingleFileProject {
     public void testOverrideBuildOptions() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
-        BuildOptions buildOptions = new BuildOptionsBuilder()
-                .skipTests(true)
-                .observabilityIncluded(true)
+        BuildOptions buildOptions = BuildOptions.builder()
+                .setSkipTests(true)
+                .setObservabilityIncluded(true)
                 .build();
         try {
             project = TestUtils.loadSingleFileProject(projectPath, buildOptions);

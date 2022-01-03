@@ -104,8 +104,8 @@ public class VarDeclSymbolTest {
                         List.of(Qualifier.FINAL, Qualifier.CONFIGURABLE)},
                 {26, 13, "s3", TypeDescKind.STRING, "String 3", "varDecl",
                         List.of(Qualifier.FINAL)},
-//                {30, 10, "s4", TypeDescKind.STRING, "String 4", "varDecl",
-//                        List.of(Qualifier.FINAL)},      // TODO: Uncomment after fixing #32709
+                {30, 10, "s4", TypeDescKind.STRING, "String 4", "varDecl",
+                        List.of(Qualifier.FINAL)},
                 {34, 13, "s5", TypeDescKind.ANY, "String 5", "varDecl",
                         List.of(Qualifier.ISOLATED)},
                 {38, 13, "i1", TypeDescKind.INT, "Int 1", "varDecl",
@@ -130,9 +130,9 @@ public class VarDeclSymbolTest {
                         List.of()},
                 {62, 34, "a3", TypeDescKind.FLOAT, null, null,
                         List.of()},
-                {66, 34, "aValue", TypeDescKind.ANYDATA, null, null,
+                {66, 34, "a", TypeDescKind.STRING, null, null,
                         List.of(Qualifier.PUBLIC)},
-                {66, 42, "bValue", TypeDescKind.ANYDATA, null, null,
+                {66, 37, "b", TypeDescKind.INT, null, null,
                         List.of(Qualifier.PUBLIC)},
                 {70, 8, "valueA", TypeDescKind.STRING, null, null,
                         List.of()},
@@ -140,6 +140,8 @@ public class VarDeclSymbolTest {
                         List.of()},
                 {74, 11, "str", TypeDescKind.STRING, null, "varDecl",
                         List.of()},
+                {77, 14, "str2", TypeDescKind.STRING, null, "varDecl",
+                        List.of(Qualifier.FINAL)},
         };
     }
 }

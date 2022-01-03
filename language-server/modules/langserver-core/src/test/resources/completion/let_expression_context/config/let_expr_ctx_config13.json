@@ -373,42 +373,6 @@
       ]
     },
     {
-      "label": "start",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "start",
-      "insertText": "start ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "wait",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "wait",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flush",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "flush",
-      "insertText": "flush ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "from clause",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "T",
-      "filterText": "from",
-      "insertText": "from ${1:var} ${2:item} in ${3}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",

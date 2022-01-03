@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -23,16 +24,13 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
@@ -45,10 +43,10 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for incompatible types.
@@ -59,6 +57,7 @@ import java.util.Optional;
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Type Cast";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     /**
      * {@inheritDoc}
@@ -67,36 +66,50 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
-        Node matchedNode = getMatchedNode(positionDetails.matchedNode());
-        if (matchedNode == null) {
+
+        //Check if there is a type cast expression already present.
+        MatchedExpressionNodeResolver expressionResolver = 
+                new MatchedExpressionNodeResolver(positionDetails.matchedNode());
+        Optional<ExpressionNode> expressionNode = expressionResolver.findExpression(positionDetails.matchedNode());
+        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
+        }
+
+        Optional<TypeSymbol> rhsTypeSymbol;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            rhsTypeSymbol = positionDetails.diagnosticProperty(CodeActionUtil
+                    .getDiagPropertyFilterFunction(DiagBasedPositionDetails
+                            .DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else {
+            rhsTypeSymbol = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
         }
 
         Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
-        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
         if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
-
-        if (rhsTypeSymbol.isPresent() && rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
+        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
             if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) rhsTypeSymbol.get())) {
                 return Collections.emptyList();
             }
         }
 
-        Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
-            return Collections.emptyList();
+        //Consider the type parameter of future type symbols.
+        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.FUTURE) {
+            if (lhsTypeSymbol.get().typeKind() != TypeDescKind.FUTURE) {
+                return Collections.emptyList();
+            }
+            lhsTypeSymbol = ((FutureTypeSymbol) lhsTypeSymbol.get()).typeParameter();
+            rhsTypeSymbol = ((FutureTypeSymbol) rhsTypeSymbol.get()).typeParameter();
         }
 
-        List<TextEdit> edits = new ArrayList<>();
-        //numeric types can be casted between each other.
+        //Numeric types can be casted between each other.
         if (!lhsTypeSymbol.get().subtypeOf(rhsTypeSymbol.get()) && (!isNumeric(lhsTypeSymbol.get())
                 || !isNumeric(rhsTypeSymbol.get()))) {
             return Collections.emptyList();
@@ -106,7 +119,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        edits.addAll(getTextEdits(positionDetails, typeName));
+        List<TextEdit> edits = new ArrayList<>();
+        edits.addAll(getTextEdits(expressionNode.get(), typeName));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
@@ -114,33 +128,6 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
-    }
-
-    protected NonTerminalNode getMatchedNode(NonTerminalNode node) {
-        List<SyntaxKind> syntaxKinds =
-                Arrays.asList(SyntaxKind.LOCAL_VAR_DECL, SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT,
-                        SyntaxKind.POSITIONAL_ARG, SyntaxKind.NAMED_ARG);
-        while (node != null && !syntaxKinds.contains(node.kind())) {
-            node = node.parent();
-        }
-
-        return node;
-    }
-
-    protected Optional<ExpressionNode> getExpression(Node node) {
-        if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            return ((VariableDeclarationNode) node).initializer();
-        } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            return ((ModuleVariableDeclarationNode) node).initializer();
-        } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-            return Optional.of(((AssignmentStatementNode) node).expression());
-        } else if (node.kind() == SyntaxKind.POSITIONAL_ARG) {
-            return Optional.of(((PositionalArgumentNode) node).expression());
-        } else if (node.kind() == SyntaxKind.NAMED_ARG) {
-            return Optional.of(((NamedArgumentNode) node).expression());
-        } else {
-            return Optional.empty();
-        }
     }
 
     protected Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
@@ -159,20 +146,19 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      * the assignment/var declaration, etc. This considers if additional parentheses requires to be added around
      * the RHS expression.
      *
-     * @param positionDetails  Expression Node of the diagnostic position
+     * @param expressionNode   Expression Node of the diagnostic position
      * @param expectedTypeName Expected type name as a string
      * @return Text edits to perform the cast
      */
-    private List<TextEdit> getTextEdits(DiagBasedPositionDetails positionDetails, String expectedTypeName) {
+    private List<TextEdit> getTextEdits(NonTerminalNode expressionNode, String expectedTypeName) {
 
-        NonTerminalNode matchedNode = positionDetails.matchedNode();
-        Position startPosition = CommonUtil.toPosition(matchedNode.lineRange().startLine());
-        Position endPosition = CommonUtil.toPosition(matchedNode.lineRange().endLine());
+        Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
+        Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
 
         String editText = "<" + expectedTypeName + "> ";
 
         // If the expression is a binary expression, need to add parentheses around the expression
-        if (matchedNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
+        if (expressionNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
             editText = editText + CommonKeys.OPEN_PARENTHESES_KEY;
             TextEdit castWithParentheses = new TextEdit(new Range(startPosition, startPosition), editText);
             TextEdit closeParentheses = new TextEdit(new Range(endPosition, endPosition),

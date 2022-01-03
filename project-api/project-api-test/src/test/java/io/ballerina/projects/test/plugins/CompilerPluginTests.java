@@ -19,8 +19,12 @@ package io.ballerina.projects.test.plugins;
 
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.Resource;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.test.TestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -230,8 +234,11 @@ public class CompilerPluginTests {
         CodeGeneratorResult codeGeneratorResult = currentPackage.runCodeGeneratorPlugins();
 
         // Compiling the new package
+        Project project = currentPackage.project();
         Package newPackage = codeGeneratorResult.updatedPackage().orElse(null);
         Assert.assertNotNull(newPackage, "Cannot be null, because there exist code generators");
+        Assert.assertSame(newPackage.project(), project);
+        Assert.assertSame(newPackage, project.currentPackage());
 
         // The code generator produce 4 files. 3 files for three functions and one file importing another package.
         Assert.assertEquals(5, newPackage.getDefaultModule().documentIds().size());
@@ -247,6 +254,21 @@ public class CompilerPluginTests {
         // This import causes the dependencies count to be updated to 2.
         Assert.assertEquals(newPackage.packageDependencies().size(), 2,
                 "Unexpected number of dependencies");
+
+        // Check resources
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.isDefaultModule()) {
+                Assert.assertEquals(module.resourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.resourceIds().size(), 1);
+            Resource resource = module.resource(module.resourceIds().stream().findFirst().orElseThrow());
+            Assert.assertEquals(resource.name(), "openapi-spec.yaml");
+            Assert.assertEquals(resource.content(), "".getBytes());
+            Assert.assertEquals(resource.module(), module);
+        }
+
     }
 
     public void assertDiagnostics(Package currentPackage) {

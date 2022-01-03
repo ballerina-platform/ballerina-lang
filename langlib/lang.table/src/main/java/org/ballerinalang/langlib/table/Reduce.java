@@ -54,15 +54,12 @@ public class Reduce {
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
+        Object[] keys = tbl.getKeys();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand, accum.get(), tbl.get(tbl.getKeys()[index.incrementAndGet()])},
+                        () -> new Object[]{parentStrand, accum.get(), tbl.get(keys[index.incrementAndGet()])},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }
 
-    public static Object reduce_bstring(Strand strand, BTable tbl,
-                                        BFunctionPointer<Object, Object> func, Object initial) {
-        return reduce(tbl, func, initial);
-    }
 }

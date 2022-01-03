@@ -33,10 +33,10 @@ isolated function f2() returns MyError|object { function a; int b; int c; } {
     var v = object {
             function a = function () returns error? {
                 // OK, since it is enclosed in the function, and not directly used in the default value.
-                int q = check int:fromString("invalid");
+                int _ = check int:fromString("invalid");
                 record {|
                     any x = check f1(); // error.
-                |} r = {};
+                |} _ = {};
                 return;
             };
             int b = check int:fromString("invalid"); // error.
@@ -71,19 +71,19 @@ isolated function func() {
         record {|
             function a = function () returns error? {
                 // OK, since it is enclosed in the function, and not directly used in the default value.
-                int q = check int:fromString("invalid");
+                int _ = check int:fromString("invalid");
                 return;
             };
             int b = check int:fromString("invalid"); // error.
             int c = check int:fromString(check f3()); // error.
         |} b;
         object {} rec2;
-    } rec2 = object {
+    } _ = object {
         any|error a = check f1(); // error.
         record {|
             function a = function () returns error? {
                 // OK, since it is enclosed in the function, and not directly used in the default value.
-                int q = check int:fromString("invalid");
+                int _ = check int:fromString("invalid");
                 return;
             };
             int b = check int:fromString("invalid"); // error.
@@ -103,7 +103,7 @@ isolated function func() {
 class Bar {
     function a = function () returns error? {
         // OK, since it is enclosed in the function, and not directly used in the default value.
-        int q = check int:fromString("invalid");
+        int _ = check int:fromString("invalid");
         return;
     };
     int b = check int:fromString("invalid"); // error.
@@ -119,8 +119,8 @@ function f4() returns MyError|object { function a; int b; int c; } {
     var v = object {
                 function a = function () returns error? {
                     // OK, since it is enclosed in the function, and not directly used in the default value.
-                    int q = check int:fromString("invalid");
-                    object { function a; int b; int c; } r = check f2();
+                    int _ = check int:fromString("invalid");
+                    object { function a; int b; int c; } _ = check f2();
                     return;
                 };
                 int b = check int:fromString("invalid"); // error.
@@ -161,15 +161,15 @@ function func2() returns error? {
         }
     };
 
-    any v = check ob;
-    any w = check ob2;
+    any _ = check ob;
+    any _ = check ob2;
     return;
 }
 
 class Baz {
     any a = check new Qux(function () returns error? { // error
                               // OK, since it is enclosed in the function, and not directly used in the default value.
-                              int q = check int:fromString("invalid");
+                              int _ = check int:fromString("invalid");
                               return;
                           });
     any b = check new Qux(() => check int:fromString("invalid")); // error for outer check
@@ -178,7 +178,7 @@ class Baz {
 class Quux {
     any a = check new Qux(function () returns error? { // error
                               // OK, since it is enclosed in the function, and not directly used in the default value.
-                              int q = check int:fromString("invalid");
+                              int _ = check int:fromString("invalid");
                               return;
                           });
     any b = check new Qux(() => check int:fromString("invalid")); // error for outer check
@@ -219,11 +219,11 @@ var w = object {
 };
 
 function testObjectConstructor() {
-    var x = object {
+    var _ = object {
         int i = let int x = check fn() in x + 2 * check fn();
     };
     var y = object {
-        int i = let int x = check fn() in x + 2 * check fn();
+        int i = let int y = check fn() in y + 2 * check fn();
 
         function init() returns MyError? {
             return;

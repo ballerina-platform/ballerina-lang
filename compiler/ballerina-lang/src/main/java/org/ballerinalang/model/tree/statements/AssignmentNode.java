@@ -31,10 +31,12 @@ public interface AssignmentNode extends StatementNode {
 
     ExpressionNode getExpression();
 
+    @Deprecated
     boolean isDeclaredWithVar();
 
     void setExpression(ExpressionNode expression);
 
+    @Deprecated
     void setDeclaredWithVar(boolean isDeclaredWithVar);
 
     void setVariable(VariableReferenceNode variableReferenceNode);

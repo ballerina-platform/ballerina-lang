@@ -39,9 +39,12 @@ import java.util.stream.Collectors;
  */
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
+    // BLangNodes
     public List<BLangSimpleVariable> params = new ArrayList<>();
     public BLangVariable restParam;
     public BLangType returnTypeNode;
+
+    // Parser Flags and Data
     public Set<Flag> flagSet = new HashSet<>();
     public BInvokableTypeSymbol symbol;
     public boolean isInTypeDefinitionContext;
@@ -72,6 +75,16 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

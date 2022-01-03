@@ -250,18 +250,6 @@ public class RecordVariableDefinitionTest {
         Assert.assertNull(returns[3]);
     }
 
-    @Test(description = "Test record variable with Map Type")
-    public void testMapRecordVar() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapRecordVar");
-        Assert.assertEquals(returns.length, 6);
-        Assert.assertEquals(returns[0].stringValue(), "A");
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertNull(returns[2]);
-        Assert.assertEquals(returns[3].stringValue(), "B");
-        Assert.assertEquals(returns[4].stringValue(), "C");
-        Assert.assertNull(returns[5]);
-    }
-
     @Test(description = "Test record variable with ignore variable")
     public void testIgnoreVariable() {
         BValue[] returns = BRunUtil.invoke(result, "testIgnoreVariable");
@@ -281,15 +269,12 @@ public class RecordVariableDefinitionTest {
     @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 8);
+        Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[7]).booleanValue());
     }
 
     @Test(description = "Test resolving the rest field type during record restructuring")
@@ -320,13 +305,29 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '(int|float)', found '(int|float)?'", 142, 31);
         BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 149, 10);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 149, 16);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 149, 22);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 150, 10);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 150, 17);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 150, 24);
+        BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'anydata'", 152, 13);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 152, 31);
         BAssertUtil.validateError(resultNegative, ++i,
                 "'_' is a keyword, and may not be used as an identifier", 157, 20);
         BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 157, 20);
+        BAssertUtil.validateError(resultNegative, ++i,
                 "'_' is a keyword, and may not be used as an identifier", 157, 30);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 157, 30);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'XY', " +
@@ -357,16 +358,22 @@ public class RecordVariableDefinitionTest {
                 260, 24);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'map<(int|string)>', found " +
-                        "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}'",
+                        "'record {| never name?; (int|boolean|string) age; boolean? married?; (string|int)...; |}'",
                 285, 29);
-        BAssertUtil.validateError(resultNegative, ++i, "field access cannot be used to access an optional field, use " +
-                        "optional field access or member access", 287, 23);
+        BAssertUtil.validateError(resultNegative, ++i, "field access cannot be used to access an optional field " +
+                "of a type that includes nil, use optional field access or member access", 287, 24);
         BAssertUtil.validateError(resultNegative, ++i,
                 "a wildcard binding pattern can be used only with a value that belong to type 'any'",
                 298, 12);
         BAssertUtil.validateError(resultNegative, ++i,
                 "a wildcard binding pattern can be used only with a value that belong to type 'any'",
                 301, 20);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 310, 16);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 313, 11);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 316, 40);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

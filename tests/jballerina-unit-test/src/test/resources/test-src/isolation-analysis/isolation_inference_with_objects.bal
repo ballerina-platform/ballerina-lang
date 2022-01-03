@@ -1087,13 +1087,6 @@ public function testIsolatedInference() {
     assertTrue(isMethodIsolated(y, "getArrTwo"));
     assertTrue(isMethodIsolated(y, "getArrs"));
 
-    IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr z = new;
-    assertTrue(<any> z is isolated object {});
-    assertTrue(<any> f is isolated object {});
-    assertTrue(<any> f3 is isolated function);
-    assertTrue(<any> f4 is isolated function);
-    assertTrue(isMethodIsolated(z, "init"));
-
     IsolatedClassIncludingObjectAndClass a2 = new ([]);
     assertTrue(isMethodIsolated(a2, "init"));
     assertTrue(isMethodIsolated(a2, "access"));

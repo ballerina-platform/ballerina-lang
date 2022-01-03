@@ -396,14 +396,14 @@ public class ObjectTypeReferenceTest {
 
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, index++,
-                                  "incompatible type reference 'abc:Foo': a referenced object cannot have non-public " +
-                                          "fields or methods", 20, 6);
+                                  "incompatible type reference 'abc:Foo': a referenced type across modules " +
+                                          "cannot have non-public fields or methods", 20, 6);
         BAssertUtil.validateError(result, index++,
-                                  "incompatible type reference 'abc:Bar': a referenced object cannot have non-public " +
-                                          "fields or methods", 21, 6);
+                                  "incompatible type reference 'abc:Bar': a referenced type across modules " +
+                                          "cannot have non-public fields or methods", 21, 6);
         BAssertUtil.validateError(result, index,
-                                  "incompatible type reference 'abc:Baz': a referenced object cannot have non-public " +
-                                          "fields or methods", 22, 6);
+                                  "incompatible type reference 'abc:Baz': a referenced type across modules " +
+                                          "cannot have non-public fields or methods", 22, 6);
     }
 
     @Test

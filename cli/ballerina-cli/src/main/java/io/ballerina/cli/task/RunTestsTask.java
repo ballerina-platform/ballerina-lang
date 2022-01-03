@@ -32,7 +32,6 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
@@ -150,11 +149,6 @@ public class RunTestsTask implements Task {
         if (project.buildOptions().dumpBuildTime()) {
             start = System.currentTimeMillis();
         }
-        try {
-            ProjectUtils.checkExecutePermission(project.sourceRoot());
-        } catch (ProjectException e) {
-            throw createLauncherException(e.getMessage());
-        }
 
         filterTestGroups();
         report = project.buildOptions().testReport();
@@ -170,11 +164,12 @@ public class RunTestsTask implements Task {
         try {
             if (project.kind() == ProjectKind.BUILD_PROJECT) {
                 cachesRoot = project.sourceRoot();
+                target = new Target(project.targetDir());
             } else {
                 cachesRoot = Files.createTempDirectory("ballerina-test-cache" + System.nanoTime());
+                target = new Target(cachesRoot);
             }
 
-            target = new Target(cachesRoot);
             testsCachePath = target.getTestsCachePath();
         } catch (IOException e) {
             throw createLauncherException("error while creating target directory: ", e);
@@ -449,7 +444,7 @@ public class RunTestsTask implements Task {
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + jsonFile.getAbsolutePath() + "\n");
+                out.println("\t" + jsonFile.toPath() + "\n");
             }
         }
 
@@ -527,7 +522,7 @@ public class RunTestsTask implements Task {
 
         // Adds arguments to be read at the Test Runner
         // Index [0 - 3...]
-        cmdArgs.add(testCachePath.toString());
+        cmdArgs.add(target.path().toString());
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
 

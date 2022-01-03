@@ -5,13 +5,10 @@ SYNOPSIS
        bal build
        bal build <ballerina-file-path>
        bal build <ballerina-package-path>
-       bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path>
-                  <ballerina-file-path>
-       bal build [--offline] [experimental] [--cloud] [--observability-included]
-                 [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
-       bal build [--offline] [experimental] [--cloud] [--observability-included]
-                 [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
-                 <ballerina-package-path>
+       bal build [--target-dir] <target-directory-path>
+       bal build [--offline] [--experimental] [-o | --output] <output-path> <ballerina-file-path>
+       bal build [--offline] [--experimental] [--cloud] [--observability-included]
+                 [--list-conflicted-classes] <ballerina-package-path>
 
 
 DESCRIPTION
@@ -37,24 +34,8 @@ OPTIONS
             Build offline using the local artifacts without downloading the latest artifacts of
             the dependencies from the remote repository (Ballerina Central).
 
-       --with-tests
-            Compile and execute tests.
-
        --experimental
            Enable experimental language features.
-
-       --code-coverage
-           Enable code coverage. This will analyze the line coverage of the
-           source `.bal` files in the Ballerina package and add a section
-           to the testerina report with the code coverage details. This feature is not supported
-           with single BAL file executions.
-
-       --test-report
-           Generate an HTML report containing the test results. Defaults to 'true'
-           if code coverage is enabled.
-
-       --debug
-           Run tests in remote debugging mode.
 
        --observability-included
            Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina
@@ -67,6 +48,11 @@ OPTIONS
        --list-conflicted-classes
        		List the conflicting classes of conflicting JARs in the project.
 
+       --target-dir
+           Target directory path.
+
+       --export-openapi
+           Generate openAPI contract files for all the services in the current package.
 
 EXAMPLES
        Build the 'hello' package that has an entry point. This will generate a
@@ -78,12 +64,3 @@ EXAMPLES
 
        Build the 'hello' package from a different directory location.
           $ bal build `<hello-package-path>`
-
-       Build the current package and generate the test report. This will generate an
-       HTML test report in addition to the executable JAR files.
-          $ bal build --with-tests --test-report
-
-       Build the current package and generate the test report with
-       the code coverage information. This will add an additional section
-       to the test report for code coverage information.
-          $ bal build --with-tests --code-coverage

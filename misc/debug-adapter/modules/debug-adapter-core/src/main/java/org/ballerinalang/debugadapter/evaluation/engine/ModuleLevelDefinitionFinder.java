@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -48,6 +49,8 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
     private final SuspendedContext context;
     private final Set<SyntaxKind> filters = new HashSet<>();
     private final List<NonTerminalNode> result = new ArrayList<>();
+
+    private static final String ANNOTATION_BUILTINSUBTYPE = "builtinSubtype";
 
     public ModuleLevelDefinitionFinder(SuspendedContext context) {
         this.context = context;
@@ -98,9 +101,22 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
             return;
         }
 
-        // Need to ignore the entry points, when capturing top level definitions.
+        // Ignores entry points (main function definitions).
         if (node instanceof FunctionDefinitionNode && ((FunctionDefinitionNode) node).functionName().toSourceCode()
                 .equals(MAIN_FUNCTION_NAME)) {
+            return;
+        }
+
+        // Ignores external function definitions.
+        if (node instanceof FunctionDefinitionNode && ((FunctionDefinitionNode) node).functionBody().kind() ==
+                SyntaxKind.EXTERNAL_FUNCTION_BODY) {
+            return;
+        }
+
+        // Ignores type definitions with @builtinSubtype annotations (specific to Ballerina library sources).
+        if (node instanceof TypeDefinitionNode && ((TypeDefinitionNode) node).metadata().isPresent()
+                && ((TypeDefinitionNode) node).metadata().get().annotations().stream().anyMatch(annotationNode ->
+                annotationNode.annotReference().toSourceCode().trim().equalsIgnoreCase(ANNOTATION_BUILTINSUBTYPE))) {
             return;
         }
 

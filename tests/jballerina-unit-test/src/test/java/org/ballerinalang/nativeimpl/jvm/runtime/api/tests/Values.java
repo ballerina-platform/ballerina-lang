@@ -32,6 +32,8 @@ import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -133,5 +135,22 @@ public class Values {
             index++;
         }
         return arrayValue;
+    }
+
+    public static BArray getTypeIds(BObject bObject) {
+        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
+        int size = typeIds.size();
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
+                size), size);
+        int index = 0;
+        for (TypeId typeId : typeIds) {
+            arrayValue.add(index, StringUtils.fromString(typeId.getName()));
+            index++;
+        }
+        return arrayValue;
+    }
+
+    public static BString decodeIdentifier(BString identifier) {
+        return StringUtils.fromString(IdentifierUtils.decodeIdentifier(identifier.getValue()));
     }
 }

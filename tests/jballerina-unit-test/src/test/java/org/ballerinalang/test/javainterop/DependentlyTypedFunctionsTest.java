@@ -174,6 +174,9 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 361, 15);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 362, 15);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 363, 18);
+        validateError(errors, indx++, "incompatible type for parameter 't' with inferred typedesc value: expected " +
+                "'typedesc<(int|string)>', found 'typedesc<boolean>'", 369, 17);
+        validateError(errors, indx++, "incompatible types: expected 'TargetType', found 'typedesc<boolean>'", 371, 64);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -227,7 +230,10 @@ public class DependentlyTypedFunctionsTest {
                 {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaArrayRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaRecordRestArg"},
-                {"testDependentlyTypedFunctionWithIncludedRecordParam"}
+                {"testDependentlyTypedFunctionWithIncludedRecordParam"},
+                {"testDependentlyTypedMethodCallOnObjectType"},
+                {"testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument"},
+                {"testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType"}
         };
     }
 

@@ -37,14 +37,17 @@ import java.util.Set;
  */
 public abstract class BLangVariable extends BLangNode implements VariableNode {
 
+    // BLangNodes
     public BLangType typeNode;
-    public BLangExpression expr;
-    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
+    public BLangExpression expr;
 
+    // Parser Flags
+    public Set<Flag> flagSet;
     public boolean isDeclaredWithVar = false;
 
+    // Semantic Data
     public BVarSymbol symbol;
 
     public BLangVariable() {

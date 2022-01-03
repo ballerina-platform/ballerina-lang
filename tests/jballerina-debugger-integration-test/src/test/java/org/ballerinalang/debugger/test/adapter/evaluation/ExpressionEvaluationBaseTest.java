@@ -101,11 +101,11 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     }
 
     protected void prepareForEvaluation() throws BallerinaTestException {
-        String testProjectName = "evaluation-tests";
+        String testProjectName = "evaluation-tests-1";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 352));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 355));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();

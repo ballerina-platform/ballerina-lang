@@ -61,7 +61,8 @@ public class MappingConstructorExprTest {
                 { "testMappingConstuctorWithAnydataACET" },
                 { "testMappingConstuctorWithJsonACET" },
                 { "testNonAmbiguousMapUnionTarget" },
-                { "testTypeWithReadOnlyInUnionCET" }
+                { "testTypeWithReadOnlyInUnionCET" },
+                { "testFieldsWithEscapeSequences" }
         };
     }
 
@@ -189,9 +190,9 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "invalid usage of mapping constructor expression: key 'i' may " +
                 "duplicate a key specified via spread field '...b'", 64, 29);
         validateError(result, i++, "invalid usage of mapping constructor expression: key 'y' may " +
-                "duplicate a key specified via spread field '...m1'", 69, 30);
+                "duplicate a key specified via spread field '...m1'", 69, 29);
         validateError(result, i++, "invalid usage of mapping constructor expression: spread field 'm1' may" +
-                " have already specified keys", 74, 35);
+                " have already specified keys", 74, 34);
         validateError(result, i++, "invalid usage of mapping constructor expression: multiple " +
                 "spread fields of inclusive mapping types are not allowed", 84, 35);
         validateError(result, i++, "invalid usage of mapping constructor expression: spread field 'b2' " +
@@ -201,9 +202,9 @@ public class MappingConstructorExprTest {
         validateError(result, i++, "invalid usage of mapping constructor expression: multiple spread " +
                 "fields of inclusive mapping types are not allowed", 94, 35);
         validateError(result, i++, "invalid usage of mapping constructor expression: multiple " +
-                "spread fields of inclusive mapping types are not allowed", 100, 30);
+                "spread fields of inclusive mapping types are not allowed", 100, 29);
         validateError(result, i, "invalid usage of mapping constructor expression: multiple " +
-                "spread fields of inclusive mapping types are not allowed", 106, 34);
+                "spread fields of inclusive mapping types are not allowed", 106, 33);
     }
 
     @Test
@@ -387,6 +388,26 @@ public class MappingConstructorExprTest {
                 "expected a string literal or an expression", 31, 9);
         validateError(compileResult, index++, "invalid key 'science': identifiers cannot be used as rest field keys, " +
                 "expected a string literal or an expression", 39, 9);
+
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testDuplicateFieldWithEscapeSequence() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/mapping_constructor_duplicate_fields.bal");
+        int index = 0;
+
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 23, 29);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 24, 31);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 26, 33);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 27, 33);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a\\'", 29, 29);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'a{'", 30, 29);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field['", 33, 31);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field[' via " +
+                "spread operator '...recVar1'", 34, 37);
+        validateError(compileResult, index++, "invalid usage of map literal: duplicate key 'field('", 37, 28);
 
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }

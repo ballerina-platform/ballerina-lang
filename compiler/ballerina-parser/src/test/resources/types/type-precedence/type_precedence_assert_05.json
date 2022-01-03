@@ -1,0 +1,2842 @@
+{
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Foo"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "FLOAT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "FLOAT_KEYWORD"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "READONLY_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "READONLY_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr1"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Foo",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "FLOAT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "FLOAT_KEYWORD"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "READONLY_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "READONLY_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr2"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "ARRAY_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "ARRAY_DIMENSION",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "ASTERISK_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "ASTERISK_TOKEN"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STRING_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "STRING_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr3"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "ASTERISK_LITERAL",
+                                      "children": [
+                                        {
+                                          "kind": "ASTERISK_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STRING_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "STRING_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr4"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Foo",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "READONLY_KEYWORD"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "ASTERISK_LITERAL",
+                                      "children": [
+                                        {
+                                          "kind": "ASTERISK_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STRING_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "STRING_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr5"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "ARRAY_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Foo",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "ARRAY_DIMENSION",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "FLOAT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "FLOAT_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom1",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr6"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Foo",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "FLOAT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "FLOAT_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom2",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr7"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INTERSECTION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Fruits",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "READONLY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "READONLY_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BITWISE_AND_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "FLOAT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "FLOAT_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom3",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr8"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "UNION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "UNION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "UNION_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "Foo",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "PIPE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "INT_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "PIPE_TOKEN"
+                                },
+                                {
+                                  "kind": "FLOAT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "FLOAT_KEYWORD"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
+                            {
+                              "kind": "BYTE_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "BYTE_KEYWORD"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "DECIMAL_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "DECIMAL_KEYWORD"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STRING_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom4"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Fruits",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Apple"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Orange"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "Mango",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr9"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "INTERSECTION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "ARRAY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Fruits",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Apple",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Orange",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BITWISE_AND_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "Mango",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom5"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "UNION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "UNION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "UNION_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ARRAY_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "Foo",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "PIPE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "Orange"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "PIPE_TOKEN"
+                                },
+                                {
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Apple"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STRING_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom6"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "UNION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "UNION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "UNION_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "UNION_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "Apple",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "PIPE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "ARRAY_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "Fruits"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "ARRAY_DIMENSION",
+                                                  "children": [
+                                                    {
+                                                      "kind": "OPEN_BRACKET_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "PIPE_TOKEN"
+                                    },
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "Orange"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "PIPE_TOKEN"
+                                },
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "INT_KEYWORD"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "ARRAY_DIMENSION",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
+                            {
+                              "kind": "READONLY_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "READONLY_KEYWORD"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "FLOAT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "FLOAT_KEYWORD"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "STRING_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom7"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Apple",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Orange"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INTERSECTION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INTERSECTION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "Mongo"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "ARRAY_DIMENSION",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BITWISE_AND_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Avocado",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "BITWISE_AND_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Cherry",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Guava",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom8"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "Apple",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "INTERSECTION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "ARRAY_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Fruits"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "BITWISE_AND_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Orange",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom9"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "UNION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "UNION_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "UNION_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Apple",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "PIPE_TOKEN"
+                            },
+                            {
+                              "kind": "INTERSECTION_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INTERSECTION_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "Orange",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "BITWISE_AND_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "ARRAY_TYPE_DESC",
+                                      "children": [
+                                        {
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "Fruits"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BITWISE_AND_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Mango"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PIPE_TOKEN"
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "Guava"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "PIPE_TOKEN"
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "Cherry",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "custom10"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
+}

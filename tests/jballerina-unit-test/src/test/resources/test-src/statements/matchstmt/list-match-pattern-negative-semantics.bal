@@ -42,3 +42,21 @@ function testInvalidTypesWithJson(json j) returns [int, boolean[]] {
     }
     return [0, []];
 }
+
+type T readonly & S;
+type S [INT, int]|[STRING, string];
+
+const INT = 1;
+const STRING = 2;
+
+function testInvalidTypesWithImmutableIntersection(T t) {
+    match t {
+        [STRING, var val] => {
+            int _ = val;
+        }
+        [INT, var val] => {
+            string? _ = val;
+        }
+    }
+}
+

@@ -44,6 +44,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.types" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split.values" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
     </Match>
     <Match>
@@ -169,6 +172,10 @@
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIROperand"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.CompilerPhaseRunner"/>
@@ -364,5 +371,10 @@
         <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
         <Method name="getBooleanFromBuildOptionsTableNode"/>
         <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+    </Match>
+    <Match>
+        <Class name = "org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType"/>
+        <Method name="getReferredType"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
 </FindBugsFilter>

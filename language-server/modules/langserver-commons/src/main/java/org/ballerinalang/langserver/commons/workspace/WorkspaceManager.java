@@ -216,4 +216,11 @@ public interface WorkspaceManager {
      * @throws WorkspaceDocumentException when project or document not found
      */
     List<Path> didChangeWatched(DidChangeWatchedFilesParams params) throws WorkspaceDocumentException;
+
+    /**
+     * Get the URI scheme associated with the given workspace manager.
+     * 
+     * @return {@link String}
+     */
+    String uriScheme();
 }

@@ -34,7 +34,6 @@ public class FileSystemRepositoryValidationTests {
 
     @Test
     public void testGetPackageVersions() {
-
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("hevayo"), PackageName.from("package_d"), null),
                 PackageDependencyScope.DEFAULT);

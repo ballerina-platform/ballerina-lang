@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - stage-swan-lake
   workflow_dispatch:
 
 jobs:

@@ -4,13 +4,10 @@ NAME
 SYNOPSIS
        bal pack
        bal pack <ballerina-package-path>
-       bal pack [--test-report] [--offline] [--experimental]
-                  <ballerina-package-path>
+       bal pack [--target-dir] <target-directory-path>
+       bal pack [--test-report] [--offline] [--experimental] <ballerina-package-path>
        bal pack [--offline] [experimental] [--cloud] [--observability-included]
-                 [--with-tests] [--list-conflicted-classes] <ballerina-package-path>
-       bal pack [--offline] [experimental] [--cloud] [--observability-included]
-                 [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
-                 <ballerina-package-path>
+                [--list-conflicted-classes] <ballerina-package-path>
 
 
 DESCRIPTION
@@ -25,24 +22,14 @@ OPTIONS
             Pack offline using the local artifacts without downloading the latest artifacts of
             the dependencies from the remote repository (Ballerina Central).
 
-       --with-tests
-            Compile and execute tests.
-
        --experimental
            Enable experimental language features.
 
-       --code-coverage
-           Enable code coverage. This will analyze the line coverage of the
-           source `.bal` files in the Ballerina package and add a section
-           to the testerina report with the code coverage details. This feature is not supported
-           with single BAL file executions.
-
-       --test-report
-           Generate an HTML report containing the test results. Defaults to 'true'
-           if code coverage is enabled.
-
        --debug
            Run tests in remote debugging mode.
+
+       --target-dir
+            Target directory path.
 
 
 EXAMPLES
@@ -54,12 +41,3 @@ EXAMPLES
 
        Pack the 'hello' package from a different directory location.
           $ bal pack `<hello-package-path>`
-
-       Pack the current package and generate the test report. This will generate an
-       HTML test report in addition to the executable JAR files.
-          $ bal pack --with-tests --test-report
-
-       Pack the current package and generate the test report with
-       the code coverage information. This will add an additional section
-       to the test report for code coverage information.
-          $ bal pack --with-tests --code-coverage

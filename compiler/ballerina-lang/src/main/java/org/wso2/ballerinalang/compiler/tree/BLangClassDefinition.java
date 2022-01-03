@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -41,20 +43,33 @@ import java.util.Set;
  * @since 2.0
  */
 public class BLangClassDefinition extends BLangNode implements ClassDefinition {
+
+    // BLangNodes
     public BLangIdentifier name;
-    public List<BLangFunction> functions;
-    public BLangFunction initFunction;
-    public BLangFunction generatedInitFunction;
-    public BLangSimpleVariable receiver;
-    public List<BLangSimpleVariable> fields;
-    public List<BLangType> typeRefs;
-    public BTypeSymbol symbol;
-    public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public List<BLangSimpleVariable> referencedFields;
-    public int precedence;
+    public BLangFunction initFunction;
+    public List<BLangFunction> functions;
+    public List<BLangSimpleVariable> fields;
+    public List<BLangType> typeRefs;
+
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
     public boolean isServiceDecl;
+
+    // Semantic Data
+    public BTypeSymbol symbol;
+    public BLangFunction generatedInitFunction;
+    public BLangSimpleVariable receiver;
+    public List<BLangSimpleVariable> referencedFields;
+    public List<BLangSimpleVarRef.BLangLocalVarRef> localVarRefs;
+    public int precedence;
+
+    public boolean definitionCompleted;
+    public OCEDynamicEnvironmentData oceEnvData;
+    public boolean isObjectContructorDecl = false;
+    public BObjectType objectType = null;
+    public boolean hasClosureVars;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();
@@ -64,6 +79,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.flagSet.add(Flag.CLASS);
         this.annAttachments = new ArrayList<>();
         this.referencedFields = new ArrayList<>();
+        this.oceEnvData = new OCEDynamicEnvironmentData();
     }
 
     @Override
@@ -104,6 +120,16 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

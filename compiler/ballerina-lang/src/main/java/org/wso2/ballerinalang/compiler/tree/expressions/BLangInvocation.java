@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -43,18 +45,12 @@ import java.util.Set;
  */
 public class BLangInvocation extends BLangExpression implements InvocationNode {
 
+    // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
-    public List<BLangExpression> argExprs = new ArrayList<>();
-    //caching since at desugar level we need to identify whether this is actually attached function or not
-    public BSymbol exprSymbol;
-    public boolean functionPointerInvocation;
-    public boolean langLibInvocation;
-    public boolean async;
-    public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
     public BLangExpression expr;
-    public BSymbol symbol;
+    public List<BLangExpression> argExprs = new ArrayList<>();
+    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
@@ -62,6 +58,19 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
      */
     public List<BLangExpression> requiredArgs = new ArrayList<>();
     public List<BLangExpression> restArgs = new ArrayList<>();
+    public boolean objectInitMethod;
+
+    // Parser Flags and Data
+    public Set<Flag> flagSet;
+    public boolean async;
+
+    // Semantic Data
+    //caching since at desugar level we need to identify whether this is actually attached function or not
+    public BSymbol exprSymbol;
+    public boolean functionPointerInvocation;
+    public boolean langLibInvocation;
+    public BSymbol symbol;
+
 
     @Override
     public IdentifierNode getPackageAlias() {
@@ -98,15 +107,15 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         StringBuilder br = new StringBuilder();
         if (expr != null) {
             // Action invocation or lambda invocation.
-            br.append(String.valueOf(expr)).append(".");
+            br.append(expr).append(".");
         } else if (pkgAlias != null && !pkgAlias.getValue().isEmpty()) {
-            br.append(String.valueOf(pkgAlias)).append(":");
+            br.append(pkgAlias).append(":");
         }
         br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
         br.append("(");
         if (argExprs.size() > 0) {
             String s = Arrays.toString(argExprs.toArray());
-            br.append(s.substring(1, s.length() - 1));
+            br.append(s, 1, s.length() - 1);
         }
         br.append(")");
         return br.toString();
@@ -115,6 +124,16 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
@@ -179,6 +198,16 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
     }
 
     /**
@@ -207,6 +236,16 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
     }
 
     /**
@@ -223,6 +262,16 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 }

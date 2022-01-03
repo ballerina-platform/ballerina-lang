@@ -144,7 +144,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // future variable test
         debugTestRunner.assertExpression(context, FUTURE_VAR, "future<int>", "future");
         // object variable test (Person object)
-        debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
+        debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_ /<>:@[`{~π_ƮέŞŢ", "object");
         // type descriptor variable test
         debugTestRunner.assertExpression(context, TYPEDESC_VAR, "int", "typedesc");
         // union variable test
@@ -166,13 +166,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // json variable test
         debugTestRunner.assertExpression(context, JSON_VAR, "json (size = 3)", "json");
         // anonymous object variable test (AnonPerson object)
-        debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
+        debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
         debugTestRunner.assertExpression(context, SERVICE_VAR, "service", "service");
 
         debugTestRunner.assertExpression(context, "nameWithType", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "nameWithoutType", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map (size = 1)", "map");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03,
+                                         "(debug_test_resources/evaluation_tests:0:$anonType$_10 & readonly)",
+                                         "record");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -185,7 +187,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // with qualified literals (i.e. imported modules)
         debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, "other:constMap", "map (size = 1)", "map");
+        debugTestRunner.assertExpression(context, "other:constMap",
+                                         "(debug_test_resources/evaluation_tests.other:0:$anonType$_3 & readonly)",
+                                         "record");
         debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
         // qualified name references with import alias
         debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
@@ -434,7 +438,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Function calls in expression
         debugTestRunner.assertExpression(context, "let int x = 4, int z = 10 in func(x * z)", "80", "int");
         // Let expression as a function arg
-        debugTestRunner.assertExpression(context, "func2(let string x = \"aa\", string y = \"bb\" in x+y)", "4", "int");
+        // Todo - https://github.com/ballerina-platform/ballerina-lang/issues/34151
+        // debugTestRunner.assertExpression(context, "func2(let string x = \"aa\", string y = \"bb\" in x+y)", "4",
+        //    "int");
         // Let expression tuple
         debugTestRunner.assertExpression(context, "let [[string, [int, [boolean, byte]]], [float, int]] " +
                 "v1 = [[\"Ballerina\", [3, [true, 34]]], [5.6, 45]], int x = 2 in v1[0][1][0] + x;", "5", "int");
@@ -704,18 +710,27 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
         // predefined types
-        debugTestRunner.assertExpression(context, String.format("%s is string", INT_VAR), "false", "boolean");
-        debugTestRunner.assertExpression(context, String.format("%s is int", INT_VAR), "true", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is map<string>", JSON_VAR), "false", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is json", JSON_VAR), "true", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s is error", ERROR_VAR), "true", "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is readonly", ERROR_VAR), "true", "boolean");
+
+        // other named types
+        // Todo - https://github.com/ballerina-platform/ballerina-lang/issues/34151
+        // debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\ \\/\\<\\>\\:\\@\\[\\`\\{\\" +
+        //   "~\\u{03C0}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
+
         // union types
         debugTestRunner.assertExpression(context, String.format("%s is int | string", STRING_VAR), "true", "boolean");
-        // other named types
-        debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\\\\\ \\/\\<\\>\\:\\@\\[\\`\\{\\~" +
-                "\\u{03C0}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
+
+        // intersection types
+        debugTestRunner.assertExpression(context, String.format("%s is map<string> & readonly", JSON_VAR), "false",
+                "boolean");
+        debugTestRunner.assertExpression(context, String.format("%s is (string & readonly) | int", STRING_VAR), "true",
+                "boolean");
 
         // with qualified literals (i.e. imported modules)
         debugTestRunner.assertExpression(context, "location is other:Place", "true", "boolean");
-        debugTestRunner.assertExpression(context, "intVar is other:Place", "false", "boolean");
     }
 
     @Override

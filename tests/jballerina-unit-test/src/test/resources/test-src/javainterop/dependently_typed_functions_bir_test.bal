@@ -65,7 +65,7 @@ function testVarRefInMapConstraint() {
 }
 
 function testRuntimeCastError() {
-    map<anydata> m1 = rt:query("foo", rowType = float);
+    map<anydata> _ = rt:query("foo", rowType = float);
 }
 
 function testVarRefUseInMultiplePlaces() {
@@ -84,7 +84,7 @@ function testArrayTypes() {
 }
 
 function testCastingForInvalidValues() {
-    int x = rt:getInvalidValue(int, Person);
+    int _ = rt:getInvalidValue(int, Person);
 }
 
 type XmlElement xml:Element;
@@ -101,7 +101,7 @@ function testStream() {
     stream<string> newSt = rt:getStream(st, string);
     string s = "";
 
-    error? err = newSt.forEach(function (string x) { s += x; });
+    newSt.forEach(function (string x) { s += x; });
     assert("helloworldfromballerina", s);
 }
 
@@ -174,7 +174,7 @@ function testComplexTypes() {
     stream<int> newSt = rt:echo(st, IntStream);
     int tot = 0;
 
-    error? err = newSt.forEach(function (int x1) { tot+= x1; });
+    newSt.forEach(function (int x1) { tot+= x1; });
     assert(150, tot);
 
     table<Person> key(name) tab = table [

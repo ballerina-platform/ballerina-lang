@@ -39,10 +39,12 @@ public class RecordDefNegativeTest {
         int errorIndex = 0;
         BAssertUtil.validateError(compileResult, errorIndex++, "invalid usage of record literal: duplicate key 'name'",
                 26, 10);
+        BAssertUtil.validateWarning(compileResult, errorIndex++, "unused variable 'hi'", 31, 5);
         BAssertUtil.validateError(compileResult, errorIndex++, "invalid usage of record literal: duplicate key 'name'",
                 35, 9);
-        BAssertUtil.validateError(compileResult, errorIndex, "invalid usage of record literal: duplicate key 'name'",
+        BAssertUtil.validateError(compileResult, errorIndex++, "invalid usage of record literal: duplicate key 'name'",
                 43, 10);
+        Assert.assertEquals(compileResult.getDiagnostics().length, errorIndex);
     }
 
     @Test(description = "Test duplicate fields")
@@ -84,6 +86,10 @@ public class RecordDefNegativeTest {
                 27, 5);
         BAssertUtil.validateError(compileResult, indx++, "'_' is a keyword, and may not be used as an identifier",
                 27, 31);
+        BAssertUtil.validateError(compileResult, indx++,
+                "invalid field binding pattern; can only bind required fields", 50, 28);
+        BAssertUtil.validateError(compileResult, indx++,
+                "invalid field binding pattern; can only bind required fields", 55, 24);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 

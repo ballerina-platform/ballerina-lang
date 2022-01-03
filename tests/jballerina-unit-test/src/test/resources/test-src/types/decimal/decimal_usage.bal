@@ -42,7 +42,7 @@ function testDecimalRecord() returns [decimal, decimal] {
 
 // Test object with decimal fields
 function testDecimalObject() returns [string, int, decimal, decimal] {
-    Student s = new(57.25, 168.67);
+    Student s = new (57.25, 168.67);
     return [s.name, s.age, s.weight, s.height];
 }
 
@@ -78,4 +78,31 @@ function decimalDefaultable(decimal fixedPrice, decimal tax = 10.28, decimal dis
     decimal discount = fixedPrice * discountRate;
     decimal price = fixedPrice + tax - discount;
     return price;
+}
+
+// Decimal exponents 
+function testDecimalNegativeLargeExponents() {
+    decimal|error value = trap getDecimal1();
+    test:assertTrue(value is error);
+    error err = <error>value;
+    test:assertEquals(err.message(), "{ballerina}DecimalExponentError");
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    test:assertEquals(messageString, "too many exponents found in decimal value '99999999.9e99999999999999'");
+
+    value = trap getDecimal2();
+    test:assertTrue(value is error);
+    err = <error>value;
+    test:assertEquals(err.message(), "{ballerina}DecimalExponentError");
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    test:assertEquals(messageString, "too many exponents found in decimal value '99999999.9e9999999999'");
+}
+
+function getDecimal1() returns decimal {
+    return 99999999.9e99999999999999;
+}
+
+function getDecimal2() returns decimal {
+    return 99999999.9e9999999999;
 }

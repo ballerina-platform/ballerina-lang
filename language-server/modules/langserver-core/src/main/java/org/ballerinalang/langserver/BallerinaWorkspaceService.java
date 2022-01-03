@@ -38,12 +38,12 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -71,14 +71,15 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
-    private final WorkspaceManager workspaceManager;
+    private final BallerinaWorkspaceManagerProxy workspaceManagerProxy;
     private final LanguageServerContext serverContext;
     private final LSClientLogger clientLogger;
 
-    BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager,
+    BallerinaWorkspaceService(BallerinaLanguageServer languageServer,
+                              BallerinaWorkspaceManagerProxy workspaceManagerProxy,
                               LanguageServerContext serverContext) {
         this.languageServer = languageServer;
-        this.workspaceManager = workspaceManager;
+        this.workspaceManagerProxy = workspaceManagerProxy;
         this.serverContext = serverContext;
         this.configHolder = LSClientConfigHolder.getInstance(this.serverContext);
         this.clientLogger = LSClientLogger.getInstance(this.serverContext);
@@ -105,9 +106,11 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
         try {
-            List<Path> paths = this.workspaceManager.didChangeWatched(params);
+            List<Path> paths = this.workspaceManagerProxy.get().didChangeWatched(params);
             DidChangeWatchedFilesContext context =
-                    ContextBuilder.buildDidChangeWatchedFilesContext(this.workspaceManager, this.serverContext);
+                    ContextBuilder.buildDidChangeWatchedFilesContext(
+                            this.workspaceManagerProxy.get(),
+                            this.serverContext);
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             // project roots are the reloaded project roots. Hence we re-publish the diagnostics.
             for (Path projectRoot : paths) {
@@ -125,7 +128,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             List<CommandArgument> commandArguments = params.getArguments().stream()
                     .map(CommandArgument::from)
                     .collect(Collectors.toList());
-            ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManager,
+            ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManagerProxy.get(),
                                                                                       this.serverContext,
                                                                                       commandArguments,
                                                                                       this.clientCapabilities,
@@ -203,7 +206,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
         docEdits.forEach(docEdit -> {
             Optional<SyntaxTree> originalST = CommonUtil.getPathFromURI(docEdit.getFileUri())
-                    .flatMap(workspaceManager::document)
+                    .flatMap(workspaceManagerProxy.get()::document)
                     .flatMap(doc -> Optional.of(doc.syntaxTree()));
             if (originalST.isEmpty()) {
                 return;

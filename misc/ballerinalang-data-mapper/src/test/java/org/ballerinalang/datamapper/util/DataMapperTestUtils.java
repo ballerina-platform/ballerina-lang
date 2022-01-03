@@ -48,7 +48,7 @@ public class DataMapperTestUtils {
     private static Path sourcesPath = new File(DataMapperTestUtils.class.getClassLoader().getResource("codeaction")
             .getFile()).toPath();
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
-    private static final WorkspaceManager workspaceManager = BallerinaWorkspaceManager.getInstance(serverContext);
+    private static final WorkspaceManager workspaceManager = new BallerinaWorkspaceManager(serverContext);
 
 
     /**

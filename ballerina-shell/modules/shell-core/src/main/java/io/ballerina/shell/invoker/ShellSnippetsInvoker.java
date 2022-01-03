@@ -22,7 +22,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -121,14 +120,22 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract void reset();
 
     /**
-     * Executes snippets and returns the output lines.
+     * Executes snippets and returns the compilation.
      * Snippets parameter should only include newly added snippets.
      * Old snippets should be managed as necessary by the implementation.
      *
      * @param newSnippets New snippets to execute.
+     * @return compilation.
+     */
+    public abstract PackageCompilation getCompilation(Collection<Snippet> newSnippets) throws InvokerException;
+
+    /**
+     * Executes snippets and returns the output lines.
+     *
+     * @param compilation compilation.
      * @return Execution output result.
      */
-    public abstract Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException;
+    public abstract Optional<Object> execute(Optional<PackageCompilation> compilation) throws InvokerException;
 
     /**
      * Deletes a collection of names from the evaluator state.
@@ -203,7 +210,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected Project getProject(String source, boolean isOffline) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(isOffline).build();
+            BuildOptions buildOptions = BuildOptions.builder().setOffline(isOffline).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
             addErrorDiagnostic("File writing failed: " + e.getMessage());
@@ -222,6 +229,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @throws InvokerException If compilation failed.
      */
     protected PackageCompilation compile(Project project) throws InvokerException {
+        boolean containErrors = false;
         try {
             Module module = project.currentPackage().getDefaultModule();
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -230,14 +238,18 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : diagnosticResult.diagnostics()) {
                 DiagnosticSeverity severity = diagnostic.diagnosticInfo().severity();
                 if (severity == DiagnosticSeverity.ERROR) {
+                    containErrors = true;
                     addErrorDiagnostic(highlightedDiagnostic(module, diagnostic));
-                    addErrorDiagnostic("Compilation aborted due to errors.");
-                    throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
                     addWarnDiagnostic(highlightedDiagnostic(module, diagnostic));
                 } else {
                     addDebugDiagnostic(diagnostic.message());
                 }
+            }
+
+            if (containErrors) {
+                addErrorDiagnostic("Compilation aborted due to errors.");
+                throw new InvokerException();
             }
 
             return packageCompilation;

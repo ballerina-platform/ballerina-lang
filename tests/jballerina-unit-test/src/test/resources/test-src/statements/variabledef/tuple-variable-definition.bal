@@ -110,6 +110,20 @@ function testTupleVarDef2() returns [string, int, int, boolean, string, float, b
     return [f.name, f.age, b.id, b.flag, fo.s, fo.f, fo.b, bo.b, bo.i];
 }
 
+function testTupleVarDef3() {
+    [int, record {boolean e; string f;}] [x, y] = [1, {e: true, f: "chiran"}];
+    assertEquality(1, x);
+    assertEquality(true, y.e);
+    assertEquality("chiran", y.f);
+}
+
+function testTupleVarDef4() {
+    [int, record { boolean e; string f; }] [d, {e, ...f}] = [1, {e: true, f: "str"}];
+    assertEquality(1, d);
+    assertEquality(true, e);
+    assertEquality("str", f["f"]);
+}
+
 function testTupleVarDefWithArray1() returns [string, int[], boolean, float[]] {
     [string, [int[], [boolean, float[]]]] [a, [b, [c, d]]] = ["Ballerina", [[123, 345], [true, [2.3, 4.5]]]];
 
@@ -211,4 +225,39 @@ function testIgnoreVariable() returns [int, int] {
     [string, int] [_, a] = ["Test", 23];
     [string, [int, boolean]] [_, [b, _]] = ["Test", [24, true]];
     return [a, b];
+}
+
+type myErrorDetail record { int i; };
+
+function testTupleVariableWithErrorBP() {
+    [error<myErrorDetail>, [int, string]] [error(m, i = i, ...k), [p, n]] = [error("err", i = 1), [1, ""]];
+    assertEquality(m, "err");
+    assertEquality(i, 1);
+    assertEquality(p, 1);
+    assertEquality(n, "");
+}
+
+type T [int, int];
+
+function testTupleVarDeclWithTypeReferenceTypedExpr() {
+    T t = [1, 2];
+    var [a, b] = t;
+
+    assertEquality(1, a);
+    assertEquality(2, b);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any expected, any actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

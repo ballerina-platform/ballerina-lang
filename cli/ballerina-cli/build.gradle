@@ -36,14 +36,15 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
-    implementation 'org.apache.commons:commons-compress:1.21'
-    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
+    implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':maven-resolver')
     implementation project(':ballerina-shell:shell-cli')
     implementation project(':toml-parser')
+    implementation project(':identifier-util')
 
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
@@ -60,6 +61,8 @@ dependencies {
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
     implementation project(':ballerina-core')
+
+    testRuntime project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 }
 
 task createTestDistributionCache(type: Copy) {

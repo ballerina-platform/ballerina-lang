@@ -1,0 +1,259 @@
+{
+  "position": {
+    "line": 4,
+    "character": 34
+  },
+  "source": "expression_context/source/conditional_expr_ctx_source9.bal",
+  "items": [
+    {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "L",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "AC",
+      "insertText": "TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "HELLO WORLD",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "G",
+      "insertText": "TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "sortText": "M",
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "sortText": "M",
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "R",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "R",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "O",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "P",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "P",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "O",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "sortText": "O",
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "sortText": "O",
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "O",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "listener1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "G",
+      "insertText": "listener1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function1()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "function1",
+      "insertText": "function1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function2()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "function2",
+      "insertText": "function2()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function3(int param1, int param2, float... param3)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
+        }
+      },
+      "sortText": "AA",
+      "filterText": "function3",
+      "insertText": "function3(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "function4(int param1, int param2, string param3, float... param4)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
+        }
+      },
+      "sortText": "E",
+      "filterText": "function4",
+      "insertText": "function4(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "G",
+      "insertText": "TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -140,6 +140,35 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                 from("strTemp", VARIABLE),
                                 from("rawTemp", VARIABLE)
                 )},
+                {54, 31, concat(expModuleSymbols,
+                                from("b", VARIABLE),
+                                from("strTemp", VARIABLE),
+                                from("rawTemp", VARIABLE),
+                                from("y", VARIABLE)
+                )},
+                {56, 61, concat(expModuleSymbols,
+                                from("b", VARIABLE),
+                                from("strTemp", VARIABLE),
+                                from("rawTemp", VARIABLE),
+                                from("p", PARAMETER),
+                                from("fn", VARIABLE),
+                                from("y", VARIABLE)
+                )},
+                {58, 32, concat(expModuleSymbols,
+                                from("b", VARIABLE),
+                                from("strTemp", VARIABLE),
+                                from("rawTemp", VARIABLE),
+                                from("fn", VARIABLE),
+                                from("z", VARIABLE)
+                )},
+                // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/34109
+//                {58, 56, concat(expModuleSymbols,
+//                                from("b", VARIABLE),
+//                                from("strTemp", VARIABLE),
+//                                from("rawTemp", VARIABLE),
+//                                from("fn", VARIABLE),
+//                                from("y", VARIABLE)
+//                )},
         };
     }
 }

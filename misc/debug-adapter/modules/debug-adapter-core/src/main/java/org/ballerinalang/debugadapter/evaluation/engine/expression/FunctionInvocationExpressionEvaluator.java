@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;

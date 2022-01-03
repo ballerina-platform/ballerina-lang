@@ -48,14 +48,14 @@ public class FieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 32);
+        Assert.assertEquals(negativeResult.getErrorCount(), 36);
         int i = 0;
-        validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
-                "field access or member access", 32, 9);
+        validateError(negativeResult, i++, "field access cannot be used to access an optional field of a type " +
+                "that includes nil, use optional field access or member access", 32, 9);
         validateError(negativeResult, i++, "invalid field access: 'salary' is not a required field in record " +
                 "'Employee', use member access to access a field that may have been specified as a rest field", 33, 9);
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'salary' " +
-                "is undeclared in record(s) 'Employee'", 39, 9);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'salary' is undeclared in record(s) 'Employee'", 39, 9);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)'", 56, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'", 57, 15);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>' does not support field access",
@@ -79,38 +79,56 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "invalid operation: type 'Foo[]' does not support field access", 138, 9);
 
         validateError(negativeResult, i++, "undeclared field 'a' in record 'R1'", 155, 13);
-        validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
-                "field access or member access", 164, 13);
-        validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
-                "field access or member access", 173, 13);
+        validateError(negativeResult, i++, "field access cannot be used to access an optional field of a type that " +
+                "includes nil, use optional field access or member access", 164, 13);
+        validateError(negativeResult, i++, "field access cannot be used to access an optional field of a type that " +
+                "includes nil, use optional field access or member access", 173, 13);
         validateError(negativeResult, i++, "invalid field access: 'y' is not a required field in record 'R5', use " +
                 "member access to access a field that may have been specified as a rest field", 182, 17);
         validateError(negativeResult, i++, "invalid field access: 'y' is not a required field in record 'R6', use " +
                 "member access to access a field that may have been specified as a rest field", 191, 17);
         validateError(negativeResult, i++, "invalid field access: 'y' is not a required field in record 'R7', use " +
                 "member access to access a field that may have been specified as a rest field", 202, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, type of field 'a' includes nil in record(s) 'SA', 'UA', and 'VA'",
+                247, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, type of field 'b' includes nil in record(s) 'SA', and 'UA'",
+                248, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, type of field 'c' includes nil in record(s) 'TA'",
+                249, 17);
 
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'a' is " +
-                "optional in record(s) 'SA', 'UA', and 'VA'", 247, 17);
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'b' is " +
-                "optional in record(s) 'SA', and 'UA'", 248, 17);
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'c' is " +
-                "optional in record(s) 'TA'", 249, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'x' is undeclared in record(s) 'SA', 'UA', and 'VA'", 251, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'y' is undeclared in record(s) 'SA', and 'UA'", 252, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'z' is undeclared in record(s) 'TA'", 253, 17);
 
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'x' is " +
-                "undeclared in record(s) 'SA', 'UA', and 'VA'", 251, 17);
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'y' is " +
-                "undeclared in record(s) 'SA', and 'UA'", 252, 17);
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'z' is " +
-                "undeclared in record(s) 'TA'", 253, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'x' is undeclared in record(s) 'RB', 'TB', and 'UB'",
+                293, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'y' is undeclared in record(s) 'QB', and 'TB'",
+                294, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'z' is undeclared in record(s) 'RB', 'SB', and 'VB'",
+                295, 17);
 
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'x' is " +
-                "undeclared in record(s) 'RB', 'TB', and 'UB' and optional in record(s) 'QB', 'SB', and 'VB'", 293, 17);
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'y' is " +
-                "undeclared in record(s) 'QB', and 'TB' and optional in record(s) 'RB', 'UB', and 'VB'", 294, 17);
-        validateError(negativeResult, i++, "field access can only be used to access required fields, field 'z' is " +
-                "undeclared in record(s) 'RB', 'SB', and 'VB' and optional in record(s) 'QB', and 'TB'", 295, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, type of field 'i' includes nil in record(s) 'BarOne'",
+                308, 14);
 
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'x' is undeclared in record(s) 'CD' and type includes nil " +
+                "in record(s) 'BC'", 329, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'y' is undeclared in record(s) 'BC' and type includes nil in " +
+                "record(s) 'AB'", 330, 17);
+        validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
+                "fields of non-nilable types, field 'z' is undeclared in record(s) 'CD' and type includes nil in " +
+                "record(s) 'BC'", 331, 17);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")
@@ -208,6 +226,16 @@ public class FieldAccessTest {
         };
     }
 
+    @Test
+    public void testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() {
+        BRunUtil.invoke(result, "testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
+    }
+
+    @Test
+    public void negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() {
+        BRunUtil.invoke(result, "negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
+    }
+
     @Test(dataProvider = "mapJsonFieldAccessTypePositiveFunctions")
     public void testMapJsonFieldAccessTypePositive(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
@@ -238,5 +266,15 @@ public class FieldAccessTest {
     public void testFieldAccessOnMapConstruct() {
         BValue[] returns = BRunUtil.invoke(result, "testFieldAccessOnMapConstruct");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testAccessOptionalFieldWithFieldAccess1() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess1");
+    }
+
+    @Test
+    public void testAccessOptionalFieldWithFieldAccess2() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
     }
 }
