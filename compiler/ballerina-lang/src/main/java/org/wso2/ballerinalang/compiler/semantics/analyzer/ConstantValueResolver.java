@@ -29,15 +29,12 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
-import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -50,12 +47,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
@@ -67,10 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -84,12 +75,10 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -114,7 +103,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
-    private Map<BConstantSymbol, BType> updatedTypes = new HashMap<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -152,7 +140,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.resolvingConstants.add(this.currentConstSymbol);
         this.currentConstSymbol.value = visitExpr(constant.expr);
         this.resolvingConstants.remove(this.currentConstSymbol);
-        updateSymbolType(constant);
+        updateConstantType(constant);
         checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
         this.currentConstSymbol = tempCurrentConstSymbol;
@@ -553,31 +541,29 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
     }
 
-    private void updateSymbolType(BLangConstant constant) {
+    private void updateConstantType(BLangConstant constant) {
         BConstantSymbol symbol = constant.symbol;
         if (symbol.type.getKind() == TypeKind.FINITE) {
-            updatedTypes.put(constant.symbol, constant.symbol.type); // Store type resolved constants to reuse
-        } else if (symbol.value != null) {
-            BType resolvedType = checkType(constant.expr, constant, symbol.value.value, symbol.type, symbol.pos,
-                    constant.symbol.value.value);
-            if (resolvedType != null) {
-                if (resolvedType != null) {
-                    constant.symbol.literalType.flags |= Flags.READONLY;
-                    if (constant.symbol.type.getKind() == TypeKind.MAP &&
-                            resolvedType.getKind() == TypeKind.INTERSECTION) {
-                        addassociatedTypeDefinition(constant, (BIntersectionType) resolvedType);
-                        constant.symbol.type = resolvedType;
-                        constant.expr.setBType(((BIntersectionType) resolvedType).effectiveType);
-                        constant.symbol.literalType = resolvedType;
-                        symbol.value.type = resolvedType;
-                        updatedTypes.put(constant.symbol, resolvedType);
-                        return;
-                    }
-                    constant.expr.setBType(resolvedType);
-                    constant.symbol.type = resolvedType;
-                    updatedTypes.put(constant.symbol, resolvedType);
-                }
+            return;
+        }
+
+        if (symbol.value == null) {
+            return;
+        }
+
+        BType resolvedType = checkType(constant.expr, constant, symbol.value.value, symbol.type, symbol.pos,
+                                        constant.symbol.value.value);
+        if (resolvedType != null) {
+            if (constant.symbol.type.getKind() == TypeKind.MAP && resolvedType.getKind() == TypeKind.INTERSECTION) {
+                addassociatedTypeDefinition(constant, (BIntersectionType) resolvedType);
+                constant.symbol.type = resolvedType;
+                constant.expr.setBType(((BIntersectionType) resolvedType).effectiveType);
+                constant.symbol.literalType = resolvedType;
+                symbol.value.type = resolvedType;
+                return;
             }
+            constant.expr.setBType(resolvedType);
+            constant.symbol.type = resolvedType;
         }
     }
 
@@ -592,8 +578,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BType checkType(BLangExpression expr, BLangConstant constant, Object value, BType type, Location pos,
                             Object constValue) {
         if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                updatedTypes.containsKey(((BLangSimpleVarRef) expr).symbol)) {
-            return updatedTypes.get(((BLangSimpleVarRef) expr).symbol); // Already type resolved constant
+                (((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.FINITE ||
+                ((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.INTERSECTION)) {
+            return ((BLangSimpleVarRef) expr).symbol.type; // Already type resolved constant
         }
         switch (type.tag) {
             case TypeTags.INT:
@@ -641,139 +628,37 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return field;
     }
 
-    private void createTypeDefinition(BRecordType originalType, Location pos) {
-        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) originalType.tsymbol;
+    private void createTypeDefinition(BRecordType type, Location pos) {
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) type.tsymbol;
 
-        BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(originalType.tsymbol.flags,
-                originalType.tsymbol.name, pkgID, null, symEnv.scope.owner, pos, VIRTUAL);
+        BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
+                type.tsymbol.name, pkgID, null, symEnv.scope.owner, pos, VIRTUAL);
         typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
         typeDefinitionSymbol.scope.define(names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
 
-        originalType.tsymbol.scope = new Scope(originalType.tsymbol);
-        for (BField field : ((HashMap<String, BField>) originalType.fields).values()) {
-            originalType.tsymbol.scope.define(field.name, field.symbol);
+        type.tsymbol.scope = new Scope(type.tsymbol);
+        for (BField field : ((HashMap<String, BField>) type.fields).values()) {
+            type.tsymbol.scope.define(field.name, field.symbol);
             field.symbol.owner = recordSymbol;
         }
-        typeDefinitionSymbol.type = originalType;
-        recordSymbol.type = originalType;
+        typeDefinitionSymbol.type = type;
+        recordSymbol.type = type;
         recordSymbol.typeDefinitionSymbol = typeDefinitionSymbol;
         recordSymbol.markdownDocumentation = new MarkdownDocAttachment(0);
 
-        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), originalType,
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
-        populateMutableStructureFields(symTable, recordTypeNode, originalType, originalType, pos, symEnv, pkgID);
+        TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
+                symEnv, pkgID, null, 0, false, true);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
                 typeDefinitionSymbol, recordTypeNode, symEnv);
         typeDefinition.pos = pos;
         typeDefinition.symbol.scope = new Scope(typeDefinition.symbol);
-        typeDefinition.symbol.type = originalType;
+        typeDefinition.symbol.type = type;
         typeDefinition.flagSet = new HashSet<>();
         typeDefinition.flagSet.add(Flag.PUBLIC);
         typeDefinition.flagSet.add(Flag.ANONYMOUS);
-        createdTypeDefinitions.put(originalType.tsymbol, typeDefinition);
-    }
-
-    private void populateMutableStructureFields(SymbolTable symTable,
-                                                BLangStructureTypeNode recordTypeNode,
-                                                BStructureType recordType,
-                                                BStructureType origStructureType, Location pos,
-                                                SymbolEnv env, PackageID pkgID) {
-        BTypeSymbol mutableStructureSymbol = recordType.tsymbol;
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-        for (BField origField : origStructureType.fields.values()) {
-
-            BType mutableFieldType = origField.type;
-
-            Name origFieldName = origField.name;
-            BVarSymbol mutableFieldSymbol;
-            if (mutableFieldType.tag == TypeTags.INVOKABLE && mutableFieldType.tsymbol != null) {
-                mutableFieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags,
-                        origFieldName, pkgID, mutableFieldType,
-                        mutableStructureSymbol, origField.symbol.pos, SOURCE);
-                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) mutableFieldType.tsymbol;
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) mutableFieldSymbol;
-                invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
-                invokableSymbol.restParam = tsymbol.restParam;
-                invokableSymbol.retType = tsymbol.returnType;
-                invokableSymbol.flags = tsymbol.flags;
-            } else if (mutableFieldType == symTable.semanticError) {
-                // Can only happen for records.
-                mutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.OPTIONAL,
-                        origFieldName, pkgID, symTable.neverType,
-                        mutableStructureSymbol, origField.symbol.pos, VIRTUAL);
-            } else {
-                mutableFieldSymbol = new BVarSymbol(origField.symbol.flags, origFieldName, pkgID,
-                        mutableFieldType, mutableStructureSymbol,
-                        origField.symbol.pos, VIRTUAL);
-            }
-            String nameString = origFieldName.value;
-            fields.put(nameString, new BField(origFieldName, null, mutableFieldSymbol));
-            mutableStructureSymbol.scope.define(origFieldName, mutableFieldSymbol);
-            ((BLangRecordTypeNode) recordTypeNode).fields.add(createSimpleVariable(origField));
-        }
-        recordType.fields = fields;
-        ((BRecordType) recordType).restFieldType = new BNoType(TypeTags.NONE);
-
-        if (origStructureType.tag == TypeTags.OBJECT) {
-            return;
-        }
-
-        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
-                ASTBuilderUtil.createIdentifier(pos,
-                        TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
-                                origStructureType.tsymbol.pkgID)),
-                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
-        origTypeRef.pos = pos;
-        origTypeRef.setBType(origStructureType);
-
-        ((BLangRecordTypeNode) recordTypeNode).sealed = true;
-    }
-
-    private BLangSimpleVariable createSimpleVariable(BField field) {
-        BLangSimpleVariable manualField = new BLangSimpleVariable();
-        BLangIdentifier name = new BLangIdentifier();
-        name.setValue(field.name.value);
-        name.pos = field.pos;
-
-        manualField.setName(name);
-        manualField.flagSet = new HashSet<>();
-        manualField.flagSet.add(Flag.PUBLIC);
-        manualField.flagSet.add(Flag.REQUIRED);
-        manualField.flagSet.add(Flag.FIELD);
-        manualField.setBType(field.type);
-        manualField.pos = field.pos;
-        manualField.setDeterminedType(field.type);
-        manualField.symbol = field.symbol;
-
-        if (field.type.tag == TypeTags.RECORD) {
-            BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-            userDefinedTypeNode.pos = field.pos;
-            userDefinedTypeNode.setBType(field.type);
-            userDefinedTypeNode.setDeterminedType(field.type);
-            userDefinedTypeNode.pkgAlias = new BLangIdentifier();
-            if (createdTypeDefinitions.containsKey(field.type.tsymbol)) {
-                BLangTypeDefinition createdType = createdTypeDefinitions.get(field.type.tsymbol);
-                userDefinedTypeNode.symbol = createdType.symbol;
-                userDefinedTypeNode.typeName = createdType.name;
-            }
-
-            manualField.typeNode = userDefinedTypeNode;
-            return manualField;
-        }
-
-        BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
-        finiteTypeNode.pos = field.pos;
-        finiteTypeNode.setBType(field.type);
-        finiteTypeNode.setDeterminedType(field.type);
-        finiteTypeNode.valueSpace = new ArrayList<>();
-        for (BLangExpression value : ((BFiniteType) field.type).getValueSpace()) {
-            if (value.getKind() == NodeKind.NUMERIC_LITERAL) {
-                ((BLangNumericLiteral) value).originalValue = ((BLangNumericLiteral) value).value.toString();
-            }
-            finiteTypeNode.valueSpace.add(value);
-        }
-        manualField.typeNode = finiteTypeNode;
-        return manualField;
+        createdTypeDefinitions.put(type.tsymbol, typeDefinition);
     }
 
     private BLangTypeDefinition findTypeDefinition(List<BLangTypeDefinition> typeDefinitionArrayList, String name) {
@@ -800,10 +685,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         HashMap<String, BLangConstantValue> constValueMap = (HashMap<String, BLangConstantValue>) constValue;
-        if (constValueMap.size() == 0) {
-            return null;
-        }
-
         for (BLangConstantValue memberValue : constValueMap.values()) {
             if (memberValue == null) {
                 return null;
@@ -821,83 +702,88 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordType.restFieldType = new BNoType(TypeTags.NONE);
         recordTypeSymbol.type = recordType;
 
-        for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expr).fields) {
-            String key;
-            BVarSymbol newSymbol;
+        if (constValueMap.size() != 0) {
+            for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expr).fields) {
+                String key;
+                BVarSymbol newSymbol;
 
-            if (field.isKeyValueField()) {
-                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
-                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                BLangExpression exprValueField = keyValuePair.valueExpr;
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                    BLangExpression exprValueField = keyValuePair.valueExpr;
 
-                if (exprValueField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    if (exprValueField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        key = keyValuePair.key.toString();
+                        newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(key), constant.symbol.pkgID,
+                                null, constant.symbol.owner, pos, VIRTUAL);
+
+                        BLangSimpleVarRef simpleVarRefExpr = (BLangSimpleVarRef) exprValueField;
+                        if (simpleVarRefExpr.symbol.type.getKind() == TypeKind.FINITE ||
+                                    simpleVarRefExpr.symbol.type.getKind() == TypeKind.INTERSECTION) {
+
+                            // Already type resolved constant
+                            BType resolvedType = simpleVarRefExpr.symbol.type;
+                            recordType.fields.put(key, createField(newSymbol, resolvedType, key, pos));
+                            keyValuePair.setBType(resolvedType);
+                            if (resolvedType.getKind() != TypeKind.FINITE) {
+                                constValueMap.get(key).type = resolvedType;
+                                if (resolvedType.getKind() == TypeKind.INTERSECTION) {
+                                    simpleVarRefExpr.setBType(((BIntersectionType) resolvedType).effectiveType);
+                                }
+                            }
+                            continue;
+                        }
+                    }
+
                     key = keyValuePair.key.toString();
                     newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(key), constant.symbol.pkgID,
                             null, constant.symbol.owner, pos, VIRTUAL);
+                    BType newType = checkType(exprValueField, constant,
+                            ((BLangConstantValue) ((HashMap) value).get(key)).value,
+                            ((BLangConstantValue) ((HashMap) value).get(key)).type, pos, constValueMap.get(key).value);
+                    if (newType == null) {
+                        return null;
+                    }
+                    keyValuePair.setBType(newType);
+                    if (newType.getKind() != TypeKind.FINITE) {
+                        constValueMap.get(key).type = newType;
+                        if (newType.getKind() == TypeKind.INTERSECTION) {
+                            exprValueField.setBType(((BIntersectionType) newType).effectiveType);
+                        }
+                    }
 
-                    BLangSimpleVarRef simpleVarRefExpr = (BLangSimpleVarRef) exprValueField;
-                    if (updatedTypes.containsKey(simpleVarRefExpr.symbol)) {
-                        // Already type resolved constant
-                        BType resolvedType = simpleVarRefExpr.symbol.type;
-                        recordType.fields.put(key, createField(newSymbol, resolvedType, key, pos));
-                        keyValuePair.setBType(resolvedType);
-                        if (resolvedType.getKind() != TypeKind.FINITE) {
-                            constValueMap.get(key).type = resolvedType;
-                            if (resolvedType.getKind() == TypeKind.INTERSECTION) {
-                                simpleVarRefExpr.setBType(((BIntersectionType) resolvedType).effectiveType);
+                    recordType.fields.put(key, createField(newSymbol, newType, key, pos));
+                } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                            (BLangRecordLiteral.BLangRecordVarNameField) field;
+                    key = varNameField.variableName.value;
+                    newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(key), constant.symbol.pkgID,
+                            null, constant.symbol.owner, pos, VIRTUAL);
+                    BType resolvedType = varNameField.symbol.type;
+                    varNameField.setBType(resolvedType);
+                    recordType.fields.put(key, createField(newSymbol, resolvedType, key, pos));
+                    continue;
+                } else {
+                    BLangExpression exprSpreadField = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+                    if (exprSpreadField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        BLangSimpleVarRef simpleVarRefExpr = (BLangSimpleVarRef) exprSpreadField;
+                        if (simpleVarRefExpr.symbol.type.getKind() == TypeKind.FINITE ||
+                                simpleVarRefExpr.symbol.type.getKind() == TypeKind.INTERSECTION) {
+                            // Already type resolved constant.
+                            BRecordType resolvedType = (BRecordType) ((BIntersectionType)
+                                    simpleVarRefExpr.symbol.type).effectiveType;
+                            exprSpreadField.setBType(resolvedType);
+
+                            for (String spreadFieldKeys : ((HashMap<String, BField>) resolvedType.fields).keySet()) {
+                                newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(spreadFieldKeys),
+                                        constant.symbol.pkgID, null, constant.symbol.owner, pos, VIRTUAL);
+                                BType spreadFieldType = resolvedType.fields.get(spreadFieldKeys).type;
+                                recordType.fields.put(spreadFieldKeys, createField(newSymbol, spreadFieldType,
+                                        spreadFieldKeys, pos));
                             }
                         }
                         continue;
                     }
-                }
-
-                key = keyValuePair.key.toString();
-                newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(key), constant.symbol.pkgID,
-                        null, constant.symbol.owner, pos, VIRTUAL);
-                BType newType = checkType(exprValueField, constant,
-                        ((BLangConstantValue) ((HashMap) value).get(key)).value,
-                        ((BLangConstantValue) ((HashMap) value).get(key)).type, pos, constValueMap.get(key).value);
-                if (newType == null) {
-                    return null;
-                }
-                keyValuePair.setBType(newType);
-                if (newType.getKind() != TypeKind.FINITE) {
-                    constValueMap.get(key).type = newType;
-                    if (newType.getKind() == TypeKind.INTERSECTION) {
-                        exprValueField.setBType(((BIntersectionType) newType).effectiveType);
-                    }
-                }
-
-                recordType.fields.put(key, createField(newSymbol, newType, key, pos));
-            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                        (BLangRecordLiteral.BLangRecordVarNameField) field;
-                key = varNameField.variableName.value;
-                newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(key), constant.symbol.pkgID,
-                        null, constant.symbol.owner, pos, VIRTUAL);
-                BType resolvedType = varNameField.symbol.type;
-                varNameField.setBType(resolvedType);
-                recordType.fields.put(key, createField(newSymbol, resolvedType, key, pos));
-                continue;
-            } else {
-                BLangExpression exprSpreadField = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
-                if (exprSpreadField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) exprSpreadField;
-                    if (updatedTypes.containsKey(simpleVarRef.symbol)) {
-                        // Already type resolved constant.
-                        BRecordType resolvedType = (BRecordType) ((BIntersectionType)
-                                                                                simpleVarRef.symbol.type).effectiveType;
-                        exprSpreadField.setBType(resolvedType);
-
-                        for (String spreadFieldKeys : ((HashMap<String, BField>) resolvedType.fields).keySet()) {
-                            newSymbol = new BVarSymbol(constant.symbol.flags, Names.fromString(spreadFieldKeys),
-                                                constant.symbol.pkgID, null, constant.symbol.owner, pos, VIRTUAL);
-                            BType spreadFieldType = resolvedType.fields.get(spreadFieldKeys).type;
-                            recordType.fields.put(spreadFieldKeys, createField(newSymbol, spreadFieldType,
-                                                spreadFieldKeys, pos));
-                        }
-                    }
-                    continue;
                 }
             }
         }

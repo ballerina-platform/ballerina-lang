@@ -32,12 +32,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -65,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -73,7 +70,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +155,7 @@ public class ImmutableTypeCloner {
         }
     }
 
-    private static BType getImmutableType(Location pos, Types types, BType type, SymbolEnv env,
+    public static BType getImmutableType(Location pos, Types types, BType type, SymbolEnv env,
                                           PackageID pkgId,
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
@@ -524,10 +520,10 @@ public class ImmutableTypeCloner {
         BObjectType origObjectType = immutableObjectType.mutableType;
         if (origObjectType.fields.size() != immutableObjectType.fields.size()) {
 
-            populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
+            TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangObjectTypeNode) immutableTypeDefinition.typeNode,
                                              immutableObjectType, origObjectType,
-                                             location, env, pkgID, new HashSet<>(), Flags.FINAL);
+                                             location, env, pkgID, new HashSet<>(), Flags.FINAL, true, false);
         }
     }
 
@@ -537,65 +533,9 @@ public class ImmutableTypeCloner {
                                                          BStructureType immutableStructureType,
                                                          BStructureType origStructureType, Location pos,
                                                          SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes) {
-        populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, immutableStructureTypeNode,
-                                         immutableStructureType, origStructureType, pos, env, pkgID, unresolvedTypes,
-                                         Flags.READONLY);
-    }
-
-    private static void populateImmutableStructureFields(Types types, SymbolTable symTable,
-                                                         BLangAnonymousModelHelper anonymousModelHelper, Names names,
-                                                         BLangStructureTypeNode immutableStructureTypeNode,
-                                                         BStructureType immutableStructureType,
-                                                         BStructureType origStructureType, Location pos,
-                                                         SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes,
-                                                         long flag) {
-        BTypeSymbol immutableStructureSymbol = immutableStructureType.tsymbol;
-        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
-        for (BField origField : origStructureType.fields.values()) {
-            BType immutableFieldType = getImmutableType(pos, types, origField.type, env, env.enclPkg.packageID,
-                                                        env.scope.owner, symTable, anonymousModelHelper, names,
-                                                        unresolvedTypes);
-
-            Name origFieldName = origField.name;
-            BVarSymbol immutableFieldSymbol;
-            if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
-                immutableFieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
-                                                            origFieldName, pkgID, immutableFieldType,
-                                                            immutableStructureSymbol, origField.symbol.pos, SOURCE);
-                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
-                invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
-                invokableSymbol.restParam = tsymbol.restParam;
-                invokableSymbol.retType = tsymbol.returnType;
-                invokableSymbol.flags = tsymbol.flags;
-            } else if (immutableFieldType == symTable.semanticError) {
-                // Can only happen for records.
-                immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,
-                                                      origFieldName, pkgID, symTable.neverType,
-                                                      immutableStructureSymbol, origField.symbol.pos, SOURCE);
-            } else {
-                immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
-                                                      immutableFieldType, immutableStructureSymbol,
-                                                      origField.symbol.pos, SOURCE);
-            }
-            String nameString = origFieldName.value;
-            fields.put(nameString, new BField(origFieldName, null, immutableFieldSymbol));
-            immutableStructureSymbol.scope.define(origFieldName, immutableFieldSymbol);
-        }
-        immutableStructureType.fields = fields;
-
-        if (origStructureType.tag == TypeTags.OBJECT) {
-            return;
-        }
-
-        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
-                ASTBuilderUtil.createIdentifier(pos,
-                                                TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
-                                                                                     origStructureType.tsymbol.pkgID)),
-                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
-        origTypeRef.pos = pos;
-        origTypeRef.setBType(origStructureType);
-        immutableStructureTypeNode.typeRefs.add(origTypeRef);
+        TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names,
+                immutableStructureTypeNode, immutableStructureType, origStructureType, pos, env, pkgID, unresolvedTypes,
+                Flags.READONLY, true, false);
     }
 
     private static void setRestType(Types types, SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
@@ -705,9 +645,9 @@ public class ImmutableTypeCloner {
                                                                                        immutableObjectType, pos);
         objectTypeNode.flagSet.addAll(flagSet);
 
-        populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, objectTypeNode,
+        TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names, objectTypeNode,
                                          immutableObjectType, origObjectType, pos, env, pkgID, unresolvedTypes,
-                                         Flags.FINAL);
+                                         Flags.FINAL, true, false);
 
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableObjectType, objectSymbol,
                                                                                     objectTypeNode, env);

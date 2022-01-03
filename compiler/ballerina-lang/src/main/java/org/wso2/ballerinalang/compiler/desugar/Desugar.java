@@ -760,22 +760,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
 
-        for (BLangConstant constant : pkgNode.constants) {
-            BType constType = types.getReferredType(constant.symbol.type);
-            if (constType.tag == TypeTags.INTERSECTION) {
-                for (BType memberType : ((IntersectionType) constType).getImmutableType().getConstituentTypes()) {
-                    if (memberType.tag == TypeTags.RECORD) {
-                        BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-                        constant.expr = rewrite(constant.expr,
-                                                SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
-                                                                        pkgNode.initFunction.symbol.scope, env));
-                        BLangAssignment constInit =
-                                ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
-                        initFnBody.stmts.add(constInit);
-                    }
-                }
-            }
-        }
+        constantRewrite(pkgNode, initFnBody);
 
         pkgNode.constants = removeDuplicateConstants(pkgNode);
 
@@ -818,6 +803,25 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    private void constantRewrite(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
+        for (BLangConstant constant : pkgNode.constants) {
+            BType constType = types.getReferredType(constant.symbol.type);
+            if (constType.tag == TypeTags.INTERSECTION) {
+                for (BType memberType : ((IntersectionType) constType).getImmutableType().getConstituentTypes()) {
+                    if (memberType.tag == TypeTags.RECORD) {
+                        BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
+                        constant.expr = rewrite(constant.expr,
+                                SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
+                                        pkgNode.initFunction.symbol.scope, env));
+                        BLangAssignment constInit =
+                                ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
+                        initFnBody.stmts.add(constInit);
+                    }
+                }
+            }
+        }
     }
 
     private List<BLangConstant> removeDuplicateConstants(BLangPackage pkgNode) {

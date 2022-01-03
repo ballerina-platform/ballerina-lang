@@ -596,26 +596,20 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.constants.add(birConstant);
     }
 
+    private ConstValue getBIRConstantVal(BLangConstantValue constValue, BType type) {
+        constValue.type = type;
+        return getBIRConstantVal(constValue);
+    }
+
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
         if (constValue.type.tag == TypeTags.INTERSECTION) {
-            ConstValue resultantConstValue = getBIRConstantVal(new BLangConstantValue(constValue.value,
-                    ((BIntersectionType) constValue.type).effectiveType));
-            resultantConstValue.type = constValue.type;
-            return resultantConstValue;
-//            return new ConstValue(getBIRConstantVal(new BLangConstantValue(constValue.value,
-//                    ((BIntersectionType) constValue.type).effectiveType)).value, constValue.type);
+            return getBIRConstantVal(constValue, ((BIntersectionType) constValue.type).effectiveType);
         }
         if (constValue.type.tag == TypeTags.RECORD) {
             Map<String, ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, constValue.type);
-        }
-        if (constValue.type.tag == TypeTags.MAP) {
-            Map<String, ConstValue> mapConstVal = new HashMap<>();
-            ((Map<String, BLangConstantValue>) constValue.value)
-                    .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, constValue.type);
+            return new ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
         }
 
         return new ConstValue(constValue.value, constValue.type);
