@@ -27,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -42,7 +41,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -98,57 +96,40 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             //check for intersection as well.
             return completionItems;
         }
-        completionItems = typeReferences.stream()
-                .filter(typeRef -> isQualifiedTypeReference(context, typeRef)
-                        && getQualifiedSymbolReference(typeRef).isPresent())
-                .map(typeRef -> {
-                    String symbolRef = getQualifiedSymbolReference(typeRef).get();
-                    TypeSymbol rawType = CommonUtil.getRawType(typeRef);
-                    return new SymbolCompletionItem(context, rawType,
-                            TypeCompletionItemBuilder.build(rawType, symbolRef));
-                }).collect(Collectors.toList());
+        typeReferences.stream()
+                .filter(typeRef -> isQualifiedTypeSymbol(context, typeRef))
+                .forEach(typeRef -> {
+                    String typeName = CommonUtil.getModifiedTypeName(context, typeRef);
+                    if (!typeName.isEmpty()) {
+                        TypeSymbol rawType = CommonUtil.getRawType(typeRef);
+                        completionItems.add(new SymbolCompletionItem(context, rawType,
+                                TypeCompletionItemBuilder.build(rawType, typeName)));
+                    }
+                });
         return completionItems;
     }
 
-    private Optional<String> getQualifiedSymbolReference(TypeSymbol typeSymbol) {
-        Optional<ModuleSymbol> module = typeSymbol.getModule();
-        if (module.isEmpty()) {
-            return Optional.empty();
-        }
-        ModuleID moduleID = module.get().id();
-        String moduleName = moduleID.moduleName();
-        String modulePrefix = moduleID.modulePrefix();
-        if (modulePrefix.isEmpty()) {
-            List<String> moduleNameComponents = Arrays.stream(moduleName.split("\\."))
-                    .map(CommonUtil::escapeModuleName)
-                    .collect(Collectors.toList());
-            if (moduleNameComponents.isEmpty()) {
-                modulePrefix = moduleName;
-            } else {
-                modulePrefix = moduleNameComponents.get(moduleNameComponents.size() - 1);
-            }
-        }
-        Optional<String> name = typeSymbol.getName();
-        if (name.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(modulePrefix + ":" + typeSymbol.getName().get());
-    }
+    private boolean isQualifiedTypeSymbol(BallerinaCompletionContext context,
+                                          TypeSymbol typeSymbol) {
 
-    private boolean isQualifiedTypeReference(BallerinaCompletionContext context, TypeSymbol typeSymbol) {
+        Optional<ModuleSymbol> module = typeSymbol.getModule();
+        Optional<Module> currentModule = context.currentModule();
+        Optional<String> name = typeSymbol.getName();
+
         if (typeSymbol.typeKind() != TypeDescKind.TYPE_REFERENCE
-                && typeSymbol.getModule().isEmpty() || typeSymbol.getName().isEmpty()
-                || context.currentModule().isEmpty()) {
+                && module.isEmpty() || name.isEmpty()
+                || currentModule.isEmpty()) {
             return false;
         }
-        ModuleID moduleID = typeSymbol.getModule().get().id();
-        String moduleName = moduleID.moduleName();
+        ModuleID moduleID = module.get().id();
+        Optional<String> moduleName = module.get().getName();
         String orgName = moduleID.orgName();
 
-        ModuleId currentModuleID = context.currentModule().get().moduleId();
-        String currentModuleName = currentModuleID.moduleName();
+        String currentModuleName = currentModule.get().isDefaultModule() ?
+                currentModule.get().moduleName().packageName().value()
+                : currentModule.get().moduleName().moduleNamePart();
         String currentOrg = context.currentModule().get().packageInstance().packageOrg().value();
-        if (orgName.equals(currentOrg) && moduleName.equals(currentModuleName)) {
+        if (moduleName.isEmpty() || (orgName.equals(currentOrg) && moduleName.get().equals(currentModuleName))) {
             return false;
         }
         return true;

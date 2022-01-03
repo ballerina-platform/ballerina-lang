@@ -115,17 +115,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        String typeName;
-        if (lhsTypeSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-            Optional<String> name = lhsTypeSymbol.get().getName();
-            if (name.isEmpty()) {
-                return Collections.emptyList();
-            }
-            typeName = name.get();
-        } else {
-            typeName = lhsTypeSymbol.get().signature();
-        }
-        
+        String typeName = CommonUtil.getModifiedTypeName(context, lhsTypeSymbol.get());
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
