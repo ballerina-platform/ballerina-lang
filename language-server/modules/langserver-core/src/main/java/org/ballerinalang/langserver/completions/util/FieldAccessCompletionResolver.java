@@ -38,6 +38,7 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
@@ -237,6 +238,11 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(XMLFilterExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode node) {
         return this.context.currentSemanticModel().get().typeOf(node);
     }
 
