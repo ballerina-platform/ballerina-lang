@@ -36,3 +36,13 @@ function nameX(int y) returns function (int) returns int {
     };
     return func;
 }
+
+public function test2() {
+    int a = 10;
+    var x = function (function(int a = 10) l) {};
+}
+
+public function test1() {
+    int a = 10;
+    var x = function (function(int a, int b = a) l) {};
+}
