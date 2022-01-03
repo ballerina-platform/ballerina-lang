@@ -317,6 +317,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
         this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
 
+        validateEnumMemberMetadata(pkgNode.constants);
+
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
             NodeKind kind = pkgLevelNode.getKind();
@@ -351,6 +353,38 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
+    }
+
+    private void validateEnumMemberMetadata(List<BLangConstant> constants) {
+        Map<String, List<BLangConstant>> duplicateEnumMembersWithMetadata = new HashMap<>();
+
+        for (BLangConstant constant : constants) {
+            if (!constant.flagSet.contains(Flag.ENUM_MEMBER) ||
+                    (constant.markdownDocumentationAttachment == null && constant.annAttachments.isEmpty())) {
+                continue;
+            }
+
+            String name = constant.name.value;
+
+            if (duplicateEnumMembersWithMetadata.containsKey(name)) {
+                duplicateEnumMembersWithMetadata.get(name).add(constant);
+                continue;
+            }
+
+            duplicateEnumMembersWithMetadata.put(name, new ArrayList<>() {{ add(constant); }});
+        }
+
+        for (Map.Entry<String, List<BLangConstant>> entry : duplicateEnumMembersWithMetadata.entrySet()) {
+            List<BLangConstant> duplicateMembers = entry.getValue();
+
+            if (duplicateMembers.size() == 1) {
+                continue;
+            }
+
+            for (BLangConstant duplicateMember : duplicateMembers) {
+                dlog.warning(duplicateMember.pos, DiagnosticWarningCode.INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER);
+            }
+        }
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
