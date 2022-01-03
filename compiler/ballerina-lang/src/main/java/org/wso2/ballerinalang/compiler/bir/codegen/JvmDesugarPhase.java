@@ -266,17 +266,11 @@ public class JvmDesugarPhase {
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs,
                                                  HashMap<String, String> encodedVsInitialIds) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-            if (typeDefinition.referenceType != null) {
-                typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
-                        ((BTypeReferenceType) typeDefinition.referenceType).definitionName, encodedVsInitialIds));
-            } else {
-                typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
-                        typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
-            }
-
+            typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
+                    typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
             typeDefinition.internalName =
                     Names.fromString(encodeNonFunctionIdentifier(typeDefinition.internalName.value,
-                                                                 encodedVsInitialIds));
+                            encodedVsInitialIds));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, encodedVsInitialIds);
             BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);

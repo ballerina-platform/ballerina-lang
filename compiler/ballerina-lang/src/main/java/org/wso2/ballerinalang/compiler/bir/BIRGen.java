@@ -429,8 +429,9 @@ public class BIRGen extends BLangNodeVisitor {
                                                           astTypeDefinition.symbol.origin.toBIROrigin(),
                                                           displayName,
                                                           astTypeDefinition.symbol.originalName);
-        if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
-            if (type.tsymbol.owner == astTypeDefinition.symbol.owner) {
+        if (astTypeDefinition.symbol instanceof BTypeDefinitionSymbol) {
+            if (type.tsymbol.owner == astTypeDefinition.symbol.owner &&
+                    !(Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.CLASS))) {
                 typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
                 typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
             } else {
