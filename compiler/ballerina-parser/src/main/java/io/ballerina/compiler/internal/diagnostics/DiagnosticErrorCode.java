@@ -341,6 +341,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.field.initialization.not.allowed.in.object.type"),
     ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED("BCE0676", "error.intervening.whitespaces.are.not.allowed"),
     ERROR_INVALID_BINDING_PATTERN("BCE0677", "error.invalid.binding.pattern"),
+    ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH("BCE0678", "error.resource.path.cannot.begin.with.slash")
     ;
 
     String diagnosticId;

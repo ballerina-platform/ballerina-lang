@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,13 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Block body with =>
-function sum(int a, int b) returns int => {
-    return a + b;
+public class Listener {
+    public isolated function 'start() returns error? {
+    }
+
+    public isolated function gracefulStop() returns error? {
+    }
+
+    public isolated function immediateStop() returns error? {
+    }
+
+    public isolated function detach(service object {} s) returns error? {
+    }
+
+    public isolated function attach(service object {} s, string? name) returns error? {
+    }
 }
 
-// Extern body with =>
-function add(int a, int b) returns int => external
-
-// Statement as the body
-function sum(int a1, int b1) returns int => int x = 10;
+service on new Listener() {
+    resource function get /hello(string name) {
+    }
+}
