@@ -4566,7 +4566,75 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(accessExpr, actualType, expType);
     }
 
-    public void visit(BLangUnaryExpr unaryExpr) {
+    public BType clonedExprChecker(BLangUnaryExpr unaryExpr, BType newExpType) {
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        this.nonErrorLoggingCheck = true;
+        int prevErrorCount = this.dlog.errorCount();
+        this.dlog.resetErrorCount();
+        this.dlog.mute();
+
+        BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(unaryExpr.expr), env, newExpType);
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        this.dlog.setErrorCount(prevErrorCount);
+
+        if (!prevNonErrorLoggingCheck) {
+            this.dlog.unmute();
+        }
+
+        if (this.dlog.errorCount() == 0 && exprCompatibleType != symTable.semanticError) {
+            return exprCompatibleType;
+        } else {
+            return symTable.semanticError;
+        }
+    }
+
+    public LinkedHashSet<BType> getBasicNumericTypesInFiniteType(BType referredType) {
+        LinkedHashSet<BType> basicNumericTypes = new LinkedHashSet<>();
+        BFiniteType finiteType = (BFiniteType) referredType;
+
+        for (BLangExpression value : finiteType.getValueSpace()) {
+            BType referredTypeInFiniteType = types.getReferredType(value.getBType());
+            int typeTag = referredTypeInFiniteType.tag;
+            if (TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.FLOAT
+                    || typeTag == TypeTags.DECIMAL) {
+                basicNumericTypes.add(value.getBType());
+            } else if (typeTag == TypeTags.JSON || typeTag == TypeTags.ANYDATA || typeTag == TypeTags.ANY) {
+                basicNumericTypes.add(symTable.intType);
+                basicNumericTypes.add(symTable.floatType);
+                basicNumericTypes.add(symTable.decimalType);
+                break;
+            } else if (typeTag == TypeTags.FINITE) {
+                LinkedHashSet<BType> numericTypes = getBasicNumericTypesInFiniteType(referredTypeInFiniteType);
+                basicNumericTypes.addAll(numericTypes);
+            }
+        }
+        return basicNumericTypes;
+    }
+
+    public LinkedHashSet<BType> getBasicNumericTypesInUnionType(BType referredType) {
+        BUnionType referredUnionType = (BUnionType) referredType;
+        LinkedHashSet<BType> basicNumericTypes = new LinkedHashSet<>();
+
+        for (BType value : referredUnionType.getMemberTypes()) {
+            BType referredTypeInUnionType = types.getReferredType(value);
+            int typeTag = referredTypeInUnionType.tag;
+            if (TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.FLOAT
+                    || typeTag == TypeTags.DECIMAL) {
+                basicNumericTypes.add(value);
+            } else if (typeTag == TypeTags.JSON || typeTag == TypeTags.ANYDATA || typeTag == TypeTags.ANY) {
+                basicNumericTypes.add(symTable.intType);
+                basicNumericTypes.add(symTable.floatType);
+                basicNumericTypes.add(symTable.decimalType);
+                break;
+            } else if (typeTag == TypeTags.FINITE) {
+                LinkedHashSet<BType> numericTypes = getBasicNumericTypesInFiniteType(referredTypeInUnionType);
+                basicNumericTypes.addAll(numericTypes);
+            }
+        }
+        return basicNumericTypes;
+    }
+
+        public void visit(BLangUnaryExpr unaryExpr) {
         BType exprType;
         BType actualType = symTable.semanticError;
         if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
@@ -4580,61 +4648,31 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = new BTypedescType(exprType, null);
             }
         } else {
-            //allow both addition and subtraction operators to get expected type
+            //Allow both addition and subtraction operators to get expected type
             boolean isExpTypeAllowed = (OperatorKind.ADD.equals(unaryExpr.operator)
                     || OperatorKind.SUB.equals(unaryExpr.operator));
 
             BType newExpectedType = expType;
+            LinkedHashSet<BType> basicNumericTypes;
+            BType referredType = types.getReferredType(expType);
+
             // Set expected type for - operator
             if (OperatorKind.SUB.equals(unaryExpr.operator)) {
-                LinkedHashSet<BType> basicNumericTypes = new LinkedHashSet<>();
-                BType referredType = types.getReferredType(expType);
-
                 if (expType == symTable.noType) {
                     newExpectedType = symTable.noType;
                 } else if (TypeTags.isIntegerTypeTag(referredType.tag) || referredType.tag == TypeTags.FLOAT
                         || referredType.tag == TypeTags.DECIMAL) {
                     newExpectedType = referredType;
-                } else if (referredType.tag == TypeTags.FINITE) {
-                    BFiniteType finiteType = (BFiniteType) referredType;
-                    for (BLangExpression value : finiteType.getValueSpace()) {
-                        int typeTag = value.getBType().tag;
-                        if (TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.FLOAT
-                                || typeTag == TypeTags.DECIMAL) {
-                            basicNumericTypes.add(value.getBType());
-                        } else if (typeTag == TypeTags.JSON || typeTag == TypeTags.ANYDATA || typeTag == TypeTags.ANY) {
-                            basicNumericTypes.add(symTable.intType);
-                            basicNumericTypes.add(symTable.floatType);
-                            basicNumericTypes.add(symTable.decimalType);
-                            break;
-                        }
-                    }
-                    if (basicNumericTypes.isEmpty()) {
-                        dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-                                unaryExpr.operator, unaryExpr.expr);
-                        resultType = symTable.semanticError;
-                    } else if (basicNumericTypes.size() == 1) {
-                        newExpectedType = basicNumericTypes.iterator().next();
+                } else if (referredType.tag == TypeTags.FINITE || referredType.tag == TypeTags.UNION) {
+                    if (referredType.tag == TypeTags.FINITE) {
+                        basicNumericTypes = getBasicNumericTypesInFiniteType(referredType);
                     } else {
-                        newExpectedType = BUnionType.create(null, basicNumericTypes);
+                        basicNumericTypes = getBasicNumericTypesInUnionType(referredType);
                     }
-                } else if (referredType.tag == TypeTags.UNION) {
-                    BUnionType referredUnionType = (BUnionType) referredType;
-                    for (BType value : referredUnionType.getMemberTypes()) {
-                        int typeTag = value.tag;
-                        if (TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.FLOAT
-                                || typeTag == TypeTags.DECIMAL) {
-                            basicNumericTypes.add(value);
-                        } else if (typeTag == TypeTags.JSON || typeTag == TypeTags.ANYDATA || typeTag == TypeTags.ANY) {
-                            basicNumericTypes.add(symTable.intType);
-                            basicNumericTypes.add(symTable.floatType);
-                            basicNumericTypes.add(symTable.decimalType);
-                            break;
-                        }
-                    }
+
                     if (basicNumericTypes.isEmpty()) {
-                        dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-                                unaryExpr.operator, unaryExpr.expr);
+                        dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                                expType, unaryExpr.expr);
                         resultType = symTable.semanticError;
                     } else if (basicNumericTypes.size() == 1) {
                         newExpectedType = basicNumericTypes.iterator().next();
@@ -4646,13 +4684,21 @@ public class TypeChecker extends BLangNodeVisitor {
                     newExpectedType = BUnionType.create(null, symTable.intType, symTable.floatType,
                             symTable.decimalType);
                 } else {
-                    dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-                            unaryExpr.operator, unaryExpr.expr);
+                    dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                            expType, unaryExpr.expr);
                     resultType = symTable.semanticError;
                 }
             }
-            exprType = isExpTypeAllowed ? checkExpr(unaryExpr.expr, env, newExpectedType) :
-                    checkExpr(unaryExpr.expr, env);
+
+            newExpectedType = clonedExprChecker(unaryExpr, newExpectedType);
+            if (newExpectedType != symTable.semanticError) {
+                exprType = isExpTypeAllowed ? checkExpr(unaryExpr.expr, env, newExpectedType) :
+                        checkExpr(unaryExpr.expr, env);
+            } else {
+                exprType = isExpTypeAllowed ? checkExpr(unaryExpr.expr, env, expType) :
+                        checkExpr(unaryExpr.expr, env);
+            }
+
             if (exprType != symTable.semanticError) {
                 BSymbol symbol = symResolver.resolveUnaryOperator(unaryExpr.operator, exprType);
                 if (symbol == symTable.notFoundSymbol) {
@@ -4666,46 +4712,48 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symbol.type.getReturnType();
                 }
             }
-        }
-        // Explicitly set actual type - Remove in future
-//        if (exprType != symTable.semanticError &&  unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
-//            BLangExpression exprInUnary = unaryExpr.expr;
-//            BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
-//            Object objectValueInUnary = numericLiteralInUnary.value;
-//            String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
-//
-//            if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-//                strValueInUnary = "+" + strValueInUnary;
-//            } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
-//                strValueInUnary = "-" + strValueInUnary;
-//            }
-//
-//            if (objectValueInUnary instanceof Long) {
-//                objectValueInUnary = Long.parseLong(strValueInUnary);
-//            } else if (objectValueInUnary instanceof Double) {
-//                objectValueInUnary = Double.parseDouble(strValueInUnary);
-//            } else if (objectValueInUnary instanceof String) {
-//                objectValueInUnary = strValueInUnary;
-//            }
-//
-//            BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
-//                    TreeBuilder.createNumericLiteralExpression();
-//            newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
-//            newNumericLiteral.pos = unaryExpr.expr.pos;
-//            newNumericLiteral.setBType(exprInUnary.getBType());
-//            newNumericLiteral.value = objectValueInUnary;
-//            newNumericLiteral.originalValue = strValueInUnary;
-//
-//            BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-//                    0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner,
-//                    unaryExpr.pos, SOURCE);
-//
-//            BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-//            finiteType.addValue(newNumericLiteral);
-//            finiteTypeSymbol.type = finiteType;
-//            actualType = finiteType;
-//        }
 
+            // Explicitly set actual type
+//            referredType.tag == TypeTags.FINITE &&
+            if (exprType != symTable.semanticError && referredType.tag == TypeTags.FINITE &&
+                    unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                BLangExpression exprInUnary = unaryExpr.expr;
+                BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
+                Object objectValueInUnary = numericLiteralInUnary.value;
+                String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+
+                if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+                    strValueInUnary = "+" + strValueInUnary;
+                } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+                    strValueInUnary = "-" + strValueInUnary;
+                }
+
+                if (objectValueInUnary instanceof Long) {
+                    objectValueInUnary = Long.parseLong(strValueInUnary);
+                } else if (objectValueInUnary instanceof Double) {
+                    objectValueInUnary = Double.parseDouble(strValueInUnary);
+                } else if (objectValueInUnary instanceof String) {
+                    objectValueInUnary = strValueInUnary;
+                }
+
+                BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
+                        TreeBuilder.createNumericLiteralExpression();
+                newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
+                newNumericLiteral.pos = unaryExpr.expr.pos;
+                newNumericLiteral.setBType(exprInUnary.getBType());
+                newNumericLiteral.value = objectValueInUnary;
+                newNumericLiteral.originalValue = strValueInUnary;
+
+                BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+                        0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                        unaryExpr.pos, SOURCE);
+
+                BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+                finiteType.addValue(newNumericLiteral);
+                finiteTypeSymbol.type = finiteType;
+                actualType = finiteType;
+            }
+        }
         resultType = types.checkType(unaryExpr, actualType, expType);
     }
 
