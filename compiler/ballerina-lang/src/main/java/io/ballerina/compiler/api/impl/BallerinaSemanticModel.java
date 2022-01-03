@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -59,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -293,7 +295,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         NodeFinder nodeFinder = new NodeFinder(false);
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
 
-        if (!(node instanceof BLangExpression) && !isObjectConstructorExpr(node) && !isAnonFunctionExpr(node)) {
+        if (!isNonNamedArgExprNode(node) && !isObjectConstructorExpr(node) && !isAnonFunctionExpr(node)) {
             return Optional.empty();
         }
 
@@ -354,7 +356,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         for (Diagnostic diagnostic : allDiagnostics) {
             LineRange lineRange = diagnostic.location().lineRange();
 
-            if (lineRange.filePath().equals(range.filePath()) && withinRange(lineRange, range)) {
+            if (lineRange.filePath().equals(range.filePath()) && PositionUtil.withinRange(lineRange, range)) {
                 filteredDiagnostics.add(diagnostic);
             }
         }
@@ -380,8 +382,15 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        if (isTypeSymbol(symbolAtCursor) && ((isInlineSingletonType(symbolAtCursor))
-                || isCursorPosAtDefinition(compilationUnit, symbolAtCursor, position))) {
+        if (symbolAtCursor.kind == SymbolKind.TYPE_DEF
+                && isCursorNotAtDefinition(compilationUnit, symbolAtCursor, position)) {
+            return Optional.ofNullable(
+                    typesFactory.getTypeDescriptor(((BTypeDefinitionSymbol) symbolAtCursor).referenceType));
+        }
+
+        if (isTypeSymbol(symbolAtCursor) &&
+                (isInlineSingletonType(symbolAtCursor) || isInlineErrorType(symbolAtCursor)
+                        || isCursorNotAtDefinition(compilationUnit, symbolAtCursor, position))) {
             return Optional.ofNullable(
                     typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
         }
@@ -440,13 +449,8 @@ public class BallerinaSemanticModel implements SemanticModel {
                 .get();
     }
 
-    private boolean isCursorPosAtDefinition(BLangCompilationUnit compilationUnit, BSymbol symbolAtCursor,
+    private boolean isCursorNotAtDefinition(BLangCompilationUnit compilationUnit, BSymbol symbolAtCursor,
                                             LinePosition cursorPos) {
-        BType symbolType = symbolAtCursor.type;
-        if (symbolType.tag == TypeTags.ERROR &&
-                Symbols.isFlagOn(symbolType.flags, Flags.ANONYMOUS)) {
-            return true;
-        }
         return !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
                 && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
@@ -456,6 +460,10 @@ public class BallerinaSemanticModel implements SemanticModel {
         // !(symbol.kind == SymbolKind.TYPE_DEF) is checked to exclude type defs
         return !(symbol.kind == SymbolKind.TYPE_DEF) && symbol.type.tag == TypeTags.FINITE &&
                 ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+    }
+
+    private boolean isInlineErrorType(BSymbol symbol) {
+        return symbol.type.tag == TypeTags.ERROR && Symbols.isFlagOn(symbol.type.flags, Flags.ANONYMOUS);
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {
@@ -482,19 +490,6 @@ public class BallerinaSemanticModel implements SemanticModel {
     private BPackageSymbol getModuleSymbol(BLangCompilationUnit compilationUnit) {
         return compilationUnit.getSourceKind() == REGULAR_SOURCE ? bLangPackage.symbol :
                 bLangPackage.getTestablePkg().symbol;
-    }
-
-    private boolean withinRange(LineRange range, LineRange specifiedRange) {
-        int startLine = range.startLine().line();
-        int startOffset = range.startLine().offset();
-
-        int specifiedStartLine = specifiedRange.startLine().line();
-        int specifiedEndLine = specifiedRange.endLine().line();
-        int specifiedStartOffset = specifiedRange.startLine().offset();
-        int specifiedEndOffset = specifiedRange.endLine().offset();
-
-        return startLine >= specifiedStartLine && startLine <= specifiedEndLine &&
-                startOffset >= specifiedStartOffset && startOffset <= specifiedEndOffset;
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
@@ -577,5 +572,9 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isAnonFunctionExpr(BLangNode node) {
         return (node instanceof BLangFunction && ((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
                 || node instanceof BLangArrowFunction;
+    }
+
+    private boolean isNonNamedArgExprNode(BLangNode node) {
+        return node instanceof BLangExpression && !(node instanceof BLangNamedArgsExpression);
     }
 }

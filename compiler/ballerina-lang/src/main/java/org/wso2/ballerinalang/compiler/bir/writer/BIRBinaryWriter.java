@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -225,13 +226,16 @@ public class BIRBinaryWriter {
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
             buf.writeLong(parameter.flags);
+            writeAnnotations(buf, typeWriter, parameter.annotAttachmentSymbols);
         }
 
         // TODO find a better way
-        boolean restParamExist = birFunction.restParam != null;
+        BIRParameter restParam = birFunction.restParam;
+        boolean restParamExist = restParam != null;
         buf.writeBoolean(restParamExist);
         if (restParamExist) {
-            buf.writeInt(addStringCPEntry(birFunction.restParam.name.value));
+            buf.writeInt(addStringCPEntry(restParam.name.value));
+            writeAnnotations(buf, typeWriter, restParam.annotAttachmentSymbols);
         }
 
         boolean hasReceiverType = birFunction.receiver != null;
@@ -338,8 +342,9 @@ public class BIRBinaryWriter {
         birAnnotationList.forEach(annotation -> writeAnnotation(buf, typeWriter, annotation));
     }
 
-    private void writeAnnotation(ByteBuf buf, BIRTypeWriter typeWriter,
-                                 BIRNode.BIRAnnotation birAnnotation) {
+    private void writeAnnotation(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRAnnotation birAnnotation) {
+        buf.writeInt(BIRWriterUtils.addPkgCPEntry(birAnnotation.packageID, this.cp));
+
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
         // Annotation original name CP Index
@@ -378,6 +383,7 @@ public class BIRBinaryWriter {
 
         // write the length of the constant value, so that it can be skipped.
         ByteBuf birbuf = Unpooled.buffer();
+        writeType(birbuf, birConstant.constValue.type);
         writeConstValue(birbuf, birConstant.constValue);
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
@@ -385,7 +391,6 @@ public class BIRBinaryWriter {
     }
 
     private void writeConstValue(ByteBuf buf, ConstValue constValue) {
-        writeType(buf, constValue.type);
         switch (constValue.type.tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
@@ -416,13 +421,18 @@ public class BIRBinaryWriter {
                 break;
             case TypeTags.NIL:
                 break;
-            case TypeTags.MAP:
+            case TypeTags.RECORD:
                 Map<String, ConstValue> mapConstVal = (Map<String, ConstValue>) constValue.value;
                 buf.writeInt(mapConstVal.size());
                 mapConstVal.forEach((key, value) -> {
                     buf.writeInt(addStringCPEntry(key));
+                    writeType(buf, value.type);
                     writeConstValue(buf, value);
                 });
+                break;
+            case TypeTags.INTERSECTION:
+                BType effectiveType = ((BIntersectionType) constValue.type).effectiveType;
+                writeConstValue(buf, new ConstValue(constValue.value, effectiveType));
                 break;
             default:
                 // TODO support for other types
@@ -538,6 +548,7 @@ public class BIRBinaryWriter {
         } else {
             // This has to be a value type with a literal value.
             BIRAnnotationLiteralValue annotLiteralValue = (BIRAnnotationLiteralValue) annotValue;
+            writeType(annotBuf, annotLiteralValue.type);
             writeConstValue(annotBuf, new ConstValue(annotLiteralValue.value, annotLiteralValue.type));
         }
     }

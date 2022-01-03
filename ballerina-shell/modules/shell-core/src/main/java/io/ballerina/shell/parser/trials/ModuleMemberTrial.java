@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -73,15 +72,6 @@ public class ModuleMemberTrial extends TreeParserTrial {
         while (memberIterator.hasNext()) {
             ModuleMemberDeclarationNode dclnNode = (ModuleMemberDeclarationNode) memberIterator.next();
             validateModuleDeclaration(dclnNode);
-            if (dclnNode instanceof ModuleVariableDeclarationNode) {
-                // If there are no qualifiers or metadata then this can be also a statement/expression.
-                // eg: `mp[a] = f()` (mp is a map) is also valid as `mp [a] = f()` (mp is a type) which is a var-dcln.
-                // So, this will be passed down to be parsed by statement/expression trial.
-                ModuleVariableDeclarationNode varNode = (ModuleVariableDeclarationNode) dclnNode;
-                assertIf(varNode.metadata().isPresent() || varNode.qualifiers().size() > 0
-                                || varNode.visibilityQualifier().isPresent(),
-                        "meta data nor qualifiers not present - not accepted as module-dcln");
-            }
             nodes.add(dclnNode);
         }
         return nodes;

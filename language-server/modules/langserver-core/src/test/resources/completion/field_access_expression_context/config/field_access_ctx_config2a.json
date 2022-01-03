@@ -399,29 +399,6 @@
       }
     },
     {
-      "label": "testOptional",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "AA",
-      "insertText": "?.testOptional",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 32
-            },
-            "end": {
-              "line": 3,
-              "character": 33
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
       "label": "strField1",
       "kind": "Field",
       "detail": "string",
@@ -435,6 +412,14 @@
       "detail": "int",
       "sortText": "AA",
       "insertText": "intField",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testOptional",
+      "kind": "Field",
+      "detail": "int?",
+      "sortText": "AA",
+      "insertText": "testOptional",
       "insertTextFormat": "Snippet"
     }
   ]

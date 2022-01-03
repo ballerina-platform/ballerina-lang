@@ -16,8 +16,11 @@
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -25,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
@@ -32,6 +36,9 @@ import java.util.Optional;
 
 /**
  * Node Transformer to find the container expression node for a given node.
+ *
+ * <strong>Note</strong>: Rather than doing {@code node.apply(expressionResolver)},
+ * please use {@link #findExpression(Node)} since the {@code node.apply()} method may return {@code null}.
  *
  * @since 2.0.0
  */
@@ -41,6 +48,22 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
 
     public MatchedExpressionNodeResolver(Node matchedNode) {
         this.matchedNode = matchedNode;
+    }
+
+    /**
+     * Given the node, this method returns the optional expression in which the provided node is located.
+     *
+     * @param node Node
+     * @return Optional enclosing expression node
+     */
+    public Optional<ExpressionNode> findExpression(Node node) {
+        if (node == null) {
+            return Optional.empty();
+        }
+
+        Optional<ExpressionNode> exprNode = node.apply(this);
+        // Due to the way apply() method is implemented in some cases, this can return null
+        return exprNode == null ? Optional.empty() : exprNode;
     }
 
     @Override
@@ -91,6 +114,19 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
         return Optional.of(fromClauseNode.expression());
     }
 
+    public Optional<ExpressionNode> transform(BracedExpressionNode node) {
+        return Optional.of(node);
+    }
+
+    public Optional<ExpressionNode> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        return Optional.of(implicitNewExpressionNode);
+    }
+
+    @Override
+    public Optional<ExpressionNode> transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        return Optional.of(explicitNewExpressionNode);
+    }
+
     @Override
     public Optional<ExpressionNode> transform(ListConstructorExpressionNode listConstructorExpressionNode) {
         Optional<Node> expressionNode = listConstructorExpressionNode.expressions().stream()
@@ -100,5 +136,10 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
             return Optional.of((ExpressionNode) expressionNode.get());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<ExpressionNode> transform(ReturnStatementNode returnStatementNode) {
+        return returnStatementNode.expression();
     }
 }

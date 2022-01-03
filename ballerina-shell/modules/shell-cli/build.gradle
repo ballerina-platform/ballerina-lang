@@ -22,11 +22,12 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 description = 'Ballerina - Ballerina Shell CLI'
 
 group = 'io.ballerina'
-version = '0.0.1-SNAPSHOT'
 
 dependencies {
     implementation project(":ballerina-shell:shell-core")
+    implementation project(':ballerina-parser')
     implementation('org.jline:jline:3.11.0')
+    implementation project(':ballerina-lang')
 
     testImplementation('org.testng:testng')
     implementation 'com.google.code.gson:gson:2.8.7'

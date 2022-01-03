@@ -116,7 +116,6 @@ dependencies {
         implementation "io.netty:netty-codec-http:${project.nettyCodecHttpVersion}"
         implementation "io.netty:netty-codec-http2:${project.nettyCodecHttp2Version}"
         implementation "io.netty:netty-handler:${project.nettyHandlerVersion}"
-        implementation "io.netty:netty-tcnative-boringssl-static:${project.nettyBoringSslVersion}"
         implementation "io.netty:netty-transport:${project.nettyTransportVersion}"
         implementation "io.opentelemetry:opentelemetry-api:${project.openTelemetryApiVersion}"
         implementation "io.opentelemetry:opentelemetry-sdk-trace:${project.openTelemetrySdkTraceVersion}"

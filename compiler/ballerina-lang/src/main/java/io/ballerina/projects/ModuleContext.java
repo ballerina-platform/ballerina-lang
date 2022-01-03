@@ -217,7 +217,8 @@ class ModuleContext {
         allModuleLoadRequests = new LinkedHashSet<>();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            for (ModuleLoadRequest request : docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT)) {
+            for (ModuleLoadRequest request : docContext.moduleLoadRequests(moduleName(),
+                    PackageDependencyScope.DEFAULT)) {
                 if (allModuleLoadRequests.contains(request) && !request.locations().isEmpty()) {
                     // If module load request already exists, and it's `locations` is not empty
                     // add `locations` to already existing module load request
@@ -231,7 +232,7 @@ class ModuleContext {
                     allModuleLoadRequests.add(request);
                 }
             }
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.DEFAULT));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);
@@ -241,7 +242,7 @@ class ModuleContext {
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : testDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.TEST_ONLY));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);

@@ -76,7 +76,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -226,7 +225,7 @@ public class CodeActionUtil {
             }
 
             // Anon Record
-            String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
+            String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
             RecordTypeSymbol recordLiteral = (RecordTypeSymbol) typeDescriptor;
             types.add((recordLiteral.fieldDescriptors().size() > 0) ? rType : "record {}");
 
@@ -254,7 +253,7 @@ public class CodeActionUtil {
                 prevType = recordField.typeDescriptor();
             }
             if (isConstrainedMap && prevType != null) {
-                String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, prevType, context);
+                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevType, context);
                 types.add("map<" + type + ">");
             } else {
                 types.add("map<any>");
@@ -266,7 +265,6 @@ public class CodeActionUtil {
             TypeSymbol prevType = null;
             TypeSymbol prevInnerType = null;
             boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty();
-            StringJoiner tupleJoiner = new StringJoiner(", ");
             for (TypeSymbol memberType : tupleType.memberTypeDescriptors()) {
                 // Here we check previous member-type with current member-type for equality
                 // 1. Check type-kind is differs Tuple vs int
@@ -292,23 +290,22 @@ public class CodeActionUtil {
                         prevInnerType = innerType;
                     }
                     if (isSameInnerType && prevInnerType != null) {
-                        String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, prevInnerType, context);
+                        String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevInnerType, context);
                         arrayType = type + "[]";
                     }
                 }
-                String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, memberType, context);
-                tupleJoiner.add(type);
+                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, memberType, context);
                 prevType = memberType;
                 if (arrayType == null) {
                     arrayType = type;
                 }
             }
-            // Array
+            // Add Array type if valid
             if (isArrayCandidate) {
                 types.add(arrayType + "[]");
             }
-            // Tuple
-            types.add("[" + tupleJoiner.toString() + "]");
+            // Add tuple type
+            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
@@ -325,7 +322,7 @@ public class CodeActionUtil {
                     })
                     .collect(Collectors.toList());
         } else {
-            types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
+            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
 
         importEdits.addAll(importsAcceptor.getNewImportTextEdits());
@@ -400,10 +397,11 @@ public class CodeActionUtil {
         String spaces = StringUtils.repeat(' ', range.getStart().getCharacter());
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
 
-        boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
+        boolean hasError = CodeActionUtil.hasErrorMemberType(unionType);
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
         long errorTypesCount = unionType.memberTypeDescriptors().stream()
+                .map(CommonUtil::getRawType)
                 .filter(t -> t.typeKind() == TypeDescKind.ERROR)
                 .count();
         if (members.size() == 1) {
@@ -821,7 +819,8 @@ public class CodeActionUtil {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
                     (parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION
-                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION)) {
+                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                            || parentNode.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR)) {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {

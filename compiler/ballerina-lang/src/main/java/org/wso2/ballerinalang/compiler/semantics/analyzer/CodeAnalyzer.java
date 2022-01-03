@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -2340,36 +2340,41 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         if (Symbols.isPublic(owner)) {
-            checkForExportableType(symbol, pos);
+            HashSet<BTypeSymbol> visitedSymbols = new HashSet<>();
+            checkForExportableType(symbol, pos, visitedSymbols);
         }
     }
 
-    private void checkForExportableType(BTypeSymbol symbol, Location pos) {
+    private void checkForExportableType(BTypeSymbol symbol, Location pos, HashSet<BTypeSymbol> visitedSymbols) {
 
         if (symbol == null || symbol.type == null || Symbols.isFlagOn(symbol.flags, Flags.TYPE_PARAM)) {
             // This is a built-in symbol or a type Param.
             return;
         }
+        if (!visitedSymbols.add(symbol)) {
+            return;
+        }
         switch (symbol.type.tag) {
             case TypeTags.ARRAY:
-                checkForExportableType(((BArrayType) symbol.type).eType.tsymbol, pos);
+                checkForExportableType(((BArrayType) symbol.type).eType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) symbol.type;
-                tupleType.tupleTypes.forEach(t -> checkForExportableType(t.tsymbol, pos));
+                tupleType.tupleTypes.forEach(t -> checkForExportableType(t.tsymbol, pos, visitedSymbols));
                 if (tupleType.restType != null) {
-                    checkForExportableType(tupleType.restType.tsymbol, pos);
+                    checkForExportableType(tupleType.restType.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.MAP:
-                checkForExportableType(((BMapType) symbol.type).constraint.tsymbol, pos);
+                checkForExportableType(((BMapType) symbol.type).constraint.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.RECORD:
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
                     BRecordType recordType = (BRecordType) symbol.type;
-                    recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos));
+                    recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
+                            visitedSymbols));
                     if (recordType.restFieldType != null) {
-                        checkForExportableType(recordType.restFieldType.tsymbol, pos);
+                        checkForExportableType(recordType.restFieldType.tsymbol, pos, visitedSymbols);
                     }
                     return;
                 }
@@ -2377,13 +2382,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) symbol.type;
                 if (tableType.constraint != null) {
-                    checkForExportableType(tableType.constraint.tsymbol, pos);
+                    checkForExportableType(tableType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
-                    checkForExportableType(streamType.constraint.tsymbol, pos);
+                    checkForExportableType(streamType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.INVOKABLE:
@@ -2393,21 +2398,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 if (invokableType.paramTypes != null) {
                     for (BType paramType : invokableType.paramTypes) {
-                        checkForExportableType(paramType.tsymbol, pos);
+                        checkForExportableType(paramType.tsymbol, pos, visitedSymbols);
                     }
                 }
                 if (invokableType.restType != null) {
-                    checkForExportableType(invokableType.restType.tsymbol, pos);
+                    checkForExportableType(invokableType.restType.tsymbol, pos, visitedSymbols);
                 }
-                checkForExportableType(invokableType.retType.tsymbol, pos);
+                checkForExportableType(invokableType.retType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.PARAMETERIZED_TYPE:
                 BTypeSymbol parameterizedType = ((BParameterizedType) symbol.type).paramValueType.tsymbol;
-                checkForExportableType(parameterizedType, pos);
+                checkForExportableType(parameterizedType, pos, visitedSymbols);
                 return;
             case TypeTags.ERROR:
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-                    checkForExportableType((((BErrorType) symbol.type).detailType.tsymbol), pos);
+                    checkForExportableType((((BErrorType) symbol.type).detailType.tsymbol), pos, visitedSymbols);
                     return;
                 }
             // TODO : Add support for other types. such as union and objects
@@ -3044,7 +3049,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     String name = ((BLangSimpleVarRef) keyExpr).variableName.value;
-                    String unescapedName = IdentifierUtils.unescapeJava(name);
+                    String unescapedName = Utils.unescapeJava(name);
                     if (names.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
                                         types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
@@ -3085,7 +3090,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private LinkedHashMap<String, BField> getUnescapedFieldList(LinkedHashMap<String, BField> fieldMap) {
         LinkedHashMap<String, BField> newMap = new LinkedHashMap<>();
         for (String key : fieldMap.keySet()) {
-            newMap.put(IdentifierUtils.unescapeJava(key), fieldMap.get(key));
+            newMap.put(Utils.unescapeJava(key), fieldMap.get(key));
         }
 
         return newMap;

@@ -103,7 +103,6 @@ public class SymbolsInCallStatementsTest {
                 {28, 4, "dog", SymbolKind.VARIABLE},
                 {29, 13, "val", SymbolKind.VARIABLE},
                 {29, 18, "j", SymbolKind.PARAMETER},
-                {29, 22, "name", SymbolKind.VARIABLE},
                 {30, 27, "ints", SymbolKind.VARIABLE},
                 {31, 10, "dog", SymbolKind.VARIABLE},
         };

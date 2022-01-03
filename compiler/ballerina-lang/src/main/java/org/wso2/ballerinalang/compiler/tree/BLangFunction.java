@@ -61,6 +61,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     // This only set when we encounter worker inside a fork statement.
     public String anonForkName;
+    public boolean mapSymbolUpdated;
 
     public SimpleVariableNode getReceiver() {
         return receiver;

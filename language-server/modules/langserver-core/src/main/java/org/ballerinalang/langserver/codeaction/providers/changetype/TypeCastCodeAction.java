@@ -73,7 +73,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         //Check if there is a type cast expression already present.
         MatchedExpressionNodeResolver expressionResolver = 
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
-        Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
+        Optional<ExpressionNode> expressionNode = expressionResolver.findExpression(positionDetails.matchedNode());
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
         }

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -37,6 +38,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -89,8 +91,10 @@ public class LangExtensionDelegator {
                                                                    LanguageServerContext serverContext)
             throws Throwable {
         List<CompletionItem> completionItems = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (CompletionExtension ext : completionExtensions) {
-            if (ext.validate(params)) {
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
                 completionItems.addAll(ext.execute(params, context, serverContext));
             }
         }
@@ -111,8 +115,10 @@ public class LangExtensionDelegator {
                                                                    CancelChecker cancelChecker)
             throws Throwable {
         List<CompletionItem> completionItems = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (CompletionExtension ext : completionExtensions) {
-            if (ext.validate(params)) {
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
                 completionItems.addAll(ext.execute(params, context, serverContext, cancelChecker));
             }
         }
@@ -132,8 +138,10 @@ public class LangExtensionDelegator {
                                                LanguageServerContext serverContext)
             throws Throwable {
         List<TextEdit> textEdits = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (FormattingExtension ext : formatExtensions) {
-            if (ext.validate(params)) {
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
                 textEdits.addAll(ext.execute(params, context, serverContext));
             }
         }
@@ -152,8 +160,10 @@ public class LangExtensionDelegator {
                                                   LanguageServerContext serverContext)
             throws Throwable {
         List<CodeAction> actions = new ArrayList<>();
+        URI uri = URI.create(params.getTextDocument().getUri());
         for (CodeActionExtension ext : codeActionsExtensions) {
-            if (ext.validate(params)) {
+            if (this.handleURIScheme(uri, ext.handledCustomURISchemes(params, context, serverContext))
+                    && ext.validate(params)) {
                 actions.addAll(ext.execute(params, context, serverContext));
             }
         }
@@ -172,8 +182,10 @@ public class LangExtensionDelegator {
                                                       DocumentServiceContext context,
                                                       LanguageServerContext serverContext) throws Throwable {
         List<PublishDiagnosticsParams> diagnosticsParams = new ArrayList<>();
+        URI fileURI = URI.create(uri);
         for (DiagnosticsExtension ext : diagExtensions) {
-            if (ext.validate(uri)) {
+            if (this.handleURIScheme(fileURI, ext.handledCustomURISchemes(uri, context, serverContext))
+                    && ext.validate(uri)) {
                 diagnosticsParams.addAll(ext.execute(uri, context, serverContext));
             }
         }
@@ -183,5 +195,9 @@ public class LangExtensionDelegator {
 
     public static LangExtensionDelegator instance() {
         return INSTANCE;
+    }
+
+    private boolean handleURIScheme(URI uri, List<String> customSchemes) {
+        return CommonUtil.URI_SCHEME_FILE.equals(uri.getScheme()) || customSchemes.contains(uri.getScheme());
     }
 }

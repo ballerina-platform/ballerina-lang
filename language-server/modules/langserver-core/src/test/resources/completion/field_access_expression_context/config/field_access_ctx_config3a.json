@@ -409,25 +409,10 @@
     {
       "label": "optionalInt",
       "kind": "Field",
-      "detail": "int",
+      "detail": "int?",
       "sortText": "AA",
-      "insertText": "?.optionalInt",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 42
-            },
-            "end": {
-              "line": 3,
-              "character": 43
-            }
-          },
-          "newText": ""
-        }
-      ]
+      "insertText": "optionalInt",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -312,6 +313,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             if (isModuleInitFunction((BLangNode) topLevelNode)) {
                 analyzeModuleInitFunc((BLangFunction) topLevelNode);
             } else {
+                if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
+                    BLangClassDefinition classDef = (BLangClassDefinition) topLevelNode;
+                    if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+                        continue;
+                    }
+                }
                 analyzeNode((BLangNode) topLevelNode, env);
             }
         }
@@ -384,16 +391,50 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
         Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
         this.unusedLocalVariables = new HashMap<>();
-
         this.currDependentSymbolDeque.push(funcNode.symbol);
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
         analyzeNode(funcNode.restParam, funcEnv);
-        analyzeBranch(funcNode.body, funcEnv);
+
+        if (funcNode.flagSet.contains(Flag.OBJECT_CTOR)) {
+            visitFunctionBodyWithDynamicEnv(funcNode, funcEnv);
+        } else {
+            analyzeBranch(funcNode.body, funcEnv);
+        }
+
         this.currDependentSymbolDeque.pop();
+
+        emitUnusedVariableWarnings(this.unusedLocalVariables);
+        this.unusedLocalVariables = prevUnusedLocalVariables;
+    }
+
+    private void visitFunctionBodyWithDynamicEnv(BLangFunction funcNode, SymbolEnv funcEnv) {
+        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+        this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+
+        // Get a snapshot of the current uninitialized vars before visiting the node.
+        // This is done so that the original set of uninitialized vars will not be
+        // updated/marked as initialized.
+        this.uninitializedVars = copyUninitializedVars();
+        this.flowTerminated = false;
+
+        analyzeNode(funcNode.body, funcEnv);
+
+        // Restore the original set of uninitialized vars
+        this.uninitializedVars = prevUninitializedVars;
+
+        prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
+
+        // Remove the entries added from the previous context since errors should be logged after the analysis
+        // completes for that context.
+        this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
 
         emitUnusedVariableWarnings(this.unusedLocalVariables);
         this.unusedLocalVariables = prevUnusedLocalVariables;
@@ -444,6 +485,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangService service) {
         this.currDependentSymbolDeque.push(service.serviceClass.symbol);
+        visit(service.serviceClass);
         for (BLangExpression attachedExpr : service.attachedExprs) {
             analyzeNode(attachedExpr, env);
         }
@@ -466,45 +508,65 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangClassDefinition classDefinition) {
-        SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
-        this.currDependentSymbolDeque.push(classDefinition.symbol);
+    public void visit(BLangClassDefinition classDef) {
+        SymbolEnv preEnv = env;
+        SymbolEnv env = this.env;
+        Map<BSymbol, Location> prevUnusedLocalVariables = null;
+        Map<BSymbol, InitStatus> prevUninitializedVars = null;
+        boolean visitedOCE = false;
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null && 
+                        classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
+            env = classDef.oceEnvData.capturedClosureEnv.enclEnv;
+            prevUnusedLocalVariables = this.unusedLocalVariables;
+            prevUninitializedVars = this.uninitializedVars;
+            this.unusedLocalVariables = new HashMap<>();
+            this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
+            this.uninitializedVars = copyUninitializedVars();
+            this.flowTerminated = false;
+            visitedOCE = true;
+        }
+        SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
+        this.currDependentSymbolDeque.push(classDef.symbol);
 
-        classDefinition.fields.forEach(field -> analyzeNode(field, objectEnv));
-        classDefinition.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
+        for (BLangAnnotationAttachment bLangAnnotationAttachment : classDef.annAttachments) {
+            analyzeNode(bLangAnnotationAttachment.expr, env);
+        }
+
+        classDef.fields.forEach(field -> analyzeNode(field, objectEnv));
+        classDef.referencedFields.forEach(field -> analyzeNode(field, objectEnv));
 
         // Visit the constructor with the same scope as the object
-        if (classDefinition.initFunction != null) {
-            if (classDefinition.initFunction.body == null) {
+        if (classDef.initFunction != null) {
+            if (classDef.initFunction.body == null) {
                 // if the init() function is defined as an outside function definition
                 Optional<BLangFunction> outerFuncDef =
                         objectEnv.enclPkg.functions.stream()
-                                .filter(f -> f.symbol.name.equals((classDefinition.initFunction).symbol.name))
+                                .filter(f -> f.symbol.name.equals((classDef.initFunction).symbol.name))
                                 .findFirst();
-                outerFuncDef.ifPresent(bLangFunction -> classDefinition.initFunction = bLangFunction);
+                outerFuncDef.ifPresent(bLangFunction -> classDef.initFunction = bLangFunction);
             }
 
-            if (classDefinition.initFunction.body != null) {
-                Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+            if (classDef.initFunction.body != null) {
+                Map<BSymbol, Location> prevUnusedLocalVars = this.unusedLocalVariables;
                 this.unusedLocalVariables = new HashMap<>();
 
-                if (classDefinition.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                if (classDef.initFunction.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     for (BLangStatement statement :
-                            ((BLangBlockFunctionBody) classDefinition.initFunction.body).stmts) {
+                            ((BLangBlockFunctionBody) classDef.initFunction.body).stmts) {
                         analyzeNode(statement, objectEnv);
                     }
-                } else if (classDefinition.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-                    analyzeNode(((BLangExprFunctionBody) classDefinition.initFunction.body).expr, objectEnv);
+                } else if (classDef.initFunction.body.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+                    analyzeNode(((BLangExprFunctionBody) classDef.initFunction.body).expr, objectEnv);
                 }
 
                 emitUnusedVariableWarnings(this.unusedLocalVariables);
-                this.unusedLocalVariables = prevUnusedLocalVariables;
+                this.unusedLocalVariables = prevUnusedLocalVars;
             }
         }
 
-        Stream.concat(classDefinition.fields.stream(), classDefinition.referencedFields.stream())
+        Stream.concat(classDef.fields.stream(), classDef.referencedFields.stream())
                 .map(field -> {
-                    addTypeDependency(classDefinition.symbol, field.getBType(), new HashSet<>());
+                    addTypeDependency(classDef.symbol, field.getBType(), new HashSet<>());
                     return field; })
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
@@ -513,13 +575,36 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                     }
                 });
 
-        classDefinition.functions.forEach(function -> analyzeNode(function, env));
-        classDefinition.typeRefs.forEach(type -> analyzeNode(type, env));
+        for (BLangFunction function : classDef.functions) {
+            analyzeNode(function, env);
+        }
+        for (BLangType type : classDef.typeRefs) {
+            analyzeNode(type, env);
+        }
+        this.env = preEnv;
+
+        if (visitedOCE) {
+            this.uninitializedVars = prevUninitializedVars;
+            prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
+            this.unusedLocalVariables = prevUnusedLocalVariables;
+        }
+
         this.currDependentSymbolDeque.pop();
     }
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        BLangClassDefinition classDef = objectConstructorExpression.classNode;
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            for (BSymbol symbol : oceData.closureFuncSymbols) {
+                this.unusedLocalVariables.remove(symbol);
+            }
+            for (BSymbol symbol : oceData.closureBlockSymbols) {
+                this.unusedLocalVariables.remove(symbol);
+            }
+        }
+        visit(objectConstructorExpression.classNode);
         visit(objectConstructorExpression.typeInit);
         addDependency(objectConstructorExpression.getBType().tsymbol, objectConstructorExpression.classNode.symbol);
     }
@@ -792,17 +877,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+
         analyzeNode(whileNode.expr, env);
-        analyzeNode(whileNode.body, env);
+        BranchResult whileResult = analyzeBranch(whileNode.body, env);
+
         if (whileNode.onFailClause != null) {
             analyzeNode(whileNode.onFailClause, env);
         }
 
-        for (BSymbol symbol : prevUninitializedVars.keySet()) {
-            if (!this.uninitializedVars.containsKey(symbol)) {
-                this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
-            }
+        BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
+
+        if (constCondition == symTable.falseType) {
+            this.uninitializedVars = prevUninitializedVars;
+            return;
         }
+
+        if (whileResult.flowTerminated || constCondition == symTable.trueType) {
+            this.uninitializedVars = whileResult.uninitializedVars;
+            return;
+        }
+
+        this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
     }
 
     @Override
@@ -1526,35 +1621,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
-        this.unusedLocalVariables = new HashMap<>();
-        this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
-
-        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
-
         BLangFunction funcNode = bLangLambdaFunction.function;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-
-        // Get a snapshot of the current uninitialized vars before visiting the node.
-        // This is done so that the original set of uninitialized vars will not be
-        // updated/marked as initialized.
-        this.uninitializedVars = copyUninitializedVars();
-        this.flowTerminated = false;
-
-        analyzeNode(funcNode.body, funcEnv);
-
-        // Restore the original set of uninitialized vars
-        this.uninitializedVars = prevUninitializedVars;
-
-        prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
-
-        // Remove the entries added from the previous context since errors should be logged after the analysis
-        // completes for that context.
-        this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
-
-        emitUnusedVariableWarnings(this.unusedLocalVariables);
-
-        this.unusedLocalVariables = prevUnusedLocalVariables;
+        visitFunctionBodyWithDynamicEnv(funcNode, funcEnv);
     }
 
     @Override
@@ -1708,11 +1777,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
         BTypeSymbol tsymbol = resolvedType.tsymbol;
-        BSymbol pop = this.currDependentSymbolDeque.pop();
-        this.currDependentSymbolDeque.push(tsymbol);
-        recordGlobalVariableReferenceRelationship(pop);
-        this.currDependentSymbolDeque.pop();
-        this.currDependentSymbolDeque.push(pop);
+        recordGlobalVariableReferenceRelationship(tsymbol);
     }
 
     @Override
