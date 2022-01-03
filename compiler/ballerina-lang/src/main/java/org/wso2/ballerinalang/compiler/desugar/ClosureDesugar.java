@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -337,7 +338,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // eg : $map$block$_<num2>
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, mapSymbol);
         BLangTypeInit typeInit = oceData.typeInit;
-        BLangInvocation initInvocation = typeInit.initInvocation;
+        BLangInvocation initInvocation = (BLangInvocation) typeInit.initInvocation;
         if (typeInit.argsExpr == null) {
             typeInit.argsExpr = new ArrayList<>();
         }
@@ -1304,8 +1305,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     public void rewriteInvocationExpr(BLangInvocation invocation) {
-        invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
-        invocation.restArgs = rewriteExprs(invocation.restArgs);
+        rewriteExprs(invocation.requiredArgs);
+        rewriteExprs(invocation.restArgs);
         result = invocation;
     }
 
