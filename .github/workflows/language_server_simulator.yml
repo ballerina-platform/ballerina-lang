@@ -51,14 +51,14 @@ jobs:
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: heap_dump.hprof
+          name: heap_dump-${{ matrix.branch }}.hprof
           path: '*.hprof'      
       
       - name: Upload Leaks Suspects
         uses: actions/upload-artifact@v2
         if: failure()
         with:
-          name: Leak_Suspects.zip
+          name: Leak_Suspects-${{ matrix.branch }}.zip
           path: 'dump_Leak_Suspects.zip'
 
       - name: Notify failure
@@ -67,5 +67,5 @@ jobs:
           curl \
           -X POST 'https://chat.googleapis.com/v1/spaces/${{secrets.NOTIFICATIONS_CHAT_ID}}/messages?key=${{secrets.NOTIFICATIONS_CHAT_KEY}}&token=${{secrets.NOTIFICATIONS_CHAT_TOKEN}}' \
           --header 'Content-Type: application/json' \
-          -d '{"text": "*language server simulator failure* \nPlease \n visit <https://github.com/ballerina-platform/ballerina-lang/actions/runs/${{github.run_id}}|the LS simulator run> for more information"}'
+          -d '{"text": "*language server simulator failure in ${{ matrix.branch }}* \nPlease \n visit <https://github.com/ballerina-platform/ballerina-lang/actions/runs/${{github.run_id}}|the LS simulator run> for more information"}'
 
