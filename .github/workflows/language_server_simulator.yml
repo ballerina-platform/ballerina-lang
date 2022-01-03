@@ -10,10 +10,15 @@ jobs:
     name: Run LS Simulator
     runs-on: ubuntu-latest
     timeout-minutes: 240
+    strategy:
+      matrix: 
+        branch: ["master", "stage-swan-lake"]
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+        with: 
+          ref: ${{ matrix.branch }}
 
       - name: Set up JDK 11
         uses: actions/setup-java@v2
