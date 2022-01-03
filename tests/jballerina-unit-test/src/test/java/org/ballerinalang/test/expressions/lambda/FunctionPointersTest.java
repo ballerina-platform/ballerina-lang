@@ -341,6 +341,8 @@ public class FunctionPointersTest {
         BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 11, 55);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'z'", 11, 58);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 34, 13);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 42, 32);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 47, 32);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
