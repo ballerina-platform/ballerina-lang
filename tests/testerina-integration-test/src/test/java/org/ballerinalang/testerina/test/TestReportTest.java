@@ -189,13 +189,13 @@ public class TestReportTest extends BaseTestCase {
     private void validateCoverage() {
         JsonParser parser = new JsonParser();
         //math module
-        int[] mathAddCovered = new int[] {22, 23, 24, 26, 29, 31}, mathAddMissed = new int[] {27};
+        int[] mathAddCovered = new int[] {22, 23, 24, 26, 29, 31, 32}, mathAddMissed = new int[] {27};
         float mathAddPercentageVal =
                 (float) (mathAddCovered.length) / (mathAddCovered.length + mathAddMissed.length) * 100;
         float mathAddPercentage =
                 (float) (Math.round(mathAddPercentageVal * 100.0) / 100.0);
 
-        int[] mathDivideCovered = new int[] {22, 23, 25, 26, 30}, mathDivideMissed = new int[] {28};
+        int[] mathDivideCovered = new int[] {22, 23, 25, 26, 30, 31}, mathDivideMissed = new int[] {28};
         float mathDividePercentageVal =
                 (float) (mathDivideCovered.length) / (mathDivideCovered.length + mathDivideMissed.length) * 100;
         float mathDividePercentage =
@@ -216,7 +216,7 @@ public class TestReportTest extends BaseTestCase {
         int fooCovered = fooMainCovered.length, fooMissed = fooMainMissed.length;
 
         //bar module
-        int[] barMainCovered = new int[] {19}, barMainMissed = new int[] {};
+        int[] barMainCovered = new int[]{19, 20}, barMainMissed = new int[]{};
         float barMainPercentageVal =
                 (float) (barMainCovered.length) / (barMainMissed.length + barMainCovered.length) * 100;
         float barMainPercentage =
@@ -304,12 +304,12 @@ public class TestReportTest extends BaseTestCase {
     private void validateModuleWiseCoverage() {
         JsonParser parser = new JsonParser();
         //math module
-        int[] mathAddCovered = new int[]{22, 23, 24, 26, 29, 31}, mathAddMissed = new int[]{27};
+        int[] mathAddCovered = new int[]{22, 23, 24, 26, 29, 31, 32}, mathAddMissed = new int[]{27};
         float mathAddPercentageVal =
                 (float) (mathAddCovered.length) / (mathAddCovered.length + mathAddMissed.length) * 100;
         float mathAddPercentage = (float) (Math.round(mathAddPercentageVal * 100.0) / 100.0);
 
-        int[] mathDivideCovered = new int[]{22, 23, 25, 26, 30}, mathDivideMissed = new int[]{28};
+        int[] mathDivideCovered = new int[]{22, 23, 25, 26, 30, 31}, mathDivideMissed = new int[]{28};
         float mathDividePercentageVal =
                 (float) (mathDivideCovered.length) / (mathDivideCovered.length + mathDivideMissed.length) * 100;
         float mathDividePercentage = (float) (Math.round(mathDividePercentageVal * 100.0) / 100.0);
@@ -329,7 +329,7 @@ public class TestReportTest extends BaseTestCase {
         int fooCovered = fooMainCovered.length, fooMissed = fooMainMissed.length;
 
         //bar module
-        int[] barMainCovered = new int[]{}, barMainMissed = new int[]{19};
+        int[] barMainCovered = new int[]{}, barMainMissed = new int[]{19, 20};
         float barMainPercentageVal =
                 (float) (barMainCovered.length) / (barMainMissed.length + barMainCovered.length) * 100;
         float barMainPercentage = (float) (Math.round(barMainPercentageVal * 100.0) / 100.0);
