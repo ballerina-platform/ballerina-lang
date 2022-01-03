@@ -250,6 +250,24 @@ function testFuncInvocation() {
     assertEquality(104, obj.sum());
 }
 
+function testClassDefn() {
+    FooFunction fn = new ("llvmFunction");
+    assertEquality("llvmFunction", fn.getFuncName());
+}
+
+type FunctionDecl FooFunction;
+
+class FooFunction {
+    string functionName;
+    function init(string functionName) {
+        self.functionName = functionName;
+    }
+
+    function getFuncName() returns string {
+        return self.functionName;
+    }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
