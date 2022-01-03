@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
@@ -36,7 +37,7 @@ import java.util.Optional;
 /**
  * Node Transformer to find the container expression node for a given node.
  *
- * <strong>Note</strong>: Rather than doing {@code node.apply(expressionResolver)}, 
+ * <strong>Note</strong>: Rather than doing {@code node.apply(expressionResolver)},
  * please use {@link #findExpression(Node)} since the {@code node.apply()} method may return {@code null}.
  *
  * @since 2.0.0
@@ -64,7 +65,7 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
         // Due to the way apply() method is implemented in some cases, this can return null
         return exprNode == null ? Optional.empty() : exprNode;
     }
-    
+
     @Override
     protected Optional<ExpressionNode> transformSyntaxNode(Node node) {
         if (node.parent() == null) {
@@ -135,5 +136,10 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
             return Optional.of((ExpressionNode) expressionNode.get());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<ExpressionNode> transform(ReturnStatementNode returnStatementNode) {
+        return returnStatementNode.expression();
     }
 }

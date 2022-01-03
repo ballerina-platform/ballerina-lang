@@ -107,3 +107,7 @@ function testWaitAction() {
     
     decimal result = wait A;
 }
+
+function () returns int anonFunc = function () returns int {
+        return 1.2;
+};
