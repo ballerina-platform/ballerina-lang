@@ -133,7 +133,7 @@ public class DiagnosticsTest {
                 {"()", NIL},
                 {"map<string>", MAP},
                 {"map<$UndefinedType$>", MAP},
-                {"function ()", FUNCTION},
+                {"function (ballerina/lang.map:0.0.0:Type val) returns ballerina/lang.map:0.0.0:Type1", FUNCTION},
                 {"string", STRING},
                 {"$UndefinedType$", NONE},
         };
