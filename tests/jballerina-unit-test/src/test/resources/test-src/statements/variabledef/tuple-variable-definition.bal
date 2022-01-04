@@ -247,6 +247,13 @@ function testTupleVarDeclWithTypeReferenceTypedExpr() {
     assertEquality(2, b);
 }
 
+function testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs() {
+    [error<record {int a;}>, boolean...] [error(a = a), ...b] = [error(" errorMsg", a = 6), true];
+    
+    assertEquality(6, a);
+    assertEquality(true, b[0]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {

@@ -375,6 +375,11 @@ public class TupleVariableDefinitionTest {
         BRunUtil.invoke(result, "testTupleVarDeclWithTypeReferenceTypedExpr");
     }
 
+    @Test
+    public void testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs() {
+        BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs");
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
 
