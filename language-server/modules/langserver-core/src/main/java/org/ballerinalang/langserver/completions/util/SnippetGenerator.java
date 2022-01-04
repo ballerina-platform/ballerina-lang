@@ -142,6 +142,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get if keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIfKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.IF, ItemResolverConstants.IF, "if",
+                ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
+
+    /**
      * Get {@code ascending} keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
