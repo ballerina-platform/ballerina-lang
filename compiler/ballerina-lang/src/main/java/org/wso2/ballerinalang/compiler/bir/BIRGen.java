@@ -596,14 +596,10 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.constants.add(birConstant);
     }
 
-    private ConstValue getBIRConstantVal(BLangConstantValue constValue, BType type) {
-        constValue.type = type;
-        return getBIRConstantVal(constValue);
-    }
-
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
         if (constValue.type.tag == TypeTags.INTERSECTION) {
-            return getBIRConstantVal(constValue, ((BIntersectionType) constValue.type).effectiveType);
+            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
+            return getBIRConstantVal(constValue);
         }
         if (constValue.type.tag == TypeTags.RECORD) {
             Map<String, ConstValue> mapConstVal = new HashMap<>();

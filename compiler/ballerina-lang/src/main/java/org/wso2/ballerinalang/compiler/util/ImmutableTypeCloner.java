@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -521,9 +522,15 @@ public class ImmutableTypeCloner {
         if (origObjectType.fields.size() != immutableObjectType.fields.size()) {
 
             TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names,
-                                             (BLangObjectTypeNode) immutableTypeDefinition.typeNode,
-                                             immutableObjectType, origObjectType,
-                                             location, env, pkgID, new HashSet<>(), Flags.FINAL, true, false);
+                    immutableObjectType, origObjectType,
+                                             location, env, pkgID, new HashSet<>(), Flags.FINAL, true);
+            BLangUserDefinedType origTypeRef = new BLangUserDefinedType(ASTBuilderUtil.createIdentifier(location,
+                    TypeDefBuilderHelper.getPackageAlias(env, location.lineRange().filePath(),
+                            origObjectType.tsymbol.pkgID)),
+                    ASTBuilderUtil.createIdentifier(location, origObjectType.tsymbol.name.value));
+            origTypeRef.pos = location;
+            origTypeRef.setBType(origObjectType);
+            ((BLangObjectTypeNode) immutableTypeDefinition.typeNode).typeRefs.add(origTypeRef);
         }
     }
 
@@ -534,8 +541,14 @@ public class ImmutableTypeCloner {
                                                          BStructureType origStructureType, Location pos,
                                                          SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes) {
         TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names,
-                immutableStructureTypeNode, immutableStructureType, origStructureType, pos, env, pkgID, unresolvedTypes,
-                Flags.READONLY, true, false);
+                immutableStructureType, origStructureType, pos, env, pkgID, unresolvedTypes,
+                Flags.READONLY, true);
+        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(ASTBuilderUtil.createIdentifier(pos,
+                TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(), origStructureType.tsymbol.pkgID)),
+                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
+        origTypeRef.pos = pos;
+        origTypeRef.setBType(origStructureType);
+        immutableStructureTypeNode.typeRefs.add(origTypeRef);
     }
 
     private static void setRestType(Types types, SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
@@ -645,9 +658,16 @@ public class ImmutableTypeCloner {
                                                                                        immutableObjectType, pos);
         objectTypeNode.flagSet.addAll(flagSet);
 
-        TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names, objectTypeNode,
-                                         immutableObjectType, origObjectType, pos, env, pkgID, unresolvedTypes,
-                                         Flags.FINAL, true, false);
+        TypeDefBuilderHelper.populateStructureFields(types, symTable, anonymousModelHelper, names,
+                immutableObjectType, origObjectType, pos, env, pkgID, unresolvedTypes,
+                                         Flags.FINAL, true);
+        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(ASTBuilderUtil.createIdentifier(pos,
+                TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
+                        origObjectType.tsymbol.pkgID)),
+                ASTBuilderUtil.createIdentifier(pos, origObjectType.tsymbol.name.value));
+        origTypeRef.pos = pos;
+        origTypeRef.setBType(origObjectType);
+        objectTypeNode.typeRefs.add(origTypeRef);
 
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableObjectType, objectSymbol,
                                                                                     objectTypeNode, env);
