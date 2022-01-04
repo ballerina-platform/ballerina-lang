@@ -500,8 +500,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isObjectCtor(BLangClassDefinition classDefinition) {
-        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) &&
-                !classDefinition.flagSet.contains(Flag.CLASS)) {
+        if (!classDefinition.isObjectContructorDecl && classDefinition.isServiceDecl) {
+            return false;
+        }
+        if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
             return true;
         }
         return false;
@@ -605,9 +607,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             f.flagSet.add(Flag.FINAL); // Method can't be changed
             f.setReceiver(ASTBuilderUtil.createReceiver(classDefinition.pos, objectType));
             defineNode(f, objMethodsEnv);
+            if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR) && !classDefinition.isServiceDecl) {
+                SymbolEnv capturedEnv = classDefinition.oceEnvData.capturedClosureEnv;
+                BLangFunction function = f;
+                checkRedeclaredSymbols(capturedEnv, function);
+            }
         });
 
         defineIncludedMethods(classDefinition, objMethodsEnv, false);
+    }
+
+    private void checkRedeclaredSymbols(SymbolEnv capturedEnv, BLangFunction function) {
+        for (BLangSimpleVariable simpleVariable : function.requiredParams) {
+            if (simpleVariable.symbol != null) {
+                symResolver.checkForUniqueSymbol(simpleVariable.pos, capturedEnv, simpleVariable.symbol);
+            }
+        }
+        BLangSimpleVariable restParam = function.restParam;
+        if (restParam != null && restParam.symbol != null) {
+            symResolver.checkForUniqueSymbol(restParam.pos, capturedEnv, restParam.symbol);
+        }
     }
 
     private void defineIncludedMethods(BLangClassDefinition classDefinition, SymbolEnv objMethodsEnv,

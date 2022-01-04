@@ -3432,7 +3432,7 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectConstructorExpression objectCtorExpression) {
         BLangClassDefinition classNode = objectCtorExpression.classNode;
-
+        classNode.oceEnvData.capturedClosureEnv = env;
         BLangClassDefinition originalClass = classNode.oceEnvData.originalClass;
         if (originalClass.cloneRef != null && !objectCtorExpression.defined) {
             classNode = (BLangClassDefinition) originalClass.cloneRef;
@@ -3468,7 +3468,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangType> typeRefs = classNode.typeRefs;
         SymbolEnv typeDefEnv = SymbolEnv.createObjectConstructorObjectEnv(classNode, env);
         classNode.oceEnvData.typeInit = objectCtorExpression.typeInit;
-        classNode.oceEnvData.capturedClosureEnv = env;
+
         dlog.unmute();
         if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
             handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, false);
@@ -4666,6 +4666,9 @@ public class TypeChecker extends BLangNodeVisitor {
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
 
+        BLangFunction function = bLangLambdaFunction.function;
+        symResolver.checkRedeclaredSymbols(bLangLambdaFunction);
+
         if (!this.nonErrorLoggingCheck) {
             env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         }
@@ -4704,6 +4707,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // if function return type is none, assign the inferred return type
         if (expectedInvocation.retType.tag == TypeTags.NONE) {
             expectedInvocation.retType = bLangArrowFunction.body.expr.getBType();
+        }
+        for (BLangSimpleVariable simpleVariable : bLangArrowFunction.params) {
+            if (simpleVariable.symbol != null) {
+                symResolver.checkForUniqueSymbol(simpleVariable.pos, env, simpleVariable.symbol);
+            }
         }
         resultType = bLangArrowFunction.funcType = expectedInvocation;
     }

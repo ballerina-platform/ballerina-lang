@@ -1,15 +1,5 @@
-function testFunction() {
-    functionWithReturn().
-    io:println("SUBSCRIBE");
-}
+import ballerina/module1;
 
-# This is a test function
-#
-# + return - Return Value Description
-function functionWithReturn() returns Record1 {
-    return {};
+public function test() {
+    int val = new module1:TestClass1(1, 2).
 }
-
-type Record1 record {
-    int testOptional?;
-};

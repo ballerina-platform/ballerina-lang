@@ -38,6 +38,7 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
@@ -45,10 +46,12 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.projects.Module;
@@ -240,6 +243,21 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         return this.context.currentSemanticModel().get().typeOf(node);
     }
 
+    @Override
+    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ObjectConstructorExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(TypeCastExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+    
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         return Optional.empty();

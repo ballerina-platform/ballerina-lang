@@ -228,6 +228,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
@@ -317,6 +318,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
         this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
 
+        validateEnumMemberMetadata(pkgNode.constants);
+
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
             NodeKind kind = pkgLevelNode.getKind();
@@ -324,7 +327,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            if (kind == NodeKind.FUNCTION) {
+            if (kind == FUNCTION) {
                 BLangFunction blangFunction = (BLangFunction) pkgLevelNode;
                 if (blangFunction.flagSet.contains(Flag.LAMBDA) || blangFunction.flagSet.contains(Flag.ATTACHED)) {
                     continue;
@@ -351,6 +354,38 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
+    }
+
+    private void validateEnumMemberMetadata(List<BLangConstant> constants) {
+        Map<String, List<BLangConstant>> duplicateEnumMembersWithMetadata = new HashMap<>();
+
+        for (BLangConstant constant : constants) {
+            if (!constant.flagSet.contains(Flag.ENUM_MEMBER) ||
+                    (constant.markdownDocumentationAttachment == null && constant.annAttachments.isEmpty())) {
+                continue;
+            }
+
+            String name = constant.name.value;
+
+            if (duplicateEnumMembersWithMetadata.containsKey(name)) {
+                duplicateEnumMembersWithMetadata.get(name).add(constant);
+                continue;
+            }
+
+            duplicateEnumMembersWithMetadata.put(name, new ArrayList<>() {{ add(constant); }});
+        }
+
+        for (Map.Entry<String, List<BLangConstant>> entry : duplicateEnumMembersWithMetadata.entrySet()) {
+            List<BLangConstant> duplicateMembers = entry.getValue();
+
+            if (duplicateMembers.size() == 1) {
+                continue;
+            }
+
+            for (BLangConstant duplicateMember : duplicateMembers) {
+                dlog.warning(duplicateMember.pos, DiagnosticWarningCode.INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER);
+            }
+        }
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -423,10 +458,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         boolean inIsolatedFunction = funcNode.flagSet.contains(Flag.ISOLATED);
+        SymbolEnv clonedEnv =  funcNode.clonedEnv;
+        if (funcNode.flagSet.contains(Flag.LAMBDA)) {
+            // env is already a captured closure environment
+            clonedEnv.scope.entries.putAll(env.scope.entries);
+        }
 
         for (BLangSimpleVariable param : funcNode.requiredParams) {
-            symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
-            this.analyzeDef(param, funcNode.clonedEnv);
+            symbolEnter.defineExistingVarSymbolInEnv(param.symbol, clonedEnv);
+            this.analyzeDef(param, clonedEnv);
 
             BLangExpression expr = param.expr;
             if (expr != null) {
@@ -440,8 +480,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BLangSimpleVariable restParam = funcNode.restParam;
         if (restParam != null) {
-            symbolEnter.defineExistingVarSymbolInEnv(restParam.symbol, funcNode.clonedEnv);
-            this.analyzeDef(restParam, funcNode.clonedEnv);
+            symbolEnter.defineExistingVarSymbolInEnv(restParam.symbol, clonedEnv);
+            this.analyzeDef(restParam, clonedEnv);
             validateIsolatedParamUsage(inIsolatedFunction, restParam, true);
         }
 
@@ -768,12 +808,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
+        boolean isLambda = false;
+        if (env.node.getKind() == FUNCTION) {
+            BLangFunction function = (BLangFunction) env.node;
+            isLambda = function.flagSet.contains(Flag.LAMBDA);
+        }
         List<BLangVariable> params = functionTypeNode.params;
         for (BLangVariable param : params) {
             analyzeDef(param.typeNode, env);
+            if (isLambda && param.symbol != null) {
+                symResolver.checkForUniqueSymbol(param.pos, env, param.symbol);
+            }
         }
         if (functionTypeNode.restParam != null) {
             analyzeDef(functionTypeNode.restParam.typeNode, env);
+            if (isLambda && functionTypeNode.restParam.symbol != null) {
+                symResolver.checkForUniqueSymbol(functionTypeNode.restParam.pos, env,
+                        functionTypeNode.restParam.symbol);
+            }
         }
         if (functionTypeNode.returnTypeNode != null) {
             analyzeDef(functionTypeNode.returnTypeNode, env);
