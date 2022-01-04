@@ -6403,9 +6403,9 @@ public class Desugar extends BLangNodeVisitor {
                     continue;
                 }
                 if (arg.impConversionExpr != null) {
-                    variableDef = createVarDef("$" + paramName + "$" + funcParamCount++, param.type, arg, arg.pos);
+                    variableDef = createSimpleVarDef("$" + paramName + "$" + funcParamCount++, param.type, arg);
                 } else {
-                    variableDef = createVarDef("$" + paramName + "$" + funcParamCount++, arg.getBType(), arg, arg.pos);
+                    variableDef = createSimpleVarDef("$" + paramName + "$" + funcParamCount++, arg.getBType(), arg);
                 }
                 simpleVarRef = ASTBuilderUtil.createVariableRef(invocation.pos, variableDef.var.symbol);
                 simpleVarRef = rewrite(simpleVarRef, env);
@@ -6735,8 +6735,17 @@ public class Desugar extends BLangNodeVisitor {
         return streamConstructInvocation;
     }
 
-    private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr,
-                                                Location location) {
+    private BLangSimpleVariableDef createSimpleVarDef(String name, BType type, BLangExpression expr) {
+        BVarSymbol varSymbol = new BVarSymbol(0, Names.fromString(name), this.env.scope.owner.pkgID, type,
+                                              this.env.scope.owner, expr.pos, VIRTUAL);
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(expr.pos, name, type, expr, varSymbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(expr.pos);
+        simpleVariableDef.var = simpleVariable;
+        simpleVariableDef.setBType(simpleVariable.getBType());
+        return simpleVariableDef;
+    }
+
+    private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, Location location) {
         BSymbol objSym = symResolver.lookupSymbolInMainSpace(env, names.fromString(name));
         // todo: check and remove this bit here
         if (objSym == null || objSym == symTable.notFoundSymbol) {
