@@ -186,9 +186,9 @@ function testErrorWithRestParam() returns map<string|readonly> {
     StrError errWithMap = error StrError("Error", message = "Fatal", fatal = "true");
 
     string reason;
-    string|readonly message;
+
     map<string|readonly> detailMap;
-    error(reason, message = message, ...detailMap) = errWithMap;
+    error(reason, ...detailMap) = errWithMap;
     detailMap["extra"] = "extra";
 
     return detailMap;
@@ -215,13 +215,13 @@ function testDefaultErrorRefBindingPattern() returns string {
     return reason;
 }
 
-function testIndirectErrorRefBindingPattern() returns [value:Cloneable, any|readonly] {
-    SampleError e = error("the reason", message="msg");
+function testIndirectErrorRefBindingPattern() returns [value:Cloneable, boolean] {
+    FooError e = error("the reason", message="msg", fatal = false);
     value:Cloneable message;
-    any|readonly other;
+    boolean fatal;
     map<value:Cloneable> rest;
-    error SampleError(_, message=message, other=other, ...rest) = e;
-    return [message, other];
+    error FooError(_, message=message, fatal=fatal, ...rest) = e;
+    return [message, fatal];
 }
 
 const FILE_OPN = "FILE-OPEN";
@@ -275,13 +275,13 @@ function testIndirectErrorRefMandatoryFields() {
 }
 
 public function testNoErrorReasonGiven() returns string? {
-    error e = error("errorCode", message = "message");
+    FooError e = error("errorCode", message = "message", fatal = false);
 
     value:Cloneable message;
     anydata|error other;
 
     error(_, message = message) = e; // no simple-binding-pattern here
-    return <string?> checkpanic message;
+    return <string?>checkpanic message;
 }
 
 // public function testErrorDestructuringInATupleDestructuring() returns [string, anydata|readonly] {

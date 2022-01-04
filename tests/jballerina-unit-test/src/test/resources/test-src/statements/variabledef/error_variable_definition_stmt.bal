@@ -24,27 +24,27 @@ const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
 function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
-                                                           string?, map<any|error>, any, any] {
+                                                           map<any|error>, any] {
     SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
     SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
     SMS error (reason11, message = m1, ... detail11) = err1;
-    SMS error (reason12, message = message12, extra = extra12) = err1;
+    SMS error (reason12, message = message12) = err1;
     SMA error (reason21, ...detail21) = err2;
-    SMA error (reason22, message = message22, extra = extra22) = err2;
+    SMA error (reason22, message = message22) = err2;
 
-    return [reason11, reason12, reason21, reason22, detail11, message12, extra12, detail21, message22, extra22];
+    return [reason11, reason12, reason21, reason22, detail11, message12, detail21, message22];
 }
 
 function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?,
-                                                             string?, map<any|error>, any, any] {
+                                                             map<any|error>, any] {
     CMS err3 = error CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
     CMA err4 = error CMA(ERROR2, message = "Msg Four", fatal = true);
     CMS error (reason31, ... detail31) = err3;
-    CMS error (reason32, message = message32, extra = extra32) = err3;
+    CMS error (reason32, message = message32) = err3;
     CMA error (reason41, ... detail41) = err4;
-    CMA error (reason42, message = message42, extra = extra42) = err4;
+    CMA error (reason42, message = message42) = err4;
 
-    return [reason31, reason32, reason41, reason42, detail31, message32, extra32, detail41, message42, extra42];
+    return [reason31, reason32, reason41, reason42, detail31, message32, detail41, message42];
 }
 
 function testVarBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
@@ -127,7 +127,7 @@ function testErrorInRecordWithDestructure() returns [int, string, value:Cloneabl
 }
 
 function testErrorWithAnonErrorType() returns [string, value:Cloneable] {
-    error err = error("Error Code", message = "Fatal");
+    SealedError err = error("Error Code", message = "Fatal");
     error <simpleError> error(reason, message = message) = err;
     return [reason, message];
 }
@@ -199,13 +199,13 @@ type SampleError error<SampleErrorData>;
 
 function testErrorBindingPattern() returns [string, boolean, value:Cloneable] {
     SampleError error(info=info, fatal=fatal) = error SampleError("Sample Error", info = "Detail Info", fatal = true);
-    error error(data=transactionData) = error("TransactionError", data = {"A":"a", "B":"b"});
+    error error(data=transactionData) = error BazError("TransactionError", data = {"A":"a", "B":"b"});
 
     return [info, fatal, transactionData];
 }
 
 function testLocalErrorType() {
-    error err = error("Error Code", message = "Fatal");
+    SealedError err = error("Error Code", message = "Fatal");
     error<record {| value:Cloneable...; |}> error(reason, message = message) = err;
 
     if (message is string) {
@@ -216,3 +216,9 @@ function testLocalErrorType() {
     }
     panic error("Expected string, found: " + (typeof message).toString());
 }
+
+type Baz record {
+    value:Cloneable data;
+};
+
+type BazError error<Baz>;

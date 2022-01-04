@@ -3235,8 +3235,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordType = getDetailAsARecordType(errorType);
         LinkedHashMap<String, BField> detailFields = recordType.fields;
         Set<String> matchedDetailFields = new HashSet<>();
-        boolean isValidErrorVariable = true;
-
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
             String entryName = errorDetailEntry.key.getValue();
             matchedDetailFields.add(entryName);
@@ -3245,11 +3243,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
             if (entryField != null) {
                 if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
-                    dlog.error(errorDetailEntry.pos,
-                            DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
-                    boundVar.setBType(symTable.semanticError);
-                    isValidErrorVariable = false;
-                    continue;
+                    boundVar.setBType(BUnionType.create(null, entryField.type, symTable.nilType));
                 } else {
                     boundVar.setBType(entryField.type);
                 }
@@ -3260,10 +3254,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     boundVar.setBType(symTable.semanticError);
                     return false;
                 } else {
-                    dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
-                            errorDetailEntry.key.value);
-                    isValidErrorVariable = false;
-                    continue;
+                    boundVar.setBType(BUnionType.create(null, recordType.restFieldType, symTable.nilType));
                 }
             }
 
@@ -3284,8 +3275,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             errorVariable.restDetail.setBType(restType);
             defineMemberNode(errorVariable.restDetail, env, restType);
         }
-
-        return isValidErrorVariable;
+        return true;
     }
 
     BRecordType getDetailAsARecordType(BErrorType errorType) {

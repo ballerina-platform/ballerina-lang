@@ -22,13 +22,13 @@ function testBasicErrorVariableWithMapDetails() {
     SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
 
     SMS error (reason11, ... detail11) = err1;
-    SMS error (reason12, detail = detail12, extra = extra12) = err1;
+    SMS error (reason12) = err1;
 
     SMA error (reason11, ... detail21) = err2; // redeclared symbol
     SMS error (reason22, detail = detail22, extra = extra22) = err2; // incompatible types: expected 'error', found 'error'
 
     boolean reasonTest = reason12; // incompatible types = expected 'boolean', found 'string'
-    string detailMessage = detail12; // incompatible types = expected 'string', found 'string?'
+
 }
 
 function testBasicErrorVariable() {

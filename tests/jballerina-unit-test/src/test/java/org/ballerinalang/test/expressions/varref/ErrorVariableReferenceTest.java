@@ -173,7 +173,7 @@ public class ErrorVariableReferenceTest {
         BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorRefBindingPattern");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "msg");
-        Assert.assertNull(returns[1]);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test(description = "Test error ref binding pattern when no error reason ref is given")
@@ -229,11 +229,11 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found '(string|boolean)'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 22);
+                "unknown error detail field 'message' in binding pattern", 43, 22);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 43);
+                "unknown error detail field 'fatal' in binding pattern", 43, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 60);
+                "unknown error detail field 'extra' in binding pattern", 43, 60);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
@@ -247,9 +247,9 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 124, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 134, 19);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '(anydata|readonly)', found " +
-                "'ballerina/lang.value:0.0.0:Cloneable'", 134, 38);
+                "unknown error detail field 'message' in binding pattern", 134, 19);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "unknown error detail field 'other' in binding pattern", 134, 38);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

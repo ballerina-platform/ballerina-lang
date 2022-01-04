@@ -1441,6 +1441,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         typeChecker.checkExpr(varNode.expr, env, varNode.getBType());
 
+        BType rhsType = types.getReferredType(varNode.expr.getBType());
+        if (rhsType.getKind() != TypeKind.ERROR) {
+            return;
+        }
+
+        validateBindingPatternErrorDetails(varNode, (BErrorType) rhsType);
+    }
+
+    private void validateBindingPatternErrorDetails(BLangErrorVariable varNode, BErrorType rhsType) {
+        BRecordType rhsDetailType = this.symbolEnter.getDetailAsARecordType(rhsType);
+        LinkedHashMap<String, BField> detailFields = rhsDetailType.fields;
+
+        for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : varNode.detail) {
+            String entryName = errorDetailEntry.key.getValue();
+            BField entryField = detailFields.get(entryName);
+            if (entryField != null) {
+                if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
+                    dlog.error(errorDetailEntry.pos,
+                            DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                }
+            } else if (!rhsDetailType.sealed) {
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
+                        errorDetailEntry.key.value);
+            }
+        }
     }
 
     private void handleDeclaredWithVar(BLangVariable variable) {
