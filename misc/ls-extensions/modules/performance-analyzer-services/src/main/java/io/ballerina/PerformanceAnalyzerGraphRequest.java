@@ -30,9 +30,6 @@ public class PerformanceAnalyzerGraphRequest {
 
     private TextDocumentIdentifier documentIdentifier;
     private Range range;
-    private String choreoAPI;
-    private String choreoToken;
-    private String choreoCookie;
 
     public TextDocumentIdentifier getDocumentIdentifier() {
 
@@ -54,33 +51,4 @@ public class PerformanceAnalyzerGraphRequest {
         this.range = range;
     }
 
-    public String getChoreoToken() {
-
-        return choreoToken;
-    }
-
-    public void setChoreoToken(String choreoToken) {
-
-        this.choreoToken = choreoToken;
-    }
-
-    public String getChoreoAPI() {
-
-        return choreoAPI;
-    }
-
-    public void setChoreoAPI(String choreoAPI) {
-
-        this.choreoAPI = choreoAPI;
-    }
-
-    public String getChoreoCookie() {
-
-        return choreoCookie;
-    }
-
-    public void setChoreoCookie(String choreoCookie) {
-
-        this.choreoCookie = choreoCookie;
-    }
 }
