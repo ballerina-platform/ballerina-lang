@@ -170,7 +170,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             unionType.resolvingToString = true;
             for (TypeSymbol typeDescriptor : memberTypes) {
                 // If the member is a function and not the last element, add surrounding parenthesis
-                if (typeDescriptor.typeKind() == FUNCTION && !memberTypes.get(memberTypes.size() - 1).equals(typeDescriptor)) {
+                if (typeDescriptor.typeKind() == FUNCTION &&
+                        !memberTypes.get(memberTypes.size() - 1).equals(typeDescriptor)) {
                     joiner.add("(" + typeDescriptor.signature() + ")");
                     continue;
                 }
