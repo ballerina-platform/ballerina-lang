@@ -191,9 +191,9 @@ public class ParserUtil {
             ForStatementNode forStatementNode = (ForStatementNode) currentNode;
             if (forStatementNode.getForBody() == null) {
                 if (forStatementNode.hasNext()) {
-                    parentNode.setNextNode(null);
-                } else {
                     parentNode.setNextNode(forStatementNode.getNextNode());
+                } else {
+                    parentNode.setNextNode(null);
                 }
             }
         }
