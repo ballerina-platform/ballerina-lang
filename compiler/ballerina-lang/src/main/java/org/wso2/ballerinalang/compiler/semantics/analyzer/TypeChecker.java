@@ -6004,9 +6004,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         if (!symbol.closure) {
-            if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, bLangNode)) {
-                return;
-            }
+           searchClosureVariableInExpressions(symbol, pos, env, encInvokable, bLangNode);
         }
 
         BLangNode node = bLangNode;
@@ -6037,9 +6035,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
             if (!symbol.closure) {
-                if (searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node)) {
-                    return;
-                }
+                searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node);
             }
             if (isObjectCtorClass(node)) {
                 BLangFunction currentFunction = (BLangFunction) encInvokable;
@@ -6076,7 +6072,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
     }
 
-    private boolean searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
+    private void searchClosureVariableInExpressions(BSymbol symbol, Location pos, SymbolEnv env,
                                                        BLangInvokableNode encInvokable, BLangNode bLangNode) {
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
                 && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
@@ -6086,7 +6082,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                return true;
+                return;
             }
         }
 
@@ -6098,7 +6094,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resolvedSymbol != symTable.notFoundSymbol) {
                 resolvedSymbol.closure = true;
                 ((BLangArrowFunction) bLangNode).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                return true;
+                return;
             }
         }
 
@@ -6110,10 +6106,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-                return true;
+                return;
             }
         }
-        return false;
     }
 
     private boolean isNotFunction(BSymbol funcSymbol) {
