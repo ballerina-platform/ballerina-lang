@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class ErrorBindingPatternTest {
-    private CompileResult result, restPatternResult, resultNegative;
+    private CompileResult result, restPatternResult, resultNegative, resultNegative2;
     private String patternNotMatched = "pattern will not be matched";
 
     @AfterClass
@@ -38,6 +38,7 @@ public class ErrorBindingPatternTest {
         result = null;
         restPatternResult = null;
         resultNegative = null;
+        resultNegative2 = null;
     }
 
     @BeforeClass
@@ -48,6 +49,8 @@ public class ErrorBindingPatternTest {
                 "/error_binding_pattern_with_rest_binding_pattern.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
                 "/error_binding_pattern_negative.bal");
+        resultNegative2 = BCompileUtil.compile("test-src/statements/matchstmt/varbindingpatternmatchpattern" +
+                "/error_binding_pattern_negative2.bal");
     }
 
     @Test
@@ -132,5 +135,36 @@ public class ErrorBindingPatternTest {
         BAssertUtil.validateWarning(resultNegative, i++, patternNotMatched, 28, 9);
 
         Assert.assertEquals(resultNegative.getWarnCount(), i);
+    }
+
+    @Test
+    public void testErrorDetailBindingNegative() {
+        int i = 0;
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 22, 29);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 22, 65);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 23, 38);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 23, 74);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 25, 26);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 25, 62);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 26, 35);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 26, 71);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 37, 20);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 37, 56);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 38, 29);
+        BAssertUtil.validateError(resultNegative2, i++, "invalid field binding pattern; can only bind required fields", 38, 65);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'msg' in binding pattern", 42, 29);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'extra' in binding pattern", 42, 57);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'msg' in binding pattern", 43, 38);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'extra' in binding pattern", 43, 66);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'msg' in binding pattern", 45, 26);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'extra' in binding pattern", 45, 54);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'msg' in binding pattern", 46, 35);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'extra' in binding pattern", 46, 63);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'msg' in binding pattern", 57, 20);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'extra' in binding pattern", 57, 48);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'msg' in binding pattern", 58, 29);
+        BAssertUtil.validateError(resultNegative2, i++, "unknown error detail field 'extra' in binding pattern", 58, 57);
+
+        Assert.assertEquals(resultNegative2.getErrorCount(), i);
     }
 }
