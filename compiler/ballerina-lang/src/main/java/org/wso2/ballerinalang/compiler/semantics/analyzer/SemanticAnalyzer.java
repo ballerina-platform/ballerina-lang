@@ -1449,21 +1449,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateBindingPatternErrorDetails(varNode, (BErrorType) rhsType);
     }
 
-    private void validateBindingPatternErrorDetails(BLangErrorVariable varNode, BErrorType rhsType) {
+    private void validateBindingPatternErrorDetails(BLangErrorVariable errorVariable, BErrorType rhsType) {
         BRecordType rhsDetailType = this.symbolEnter.getDetailAsARecordType(rhsType);
         LinkedHashMap<String, BField> detailFields = rhsDetailType.fields;
 
-        for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : varNode.detail) {
+        for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
             String entryName = errorDetailEntry.key.getValue();
             BField entryField = detailFields.get(entryName);
-            if (entryField != null) {
-                if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
-                    dlog.error(errorDetailEntry.pos,
-                            DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
-                }
-            } else if (!rhsDetailType.sealed) {
+            if (entryField == null) {
                 dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
                         errorDetailEntry.key.value);
+            } else if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
+                dlog.error(errorDetailEntry.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
         }
     }
