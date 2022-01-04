@@ -81,12 +81,12 @@ public class ObjectConstructorTest {
         BRunUtil.invoke(compiledConstructedObjects, funcName);
     }
 
-    @Test(dataProvider = "ClosureTestFunctionList", enabled = false)
+    @Test(dataProvider = "ClosureTestFunctionList")
     public void testClosureSupportForObjectCtor(String funcName) {
         BRunUtil.invoke(closures, funcName);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testClosureSupportForObjectCtorAnnotations() {
         BRunUtil.invoke(annotations, "testAnnotations");
         BRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
@@ -171,7 +171,7 @@ public class ObjectConstructorTest {
         };
     }
 
-    @Test(dataProvider = "MultiLevelClosureTestFunctionList", enabled = false)
+    @Test(dataProvider = "MultiLevelClosureTestFunctionList")
     public void testMultiLevelClosures(String funcName) {
         BRunUtil.invoke(multiLevelClosures, funcName);
     }

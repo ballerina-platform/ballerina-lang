@@ -338,7 +338,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // eg : $map$block$_<num2>
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, mapSymbol);
         BLangTypeInit typeInit = oceData.typeInit;
-        BLangInvocation initInvocation = (BLangInvocation) typeInit.initInvocation;
+        BLangInvocation initInvocation;
+        if (typeInit.initInvocation.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            initInvocation = (BLangInvocation) oceData.initInvocation;
+        } else {
+            initInvocation = (BLangInvocation) typeInit.initInvocation;
+        }
         if (typeInit.argsExpr == null) {
             typeInit.argsExpr = new ArrayList<>();
         }

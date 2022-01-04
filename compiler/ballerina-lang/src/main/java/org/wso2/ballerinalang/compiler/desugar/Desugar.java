@@ -6555,17 +6555,22 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 break;
         }
+        populateOCEInvocation(invocation, invRef);
+        return fixTypeCastInTypeParamInvocation(invocation, invRef);
+    }
+
+    private void populateOCEInvocation(BLangInvocation invocation,
+                                       BLangInvocation invRef) {
         if (invocation.objectInitMethod && Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
             BLangClassDefinition classDef = initializingObject.classDef;
             if (classDef.hasClosureVars) {
                 OCEDynamicEnvironmentData oceEnvData = initializingObject.classDef.oceEnvData;
                 if (oceEnvData.attachedFunctionInvocation == null) {
-                    oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) result;
+                    oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) invRef;
                 }
             }
         }
-        return fixTypeCastInTypeParamInvocation(invocation, invRef);
     }
 
     private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {
@@ -6641,6 +6646,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Person $obj$ = new;
         BLangInvocation initInvocation = (BLangInvocation) typeInitExpr.initInvocation;
+        initInvocation.objectInitMethod = true;
         BType objType = getObjectType(typeInitExpr.getBType());
         BLangSimpleVariableDef objVarDef = createVarDef("$obj$", objType, typeInitExpr, typeInitExpr.pos);
         // var $temp$ = $obj$.init();
@@ -6658,6 +6664,12 @@ public class Desugar extends BLangNodeVisitor {
         // init() returning nil is the common case and the type test is not needed for it.
         if (initInvocation.getBType().tag == TypeTags.NIL) {
             initInvocation.name.value = GENERATED_INIT_SUFFIX.value;
+            BLangNode parent = initInvocation.parent;
+            if (parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
+                BLangObjectConstructorExpression oceExpression = (BLangObjectConstructorExpression) parent;
+                OCEDynamicEnvironmentData oceData = oceExpression.classNode.oceEnvData;
+                oceData.initInvocation = typeInitExpr.initInvocation;
+            }
             typeInitExpr.initInvocation = objInitVarRef;
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, objVarRef);
             stmtExpr.setBType(objVarRef.symbol.type);
