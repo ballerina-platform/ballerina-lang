@@ -762,7 +762,9 @@ public class Desugar extends BLangNodeVisitor {
         parameterDesugar.visit(pkgNode);
 
         // Initialize the annotation map
-        annotationDesugar.initializeAnnotationMap(pkgNode);
+        if (pkgNode.getKind() != NodeKind.TESTABLE_PACKAGE) {
+            annotationDesugar.initializeAnnotationMap(pkgNode);
+        }
 
         pkgNode.constants.stream()
                 .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
