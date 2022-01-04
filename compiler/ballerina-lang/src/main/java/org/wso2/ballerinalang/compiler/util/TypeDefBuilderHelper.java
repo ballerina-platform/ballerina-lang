@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
@@ -307,11 +308,11 @@ public class TypeDefBuilderHelper {
     }
 
     public static void populateStructureFields(Types types, SymbolTable symTable,
-                                                BLangAnonymousModelHelper anonymousModelHelper, Names names,
-                                                BStructureType structureType,
-                                                BStructureType origStructureType, Location pos,
-                                                SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes,
-                                                long flag, boolean isImmutable) {
+                                               BLangAnonymousModelHelper anonymousModelHelper, Names names,
+                                               BLangStructureTypeNode structureTypeNode, BStructureType structureType,
+                                               BStructureType origStructureType, Location pos, SymbolEnv env,
+                                               PackageID pkgID, Set<BType> unresolvedTypes,
+                                               long flag, boolean isImmutable) {
         BTypeSymbol structureSymbol = structureType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField origField : origStructureType.fields.values()) {
@@ -353,6 +354,17 @@ public class TypeDefBuilderHelper {
 
         if (origStructureType.tag == TypeTags.OBJECT) {
             return;
+        }
+        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
+                ASTBuilderUtil.createIdentifier(pos,
+                        TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
+                                origStructureType.tsymbol.pkgID)),
+                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
+        origTypeRef.pos = pos;
+        origTypeRef.setBType(origStructureType);
+
+        if (isImmutable) {
+            structureTypeNode.typeRefs.add(origTypeRef);
         }
     }
 }
