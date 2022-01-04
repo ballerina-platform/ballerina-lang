@@ -6665,7 +6665,7 @@ public class Desugar extends BLangNodeVisitor {
         if (initInvocation.getBType().tag == TypeTags.NIL) {
             initInvocation.name.value = GENERATED_INIT_SUFFIX.value;
             BLangNode parent = initInvocation.parent;
-            if (parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
+            if (parent != null && parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
                 BLangObjectConstructorExpression oceExpression = (BLangObjectConstructorExpression) parent;
                 OCEDynamicEnvironmentData oceData = oceExpression.classNode.oceEnvData;
                 oceData.initInvocation = typeInitExpr.initInvocation;
