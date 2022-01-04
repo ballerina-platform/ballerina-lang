@@ -21,10 +21,13 @@ DESCRIPTION
 OPTIONS
        -d, --debug
            Enable debug mode from the beginning.
+
        --force-dumb
            Force the dumb terminal mode.
+
        -f <file-name>, --file <file-name>
            Open a file and load the initial declarations.
+
        -t <time-out-duration>, --time-out <time-out-duration>
            Set the tree parsing timeout value. Default is 100ms. Value should be
            given in milliseconds.

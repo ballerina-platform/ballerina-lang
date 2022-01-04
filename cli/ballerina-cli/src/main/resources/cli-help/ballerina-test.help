@@ -14,7 +14,6 @@ SYNOPSIS
        bal test [<ballerina-file-path> | <ballerina-package-path>] 
                 <PackageName>.<ModuleName>:<test_function_name, ...>        
                
-            
 
 DESCRIPTION
        Compile and execute Ballerina test sources and print a summary of

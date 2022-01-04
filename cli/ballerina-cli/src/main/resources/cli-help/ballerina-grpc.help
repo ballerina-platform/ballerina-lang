@@ -6,9 +6,11 @@ SYNOPSIS
        bal grpc [--input <proto-file-path>] [--output <path>]
                         [--mode] (client | service | proxy)
 
+
 DESCRIPTION
        Generate the Ballerina gRPC client/service sources for a given
        gRPC protocol buffer (Protobuf) definition.
+
 
 OPTIONS
        --input <proto-file-path>
@@ -25,6 +27,7 @@ OPTIONS
            Set the `client` or `service` mode to generate sample code.
            Set the `proxy` mode to generate a gateway proxy.
            If not specified, only the stub file is generated.
+
 
 EXAMPLES
        Generate the Ballerina gRPC stub file (for the given `.proto` file) in a

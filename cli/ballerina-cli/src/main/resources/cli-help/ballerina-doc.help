@@ -16,6 +16,9 @@ OPTIONS
        -o <output>, --output <output>
           Write the output to the given folder.
 
+       -combine, --combine
+          Create an index using the modules.
+
        -e, --exclude
           Exclude the given list of modules.
 

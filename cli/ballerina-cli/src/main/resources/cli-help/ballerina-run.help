@@ -57,6 +57,9 @@ OPTIONS
        --target-dir <directory-path>.
            Target directory path. The directory path can be absolute or relative.
 
+       --sticky
+           Stick to the exact versions locked in the `Dependencies.toml` file.
+
 
 ARGUMENTS
        --

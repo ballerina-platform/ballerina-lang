@@ -78,7 +78,7 @@ public class DocCommand implements BLauncherCmd {
         this.targetDir = targetDir;
     }
 
-    @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
+    @CommandLine.Option(names = {"--output", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
 
     @CommandLine.Option(names = {"--combine", "-combine"}, description = "Creates index using modules.")

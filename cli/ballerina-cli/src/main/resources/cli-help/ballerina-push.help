@@ -23,6 +23,12 @@ OPTIONS
        --repository
            Push the BALA of the current package to a custom repository. Only the 'local' is allowed.
 
+       --skip-source-check
+           Skip checking if the source has changed.
+
+       --experimental
+           Enable experimental language features.
+
 
 EXAMPLES
        Push the BALA of the current package to Ballerina Central.

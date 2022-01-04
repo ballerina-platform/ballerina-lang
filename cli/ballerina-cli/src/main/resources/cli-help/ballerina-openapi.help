@@ -1,7 +1,6 @@
 NAME
       Generate a Ballerina service or a client from an OpenAPI contract and vice versa.
 
-
 SYNOPSIS
        bal openapi [-i | --input] <openapi-contract-file-path> [-o | --output] <output-location> 
        bal openapi [-i | --input] <ballerina-service-file-path> [-o | --output] <output-location> 
@@ -20,6 +19,7 @@ DESCRIPTION
 
        Note: This is an experimental feature, which supports only a limited
        set of functionalities.
+
 
 
 OPTIONS
