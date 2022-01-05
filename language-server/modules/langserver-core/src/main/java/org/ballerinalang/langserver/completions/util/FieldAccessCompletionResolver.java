@@ -190,11 +190,8 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         if (rawType.typeKind() == TypeDescKind.MAP) {
             return Optional.of(((MapTypeSymbol) rawType).typeParam());
         }
-        if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Optional.of(rawType);
-        }
 
-        return Optional.empty();
+        return context.currentSemanticModel().get().typeOf(node);
     }
 
     @Override
