@@ -81,10 +81,10 @@ public class TypeGuardTest {
                                   "incompatible types: '(Person|Student)' will not be matched to 'float'", 138, 40);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(Person|Student)' will not be matched to 'boolean'", 138, 56);
-        BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 150, 15);
-        BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 156, 15);
+//        BAssertUtil.validateError(negativeResult, i++,
+//                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 150, 15);
+//        BAssertUtil.validateError(negativeResult, i++,
+//                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 156, 15);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'record {| int i; boolean b; |}' will not be matched to 'ClosedRec'", 187, 8);
         BAssertUtil.validateError(negativeResult, i++,
