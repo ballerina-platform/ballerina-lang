@@ -3840,7 +3840,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.getBType());
+        BType returnType = this.env.enclInvokable.returnTypeNode.getBType();
+        Location pos = this.typeChecker.getLocationOfInferredArray(returnType);
+        if (pos != null) {
+            dlog.error(pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+        }
+        this.typeChecker.checkExpr(returnNode.expr, this.env, returnType);
         validateWorkerAnnAttachments(returnNode.expr);
         this.notCompletedNormally = true;
     }

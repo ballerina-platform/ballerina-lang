@@ -1563,7 +1563,14 @@ public class TypeChecker extends BLangNodeVisitor {
         int nonRestCountToCheck = listExprSize < memberTypeSize ? listExprSize : memberTypeSize;
 
         for (int i = 0; i < nonRestCountToCheck; i++) {
-            if (exprIncompatible(memberTypes.get(i), exprs.get(i)) && !errored) {
+            BType memberType = memberTypes.get(i);
+            Location pos = getLocationOfInferredArray(memberType);
+            if (pos != null) {
+                dlog.error(pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+                errored = true;
+                continue;
+            }
+            if (exprIncompatible(memberType, exprs.get(i)) && !errored) {
                 errored = true;
             }
         }
@@ -5921,6 +5928,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
+        Location pos = getLocationOfInferredArray(this.expType);
+        if (pos != null) {
+            dlog.error(pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+            resultType = symTable.semanticError;
+            return;
+        }
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 
@@ -6574,7 +6587,41 @@ public class TypeChecker extends BLangNodeVisitor {
             ((BLangNode) field).setBType(fieldType);
         }
 
+        Location location = getLocationOfInferredArray(fieldType);
+        if (location != null) {
+            dlog.error(location, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+            return symTable.semanticError;
+        }
+
         return checkExpr(exprToCheck, this.env, fieldType);
+    }
+
+    public Location getLocationOfInferredArray(BType type) {
+        switch (type.tag) {
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                    Location pos = getLocationOfInferredArray(memberType);
+                    if (pos != null) {
+                        return pos;
+                    }
+                }
+                return null;
+            case TypeTags.INTERSECTION:
+                for (BType memberType : ((BIntersectionType) type).getConstituentTypes()) {
+                    Location pos = getLocationOfInferredArray(memberType);
+                    if (pos != null) {
+                        return pos;
+                    }
+                }
+                return null;
+            case TypeTags.ARRAY:
+                if (isArrayOpenSealedType((BArrayType) type)) {
+                    return type.tsymbol.pos;
+                }
+                return null;
+            default:
+                return null;
+        }
     }
 
     private TypeSymbolPair checkRecordLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey,
