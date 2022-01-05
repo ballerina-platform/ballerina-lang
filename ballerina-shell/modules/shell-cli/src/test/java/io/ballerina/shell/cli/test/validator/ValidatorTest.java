@@ -52,9 +52,18 @@ public class ValidatorTest {
                 "\n" +
                 "function foo() {\n" +
                 "}"));
-
+        Assert.assertFalse(inputValidator.isIncomplete("type Coord record {\n" +
+                "    int x;\n" +
+                "    int y;\n" +
+                "};\n" +
+                "\n" +
+                "type Coord2 record {\n" +
+                "    int a;\n" +
+                "    int b;\n" +
+                "};"));
         Assert.assertFalse(inputValidator.isIncomplete("function foo() {\n" +
                 "}"));
+
 
         Assert.assertTrue(inputValidator.isIncomplete("x + "));
         Assert.assertTrue(inputValidator.isIncomplete("[1,2,3"));
