@@ -124,6 +124,22 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(3));
     }
 
+    @Test
+    public void testLangLibDebugScenarios() throws BallerinaTestException {
+        Path filePath = debugTestRunner.testProjectPath.resolve(debugTestRunner.getBalServer().getServerHome())
+                .resolve("repo").resolve("bala").resolve("ballerina").resolve("lang.query").resolve("0.0.0")
+                .resolve("any").resolve("modules").resolve("lang.query").resolve("types.bal");
+
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 84));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+
+        // Test for debug engage inside lang lib init() method
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        Assert.assertEquals(debugHitInfo.getLeft().getSource(), debugTestRunner.testBreakpoints.get(0).getSource());
+        Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(),
+                debugTestRunner.testBreakpoints.get(0).getDAPBreakPoint().getLine());
+    }
+
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

@@ -65,7 +65,6 @@ public class PackageUtils {
     static final String MODULE_DIR_NAME = "modules";
     private static final String URI_SCHEME_FILE = "file";
     private static final String URI_SCHEME_BALA = "bala";
-    private static final String OBJECT_VALUE_CLASS_PREFIX = "$value$_";
 
     private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
@@ -258,9 +257,7 @@ public class PackageUtils {
             String[] nameParts = getQModuleNameParts(name);
             String srcFileName = nameParts[nameParts.length - 1];
 
-            if ((!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
-                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value())))
-                    && !referenceType.name().contains(OBJECT_VALUE_CLASS_PREFIX)) {
+            if (!path.endsWith(BAL_FILE_EXT)) {
                 return referenceType.name();
             }
 
