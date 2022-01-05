@@ -97,7 +97,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             return completionItems;
         }
         typeReferences.stream()
-                .filter(typeRef -> isQualifiedTypeSymbol(context, typeRef))
+                .filter(typeRef -> isQualifiedTypeReference(context, typeRef))
                 .forEach(typeRef -> {
                     String typeName = CommonUtil.getModifiedTypeName(context, typeRef);
                     if (!typeName.isEmpty()) {
@@ -109,8 +109,8 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
         return completionItems;
     }
 
-    private boolean isQualifiedTypeSymbol(BallerinaCompletionContext context,
-                                          TypeSymbol typeSymbol) {
+    private boolean isQualifiedTypeReference(BallerinaCompletionContext context,
+                                             TypeSymbol typeSymbol) {
 
         Optional<ModuleSymbol> module = typeSymbol.getModule();
         Optional<Module> currentModule = context.currentModule();
