@@ -391,6 +391,9 @@ public class CommonUtil {
                 errorString.append(")");
                 typeString = errorString.toString();
                 break;
+            case SINGLETON:
+                typeString = rawType.signature();
+                break;
             case MAP:
             case FLOAT:
             case BOOLEAN:
