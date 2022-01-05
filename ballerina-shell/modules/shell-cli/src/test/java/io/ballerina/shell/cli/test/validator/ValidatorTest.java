@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class ValidatorTest {
 
     @Test
-    public void testValidator() {
+    public void  testValidator() {
         InputValidator inputValidator = new InputValidator();
         Assert.assertFalse(inputValidator.isIncomplete("int i = 12"));
         Assert.assertFalse(inputValidator.isIncomplete("int i = 12;"));
@@ -47,6 +47,14 @@ public class ValidatorTest {
                 "                      limit 3\n" +
                 "\n" +
                 "                      select e;"));
+        Assert.assertFalse(inputValidator.isIncomplete("function name() {\n" +
+                "}\n" +
+                "\n" +
+                "function foo() {\n" +
+                "}"));
+
+        Assert.assertFalse(inputValidator.isIncomplete("function foo() {\n" +
+                "}"));
 
         Assert.assertTrue(inputValidator.isIncomplete("x + "));
         Assert.assertTrue(inputValidator.isIncomplete("[1,2,3"));
