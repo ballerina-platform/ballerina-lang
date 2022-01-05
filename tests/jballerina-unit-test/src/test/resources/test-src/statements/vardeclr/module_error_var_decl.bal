@@ -125,12 +125,11 @@ function testErrorVarWithRestVariable() {
     assertEquality("High", otherDetails2["riskLevel"]);
 }
 
-var error(message11, basicErrorNo = errorNo3, ...otherDetails3) = error UserDefinedOpenError(
+var error(message11, ...otherDetails3) = error UserDefinedOpenError(
                         "error message eleven", basicErrorNo = 8, lineNo = 342, fileName = "myfile", recoverable = true);
 
 function testErrorVarDeclaredWithVar() {
     assertEquality("error message eleven", message11);
-    assertEquality(8, errorNo3);
     assertEquality(342, otherDetails3["lineNo"]);
     assertEquality("myfile", otherDetails3["fileName"]);
     assertTrue(otherDetails3["recoverable"]);

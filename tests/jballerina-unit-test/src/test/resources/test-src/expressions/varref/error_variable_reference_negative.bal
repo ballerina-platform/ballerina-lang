@@ -23,7 +23,7 @@ function testDuplicateBinding() {
 }
 
 public function testAssigningValuesToFinalVars() {
-    error e = error("ErrReason", message = "error message", abc = 1, def = 2.0);
+    BazError e = error("ErrReason", message = "error message", abc = 1, def = 2.0);
     final var error(r, message = message, abc = abc) = e;
     error(r) = e;
 
@@ -31,8 +31,10 @@ public function testAssigningValuesToFinalVars() {
     // error(r2, message = message2, ...rest) = e;
 
     BarError e3 = error BarError("bar", message = "error message", code = 1);
-    final var error BarError(r3, message = message3, abc = abc3) = e3;
+    final var error BarError(r3, message = message3) = e3;
     error(_, message = message3) = e3;
 }
 
 type BarError error<record {string message; error cause?; int code;}>;
+
+type BazError error<record {string message; int abc; anydata def?;}>;

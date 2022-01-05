@@ -278,7 +278,6 @@ public class ErrorVariableReferenceTest {
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'rest'", 31, 38);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r3'", 34, 30);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message3'", 34, 44);
-        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'abc3'", 34, 60);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message3'", 35, 24);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'abc3'", 35, 40);
         Assert.assertEquals(resultNegative.getDiagnostics().length, i);

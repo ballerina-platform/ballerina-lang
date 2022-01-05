@@ -48,27 +48,27 @@ function testBasicErrorVariableWithConstAndMap() returns [string, string, string
 }
 
 function testVarBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
-                                                               string?, map<any|error>, any, any] {
+                                                               map<any|error>, any] {
     SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
     SMA err2 = error SMA("Error Two", message = "Msg Two", fatal = true);
     var error (reason11, ... detail11) = err1;
-    var error (reason12, message = message12, extra = extra12) = err1;
+    var error (reason12, message = message12) = err1;
     var error (reason21, ... detail21) = err2;
-    var error (reason22, message = message22, extra = extra22) = err2;
+    var error (reason22, message = message22) = err2;
 
-    return [reason11, reason12, reason21, reason22, detail11, message12, extra12, detail21, message22, extra22];
+    return [reason11, reason12, reason21, reason22, detail11, message12, detail21, message22];
 }
 
 function testVarBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?,
-                                                                string?, map<any|error>, any, any] {
+                                                                map<any|error>, any] {
     CMS err3 = error CMS(ERROR1, message = "Msg Three", detail = "Detail Msg");
     CMA err4 = error CMA(ERROR2, message = "Msg Four", fatal = true);
     var error (reason31, ... detail31) = err3;
-    var error (reason32, message = message32, extra = extra32) = err3;
+    var error (reason32, message = message32) = err3;
     var error (reason41, ... detail41) = err4;
-    var error (reason42, message = message42, extra = extra42) = err4;
+    var error (reason42, message = message42) = err4;
 
-    return [reason31, reason32, reason41, reason42, detail31, message32, extra32, detail41, message42, extra42];
+    return [reason31, reason32, reason41, reason42, detail31, message32, detail41, message42];
 }
 
 type Foo record {
