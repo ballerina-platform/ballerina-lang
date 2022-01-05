@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.util;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -70,8 +69,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 /**
  * Symbol resolver for the field access expressions.
@@ -152,20 +149,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(MethodCallExpressionNode node) {
-        Optional<TypeSymbol> exprTypeSymbol = node.expression().apply(this);
-        NameReferenceNode nameRef = node.methodName();
-        if (nameRef.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return Optional.empty();
-        }
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD
-                || symbol.kind() == SymbolKind.FUNCTION;
-        String methodName = ((SimpleNameReferenceNode) nameRef).name().text();
-        List<Symbol> visibleEntries = this.getVisibleEntries(exprTypeSymbol.orElseThrow(), node.expression());
-
-        FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
-        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) SymbolUtil.getTypeDescriptor(symbol).orElseThrow();
-
-        return functionTypeSymbol.returnTypeDescriptor();
+        return this.context.currentSemanticModel().get().typeOf(node);
     }
 
     @Override
@@ -288,13 +272,6 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         return visibleSymbols.stream()
                 .filter((symbol -> symbol.nameEquals(name) && symbol.kind() != SymbolKind.TYPE_DEFINITION))
                 .findFirst();
-    }
-
-    private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name, @Nonnull Predicate<Symbol> predicate) {
-        Predicate<Symbol> namePredicate = symbol -> symbol.nameEquals(name);
-        return visibleSymbols.stream()
-                .filter(namePredicate.and(predicate))
-                .findFirst().orElseThrow();
     }
 
     private List<Symbol> getVisibleEntries(TypeSymbol typeSymbol, Node node) {
