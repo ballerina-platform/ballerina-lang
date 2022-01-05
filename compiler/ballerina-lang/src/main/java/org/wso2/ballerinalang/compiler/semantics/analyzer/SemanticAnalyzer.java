@@ -230,9 +230,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.model.tree.NodeKind.LITERAL;
-import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
-import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.*;
 
 /**
  * @since 0.94
@@ -626,6 +624,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateAnnotationAttachmentCount(conversionExpr.annAttachments);
     }
 
+    private BLangNumericLiteral replaceUnaryExprWithLiteral(BLangUnaryExpr unaryExpr) {
+        BLangExpression exprInUnary = unaryExpr.expr;
+        BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
+        Object objectValueInUnary = numericLiteralInUnary.value;
+        String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+
+        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+            strValueInUnary = "+" + strValueInUnary;
+        } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+            strValueInUnary = "-" + strValueInUnary;
+        }
+
+        if (objectValueInUnary instanceof Long) {
+            objectValueInUnary = Long.parseLong(strValueInUnary);
+        } else if (objectValueInUnary instanceof Double) {
+            objectValueInUnary = Double.parseDouble(strValueInUnary);
+        } else if (objectValueInUnary instanceof String) {
+            objectValueInUnary = strValueInUnary;
+        }
+
+        BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
+                TreeBuilder.createNumericLiteralExpression();
+        newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
+        newNumericLiteral.pos = unaryExpr.pos;
+        newNumericLiteral.setBType(exprInUnary.getBType());
+        newNumericLiteral.value = objectValueInUnary;
+        newNumericLiteral.originalValue = strValueInUnary;
+
+        return newNumericLiteral;
+    }
+
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
         boolean foundUnaryExpr = false;
@@ -641,33 +670,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 // Replacing unary expression with numeric literal type for + and - numeric values
                 if (resultType != symTable.semanticError) {
-                    BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
-                    BLangExpression exprInUnary = unaryExpr.expr;
-                    BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
-                    Object objectValueInUnary = numericLiteralInUnary.value;
-                    String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
-
-                    if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-                        strValueInUnary = "+" + strValueInUnary;
-                    } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
-                        strValueInUnary = "-" + strValueInUnary;
-                    }
-
-                    if (objectValueInUnary instanceof Long) {
-                        objectValueInUnary = Long.parseLong(strValueInUnary);
-                    } else if (objectValueInUnary instanceof Double) {
-                        objectValueInUnary = Double.parseDouble(strValueInUnary);
-                    } else if (objectValueInUnary instanceof String) {
-                        objectValueInUnary = strValueInUnary;
-                    }
-
-                    BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
-                            TreeBuilder.createNumericLiteralExpression();
-                    newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
-                    newNumericLiteral.pos = value.pos;
-                    newNumericLiteral.setBType(exprInUnary.getBType());
-                    newNumericLiteral.value = objectValueInUnary;
-                    newNumericLiteral.originalValue = strValueInUnary;
+                    BLangNumericLiteral newNumericLiteral = replaceUnaryExprWithLiteral((BLangUnaryExpr) value);
                     finiteTypeNode.valueSpace.set(i, newNumericLiteral);
 
                     // Remove unary expression and add the constructed literal
@@ -4072,14 +4075,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         BLangExpression expression = constant.expr;
-        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
-                && constant.typeNode == null) {
+        if (expression.getKind() != UNARY_EXPR && (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
+                && constant.typeNode == null))  {
             constant.setBType(symTable.semanticError);
             dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
             return; // This has to return, because constant.symbol.type is required for further validations.
         }
 
-        typeChecker.checkExpr(expression, env, constant.symbol.type);
+         BType resultType = typeChecker.checkExpr(expression, env, constant.symbol.type);
+
+//        if (expression.getKind() == UNARY_EXPR && resultType != symTable.semanticError) {
+//            constant.expr = replaceUnaryExprWithLiteral((BLangUnaryExpr) expression);
+//        }
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);
