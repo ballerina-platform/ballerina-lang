@@ -168,6 +168,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOLLAR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -559,7 +560,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
 
     private String generateName(String name, BLangNode parent) {
         if (parent == null) {
-            return name.replaceAll("\\.", "_");
+            return DOLLAR + name;
         }
         switch (parent.getKind()) {
             case CLASS_DEFN:
