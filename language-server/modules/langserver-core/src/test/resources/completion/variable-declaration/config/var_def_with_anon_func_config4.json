@@ -585,7 +585,7 @@
     {
       "label": "testFunc",
       "kind": "Variable",
-      "detail": "function (int i) returns function (int i, string s) returns int",
+      "detail": "function ($CompilationError$ i) returns function (int i, $CompilationError$ s) returns int",
       "sortText": "F",
       "insertText": "testFunc",
       "insertTextFormat": "Snippet"
@@ -601,8 +601,8 @@
     {
       "label": "testFunc2",
       "kind": "Variable",
-      "detail": "function (int i, string s) returns int",
-      "sortText": "AB",
+      "detail": "function ($CompilationError$ i, $CompilationError$ s) returns int",
+      "sortText": "F",
       "insertText": "testFunc2",
       "insertTextFormat": "Snippet"
     },
@@ -620,7 +620,7 @@
       "detail": "Snippet",
       "sortText": "CP",
       "filterText": "function",
-      "insertText": "function (int i1, string s1) returns int {\n    return 0;\n}",
+      "insertText": "function (int i1, any c) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"
     }
   ]
