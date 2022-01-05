@@ -111,12 +111,12 @@ public class QualifiedNameReferenceEvaluator extends Evaluator {
                 .map(symbol -> (VariableSymbol) symbol)
                 .findAny();
 
-        if (variableSymbol.isEmpty()) {
+        if (variableSymbol.isEmpty() || variableSymbol.get().getModule().isEmpty()) {
             throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix, nameReference);
         } else if (!isPublicSymbol(variableSymbol.get())) {
             throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix, nameReference);
         }
 
-        return VariableUtils.getModuleVariable(context, variableSymbol.get().getModule().orElseThrow(), nameReference);
+        return VariableUtils.getModuleVariable(context, variableSymbol.get().getModule().get(), nameReference);
     }
 }
