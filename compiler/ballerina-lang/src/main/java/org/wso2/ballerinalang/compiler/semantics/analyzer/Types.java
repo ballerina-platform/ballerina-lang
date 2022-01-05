@@ -4417,6 +4417,11 @@ public class Types {
                 break;
             case TypeTags.TYPEREFDESC:
                 BType refType = getReferredType(originalType);
+
+                if (refType.tag == TypeTags.INTERSECTION) {
+                    refType = ((BIntersectionType) refType).effectiveType;
+                }
+
                 if (refType.tag != TypeTags.UNION && refType.tag != TypeTags.FINITE) {
                     return originalType;
                 }
