@@ -74,7 +74,7 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
         // Test for step in within same file
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_IN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 37));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 41));
 
         // Test for step out within same file
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.STEP_OUT);
@@ -135,9 +135,10 @@ public class MultiModuleRunDebugTest extends BaseTestCase {
 
         // Test for debug engage inside lang lib init() method
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-        Assert.assertEquals(debugHitInfo.getLeft().getSource(), debugTestRunner.testBreakpoints.get(0).getSource());
         Assert.assertEquals(debugHitInfo.getLeft().getDAPBreakPoint().getLine(),
                 debugTestRunner.testBreakpoints.get(0).getDAPBreakPoint().getLine());
+        Assert.assertTrue(debugHitInfo.getLeft().getSource().getPath().replaceAll("\\\\", "/")
+                .endsWith("repo/bala/ballerina/lang.query/0.0.0/any/modules/lang.query/types.bal"));
     }
 
     @AfterMethod(alwaysRun = true)
