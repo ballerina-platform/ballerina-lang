@@ -380,6 +380,11 @@ public class TupleVariableDefinitionTest {
         BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs");
     }
 
+    @Test
+    public void testTupleVarDefWithRestBPContainsErrorBPWithRestBP() {
+        BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithRestBP");
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
 
