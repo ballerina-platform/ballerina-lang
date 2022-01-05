@@ -718,7 +718,6 @@ public class BIRPackageSymbolEnter {
                 return new BLangConstantValue(dataInStream.readBoolean(), symTable.booleanType);
             case TypeTags.NIL:
                 return new BLangConstantValue(null, symTable.nilType);
-            case TypeTags.MAP:
             case TypeTags.RECORD:
                 int size = dataInStream.readInt();
                 Map<String, BLangConstantValue> keyValuePairs = new LinkedHashMap<>();
