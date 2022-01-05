@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class ValidatorTest {
 
     @Test
-    public void  testValidator() {
+    public void testValidator() {
         InputValidator inputValidator = new InputValidator();
         Assert.assertFalse(inputValidator.isIncomplete("int i = 12"));
         Assert.assertFalse(inputValidator.isIncomplete("int i = 12;"));
@@ -62,6 +62,17 @@ public class ValidatorTest {
                 "    int b;\n" +
                 "};"));
         Assert.assertFalse(inputValidator.isIncomplete("function foo() {\n" +
+                "}"));
+        Assert.assertFalse(inputValidator.isIncomplete("\n" +
+                "\n" +
+                "function sum2(float[] v) returns float {\n" +
+                "    float r = 0.0;\n" +
+                "\n" +
+                "    foreach int i in 0 ..< v.length() {\n" +
+                "        r += v[i];\n" +
+                "    }\n" +
+                "\n" +
+                "    return r;\n" +
                 "}"));
 
 
