@@ -4403,9 +4403,10 @@ public class Types {
 
                 BType typeRemovedFromOriginalType = getReferredType(getRemainingType((BUnionType) originalType,
                                                                       getAllTypes(remainingType, true)));
-                if (isInherentlyImmutableType(typeRemovedFromOriginalType) ||
+                if (typeRemovedFromOriginalType == symTable.nullSet ||
+                        (isInherentlyImmutableType(typeRemovedFromOriginalType) ||
                         (isSelectivelyImmutableType(typeRemovedFromOriginalType) &&
-                                Symbols.isFlagOn(typeRemovedFromOriginalType.flags, Flags.READONLY))) {
+                                Symbols.isFlagOn(typeRemovedFromOriginalType.flags, Flags.READONLY)))) {
                     return remainingType;
                 }
 
