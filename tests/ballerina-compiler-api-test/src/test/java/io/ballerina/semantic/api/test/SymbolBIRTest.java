@@ -254,10 +254,10 @@ public class SymbolBIRTest {
     private List<SymbolInfo> getModuleSymbolInfo() {
         return createSymbolInfoList(
                 new Object[][]{
-                        {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
-                        {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
-                        {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
-                        {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
+                        {"lang.xml", MODULE}, {"testproject", MODULE}, {"lang.object", MODULE}, {"lang.error", MODULE},
+                        {"lang.boolean", MODULE}, {"lang.decimal", MODULE}, {"lang.typedesc", MODULE}, {"lang.float", MODULE},
+                        {"lang.future", MODULE}, {"lang.int", MODULE}, {"lang.map", MODULE}, {"lang.stream", MODULE},
+                        {"lang.string", MODULE}, {"lang.table", MODULE}, {"lang.transaction", MODULE}
                 });
     }
 
@@ -295,6 +295,11 @@ public class SymbolBIRTest {
         @Override
         public int hashCode() {
             return Objects.hash(this.name, this.kind);
+        }
+
+        @Override
+        public String toString() {
+            return "Symbol {name='" + name + '\'' + ", kind=" + kind + '}';
         }
     }
 
