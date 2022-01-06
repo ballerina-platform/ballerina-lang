@@ -723,10 +723,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.commitCountWithinBlock = 0;
         this.rollbackCountWithinBlock = 0;
         boolean inInternallyDefinedBlockStmt = this.inInternallyDefinedBlockStmt;
-        this.inInternallyDefinedBlockStmt =
-                (blockNode.parent != null && blockNode.parent.getKind() == NodeKind.BLOCK_FUNCTION_BODY) ||
-                        (blockNode.parent != null && blockNode.parent.getKind() == NodeKind.BLOCK &&
-                                blockNode.parent.parent.getKind() == NodeKind.BLOCK_FUNCTION_BODY);
+        this.inInternallyDefinedBlockStmt = checkBlockIsAnInternalBlockInImmediateFunctionBody(blockNode);
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.stmts.forEach(e -> {
             analyzeNode(e, blockEnv);
@@ -737,6 +734,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.commitCountWithinBlock = prevCommitCount;
         this.rollbackCountWithinBlock = prevRollbackCount;
+    }
+
+    private boolean checkBlockIsAnInternalBlockInImmediateFunctionBody(BLangNode node) {
+        BLangNode parent = node.parent;
+
+        while (parent != null) {
+            final NodeKind kind = parent.getKind();
+            if (kind == NodeKind.BLOCK_FUNCTION_BODY) {
+                return true;
+            }
+            if (kind == NodeKind.BLOCK) {
+                parent = parent.parent;
+            } else {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     @Override

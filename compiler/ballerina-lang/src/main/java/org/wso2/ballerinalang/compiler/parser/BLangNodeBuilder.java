@@ -4980,13 +4980,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                         if (statementNodes.get(c + 1) != null) {
                             createBlockStatement(remainingStatement, c + 1, statementNodes, bLBlockStmt.stmts,
                                     endNode);
+                            this.isInLocalContext = false;
+                            if (bLBlockStmt.stmts.isEmpty()) {
+                                return statements;
+                            }
+                            if (c + 1 <= statementNodes.size() - 1) {
+                                bLBlockStmt.pos = getPosition(statementNodes.get(c + 1),
+                                        endNode);
+                            }
+                            statements.add(bLBlockStmt);
                         }
-                        this.isInLocalContext = false;
-                        if (c + 1 <= statementNodes.size() - 1) {
-                            bLBlockStmt.pos = getPosition(statementNodes.get(c + 1),
-                                    endNode);
-                        }
-                        statements.add(bLBlockStmt);
                     }
                     return statements;
                 }
@@ -5000,22 +5003,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                                       NodeList<StatementNode> statementNodes,
                                       List<BLangStatement> statements, Node endNode) {
         for (int j = position; j < statementNodes.size(); j++) {
-            if (checkForkStmt(currentStatement) || checkForkStmt(statementNodes.get(j))) {
-                if (currentStatement.kind() == SyntaxKind.FORK_STATEMENT) {
-                    statements.add((BLangStatement) currentStatement.apply(this));
-                } else if (statementNodes.get(j).kind() == SyntaxKind.FORK_STATEMENT) {
-                    statements.add((BLangStatement) statementNodes.get(j).apply(this));
-                }
+            if (currentStatement.kind() == SyntaxKind.FORK_STATEMENT) {
+                statements.add((BLangStatement) currentStatement.apply(this));
                 generateForkStatements(statements, (ForkStatementNode) currentStatement);
                 continue;
             }
-            if (checkIfStmtWithoutElse(currentStatement) || checkIfStmtWithoutElse(statementNodes.get(j))) {
-                if (currentStatement.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
-                    statements.add((BLangStatement) currentStatement.apply(this));
-                } else if (statementNodes.get(j).kind() == SyntaxKind.IF_ELSE_STATEMENT) {
-                    statements.add((BLangStatement) statementNodes.get(j).apply(this));
-                }
-
+            if (currentStatement.kind() == SyntaxKind.IF_ELSE_STATEMENT &&
+                    ((IfElseStatementNode) currentStatement).elseBody().isEmpty()) {
+                statements.add((BLangStatement) currentStatement.apply(this));
                 if (j == statementNodes.size() - 1) {
                     return;
                 }
@@ -5026,6 +5021,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     if (statementNodes.get(j + 1) != null) {
                         createBlockStatement(remainingStatement, j + 1, statementNodes, bLBlockStmt.stmts, endNode);
                         this.isInLocalContext = false;
+                        if (bLBlockStmt.stmts.isEmpty()) {
+                            return;
+                        }
                         if (j + 1 <= statementNodes.size() - 1) {
                             bLBlockStmt.pos = getPosition(statementNodes.get(j + 1),
                                     endNode);
@@ -5036,17 +5034,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 }
             } else {
                 statements.add((BLangStatement) statementNodes.get(j).apply(this));
+                if (j < statementNodes.size() - 1) {
+                    currentStatement = statementNodes.get(j + 1);
+                }
             }
         }
-    }
-
-    private boolean checkIfStmtWithoutElse(StatementNode stmt) {
-        return stmt.kind() == SyntaxKind.IF_ELSE_STATEMENT &&
-                ((IfElseStatementNode) stmt).elseBody().isEmpty();
-    }
-
-    private boolean checkForkStmt(StatementNode stmt) {
-        return stmt.kind() == SyntaxKind.FORK_STATEMENT;
     }
 
     private String extractVersion(SeparatedNodeList<Token> versionNumbers) {
