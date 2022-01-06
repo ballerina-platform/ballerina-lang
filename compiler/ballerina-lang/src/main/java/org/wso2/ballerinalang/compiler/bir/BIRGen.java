@@ -430,18 +430,16 @@ public class BIRGen extends BLangNodeVisitor {
                                                           displayName,
                                                           astTypeDefinition.symbol.originalName);
         if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
-            if (type.tsymbol.owner == astTypeDefinition.symbol.owner) {
-                typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
-                typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            typeDef.referenceType = referenceType;
+            BTypeSymbol typeSymbol = astTypeDefinition.symbol.type.tsymbol;
+            if (type.tsymbol.owner == astTypeDefinition.symbol.owner
+                    && !(Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS))) {
+                typeDefs.put(typeSymbol, typeDef);
             } else {
-                BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
-                typeDef.referenceType = referenceType;
-
                 if (referenceType != null) {
                     typeDef.type = referenceType;
                 }
-
-                typeDefs.put(astTypeDefinition.symbol, typeDef);
             }
         } else {
             //enum symbols
@@ -598,24 +596,14 @@ public class BIRGen extends BLangNodeVisitor {
 
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
         if (constValue.type.tag == TypeTags.INTERSECTION) {
-            ConstValue resultantConstValue = getBIRConstantVal(new BLangConstantValue(constValue.value,
-                    ((BIntersectionType) constValue.type).effectiveType));
-            resultantConstValue.type = constValue.type;
-            return resultantConstValue;
-//            return new ConstValue(getBIRConstantVal(new BLangConstantValue(constValue.value,
-//                    ((BIntersectionType) constValue.type).effectiveType)).value, constValue.type);
+            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
+            return getBIRConstantVal(constValue);
         }
         if (constValue.type.tag == TypeTags.RECORD) {
             Map<String, ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, constValue.type);
-        }
-        if (constValue.type.tag == TypeTags.MAP) {
-            Map<String, ConstValue> mapConstVal = new HashMap<>();
-            ((Map<String, BLangConstantValue>) constValue.value)
-                    .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, constValue.type);
+            return new ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
         }
 
         return new ConstValue(constValue.value, constValue.type);

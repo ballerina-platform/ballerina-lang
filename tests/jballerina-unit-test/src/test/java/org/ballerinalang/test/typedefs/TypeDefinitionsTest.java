@@ -161,6 +161,11 @@ public class TypeDefinitionsTest {
         BRunUtil.invoke(compileResult, "testFuncInvocation");
     }
 
+    @Test
+    public void testClassDefinition() {
+        BRunUtil.invoke(compileResult, "testClassDefn");
+    }
+
 //    @Test
 //    public void testRecordTypeResolving() {
 //        BRunUtil.invoke(recordFieldRes, "testRecordTypeResolving");

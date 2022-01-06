@@ -1,0 +1,24 @@
+{
+  "line": 120,
+  "character": 21,
+  "expected": [
+    {
+      "title": "Add type cast to assignment",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 120,
+              "character": 19
+            },
+            "end": {
+              "line": 120,
+              "character": 19
+            }
+          },
+          "newText": "<MyRecord> "
+        }
+      ]
+    }
+  ]
+}
