@@ -926,7 +926,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @return true if its a valid ballerina frame
      */
     static boolean isValidFrame(StackFrame stackFrame) {
-        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0;
+        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0
+                && !isCompilerGeneratedFrame(stackFrame);
+    }
+
+    /**
+     * Validates whether the provided stack frame is a compiler generated one during the codegen phase.
+     *
+     * @param stackFrame stack frame instance
+     * @return true if the provided stack frame is a compiler generated one during the codegen phase
+     */
+    private static boolean isCompilerGeneratedFrame(StackFrame stackFrame) {
+        String frameName = stackFrame.getName();
+        return frameName != null && frameName.startsWith("$") && frameName.endsWith("$");
     }
 
     /**
