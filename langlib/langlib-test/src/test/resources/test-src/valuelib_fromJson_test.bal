@@ -447,7 +447,7 @@ public function testConvertJsonToAmbiguousType() {
 
     if res is error {
         assertEquality("'map<json>' value cannot be converted to 'Value': " +
-        "\n\t\tfield 'value' in record 'Value' should be of type 'Maps', found '{\"i\":1}'", res.detail()["message"]);
+        "\n\t\tValue '{\"i\":1}' cannot be converted to 'Maps': ambiguous target type", res.detail()["message"]);
         return;
     }
 

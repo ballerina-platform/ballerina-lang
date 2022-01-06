@@ -666,7 +666,8 @@ function testCloneWithTypeAmbiguousTargetType() {
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
     assert(bbe.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
+    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': \n\t\t" +
+    "Value '{\"s\":\"test string\"}' cannot be converted to '(Bar|Baz)': ambiguous target type");
 }
 
 type StringOrNull string?;
@@ -939,8 +940,8 @@ function testCloneWithTypeIntArrayToUnionArray() {
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     string errMsg = "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]': " +
-        "\n\t\tarray element '[0]' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type" +
-        "\n\t\tarray element '[1]' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type";
+        "\n\t\tValue '10.0' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type" +
+        "\n\t\tValue '20.0' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 
@@ -998,8 +999,8 @@ function testCloneWithTypeIntArrayToUnionArray() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     errMsg = "'int[]' value cannot be converted to '(byte|float|decimal)[]': " +
-              		"\n\t\tarray element '[1]' cannot be converted to '(byte|float|decimal)': ambiguous target type" +
-              		"\n\t\tarray element '[2]' cannot be converted to '(byte|float|decimal)': ambiguous target type";
+              		"\n\t\tValue '500' cannot be converted to '(byte|float|decimal)': ambiguous target type" +
+              		"\n\t\tValue '65000' cannot be converted to '(byte|float|decimal)': ambiguous target type";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 
@@ -1009,7 +1010,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     errMsg = "'int[]' value cannot be converted to '(lang.int:Signed16|float|decimal)[]': " +
-            "\n\t\tarray element '[2]' cannot be converted to '(lang.int:Signed16|float|decimal)': ambiguous target type";
+            "\n\t\tValue '65000' cannot be converted to '(lang.int:Signed16|float|decimal)': ambiguous target type";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 }
@@ -1057,7 +1058,7 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]': " +
-                            "\n\t\ttuple element '[0]' cannot be converted to '(float|decimal)': ambiguous target type");
+                            "\n\t\tValue '1' cannot be converted to '(float|decimal)': ambiguous target type");
 }
 
 function testCloneWithTypeArrayToTupleNegative() {
@@ -1127,9 +1128,9 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]': " +
-                            "\n\t\ttuple element '[1]' cannot be converted to '(decimal|int)': ambiguous target type" +
-                            "\n\t\ttuple element '[3]' cannot be converted to '(decimal|int)': ambiguous target type");
+    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]': "
+    + "\n\t\tValue '2.5' cannot be converted to '(decimal|int)': ambiguous target type"
+    + "\n\t\tValue '5.2' cannot be converted to '(decimal|int)': ambiguous target type");
 }
 
 type StringArray string[];
@@ -1178,7 +1179,8 @@ function testCloneWithTypeWithInferredArgument() {
    message = err.detail()["message"];
    messageString = message is error ? message.toString() : message.toString();
    assert(err.message(), "{ballerina/lang.value}ConversionError");
-   assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
+   assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': \n\t\tValue '{\"s\":\"test string\"}' " +
+   "cannot be converted to '(Bar|Baz)': ambiguous target type");
 
    anydata k = ();
    string|error? l = k.cloneWithType();
@@ -1468,7 +1470,8 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     err = <error> f;
     message = err.detail()["message"];
     messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
+    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': \n\t\t" +
+    "Value '[3,4]' cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
 }
 
 type Boss record {

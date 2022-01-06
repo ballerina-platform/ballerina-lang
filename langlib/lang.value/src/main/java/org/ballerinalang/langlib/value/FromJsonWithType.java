@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.ErrorUtils.createAmbiguousConversionError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -63,7 +62,6 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 2.0
  */
 public class FromJsonWithType {
-    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
     public static Object fromJsonWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
@@ -103,8 +101,6 @@ public class FromJsonWithType {
                 null, new ArrayList<>(), errors);
         if (convertibleTypes.isEmpty()) {
             throw CloneUtils.createConversionError(value, targetType, errors);
-        } else if (convertibleTypes.size() > 1) {
-            throw createAmbiguousConversionError(value, targetType);
         }
 
         Type matchingType = convertibleTypes.get(0);
