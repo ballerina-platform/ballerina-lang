@@ -518,6 +518,7 @@ function testTableTypeInferenceWithVarType() {
     testTableTypeInferenceWithVarType8();
     testTableTypeInferenceWithVarType9();
     testTableTypeInferenceWithVarType10();
+    testTableTypeInferenceWithVarType11();
 }
 
 function testTableTypeInferenceWithVarType1() {
@@ -529,6 +530,8 @@ function testTableTypeInferenceWithVarType1() {
     table<record {|int|string a; int b?;|}> _ = v1;
     v1.add({a: 1});
     v1.add({a: "str", b: 2});
+
+    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":1},{\"a\":\"str\",\"b\":2}]", v1.toString());
 }
 
 function testTableTypeInferenceWithVarType2() {
@@ -543,6 +546,9 @@ function testTableTypeInferenceWithVarType2() {
     v1.add({a: 1});
     v1.add({...m});
     v1.add({a: true, c: 2, b: false});
+
+    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2}," +
+    "{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2}]", v1.toString());
 }
 
 function testTableTypeInferenceWithVarType3() {
@@ -556,6 +562,8 @@ function testTableTypeInferenceWithVarType3() {
     assertFalse(v1 is table<record {|(int|string) a; int b?;|}>);
     v1.add({a: 1});
     v1.add({...m});
+
+    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":1},{\"a\":\"str\",\"b\":2}]", v1.toString());
 }
 
 function testTableTypeInferenceWithVarType4() {
@@ -569,6 +577,9 @@ function testTableTypeInferenceWithVarType4() {
     assertFalse(v1 is table<record {|(int|string) a; (int|string) b?;|}>);
     v1.add({a: 1, b: "c"});
     v1.add({...m});
+
+    assertEquality("[{\"a\":1,\"b\":\"c\"},{\"a\":\"str\",\"b\":2}," +
+    "{\"a\":1,\"b\":\"c\"},{\"a\":\"str\",\"b\":2}]", v1.toString());
 }
 
 function testTableTypeInferenceWithVarType5() {
@@ -586,6 +597,9 @@ function testTableTypeInferenceWithVarType5() {
     v1.add({a: 1});
     v1.add({...m});
     v1.add({[s1] : true, c: 2, [s2] : false});
+
+    assertEquality("[{\"a\":1},{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2},{\"a\":1}," +
+    "{\"a\":\"str\",\"b\":2},{\"a\":true,\"b\":false,\"c\":2}]", v1.toString());
 }
 
 type FooUnion int|string;
@@ -600,6 +614,8 @@ function testTableTypeInferenceWithVarType6() {
     table<record {| (int|string) a; |}> _ = v1;
     v1.add({a: f});
     v1.add({a: 1});
+
+    assertEquality("[{\"a\":1},{\"a\":1},{\"a\":1},{\"a\":1}]", v1.toString());
 }
 
 type FooRec2 record {|
@@ -618,6 +634,8 @@ function testTableTypeInferenceWithVarType7(FooRec2 f) {
     table<record {|int i; int j?; never k?; string l?;never...; |}> _ = v1;
     v1.add({...f});
     v1.add({i: 1, j: 2, l: ""});
+
+    assertEquality("[{\"i\":2},{\"i\":1,\"j\":2,\"l\":\"\"},{\"i\":2},{\"i\":1,\"j\":2,\"l\":\"\"}]", v1.toString());
 }
 
 function testTableTypeInferenceWithVarType8() {
@@ -630,6 +648,8 @@ function testTableTypeInferenceWithVarType8() {
     table<record {|anydata a;|}> _ = v1;
     v1.add({a: f});
     v1.add({a: 1});
+
+    assertEquality("[{\"a\":1},{\"a\":1},{\"a\":1},{\"a\":1}]", v1.toString());
 }
 
 function testTableTypeInferenceWithVarType9() {
@@ -642,6 +662,8 @@ function testTableTypeInferenceWithVarType9() {
     table<record {|any a;|}> _ = v1;
     v1.add({a: f});
     v1.add({a: 1});
+
+    assertEquality("[{\"a\":1},{\"a\":1},{\"a\":1},{\"a\":1}]", v1.toString());
 }
 
 type IntArray int[];
@@ -656,6 +678,24 @@ function testTableTypeInferenceWithVarType10() {
     table<record {|(int[]|int) a;|}> _ = v1;
     v1.add({a: intArr});
     v1.add({a: 1});
+
+    assertEquality("[{\"a\":[0,1]},{\"a\":1},{\"a\":[0,1]},{\"a\":1}]", v1.toString());
+}
+
+type Zero 0;
+
+type NaturalNums 1|2|3;
+
+type WholeNums Zero|NaturalNums;
+
+function testTableTypeInferenceWithVarType11() {
+    WholeNums f = 2;
+
+    var v1 = table [{a: f}];
+    table<record {|(0|1|2|3) a;|}> _ = v1;
+    v1.add({a: f});
+
+    assertEquality("[{\"a\":2},{\"a\":2}]", v1.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

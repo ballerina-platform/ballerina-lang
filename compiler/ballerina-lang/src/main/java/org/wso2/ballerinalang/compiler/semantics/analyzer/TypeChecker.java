@@ -1180,7 +1180,7 @@ public class TypeChecker extends BLangNodeVisitor {
      * @return a {@code BField}
      */
     private BField createFieldWithType(BField field, List<BType> bTypes) {
-        BType resultantType = getResultantUnionOrNonUnionType(bTypes);
+        BType resultantType = getResultantType(bTypes);
 
         BVarSymbol originalSymbol = field.symbol;
         BVarSymbol fieldSymbol = new BVarSymbol(originalSymbol.flags, originalSymbol.name, originalSymbol.pkgID,
@@ -1190,49 +1190,18 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     /**
-     * Get the resultant union or non-union type from a {@code List<BType>}.
+     * Get the resultant type from a {@code List<BType>}.
      *
      * @param bTypes bType list (size > 0)
      * @return {@code BUnionType} if effective members in list is > 1. {@code BType} Otherwise.
      */
-    private BType getResultantUnionOrNonUnionType(List<BType> bTypes) {
-        if (bTypes.size() == 1) {
-            return bTypes.get(0);
+    private BType getResultantType(List<BType> bTypes) {
+        List<BType> flattenedBTypes = new ArrayList<>();
+        for (BType bType : bTypes) {
+            flattenedBTypes.addAll(types.getAllTypes(bType, true));
         }
 
-        LinkedHashSet<BType> bTypeSet = new LinkedHashSet<>(bTypes);
-        List<BType> eBTypes = new ArrayList<>(bTypes.size());
-        addEffectiveMemberTypes(eBTypes, bTypeSet);
-
-        return getRepresentativeBroadType(eBTypes);
-    }
-
-    private void addEffectiveMemberTypes(List<BType> eBTypes, LinkedHashSet<BType> bTypes) {
-        for (BType memberType : bTypes) {
-            BType bType;
-            switch (memberType.tag) {
-                case TypeTags.NEVER:
-                    continue;
-                case TypeTags.UNION:
-                    addEffectiveMemberTypes(eBTypes, ((BUnionType) memberType).getMemberTypes());
-                    continue;
-                case TypeTags.TYPEREFDESC:
-                    BType constraint = types.getReferredType(memberType);
-                    if (constraint.tag == TypeTags.UNION) {
-                        addEffectiveMemberTypes(eBTypes, ((BUnionType) constraint).getMemberTypes());
-                        continue;
-                    }
-                    bType = constraint;
-                    break;
-                default:
-                    bType = memberType;
-                    break;
-            }
-
-            if (isUniqueType(eBTypes, bType)) {
-                eBTypes.add(bType);
-            }
-        }
+        return getRepresentativeBroadType(flattenedBTypes);
     }
 
     private boolean hasOptionalFields(List<BField> fields) {
@@ -1269,7 +1238,7 @@ public class TypeChecker extends BLangNodeVisitor {
             recordType.sealed = true;
             recordType.restFieldType = symTable.noType;
         } else {
-            recordType.restFieldType = getResultantUnionOrNonUnionType(restFieldTypes);
+            recordType.restFieldType = getResultantType(restFieldTypes);
         }
 
         return recordType;
