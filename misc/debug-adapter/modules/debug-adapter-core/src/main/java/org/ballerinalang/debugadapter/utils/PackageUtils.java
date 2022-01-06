@@ -257,8 +257,7 @@ public class PackageUtils {
             String[] nameParts = getQModuleNameParts(name);
             String srcFileName = nameParts[nameParts.length - 1];
 
-            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
-                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+            if (!path.endsWith(BAL_FILE_EXT)) {
                 return referenceType.name();
             }
 
