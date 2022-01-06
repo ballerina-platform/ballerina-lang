@@ -93,25 +93,6 @@
       }
     },
     {
-      "label": "map(function () func)",
-      "kind": "Function",
-      "detail": "stream<stream:Type1, stream:CompletionType>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<stream:Type1, stream:CompletionType>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
-        }
-      },
-      "sortText": "CA",
-      "filterText": "map",
-      "insertText": "map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "close()",
       "kind": "Function",
       "detail": "stream:CompletionType?",
@@ -174,6 +155,25 @@
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'map(function () func)",
+      "kind": "Function",
+      "detail": "stream<stream:Type1, stream:CompletionType>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<stream:Type1, stream:CompletionType>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
+        }
+      },
+      "sortText": "CA",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
