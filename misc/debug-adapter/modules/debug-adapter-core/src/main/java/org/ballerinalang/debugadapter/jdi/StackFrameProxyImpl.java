@@ -145,6 +145,8 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
                 throw new JdiProxyException(e.getMessage(), e);
             } catch (ObjectCollectedException ignored) {
                 throw new JdiProxyException("Thread has been collected");
+            } catch (Exception e) {
+                throw new JdiProxyException("Unknown error when trying to access thread reference", e);
             }
         }
         throw new JdiProxyException("Thread has become invalid", error);
