@@ -4971,6 +4971,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                         ((IfElseStatementNode) statement).elseBody().isEmpty()) {
                     statements.add((BLangStatement) statement.apply(this));
                     if (c == statementNodes.size() - 1) {
+                        statements.add((BLangBlockStmt) TreeBuilder.createBlockNode());
                         return statements;
                     }
                     if (c < statementNodes.size() - 1) {
@@ -5012,6 +5013,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     ((IfElseStatementNode) currentStatement).elseBody().isEmpty()) {
                 statements.add((BLangStatement) currentStatement.apply(this));
                 if (j == statementNodes.size() - 1) {
+                    statements.add((BLangBlockStmt) TreeBuilder.createBlockNode());
                     return;
                 }
                 if (statementNodes.size() - 1 > j) {
