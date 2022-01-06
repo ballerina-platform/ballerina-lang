@@ -70,4 +70,12 @@ public record {string a; int b;} {aValue, bValue} = {a: "one", b: 2};
 @varDecl
 var {a: valueA, b: valueB} = {a: "A", b: 2};
 
+function test() {
+    @varDecl
+    string str = "foo";
+
+    @varDecl
+    final var str2 = "value";
+}
+
 public annotation varDecl;

@@ -109,6 +109,20 @@
         },
         "distribution": {
           "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "pattern": "^private$",
+          "message": {
+            "pattern": "invalid 'visibility' under [package]: 'visibility' can only have value 'private'"
+          }
+        },
+        "icon": {
+          "type": "string",
+          "pattern": ".*.png$",
+          "message": {
+            "pattern": "invalid 'icon' under [package]: 'icon' can only have 'png' images"
+          }
         }
       }
     },

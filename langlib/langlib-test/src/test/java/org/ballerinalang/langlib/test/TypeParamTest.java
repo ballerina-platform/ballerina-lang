@@ -50,7 +50,8 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'string'", 48, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Foo', found 'string'", 50, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'string'", 51, 14);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 65, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found " +
+                "'(BarDetail & readonly)'", 65, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'int'", 72, 15);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found '(Person|error)'",
                 89, 16);
@@ -135,6 +136,21 @@ public class TypeParamTest {
                 "test-src/type-param/type_param_resolution_with_exprs_two.bal",
                 "test-src/type-param/type_param_resolution_with_exprs_three.bal",
                 "test-src/type-param/type_param_resolution_with_exprs_four.bal"
+        };
+    }
+
+    @Test(dataProvider = "typeParamAnalysisWithTypeReferenceTypesTestFiles")
+    public void testTypeParamAnalysisWithTypeReferenceTypes(String fileName) {
+        CompileResult result = BCompileUtil.compile(fileName);
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testFn");
+    }
+
+    @DataProvider
+    public Object[] typeParamAnalysisWithTypeReferenceTypesTestFiles() {
+        return new Object[]{
+                "test-src/type-param/type_param_analysis_with_type_reference_types_test_1.bal",
+                "test-src/type-param/type_param_analysis_with_type_reference_types_test_2.bal"
         };
     }
 }

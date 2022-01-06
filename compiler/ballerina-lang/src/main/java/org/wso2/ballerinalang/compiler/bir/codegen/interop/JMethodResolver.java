@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -51,7 +52,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.NO_CLASS_DEF_FOUND;
@@ -141,17 +141,22 @@ class JMethodResolver {
     private List<JMethod> resolveByMethodName(Class<?> declaringClass,
                                               String methodName,
                                               JMethodKind kind) {
-
-        return getExecutables(declaringClass, methodName, kind)
-                .stream()
-                .map(executable -> JMethod.build(kind, executable, null))
-                .collect(Collectors.toList());
+        List<JMethod> list = new ArrayList<>();
+        for (Executable executable : getExecutables(declaringClass, methodName, kind)) {
+            JMethod build = JMethod.build(kind, executable, null);
+            list.add(build);
+        }
+        return list;
     }
 
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
-        return jMethods.stream()
-                .filter(jMethod -> hasEqualParamCounts(jMethodRequest, jMethod))
-                .collect(Collectors.toList());
+        List<JMethod> list = new ArrayList<>();
+        for (JMethod jMethod : jMethods) {
+            if (hasEqualParamCounts(jMethodRequest, jMethod)) {
+                list.add(jMethod);
+            }
+        }
+        return list;
     }
 
     private boolean hasEqualParamCounts(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -468,6 +473,9 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TYPEREFDESC:
+                    return isValidParamBType(jType, JvmCodeGenUtil.getReferredType(bType), isLastParam,
+                            restParamExist);
                 default:
                     return false;
             }
@@ -625,6 +633,9 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TYPEREFDESC:
+                    return isValidReturnBType(jType, JvmCodeGenUtil.getReferredType(bType),
+                            jMethodRequest, visitedSet);
                 default:
                     return false;
             }
@@ -785,10 +796,17 @@ class JMethodResolver {
 
     private List<Executable> getExecutables(Class<?> clazz, String methodName, JMethodKind kind) {
 
-        return kind == JMethodKind.CONSTRUCTOR ? Arrays.asList(getConstructors(clazz)) :
-                Arrays.stream(getMethods(clazz))
-                        .filter(method -> method.getName().equals(methodName))
-                        .collect(Collectors.toList());
+        if (kind == JMethodKind.CONSTRUCTOR) {
+            return Arrays.asList(getConstructors(clazz));
+        } else {
+            List<Executable> list = new ArrayList<>();
+            for (Method method : getMethods(clazz)) {
+                if (method.getName().equals(methodName)) {
+                    list.add(method);
+                }
+            }
+            return list;
+        }
     }
 
     private Method[] getMethods(Class<?> clazz) {

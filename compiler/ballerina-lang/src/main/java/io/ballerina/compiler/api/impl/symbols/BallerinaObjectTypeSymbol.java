@@ -151,7 +151,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     public String signature() {
         StringBuilder signature = new StringBuilder();
         StringJoiner qualifierJoiner = new StringJoiner(" ");
-        StringJoiner fieldJoiner = new StringJoiner("");
+        StringJoiner fieldJoiner = new StringJoiner(" ");
         StringJoiner methodJoiner = new StringJoiner(" ");
 
         for (Qualifier typeQualifier : this.qualifiers()) {
@@ -159,18 +159,25 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
             qualifierJoiner.add(value);
         }
         qualifierJoiner.add("object {");
-        signature.append(qualifierJoiner.toString());
+        signature.append(qualifierJoiner);
 
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
-        this.fieldDescriptors().values().forEach(
-                objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()).add(";"));
-        this.methods().values().forEach(method -> methodJoiner.add(method.signature()).add(";"));
+        for (ObjectFieldSymbol objectFieldDescriptor : this.fieldDescriptors().values()) {
+            fieldJoiner.add(objectFieldDescriptor.signature() + ";");
+        }
 
-        return signature.append(fieldJoiner.toString())
-                .append(methodJoiner.toString())
-                .append("}")
-                .toString();
+        if (!this.methods().isEmpty() && !this.fieldDescriptors().isEmpty()) {
+            signature.append(fieldJoiner).append(' ');
+        } else {
+            signature.append(fieldJoiner);
+        }
+
+        for (MethodSymbol method : this.methods().values()) {
+            methodJoiner.add(method.signature() + ";");
+        }
+
+        return signature.append(methodJoiner).append("}").toString();
     }
 
     /**

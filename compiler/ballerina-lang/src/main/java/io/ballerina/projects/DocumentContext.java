@@ -30,7 +30,7 @@ import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.SourceKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
+import org.wso2.ballerinalang.compiler.parser.BLangNodeBuilder;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -56,9 +56,9 @@ class DocumentContext {
     private Set<ModuleLoadRequest> moduleLoadRequests;
     private BLangCompilationUnit compilationUnit;
     private NodeCloner nodeCloner;
-    private DocumentId documentId;
-    private String name;
-    private String content;
+    private final DocumentId documentId;
+    private final String name;
+    private final String content;
 
     private DocumentContext(DocumentId documentId, String name, String content) {
         this.documentId = documentId;
@@ -99,30 +99,30 @@ class DocumentContext {
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID, SourceKind sourceKind) {
+        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
+        SyntaxTree syntaxTree = syntaxTree();
+        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
+
         nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
             return nodeCloner.cloneCUnit(compilationUnit);
         }
-        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
-
-        SyntaxTree syntaxTree = syntaxTree();
-        reportSyntaxDiagnostics(pkgID, syntaxTree, dlog);
-        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, pkgID, this.name);
-        compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.rootNode()).get(0);
+        BLangNodeBuilder bLangNodeBuilder = new BLangNodeBuilder(compilerContext, pkgID, this.name);
+        compilationUnit = (BLangCompilationUnit) bLangNodeBuilder.accept(syntaxTree.rootNode()).get(0);
         compilationUnit.setSourceKind(sourceKind);
         return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests(ModuleId currentModuleId, PackageDependencyScope scope) {
+    Set<ModuleLoadRequest> moduleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests(currentModuleId, scope);
+        this.moduleLoadRequests = getModuleLoadRequests(currentModuleName, scope);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleId currentModuleId, PackageDependencyScope scope) {
+    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
@@ -132,8 +132,9 @@ class DocumentContext {
         // TODO This is a temporary solution for SLP6 release
         // TODO Traverse the syntax tree to see whether to import the ballerinai/transaction package or not
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
+
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-               !currentModuleId.moduleName().equals(Names.TRANSACTION.value)) {
+               !currentModuleName.toString().equals(Names.TRANSACTION.value)) {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
@@ -176,5 +177,9 @@ class DocumentContext {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
             dlog.logDiagnostic(pkgID, syntaxDiagnostic);
         }
+    }
+
+    DocumentContext duplicate() {
+        return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode());
     }
 }

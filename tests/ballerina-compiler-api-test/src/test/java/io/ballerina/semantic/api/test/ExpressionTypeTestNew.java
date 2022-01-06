@@ -317,7 +317,7 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(101, 4, 101, 21);
         assertEquals(type.typeKind(), FUTURE);
         assertEquals(((FutureTypeSymbol) type).typeParameter().get().typeKind(), NIL);
-//        assertType(101, 10, 101, 21, NIL); TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33016
+        assertType(101, 10, 101, 21, NIL);
     }
 
     @Test(dataProvider = "CallExprPosProvider")
@@ -439,9 +439,7 @@ public class ExpressionTypeTestNew {
 
         assertEquals(type.userSpecifiedMemberTypes().get(0).typeKind(), TYPE_REFERENCE);
         assertEquals(type.userSpecifiedMemberTypes().get(1).typeKind(), NIL);
-
-//        TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33017
-//        assertType(198, 19, 198, 25, TYPEDESC);
+        assertType(198, 19, 198, 25, TYPEDESC);
     }
 
     @Test(dataProvider = "ErrorCtrPos")
@@ -497,7 +495,7 @@ public class ExpressionTypeTestNew {
         return new Object[][]{
                 {220, 12, 220, 88, INT},
                 {220, 24, 220, 26, INT},
-//                {220, 37, 220, 42, STRING}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32999
+                {220, 37, 220, 42, STRING},
                 {220, 70, 220, 78, STRING},
                 {220, 83, 220, 88, INT},
         };
@@ -564,9 +562,8 @@ public class ExpressionTypeTestNew {
                 {273, 9, 273, 13, XML},
                 {274, 9, 274, 15, XML},
                 {275, 9, 275, 25, XML},
-                // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33015
-//                {276, 9, 276, 25, XML},
-//                {276, 23, 276, 24, INT},
+                {276, 9, 276, 25, XML},
+                {276, 23, 276, 24, INT},
                 {277, 9, 277, 33, XML},
                 // Group expr
                 {282, 12, 282, 34, INT},

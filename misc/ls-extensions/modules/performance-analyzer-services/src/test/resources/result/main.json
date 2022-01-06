@@ -1,0 +1,117 @@
+{
+  "endpoints": {
+    "0": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 22,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 22,
+          "offset": 32
+        }
+      }
+    },
+    "1": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 31,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 31,
+          "offset": 32
+        }
+      }
+    },
+    "2": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "filePath": "forEach.bal",
+        "startLine": {
+          "line": 19,
+          "offset": 12
+        },
+        "endLine": {
+          "line": 19,
+          "offset": 24
+        }
+      }
+    },
+    "3": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "filePath": "while.bal",
+        "startLine": {
+          "line": 22,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 22,
+          "offset": 36
+        }
+      }
+    },
+    "4": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post1",
+      "pos": {
+        "filePath": "ifElse.bal",
+        "startLine": {
+          "line": 21,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 21,
+          "offset": 28
+        }
+      }
+    },
+    "5": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post2",
+      "pos": {
+        "filePath": "ifElse.bal",
+        "startLine": {
+          "line": 26,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 26,
+          "offset": 33
+        }
+      }
+    }
+  },
+  "actionInvocations": {
+    "nextNode": {
+      "endPointRef": "${json-unit.ignore}",
+      "name": "get",
+      "path": "/jokes/random",
+      "pos": "main.bal/(23:33,23:67)",
+      "nextNode": {
+        "endPointRef": "${json-unit.ignore}",
+        "name": "get",
+        "path": "/jokes/random",
+        "pos": "main.bal/(25:34,25:68)",
+        "nextNode": null
+      }
+    }
+  },
+  "type": "Success",
+  "message": "Success"
+}

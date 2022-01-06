@@ -8,7 +8,7 @@ public class MyRetryManager {
     public function init(int count = 2) {
         self.count = count;
     }
-    public function shouldRetry(error? e) returns boolean {
+    public function shouldRetry(error e) returns boolean {
         if e is error && self.count >  0 {
             self.count -= 1;
             io:println("Retries remaining: ", self.count);

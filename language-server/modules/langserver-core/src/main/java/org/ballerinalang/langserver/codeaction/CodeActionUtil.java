@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -51,6 +52,8 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -73,7 +76,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -222,12 +225,22 @@ public class CodeActionUtil {
             }
 
             // Anon Record
-            String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
+            String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
             RecordTypeSymbol recordLiteral = (RecordTypeSymbol) typeDescriptor;
             types.add((recordLiteral.fieldDescriptors().size() > 0) ? rType : "record {}");
 
-            // JSON
-            types.add("json");
+            // A record can be an open record or a closed record:
+            //      record {| int field1; anydata...; |}
+            //      record {| int field1; |}
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
+
+            // JSON - Record fields and rest type descriptor should be json subtypes
+            boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()
+                    .allMatch(recordFieldSymbol -> isJsonMemberType(recordFieldSymbol.typeDescriptor())) &&
+                    recordTypeSymbol.restTypeDescriptor().map(CodeActionUtil::isJsonMemberType).orElse(true);
+            if (jsonSubType) {
+                types.add("json");
+            }
 
             // Map
             TypeSymbol prevType = null;
@@ -240,7 +253,7 @@ public class CodeActionUtil {
                 prevType = recordField.typeDescriptor();
             }
             if (isConstrainedMap && prevType != null) {
-                String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, prevType, context);
+                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevType, context);
                 types.add("map<" + type + ">");
             } else {
                 types.add("map<any>");
@@ -252,7 +265,6 @@ public class CodeActionUtil {
             TypeSymbol prevType = null;
             TypeSymbol prevInnerType = null;
             boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty();
-            StringJoiner tupleJoiner = new StringJoiner(", ");
             for (TypeSymbol memberType : tupleType.memberTypeDescriptors()) {
                 // Here we check previous member-type with current member-type for equality
                 // 1. Check type-kind is differs Tuple vs int
@@ -278,23 +290,22 @@ public class CodeActionUtil {
                         prevInnerType = innerType;
                     }
                     if (isSameInnerType && prevInnerType != null) {
-                        String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, prevInnerType, context);
+                        String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevInnerType, context);
                         arrayType = type + "[]";
                     }
                 }
-                String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, memberType, context);
-                tupleJoiner.add(type);
+                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, memberType, context);
                 prevType = memberType;
                 if (arrayType == null) {
                     arrayType = type;
                 }
             }
-            // Array
+            // Add Array type if valid
             if (isArrayCandidate) {
                 types.add(arrayType + "[]");
             }
-            // Tuple
-            types.add("[" + tupleJoiner.toString() + "]");
+            // Add tuple type
+            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
@@ -311,11 +322,39 @@ public class CodeActionUtil {
                     })
                     .collect(Collectors.toList());
         } else {
-            types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
+            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
 
         importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
+    }
+
+    /**
+     * Check if the provided type symbol is a valid subtype of JSON.
+     *
+     * @param typeSymbol Type symbol
+     * @return True is type is a valid json member type
+     */
+    public static boolean isJsonMemberType(TypeSymbol typeSymbol) {
+        // type json = () | boolean | int | float | decimal | string | json[] | map<json>;
+        switch (typeSymbol.typeKind()) {
+            case NIL:
+            case BOOLEAN:
+            case INT:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case JSON:
+                return true;
+            case ARRAY:
+                ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
+                return isJsonMemberType(arrayTypeSymbol.memberTypeDescriptor());
+            case MAP:
+                MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typeSymbol;
+                return isJsonMemberType(mapTypeSymbol.typeParam());
+            default:
+                return false;
+        }
     }
 
     /**
@@ -358,10 +397,11 @@ public class CodeActionUtil {
         String spaces = StringUtils.repeat(' ', range.getStart().getCharacter());
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
 
-        boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
+        boolean hasError = CodeActionUtil.hasErrorMemberType(unionType);
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
         long errorTypesCount = unionType.memberTypeDescriptors().stream()
+                .map(CommonUtil::getRawType)
                 .filter(t -> t.typeKind() == TypeDescKind.ERROR)
                 .count();
         if (members.size() == 1) {
@@ -410,61 +450,59 @@ public class CodeActionUtil {
 
     public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
                                                       CodeActionContext context) {
-        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
-        if (enclosedFunc.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         List<TextEdit> edits = new ArrayList<>();
-        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
-        Document document = context.currentDocument().orElseThrow();
-        Optional<Symbol> optEnclosedFuncSymbol =
-                semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
-
+        Optional<FunctionDefinitionNode> enclosedFunc = getEnclosedFunction(matchedNode);
         String returnText = "";
         Range returnRange = null;
-
-        FunctionSymbol enclosedFuncSymbol = null;
-        if (optEnclosedFuncSymbol.isPresent()) {
-            Symbol funcSymbol = optEnclosedFuncSymbol.get();
-            if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
-                    funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
-                enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+        if (enclosedFunc.isPresent()) {
+            SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+            Document document = context.currentDocument().orElseThrow();
+            Optional<Symbol> optEnclosedFuncSymbol =
+                    semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
+            FunctionSymbol enclosedFuncSymbol = null;
+            if (optEnclosedFuncSymbol.isPresent()) {
+                Symbol funcSymbol = optEnclosedFuncSymbol.get();
+                if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
+                        funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
+                    enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+                }
             }
-        }
 
-        if (enclosedFuncSymbol != null) {
-            boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
-            boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
-            if (hasFuncNodeReturn && hasFuncSymbolReturn) {
-                // Parent function already has a return-type
-                TypeSymbol enclosedRetTypeDesc = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
-                ReturnTypeDescriptorNode enclosedRetTypeDescNode =
-                        enclosedFunc.get().functionSignature().returnTypeDesc().get();
-                if (enclosedRetTypeDesc.typeKind() == TypeDescKind.UNION) {
-                    // Parent function already has a union return-type
-                    UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) enclosedRetTypeDesc;
-                    boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
-                            .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
-                    if (!hasErrorMember) {
-                        // Union has no error member-type
+            if (enclosedFuncSymbol != null) {
+                boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
+                boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
+                if (hasFuncNodeReturn && hasFuncSymbolReturn) {
+                    // Parent function already has a return-type
+                    TypeSymbol enclosedRetTypeDesc = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().get();
+                    ReturnTypeDescriptorNode enclosedRetTypeDescNode =
+                            enclosedFunc.get().functionSignature().returnTypeDesc().get();
+                    if (enclosedRetTypeDesc.typeKind() == TypeDescKind.UNION) {
+                        // Parent function already has a union return-type
+                        UnionTypeSymbol parentUnionRetTypeDesc = (UnionTypeSymbol) enclosedRetTypeDesc;
+                        boolean hasErrorMember = parentUnionRetTypeDesc.memberTypeDescriptors().stream()
+                                .anyMatch(m -> m.typeKind() == TypeDescKind.ERROR);
+                        if (!hasErrorMember) {
+                            // Union has no error member-type
+                            String typeName =
+                                    CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context)
+                                            .orElseThrow();
+                            returnText = "returns " + typeName + "|error";
+                            returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                        }
+                    } else {
+                        // Parent function already has another return-type
                         String typeName =
-                                CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context).orElseThrow();
+                                CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
                         returnText = "returns " + typeName + "|error";
                         returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     }
                 } else {
-                    // Parent function already has a other return-type
-                    String typeName = CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                    returnText = "returns " + typeName + "|error";
-                    returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                    // Parent function has no return
+                    returnText = " returns error?";
+                    Position position = CommonUtil.toPosition(
+                            enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
+                    returnRange = new Range(position, position);
                 }
-            } else {
-                // Parent function has no return
-                returnText = " returns error?";
-                Position position = CommonUtil.toPosition(
-                        enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
-                returnRange = new Range(position, position);
             }
         }
 
@@ -497,9 +535,9 @@ public class CodeActionUtil {
         if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             return ((AssignmentStatementNode) node).expression();
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((ModuleVariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            return ((VariableDeclarationNode) node).typedBindingPattern().typeDescriptor();
+            return ((VariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         }
         return node;
     }
@@ -807,6 +845,7 @@ public class CodeActionUtil {
      */
     public static boolean hasErrorMemberType(UnionTypeSymbol unionTypeSymbol) {
         return unionTypeSymbol.memberTypeDescriptors().stream()
+                .map(CommonUtil::getRawType)
                 .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
     }
 
@@ -823,5 +862,27 @@ public class CodeActionUtil {
         }
         newTextBuilder.append(String.format(" else {%s}%s", padding, LINE_SEPARATOR));
         return LINE_SEPARATOR + newTextBuilder.toString();
+    }
+
+    /**
+     * Get the filter function used for filter diagnostic property values.
+     *
+     * @return Diagnostic property filter function.
+     */
+    public static <T> Function<List<DiagnosticProperty<?>>,
+            Optional<T>> getDiagPropertyFilterFunction(int propertyIndex) {
+        Function<List<DiagnosticProperty<?>>, Optional<T>> filterFunction = diagnosticProperties -> {
+
+            List<DiagnosticProperty<?>> props = diagnosticProperties.stream()
+                    .filter(diagnosticProperty -> diagnosticProperty.kind() == DiagnosticPropertyKind.SYMBOLIC)
+                    .collect(Collectors.toList());
+            if (props.size() < (propertyIndex + 1)) {
+                return Optional.empty();
+            }
+            DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
+            // Nullable static API used for safety
+            return Optional.ofNullable((T) diagnosticProperty.value());
+        };
+        return filterFunction;
     }
 }

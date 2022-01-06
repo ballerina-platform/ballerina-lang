@@ -30,9 +30,8 @@ public class SimpleConstantNegativeTest {
 
     @Test()
     public void testNegative() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
-                "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 71);
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/types/constant/simple-literal-constant-negative.bal");
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -67,7 +66,7 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 46, 7);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 47, 7);
         BAssertUtil.validateError(compileResult, index++, "symbol 'abc' is already initialized with 'abc'", 47, 7);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ACTION', found 'XYZ'",
                 64, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 73, 12);
@@ -109,24 +108,26 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'PQ'", 128, 10);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'T'", 137, 12);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'U'", 137, 14);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
-                154, 29);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'true', found 'boolean'",
-                163, 32);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '40', found 'int'", 174, 25);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '20', found 'int'", 183, 28);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '240', found 'int'",
-                194, 26);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0f', found 'float'",
-                205, 27);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '2.0f', found 'float'",
-                214, 30);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '4.0d', found 'float'",
-                225, 29);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina is awesome', found" +
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'BooleanTypeWithType', " +
+                "found 'boolean'", 154, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'BooleanTypeWithoutType', " +
+                "found 'boolean'", 163, 32);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithType', " +
+                "found 'int'", 174, 25);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithoutType', " +
+                "found 'int'", 183, 28);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ByteTypeWithType', " +
+                "found 'int'", 194, 26);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithType', " +
+                "found 'float'", 205, 27);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithoutType', " +
+                "found 'float'", 214, 30);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'DecimalTypeWithType', " +
+                "found 'float'", 225, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'StringTypeWithType', found" +
                 " 'string'", 236, 28);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina rocks', found " +
-                "'string'", 245, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'StringTypeWithoutType', " +
+                "found 'string'", 245, 31);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '()'",
                 251, 24);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 255, 33);
@@ -154,6 +155,16 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "cannot resolve constant 'UT_COUNT'", 302, 27);
         BAssertUtil.validateError(compileResult, index++, "self referenced constant 'CONST1'", 304, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc2'", 308, 7);
-        BAssertUtil.validateError(compileResult, index, "symbol 'abc2' is already initialized with '1'", 308, 7);
+        BAssertUtil.validateError(compileResult, index++, "symbol 'abc2' is already initialized with '1'", 308, 7);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Byte', found 'int'", 312, 17);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints', found 'float'",
+                                  316, 17);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ints2', found 'int'",
+                320, 15);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'NaNf', found 'float'",
+                322, 22);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Infinityf', found 'float'",
+                323, 27);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

@@ -210,11 +210,11 @@ public class SealedArrayTest {
                                   "invalid usage of list constructor: type 'Age[5][1]' does not have a filler value",
                                   43, 19);
         BAssertUtil.validateError(listExprNegative, 3,
-                                  "invalid usage of list constructor: type '1|2|3|4[3]' does not have a filler value",
+                                  "invalid usage of list constructor: type 'myVar[3]' does not have a filler value",
                                   63, 18);
         BAssertUtil.validateError(listExprNegative, 4,
-                                  "invalid usage of list constructor: type '0|0.0f|[3]' does not have a filler value",
-                                  69, 34);
+                                  "invalid usage of list constructor: type 'myNonHomogeneousUnion[3]' " +
+                                          "does not have a filler value", 69, 34);
         BAssertUtil.validateError(listExprNegative, 5,
                                   "invalid usage of list constructor: type 'Rec[2]' does not have a filler value",
                                   88, 16);
@@ -279,14 +279,14 @@ public class SealedArrayTest {
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
-        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'S1|S2'",
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'FiniteOne'",
                 104, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
-                " out of range", 105, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
-                " out of range", 106, 23);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: " +
+                "value space 'FiniteTwo' out of range", 105, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: " +
+                "value space 'FiniteTwo' out of range", 106, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
-                "'0|1|2|S1'", 107, 20);
+                "'FiniteThree'", 107, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
                         "'FiniteFour'", 108, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space " +

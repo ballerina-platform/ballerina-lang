@@ -103,6 +103,15 @@
       "filterText": "do",
       "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outer",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "outer",
+      "insertText": "outer ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -80,41 +80,40 @@ dependencies {
 
     // Third party jars
     // config
-    dist 'org.slf4j:slf4j-jdk14:1.7.22'
-    dist 'org.slf4j:slf4j-api:1.7.22'
-    dist 'org.apache.commons:commons-lang3:3.8.1'
-    dist 'org.apache.commons:commons-text:1.9'
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
-    dist 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
-    dist 'org.codehaus.woodstox:stax2-api:4.2'
+    dist "org.slf4j:slf4j-jdk14:${project.slf4jJdk14Version}"
+    dist "org.slf4j:slf4j-api:${project.slf4jApiVersion}"
+    dist "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
+    dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
+    dist "com.moandjiezana.toml:toml4j:${project.moandjiezanaToml4jVersion}"
+    dist "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
+    dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
 
     // runtime
-    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
-    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
-    dist 'commons-logging:commons-logging:1.1.1'
-    dist 'io.opentelemetry:opentelemetry-api:1.0.0'
-    dist 'io.opentelemetry:opentelemetry-context:1.0.0'
-    dist 'org.awaitility:awaitility:3.1.6'
-    dist 'org.hdrhistogram:HdrHistogram:2.1.10'
-    dist 'com.h2database:h2:1.4.199'
-    dist 'org.hdrhistogram:HdrHistogram:2.1.10'
+    dist "org.apache.ws.commons.axiom:axiom-c14n:${project.apacheCommonsAxiomC14nVersion}"
+    dist "org.apache.ws.commons.axiom:axiom-impl:${project.apacheCommonsAxiomImplVersion}"
+    dist "org.apache.ws.commons.axiom:axiom-api:${project.apacheCommonsAxiomApiVersion}"
+    dist "org.apache.ws.commons.axiom:axiom-dom:${project.apacheCommonsAxiomDomVersion}"
+    dist "commons-logging:commons-logging:${project.commonsLoggingVersion}"
+    dist "io.opentelemetry:opentelemetry-api:${project.openTelemetryApiVersion}"
+    dist "io.opentelemetry:opentelemetry-context:${project.openTelemetryContextVersion}"
+    dist "org.awaitility:awaitility:${project.awaitilityVersion}"
+    dist "org.hdrhistogram:HdrHistogram:${project.hdrHistogramVersion}"
+    dist "com.h2database:h2:${project.h2DatabaseVersion}"
 
     // observability extensions
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
 
     // Temporary adding . Need to Remove once fix #17878
-    dist 'com.google.code.gson:gson:2.8.7'
+    dist "com.google.code.gson:gson:${project.gsonVersion}"
 
     // Transaction related third party jars
-    dist 'com.atomikos:transactions-jta:5.0.8'
-    dist 'com.atomikos:atomikos-util:5.0.8'
-    dist 'com.atomikos:transactions-api:5.0.8'
-    dist 'com.atomikos:transactions-jdbc:5.0.8'
-    dist 'com.atomikos:transactions:5.0.8'
-    dist 'javax.transaction:javax.transaction-api:1.3'
+    dist "com.atomikos:transactions-jta:${project.atomikosTransactionsJtaVersion}"
+    dist "com.atomikos:atomikos-util:${project.atomikosUtilVersion}"
+    dist "com.atomikos:transactions-api:${project.atomikosTransactionsApiVersion}"
+    dist "com.atomikos:transactions-jdbc:${project.atomikosTransactionsJdbcVersion}"
+    dist "com.atomikos:transactions:${project.atomikosTransactionsVersion}"
+    dist "javax.transaction:javax.transaction-api:${project.javaxTransactionApiVersion}"
 
     // debugger runtime helpers
     dist project(':debug-adapter:debug-adapter-runtime')
@@ -125,6 +124,7 @@ dependencies {
     dist project(':ballerina-core')
     dist project(':toml-parser')
     dist project(':ballerina-tools-api')
+    dist project(':identifier-util')
 
 }
 

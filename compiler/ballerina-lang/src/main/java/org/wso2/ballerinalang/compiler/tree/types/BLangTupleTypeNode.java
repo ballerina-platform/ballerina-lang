@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
  */
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
+    // BLangNodes
     public List<BLangType> memberTypeNodes = new ArrayList<>();
     public BLangType restParamType;
 
@@ -50,6 +53,16 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

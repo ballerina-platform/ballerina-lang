@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -66,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -144,7 +145,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
@@ -218,7 +218,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
-    private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
+    private Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BlockNode currentBlock;
     private Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
     // This is a global variable cache
@@ -421,14 +421,30 @@ public class BIRGen extends BLangNodeVisitor {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
                                                           astTypeDefinition.symbol.name,
                                                           astTypeDefinition.symbol.flags,
-                                                          astTypeDefinition.symbol.isLabel,
                                                           astTypeDefinition.isBuiltinTypeDef,
                                                           type,
                                                           new ArrayList<>(),
                                                           astTypeDefinition.symbol.origin.toBIROrigin(),
                                                           displayName,
                                                           astTypeDefinition.symbol.originalName);
-        typeDefs.put(astTypeDefinition.symbol, typeDef);
+        if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
+            if (type.tsymbol.owner == astTypeDefinition.symbol.owner) {
+                typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
+                typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            } else {
+                BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+                typeDef.referenceType = referenceType;
+
+                if (referenceType != null) {
+                    typeDef.type = referenceType;
+                }
+
+                typeDefs.put(astTypeDefinition.symbol, typeDef);
+            }
+        } else {
+            //enum symbols
+            typeDefs.put(astTypeDefinition.symbol, typeDef);
+        }
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
 
@@ -443,13 +459,14 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
+        BSymbol typeSymbol = astTypeDefinition.symbol.tag == SymTag.TYPE_DEF
+                ? astTypeDefinition.symbol.type.tsymbol : astTypeDefinition.symbol;
         // Write referenced functions, if this is an abstract-object
-        if (astTypeDefinition.symbol.tag != SymTag.OBJECT ||
-                !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.CLASS)) {
+        if (typeSymbol.tag != SymTag.OBJECT || !Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS)) {
             return;
         }
 
-        for (BAttachedFunction func : ((BObjectTypeSymbol) astTypeDefinition.symbol).referencedFunctions) {
+        for (BAttachedFunction func : ((BObjectTypeSymbol) typeSymbol).referencedFunctions) {
             if (!Symbols.isFlagOn(func.symbol.flags, Flags.INTERFACE)) {
                 return;
             }
@@ -486,7 +503,7 @@ public class BIRGen extends BLangNodeVisitor {
         BType nodeType = astTypeDefinition.typeNode.getBType();
         // Consider: type DE distinct E;
         // For distinct types, the type defined by typeDefStmt (DE) is different from type used to define it (E).
-        if (nodeType.tag == TypeTags.ERROR) {
+        if (types.getReferredType(nodeType).tag == TypeTags.ERROR) {
             return astTypeDefinition.symbol.type;
         }
         return nodeType;
@@ -498,7 +515,6 @@ public class BIRGen extends BLangNodeVisitor {
                                                           classDefinition.symbol.name,
                                                           classDefinition.symbol.originalName,
                                                           classDefinition.symbol.flags,
-                                                          classDefinition.symbol.isLabel,
                                                           false,
                                                           classDefinition.getBType(),
                                                           new ArrayList<>(),
@@ -551,8 +567,8 @@ public class BIRGen extends BLangNodeVisitor {
         String attachPointLiteral = symbol.getAttachPointStringLiteral().orElse(null);
         BIRNode.BIRServiceDeclaration serviceDecl =
                 new BIRNode.BIRServiceDeclaration(attachPoint, attachPointLiteral, symbol.getListenerTypes(),
-                                                  symbol.name, symbol.getAssociatedClassSymbol().name, symbol.type,
-                                                  symbol.origin, symbol.flags, symbol.pos);
+                        symbol.name, symbol.getAssociatedClassSymbol().name, symbol.type,
+                        symbol.origin, symbol.flags, symbol.pos);
         serviceDecl.setMarkdownDocAttachment(symbol.markdownDocumentation);
         this.env.enclPkg.serviceDecls.add(serviceDecl);
     }
@@ -935,7 +951,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.originalName,
                                                  annSymbol.flags, annSymbol.points,
                                                  annSymbol.attachedType == null ? symTable.trueType :
-                                                         annSymbol.attachedType.type, annSymbol.origin.toBIROrigin());
+                                                         annSymbol.attachedType, annSymbol.origin.toBIROrigin());
         birAnn.setMarkdownDocAttachment(annSymbol.markdownDocumentation);
         this.env.enclPkg.annotations.add(birAnn);
     }
@@ -1569,17 +1585,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             // If a terminator statement has not been set for the else-block then just add it.
             if (this.env.enclBB.terminator == null) {
-                if (astIfStmt.elseStmt.pos != null) {
-                    Location newLocation = new BLangDiagnosticLocation(
-                            astIfStmt.elseStmt.pos.lineRange().filePath(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().line(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset());
-                    this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB, this.currentScope);
-                } else {
-                    this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
-                }
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
             }
         } else {
             branchIns.falseBB = nextBB;
@@ -1737,8 +1743,9 @@ public class BIRGen extends BLangNodeVisitor {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef);
         } else {
-            BType objectType = connectorInitExpr.getBType().tag != TypeTags.UNION ? connectorInitExpr.getBType() :
-                    ((BUnionType) connectorInitExpr.getBType()).getMemberTypes().stream()
+            BType connectorInitExprType = types.getReferredType(connectorInitExpr.getBType());
+            BType objectType = connectorInitExprType.tag != TypeTags.UNION ? connectorInitExprType :
+                    ((BUnionType) connectorInitExprType).getMemberTypes().stream()
                             .filter(bType -> bType.tag != TypeTags.ERROR)
                             .findFirst()
                             .get();
@@ -2267,28 +2274,6 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        if (xmlAttributeAccessExpr.indexExpr != null) {
-            generateMappingAccess(xmlAttributeAccessExpr, false);
-            return;
-        }
-
-        // This is getting xml attributes as a map. i.e.: x@
-        // Model as a conversion where source type is xml, and target type is map<string>.
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.mapStringType, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        xmlAttributeAccessExpr.expr.accept(this);
-        BIROperand xmlVarOp = this.env.targetOperand;
-        setScopeAndEmit(
-                new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType,
-                        true));
-        this.env.targetOperand = toVarRef;
-    }
-
-    @Override
     public void visit(BLangTypedescExpr accessExpr) {
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(accessExpr.getBType(), this.env.nextLocalVarId(names), VarScope.FUNCTION,
@@ -2545,10 +2530,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         long size = -1L;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
-        if (listConstructorExpr.getBType().tag == TypeTags.ARRAY &&
-                ((BArrayType) listConstructorExpr.getBType()).state != BArrayState.OPEN) {
-            size = ((BArrayType) listConstructorExpr.getBType()).size;
-        } else if (listConstructorExpr.getBType().tag == TypeTags.TUPLE) {
+        BType listConstructorExprType = types.getReferredType(listConstructorExpr.getBType());
+        if (listConstructorExprType.tag == TypeTags.ARRAY &&
+                ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
+            size = ((BArrayType) listConstructorExprType).size;
+        } else if (listConstructorExprType.tag == TypeTags.TUPLE) {
             size = exprs.size();
         }
 
@@ -2567,8 +2553,8 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         setScopeAndEmit(
-                new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExpr.getBType(), toVarRef, sizeOp,
-                                              valueOperands));
+                new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
+                        valueOperands));
         this.env.targetOperand = toVarRef;
     }
 
@@ -2606,7 +2592,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
         InstructionKind insKind;
-        BType astAccessExprExprType = astIndexBasedAccessExpr.expr.getBType();
+        BType astAccessExprExprType = types.getReferredType(astIndexBasedAccessExpr.expr.getBType());
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 
@@ -2668,7 +2654,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
-    private BTypeSymbol getObjectTypeSymbol(BType type) {
+    private BTypeSymbol getObjectTypeSymbol(BType objType) {
+        BType type = types.getReferredType(objType);
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .filter(t -> t.tag == TypeTags.OBJECT)

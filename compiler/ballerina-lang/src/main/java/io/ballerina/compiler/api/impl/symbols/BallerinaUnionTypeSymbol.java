@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
@@ -71,8 +73,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 TypesFactory typesFactory = TypesFactory.getInstance(this.context);
 
                 for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
-                    if (typesFactory.isTypeReference(memberType, memberType.tsymbol, false)
-                            || memberType.getKind() != TypeKind.FINITE) {
+                    if (memberType.tag == TypeTags.TYPEREFDESC || memberType.getKind() != TypeKind.FINITE) {
                         members.add(typesFactory.getTypeDescriptor(memberType));
                         continue;
                     }
@@ -80,13 +81,17 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                     BFiniteType finiteType = (BFiniteType) memberType;
                     for (BLangExpression value : finiteType.getValueSpace()) {
                         ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                        members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                        BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                        members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, (BLangLiteral) value,
+                                                                     bFiniteType));
                     }
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
                     ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                    BFiniteType bFiniteType = new BFiniteType(value.getBType().tsymbol, Set.of(value));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, (BLangLiteral) value,
+                                                                 bFiniteType));
                 }
             }
 
@@ -110,7 +115,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
                     ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.getBType()));
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, (BLangLiteral) value,
+                                                                 value.getBType()));
                 }
             }
 

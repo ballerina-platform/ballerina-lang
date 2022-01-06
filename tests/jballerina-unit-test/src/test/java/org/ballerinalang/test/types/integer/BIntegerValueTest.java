@@ -173,6 +173,11 @@ public class BIntegerValueTest {
         Assert.assertEquals(intValue.intValue(), 1, "Invalid int value returned.");
     }
 
+    @Test(description = "Test record fields with int:subtypes")
+    public void testIntSubtypeField() {
+        BRunUtil.invoke(result, "testIntSubtypeField");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

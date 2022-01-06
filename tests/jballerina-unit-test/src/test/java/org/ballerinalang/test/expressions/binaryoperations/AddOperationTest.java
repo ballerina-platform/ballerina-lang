@@ -57,7 +57,7 @@ public class AddOperationTest {
     }
 
     @Test(description = "Test two int add overflow expression", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\" int range " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByAddition() {
         BRunUtil.invoke(result, "overflowByAddition");
@@ -151,6 +151,11 @@ public class AddOperationTest {
         BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInAdd");
     }
 
+    @Test(description = "Test addition of nullable values")
+    public void testAddNullable() {
+        BRunUtil.invoke(result, "testAddNullable");
+    }
+
     @DataProvider
     public Object[] dataToTestAdditionWithTypes() {
         return new Object[]{
@@ -170,8 +175,8 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, 3, "operator '+' not defined for 'C' and '(float|int)'", 29, 14);
         BAssertUtil.validateError(resultNegative, 4, "operator '+' not defined for 'C' and 'xml'", 30, 14);
         BAssertUtil.validateError(resultNegative, 5, "operator '+' not defined for 'D' and 'int'", 47, 14);
-        BAssertUtil.validateError(resultNegative, 6, "operator '+' not defined for 'ABC|CDE' and 'int'", 48, 14);
-        BAssertUtil.validateError(resultNegative, 7, "operator '+' not defined for 'ABC|10' and 'int'", 49, 14);
+        BAssertUtil.validateError(resultNegative, 6, "operator '+' not defined for 'F' and 'int'", 48, 14);
+        BAssertUtil.validateError(resultNegative, 7, "operator '+' not defined for 'G' and 'int'", 49, 14);
         BAssertUtil.validateError(resultNegative, 8, "operator '+' not defined for 'float' and 'decimal'", 56, 14);
         BAssertUtil.validateError(resultNegative, 9, "operator '+' not defined for 'float' and 'decimal'", 57, 14);
         BAssertUtil.validateError(resultNegative, 10, "operator '+' not defined for 'float' and 'int'", 58, 14);

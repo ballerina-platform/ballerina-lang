@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 35);
+        Assert.assertEquals(compileResult.getErrorCount(), 42);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -75,39 +75,54 @@ public class TableNegativeTest {
                 "specifier or key type constraint", 114, 21);
         validateError(compileResult, index++, "table with constraint of type map cannot have key " +
                 "specifier or key type constraint", 120, 21);
-        validateError(compileResult, index++, "cannot infer the member type from table constructor. " +
-                "field 'id' type is ambiguous", 129, 14);
         validateError(compileResult, index++, "cannot infer the member type from table constructor; " +
-                "no values are provided in table constructor", 134, 25);
+                "no values are provided in table constructor", 128, 25);
         validateError(compileResult, index++, "incompatible types: expected 'Customer', found 'Customer?'",
-                141, 25);
+                135, 25);
         validateError(compileResult, index++, "incompatible types: expected 'User', found '(User|Customer)?'",
-                147, 17);
+                141, 17);
         validateError(compileResult, index++, "incompatible types: expected 'Customer', found 'Customer?'",
-                154, 25);
+                148, 25);
         validateError(compileResult, index++, "field 'name' used in key specifier must be a readonly field",
-                162, 36);
+                156, 36);
         validateError(compileResult, index++, "invalid type 'k' for field 'Row' used in key specifier, " +
-                "expected sub type of anydata", 175, 12);
+                "expected sub type of anydata", 169, 12);
         validateError(compileResult, index++, "value expression of key specifier 'k' must be a " +
-                "constant expression", 176, 5);
+                "constant expression", 170, 5);
         validateError(compileResult, index++, "value expression of key specifier 'k' must be a " +
-                "constant expression", 188, 5);
+                "constant expression", 182, 5);
         validateError(compileResult, index++, "value expression of key specifier 'm' must be a " +
-                "constant expression", 194, 5);
+                "constant expression", 188, 5);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
-                "'map<any|error>' but found 'any'", 197, 25);
+                "'map<any|error>' but found 'any'", 191, 25);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
-                "'map<any|error>' but found 'any'", 200, 14);
+                "'map<any|error>' but found 'any'", 194, 14);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not " +
-                "found in table constraint type 'Person'", 203, 19);
+                "found in table constraint type 'Person'", 197, 19);
         validateError(compileResult, index++, "field name 'invalidField' used in key specifier " +
-                "is not found in table constraint type 'Person'", 204, 19);
+                "is not found in table constraint type 'Person'", 198, 19);
         validateError(compileResult, index++, "table key specifier '[leaves]' does not match " +
-                "with key constraint type '[EmployeeId]'", 217, 47);
+                "with key constraint type '[EmployeeId]'", 211, 47);
         validateError(compileResult, index++, "table key specifier mismatch with key constraint. " +
-                "expected: '[string, string]' fields but found '[firstname]'", 219, 47);
-        validateError(compileResult, index, "field name 'firstname' used in key specifier " +
-                "is not found in table constraint type 'CustomerDetail'", 236, 35);
+                "expected: '[string, string]' fields but found '[firstname]'", 213, 47);
+        validateError(compileResult, index++, "field name 'firstname' used in key specifier " +
+                "is not found in table constraint type 'CustomerDetail'", 230, 35);
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
+                "a constant expression", 237, 9);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
+                + " found 'table<record {| (string|int|boolean) name?; (int|boolean)...; |}>'", 254, 41);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
+                " found 'table<record {| (string|int) name?; int...; |}>'", 263, 41);
+        validateError(compileResult, index++, "incompatible types: expected 'table<record {| (string|int) name?; |}>'" +
+                        ", found 'table<record {| (string|int) name?; int...; |}>'",
+                264, 45);
+        validateError(compileResult, index++, "incompatible types: expected 'int'," +
+                " found 'table<record {| (int|string) a; |}>'", 276, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'int'," +
+                " found 'table<record {| int i; int j?; never k?; string l?; never...; |}>'", 291, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'int'," +
+                " found 'table<record {| (anydata|error) a; |}>'", 301, 13);
+        validateError(compileResult, index, "incompatible types: expected 'int'," +
+                " found 'table<record {| (any|error) a; |}>'", 311, 13);
     }
 }

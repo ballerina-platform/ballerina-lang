@@ -77,6 +77,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
         Assert.assertEquals(packageManifest.ballerinaVersion(), "slbeta2");
+        Assert.assertEquals(packageManifest.visibility(), "private");
 
 //        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
 //        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());
@@ -161,6 +162,60 @@ public class BallerinaTomlTests {
         Assert.assertEquals(iterator.next().message(), "'name' under [package] is missing");
         Assert.assertEquals(iterator.next().message(), "'org' under [package] is missing");
         Assert.assertEquals(iterator.next().message(), "'version' under [package] is missing");
+    }
+
+    @Test(description = "Package should be given as [package], Here checking error when it given as [[package]]")
+    public void testBallerinaTomlWithPackageGivenAsTableArray() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("package-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'package': expected 'OBJECT', found 'ARRAY'");
+    }
+
+    @Test(description = "Build options should be given as [build-options], " +
+            "Here checking error when it given as [build-options]")
+    public void testBallerinaTomlWithBuildOptionsGivenAsTableArray() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("build-options-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'build-options': expected 'OBJECT', found 'ARRAY'");
+    }
+
+    @Test(description = "Platform libs should be given as [[platform.java11.dependency]], " +
+            "Here checking error when it given as [platform.java11.dependency]")
+    public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("platform-libs-as-table.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+        Assert.assertEquals(iterator.next().message(),
+                "existing node 'dependency'");
+    }
+
+    @Test(description = "Local dependencies should be given as [[dependency]], " +
+            "Here checking error when it given as [dependency]")
+    public void testBallerinaTomlWithLocalDependenciesGivenAsTable() throws IOException {
+        PackageManifest packageManifest =
+                getPackageManifest(BAL_TOML_REPO.resolve("local-dependencies-as-table-array.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().errors().size(), 2);
+
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+        Assert.assertEquals(iterator.next().message(),
+                "existing node 'dependency'");
     }
 
     @Test(enabled = false)
@@ -335,13 +390,15 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-entries.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 5);
+        Assert.assertEquals(diagnostics.errors().size(), 6);
 
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Assert.assertEquals(iterator.next().message(),
                 "incompatible type for key 'license': expected 'ARRAY', found 'STRING'");
         Assert.assertEquals(iterator.next().message(),
                 "incompatible type for key 'repository': expected 'STRING', found 'BOOLEAN'");
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'visibility' under [package]: 'visibility' can only have value 'private'");
         Assert.assertEquals(iterator.next().message(),
                 "could not locate dependency path 'path/to/swagger.txt'");
         Assert.assertEquals(iterator.next().message(),
@@ -444,6 +501,27 @@ public class BallerinaTomlTests {
                 + "maximum length of 'org' is 256 characters");
         Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: "
                 + "maximum length of 'name' is 256 characters");
+    }
+
+    @Test
+    public void testInvalidIconPath() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("invalid-icon-path.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), "could not locate icon path '../sample.png'");
+    }
+
+    @Test
+    public void testInvalidIconType() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("invalid-icon-type.toml"));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                "invalid 'icon' under [package]: 'icon' can only have 'png' images");
     }
 
     static PackageManifest getPackageManifest(Path tomlPath) throws IOException {

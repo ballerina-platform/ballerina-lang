@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -67,9 +68,10 @@ public class LangLibValueTest {
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 31, 23);
-        validateError(negativeResult, index++, "invalid usage of the 'check' expression operator: " +
+        validateWarning(negativeResult, index++, "invalid usage of the 'check' expression operator: " +
                 "no expression type is equivalent to error type", 40, 21);
-        assertEquals(negativeResult.getErrorCount(), index);
+        assertEquals(negativeResult.getErrorCount(), index - 1);
+        assertEquals(negativeResult.getWarnCount(), 1);
     }
 
     @Test
@@ -324,42 +326,26 @@ public class LangLibValueTest {
     }
 
     @DataProvider(name = "cloneWithTypeFunctions")
-    public Object[][] cloneWithTypeFunctions() {
-        return new Object[][] {
-                { "testCloneWithTypeJsonRec1" },
-                { "testCloneWithTypeJsonRec2" },
-                { "testCloneWithTypeOptionalFieldToMandotoryField" },
-                { "testCloneWithTypeAmbiguousTargetType" },
-                { "testCloneWithTypeForNilPositive" },
-                { "testCloneWithTypeForNilNegative" },
-                { "testCloneWithTypeNumeric1" },
-                { "testCloneWithTypeNumeric2" },
-                { "testCloneWithTypeNumeric3" },
-                { "testCloneWithTypeNumeric4" },
-                { "testCloneWithTypeNumeric5" },
-                { "testCloneWithTypeNumeric6" },
-                { "testCloneWithTypeNumeric7" },
-                { "testCloneWithTypeToArrayOfRecord" },
-                { "testCloneWithTypeToArrayOfMap" },
-                { "testCloneWithTypeIntArrayToUnionArray" },
-                { "testCloneWithTypeIntSubTypeArray" },
-                { "testCloneWithTypeStringArray" },
-                { "testCloneWithTypeWithInferredArgument" },
-                { "testCloneWithTypeWithImmutableTypes" },
-                { "testCloneWithTypeDecimalToInt"},
-                { "testCloneWithTypeDecimalToIntNegative" },
-                { "testCloneWithTypeDecimalToByte"},
-                { "testCloneWithTypeDecimalToIntSubType"},
-                { "testCloneWithTypeTupleToJSON"},
-                { "testCloneWithTypeImmutableStructuredTypes"},
-                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
-                { "testCloneWithTypeWithFiniteType" },
-                { "testCloneWithTypeWithUnionOfFiniteType" },
-                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
-                { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
-                { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
-                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" },
-                { "testConvertJsonToNestedRecordsWithErrors" }
+    public Object[] cloneWithTypeFunctions() {
+        return new String[]{
+                "testCloneWithTypeJsonRec1", "testCloneWithTypeJsonRec2",
+                "testCloneWithTypeOptionalFieldToMandotoryField", "testCloneWithTypeAmbiguousTargetType",
+                "testCloneWithTypeForNilPositive", "testCloneWithTypeForNilNegative", "testCloneWithTypeNumeric1",
+                "testCloneWithTypeNumeric2", "testCloneWithTypeNumeric3", "testCloneWithTypeNumeric4",
+                "testCloneWithTypeNumeric5", "testCloneWithTypeNumeric6", "testCloneWithTypeNumeric7",
+                "testCloneWithTypeToArrayOfRecord", "testCloneWithTypeToArrayOfMap",
+                "testCloneWithTypeIntArrayToUnionArray", "testCloneWithTypeIntSubTypeArray",
+                "testCloneWithTypeStringArray", "testCloneWithTypeWithInferredArgument",
+                "testCloneWithTypeWithImmutableTypes", "testCloneWithTypeDecimalToInt",
+                "testCloneWithTypeDecimalToIntNegative", "testCloneWithTypeDecimalToByte",
+                "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
+                "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+                "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
+                "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+                "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
+                "testCloneWithTypeWithUnionTypeArrayFromIntArray",
+                "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
+                "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField"
         };
     }
 
@@ -394,6 +380,7 @@ public class LangLibValueTest {
     @Test
     public void testAssigningCloneableToAnyOrError() {
         BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+        BRunUtil.invokeFunction(compileResult, "testUsingCloneableReturnType");
     }
 
     @Test
@@ -490,10 +477,10 @@ public class LangLibValueTest {
     }
 
     @DataProvider(name = "ensureTypeNegativeFunctions")
-    public Object[][] ensureTypeNegativeFunctions() {
-        return new Object[][] {
-                { "testEnsureTypeNegative" },
-                { "testEnsureTypeJsonToNestedRecordsWithErrors" }
+    public Object[] ensureTypeNegativeFunctions() {
+        return new String[]{
+                "testEnsureTypeNegative", "testEnsureTypeJsonToNestedRecordsWithErrors",
+                "testEnsureTypeFloatToIntNegative"
         };
     }
 

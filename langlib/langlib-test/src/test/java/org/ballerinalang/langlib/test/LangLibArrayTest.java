@@ -162,39 +162,6 @@ public class LangLibArrayTest {
         Assert.fail();
     }
 
-    @Test
-    public void testPushAfterSlice() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSlice");
-        BValueArray result = (BValueArray) returns[0];
-
-        assertEquals(((BInteger) result.getRefValue(0)).intValue(), 3);
-        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 4);
-
-        BValueArray arr = (BValueArray) result.getRefValue(2);
-        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
-        assertEquals(arr.size(), 4);
-        assertEquals(arr.getFloat(0), 23.45);
-        assertEquals(arr.getFloat(1), 34.56);
-        assertEquals(arr.getFloat(2), 45.67);
-        assertEquals(arr.getFloat(3), 20.1);
-    }
-
-    @Test
-    public void testPushAfterSliceFixed() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSliceFixed");
-        BValueArray result = (BValueArray) returns[0];
-
-        assertEquals(((BInteger) result.getRefValue(0)).intValue(), 2);
-        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 3);
-
-        BValueArray arr = (BValueArray) result.getRefValue(2);
-        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
-        assertEquals(arr.size(), 3);
-        assertEquals(arr.getInt(0), 4);
-        assertEquals(arr.getInt(1), 5);
-        assertEquals(arr.getInt(2), 88);
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible types: expected '\\(map<string> & readonly\\)', " +
@@ -242,51 +209,6 @@ public class LangLibArrayTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf");
         assertEquals(((BInteger) returns[0]).intValue(), 4);
         assertNull(returns[1]);
-    }
-
-    @Test
-    public void testLastIndexOf() {
-        BRunUtil.invoke(compileResult, "testLastIndexOf");
-    }
-
-    @Test
-    public void testReverseInt() {
-        BRunUtil.invoke(compileResult, "testReverseInt");
-    } 
-
-    @Test
-    public void testReverseFloat() {
-        BRunUtil.invoke(compileResult, "testReverseFloat");
-    }
-
-    @Test
-    public void testReverseStr() {
-        BRunUtil.invoke(compileResult, "testReverseStr");
-    }
-
-    @Test
-    public void testReverseBool() {
-        BRunUtil.invoke(compileResult, "testReverseBool");
-    }
-
-    @Test
-    public void testReverseByte() {
-        BRunUtil.invoke(compileResult, "testReverseByte");
-    }
-
-    @Test
-    public void testReverseMap() {
-        BRunUtil.invoke(compileResult, "testReverseMap");
-    }
-
-    @Test
-    public void testReverseRecord() {
-        BRunUtil.invoke(compileResult, "testReverseRecord");
-    }
-
-    @Test
-    public void testArrayReverseEquality() {
-        BRunUtil.invoke(compileResult, "testArrayReverseEquality");
     }
 
     @Test
@@ -481,7 +403,7 @@ public class LangLibArrayTest {
                 "incompatible types: expected 'ballerina/lang.array:0.0.0:SortDirection', " +
                         "found 'function (int) returns (int)'", 137, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns" +
+                "incompatible types: expected 'isolated function (ballerina/lang.array:0.0.0:Type) returns" +
                         " (ballerina/lang.array:0.0.0:OrderedType)?', found 'string'", 139, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type",
@@ -493,14 +415,14 @@ public class LangLibArrayTest {
                 "invalid member type of the array/tuple to sort: '(Person|int)[]' is not an ordered type",
                 147, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns " +
+                "incompatible types: expected 'isolated function (ballerina/lang.array:0.0.0:Type) returns " +
                         "(ballerina/lang.array:0.0.0:OrderedType)?', found 'isolated function ((Person|int)) " +
                         "returns ((Person|int))'", 149, 61);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type",
                 155, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns " +
+                "incompatible types: expected 'isolated function (ballerina/lang.array:0.0.0:Type) returns " +
                         "(ballerina/lang.array:0.0.0:OrderedType)?', found 'isolated function (map<string>?) " +
                         "returns (map<string>?)'", 157, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
@@ -524,13 +446,16 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid sort key function return type: '(string|int)' is not an ordered type", 184, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 195, 15);
+                "incompatible types: expected 'ballerina/lang.array:0.0.0:AnydataType[]', " +
+                        "found '(Person|error)[]'", 195, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 196, 15);
+                "incompatible types: expected 'ballerina/lang.array:0.0.0:AnydataType[]', " +
+                        "found '(Person|error)[]'", 196, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found 'function[]'", 199, 15);
-        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'anydata', found " +
-                        "'function (int) returns (int)'", 199, 26);
+                "incompatible types: expected 'ballerina/lang.array:0.0.0:AnydataType[]', " +
+                        "found 'function[]'", 199, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected " +
+                "'ballerina/lang.array:0.0.0:AnydataType', found 'function (int) returns (int)'", 199, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -556,7 +481,7 @@ public class LangLibArrayTest {
 
     @DataProvider(name = "FunctionList")
     public Object[] testFunctions() {
-        return new Object[]{
+        return new String[]{
                 "testSliceOnTupleWithRestDesc",
                 "testLastIndexOf",
                 "testPush",
@@ -573,7 +498,19 @@ public class LangLibArrayTest {
                 "testReadOnlyArrayFilter",
                 "testTupleFilter",
                 "testTupleReverse",
-                "testToStreamOnImmutableArray"
+                "testToStreamOnImmutableArray",
+                "testPushAfterSlice",
+                "testPushAfterSliceFixed",
+                "testLastIndexOf",
+                "testReverseInt",
+                "testReverseFloat",
+                "testReverseStr",
+                "testReverseBool",
+                "testReverseByte",
+                "testReverseMap",
+                "testReverseRecord",
+                "testArrayReverseEquality",
+                "testPushAfterSliceOnTuple"
         };
     }
 }

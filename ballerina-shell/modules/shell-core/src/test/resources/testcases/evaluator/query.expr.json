@@ -1,7 +1,7 @@
 [
   {
     "description": "Define helper definitions.",
-    "code": "type Student record { string firstName; string lastName; int intakeYear; float gpa; }; type Report record { string name; string degree; int graduationYear; }; function calGraduationYear(int year) returns int { return year + 5; }; type FullName record {| string firstName; string lastName; |};"
+    "code": "type Student record { string firstName; string lastName; int intakeYear; float gpa; }; type Report record { string name; string degree; int graduationYear; }; type FullName record {| string firstName; string lastName; |}; function calGraduationYear(int year) returns int { return year + 5; }"
   },
   {
     "description": "Define helper variables.",
@@ -14,17 +14,29 @@
   },
   {
     "description": "Query stream evaluation.",
-    "code": "stream<any>? reportListStream = (); reportListStream = stream from var student in studentList where student.gpa >= 2.0 let string degreeName = \"Bachelor of Medicine\", int graduationYear = calGraduationYear(student.intakeYear) order by student.firstName descending limit 2 select { name: student.firstName + \" \" + student.lastName, degree: degreeName, graduationYear: graduationYear }; reportListStream",
+    "code": "stream<any>? reportListStream = (); reportListStream = stream from var student in studentList where student.gpa >= 2.0 let string degreeName = \"Bachelor of Medicine\", int graduationYear = calGraduationYear(student.intakeYear) order by student.firstName descending limit 2 select { name: student.firstName + \" \" + student.lastName, degree: degreeName, graduationYear: graduationYear };"
+  },
+  {
+    "description": "Query stream evaluation - get value.",
+    "code": "reportListStream",
     "expr": "stream <stream<map>>"
   },
   {
     "description": "String from query evaluation.",
-    "code": "string students = \"\"; students = from var student in studentList where student.gpa >= 2.0 select student.firstName + \" \" + student.lastName + \"\\n\"; students",
+    "code": "string students = \"\"; students = from var student in studentList where student.gpa >= 2.0 select student.firstName + \" \" + student.lastName + \"\\n\";"
+  },
+  {
+    "description": "String from query evaluation - get value.",
+    "code": "students",
     "expr": "\"Martin Sadler\nMichelle Guthrie\n\""
   },
   {
     "description": "Query action evaluation.",
-    "code": "FullName[] nameList = []; error? result = (); result = from var student in studentList do { FullName fullName = { firstName: student.firstName, lastName: student.lastName }; nameList.push(fullName); }; nameList",
+    "code": "FullName[] nameList = []; error? result = (); result = from var student in studentList do { FullName fullName = { firstName: student.firstName, lastName: student.lastName }; nameList.push(fullName); };"
+  },
+  {
+    "description": "Query action evaluation - get value.",
+    "code": "nameList",
     "expr": "[{\"firstName\":\"Martin\",\"lastName\":\"Sadler\"},{\"firstName\":\"Ranjan\",\"lastName\":\"Fonseka\"},{\"firstName\":\"Michelle\",\"lastName\":\"Guthrie\"}]"
   }
 ]

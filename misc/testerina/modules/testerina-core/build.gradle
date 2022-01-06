@@ -33,14 +33,14 @@ dependencies {
     implementation project(':ballerina-lang:jballerina.java')
     implementation 'org.testng:testng'
 
-    interopImports 'io.github.java-diff-utils:java-diff-utils:4.5'
+    interopImports "io.github.java-diff-utils:java-diff-utils:${project.javaDiffUtilsVersion}"
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
     testCompile 'io.swagger.parser.v3:swagger-parser'
     testCompile 'com.github.jknack:handlebars'
 
-    compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: '4.5'
+    compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
 }
 
 jar.archiveName("${project.name}-${project.version}.jar")

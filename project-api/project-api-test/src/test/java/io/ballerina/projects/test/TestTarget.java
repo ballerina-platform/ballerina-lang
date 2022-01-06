@@ -49,7 +49,7 @@ public class TestTarget {
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
-        Target projectTarget = new Target(project.sourceRoot());
+        Target projectTarget = new Target(project.targetDir());
         Path balaCachePath = projectTarget.getBalaPath();
         Path birCachePath = projectTarget.getBirCachePath();
         Path jarCachePath = projectTarget.getJarCachePath();

@@ -50,6 +50,8 @@ public class TypeGuardTest extends AbstractCodeActionTest {
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
                 {"typeGuardVariableCodeAction1.json", "typeGuardVariable1.bal"},
                 {"typeGuardVariableCodeAction2.json", "typeGuardVariable1.bal"},
+                {"typeGuardVariableCodeAction3.json", "typeGuardVariable2.bal"},
+                {"typeGuardWithTuple1.json", "typeGuardWithTuple1.bal"},
         };
     }
 }

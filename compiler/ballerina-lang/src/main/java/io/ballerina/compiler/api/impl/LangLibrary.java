@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * A class to hold the lang library function info required for types.
  *
@@ -60,13 +59,15 @@ public class LangLibrary {
     private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
     private final SymbolFactory symbolFactory;
     private final LangLibFunctionBinder methodBinder;
+    private final Types types;
 
     private LangLibrary(CompilerContext context) {
         context.put(LANG_LIB_KEY, this);
 
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.langLibMethods = new HashMap<>();
-        this.methodBinder = new LangLibFunctionBinder(Types.getInstance(context));
+        this.types = Types.getInstance(context);
+        this.methodBinder = new LangLibFunctionBinder(this.types);
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
@@ -75,7 +76,7 @@ public class LangLibrary {
 
             if (isLangLibModule(moduleID)) {
                 if (!LANG_VALUE.equals(moduleID.nameComps.get(1).value)) {
-                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods);
+                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods, types);
                 } else {
                     populateLangValueLibrary(module, this.langLibMethods);
                 }
@@ -159,7 +160,7 @@ public class LangLibrary {
     }
 
     private static void addLangLibMethods(String basicType, BPackageSymbol langLibModule,
-                                          Map<String, Map<String, BInvokableSymbol>> langLibMethods) {
+                                          Map<String, Map<String, BInvokableSymbol>> langLibMethods, Types types) {
         Map<String, BInvokableSymbol> methods = new HashMap<>();
 
         for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : langLibModule.scope.entries.entrySet()) {
@@ -172,9 +173,10 @@ public class LangLibrary {
             BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
-                    (!invSymbol.params.isEmpty() &&
-                            basicType.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0 ||
-                    invSymbol.restParam != null && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
+                    (!invSymbol.params.isEmpty()
+                            && basicType.compareToIgnoreCase(types.getReferredType(invSymbol.params.get(0).type)
+                            .getKind().name()) == 0 || invSymbol.restParam != null
+                            && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
                             .eType.tsymbol.getName().getValue()) == 0)) {
                 methods.put(invSymbol.name.value, invSymbol);
             }

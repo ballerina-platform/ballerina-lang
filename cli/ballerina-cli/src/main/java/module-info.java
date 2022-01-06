@@ -1,6 +1,7 @@
 module io.ballerina.cli {
     exports io.ballerina.cli;
     exports io.ballerina.cli.launcher;
+    exports io.ballerina.cli.utils;
 
     requires io.ballerina.runtime;
     requires io.ballerina.lang;
@@ -18,4 +19,5 @@ module io.ballerina.cli {
     requires slf4j.api;
     requires io.ballerina.shell.cli;
     requires io.ballerina.toml;
+    requires io.ballerina.identifier;
 }

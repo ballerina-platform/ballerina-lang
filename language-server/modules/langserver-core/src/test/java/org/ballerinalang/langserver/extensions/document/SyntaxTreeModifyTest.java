@@ -76,6 +76,41 @@ public class SyntaxTreeModifyTest {
             .resolve("modify")
             .resolve("mainHttpCallWithPrint.bal");
 
+    private Path removeImport = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("removeImport.bal");
+
+    private Path removeImportExpected = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("removeImportExpected.bal");
+
+    private Path notRemoveIgnoredImports = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("notRemoveIgnoredImports.bal");
+
+    private Path notRemoveIgnoredImportsExpected = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("notRemoveIgnoredImportsExpected.bal");
+
+    private Path notRemoveUsedImports = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("notRemoveUsedImports.bal");
+
+    private Path notRemoveUsedImportsExpected = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("notRemoveUsedImportsExpected.bal");
 //    private Path serviceNatsFile = FileUtils.RES_DIR.resolve("extensions")
 //            .resolve("document")
 //            .resolve("ast")
@@ -135,6 +170,72 @@ public class SyntaxTreeModifyTest {
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
                 .modifyAndGetBallerinaSyntaxTree(inputFile.toString(),
                         new ASTModification[]{modification1, modification2, modification3}, this.serviceEndpoint);
+        BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
+                expectedFile.toString(), this.serviceEndpoint);
+        Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+        TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
+    }
+
+    @Test(description = "Remove unused import from file on modification.")
+    public void testRemoveUnusedImport() throws IOException {
+        skipOnWindows();
+        Path inputFile = LSExtensionTestUtil.createTempFile(removeImport);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+        Path expectedFile = LSExtensionTestUtil.createTempFile(removeImportExpected);
+        TestUtil.openDocument(serviceEndpoint, expectedFile);
+        Gson gson = new Gson();
+        ASTModification modification1 = new ASTModification(3, 0, 3, 0, false,
+                "INSERT",
+                gson.fromJson("{\"TYPE\":\"ballerina/http\", \"STATEMENT\":\"int a = 0;\"}",
+                        JsonObject.class));
+        BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
+                .modifyAndGetBallerinaSyntaxTree(inputFile.toString(),
+                        new ASTModification[]{modification1}, this.serviceEndpoint);
+        BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
+                expectedFile.toString(), this.serviceEndpoint);
+        Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+        TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
+    }
+
+    @Test(description = "Not remove ignored imports from file on modification.")
+    public void testNotRemoveIgnoredImport() throws IOException {
+        skipOnWindows();
+        Path inputFile = LSExtensionTestUtil.createTempFile(notRemoveIgnoredImports);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+        Path expectedFile = LSExtensionTestUtil.createTempFile(notRemoveIgnoredImportsExpected);
+        TestUtil.openDocument(serviceEndpoint, expectedFile);
+        Gson gson = new Gson();
+        ASTModification modification1 = new ASTModification(3, 0, 3, 0, false,
+                "INSERT",
+                gson.fromJson("{\"TYPE\":\"ballerina/http\", \"STATEMENT\":\"int a = 0;\"}",
+                        JsonObject.class));
+        BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
+                .modifyAndGetBallerinaSyntaxTree(inputFile.toString(),
+                        new ASTModification[]{modification1}, this.serviceEndpoint);
+        BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
+                expectedFile.toString(), this.serviceEndpoint);
+        Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+        TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
+    }
+
+    @Test(description = "Not remove used imports from file on modification.")
+    public void testNotRemoveUsedImport() throws IOException {
+        skipOnWindows();
+        Path inputFile = LSExtensionTestUtil.createTempFile(notRemoveUsedImports);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+        Path expectedFile = LSExtensionTestUtil.createTempFile(notRemoveUsedImportsExpected);
+        TestUtil.openDocument(serviceEndpoint, expectedFile);
+        Gson gson = new Gson();
+        ASTModification modification1 = new ASTModification(5, 0, 5, 0, false,
+                "INSERT",
+                gson.fromJson("{\"TYPE\":\"ballerina/http\", \"STATEMENT\":\"int a = 0;\"}",
+                        JsonObject.class));
+        BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
+                .modifyAndGetBallerinaSyntaxTree(inputFile.toString(),
+                        new ASTModification[]{modification1}, this.serviceEndpoint);
         BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
                 expectedFile.toString(), this.serviceEndpoint);
         Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());

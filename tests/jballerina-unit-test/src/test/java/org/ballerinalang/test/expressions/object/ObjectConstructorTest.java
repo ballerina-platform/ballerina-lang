@@ -87,6 +87,11 @@ public class ObjectConstructorTest {
     }
 
     @Test
+    public void testObjectConstructorWithReferredIntersectionType() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithReferredIntersectionType");
+    }
+
+    @Test
     public void testObjectConstructorNegative() {
 
         CompileResult negativeResult = BCompileUtil.compile(
@@ -129,6 +134,8 @@ public class ObjectConstructorTest {
         validateError(negativeResult, index++,
                 "no implementation found for the method 'onMessage' of object constructor " +
                         "'object { function onMessage () returns (); }'", 127, 14);
+        validateError(negativeResult, index++, "incompatible types: expected 'any & readonly', found 'stream<int>'",
+                      140, 17);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
