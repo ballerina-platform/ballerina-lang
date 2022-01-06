@@ -1568,6 +1568,26 @@ string errorMsgContent = "\n\t\tmissing required field 'grade' of type 'float' i
         "\n\t\tfield 'intern.fruit.amount' in record 'Mango' should be of type 'int', found '\"five\"'" +
         "\n\t\t...";
 
+type Organization record {
+    string id;
+    string login;
+    string name;
+};
+
+type User record {
+    string id;
+    string login;
+    string? name?;
+};
+
+type Repository record {
+    string orgName;
+};
+
+type Bazz record {
+    (User|Organization|Repository)[] x;
+};
+
 function testConvertJsonToNestedRecordsWithErrors() {
 
     Factory|error val = trap jsonVal.cloneWithType(Factory);
@@ -1576,6 +1596,29 @@ function testConvertJsonToNestedRecordsWithErrors() {
     string errorMsg = "'map<json>' value cannot be converted to 'Factory': " + errorMsgContent;
     assert(<string> checkpanic err.detail()["message"], errorMsg);
     assert(err.message(),"{ballerina/lang.value}ConversionError");
+
+    json j = {
+        x: [
+            {id: "0", name: "a", login: "c"},
+            {id: "1", name: "b", login: "d"},
+            {height: 12.5, weight: "medium", login: 4}
+        ]
+    };
+
+    Bazz|error result = trap j.cloneWithType();
+    assert(result is error, true);
+    err = <error> result;
+    string errMsg = "'map<json>' value cannot be converted to 'Bazz': " +
+    "\n\t\tValue '{\"id\":\"0\",\"name\":\"a\"...' cannot be converted to '(User|Organization|Repository)': ambiguous target type" +
+    "\n\t\tValue '{\"id\":\"1\",\"name\":\"b\"...' cannot be converted to '(User|Organization|Repository)': ambiguous target type" +
+    "\n\t\tmissing required field 'x[2].id' of type 'string' in record 'User'" +
+    "\n\t\tfield 'x[2].login' in record 'User' should be of type 'string', found '4'" +
+    "\n\t\tmissing required field 'x[2].name' of type 'string' in record 'Organization'" +
+    "\n\t\tmissing required field 'x[2].id' of type 'string' in record 'Organization'" +
+    "\n\t\tfield 'x[2].login' in record 'Organization' should be of type 'string', found '4'" +
+    "\n\t\tmissing required field 'x[2].orgName' of type 'string' in record 'Repository'";
+    assert(<string> checkpanic err.detail()["message"], errMsg);
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
 }
 
 type Journey record {|
