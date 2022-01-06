@@ -21,6 +21,9 @@ public const publicInt = 10;
 const string constant = "Ballerina";
 public const map<string> constMap = {"name": "John"};
 
+public string publicModuleVariable = "public";
+string privateModuleVariable = "private";
+
 type Student record {
     string firstName;
     string lastName;
