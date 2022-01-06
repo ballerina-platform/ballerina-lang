@@ -321,3 +321,44 @@ function testTypeNarrowingWithWhileCompletedNormally2() returns int? {
     }
     () b = a;
 }
+
+function testScopesWhereTypeNarrowingIsNotApplicable() {
+    int? a = 10;
+    string? b = "100";
+    if a is int {
+        if (a == 5) {
+            return;
+        }
+    }
+    b = a;
+}
+
+function testScopesWhereTypeNarrowingIsNotApplicable2() {
+    int? a = 10;
+    string? b = "100";
+    if a is int {
+        if (a == 5) {
+            return;
+        }
+        if (a == 10) {
+            return;
+        }
+    }
+    b = a;
+}
+
+function testScopesWhereTypeNarrowingIsNotApplicable3() {
+    int? a = 10;
+    string? b = "100";
+    if a is int {
+        if (a == 5) {
+            return;
+        }
+    }
+    if b is string {
+        if (b == "") {
+            return;
+        }
+    }
+    b = a;
+}
