@@ -315,7 +315,7 @@ public class BindgenUtils {
                 }
             }
             if (!classPaths.isEmpty()) {
-                outStream.println("\nFollowing jars were added to the classpath:");
+                outStream.println("\nThe following JARs were added to the classpath:");
                 for (String path : classPaths) {
                     outStream.println("\t" + path);
                 }
