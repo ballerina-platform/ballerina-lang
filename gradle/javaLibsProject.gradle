@@ -80,9 +80,7 @@ dependencies {
 
     dist project(':ballerina-core')
     dist project(':ballerina-lang')
-//    dist project(':ballerina-observability')
     dist project(':ballerina-cli')
-//    dist project(':ballerina-observability-internal')
     dist project(':ballerina-io-internal')
 //    dist project(':ballerina-transactions')
     dist project(':ballerina-lang:jballerina.java')
