@@ -61,6 +61,47 @@ public class TestConnectorGenerator {
         balaProject = ProjectLoader.loadProject(this.testConnectorBalaFile, defaultBuilder);
     }
 
+    @Test(description = "Test getting project all connectors")
+    public void getProjectAllConnectors() throws IOException {
+        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, false, "");
+        Assert.assertEquals(connectors.size(), 1);
+        Connector connector = connectors.get(0);
+
+        Assert.assertEquals(connector.moduleName, moduleName);
+        Assert.assertEquals(connector.documentation, "Test Client documentation\n\n");
+        Assert.assertEquals(connector.packageInfo.getOrganization(), orgName);
+    }
+
+    @Test(description = "Test getting project connectors with query filter")
+    public void getProjectConnectorsWithFilter() throws IOException {
+        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, false, orgName);
+        Assert.assertEquals(connectors.size(), 1);
+        Connector connector = connectors.get(0);
+
+        Assert.assertEquals(connector.moduleName, moduleName);
+        Assert.assertEquals(connector.documentation, "Test Client documentation\n\n");
+        Assert.assertEquals(connector.packageInfo.getOrganization(), orgName);
+    }
+
+    @Test(description = "Test getting connector with function metadata")
+    public void getProjectConnectorWithFunctionMetadata() throws IOException {
+        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, true, orgName);
+        Assert.assertEquals(connectors.size(), 1);
+        Connector connector = connectors.get(0);
+
+        Assert.assertEquals(connector.moduleName, moduleName);
+        Assert.assertEquals(connector.documentation, "Test Client documentation\n\n");
+        Assert.assertEquals(connector.packageInfo.getOrganization(), orgName);
+
+        Assert.assertEquals(connector.functions.size(), 5);
+        List<Function> functionList = connector.functions;
+
+        Assert.assertEquals(functionList.get(0).name, initFunc);
+        Assert.assertEquals(functionList.get(0).parameters.size(), 0);
+        Assert.assertEquals(functionList.get(2).name, "sendMessage");
+        Assert.assertEquals(functionList.get(2).parameters.size(), 2);
+    }
+
     @Test(description = "Test connector metadata generation")
     public void getConnectorMetadata() throws IOException {
         List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
