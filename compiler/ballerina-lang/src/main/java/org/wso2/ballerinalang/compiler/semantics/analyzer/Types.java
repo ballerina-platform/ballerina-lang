@@ -4469,6 +4469,8 @@ public class Types {
 
         remainingType = getReferredType(remainingType);
         switch (remainingType.tag) {
+            case TypeTags.MAP:
+                return false;
             case RECORD:
                 BRecordType recordType = (BRecordType) remainingType;
                 if (!recordType.sealed && recordType.restFieldType != symTable.neverType) {
