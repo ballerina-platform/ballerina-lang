@@ -9589,8 +9589,9 @@ public class Desugar extends BLangNodeVisitor {
 
         boolean isAllTypesRecords = false;
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
-        if (types.getReferredType(accessExpr.expr.getBType()).tag == TypeTags.UNION) {
-            memTypes = new LinkedHashSet<>(((BUnionType) accessExpr.expr.getBType()).getMemberTypes());
+        BType referredType = types.getReferredType(accessExpr.expr.getBType());
+        if (referredType.tag == TypeTags.UNION) {
+            memTypes = new LinkedHashSet<>(((BUnionType) referredType).getMemberTypes());
             isAllTypesRecords = isAllTypesAreRecordsInUnion(memTypes);
         }
 
