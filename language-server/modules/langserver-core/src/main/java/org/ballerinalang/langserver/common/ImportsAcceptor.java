@@ -39,15 +39,16 @@ import java.util.stream.Collectors;
  * @since 1.3.0
  */
 public class ImportsAcceptor {
+
     private final Set<String> newImports;
     private final Map<ImportDeclarationNode, ModuleSymbol> currentModuleImportsMap;
-    private final BiConsumer<String, String> onExistCallback;
+    private final BiConsumer<String, ModuleIDMetaData> onExistCallback;
 
     public ImportsAcceptor(DocumentServiceContext context) {
         this(context, null);
     }
 
-    public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, String> onExistCallback) {
+    public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, ModuleIDMetaData> onExistCallback) {
         this.newImports = new HashSet<>();
         this.currentModuleImportsMap = context.currentDocImportsMap();
         this.onExistCallback = onExistCallback;
@@ -58,11 +59,11 @@ public class ImportsAcceptor {
      *
      * @return Returns imports acceptor
      */
-    public BiConsumer<String, String> getAcceptor(DocumentServiceContext context) {
+    public BiConsumer<String, ModuleIDMetaData> getAcceptor(DocumentServiceContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         String currentPkgName = project.isEmpty() ? "" :
                 CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageName().value());
-        return (orgName, alias) -> {
+        return (orgName, metaData) -> {
             boolean notFound = currentModuleImportsMap.keySet().stream().noneMatch(
                     pkg -> {
                         String importAlias = pkg.moduleName().stream()
@@ -70,16 +71,23 @@ public class ImportsAcceptor {
                                 .collect(Collectors.joining("."));
                         boolean isCurrentPkgModule = pkg.orgName().isEmpty()
                                 && importAlias.startsWith(currentPkgName + ".");
-                        boolean aliasMatched = importAlias.equals(alias);
+                        boolean aliasMatched = importAlias.equals(metaData.getModuleName());
                         return (isCurrentPkgModule
                                 || (pkg.orgName().get().orgName().text().equals(orgName))) && aliasMatched;
                     }
             );
             if (notFound) {
-                String pkgName = orgName + "/" + alias;
+                String pkgName;
+
+                String moduleName = metaData.getModuleName();
+                String modulePrefix = CommonUtil.escapeModuleName(moduleName).replaceAll(".*\\.", "");
+                if (!metaData.moduleAlias.isEmpty() && !modulePrefix.equals(metaData.getModuleAlias())) {
+                    moduleName = metaData.getModuleName() + " as " + metaData.getModuleAlias();
+                }
+                pkgName = orgName.isEmpty() ? moduleName : orgName + "/" + moduleName;
                 newImports.add(pkgName);
                 if (onExistCallback != null) {
-                    onExistCallback.accept(orgName, alias);
+                    onExistCallback.accept(orgName, metaData);
                 }
             }
         };
@@ -115,5 +123,33 @@ public class ImportsAcceptor {
         String editText = "import " + pkgName + ";\n";
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         return new TextEdit(range, editText);
+    }
+
+    /**
+     * Holds module information related to a particular Ballerina module.
+     */
+    public static class ModuleIDMetaData {
+
+        private final String orgName;
+        private final String moduleName;
+        private final String moduleAlias;
+
+        public ModuleIDMetaData(String orgName, String moduleName, String moduleAlias) {
+            this.orgName = orgName;
+            this.moduleName = moduleName;
+            this.moduleAlias = moduleAlias;
+        }
+
+        public String getModuleAlias() {
+            return moduleAlias;
+        }
+
+        public String getOrgName() {
+            return orgName;
+        }
+
+        public String getModuleName() {
+            return moduleName;
+        }
     }
 }
