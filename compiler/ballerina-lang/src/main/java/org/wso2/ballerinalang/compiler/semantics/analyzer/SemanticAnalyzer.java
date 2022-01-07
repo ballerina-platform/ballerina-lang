@@ -2734,10 +2734,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     ((BArrayType) restMatchPattern.getBType()).eType = restType;
                     return;
                 }
-                if (patternType.tag != TypeTags.TUPLE) {
+                BTupleType patternTupleType;
+                if (patternType.tag == TypeTags.TUPLE) {
+                    patternTupleType = (BTupleType) patternType;
+                } else if (patternType.tag == TypeTags.INTERSECTION &&
+                        ((BIntersectionType) patternType).effectiveType.tag == TypeTags.TUPLE) {
+                    patternTupleType = (BTupleType) ((BIntersectionType) patternType).effectiveType;
+                } else {
                     return;
                 }
-                BTupleType patternTupleType = (BTupleType) patternType;
+
                 List<BType> types = patternTupleType.tupleTypes;
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
                 List<BType> memberTypes = new ArrayList<>();
