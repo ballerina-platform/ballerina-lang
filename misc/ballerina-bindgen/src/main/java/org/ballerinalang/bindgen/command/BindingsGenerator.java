@@ -95,6 +95,8 @@ public class BindingsGenerator {
             // Generate bindings for super classes of directly specified Java classes.
             if (!env.getSuperClasses().isEmpty()) {
                 env.setAllJavaClasses(env.getSuperClasses());
+                // Remove the explicitly generated classes from the list of super classes.
+                env.getSuperClasses().removeAll(classNames);
                 generateBindings(env.getSuperClasses(), classLoader, modulePath);
             }
 
