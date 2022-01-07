@@ -5335,10 +5335,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 }
             }
 
-            Location pos = getPosition(literal);
-            validateUnicodePoints(text, pos);
-
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
+                Location pos = getPosition(literal);
+                validateUnicodePoints(text, pos);
+
                 try {
                     text = Utils.unescapeBallerina(text);
                 } catch (Exception e) {

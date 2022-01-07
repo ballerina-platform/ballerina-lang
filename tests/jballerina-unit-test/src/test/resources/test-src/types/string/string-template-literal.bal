@@ -223,12 +223,14 @@ function testNumericEscapes() {
         string s2 = string `\u{61}ppl\\u{65}`;
         string s3 = string `A \u{5C} B`;
         string s4 = string `A \\u{5C} B`;
+        string s5 = string`"\u{D800}"`;
 
         assertEquality("\\u{61}", s1);
         assertEquality("[92,117,123,54,49,125]", s1.toBytes().toString());
         assertEquality("\\u{61}ppl\\\\u{65}", s2);
         assertEquality("A \\u{5C} B", s3);
         assertEquality("A \\\\u{5C} B", s4);
+        assertEquality("\"\\u{D800}\"", s5);
 }
 
 type Type1 1|2|3;
