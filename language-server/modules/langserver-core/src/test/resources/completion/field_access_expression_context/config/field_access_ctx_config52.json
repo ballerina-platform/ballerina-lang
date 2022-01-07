@@ -237,25 +237,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)",
-      "kind": "Function",
-      "detail": "map<map:Type1>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `map<map:Type1>`   \n- new map containing result of applying function `func` to each member  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "map",
-      "insertText": "map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "cloneWithType(typedesc<anydata> t)",
       "kind": "Function",
       "detail": "t|error",
@@ -405,6 +386,25 @@
       "sortText": "AA",
       "insertText": "field2",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'map(function () func)",
+      "kind": "Function",
+      "detail": "map<map:Type1>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `map<map:Type1>`   \n- new map containing result of applying function `func` to each member  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

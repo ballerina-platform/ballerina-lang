@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.util;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -33,6 +34,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -138,28 +140,38 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
         NameReferenceNode nameRef = node.functionName();
 
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
+        Predicate<Symbol> fSymbolPredicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
+        Predicate<Symbol> fPointerPredicate = symbol ->
+                symbol.kind() == SymbolKind.VARIABLE
+                        && CommonUtil.getRawType(((VariableSymbol) symbol).typeDescriptor()).typeKind()
+                        == TypeDescKind.FUNCTION;
         List<Symbol> visibleEntries;
         String functionName;
         if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
-            visibleEntries = QNameReferenceUtil.getModuleContent(this.context, qNameRef, predicate);
+            visibleEntries = QNameReferenceUtil.getModuleContent(this.context, qNameRef,
+                    fSymbolPredicate.or(fPointerPredicate));
             functionName = qNameRef.identifier().text();
         } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             functionName = ((SimpleNameReferenceNode) nameRef).name().text();
             visibleEntries = context.visibleSymbols(context.getCursorPosition()).stream()
-                    .filter(predicate)
+                    .filter(fSymbolPredicate.or(fPointerPredicate))
                     .collect(Collectors.toList());
         } else {
             return Optional.empty();
         }
 
         Optional<Symbol> functionSymbol = this.getSymbolByName(visibleEntries, functionName);
-        if (functionSymbol.isEmpty() || functionSymbol.get().kind() != SymbolKind.FUNCTION) {
-            return Optional.empty();
+
+        if (functionSymbol.isPresent() && fSymbolPredicate.test(functionSymbol.get())) {
+            return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+        }
+        if (functionSymbol.isPresent() && fPointerPredicate.test(functionSymbol.get())) {
+            TypeSymbol rawType = CommonUtil.getRawType(((VariableSymbol) functionSymbol.get()).typeDescriptor());
+            return ((FunctionTypeSymbol) rawType).returnTypeDescriptor();
         }
 
-        return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+        return Optional.empty();
     }
 
     @Override
@@ -186,7 +198,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         if (node instanceof ExpressionNode) {
             return this.context.currentSemanticModel().get().typeOf(node);
         }
-        
+
         return Optional.empty();
     }
 
