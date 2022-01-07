@@ -224,8 +224,8 @@ public class TestCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
         //Display warning if any other options are provided with list-groups flag.
-        if (listGroups && (rerunTests || coverage || testReport || groupList != null || disableGroupList != null
-                || testList != null)) {
+        if (listGroups && (rerunTests || coverage != null || testReport != null || groupList != null ||
+                disableGroupList != null || testList != null)) {
             this.outStream.println("\nWarning: Other flags are skipped when list-groups flag is provided.\n");
         }
 
