@@ -32,10 +32,12 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -238,7 +240,12 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     public Optional<TypeSymbol> transform(TypeCastExpressionNode node) {
         return this.context.currentSemanticModel().get().typeOf(node);
     }
-    
+
+    @Override
+    public Optional<TypeSymbol> transform(CheckExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         return Optional.empty();
@@ -306,6 +313,28 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 currentModule.get().moduleId()))
                         .collect(Collectors.toList());
                 visibleEntries.addAll(methodSymbols);
+                break;
+            case UNION:
+                if (node.parent().kind() != SyntaxKind.OPTIONAL_FIELD_ACCESS
+                        || ((UnionTypeSymbol) rawType).memberTypeDescriptors().size() != 2) {
+                    break;
+                }
+                List<TypeSymbol> members = ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                        .map(CommonUtil::getRawType)
+                        .collect(Collectors.toList());
+                List<TypeDescKind> memberTypes = members.stream()
+                        .map(TypeSymbol::typeKind)
+                        .collect(Collectors.toList());
+                if (!memberTypes.contains(TypeDescKind.NIL) || !memberTypes.contains(TypeDescKind.RECORD)) {
+                    break;
+                }
+                // We have ensured that the members contain two members and one is record and one is nil.
+                // Hence, safe to invoke .get without checking the isPresent
+                TypeSymbol recordType = members.stream()
+                        .filter(member -> member.typeKind() == TypeDescKind.RECORD)
+                        .findFirst()
+                        .get();
+                visibleEntries.addAll(new ArrayList<>(((RecordTypeSymbol) recordType).fieldDescriptors().values()));
                 break;
             default:
                 break;
