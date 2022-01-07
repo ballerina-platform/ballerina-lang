@@ -21,7 +21,7 @@ import ballerina/time;
 
 type myCookie record {
     string name;
-    string value;
+    string cookieValue;
     string domain;
     string path;
     string expires;
@@ -84,7 +84,7 @@ public type CsvPersistentCookieHandler object {
             var tblResult = readFile(self.fileName);
             if (tblResult is table<myCookie>) {
                 foreach var rec in tblResult {
-                    Cookie cookie = new(rec.name, rec.value);
+                    Cookie cookie = new(rec.name, rec.cookieValue);
                     cookie.domain = rec.domain;
                     cookie.path = rec.path;
                     cookie.expires = rec.expires == "-" ? () : rec.expires;
@@ -193,7 +193,7 @@ function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) r
     var createdTime = time:format(cookieToAdd.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     var lastAccessedTime = time:format(cookieToAdd.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     if (name is string && value is string && domain is string && path is string && createdTime is string && lastAccessedTime is string) {
-        myCookie c1 = { name: name, value: value, domain: domain, path: path, expires: expires is string ? expires : "-", maxAge: cookieToAdd.maxAge, httpOnly: cookieToAdd.httpOnly, secure: cookieToAdd.secure, createdTime: createdTime, lastAccessedTime: lastAccessedTime, hostOnly: cookieToAdd.hostOnly };
+        myCookie c1 = { name: name, cookieValue: value, domain: domain, path: path, expires: expires is string ? expires : "-", maxAge: cookieToAdd.maxAge, httpOnly: cookieToAdd.httpOnly, secure: cookieToAdd.secure, createdTime: createdTime, lastAccessedTime: lastAccessedTime, hostOnly: cookieToAdd.hostOnly };
         var result = tableToReturn.add(c1);
         if (result is error) {
             return result;
@@ -208,7 +208,7 @@ function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) r
 function writeToFile(table<myCookie> cookiesTable, string fileName) returns @tainted error? {
     io:WritableCSVChannel wCsvChannel2 = check io:openWritableCsvFile(fileName);
     foreach var entry in cookiesTable {
-        string[] rec = [entry.name, entry.value, entry.domain, entry.path, entry.expires, entry.maxAge.toString(), entry.httpOnly.toString(), entry.secure.toString(), entry.createdTime, entry.lastAccessedTime, entry.hostOnly.toString()];
+        string[] rec = [entry.name, entry.cookieValue, entry.domain, entry.path, entry.expires, entry.maxAge.toString(), entry.httpOnly.toString(), entry.secure.toString(), entry.createdTime, entry.lastAccessedTime, entry.hostOnly.toString()];
         var writeResult = writeDataToCSVChannel(wCsvChannel2, rec);
         if (writeResult is error) {
             return writeResult;
