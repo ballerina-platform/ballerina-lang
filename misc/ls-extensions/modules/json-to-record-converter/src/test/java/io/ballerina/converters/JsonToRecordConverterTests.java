@@ -61,6 +61,9 @@ public class JsonToRecordConverterTests {
     private final Path nestedObjectBal = RES_DIR.resolve("ballerina")
             .resolve("nested_object.bal");
 
+    private final Path nullObjectJson = RES_DIR.resolve("json")
+            .resolve("null_object.json");
+
     private final Path sample1Json = RES_DIR.resolve("json")
             .resolve("sample_1.json");
     private final Path sample1Bal = RES_DIR.resolve("ballerina")
@@ -131,6 +134,12 @@ public class JsonToRecordConverterTests {
 
     private final Path nestedObjectClosedDescBal = RES_DIR.resolve("ballerina")
             .resolve("nested_object_closed_desc.bal");
+
+    private final Path closedRecordBal = RES_DIR.resolve("ballerina")
+            .resolve("closed_record.bal");
+
+    private final Path emptyArrayJson = RES_DIR.resolve("json")
+            .resolve("empty_array.json");
 
     @Test(description = "Test with basic json schema string")
     public void testBasicSchema() throws JsonToRecordConverterException, IOException, FormatterException {
@@ -253,6 +262,15 @@ public class JsonToRecordConverterTests {
         }
     }
 
+    @Test(description = "Test a sample json for a closed record")
+    public void testClosedRecord() throws JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(sample7Json);
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "",
+                false, true).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(closedRecordBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
     @Test(description = "Test with sample json for a closed record and objects for fields")
     public void testFieldForClosedRecord() throws JsonToRecordConverterException, IOException, FormatterException {
         String jsonFileContent = Files.readString(sample7Json);
@@ -260,6 +278,34 @@ public class JsonToRecordConverterTests {
                 true, false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample7TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test with null objects")
+    public void testNullObject() throws IOException, FormatterException {
+        String jsonFileContent = Files.readString(nullObjectJson);
+        try {
+            JsonToRecordConverter.convert(jsonFileContent, "",
+                            true, false).getCodeBlock()
+                    .replaceAll("\\s+", "");
+            Assert.assertTrue(false);
+        } catch (JsonToRecordConverterException e) {
+            Assert.assertEquals(e.getLocalizedMessage(), "Unsupported, Null or Missing type in Json");
+        }
+    }
+
+    @Test(description = "Test with sample json for a closed record and objects for fields")
+    public void testEmptyArray() throws IOException, FormatterException {
+        String jsonFileContent = Files.readString(emptyArrayJson);
+        try {
+            JsonToRecordConverter.convert(jsonFileContent, "",
+                            true, false).getCodeBlock()
+                    .replaceAll("\\s+", "");
+            Assert.fail();
+        } catch (JsonToRecordConverterException e) {
+            Assert.assertEquals(e.getLocalizedMessage(), "Properties must have a single non-null type." +
+                    " The property:\n'{}'\nhas a type which is not one of: 'string','object','array','boolean' or" +
+                    " numeric types");
+        }
     }
 
     @Test(description = "Test JSON2Record endpoint")
@@ -274,5 +320,18 @@ public class JsonToRecordConverterTests {
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(basicObjectBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test JSON2Record endpoint for null object")
+    public void testJSON2RecordServiceNullObjects() throws IOException, ExecutionException, InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+        String jsonString = Files.readString(nullObjectJson);
+
+        JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
+                false, false);
+        CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
+        JsonToRecordResponse response = (JsonToRecordResponse) result.get();
+        String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, "");
     }
 }
