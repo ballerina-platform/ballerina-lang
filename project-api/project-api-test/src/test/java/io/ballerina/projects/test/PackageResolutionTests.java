@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
@@ -45,6 +47,9 @@ import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.bala.PackageJson;
+import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
+import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -59,7 +64,10 @@ import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
@@ -707,5 +715,51 @@ public class PackageResolutionTests extends BaseTest {
                             "ERROR [fee.bal:(4:2,4:27)] undefined function 'notExistingFunction'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(4:2,4:27)] undefined module 'ddd'");
+    }
+
+    @Test(description = "Resolve dependencies with balas having various dist versions")
+    public void testDependencyResolutionWithVariousDistVersions() {
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_c");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_b");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_e");
+
+        // Change `ballerina_version` of package.json in /repo/bala
+        changeBallerinaVersionInPackageJson("package_b", "slbeta6");
+        changeBallerinaVersionInPackageJson("package_c", "slbeta4");
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+    }
+
+    private void changeBallerinaVersionInPackageJson(String packageName, String balVersion) {
+        Path packageJsonInProjectBalaPath = testBuildDirectory.resolve("repo").resolve("bala")
+                .resolve("various_dist_test").resolve(packageName).resolve("0.1.0").resolve("any")
+                .resolve("package.json");
+
+        PackageJson packageJson = null;
+        try (Reader reader = Files.newBufferedReader(packageJsonInProjectBalaPath)) {
+            packageJson = new Gson().fromJson(reader, PackageJson.class);
+            packageJson.setBallerinaVersion(balVersion);
+        } catch (IOException e) {
+            Assert.fail("Reading package.json failed:" + packageJsonInProjectBalaPath);
+        }
+
+        // Remove fields with empty values from `package.json`
+        Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
+                .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
+        try (Writer writer = new FileWriter(String.valueOf(packageJsonInProjectBalaPath))) {
+            gson.toJson(packageJson, writer);
+        } catch (IOException e) {
+            Assert.fail("Writing to package.json failed:" + packageJsonInProjectBalaPath);
+        }
+
     }
 }
