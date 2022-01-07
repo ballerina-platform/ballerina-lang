@@ -337,7 +337,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)",
+      "label": "'map(function () func)",
       "kind": "Function",
       "detail": "table<table:MapType1>",
       "documentation": {
@@ -347,8 +347,8 @@
         }
       },
       "sortText": "CD",
-      "filterText": "map",
-      "insertText": "map(${1})",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

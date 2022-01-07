@@ -116,7 +116,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
                             symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
             } else {
                 methods.put(attachedFunc.funcName.value,
-                            symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+                            symbolFactory.createMethodSymbol(attachedFunc.symbol,
+                                                             attachedFunc.symbol.getOriginalName().getValue()));
             }
         }
 

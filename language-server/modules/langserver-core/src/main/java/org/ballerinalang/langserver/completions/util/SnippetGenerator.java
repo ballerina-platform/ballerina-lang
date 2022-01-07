@@ -1491,7 +1491,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getJoinClauseSnippet() {
-        String snippet = "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}";
+        String snippet = "join ${1:var} ${2:varName} in ${3:expr} on ${4:onExpr} equals ${5:equalsExpr}";
 
         return new SnippetBlock(ItemResolverConstants.JOIN_CLAUSE, ItemResolverConstants.JOIN_KEYWORD, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
