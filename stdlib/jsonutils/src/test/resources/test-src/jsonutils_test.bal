@@ -32,11 +32,13 @@ function testFromXML() returns json|error {
     return j;
 }
 
+// Added a temporary fix due to following issue
+// https://github.com/ballerina-platform/ballerina-standard-library/issues/2559
 public function testFromTable() returns string {
     table<Person> personTable = table{
         { key id, age, salary, name, married },
-        [ { 1, 30,  300.5, "Mary", true },
-          { 2, 20,  300.5, "John", true }
+        [ { 1, 30,  301, "Mary", true },
+          { 2, 20,  301, "John", true }
         ]
     };
 
