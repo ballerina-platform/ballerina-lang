@@ -883,6 +883,26 @@ function listMatchPattern31(T t) returns [string?, int?] {
     return [s, i];
 }
 
+function testListMatchPattern32() {
+    T t1 = [STRING, "hello"];
+    T t2 = [INT, 1234];
+
+    assertEquals("hello", listMatchPattern32(t1));
+    assertEquals(1234, listMatchPattern32(t2));
+}
+
+function listMatchPattern32(T t) returns string|int {
+    string|int s;
+
+    match t {
+        [_, var val] => {
+            s = val;
+        }
+    }
+
+    return s;
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

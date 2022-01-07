@@ -57,6 +57,9 @@ function testInvalidTypesWithImmutableIntersection(T t) {
         [INT, var val] => {
             string? _ = val;
         }
+        [_, var val] => {
+            () _ = val;
+        }
     }
 }
 

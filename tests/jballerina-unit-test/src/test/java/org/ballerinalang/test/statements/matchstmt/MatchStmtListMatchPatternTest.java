@@ -209,6 +209,11 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern32() {
+        BRunUtil.invoke(result, "testListMatchPattern32");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -386,6 +391,8 @@ public class MatchStmtListMatchPatternTest {
                                   55, 21);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string?', " +
                                           "found 'int'", 58, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected '()'," +
+                        " found '(int|string)'", 61, 20);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
