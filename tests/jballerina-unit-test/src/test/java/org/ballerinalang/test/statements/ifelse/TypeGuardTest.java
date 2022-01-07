@@ -750,6 +750,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'D', found 'E'", 54, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'O', found '((N|O) & readonly)'",
                                   122, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(X|Y)', found '(V|W|X|Y)'", 204, 17);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 

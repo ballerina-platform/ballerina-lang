@@ -151,10 +151,10 @@ type T record {|
     int j;
 |};
 
-type U R|T;
+type U S|T;
 
 function f9(U v) {
-    if v is R {
+    if v is S {
 
     } else {
         T _ = v; // OK
@@ -178,5 +178,35 @@ function f11() {
 
     } else {
         string[] _ = x; // OK
+    }
+}
+
+type V record {|
+    int i;
+|};
+
+type W record {|
+    string s;
+|};
+
+type X record {|
+    int s;
+|};
+
+type Y record {|
+    float f;
+|};
+
+function f12(V|W|X|Y v) {
+    if v is V|W {
+
+    } else {
+        X|Y _ = v; // error
+    }
+
+    if v is V|W|X {
+
+    } else {
+        Y _ = v; // OK
     }
 }
