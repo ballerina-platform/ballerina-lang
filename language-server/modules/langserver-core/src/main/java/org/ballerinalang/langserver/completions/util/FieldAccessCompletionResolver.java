@@ -322,10 +322,8 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 List<TypeSymbol> members = ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                         .map(CommonUtil::getRawType)
                         .collect(Collectors.toList());
-                List<TypeDescKind> memberTypes = members.stream()
-                        .map(TypeSymbol::typeKind)
-                        .collect(Collectors.toList());
-                if (!memberTypes.contains(TypeDescKind.NIL) || !memberTypes.contains(TypeDescKind.RECORD)) {
+                if (!members.stream().allMatch(
+                        member -> member.typeKind() == TypeDescKind.NIL || member.typeKind() == TypeDescKind.RECORD)) {
                     break;
                 }
                 // We have ensured that the members contain two members and one is record and one is nil.
