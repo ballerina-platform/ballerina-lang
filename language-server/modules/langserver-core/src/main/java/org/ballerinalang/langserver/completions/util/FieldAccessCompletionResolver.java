@@ -33,28 +33,18 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
-import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
-import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -96,11 +86,6 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         }
 
         return SymbolUtil.getTypeDescriptor(symbol.get());
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
@@ -150,11 +135,6 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     }
 
     @Override
-    public Optional<TypeSymbol> transform(MethodCallExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
         NameReferenceNode nameRef = node.functionName();
 
@@ -197,57 +177,16 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     }
 
     @Override
-    public Optional<TypeSymbol> transform(AnnotAccessExpressionNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(BasicLiteralNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
-    }
-
-    @Override
     public Optional<TypeSymbol> transform(BracedExpressionNode node) {
         return node.expression().apply(this);
     }
 
     @Override
-    public Optional<TypeSymbol> transform(BinaryExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(XMLStepExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(XMLFilterExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(ObjectConstructorExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(TypeCastExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(CheckExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
+        if (node instanceof ExpressionNode) {
+            return this.context.currentSemanticModel().get().typeOf(node);
+        }
+        
         return Optional.empty();
     }
 
