@@ -511,24 +511,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         int stmtCount = -1;
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
-            BLangStatement prevStatement = null;
-            if (stmtCount > 0) {
-                prevStatement = body.stmts.get(stmtCount - 1);
-            }
-            if (stmt.getKind() == NodeKind.BLOCK && prevStatement != null &&
-                    prevStatement.getKind() == NodeKind.IF && ((BLangIf) prevStatement).elseStmt == null &&
-            this.notCompletedNormally) {
-                BLangIf ifStmt = (BLangIf) prevStatement;
-                SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(ifStmt.expr, stmt,
-                        env);
-                analyzeStmt(stmt, narrowedBlockEnv);
-                this.notCompletedNormally =
-                        ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+            boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
+                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null);
+            if (analyzedStmt) {
                 continue;
             }
             analyzeStmt(stmt, env);
         }
         resetNotCompletedNormally();
+    }
+
+    private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement) {
+        if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
+                && ((BLangIf) prevStatement).elseStmt == null && this.notCompletedNormally) {
+            BLangIf ifStmt = (BLangIf) prevStatement;
+            // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
+            SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(ifStmt.expr, currentStmt,
+                    env);
+            analyzeStmt(currentStmt, narrowedBlockEnv);
+            this.notCompletedNormally =
+                    ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -1843,19 +1848,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         int stmtCount = -1;
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
-            BLangStatement prevStatement = null;
-            if (stmtCount > 0) {
-                prevStatement = blockNode.stmts.get(stmtCount - 1);
-            }
-            if (stmt.getKind() == NodeKind.BLOCK && prevStatement != null &&
-                    prevStatement.getKind() == NodeKind.IF && ((BLangIf) prevStatement).elseStmt == null &&
-                    this.notCompletedNormally) {
-                BLangIf ifStmt = (BLangIf) prevStatement;
-                SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(ifStmt.expr, stmt,
-                        env);
-                analyzeStmt(stmt, narrowedBlockEnv);
-                this.notCompletedNormally =
-                        ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+            boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
+                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null);
+            if (analyzedStmt) {
                 continue;
             }
             analyzeStmt(stmt, env);

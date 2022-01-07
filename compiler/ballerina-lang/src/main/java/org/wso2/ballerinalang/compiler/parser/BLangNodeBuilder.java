@@ -1537,7 +1537,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         List<BLangStatement> statements = new ArrayList<>();
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
             NamedWorkerDeclarator namedWorkerDeclarator = functionBodyBlockNode.namedWorkerDeclarator().get();
-            generateAndAddBLangStatements(namedWorkerDeclarator.workerInitStatements(), statements,
+            generateAndAddBLangStatements(namedWorkerDeclarator.workerInitStatements(), statements, 0,
                     functionBodyBlockNode);
 
             for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
@@ -1549,7 +1549,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
-        generateAndAddBLangStatements(functionBodyBlockNode.statements(), statements, functionBodyBlockNode);
+        generateAndAddBLangStatements(functionBodyBlockNode.statements(), statements, 0, functionBodyBlockNode);
 
         bLFuncBody.stmts = statements;
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
@@ -4953,94 +4953,48 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes, Node endNode) {
         List<BLangStatement> statements = new ArrayList<>();
-        return generateAndAddBLangStatements(statementNodes, statements, endNode);
+        return generateAndAddBLangStatements(statementNodes, statements, 0, endNode);
     }
 
     private List<BLangStatement> generateAndAddBLangStatements(NodeList<StatementNode> statementNodes,
-                                                               List<BLangStatement> statements, Node endNode) {
-        int c = -1;
-        for (StatementNode statement : statementNodes) {
-            c++;
+                                                               List<BLangStatement> statements,
+                                                               int startPosition, Node endNode) {
+        int lastStmtIndex = statementNodes.size() - 1;
+        for (int j = startPosition; j < statementNodes.size(); j++) {
+            StatementNode currentStatement = statementNodes.get(j);
             // TODO: Remove this check once statements are non null guaranteed
-            if (statement != null) {
-                if (statement.kind() == SyntaxKind.FORK_STATEMENT) {
-                    generateForkStatements(statements, (ForkStatementNode) statement);
-                    continue;
-                }
-                if (statement.kind() == SyntaxKind.IF_ELSE_STATEMENT &&
-                        ((IfElseStatementNode) statement).elseBody().isEmpty()) {
-                    statements.add((BLangStatement) statement.apply(this));
-                    if (c == statementNodes.size() - 1) {
-                        statements.add((BLangBlockStmt) TreeBuilder.createBlockNode());
-                        return statements;
-                    }
-                    if (c < statementNodes.size() - 1) {
-                        BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
-                        this.isInLocalContext = true;
-                        StatementNode remainingStatement = statementNodes.get(c + 1);
-                        if (statementNodes.get(c + 1) != null) {
-                            createBlockStatement(remainingStatement, c + 1, statementNodes, bLBlockStmt.stmts,
-                                    endNode);
-                            this.isInLocalContext = false;
-                            if (bLBlockStmt.stmts.isEmpty()) {
-                                return statements;
-                            }
-                            if (c + 1 <= statementNodes.size() - 1) {
-                                bLBlockStmt.pos = getPosition(statementNodes.get(c + 1),
-                                        endNode);
-                            }
-                            statements.add(bLBlockStmt);
-                        }
-                    }
-                    return statements;
-                }
-                statements.add((BLangStatement) statement.apply(this));
+            if (currentStatement == null) {
+                continue;
             }
-        }
-        return statements;
-    }
-
-    private void createBlockStatement(StatementNode currentStatement, int position,
-                                      NodeList<StatementNode> statementNodes,
-                                      List<BLangStatement> statements, Node endNode) {
-        for (int j = position; j < statementNodes.size(); j++) {
             if (currentStatement.kind() == SyntaxKind.FORK_STATEMENT) {
-                statements.add((BLangStatement) currentStatement.apply(this));
                 generateForkStatements(statements, (ForkStatementNode) currentStatement);
                 continue;
             }
+            // If there is an `if` statement without an `else`, all the statements following that `if` statement
+            // are added to a new block statement.
             if (currentStatement.kind() == SyntaxKind.IF_ELSE_STATEMENT &&
                     ((IfElseStatementNode) currentStatement).elseBody().isEmpty()) {
                 statements.add((BLangStatement) currentStatement.apply(this));
-                if (j == statementNodes.size() - 1) {
+                if (j == lastStmtIndex) {
+                    // Add an empty block statement if there are no statements following the `if` statement.
                     statements.add((BLangBlockStmt) TreeBuilder.createBlockNode());
-                    return;
+                    break;
                 }
-                if (statementNodes.size() - 1 > j) {
-                    BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
-                    StatementNode remainingStatement = statementNodes.get(j + 1);
-                    this.isInLocalContext = true;
-                    if (statementNodes.get(j + 1) != null) {
-                        createBlockStatement(remainingStatement, j + 1, statementNodes, bLBlockStmt.stmts, endNode);
-                        this.isInLocalContext = false;
-                        if (bLBlockStmt.stmts.isEmpty()) {
-                            return;
-                        }
-                        if (j + 1 <= statementNodes.size() - 1) {
-                            bLBlockStmt.pos = getPosition(statementNodes.get(j + 1),
-                                    endNode);
-                        }
-                        statements.add(bLBlockStmt);
-                        return;
-                    }
+                BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+                int nextStmtIndex = j + 1;
+                this.isInLocalContext = true;
+                generateAndAddBLangStatements(statementNodes, bLBlockStmt.stmts, nextStmtIndex, endNode);
+                this.isInLocalContext = false;
+                if (nextStmtIndex <= lastStmtIndex) {
+                    bLBlockStmt.pos = getPosition(statementNodes.get(nextStmtIndex), endNode);
                 }
+                statements.add(bLBlockStmt);
+                break;
             } else {
-                statements.add((BLangStatement) statementNodes.get(j).apply(this));
-                if (j < statementNodes.size() - 1) {
-                    currentStatement = statementNodes.get(j + 1);
-                }
+                statements.add((BLangStatement) currentStatement.apply(this));
             }
         }
+        return statements;
     }
 
     private String extractVersion(SeparatedNodeList<Token> versionNumbers) {
