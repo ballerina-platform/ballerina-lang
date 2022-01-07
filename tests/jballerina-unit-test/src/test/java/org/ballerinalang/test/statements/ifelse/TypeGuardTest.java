@@ -741,6 +741,31 @@ public class TypeGuardTest {
         BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInNestedBlocks");
     }
 
+    @Test
+    public void testTypeGuardsAccountingForSemTypes1() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_1.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'B', found '(A|B)'", 29, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'B', found '(A|B)'", 37, 11);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'D', found 'E'", 54, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'O', found '((N|O) & readonly)'",
+                                  122, 15);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForSemTypes2() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_2.bal");
+        int index = 0;
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 30, 8);
+        BAssertUtil.validateError(result, index++, "unreachable code", 33, 9);
+        BAssertUtil.validateError(result, index++,
+                                  "expression of type 'never' or equivalent to type 'never' not allowed here",
+                      33, 13);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

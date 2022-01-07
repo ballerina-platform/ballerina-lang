@@ -4434,9 +4434,6 @@ public class Types {
             return remainingType;
         }
 
-//        if (isAssignable(originalType, typeToRemove)) {
-//        }
-
         if (isClosedRecordTypes(getReferredType(typeToRemove)) && removesDistinctRecords(typeToRemove, remainingType)) {
             return remainingType;
         }
