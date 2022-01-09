@@ -210,3 +210,15 @@ function f12(V|W|X|Y v) {
         Y _ = v; // OK
     }
 }
+
+function f13([int]|[string] x) {
+    if x is [int] {
+        [int] _ = x;
+    } else {
+        if x is [string] {
+            return;
+        }
+        [int|string] _ = x; // Reachable, since type is still `[int|string]`.
+        [int] _ = x; // error
+    }
+}
