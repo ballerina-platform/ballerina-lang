@@ -748,11 +748,32 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'B', found '(A|B)'", 29, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'B', found '(A|B)'", 37, 11);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'D', found 'E'", 54, 15);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'O', found '((N|O) & readonly)'",
-                                  122, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(X|Y)', found '(V|W|X|Y)'", 204, 17);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '([int]|[string])'",
                                   222, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[string]', " +
+                "found '([int]|[string])'", 230, 22);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int] & readonly', " +
+                "found '([string] & readonly)'", 241, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[string]', found '[int]'", 253, 22);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int] & readonly', found '[int]'",
+                                  260, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[string] & readonly', " +
+                "found '[int]'", 261, 33);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', " +
+                "found '([string] & readonly)'", 272, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '[string] & " +
+                "readonly'", 278, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '([string] & " +
+                "readonly)'", 292, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', " +
+                "found '(int[]|string[])'", 300, 22);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[] & readonly', " +
+                "found '(string[] & readonly)'", 313, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found '(string[] & " +
+                "readonly)'", 323, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found '(string[] & " +
+                "readonly)'", 333, 19);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
