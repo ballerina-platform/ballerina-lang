@@ -82,24 +82,24 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                from("y", VARIABLE),
                                from("obj", VARIABLE)
                 )},
-//                {38, 24, concat(expModuleSymbols, from("y", VARIABLE))},
+                {38, 24, concat(expModuleSymbols, from("y", VARIABLE))},
                 {38, 35, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
+                                from("y", VARIABLE),
                                 from("s", PARAMETER)
                 )},
                 {39, 22, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
+                                from("y", VARIABLE),
                                 from("s", PARAMETER),
                                 from("z", VARIABLE)
                 )},
                 {42, 32, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
-//                                from("y", VARIABLE),
+                                from("y", VARIABLE),
+                                from("y", VARIABLE),
                                 from("s", PARAMETER) // TODO: Check if this is correct
                 )},
                 {42, 53, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
-//                                from("fn2", VARIABLE),
+                                from("y", VARIABLE),
+                                from("fn1", VARIABLE),
                                 from("s", PARAMETER)
                 )},
                 {44, 39, concat(expModuleSymbols,

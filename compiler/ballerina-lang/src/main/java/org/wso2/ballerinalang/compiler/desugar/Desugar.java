@@ -36,7 +36,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
@@ -68,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -760,22 +760,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
 
-        for (BLangConstant constant : pkgNode.constants) {
-            BType constType = types.getReferredType(constant.symbol.type);
-            if (constType.tag == TypeTags.INTERSECTION) {
-                for (BType memberType : ((IntersectionType) constType).getImmutableType().getConstituentTypes()) {
-                    if (memberType.tag == TypeTags.RECORD) {
-                        BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-                        constant.expr = rewrite(constant.expr,
-                                                SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
-                                                                        pkgNode.initFunction.symbol.scope, env));
-                        BLangAssignment constInit =
-                                ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, constant.expr);
-                        initFnBody.stmts.add(constInit);
-                    }
-                }
-            }
-        }
+        rewriteConstants(pkgNode, initFnBody);
 
         pkgNode.constants = removeDuplicateConstants(pkgNode);
 
@@ -818,6 +803,27 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
+        for (BLangConstant constant : pkgNode.constants) {
+            BType constType = types.getReferredType(constant.symbol.type);
+            if (constType.tag != TypeTags.INTERSECTION) {
+                continue;
+            }
+            for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
+                if (memberType.tag != TypeTags.RECORD) {
+                    continue;
+                }
+                BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
+                constant.expr = rewrite(constant.expr,
+                        SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
+                                pkgNode.initFunction.symbol.scope, env));
+                BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
+                        constant.expr);
+                initFnBody.stmts.add(constInit);
+            }
+        }
     }
 
     private List<BLangConstant> removeDuplicateConstants(BLangPackage pkgNode) {
