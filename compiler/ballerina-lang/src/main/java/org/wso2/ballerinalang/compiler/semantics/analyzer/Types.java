@@ -4397,6 +4397,11 @@ public class Types {
 
     public BType getRemainingType(BType originalType, BType typeToRemove) {
         BType remainingType = originalType;
+
+        if (originalType.tag == TypeTags.INTERSECTION) {
+            originalType = ((BIntersectionType) originalType).effectiveType;
+        }
+
         switch (originalType.tag) {
             case TypeTags.UNION:
                 remainingType = getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove, true));
@@ -4404,9 +4409,8 @@ public class Types {
                 BType typeRemovedFromOriginalType = getReferredType(getRemainingType((BUnionType) originalType,
                                                                       getAllTypes(remainingType, true)));
                 if (typeRemovedFromOriginalType == symTable.nullSet ||
-                        (isInherentlyImmutableType(typeRemovedFromOriginalType) ||
-                        (isSelectivelyImmutableType(typeRemovedFromOriginalType) &&
-                                Symbols.isFlagOn(typeRemovedFromOriginalType.flags, Flags.READONLY)))) {
+                        isSubTypeOfReadOnly(typeRemovedFromOriginalType) ||
+                        isSubTypeOfReadOnly(remainingType)) {
                     return remainingType;
                 }
 
@@ -4443,6 +4447,11 @@ public class Types {
         }
 
         return originalType;
+    }
+
+    private boolean isSubTypeOfReadOnly(BType type) {
+        return isInherentlyImmutableType(type) ||
+                (isSelectivelyImmutableType(type) && Symbols.isFlagOn(type.flags, Flags.READONLY));
     }
 
     private boolean isClosedRecordTypes(BType type) {
