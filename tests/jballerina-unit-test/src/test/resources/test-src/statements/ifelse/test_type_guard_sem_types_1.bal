@@ -357,3 +357,47 @@ function f23((int|string)[] & readonly x) {
         (int|string)[] & readonly _ = x; // OK
     }
 }
+
+type Z record {|
+    xml i;
+|};
+
+function f24() {
+    V|json a = ();
+
+    if a is V {
+        V _ = a; // OK
+    } else {
+        json _ = a; // OK, because `V` belongs to `json`.
+    }
+
+    Z|json b = {};
+
+    if b is Z {
+        Z _ = b; // OK
+    } else {
+        json _ = b; // error incompatible types: expected 'json', found '(Z|json)'
+    }
+
+    if b is json {
+        json _ = b; // OK
+    } else {
+        Z _ = b; // error incompatible types: expected 'Z', found '(Z|json)'
+    }
+
+    anydata|record {| stream<int> s; |} c = 1;
+
+    if c is anydata {
+        anydata _ = c; // OK
+    } else {
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
+    }
+
+    any|record {| error x; |} d = 1;
+
+    if d is record {| error x; |} {
+        record {| error x; |} _  = d;
+    } else {
+        any _ = d; // OK, since record {| error x; |} is a subtype of any
+    }
+}

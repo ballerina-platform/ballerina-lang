@@ -782,6 +782,10 @@ public class TypeGuardTest {
                 "found '((int|string)[] & readonly)'", 354, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[] & readonly', " +
                 "found '((int|string)[] & readonly)'", 355, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'json', found '(Z|json)'", 379, 18);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Z', found '(Z|json)'", 385, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| stream<int> s; |}', " +
+                "found '(anydata|record {| stream<int> s; |})'", 393, 41);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
@@ -795,6 +799,12 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++,
                                   "expression of type 'never' or equivalent to type 'never' not allowed here",
                       33, 13);
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 38, 8);
+        BAssertUtil.validateError(result, index++, "unreachable code", 41, 9);
+        BAssertUtil.validateError(result, index++,
+                                  "expression of type 'never' or equivalent to type 'never' not allowed here",
+                                  41, 35);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
