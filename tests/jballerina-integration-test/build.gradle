@@ -58,7 +58,6 @@ dependencies {
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.slf4j:slf4j-api'
-    implementation 'com.google.protobuf:protobuf-java'
 
     balRuntime project(':ballerina-runtime')
 
