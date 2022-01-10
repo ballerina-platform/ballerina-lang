@@ -20,7 +20,7 @@
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "join",
-      "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}",
+      "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${4:onExpr} equals ${5:equalsExpr}",
       "insertTextFormat": "Snippet"
     }
   ]
