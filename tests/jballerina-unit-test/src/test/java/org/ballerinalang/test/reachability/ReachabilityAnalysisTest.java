@@ -304,6 +304,9 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'int', found '()'", 296, 13);
         validateError(result, i++, "incompatible types: expected '()', found 'int?'", 308, 12);
         validateError(result, i++, "incompatible types: expected '()', found 'int?'", 322, 12);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 333, 9);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 347, 9);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 363, 9);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

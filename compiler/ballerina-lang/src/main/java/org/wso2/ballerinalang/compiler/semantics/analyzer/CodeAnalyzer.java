@@ -312,6 +312,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
+    private boolean inInternallyDefinedBlockStmt;
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private int workerSystemMovementSequence;
     private final ReachabilityAnalyzer reachabilityAnalyzer;
@@ -554,8 +555,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
         for (BLangStatement e : body.stmts) {
+            this.inInternallyDefinedBlockStmt = true;
             analyzeNode(e, blockEnv);
         }
+        this.inInternallyDefinedBlockStmt = false;
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             withinTransactionScope = prevWithinTxScope;
         }
@@ -719,15 +722,36 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int prevRollbackCount = this.rollbackCountWithinBlock;
         this.commitCountWithinBlock = 0;
         this.rollbackCountWithinBlock = 0;
+        boolean inInternallyDefinedBlockStmt = this.inInternallyDefinedBlockStmt;
+        this.inInternallyDefinedBlockStmt = checkBlockIsAnInternalBlockInImmediateFunctionBody(blockNode);
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.stmts.forEach(e -> {
             analyzeNode(e, blockEnv);
         });
+        this.inInternallyDefinedBlockStmt = inInternallyDefinedBlockStmt;
         if (commitCountWithinBlock > 1 || rollbackCountWithinBlock > 1) {
             this.dlog.error(blockNode.pos, DiagnosticErrorCode.MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH);
         }
         this.commitCountWithinBlock = prevCommitCount;
         this.rollbackCountWithinBlock = prevRollbackCount;
+    }
+
+    private boolean checkBlockIsAnInternalBlockInImmediateFunctionBody(BLangNode node) {
+        BLangNode parent = node.parent;
+
+        while (parent != null) {
+            final NodeKind kind = parent.getKind();
+            if (kind == NodeKind.BLOCK_FUNCTION_BODY) {
+                return true;
+            }
+            if (kind == NodeKind.BLOCK) {
+                parent = parent.parent;
+            } else {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -2741,7 +2765,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation()) {
+        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2794,7 +2818,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        if (!isCommunicationAllowedLocation()) {
+        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2822,7 +2846,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation()) {
+        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
