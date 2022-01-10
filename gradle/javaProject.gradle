@@ -22,9 +22,6 @@ apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
-ext.setProperty("grpcVersion", "1.27.2")
-ext.setProperty("protobufVersion", "3.11.0")
-
 dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle "com.puppycrawl.tools:checkstyle:${project.puppycrawlCheckstyleVersion}"
@@ -53,9 +50,6 @@ dependencies {
         implementation "io.jaegertracing:jaeger-core:${project.jaegerCoreVersion}"
         implementation "io.jaegertracing:jaeger-thrift:${project.jaegerThriftVersion}"
         implementation "com.zaxxer:HikariCP:${project.hikariCPVersion}"
-        implementation "io.grpc:grpc-protobuf:${project.ext.grpcVersion}"
-        implementation "io.grpc:grpc-stub:${project.ext.grpcVersion}"
-        implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
         implementation "com.github.spullara.mustache.java:compiler:${project.mustacheJavaCompilerVersion}"
         implementation "org.bitbucket.cowwoc:diff-match-patch:${project.bitbucketCowwocVersion}"
         implementation "guru.nidi:graphviz-java:${project.guruNidiGraphvizVersion}"
