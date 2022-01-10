@@ -89,7 +89,7 @@ public class JvmErrorCreatorGen {
                 CREATE_ERROR, null, null);
         mv.visitCode();
         if (errorTypeDefList.isEmpty()) {
-            createDefaultCase(mv, new Label(), 1, "No such error: ");
+            createDefaultCase(mv, new Label(), 0, "No such error: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
