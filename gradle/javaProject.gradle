@@ -43,7 +43,6 @@ dependencies {
         implementation "org.hsqldb:hsqldb:${project.hsqldbVersion}"
         implementation "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
         implementation "com.github.jknack:handlebars:${project.jknackHandlebarsVersion}"
-        implementation "com.google.protobuf:protobuf-java:${project.protobufJavaVersion}"
         implementation "com.google.code.findbugs:jsr305:${project.findbugsJsr305Version}"
         implementation "com.google.code.gson:gson:${project.gsonVersion}"
         implementation "com.google.guava:guava:${project.guavaVersion}"
