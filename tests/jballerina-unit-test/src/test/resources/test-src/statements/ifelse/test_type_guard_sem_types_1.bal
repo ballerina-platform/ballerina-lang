@@ -335,3 +335,25 @@ function f22((int[]|string[]) & readonly x) {
         string[] & readonly _ = x; // OK
     }
 }
+
+function f23((int|string)[] & readonly x) {
+    if x is int[] {
+        int[] _ = x; // OK
+        int[] & readonly _ = x; // OK
+    } else {
+        string[] _ = x; // error incompatible types: expected 'string[]', found '((int|string)[] & readonly)'
+        string[] & readonly _ = x; // error incompatible types: expected 'string[] & readonly', found '((int|string)[] & readonly)'
+        (int|string)[] _ = x; // OK
+        (int|string)[] & readonly _ = x; // OK
+    }
+
+    if x is string[] & readonly {
+        string[] _ = x; // OK
+        string[] & readonly _ = x; // OK
+    } else {
+        int[] _ = x; // error incompatible types: expected 'int[]', found '((int|string)[] & readonly)'
+        int[] & readonly _ = x; // error incompatible types: expected 'int[] & readonly', found '((int|string)[] & readonly)'
+        (int|string)[] _ = x; // OK
+        (int|string)[] & readonly _ = x; // OK
+    }
+}

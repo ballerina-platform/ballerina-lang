@@ -774,6 +774,14 @@ public class TypeGuardTest {
                 "readonly)'", 323, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found '(string[] & " +
                 "readonly)'", 333, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', " +
+                "found '((int|string)[] & readonly)'", 344, 22);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[] & readonly', " +
+                "found '((int|string)[] & readonly)'", 345, 33);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', " +
+                "found '((int|string)[] & readonly)'", 354, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[] & readonly', " +
+                "found '((int|string)[] & readonly)'", 355, 30);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
