@@ -462,3 +462,73 @@ function f25() {
         map<int>|xml _ = e; // error incompatible types: expected '(map<int>|xml)', found '(Z|map<int>|xml)'
     }
 }
+
+type A2 record {
+    int b;
+};
+
+type A3 record {
+    boolean a;
+};
+
+function f26(A|A2 x) {
+    if x is A {
+        A _ = x;
+    } else {
+        A2 _ = x; // error incompatible types: expected 'A2', found '(A|A2)'
+    }
+
+    A|A2|A3 y = <A> {a: ""};
+
+    if y is A {
+        A _ = y;
+    } else {
+        A2|A3 _ = y; // error incompatible types: expected '(A2|A3)', found '(A|A2|A3)'
+    }
+}
+
+type A4 record {|
+    string a;
+|};
+
+type A5 record {|
+    int a;
+    never...;
+|};
+
+type A6 record {|
+    int b;
+    never...;
+|};
+
+function f27(A4|A5 v, A4|A6 w) {
+    if v is A4 {
+
+    } else {
+        A5 _ = v; // error incompatible types: expected 'A5', found '(A4|A5)'
+    }
+
+    if w is A4 {
+
+    } else {
+        A6 _ = w; // OK
+    }
+}
+
+function f28() {
+    A|int|string[] v = 1;
+
+    if v is A|int {
+        A|int _ = v;
+    } else {
+        string[] _ = v; // OK
+    }
+
+    A|A6|boolean w = true;
+
+    if w is A|boolean {
+        A|boolean _ = w;
+    } else {
+        A6 _ = w; // OK, not yet allowed.
+    }
+}

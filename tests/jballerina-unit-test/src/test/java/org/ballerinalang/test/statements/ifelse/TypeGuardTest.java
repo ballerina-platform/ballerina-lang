@@ -798,6 +798,12 @@ public class TypeGuardTest {
                 "found '(anydata|record {| stream<int> s; |}|future<string>)'", 445, 36);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(map<int>|xml)', found '" +
                 "(Z|map<int>|xml)'", 462, 26);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'A2', found '(A|A2)'", 478, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(A2|A3)', found '(A|A2|A3)'", 486,
+                                  19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'A5', found '(A4|A5)'", 508, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'A6', found '(A|A6|boolean)'", 532,
+                                  16);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
