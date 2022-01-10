@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -31,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 
 import java.util.Optional;
 
@@ -141,5 +143,22 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
     @Override
     public Optional<ExpressionNode> transform(ReturnStatementNode returnStatementNode) {
         return returnStatementNode.expression();
+    }
+
+    @Override
+    public Optional<ExpressionNode> transform(IndexedExpressionNode node) {
+        if (CommonUtil.isWithinLineRange(matchedNode.lineRange(), node.containerExpression().lineRange())) {
+            return Optional.of(node.containerExpression());
+        }
+        
+        if (!node.keyExpression().isEmpty()) {
+            for (ExpressionNode expressionNode : node.keyExpression()) {
+                if (CommonUtil.isWithinLineRange(matchedNode.lineRange(), expressionNode.lineRange())) {
+                    return Optional.of(expressionNode);
+                }
+            }
+        }
+        
+        return Optional.of(node);
     }
 }
