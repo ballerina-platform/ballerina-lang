@@ -115,6 +115,7 @@ public class TestConnectorGenerator {
         Assert.assertTrue(connector.displayAnnotation.containsKey("iconPath"));
         Assert.assertEquals(connector.displayAnnotation.get("label"), "Test Client");
         Assert.assertEquals(connector.displayAnnotation.get("iconPath"), "logo.svg");
+        Assert.assertEquals(connector.icon, null);
 
         Assert.assertEquals(connector.functions.size(), 5);
         List<Function> functionList = connector.functions;
