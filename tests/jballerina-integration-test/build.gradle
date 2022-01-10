@@ -77,7 +77,6 @@ dependencies {
     testCompile 'org.yaml:snakeyaml'
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.hsqldb:hsqldb'
-    testCompile 'com.h2database:h2'
     testCompile 'io.ballerina.messaging:broker-amqp'
     testCompile 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'
