@@ -393,11 +393,72 @@ function f24() {
         record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
     }
 
+    if c is record {| stream<int> s; |} {
+        record {| stream<int> s; |} _ = c; // OK
+    } else {
+        anydata _ = c; // error incompatible types: expected 'anydata', found '(anydata|record {| stream<int> s; |})'
+    }
+
     any|record {| error x; |} d = 1;
 
     if d is record {| error x; |} {
         record {| error x; |} _  = d;
     } else {
         any _ = d; // OK, since record {| error x; |} is a subtype of any
+    }
+}
+
+function f25() {
+    V|json a = ();
+
+    if a is V {
+        V _ = a; // OK
+    } else {
+        json _ = a; // OK, because `V` belongs to `json`.
+    }
+
+    Z|json|stream<int> b = {};
+
+    if b is Z {
+        Z _ = b; // OK
+    } else {
+        json|stream<int> _ = b; // error incompatible types: expected '(json|stream<int>)', found '(Z|json|stream<int>)'
+    }
+
+    if b is json {
+        json _ = b; // OK
+    } else {
+        Z|stream<int> _ = b; // error incompatible types: expected '(Z|stream<int>)', found '(Z|json|stream<int>)'
+    }
+
+    anydata|record {| stream<int> s; |}|future<string> c = 1;
+
+    if c is anydata|future<string> {
+        anydata|future<string> _ = c; // OK
+    } else {
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |}|future<string>)'
+    }
+
+    if c is record {| stream<int> s; |} {
+        record {| stream<int> s; |} _ = c; // OK
+    } else {
+        anydata|future<string> _ = c; // error incompatible types: expected '(anydata|future<string>)', found '(anydata|record {| stream<int> s; |}|future<string>)'
+    }
+
+    any|record {| error x; |}|error d = 1;
+
+    if d is record {| error x; |} {
+        record {| error x; |} _  = d;
+    } else {
+        any|error y = d; // OK, since record {| error x; |} is a subtype of any|error
+        _ = y is error;
+    }
+
+    Z|map<int>|xml e = {};
+
+    if e is Z {
+        Z _ = e;
+    } else {
+        map<int>|xml _ = e; // error incompatible types: expected '(map<int>|xml)', found '(Z|map<int>|xml)'
     }
 }

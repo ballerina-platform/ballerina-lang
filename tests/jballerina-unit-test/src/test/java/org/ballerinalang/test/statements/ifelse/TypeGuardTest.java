@@ -786,6 +786,18 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Z', found '(Z|json)'", 385, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| stream<int> s; |}', " +
                 "found '(anydata|record {| stream<int> s; |})'", 393, 41);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'anydata', " +
+                "found '(anydata|record {| stream<int> s; |})'", 399, 21);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(json|stream<int>)', " +
+                "found '(Z|json|stream<int>)'", 425, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(Z|stream<int>)', found '" +
+                "(Z|json|stream<int>)'", 431, 27);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| stream<int> s; |}', " +
+                "found '(anydata|record {| stream<int> s; |}|future<string>)'", 439, 41);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(anydata|future<string>)', " +
+                "found '(anydata|record {| stream<int> s; |}|future<string>)'", 445, 36);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(map<int>|xml)', found '" +
+                "(Z|map<int>|xml)'", 462, 26);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
