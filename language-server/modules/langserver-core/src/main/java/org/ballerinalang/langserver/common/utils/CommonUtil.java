@@ -1076,8 +1076,9 @@ public class CommonUtil {
             if (importsAcceptor != null && !preDeclaredLangLib) {
                 importsAcceptor.getAcceptor(context).accept(orgName, metaData);
             }
+            return pkgPrefix + ":";
         }
-        return pkgPrefix + ":";
+        return pkgPrefix;
     }
 
     public static String escapeModuleName(String qualifiedModuleName) {
