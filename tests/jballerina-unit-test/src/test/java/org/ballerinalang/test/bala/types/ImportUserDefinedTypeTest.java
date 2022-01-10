@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 /**
- * Test cases for import user defined type
+ * Test cases for import user defined type.
  */
 public class ImportUserDefinedTypeTest {
     private CompileResult result;
