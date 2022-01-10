@@ -525,12 +525,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
                 && ((BLangIf) prevStatement).elseStmt == null && this.notCompletedNormally) {
             BLangIf ifStmt = (BLangIf) prevStatement;
+            this.notCompletedNormally =
+                    ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
             // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
             SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(ifStmt.expr, currentStmt,
                     env);
             analyzeStmt(currentStmt, narrowedBlockEnv);
-            this.notCompletedNormally =
-                    ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
             return true;
         }
         return false;
