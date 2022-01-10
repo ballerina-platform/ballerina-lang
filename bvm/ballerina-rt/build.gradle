@@ -91,7 +91,7 @@ dependencies {
     dist 'io.opentracing:opentracing-util:0.33.0'
     dist 'org.awaitility:awaitility:3.1.6'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
-    dist 'com.h2database:h2:2.0.202'
+    dist 'com.h2database:h2:1.4.199'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     
     // observability extensions

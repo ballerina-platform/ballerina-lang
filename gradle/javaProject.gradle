@@ -37,7 +37,7 @@ dependencies {
         implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.11.0'
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
-        implementation 'com.h2database:h2:2.0.202'
+        implementation 'com.h2database:h2:1.4.199'
         implementation 'org.hsqldb:hsqldb:2.2.7'
         implementation 'com.wix:wix-embedded-mysql:4.6.1'
         implementation 'mysql:mysql-connector-java:8.0.19'

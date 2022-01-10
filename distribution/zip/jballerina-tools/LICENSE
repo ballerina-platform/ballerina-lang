@@ -241,7 +241,7 @@ org.wso2.securevault-1.0.0-wso2v2.jar                                           
 kubernetes.jar                                                                                      jar            apache2
 debug-adapter-core-1.1.0.jar                                                                        jar            apache2
 debug-adapter-cli-1.1.0.jar                                                                         jar            apache2
-h2-2.0.202.jar                                                                                      bundle         apache2
+h2-1.4.199.jar                                                                                      bundle         apache2
 org.eclipse.lsp4j-0.8.1.jar                                                                         bundle         epl1
 commons-io-2.11.0.jar                                                                                  bundle         apache2
 language-server-stdio-launcher-1.1.0.jar                                                            jar            apache2
