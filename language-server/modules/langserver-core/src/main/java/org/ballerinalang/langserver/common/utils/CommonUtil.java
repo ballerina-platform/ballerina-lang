@@ -1071,10 +1071,10 @@ public class CommonUtil {
             } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
                 pkgPrefix = getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
             }
-            ImportsAcceptor.ModuleIDMetaData metaData =
-                    new ImportsAcceptor.ModuleIDMetaData(orgName, moduleName, pkgPrefix);
+            CodeActionModuleId codeActionModuleId =
+                    CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());
             if (importsAcceptor != null && !preDeclaredLangLib) {
-                importsAcceptor.getAcceptor(context).accept(orgName, metaData);
+                importsAcceptor.getAcceptor(context).accept(orgName, codeActionModuleId);
             }
             return pkgPrefix + ":";
         }

@@ -203,7 +203,7 @@ public class ServiceTemplateGenerator {
         //Find listeners from current imports and generate completion items.
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = ctx.currentDocImportsMap();
         currentDocImports.forEach((importNode, moduleSymbol) -> {
-            String orgName = importNode.orgName().isEmpty() ? "" : importNode.orgName().get().orgName().text();
+            String orgName = importNode.orgName().isEmpty() ? currentOrg : importNode.orgName().get().orgName().text();
             String moduleName = importNode.moduleName().stream()
                     .map(Token::text)
                     .collect(Collectors.joining("."));
@@ -223,7 +223,7 @@ public class ServiceTemplateGenerator {
 
             //Check if the module belongs to the current project. 
             //If it is not from the current project populate to the cache.
-            if (!getModuleNamesOfCurrentProject(ctx).contains(moduleHash)) {
+            if (!getModuleNamesOfCurrentProject(ctx, currentOrg).contains(moduleHash)) {
                 completionItems.addAll(generateAndPopulate(moduleSymbol, false, ctx));
                 processedModuleList.add(moduleHash);
                 return;
@@ -268,21 +268,20 @@ public class ServiceTemplateGenerator {
             boolean isCurrentModule = (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
                     || currentModule.get().equals(module));
 
-            String orgName = "";
             String moduleName = module.moduleName().toString();
-            String moduleHash = generateModuleHash(orgName, moduleName);
+            String moduleHash = generateModuleHash(currentOrg, moduleName);
             String version = currentModule.get().packageInstance().descriptor().version().value().toString();
             ModuleID moduleID = isCurrentModule ? currentModuleID :
-                    CodeActionModuleId.from(orgName, moduleName, version);
+                    CodeActionModuleId.from(currentOrg, moduleName, version);
 
             if (processedModuleList.contains(moduleHash)) {
                 return;
             }
             SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
             semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
-                            generateServiceSnippetMetaData(listener, moduleID).ifPresent(item -> 
-                                    completionItems.add(generateServiceSnippet(item,
-                                            !isCurrentModule, currentModuleID, ctx))));
+                    generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
+                            completionItems.add(generateServiceSnippet(item,
+                                    !isCurrentModule, currentModuleID, ctx))));
         });
         return completionItems;
     }
@@ -325,13 +324,12 @@ public class ServiceTemplateGenerator {
         return orgName.isEmpty() ? moduleName : orgName + CommonKeys.SLASH_KEYWORD_KEY + moduleName;
     }
 
-    private Set<String> getModuleNamesOfCurrentProject(BallerinaCompletionContext ctx) {
+    private Set<String> getModuleNamesOfCurrentProject(BallerinaCompletionContext ctx, String orgName) {
         Set<String> modulesHashSet = new HashSet<>();
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
             return modulesHashSet;
         }
-        String orgName = "";
         project.get().currentPackage().modules().forEach(module -> {
             String hash = generateModuleHash(orgName, module.moduleName().toString());
             modulesHashSet.add(hash);
@@ -410,7 +408,7 @@ public class ServiceTemplateGenerator {
                 symbolName, snippetIndex, moduleID));
     }
 
-    private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet, Boolean shouldImport, 
+    private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet, Boolean shouldImport,
                                                     ModuleID currentModuleID,
                                                     BallerinaCompletionContext context) {
 

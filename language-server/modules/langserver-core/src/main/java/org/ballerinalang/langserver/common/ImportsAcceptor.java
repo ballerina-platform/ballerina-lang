@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.common;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.projects.Project;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.eclipse.lsp4j.Position;
@@ -42,13 +43,13 @@ public class ImportsAcceptor {
 
     private final Set<String> newImports;
     private final Map<ImportDeclarationNode, ModuleSymbol> currentModuleImportsMap;
-    private final BiConsumer<String, ModuleIDMetaData> onExistCallback;
+    private final BiConsumer<String, CodeActionModuleId> onExistCallback;
 
     public ImportsAcceptor(DocumentServiceContext context) {
         this(context, null);
     }
 
-    public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, ModuleIDMetaData> onExistCallback) {
+    public ImportsAcceptor(DocumentServiceContext context, BiConsumer<String, CodeActionModuleId> onExistCallback) {
         this.newImports = new HashSet<>();
         this.currentModuleImportsMap = context.currentDocImportsMap();
         this.onExistCallback = onExistCallback;
@@ -59,11 +60,14 @@ public class ImportsAcceptor {
      *
      * @return Returns imports acceptor
      */
-    public BiConsumer<String, ModuleIDMetaData> getAcceptor(DocumentServiceContext context) {
+    public BiConsumer<String, CodeActionModuleId> getAcceptor(DocumentServiceContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         String currentPkgName = project.isEmpty() ? "" :
                 CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageName().value());
-        return (orgName, metaData) -> {
+        String currentOrgName = project.isEmpty() ? "" :
+                CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageOrg().value());
+        
+        return (orgName, codeActionModuleId) -> {
             boolean notFound = currentModuleImportsMap.keySet().stream().noneMatch(
                     pkg -> {
                         String importAlias = pkg.moduleName().stream()
@@ -71,7 +75,7 @@ public class ImportsAcceptor {
                                 .collect(Collectors.joining("."));
                         boolean isCurrentPkgModule = pkg.orgName().isEmpty()
                                 && importAlias.startsWith(currentPkgName + ".");
-                        boolean aliasMatched = importAlias.equals(metaData.getModuleName());
+                        boolean aliasMatched = importAlias.equals(codeActionModuleId.moduleName());
                         return (isCurrentPkgModule
                                 || (pkg.orgName().get().orgName().text().equals(orgName))) && aliasMatched;
                     }
@@ -79,15 +83,18 @@ public class ImportsAcceptor {
             if (notFound) {
                 String pkgName;
 
-                String moduleName = metaData.getModuleName();
+                String moduleName = codeActionModuleId.moduleName();
                 String modulePrefix = CommonUtil.escapeModuleName(moduleName).replaceAll(".*\\.", "");
-                if (!metaData.moduleAlias.isEmpty() && !modulePrefix.equals(metaData.getModuleAlias())) {
-                    moduleName = metaData.getModuleName() + " as " + metaData.getModuleAlias();
+                if (!codeActionModuleId.modulePrefix().isEmpty() &&
+                        !modulePrefix.equals(codeActionModuleId.modulePrefix())) {
+                    moduleName = codeActionModuleId.moduleName() + " as " + codeActionModuleId.modulePrefix();
                 }
-                pkgName = orgName.isEmpty() ? moduleName : orgName + "/" + moduleName;
+                
+                pkgName = orgName.isEmpty() || orgName.equals(currentOrgName) ?
+                        moduleName : orgName + "/" + moduleName;
                 newImports.add(pkgName);
                 if (onExistCallback != null) {
-                    onExistCallback.accept(orgName, metaData);
+                    onExistCallback.accept(orgName, codeActionModuleId);
                 }
             }
         };
