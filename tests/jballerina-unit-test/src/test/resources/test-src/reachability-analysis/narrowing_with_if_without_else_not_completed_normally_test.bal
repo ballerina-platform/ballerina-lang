@@ -362,3 +362,47 @@ function testScopesWhereTypeNarrowingIsNotApplicable3() {
     }
     b = a;
 }
+
+function testTypeNarrowingWithNestedIfs1() {
+    int|boolean|float x = 0.1;
+
+    if x is int|boolean {
+        if x is int {
+            return;
+        }
+        int _ = x;
+        return;
+    }
+
+    boolean _ = x;
+}
+
+function testTypeNarrowingWithNestedIfs2() {
+    int|boolean|float x = 0.1;
+
+    if x is int|boolean {
+        if x is int {
+            return;
+        } else {
+            return;
+        }
+    }
+
+    boolean _ = x;
+}
+
+function testTypeNarrowingWithNestedIfs3() {
+    int|boolean|float x = 0.1;
+
+    if x is int|boolean {
+        if x is int {
+            return;
+        }
+
+        if x is boolean {
+            return;
+        }
+    }
+
+    boolean _ = x;
+}
