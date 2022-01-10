@@ -145,7 +145,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
         List<Connector> connectors = new ArrayList<>();
         try {
             if (project.isPresent()) {
-                connectors = ConnectorGenerator.getProjectConnectors(project.get(), detailed, query);
+                connectors.addAll(ConnectorGenerator.getProjectConnectors(project.get(), detailed, query));
             }
         } catch (IOException e) {
             String msg = "Local connector fetching operation failed!";
