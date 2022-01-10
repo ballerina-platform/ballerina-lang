@@ -798,6 +798,13 @@ public class TypeGuardTest {
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
+    @Test
+    public void testTypeGuardsAccountingForSemTypes3() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_3.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+
     @AfterClass
     public void tearDown() {
         result = null;

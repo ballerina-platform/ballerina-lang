@@ -4430,8 +4430,7 @@ public class Types {
                 if (refType.tag != TypeTags.UNION && refType.tag != TypeTags.FINITE) {
                     return originalType;
                 }
-                remainingType = getRemainingType(refType, typeToRemove);
-                break;
+                return getRemainingType(refType, typeToRemove);
         }
 
         if (Symbols.isFlagOn(getReferredType(originalType).flags, Flags.READONLY)) {
