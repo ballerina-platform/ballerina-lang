@@ -88,7 +88,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
     @Override
     public String toString() {
         // To distinguish between `()` and `null`
-        return value == null ? originalValue : String.valueOf(value);
+        return value == null ? (originalValue == null ? "null" : originalValue) : String.valueOf(value);
     }
 
 }
