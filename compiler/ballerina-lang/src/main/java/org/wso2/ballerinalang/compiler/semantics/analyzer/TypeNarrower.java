@@ -167,17 +167,18 @@ public class TypeNarrower extends BLangNodeVisitor {
      * @param currentEnv Current environment
      * @return target environment
      */
-    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr, SymbolEnv currentEnv) {
+    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr,
+                                                           BLangNode targetNode, SymbolEnv currentEnv) {
         if (!checkValidExpressionToEvaluateFalsity(expr)) {
-            return null;
+            return currentEnv;
         }
 
         Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, currentEnv);
         if (narrowedTypes.isEmpty()) {
-            return null;
+            return currentEnv;
         }
 
-        SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(expr, currentEnv);
+        SymbolEnv narrowedEnv = getTargetEnv(targetNode, currentEnv);
 
         for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
             BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
