@@ -183,3 +183,15 @@ function testCompoundAssignmentNotAllowedWithNullableOperands() {
     int? y = 5;
     x += y;
 }
+
+type MyNill ();
+type MyMap map<int>;
+type MyUnion MyMap|MyNill;
+
+function testCompoundAssignmentNotAllowedWithNullableOperandsUsingTypeRef() {
+    MyMap x = {"w": 33};
+    x["w"] += 1;
+
+    MyUnion y = {"w": 33};
+    y["w"] += 1;
+}

@@ -424,7 +424,7 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 40);
+        Assert.assertEquals(compileResult.getErrorCount(), 42);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands", 13, 5);
@@ -479,8 +479,12 @@ public class CompoundAssignmentTest {
                 177, 5);
         BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
                 180, 5);
-        BAssertUtil.validateError(compileResult, i, "compound assignment not allowed with nullable operands",
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
                 184, 5);
+        BAssertUtil.validateError(compileResult, i++, "compound assignment not allowed with nullable operands",
+                193, 5);
+        BAssertUtil.validateError(compileResult, i, "invalid operation: type 'MyUnion' does not support " +
+                        "member access for assignment", 196, 5);
     }
 
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
