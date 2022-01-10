@@ -67,6 +67,7 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"nilTypeCast.json", "typeCast.bal"},
                 {"type_cast_function_param_config1.json", "type_cast_function_param_config1.bal"},
                 {"typeCast11.json", "typeCast.bal"},
+                {"typeCastInMemberAccess1.json", "typeCastInMemberAccess1.bal"},
         };
     }
 

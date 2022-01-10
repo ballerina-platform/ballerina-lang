@@ -147,6 +147,22 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "city",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AA",
+      "insertText": "city",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "state",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AA",
+      "insertText": "state",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -119,7 +119,7 @@ function f7(readonly & (N|O) v) {
     if v is N {
 
     } else {
-        O _ = v; // OK, but not supported yet (snapshot 1)
+        O _ = v; // OK
     }
 }
 
@@ -151,10 +151,10 @@ type T record {|
     int j;
 |};
 
-type U R|T;
+type U S|T;
 
 function f9(U v) {
-    if v is R {
+    if v is S {
 
     } else {
         T _ = v; // OK
@@ -178,5 +178,182 @@ function f11() {
 
     } else {
         string[] _ = x; // OK
+    }
+}
+
+type V record {|
+    int i;
+|};
+
+type W record {|
+    string s;
+|};
+
+type X record {|
+    int s;
+|};
+
+type Y record {|
+    float f;
+|};
+
+function f12(V|W|X|Y v) {
+    if v is V|W {
+
+    } else {
+        X|Y _ = v; // error
+    }
+
+    if v is V|W|X {
+
+    } else {
+        Y _ = v; // OK
+    }
+}
+
+function f13([int]|[string] x) {
+    if x is [int] {
+        [int] _ = x;
+    } else {
+        if x is [string] {
+            return;
+        }
+        [int|string] _ = x; // Reachable, since type is still `[int|string]`.
+        [int] _ = x; // error
+    }
+}
+
+function f14([int]|[string] x) {
+    if x is [int] {
+        [int] _ = x;
+    } else {
+        [string] _ = x; // error incompatible types: expected '[string]', found '([int]|[string])'
+
+        [int|string] _ = x; // OK
+        [int]|[string] _ = x; // OK
+    }
+}
+
+function f15([int]|[string] & readonly x) {
+    if x is [int] {
+        [int] _ = x;
+    } else {
+        [int] & readonly _ = x; // error incompatible types: expected '[int] & readonly', found '([string] & readonly)'
+
+        [string] _ = x; // OK
+        [string] & readonly _ = x; // OK
+    }
+}
+
+function f16([int]|[string] & readonly x) {
+    if x is [string] {
+        [string] & readonly _ = x; // OK
+    } else {
+        [int] _ = x; // OK
+        [string] _ = x; // error incompatible types: expected '[string]', found '[int]'
+    }
+
+    if x is [string] & readonly {
+        [string] & readonly _ = x;
+    } else {
+        [int] _ = x; // OK
+        [int] & readonly _ = x; // error incompatible types: expected '[int] & readonly', found '[int]'
+        [string] & readonly _ = x; // error incompatible types: expected '[string] & readonly', found '[int]'
+    }
+}
+
+function f17([int] & readonly|[string] & readonly x) {
+    if x is [int] {
+        [int] _ = x;
+        [int] & readonly _ = x; // OK
+    } else {
+        [string] _ = x; // OK
+        [string] & readonly _ = x; // OK
+        [int] _ = x; // error incompatible types: expected '[int]', found '([string] & readonly)'
+    }
+
+    if x is [string] & readonly {
+        [string] _ = x; // OK
+        [string] & readonly _ = x; // OK
+        [int] _ = x; // error incompatible types: expected '[int]', found '[string] & readonly'
+    } else {
+        [int] _ = x; // OK
+        [int] & readonly _ = x; // OK
+    }
+}
+
+function f18(([int]|[string]) & readonly x) {
+    if x is [int] {
+        [int] _ = x;
+        [int] & readonly _ = x;
+    } else {
+        [string] _ = x; // OK
+        [string] & readonly _ = x; // OK
+        [int] _ = x; // error incompatible types: expected '[int]', found '([string] & readonly)'
+    }
+}
+
+function f19(int[]|string[] x) {
+    if x is int[] {
+        int[] _ = x;
+    } else {
+        string[] _ = x; // error incompatible types: expected 'string[]', found '(int[]|string[])'
+
+        (int|string)[] _ = x; // OK
+        int[]|string[] _ = x; // OK
+    }
+}
+
+function f20(int[]|string[] & readonly x) {
+    if x is int[] {
+        int[] _ = x;
+    } else {
+        string[] _ = x; // OK
+        string[] & readonly _ = x; // OK
+        int[] & readonly _ = x; // error incompatible types: expected 'int[] & readonly', found '(string[] & readonly)'
+    }
+}
+
+function f21(int[] & readonly|string[] & readonly x) {
+    if x is int[] {
+        int[] _ = x;
+        int[] & readonly _ = x;
+    } else {
+        string[] _ = x; // OK
+        int[] _ = x; // error incompatible types: expected 'int[]', found '(string[] & readonly)'
+        string[] & readonly _ = x; // OK
+    }
+}
+
+function f22((int[]|string[]) & readonly x) {
+    if x is int[] {
+        int[] _ = x;
+        int[] & readonly _ = x;
+    } else {
+        int[] _ = x; // error incompatible types: expected 'int[]', found '(string[] & readonly)'
+        string[] _ = x; // OK
+        string[] & readonly _ = x; // OK
+    }
+}
+
+function f23((int|string)[] & readonly x) {
+    if x is int[] {
+        int[] _ = x; // OK
+        int[] & readonly _ = x; // OK
+    } else {
+        string[] _ = x; // error incompatible types: expected 'string[]', found '((int|string)[] & readonly)'
+        string[] & readonly _ = x; // error incompatible types: expected 'string[] & readonly', found '((int|string)[] & readonly)'
+        (int|string)[] _ = x; // OK
+        (int|string)[] & readonly _ = x; // OK
+    }
+
+    if x is string[] & readonly {
+        string[] _ = x; // OK
+        string[] & readonly _ = x; // OK
+    } else {
+        int[] _ = x; // error incompatible types: expected 'int[]', found '((int|string)[] & readonly)'
+        int[] & readonly _ = x; // error incompatible types: expected 'int[] & readonly', found '((int|string)[] & readonly)'
+        (int|string)[] _ = x; // OK
+        (int|string)[] & readonly _ = x; // OK
     }
 }
