@@ -804,6 +804,14 @@ public class TypeGuardTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
+    @Test
+    public void testTypeGuardsAccountingForSemTypes4() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_4.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'OtherExpr', found '" +
+                "(VarRefExpr|OtherExpr)'", 81, 23);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
 
     @AfterClass
     public void tearDown() {
