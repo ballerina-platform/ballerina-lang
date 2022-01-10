@@ -357,3 +357,178 @@ function f23((int|string)[] & readonly x) {
         (int|string)[] & readonly _ = x; // OK
     }
 }
+
+type Z record {|
+    xml i;
+|};
+
+function f24() {
+    V|json a = ();
+
+    if a is V {
+        V _ = a; // OK
+    } else {
+        json _ = a; // OK, because `V` belongs to `json`.
+    }
+
+    Z|json b = {};
+
+    if b is Z {
+        Z _ = b; // OK
+    } else {
+        json _ = b; // error incompatible types: expected 'json', found '(Z|json)'
+    }
+
+    if b is json {
+        json _ = b; // OK
+    } else {
+        Z _ = b; // error incompatible types: expected 'Z', found '(Z|json)'
+    }
+
+    anydata|record {| stream<int> s; |} c = 1;
+
+    if c is anydata {
+        anydata _ = c; // OK
+    } else {
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
+    }
+
+    if c is record {| stream<int> s; |} {
+        record {| stream<int> s; |} _ = c; // OK
+    } else {
+        anydata _ = c; // error incompatible types: expected 'anydata', found '(anydata|record {| stream<int> s; |})'
+    }
+
+    any|record {| error x; |} d = 1;
+
+    if d is record {| error x; |} {
+        record {| error x; |} _  = d;
+    } else {
+        any _ = d; // OK, since record {| error x; |} is a subtype of any
+    }
+}
+
+function f25() {
+    V|json a = ();
+
+    if a is V {
+        V _ = a; // OK
+    } else {
+        json _ = a; // OK, because `V` belongs to `json`.
+    }
+
+    Z|json|stream<int> b = {};
+
+    if b is Z {
+        Z _ = b; // OK
+    } else {
+        json|stream<int> _ = b; // error incompatible types: expected '(json|stream<int>)', found '(Z|json|stream<int>)'
+    }
+
+    if b is json {
+        json _ = b; // OK
+    } else {
+        Z|stream<int> _ = b; // error incompatible types: expected '(Z|stream<int>)', found '(Z|json|stream<int>)'
+    }
+
+    anydata|record {| stream<int> s; |}|future<string> c = 1;
+
+    if c is anydata|future<string> {
+        anydata|future<string> _ = c; // OK
+    } else {
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |}|future<string>)'
+    }
+
+    if c is record {| stream<int> s; |} {
+        record {| stream<int> s; |} _ = c; // OK
+    } else {
+        anydata|future<string> _ = c; // error incompatible types: expected '(anydata|future<string>)', found '(anydata|record {| stream<int> s; |}|future<string>)'
+    }
+
+    any|record {| error x; |}|error d = 1;
+
+    if d is record {| error x; |} {
+        record {| error x; |} _  = d;
+    } else {
+        any|error y = d; // OK, since record {| error x; |} is a subtype of any|error
+        _ = y is error;
+    }
+
+    Z|map<int>|xml e = {};
+
+    if e is Z {
+        Z _ = e;
+    } else {
+        map<int>|xml _ = e; // error incompatible types: expected '(map<int>|xml)', found '(Z|map<int>|xml)'
+    }
+}
+
+type A2 record {
+    int b;
+};
+
+type A3 record {
+    boolean a;
+};
+
+function f26(A|A2 x) {
+    if x is A {
+        A _ = x;
+    } else {
+        A2 _ = x; // error incompatible types: expected 'A2', found '(A|A2)'
+    }
+
+    A|A2|A3 y = <A> {a: ""};
+
+    if y is A {
+        A _ = y;
+    } else {
+        A2|A3 _ = y; // error incompatible types: expected '(A2|A3)', found '(A|A2|A3)'
+    }
+}
+
+type A4 record {|
+    string a;
+|};
+
+type A5 record {|
+    int a;
+    never...;
+|};
+
+type A6 record {|
+    int b;
+    never...;
+|};
+
+function f27(A4|A5 v, A4|A6 w) {
+    if v is A4 {
+
+    } else {
+        A5 _ = v; // error incompatible types: expected 'A5', found '(A4|A5)'
+    }
+
+    if w is A4 {
+
+    } else {
+        A6 _ = w; // OK
+    }
+}
+
+function f28() {
+    A|int|string[] v = 1;
+
+    if v is A|int {
+        A|int _ = v;
+    } else {
+        string[] _ = v; // OK
+    }
+
+    A|A6|boolean w = true;
+
+    if w is A|boolean {
+        A|boolean _ = w;
+    } else {
+        A6 _ = w; // OK, not yet allowed.
+    }
+}

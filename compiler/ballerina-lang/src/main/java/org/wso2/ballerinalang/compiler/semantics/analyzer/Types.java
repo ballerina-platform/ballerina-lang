@@ -4430,8 +4430,7 @@ public class Types {
                 if (refType.tag != TypeTags.UNION && refType.tag != TypeTags.FINITE) {
                     return originalType;
                 }
-                remainingType = getRemainingType(refType, typeToRemove);
-                break;
+                return getRemainingType(refType, typeToRemove);
         }
 
         if (Symbols.isFlagOn(getReferredType(originalType).flags, Flags.READONLY)) {
@@ -4476,6 +4475,9 @@ public class Types {
         remainingType = getReferredType(remainingType);
         switch (remainingType.tag) {
             case TypeTags.MAP:
+            case TypeTags.JSON:
+            case TypeTags.ANYDATA:
+            case TypeTags.ANY:
                 return false;
             case RECORD:
                 BRecordType recordType = (BRecordType) remainingType;
@@ -4487,11 +4489,20 @@ public class Types {
             case UNION:
                 for (BType memberType : ((BUnionType) remainingType).getMemberTypes()) {
                     BType referredMemberType = getReferredType(memberType);
-                    if (isClosedRecordTypes(referredMemberType)) {
-                        fieldsInRemainingTypes.add(((BRecordType) referredMemberType).fields.keySet());
+                    int tag = referredMemberType.tag;
+                    if (tag == RECORD) {
+                        BRecordType memberRecordType = (BRecordType) referredMemberType;
+                        if (!memberRecordType.sealed && memberRecordType.restFieldType != symTable.neverType) {
+                            return false;
+                        }
+
+                        fieldsInRemainingTypes.add(memberRecordType.fields.keySet());
                         continue;
                     }
-                    return false;
+
+                    if (tag == TypeTags.MAP || tag == TypeTags.JSON || tag == TypeTags.ANYDATA || tag == TypeTags.ANY) {
+                        return false;
+                    }
                 }
         }
 
@@ -4503,7 +4514,13 @@ public class Types {
                 break;
             case UNION:
                 for (BType memberType : ((BUnionType) typeToRemove).getMemberTypes()) {
-                    fieldsInRemovingTypes.add(((BRecordType) getReferredType(memberType)).fields.keySet());
+                    BType referredType = getReferredType(memberType);
+
+                    if (referredType.tag != RECORD) {
+                        continue;
+                    }
+
+                    fieldsInRemovingTypes.add(((BRecordType) referredType).fields.keySet());
                 }
         }
 
