@@ -2259,27 +2259,27 @@ function testUsingCloneableReturnType() {
     assertEquality("dummyVal", caller.getAttribute("dummy"));
 }
 
-function testDecimalZeroToStringWithDifferentPrecisions() returns error? {
+function testDecimalZeroToStringWithDifferentPrecisions() {
     decimal d1 = 0.0d;
     decimal d2 = 0d;
 
     assertFalse(d1.toString() == d2.toString());
-    assertTrue(check decimal:fromString(d1.toString()) == check decimal:fromString(d2.toString()));
-    assertFalse(decimal:fromString(d1.toString()) === decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
 
     d1 = 0.00000000d;
     d2 = 0.0d;
 
     assertFalse(d1.toString() == d2.toString());
-    assertTrue(check decimal:fromString(d1.toString()) == check decimal:fromString(d2.toString()));
-    assertFalse(decimal:fromString(d1.toString()) === decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
     
     d1 = 0.0000d;
     d2 = 0.0000d;
 
     assertEquality(d1.toString(), d2.toString());
-    assertTrue(check decimal:fromString(d1.toString()) == check decimal:fromString(d2.toString()));
-    assertTrue(decimal:fromString(d1.toString()) === decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
 }
 
 type AssertionError distinct error;
