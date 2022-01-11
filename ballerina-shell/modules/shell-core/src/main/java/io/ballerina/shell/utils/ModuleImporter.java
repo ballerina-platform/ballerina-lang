@@ -109,8 +109,7 @@ public class ModuleImporter {
         for (Diagnostic diagnostic : diagnostics) {
             //TODO update following statement using error code (BCE2000) issue : #33990
             if (diagnostic.toString().contains(UNDEFINED_MODULE)) {
-                moduleErrors.add(diagnostic.toString().split("\n")[0].split(" ")[3]
-                        .replace("\r", ""));
+                moduleErrors.add(diagnostic.toString().split("\n")[0].split(" ")[3].replace("\r", ""));
             }
         }
 
