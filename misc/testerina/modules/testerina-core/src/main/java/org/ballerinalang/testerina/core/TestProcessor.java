@@ -542,13 +542,6 @@ public class TestProcessor {
         }
 
         String fieldName = ((BasicLiteralNode) fieldNameNode).literalToken().text();
-        if (fieldName.length() > 1 && fieldName.charAt(fieldName.length() - 1) == '"') {
-            fieldName = fieldName.substring(1, fieldName.length() - 1);
-        } else {
-            // Missing end quote case
-            fieldName = fieldName.substring(1);
-        }
-
-        return fieldName;
+        return fieldName.substring(1, fieldName.length() - 1);
     }
 }
