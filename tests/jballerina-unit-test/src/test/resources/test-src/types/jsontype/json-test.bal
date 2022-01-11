@@ -30,6 +30,11 @@ function testJSONArrayToJsonAssignment() returns (json) {
     return j2;
 }
 
+function testJSONWithNullValues() returns string {
+    json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state": null, "age":()};
+    return j.toJsonString();
+}
+
 public function testCloseRecordToMapJsonAssigment() returns [map<json>, map<json>] {
     AnotherPerson ap = {};
     Person p = {};
