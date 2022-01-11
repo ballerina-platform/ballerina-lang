@@ -27,7 +27,6 @@ dependencies {
     testImplementation project(':testerina:testerina-core')
 
     testCompile'org.testng:testng'
-    testCompile 'com.h2database:h2'
     testCompile 'org.slf4j:slf4j-api'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')

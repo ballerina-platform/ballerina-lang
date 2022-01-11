@@ -36,7 +36,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':docerina')
 
-    implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
     testCompile 'com.zaxxer:HikariCP'

@@ -36,7 +36,6 @@ dependencies {
         implementation "com.atlassian.commonmark:commonmark-ext-gfm-tables:${project.atalassianCommonmarkExtGfmTablesVersion}"
         implementation "com.fasterxml.jackson.core:jackson-databind:${project.jacksonDatabindVersion}"
         implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${project.jacksonDataformatYamlVersion}"
-        implementation "com.h2database:h2:${project.h2DatabaseVersion}"
         implementation "org.hsqldb:hsqldb:${project.hsqldbVersion}"
         implementation "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
         implementation "com.github.jknack:handlebars:${project.jknackHandlebarsVersion}"
