@@ -25,7 +25,10 @@ import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContextImpl;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -212,7 +215,11 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 return;
             }
 
-            LineRange lineRange = originalST.get().rootNode().lineRange();
+            TextRange textRange = originalST.get().rootNode().textRangeWithMinutiae();
+            TextDocument textDocument = originalST.get().textDocument();
+            LinePosition startPos = textDocument.linePositionFrom(textRange.startOffset());
+            LinePosition endPos = textDocument.linePositionFrom(textRange.endOffset());
+            LineRange lineRange = LineRange.from(originalST.get().filePath(), startPos, endPos);
             Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), 
                     lineRange.startLine(), lineRange.endLine()));
             TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
