@@ -101,7 +101,7 @@
     "nextNode": {
       "length": 2,
       "forBody": {
-        "endPointRef": "0",
+        "endPointRef": "${json-unit.ignore}",
         "name": "get",
         "path": null,
         "pos": "forEach.bal/(29:41,29:93)",
@@ -110,7 +110,7 @@
       "nextNode": {
         "length": 3,
         "forBody": {
-          "endPointRef": "0",
+          "endPointRef": "${json-unit.ignore}",
           "name": "post",
           "path": "/",
           "pos": "forEach.bal/(34:44,34:72)",
@@ -119,7 +119,7 @@
         "nextNode": {
           "length": 4,
           "forBody": {
-            "endPointRef": "0",
+            "endPointRef": "${json-unit.ignore}",
             "name": "post",
             "path": "/",
             "pos": "forEach.bal/(38:44,38:72)",
