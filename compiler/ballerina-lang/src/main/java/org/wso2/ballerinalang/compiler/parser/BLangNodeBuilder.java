@@ -5401,13 +5401,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     || decimalCodePoint > Constants.MAX_UNICODE) {
 
                 int offset = matcher.end(1);
-                String numericEscape = "\\u{" + hexCodePoint + "}";
+                offset += "\\u{".length();
                 BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
                         pos.lineRange().startLine().line(),
                         pos.lineRange().endLine().line(),
                         pos.lineRange().startLine().offset() + offset,
-                        pos.lineRange().startLine().offset() + offset + numericEscape.length());
-                dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, numericEscape);
+                        pos.lineRange().startLine().offset() + offset + hexCodePoint.length());
+                dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, hexCodePoint);
             }
         }
     }

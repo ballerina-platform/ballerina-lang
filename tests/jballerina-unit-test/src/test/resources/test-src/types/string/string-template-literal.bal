@@ -219,18 +219,28 @@ function testStringTemplateExprWithUnionType() {
 }
 
 function testNumericEscapes() {
-        string s1 = string `\u{61}`;
-        string s2 = string `\u{61}ppl\\u{65}`;
-        string s3 = string `A \u{5C} B`;
-        string s4 = string `A \\u{5C} B`;
-        string s5 = string`"\u{D800}"`;
+    string s1 = string `\u{61}`;
+    string s2 = string `\u{61}ppl\\u{65}`;
+    string s3 = string `A \u{5C} B`;
+    string s4 = string `A \\u{5C} B`;
+    string s5 = string `"\u{D800}"`;
+    string s6 = string `\u{DFFF}"\u{DFFF}"`;
+    string s7 = string `"\u{12FFFF} ABC \u{DFFF} DEF \u{DAFF}"`;
+    string s8 = string `\u{12FFFF} ABC \u{DFFFAAA} DEF \u{FFFFFFF}`;
+    string s9 = string `\u{001B[`;
+    string s10 = string `"\u{001B["`;
 
-        assertEquality("\\u{61}", s1);
-        assertEquality("[92,117,123,54,49,125]", s1.toBytes().toString());
-        assertEquality("\\u{61}ppl\\\\u{65}", s2);
-        assertEquality("A \\u{5C} B", s3);
-        assertEquality("A \\\\u{5C} B", s4);
-        assertEquality("\"\\u{D800}\"", s5);
+    assertEquality("\\u{61}", s1);
+    assertEquality("[92,117,123,54,49,125]", s1.toBytes().toString());
+    assertEquality("\\u{61}ppl\\\\u{65}", s2);
+    assertEquality("A \\u{5C} B", s3);
+    assertEquality("A \\\\u{5C} B", s4);
+    assertEquality("\"\\u{D800}\"", s5);
+    assertEquality("\\u{DFFF}\"\\u{DFFF}\"", s6);
+    assertEquality("\"\\u{12FFFF} ABC \\u{DFFF} DEF \\u{DAFF}\"", s7);
+    assertEquality("\\u{12FFFF} ABC \\u{DFFFAAA} DEF \\u{FFFFFFF}", s8);
+    assertEquality("\\u{001B[", s9);
+    assertEquality("\"\\u{001B[\"", s10);
 }
 
 type Type1 1|2|3;
