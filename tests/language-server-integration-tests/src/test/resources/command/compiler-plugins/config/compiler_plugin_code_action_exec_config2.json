@@ -1,13 +1,13 @@
 {
   "arguments": {
     "node.range": {
-      "filePath": "main.bal",
+      "filePath": "source1.bal",
       "startLine": {
-        "line": 6,
+        "line": 7,
         "offset": 3
       },
       "endLine": {
-        "line": 6,
+        "line": 7,
         "offset": 15
       }
     },
@@ -26,11 +26,11 @@
                     "character": 0
                   },
                   "end": {
-                    "line": 12,
-                    "character": 0
+                    "line": 14,
+                    "character": 25
                   }
                 },
-                "newText": "import lstest/package_comp_plugin_with_codeactions as foo;\n\npublic function main() {\n   foo:doSomething();\n   \n   // Var assignment is required below\n   int myVar = createInt();\n}\n\nfunction createInt() returns int {\n    return 1;\n}\n"
+                "newText": "// A Header comment here\nimport lstest/package_comp_plugin_with_codeactions as foo;\n\npublic function main() {\n   foo:doSomething();\n   \n   // Var assignment is required below\n   int myVar = createInt();\n}\n\nfunction createInt() returns int {\n    return 1;\n}\n\n// A traling comment here"
               }
             ]
           }
