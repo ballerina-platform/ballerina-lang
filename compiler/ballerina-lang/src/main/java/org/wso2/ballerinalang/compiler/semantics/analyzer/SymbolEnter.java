@@ -4287,7 +4287,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             ImmutableTypeCloner.markFieldsAsImmutable(classDef, pkgEnv, objectType, types, anonymousModelHelper,
                                                       symTable, names, pos);
-        } else {
+        } else if (classDef.isObjectContructorDecl) {
             Collection<BField> fields = objectType.fields.values();
             if (fields.isEmpty()) {
                 return;

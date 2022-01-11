@@ -841,6 +841,22 @@ public class TypeGuardTest {
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
+    @Test
+    public void testTypeGuardsAccountingForSemTypes5() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_5.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForSemTypes6() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_6.bal");
+        int index = 0;
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 22, 15);
+        BAssertUtil.validateError(result, index++, "unreachable code", 25, 9);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
