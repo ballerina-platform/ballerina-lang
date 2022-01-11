@@ -1535,21 +1535,32 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         this.isInLocalContext = true;
         List<BLangStatement> statements = new ArrayList<>();
+        List<BLangStatement> stmtList = statements;
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
             NamedWorkerDeclarator namedWorkerDeclarator = functionBodyBlockNode.namedWorkerDeclarator().get();
-            generateAndAddBLangStatements(namedWorkerDeclarator.workerInitStatements(), statements, 0,
-                    functionBodyBlockNode);
+            NodeList<StatementNode> workerInitStmts = namedWorkerDeclarator.workerInitStatements();
+            generateAndAddBLangStatements(workerInitStmts, statements, 0, functionBodyBlockNode);
+
+            int stmtSize = statements.size();
+            int workerInitStmtSize = workerInitStmts.size();
+            // If there's a worker defined after an `if` statement without an `else`, need to add it to the
+            // newly created block statement.
+            if (stmtSize > 1 && workerInitStmtSize > 0 && statements.get(stmtSize - 1).getKind() == NodeKind.BLOCK &&
+                    statements.get(stmtSize - 2).getKind() == NodeKind.IF &&
+                    workerInitStmts.get(workerInitStmtSize - 1).kind() != SyntaxKind.BLOCK_STATEMENT) {
+                stmtList = ((BLangBlockStmt) statements.get(stmtSize - 1)).stmts;
+            }
 
             for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
-                statements.add((BLangStatement) workerDeclarationNode.apply(this));
+                stmtList.add((BLangStatement) workerDeclarationNode.apply(this));
                 // Consume resultant additional statements
                 while (!this.additionalStatements.empty()) {
-                    statements.add(additionalStatements.pop());
+                    stmtList.add(additionalStatements.pop());
                 }
             }
         }
 
-        generateAndAddBLangStatements(functionBodyBlockNode.statements(), statements, 0, functionBodyBlockNode);
+        generateAndAddBLangStatements(functionBodyBlockNode.statements(), stmtList, 0, functionBodyBlockNode);
 
         bLFuncBody.stmts = statements;
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
