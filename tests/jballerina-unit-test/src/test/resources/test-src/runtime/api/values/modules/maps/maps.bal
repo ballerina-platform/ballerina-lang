@@ -18,18 +18,18 @@ import ballerina/jballerina.java;
 import ballerina/test;
 
 public function validateAPI() {
-    anydata mapAnydataVal1 = getMapValue1();
+    anydata mapAnydataVal1 = getMapValue();
     test:assertTrue(mapAnydataVal1 is map<anydata>);
     test:assertEquals(mapAnydataVal1, {"a":5});
 
-    map<anydata> mapAnydataVal2 = getMapValue2();
+    map<anydata> mapAnydataVal2 = getMapValueWithInitialValues();
     test:assertEquals(mapAnydataVal2, {"aa": "55", "bb": "66"});
 }
 
-function getMapValue1() returns anydata = @java:Method {
+function getMapValue() returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-function getMapValue2() returns map<anydata> = @java:Method {
+function getMapValueWithInitialValues() returns map<anydata> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

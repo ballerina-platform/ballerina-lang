@@ -37,18 +37,18 @@ type Student record {|
 |};
 
 public function validateAPI() {
-    anydata recordVal1 = getRecordValue1();
+    anydata recordVal1 = getRecordValue();
     test:assertTrue(recordVal1 is Student);
     test:assertEquals(recordVal1, {"name": "nameOfStudent"});
 
-    Details recordVal2 = getRecordValue2();
+    Details recordVal2 = getRecordValueWithInitialValues();
     test:assertEquals(recordVal2, {"name": "studentName", "id": 123});
 }
 
-function getRecordValue1() returns anydata = @java:Method {
+function getRecordValue() returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-function getRecordValue2() returns Details = @java:Method {
+function getRecordValueWithInitialValues() returns Details = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

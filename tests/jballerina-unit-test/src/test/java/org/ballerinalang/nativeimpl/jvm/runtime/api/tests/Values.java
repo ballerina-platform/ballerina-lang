@@ -154,14 +154,14 @@ public class Values {
         return arrayValue;
     }
 
-    public static Object getMapValue1() {
+    public static Object getMapValue() {
         BMap<BString, Object> mapValue = ValueCreator.createMapValue(
                 TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
         mapValue.put(StringUtils.fromString("a"), 5);
         return mapValue;
     }
 
-    public static BMap<BString, Object> getMapValue2() {
+    public static BMap<BString, Object> getMapValueWithInitialValues() {
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("aa"), StringUtils.fromString("55")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("bb"), StringUtils.fromString("66"))};
@@ -169,7 +169,7 @@ public class Values {
                 TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA), mapInitialValueEntries);
     }
 
-    public static Object getRecordValue1() {
+    public static Object getRecordValue() {
         Field stringField = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", 1);
         Map<String, Field> fields = Map.ofEntries(Map.entry("name", stringField));
         RecordType recordType = TypeCreator.createRecordType("Student", null, 1, fields,
@@ -179,7 +179,7 @@ public class Values {
         return recordValue;
     }
 
-    public static BMap<BString, Object> getRecordValue2() {
+    public static BMap<BString, Object> getRecordValueWithInitialValues() {
         Map<String, Field> fieldMap = new HashMap<>();
         fieldMap.put("name", TypeCreator
                 .createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
