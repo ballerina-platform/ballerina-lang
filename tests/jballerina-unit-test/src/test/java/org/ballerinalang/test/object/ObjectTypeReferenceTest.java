@@ -164,18 +164,16 @@ public class ObjectTypeReferenceTest {
                 BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers_negative.bal");
 
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
-                                  26, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in a 'class' that is not 'readonly'", 26, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
                                   27, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
-                                  33, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                                          "descriptor in an 'object' type descriptor", 33, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
                                   34, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
                 "(s) in the referencing object", 58, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
-                                  58, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
                 "in the referencing object", 59, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
@@ -186,8 +184,6 @@ public class ObjectTypeReferenceTest {
                                   68, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
                 "(s) in the referencing object", 74, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
-                                  74, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
                 "in the referencing object", 75, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +

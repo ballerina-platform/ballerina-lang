@@ -750,7 +750,7 @@ readonly class AnotherReadOnlyClass {
     }
 }
 
-class ImplicitlyReadOnlyClass {
+readonly class TheOtherReadOnlyClass {
     final int i;
 
     isolated function init() {
@@ -761,7 +761,7 @@ class ImplicitlyReadOnlyClass {
 type RecordWithReadOnlyFields record {|
     readonly NonReadOnlyClass a;
     readonly ReadOnlyClass & readonly b = new ReadOnlyClass();
-    readonly ImplicitlyReadOnlyClass c;
+    readonly TheOtherReadOnlyClass c;
 |};
 
 type ONE 1;
@@ -792,7 +792,7 @@ function testReadOnlyFieldsOfClassTypes() {
     assertTrue(<any> rec2 is record {
         AnotherReadOnlyClass a;
         ReadOnlyClass b;
-        ImplicitlyReadOnlyClass c;
+        TheOtherReadOnlyClass c;
     });
     assertEquality(4567, rec2.a.i);
     assertEquality(2, rec2.b.i);

@@ -673,7 +673,7 @@ function testImmutableRecordWithDefaultValues() {
     assertEquality(q2.id, 2);
 }
 
-class MyOwner {
+readonly class MyOwner {
     final int id = 238475;
 
     function getId() returns int {
@@ -681,7 +681,7 @@ class MyOwner {
     }
 }
 
-class MyController {
+readonly class MyController {
     final Owner & readonly owner;
     final readonly & Printer printer;
 
@@ -704,7 +704,7 @@ type Owner object {
     function getId() returns int;
 };
 
-class MyPrinter {
+readonly class MyPrinter {
     final int id;
 
     function init(int id) {
@@ -829,7 +829,7 @@ type IdentifierAbstractObj object {
     function getId() returns string;
 };
 
-class IdentifierObj {
+readonly class IdentifierObj {
     final string id;
 
     function init() {
