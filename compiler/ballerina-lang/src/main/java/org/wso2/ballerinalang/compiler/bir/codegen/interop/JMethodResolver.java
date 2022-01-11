@@ -273,15 +273,16 @@ class JMethodResolver {
         if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
                 (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
             BType returnType = jMethodRequest.bReturnType;
-            BType modifiedRetType = returnType;
-            if (returnType.tag == TypeTags.UNION) {
-                BUnionType bUnionReturnType = (BUnionType) returnType;
-                modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
-            }
-            String expectedRetTypeName = modifiedRetType + "|error";
+            String expectedRetTypeName;
             if (returnType.tag == TypeTags.NIL || returnType instanceof BTypeReferenceType &&
                     ((BTypeReferenceType) returnType).referredType.tag == TypeTags.ERROR) {
                 expectedRetTypeName = "error";
+            } else if (returnType instanceof BUnionType) {
+                BUnionType bUnionReturnType = (BUnionType) returnType;
+                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+                expectedRetTypeName = modifiedRetType + "|error";
+            } else {
+                expectedRetTypeName = returnType + "|error";
             }
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
