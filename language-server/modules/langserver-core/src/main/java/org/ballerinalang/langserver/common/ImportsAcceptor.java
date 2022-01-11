@@ -62,10 +62,9 @@ public class ImportsAcceptor {
      */
     public BiConsumer<String, CodeActionModuleId> getAcceptor(DocumentServiceContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
-        String currentPkgName = project.isEmpty() ? "" :
-                CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageName().value());
-        String currentOrgName = project.isEmpty() ? "" :
-                CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageOrg().value());
+        //The project should not be empty.
+        String currentPkgName = CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageName().value());
+        String currentOrgName = CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageOrg().value());
         
         return (orgName, codeActionModuleId) -> {
             boolean notFound = currentModuleImportsMap.keySet().stream().noneMatch(

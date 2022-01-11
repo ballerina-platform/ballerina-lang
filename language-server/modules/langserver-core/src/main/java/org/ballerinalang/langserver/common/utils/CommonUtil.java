@@ -1065,8 +1065,7 @@ public class CommonUtil {
             if (existingModuleImports.size() == 1) {
                 ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
                 if (importDeclarationNode.prefix().isPresent()) {
-                    String prefix = importDeclarationNode.prefix().get().prefix().text();
-                    pkgPrefix = prefix;
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
             } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
                 pkgPrefix = getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
