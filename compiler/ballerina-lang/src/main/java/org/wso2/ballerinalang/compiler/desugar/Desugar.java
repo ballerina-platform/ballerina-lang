@@ -1937,7 +1937,6 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
         }
-        rewrite(parentBlockStmt, env);
     }
 
     private BLangSimpleVariableDef forceCastIfApplicable(BVarSymbol errorVarySymbol, Location pos,
