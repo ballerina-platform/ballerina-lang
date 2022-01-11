@@ -903,6 +903,53 @@ function listMatchPattern32(T t) returns string|int {
     return s;
 }
 
+type T2 readonly & ([1, string]|[2, string]|[3, string]);
+
+function testListMatchPattern33() {
+    T2 t1 = [1, "hello"];
+    T2 t2 = [2, "1234"];
+    T2 t3 = [3, "abcd"];
+
+    assertEquals("hello", listMatchPattern33(t1));
+    assertEquals("1234", listMatchPattern33(t2));
+    assertEquals("abcd", listMatchPattern33(t3));
+}
+
+function listMatchPattern33(T2 t) returns string {
+    string s;
+
+    match t {
+        [_, var val] => {
+            s = val;
+        }
+    }
+
+    return s;
+}
+
+type T3 readonly & S3;
+type S3 string[2]|int[2];
+
+function testListMatchPattern34() {
+    T3 t1 = ["1", "hello"];
+    T3 t2 = [2, 1234];
+
+    assertEquals("hello", listMatchPattern34(t1));
+    assertEquals(1234, listMatchPattern34(t2));
+}
+
+function listMatchPattern34(T3 t) returns string|int {
+    string|int s = 10;
+
+    match t {
+        [_, var val] => {
+            s = val; // error: incompatible types: expected '(string|int)', found '(any|error)'
+        }
+    }
+
+    return s;
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
