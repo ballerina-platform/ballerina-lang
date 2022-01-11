@@ -156,8 +156,7 @@ public class BallerinaShell {
                     outputDistinctErrorDiagnostics(evaluator.diagnostics());
                 } else {
                     if (isContainsError) {
-                        evaluator.diagnostics().forEach(this::outputDebugDiagnostic);
-                        outputDistinctErrorDiagnostics(evaluator.diagnostics());
+                        terminal.error("\nCompilation aborted due to errors.");
                     }
                 }
                 evaluator.resetDiagnostics();
