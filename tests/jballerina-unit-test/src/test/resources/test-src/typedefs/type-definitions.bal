@@ -268,6 +268,52 @@ class FooFunction {
     }
 }
 
+type Seconds decimal;
+
+type Bool boolean;
+
+type Ints int;
+
+type Bytes byte;
+
+function testBinaryExprAssignments() {
+    Seconds res1 = 20 * 30;
+    assertEquality(<Seconds>600, res1);
+
+    Seconds res2 = 20 + 30;
+    assertEquality(<Seconds>50, res2);
+
+    Seconds res3 = 50 - 30;
+    assertEquality(<Seconds>20, res3);
+
+    Seconds res4 = 50 * 30 - 20;
+    assertEquality(<Seconds>1480, res4);
+
+    Bool res5 = true && false;
+    assertEquality(<Bool>false, res5);
+
+    Bool res6 = true || false;
+    assertEquality(<Bool>true, res6);
+
+    Bool res7 = true && false && true;
+    assertEquality(<Bool>false, res7);
+
+    [Ints, Bytes, Bytes, Bytes] resTuple = [0, 0, 0, 0];
+    [Ints, Bytes, Bytes, Bytes] expectedTuple = [0, 10, 11, 0];
+
+    Ints a = 10;
+    Ints b = 20;
+    Bytes c = 63;
+    Bytes d = 11;
+
+    resTuple[0] = a & b;
+    resTuple[1] = a & c;
+    resTuple[2] = c & d;
+    resTuple[3] = b & d;
+
+    assertEquality(resTuple, expectedTuple);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
