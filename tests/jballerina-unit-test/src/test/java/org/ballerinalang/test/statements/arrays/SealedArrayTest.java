@@ -254,7 +254,7 @@ public class SealedArrayTest {
 
     @Test
     public void testSemanticsNegativeSealedArrays() {
-        Assert.assertEquals(semanticsNegative.getErrorCount(), 31);
+        Assert.assertEquals(semanticsNegative.getErrorCount(), 37);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
@@ -263,6 +263,8 @@ public class SealedArrayTest {
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 36, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 37, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: array not initialized",
+                38, 5);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
                 38, 5);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'",
                 45, 17);
@@ -276,6 +278,8 @@ public class SealedArrayTest {
                 78, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 81, 8);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size", 83,
+                5);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[*]', found 'json[3]'", 83,
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
@@ -293,24 +297,32 @@ public class SealedArrayTest {
                 "'FiniteFive' out of range", 109, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
                 114, 5);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found 'int[]'",
+                114, 22);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
                 117, 24);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
                 121, 24);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
-                129, 1);
+                129, 14);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
-                131, 2);
+                132, 1);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found 'int[1]'",
+                132, 13);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
-                132, 9);
+                134, 2);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
-                133, 2);
-        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'float', found 'decimal'", 133,
+                135, 9);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
+                136, 2);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'float', found 'decimal'", 136,
                 39);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
-                135, 5);
-        BAssertUtil.validateError(semanticsNegative, i, "invalid usage of closed type: can not infer array size", 136,
-                11);
+                138, 5);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size",
+                139, 11);
+        BAssertUtil.validateError(semanticsNegative, i, "invalid usage of closed type: can not infer array size",
+                140, 5);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",

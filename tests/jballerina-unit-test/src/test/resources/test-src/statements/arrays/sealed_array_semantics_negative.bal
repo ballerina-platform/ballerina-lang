@@ -126,6 +126,9 @@ function fn3() returns int[1] {
     return [2];
 }
 
+function fn4(int[*] x = [1]) {
+}
+
 int[*] a1 = fn3();
 
 [int[*]] a2 = [[1]];
@@ -134,3 +137,4 @@ int[*] a1 = fn3();
 
 map<int[*]> a5 = {"1" : [3]};
 map<float|int[*]> a6 = {"1" : [3]};
+map<int[1][*]> a7 = {};
