@@ -25,7 +25,7 @@ function testDuplicateBinding() {
 public function testAssigningValuesToFinalVars() {
     BazError e = error("ErrReason", message = "error message", abc = 1, def = 2.0);
     final var error(r, message = message, abc = abc) = e;
-    error(r) = e;
+    error(r, message = message, abc = abc) = e;
 
     final var error(r2, message = message2, ...rest) = e;
     // error(r2, message = message2, ...rest) = e;
