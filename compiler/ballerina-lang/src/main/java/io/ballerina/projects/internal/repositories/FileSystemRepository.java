@@ -211,15 +211,16 @@ public class FileSystemRepository extends AbstractPackageRepository {
 
     private boolean isCompatible(String pkgBalVer, String distBalVer) {
         if (!pkgBalVer.equals(distBalVer)) {
-            String pkgBalVerPrefix = pkgBalVer.substring(0, pkgBalVer.length() - 1);
-            String distBalVerPerfix = distBalVer.substring(0, distBalVer.length() - 1);
+            String pkgBalVerPrefix = pkgBalVer.replaceAll("(\\d+(?:\\.\\d+)?)", "");
+            String distBalVerPerfix = distBalVer.replaceAll("(\\d+(?:\\.\\d+)?)", "");
 
             // If the prefixes are equal, we need to check the versions
             if (pkgBalVerPrefix.equals(distBalVerPerfix)) {
-                String pkgBalVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
-                String distBalVerValue = distBalVer.substring(distBalVer.length() - 1);
+                String pkgBalVerVal = pkgBalVer.replaceAll("[^\\d.]", "");
+                String distBalVerVal = distBalVer.replaceAll("[^\\d.]", "");
+
                 // If package version is greater than distribution version
-                if (Integer.parseInt(pkgBalVerValue) > Integer.parseInt(distBalVerValue)) {
+                if (Float.parseFloat(pkgBalVerVal) > Float.parseFloat(distBalVerVal)) {
                     return false;
                 }
             } else {
