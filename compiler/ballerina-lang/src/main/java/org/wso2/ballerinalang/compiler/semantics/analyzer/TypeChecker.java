@@ -2450,12 +2450,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // Check type compatibility
-        if (expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) expType)) {
-            dlog.error(varRefExpr.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
-            return;
-
-        }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 

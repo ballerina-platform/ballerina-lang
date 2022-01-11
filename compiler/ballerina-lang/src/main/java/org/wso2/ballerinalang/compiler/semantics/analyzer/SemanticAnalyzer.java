@@ -3879,7 +3879,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         BType returnType = this.env.enclInvokable.returnTypeNode.getBType();
         if (this.typeChecker.getLocationOfInferredArray(returnType)) {
-            dlog.error(returnType.tsymbol.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+            Location pos = returnType.getKind() == TypeKind.INTERSECTION?
+                    ((BIntersectionType) returnType).effectiveType.tsymbol.pos : returnType.tsymbol.pos;
+            dlog.error(pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
         }
         this.typeChecker.checkExpr(returnNode.expr, this.env, returnType);
         validateWorkerAnnAttachments(returnNode.expr);
