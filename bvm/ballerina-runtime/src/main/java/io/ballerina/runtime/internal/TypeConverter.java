@@ -275,8 +275,7 @@ public class TypeConverter {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     if (TypeChecker.getType(inputValue) == memType
-                            || isIntegerSubtypeAndConvertible(inputValue, memType)
-                    ) {
+                            || isIntegerSubtypeAndConvertible(inputValue, memType)) {
                         return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
