@@ -31,6 +31,14 @@ service /hello on new http2:Listener(9090) {
                 r += getResponse.toJsonString();
             }
 
+            foreach var item in 0 ..< 3 {
+                json clientResponse = check httpEndpoint->post("/", req);
+            }
+
+            foreach var item in 0 ... 3 {
+                json clientResponse = check httpEndpoint->post("/", req);
+            }
+
             return r;
         } on fail var e {
             io:println(e);

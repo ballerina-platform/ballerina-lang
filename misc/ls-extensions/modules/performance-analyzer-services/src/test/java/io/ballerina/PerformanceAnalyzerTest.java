@@ -82,7 +82,7 @@ public class PerformanceAnalyzerTest {
     @Test(description = "Test performance analyzer")
     public void testForEach() throws IOException, ExecutionException, InterruptedException {
 
-        Range range = new Range(new Position(22, 4), new Position(38, 5));
+        Range range = new Range(new Position(22, 4), new Position(46, 5));
 
         compare("forEach.bal", "forEach.json", range);
     }

@@ -5,38 +5,6 @@
       "name": "Client",
       "baseUrl": "https://api.chucknorris.io/",
       "pos": {
-        "filePath": "main.bal",
-        "startLine": {
-          "line": 22,
-          "offset": 20
-        },
-        "endLine": {
-          "line": 22,
-          "offset": 32
-        }
-      }
-    },
-    "1": {
-      "pkgID": "ballerina/project.http",
-      "name": "Client",
-      "baseUrl": "https://api.chucknorris.io/",
-      "pos": {
-        "filePath": "main.bal",
-        "startLine": {
-          "line": 31,
-          "offset": 20
-        },
-        "endLine": {
-          "line": 31,
-          "offset": 32
-        }
-      }
-    },
-    "2": {
-      "pkgID": "ballerina/project.http",
-      "name": "Client",
-      "baseUrl": "https://api.chucknorris.io/",
-      "pos": {
         "filePath": "forEach.bal",
         "startLine": {
           "line": 19,
@@ -48,23 +16,7 @@
         }
       }
     },
-    "3": {
-      "pkgID": "ballerina/project.http",
-      "name": "Client",
-      "baseUrl": "https://api.chucknorris.io/",
-      "pos": {
-        "filePath": "while.bal",
-        "startLine": {
-          "line": 22,
-          "offset": 24
-        },
-        "endLine": {
-          "line": 22,
-          "offset": 36
-        }
-      }
-    },
-    "4": {
+    "1": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
       "baseUrl": "https://postman-echo.com/post1",
@@ -80,7 +32,7 @@
         }
       }
     },
-    "5": {
+    "2": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
       "baseUrl": "https://postman-echo.com/post2",
@@ -95,19 +47,87 @@
           "offset": 33
         }
       }
+    },
+    "3": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 22,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 22,
+          "offset": 32
+        }
+      }
+    },
+    "4": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 31,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 31,
+          "offset": 32
+        }
+      }
+    },
+    "5": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://api.chucknorris.io/",
+      "pos": {
+        "filePath": "while.bal",
+        "startLine": {
+          "line": 22,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 22,
+          "offset": 36
+        }
+      }
     }
   },
   "actionInvocations": {
     "nextNode": {
       "length": 2,
       "forBody": {
-        "endPointRef": "${json-unit.ignore}",
+        "endPointRef": "0",
         "name": "get",
         "path": null,
         "pos": "forEach.bal/(29:41,29:93)",
         "nextNode": null
       },
-      "nextNode": null
+      "nextNode": {
+        "length": 3,
+        "forBody": {
+          "endPointRef": "0",
+          "name": "post",
+          "path": "/",
+          "pos": "forEach.bal/(34:44,34:72)",
+          "nextNode": null
+        },
+        "nextNode": {
+          "length": 4,
+          "forBody": {
+            "endPointRef": "0",
+            "name": "post",
+            "path": "/",
+            "pos": "forEach.bal/(38:44,38:72)",
+            "nextNode": null
+          },
+          "nextNode": null
+        }
+      }
     }
   },
   "type": "Success",
