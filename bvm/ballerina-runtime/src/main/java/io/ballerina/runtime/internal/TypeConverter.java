@@ -560,18 +560,15 @@ public class TypeConverter {
         }
         int targetSize = targetType.getSize();
         long sourceSize = source.getLength();
-        boolean returnVal = true;
         if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
             addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
                     "type '" + targetType + "' does not have a filler value");
-            returnVal = false;
-            if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
-                return false;
-            }
+            return false;
         }
 
         int initialErrorCount;
         String elementIndex;
+        boolean returnVal = true;
         for (int i = 0; i < source.size(); i++) {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
