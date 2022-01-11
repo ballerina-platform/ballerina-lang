@@ -63,6 +63,7 @@ public class FindRefsInBindingPatternsTest extends FindAllReferencesTest {
                         List.of(location(31, 16, 20),
                                 location(32, 26, 30)),
                 },
+                // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/34606
 //                {32, 44, location(51, 11, 15),
 //                        List.of(location(51, 11, 15),
 //                                location(32, 5, 9),
@@ -93,6 +94,7 @@ public class FindRefsInBindingPatternsTest extends FindAllReferencesTest {
                         List.of(location(43, 16, 20),
                                 location(44, 42, 46))
                 },
+                // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/34615
 //                {44, 78, location(49, 30, 34),
 //                        List.of(location(49, 30, 34),
 //                                location(44, 28, 32),
