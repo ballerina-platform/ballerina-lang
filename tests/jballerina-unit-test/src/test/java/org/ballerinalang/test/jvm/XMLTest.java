@@ -206,6 +206,23 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "<test><name>ballerina</name></test>");
     }
 
+    @Test
+    public void testXMLWithNumericEscapes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLWithNumericEscapes");
+        Assert.assertEquals(returns.length, 10);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "\\u{61}");
+        Assert.assertEquals(returns[1].stringValue(), "\\u{61}ppl\\\\u{65}");
+        Assert.assertEquals(returns[2].stringValue(), "A \\u{5C} B");
+        Assert.assertEquals(returns[3].stringValue(), "A \\\\u{5C} B");
+        Assert.assertEquals(returns[4].stringValue(), "&quot;\\u{D800}&quot;");
+        Assert.assertEquals(returns[5].stringValue(), "\\u{DFFF}&quot;\\u{DFFF}&quot;");
+        Assert.assertEquals(returns[6].stringValue(), "&quot;\\u{12FFFF} ABC \\u{DFFF} DEF \\u{DAFF}&quot;");
+        Assert.assertEquals(returns[7].stringValue(), "\\u{12FFFF} ABC \\u{DFFFAAA} DEF \\u{FFFFFFF}");
+        Assert.assertEquals(returns[8].stringValue(), "\\u{001B[");
+        Assert.assertEquals(returns[9].stringValue(), "&quot;\\u{001B[&quot;");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
