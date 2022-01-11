@@ -264,7 +264,7 @@ public class BIRPackageSymbolEnter {
             if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) structureTypeSymbol.type;
                 for (BType ref : objectType.typeInclusions) {
-                    BType typeRef = types.getReferredType(ref);
+                    BType typeRef = Types.getReferredType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
@@ -400,7 +400,7 @@ public class BIRPackageSymbolEnter {
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (this.currentStructure != null) {
-            BType attachedType = types.getReferredType(this.currentStructure.type);
+            BType attachedType = Types.getReferredType(this.currentStructure.type);
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -731,7 +731,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.INTERSECTION:
                 return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
-                return readConstLiteralValue(types.getReferredType(valueType), dataInStream);
+                return readConstLiteralValue(Types.getReferredType(valueType), dataInStream);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
