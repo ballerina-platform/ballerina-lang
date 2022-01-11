@@ -815,6 +815,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
+        if (!arrayType.isValidInferredArray && this.typeChecker.getLocationOfInferredArray(arrayType.getBType())) {
+            dlog.error(arrayType.getBType().tsymbol.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+        }
         analyzeDef(arrayType.elemtype, env);
     }
 
@@ -3874,7 +3877,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.getBType());
+        BType returnType = this.env.enclInvokable.returnTypeNode.getBType();
+        if (this.typeChecker.getLocationOfInferredArray(returnType)) {
+            dlog.error(returnType.tsymbol.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+        }
+        this.typeChecker.checkExpr(returnNode.expr, this.env, returnType);
         validateWorkerAnnAttachments(returnNode.expr);
         this.notCompletedNormally = true;
     }

@@ -1732,6 +1732,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.elemtype = clone(source.elemtype);
         clone.dimensions = source.dimensions;
         clone.sizes = cloneList(source.sizes);
+        clone.isValidInferredArray = source.isValidInferredArray;
         cloneBLangType(source, clone);
     }
 

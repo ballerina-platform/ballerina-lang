@@ -3544,7 +3544,44 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensionSize;
         arrayTypeNode.sizes = sizes;
+        for (BLangExpression member : sizes) {
+            if (member.getKind() == NodeKind.LITERAL &&
+                    ((BLangLiteral) member).value.equals(INFERRED_ARRAY_INDICATOR)) {
+                if (setIsInferableFlag(arrayTypeDescriptorNode)) {
+                    arrayTypeNode.isValidInferredArray = true;
+                    break;
+                }
+            }
+        }
         return arrayTypeNode;
+    }
+
+    private boolean setIsInferableFlag(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        Node parentNode = arrayTypeDescriptorNode.parent().parent();
+        switch (parentNode.kind()) {
+            case MODULE_VAR_DECL:
+                ModuleVariableDeclarationNode moduleVarDecl = (ModuleVariableDeclarationNode) parentNode;
+                if (moduleVarDecl.initializer().isPresent() &&
+                        moduleVarDecl.initializer().get().kind() == SyntaxKind.LIST_CONSTRUCTOR) {
+                    return true;
+                }
+                return false;
+            case LOCAL_VAR_DECL:
+                VariableDeclarationNode localVarDecl = (VariableDeclarationNode) parentNode;
+                if (localVarDecl.initializer().isPresent() &&
+                        localVarDecl.initializer().get().kind() == SyntaxKind.LIST_CONSTRUCTOR) {
+                    return true;
+                }
+                return false;
+            case CONST_DECLARATION:
+                ConstantDeclarationNode constantDecl = (ConstantDeclarationNode) parentNode;
+                if (constantDecl.initializer().kind() == SyntaxKind.LIST_CONSTRUCTOR) {
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
     }
 
     public BLangNode transform(EnumDeclarationNode enumDeclarationNode) {
