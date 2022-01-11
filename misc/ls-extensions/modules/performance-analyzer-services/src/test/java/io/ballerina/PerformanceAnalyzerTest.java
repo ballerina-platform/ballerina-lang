@@ -79,6 +79,22 @@ public class PerformanceAnalyzerTest {
         compare("noData.bal", "noData.json", range);
     }
 
+    @Test(description = "Test performance analyzer")
+    public void testForEach() throws IOException, ExecutionException, InterruptedException {
+
+        Range range = new Range(new Position(22, 4), new Position(38, 5));
+
+        compare("forEach.bal", "forEach.json", range);
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testWhile() throws IOException, ExecutionException, InterruptedException {
+
+        Range range = new Range(new Position(20, 4), new Position(37, 5));
+
+        compare("while.bal", "while.json", range);
+    }
+
     private void compare(String balFile, String jsonFile, Range range) throws IOException, InterruptedException,
             ExecutionException {
 
