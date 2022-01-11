@@ -1306,7 +1306,7 @@ public class Types {
         return false;
     }
 
-    public BType getReferredType(BType type) {
+    public static BType getReferredType(BType type) {
         BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
             constraint = getReferredType(((BTypeReferenceType) type).referredType);
@@ -6188,7 +6188,7 @@ public class Types {
         }
 
         private boolean isServiceObject(BType bType) {
-            BType type = types.getReferredType(bType);
+            BType type = Types.getReferredType(bType);
             if (type.tag == TypeTags.UNION) {
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (!isServiceObject(memberType)) {

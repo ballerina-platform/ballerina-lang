@@ -501,7 +501,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        BType returnType = types.getReferredType(funcNode.returnTypeNode.getBType());
+        BType returnType = Types.getReferredType(funcNode.returnTypeNode.getBType());
         if (!funcNode.interfaceFunction && returnType.tag == TypeTags.UNION) {
             if (types.getAllTypes(returnType, true).contains(symTable.nilType) &&
                     !types.isSubTypeOfErrorOrNilContainingNil((BUnionType) returnType) &&

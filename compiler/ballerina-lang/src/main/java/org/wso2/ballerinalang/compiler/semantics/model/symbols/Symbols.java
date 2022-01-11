@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -170,7 +171,7 @@ public class Symbols {
                                                BSymbol owner,
                                                Location pos,
                                                SymbolOrigin origin) {
-        if (type != null && type.tag == TypeTags.INVOKABLE) {
+        if (type != null && Types.getReferredType(type).tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol invokableTypeSymbol =
                     createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
             invokableTypeSymbol.returnType = ((BInvokableType) type).retType;
