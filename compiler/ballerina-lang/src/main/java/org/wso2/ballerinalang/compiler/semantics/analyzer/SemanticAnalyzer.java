@@ -2692,6 +2692,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void assignTypesToMemberPatterns(BLangMatchPattern matchPattern, BType bType) {
         BType patternType = this.types.getReferredType(bType);
         NodeKind matchPatternKind = matchPattern.getKind();
+        if (patternType.tag == TypeTags.INTERSECTION) {
+            patternType = ((BIntersectionType) patternType).effectiveType;
+        }
         switch (matchPatternKind) {
             case WILDCARD_MATCH_PATTERN:
             case CONST_MATCH_PATTERN:
@@ -2734,16 +2737,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     ((BArrayType) restMatchPattern.getBType()).eType = restType;
                     return;
                 }
-                BTupleType patternTupleType;
-                if (patternType.tag == TypeTags.TUPLE) {
-                    patternTupleType = (BTupleType) patternType;
-                } else if (patternType.tag == TypeTags.INTERSECTION &&
-                        ((BIntersectionType) patternType).effectiveType.tag == TypeTags.TUPLE) {
-                    patternTupleType = (BTupleType) ((BIntersectionType) patternType).effectiveType;
-                } else {
+                if (patternType.tag != TypeTags.TUPLE) {
                     return;
                 }
-
+                BTupleType patternTupleType = (BTupleType) patternType;
                 List<BType> types = patternTupleType.tupleTypes;
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
                 List<BType> memberTypes = new ArrayList<>();
