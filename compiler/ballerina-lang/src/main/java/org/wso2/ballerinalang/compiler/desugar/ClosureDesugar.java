@@ -330,9 +330,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
         if (typeInit.argsExpr == null) {
             typeInit.argsExpr = new ArrayList<>();
         }
+        typeInit.argsExpr.add(refToBlockClosureMap);
 
         // update new expression
-        typeInit.argsExpr.add(refToBlockClosureMap);
         initInvocation.requiredArgs.add(refToBlockClosureMap);
         initInvocation.argExprs.add(refToBlockClosureMap);
 
@@ -348,11 +348,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // add closure map as argument to class init method
         BLangFunction initFunction = classDef.generatedInitFunction;
-        
+
         initFunction.desugared = false;
         initFunction.requiredParams.add(blockClosureMap);
         SymbolEnv env = oceData.objMethodsEnv;
-        
+
         BVarSymbol paramSym = new BVarSymbol(Flags.FINAL, mapSymbol.name, env.scope.owner.pkgID, mapSymbol.type,
                 initFunction.symbol, classDef.pos, VIRTUAL);
 
