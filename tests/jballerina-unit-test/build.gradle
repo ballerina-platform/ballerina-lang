@@ -52,8 +52,6 @@ dependencies {
     testRuntime project(':ballerina-runtime')
 
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
-    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
-    distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
 
 //    balaTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
