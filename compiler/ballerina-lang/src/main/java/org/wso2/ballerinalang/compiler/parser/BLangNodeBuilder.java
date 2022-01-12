@@ -5235,17 +5235,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createSimpleLiteral(literal, false);
     }
 
-//    private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
-//        if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
-//            UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
-//            BLangLiteral bLangLiteral =
-//                    createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), isFiniteType);
-//            bLangLiteral.pos = getPosition(unaryExpr); // setting the proper pos, else only the expr pos is set
-//            return bLangLiteral;
-//        }
-//        return createSimpleLiteral(literal, SyntaxKind.NONE, isFiniteType);
-//    }
-
     private BLangExpression createLiteralOrExpression(Node literal, boolean isFiniteType) {
         if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
             return createExpression(literal);
@@ -5269,12 +5258,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             textValue = "";
         }
 
-//        if (sign == SyntaxKind.PLUS_TOKEN) {
-//            textValue = "+" + textValue;
-//        } else if (sign == SyntaxKind.MINUS_TOKEN) {
-//            textValue = "-" + textValue;
-//        }
-
         //TODO: Verify all types, only string type tested
         if (type == SyntaxKind.NUMERIC_LITERAL) {
             SyntaxKind literalTokenKind = ((BasicLiteralNode) literal).literalToken().kind();
@@ -5283,7 +5266,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
                 kind = NodeKind.INTEGER_LITERAL;
                 typeTag = TypeTags.INT;
-//                value = getIntegerLiteral(literal, textValue, sign);
                 value = getIntegerLiteral(literal, textValue);
                 originalValue = textValue;
                 if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
