@@ -243,9 +243,13 @@ public class WaitForAllActionsTest {
         Assert.assertEquals(((BMap) returns[0]).getMap().values().size(), 2);
         Assert.assertEquals(((BMap) returns[0]).getMap().values().size(), 2);
         Assert.assertTrue(Arrays.asList("{f2:150, f1:7}", "{f1:7, f2:150}")
-                                .contains(((BMap) returns[0]).getMap().values().toArray()[0].toString()));
-        Assert.assertTrue(Arrays.asList("{\"name\":\"hello foo\", \"id\":12}", "{\"id\":\"12\", " +
-                "\"name\":\"hello foo\"}").contains(((BMap) returns[0]).getMap().values().toArray()[1].toString()));
+                .contains(((BMap) returns[0]).getMap().values().toArray()[0].toString()));
+
+        String mapString = ((BMap) returns[0]).getMap().values().toArray()[1].toString();
+        if (!Arrays.asList("{\"name\":\"hello foo\", \"id\":12}", "{\"id\":\"12\", \"name\":\"hello foo\"}")
+                .contains(mapString)) {
+            Assert.fail("Wrong output: " + mapString);
+        }
     }
 
     @Test
