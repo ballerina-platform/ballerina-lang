@@ -280,10 +280,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineClassDefinition(BLangClassDefinition classNode, SymbolEnv env) {
-//        if (classNode.symbol != null) {
-//            return;
-//        }
-//        defineNode(classNode, env);
         if (classNode.definitionCompleted) {
             return;
         }
