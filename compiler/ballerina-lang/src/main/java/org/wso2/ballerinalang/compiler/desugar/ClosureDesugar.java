@@ -328,12 +328,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, mapSymbol);
         BLangTypeInit typeInit = oceData.typeInit;
         BLangInvocation initInvocation = typeInit.initInvocation;
+
+        // argsExpr updated to improve debug efforts since `argsExpr` is part of `toString`
         if (typeInit.argsExpr == null) {
             typeInit.argsExpr = new ArrayList<>();
         }
+        typeInit.argsExpr.add(refToBlockClosureMap);
 
         // update new expression
-        typeInit.argsExpr.add(refToBlockClosureMap);
         initInvocation.requiredArgs.add(refToBlockClosureMap);
         initInvocation.argExprs.add(refToBlockClosureMap);
 
