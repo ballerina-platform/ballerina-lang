@@ -1,0 +1,16 @@
+stringSingleton = "test"
+intSingleton = 2
+floatSingleton = 2.2
+decimalSingleton = 3.23
+booleanSingleton = true
+unionVar1 = 1.34
+unionVar2 = 3.23
+unionVar3 = "test"
+stringSingleton2 = "test"
+intSingleton2 = 2
+floatSingleton2 = 2.2
+decimalSingleton2 = 3.23
+booleanSingleton2 = true
+unionVar4 = 1.34
+unionVar5 = 3.23
+unionVar6 = "test"

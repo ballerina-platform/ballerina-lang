@@ -21,8 +21,13 @@ package io.ballerina.runtime.test.config.negative;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -36,7 +41,9 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
 
 /**
@@ -198,5 +205,36 @@ public class CliProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
                 "variable 'intVar' clashes with multiple command line arguments [intVar=321, rootMod.intVar=123]");
+    }
+
+    @Test(dataProvider = "finite-error-provider")
+    public void testInvalidFiniteType(Set<Object> values, String errorMsg) {
+        FiniteType type = TypeCreator.createFiniteType("Finite", values, 0);
+        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{type,
+                PredefinedTypes.TYPE_READONLY}, type, 1, true);
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, "finiteVar", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
+                diagnosticLog, List.of(new CliProvider(ROOT_MODULE, "-CfiniteVar=3.23")));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), errorMsg);
+    }
+
+    @DataProvider(name = "finite-error-provider")
+    public Object[] getFiniteConfigData() {
+        BString strVal1 = fromString("test");
+        BString strVal2 = fromString("3.23");
+        BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        return new Object[][]{
+                {Set.of(strVal1, 3.23d, decimalVal), "error: [finiteVar=3.23] ambiguous target types " +
+                        "found for configurable variable 'finiteVar' with type 'Finite'"},
+                {Set.of(strVal1, 1.34d, 1L), "error: [finiteVar=3.23] configurable variable 'finiteVar' is " +
+                        "expected to be of type 'Finite', but found '3.23'"},
+                {Set.of(strVal2, 3.23d, 1.34d), "error: [finiteVar=3.23] ambiguous target types " +
+                        "found for configurable variable 'finiteVar' with type 'Finite'"},
+        };
     }
 }

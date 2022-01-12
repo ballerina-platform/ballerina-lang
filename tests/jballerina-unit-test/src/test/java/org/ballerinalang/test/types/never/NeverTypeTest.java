@@ -200,6 +200,14 @@ public class NeverTypeTest {
                 "'record {| never x?; never y?; anydata...; |}', found 'record {| never x?; anydata...; |}'", 244, 39);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
                 "'record {| never x?; anydata...; |}', found 'record {| anydata...; |}'", 247, 29);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| int x; |}', found 'record {| never...; |} & readonly'", 252, 30);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| never...; |} & readonly', found 'record {| int x?; |}'", 255, 35);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| |} & readonly', found 'record {| int x; never?...; |}'", 258, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| int x; never...; |}', found 'record {| |} & readonly'", 261, 41);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -326,7 +334,8 @@ public class NeverTypeTest {
                 "testNeverRuntime11",
                 "testNeverRuntime12",
                 "testNeverWithAnyAndAnydataRuntime",
-                "testNeverFieldTypeCheck"
+                "testNeverFieldTypeCheck",
+                "testNeverRestFieldType"
         };
     }
 

@@ -863,15 +863,6 @@ function testCloneWithTypeDecimalToIntNegative() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
-
-    decimal a2 = 0.0 / 0;
-    int|error nan = a2.cloneWithType(int);
-    assert(nan is error, true);
-    err = <error>nan;
-    message = err.detail()["message"];
-    messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina}NumberConversionError");
-    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
 }
 
 type IntSubtypeArray1 int:Signed32[];
@@ -1077,6 +1068,40 @@ function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
     assert(message, "'[(1|\"1\"|\"2\"),(2|\"2\"|\"3\")]' value cannot be converted to '[\"1\",2]': "
     + "\n\t\ttuple element '[0]' should be of type '\"1\"', found '1'"
     + "\n\t\ttuple element '[1]' should be of type '2', found '\"2\"'");
+}
+
+type NoFillerValue 1|"foo";
+
+function testCloneWithTypeTupleWithoutFillerValues() {
+
+    [NoFillerValue, NoFillerValue] tuple1 = [1, "foo"];
+    NoFillerValue[5]|error result1 = tuple1.cloneWithType();
+
+    assert(result1 is error, true);
+    error err = <error>result1;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[NoFillerValue,NoFillerValue]' value cannot be converted to 'NoFillerValue[5]': "
+    + "\n\t\tarray cannot be expanded to size '5' because, the target type 'NoFillerValue[5]' does not " +
+    "have a filler value");
+
+    [1|"2", 2|"3"] tuple2 = [1, 2];
+    (1|2|"2")[4]|error result2 = tuple2.cloneWithType();
+    assert(result2 is error, true);
+    err = <error>result2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[(1|\"2\"),(2|\"3\")]' value cannot be converted to '(1|2|\"2\")[4]': "
+    + "\n\t\tarray cannot be expanded to size '4' because, the target type '(1|2|\"2\")[4]' does not have a filler value");
+
+    [string, string] tuple3 = ["test", "string"];
+    string[5]|error result3 = tuple3.cloneWithType();
+    assert(result3 is string[], true);
+    if (result3 is string[]) {
+        assert(result3, ["test", "string", "", "", ""]);
+    }
 }
 
 type StringArray string[];

@@ -32,6 +32,8 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
@@ -48,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
@@ -617,8 +620,13 @@ public class TomlProviderNegativeTest {
                 PredefinedTypes.TYPE_READONLY}, TYPE_ANYDATA, 0, true);
         VariableKey unionVar = new VariableKey(ROOT_MODULE, "unionVar", unionIntersection, true);
 
+        FiniteType finiteType = TypeCreator.createFiniteType("Finite", Set.of(1.0d, 2L, 3.3d), 0);
+        BIntersectionType finiteIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{finiteType,
+                PredefinedTypes.TYPE_READONLY}, finiteType, 0, true);
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, "finiteVar", finiteIntersection, true);
+
         return new VariableKey[]{intVar, byteVar, booleanVar, floatVar, decimalVar, stringVar, xmlVar, arrayVar,
-                recordVar, mapVar, tableVar, unionVar};
+                recordVar, mapVar, tableVar, unionVar, finiteVar};
     }
 
     private VariableKey[] getSimpleVariableKeys(Module module) {
@@ -626,4 +634,27 @@ public class TomlProviderNegativeTest {
         VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
         return new VariableKey[]{intVar, stringVar};
     }
+
+    @Test(dataProvider = "finite-error-provider")
+    public void testInvalidFiniteType(Set<Object> values, String errorMsg) {
+        FiniteType type = TypeCreator.createFiniteType("Finite", values, 0);
+        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{type,
+                PredefinedTypes.TYPE_READONLY}, type, 1, true);
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, "finiteVar", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar}));
+        validateTomlProviderErrors("FiniteNegative", errorMsg, configVarMap, 1, 0);
+    }
+
+    @DataProvider(name = "finite-error-provider")
+    public Object[] getFiniteConfigData() {
+        BString strVal = fromString("test");
+        BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        return new Object[][]{
+                {Set.of(strVal, 3.23d, decimalVal), "[FiniteNegative.toml:(1:13,1:17)] ambiguous target types " +
+                        "found for configurable variable 'finiteVar' with type 'Finite'"},
+                {Set.of(strVal, 1.34d, 1L), "[FiniteNegative.toml:(1:1,1:17)] configurable variable 'finiteVar' is " +
+                        "expected to be of type 'Finite', but found 'float'"}
+        };
+    }
+
 }
