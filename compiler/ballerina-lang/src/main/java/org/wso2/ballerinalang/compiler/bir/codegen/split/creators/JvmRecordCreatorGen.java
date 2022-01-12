@@ -105,7 +105,7 @@ public class JvmRecordCreatorGen {
                 CREATE_RECORD_WITH_MAP, null);
         mv.visitCode();
         if (recordTypeDefList.isEmpty()) {
-            createDefaultCase(mv, new Label(), 1, "No such record: ");
+            createDefaultCase(mv, new Label(), 0, "No such record: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0,

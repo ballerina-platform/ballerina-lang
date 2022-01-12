@@ -117,7 +117,7 @@ public class JvmObjectCreatorGen {
                 CREATE_OBJECT, null, null);
         mv.visitCode();
         if (objectTypeDefList.isEmpty()) {
-            createDefaultCase(mv, new Label(), 1, "No such object: ");
+            createDefaultCase(mv, new Label(), 0, "No such object: ");
         } else {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
