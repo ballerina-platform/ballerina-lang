@@ -46,13 +46,9 @@ import java.util.Map;
  */
 public class DecimalValue implements SimpleValue, BDecimal {
 
-    private static final DecimalValue POSITIVE_INF =
-            new DecimalValue("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);
-
-    private static final DecimalValue NEGATIVE_INF =
-            new DecimalValue("-9.999999999999999999999999999999999E6144", DecimalValueKind.NEGATIVE_INFINITY);
-
-    private static final DecimalValue NaN = new DecimalValue("-1", DecimalValueKind.NOT_A_NUMBER);
+    private static final String INF_STRING = "Infinity";
+    private static final String NEG_INF_STRING = "-" + INF_STRING;
+    private static final String NAN = "NaN";
 
     // Variable used to track the kind of a decimal value.
     @Deprecated
@@ -164,14 +160,6 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return the integer value
      */
     public long intValue() {
-        switch (valueKind) {
-            case NOT_A_NUMBER:
-                throw ErrorUtils.createNumericConversionError(NaN, PredefinedTypes.TYPE_INT);
-            case NEGATIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, PredefinedTypes.TYPE_INT);
-            case POSITIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, PredefinedTypes.TYPE_INT);
-        }
 
         if (!isDecimalWithinIntRange(this)) {
             throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL,
@@ -197,14 +185,6 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return the byte value
      */
     public int byteValue() {
-        switch (valueKind) {
-            case NOT_A_NUMBER:
-                throw ErrorUtils.createNumericConversionError(NaN, PredefinedTypes.TYPE_BYTE);
-            case NEGATIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, PredefinedTypes.TYPE_BYTE);
-            case POSITIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, PredefinedTypes.TYPE_BYTE);
-        }
 
         int intVal = (int) Math.rint(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
@@ -223,9 +203,6 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return the double value
      */
     public double floatValue() {
-        if (this.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-            return Double.NaN;
-        }
         return value.doubleValue();
     }
 
@@ -295,32 +272,13 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return new value
      */
     public DecimalValue add(DecimalValue augend) {
-        switch (this.valueKind) {
-            case ZERO:
-                return augend;
-            case POSITIVE_INFINITY:
-                if (augend.valueKind == DecimalValueKind.NEGATIVE_INFINITY ||
-                        augend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                return POSITIVE_INF;
-            case NEGATIVE_INFINITY:
-                if (augend.valueKind == DecimalValueKind.POSITIVE_INFINITY ||
-                        augend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                return NEGATIVE_INF;
-            case NOT_A_NUMBER:
-                return NaN;
-            default:
-                if (augend.valueKind == DecimalValueKind.ZERO) {
-                    return this;
-                }
-                if (augend.valueKind == DecimalValueKind.OTHER) {
-                    return new DecimalValue(this.decimalValue().add(augend.decimalValue(), MathContext.DECIMAL128));
-                }
-                return augend;
+        if (this.valueKind == DecimalValueKind.ZERO) {
+            return augend;
         }
+        if (augend.valueKind == DecimalValueKind.ZERO) {
+            return this;
+        }
+        return new DecimalValue(this.decimalValue().add(augend.decimalValue(), MathContext.DECIMAL128));
     }
 
     /**
@@ -329,37 +287,18 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return value after subtraction
      */
     public DecimalValue subtract(DecimalValue subtrahend) {
-        switch (this.valueKind) {
-            case ZERO:
-                if (subtrahend.valueKind == DecimalValueKind.ZERO ||
-                        subtrahend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return subtrahend;
-                }
-                return subtrahend.negate();
-            case POSITIVE_INFINITY:
-                if (subtrahend.valueKind == DecimalValueKind.POSITIVE_INFINITY ||
-                        subtrahend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                return POSITIVE_INF;
-            case NEGATIVE_INFINITY:
-                if (subtrahend.valueKind == DecimalValueKind.NEGATIVE_INFINITY ||
-                        subtrahend.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                return NEGATIVE_INF;
-            case NOT_A_NUMBER:
-                return NaN;
-            default:
-                if (subtrahend.valueKind == DecimalValueKind.ZERO) {
-                    return this;
-                }
-                if (subtrahend.valueKind == DecimalValueKind.OTHER) {
-                    return new DecimalValue(this.decimalValue().subtract(subtrahend.decimalValue(),
-                            MathContext.DECIMAL128));
-                }
-                return subtrahend.negate();
+
+        if (this.valueKind == DecimalValueKind.ZERO) {
+            if (subtrahend.valueKind == DecimalValueKind.ZERO) {
+                return subtrahend;
+            }
+            return subtrahend.negate();
         }
+        if (subtrahend.valueKind == DecimalValueKind.ZERO) {
+            return this;
+        }
+        return new DecimalValue(this.decimalValue().subtract(subtrahend.decimalValue(),
+                MathContext.DECIMAL128));
     }
 
     /**
@@ -369,43 +308,15 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return value after multiplication
      */
     public DecimalValue multiply(DecimalValue multiplicand) {
-        switch (this.valueKind) {
-            case ZERO:
-                if (multiplicand.valueKind == DecimalValueKind.ZERO ||
-                        multiplicand.valueKind == DecimalValueKind.OTHER) {
-                    return this;
-                }
-                return NaN;
-            case POSITIVE_INFINITY:
-                if (multiplicand.valueKind == DecimalValueKind.ZERO ||
-                        multiplicand.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                if (multiplicand.decimalValue().compareTo(BigDecimal.ZERO) > 0) {
-                    return POSITIVE_INF;
-                }
-                return NEGATIVE_INF;
-            case NEGATIVE_INFINITY:
-                if (multiplicand.valueKind == DecimalValueKind.ZERO ||
-                        multiplicand.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                if (multiplicand.decimalValue().compareTo(BigDecimal.ZERO) > 0) {
-                    return NEGATIVE_INF;
-                }
-                return POSITIVE_INF;
-            case NOT_A_NUMBER:
-                return NaN;
-            default:
-                if (multiplicand.valueKind == DecimalValueKind.OTHER) {
-                    return new DecimalValue(this.decimalValue().multiply(multiplicand.decimalValue(),
-                            MathContext.DECIMAL128));
-                }
-                if (this.decimalValue().compareTo(BigDecimal.ZERO) > 0) {
-                    return multiplicand;
-                }
-                return multiplicand.negate();
+
+        if (this.valueKind == DecimalValueKind.ZERO) {
+            return this;
         }
+        if (multiplicand.valueKind == DecimalValueKind.OTHER) {
+            return new DecimalValue(this.decimalValue().multiply(multiplicand.decimalValue(),
+                    MathContext.DECIMAL128));
+        }
+        return multiplicand;
     }
 
     /**
@@ -415,48 +326,20 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return value after division
      */
     public DecimalValue divide(DecimalValue divisor) {
-        switch (this.valueKind) {
-            case ZERO:
-                if (divisor.valueKind == DecimalValueKind.ZERO || divisor.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                return this;
-            case POSITIVE_INFINITY:
-                if (divisor.valueKind == DecimalValueKind.ZERO ||
-                        (divisor.valueKind == DecimalValueKind.OTHER &&
-                                divisor.decimalValue().compareTo(BigDecimal.ZERO) > 0)) {
-                    return POSITIVE_INF;
-                }
-                if (divisor.valueKind == DecimalValueKind.OTHER &&
-                        divisor.decimalValue().compareTo(BigDecimal.ZERO) < 0) {
-                    return NEGATIVE_INF;
-                }
-                return NaN;
-            case NEGATIVE_INFINITY:
-                if (divisor.valueKind == DecimalValueKind.ZERO ||
-                        (divisor.valueKind == DecimalValueKind.OTHER &&
-                                divisor.decimalValue().compareTo(BigDecimal.ZERO) > 0)) {
-                    return NEGATIVE_INF;
-                }
-                if (divisor.valueKind == DecimalValueKind.OTHER &&
-                        divisor.decimalValue().compareTo(BigDecimal.ZERO) < 0) {
-                    return POSITIVE_INF;
-                }
-                return NaN;
-            case NOT_A_NUMBER:
-                return NaN;
-            default:
-                if (divisor.valueKind == DecimalValueKind.OTHER) {
-                    return new DecimalValue(this.decimalValue().divide(divisor.decimalValue(), MathContext.DECIMAL128));
-                }
-                if (divisor.valueKind == DecimalValueKind.POSITIVE_INFINITY ||
-                        divisor.valueKind == DecimalValueKind.NEGATIVE_INFINITY) {
-                    return new DecimalValue(BigDecimal.ZERO);
-                }
-                if (divisor.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                return this.decimalValue().compareTo(BigDecimal.ZERO) > 0 ? POSITIVE_INF : NEGATIVE_INF;
+
+        if (this.valueKind == DecimalValueKind.ZERO) {
+            if (divisor.valueKind == DecimalValueKind.ZERO) {
+                throw ErrorUtils.createInvalidDecimalError(NAN);
+            }
+            return this;
+        }
+        if (divisor.valueKind == DecimalValueKind.OTHER) {
+            return new DecimalValue(this.decimalValue().divide(divisor.decimalValue(), MathContext.DECIMAL128));
+        }
+        if (this.decimalValue().compareTo(BigDecimal.ZERO) > 0) {
+            throw ErrorUtils.createInvalidDecimalError(INF_STRING);
+        } else {
+            throw ErrorUtils.createInvalidDecimalError(NEG_INF_STRING);
         }
     }
 
@@ -467,20 +350,11 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return {@code this % divisor}
      */
     public DecimalValue remainder(DecimalValue divisor) {
-        switch (this.valueKind) {
-            case ZERO:
-            case OTHER:
-                if (divisor.valueKind == DecimalValueKind.OTHER) {
-                    return new DecimalValue(this.decimalValue().remainder(divisor.decimalValue(),
-                                                                          MathContext.DECIMAL128));
-                }
-                if (divisor.valueKind == DecimalValueKind.ZERO || divisor.valueKind == DecimalValueKind.NOT_A_NUMBER) {
-                    return NaN;
-                }
-                return this;
-            default:
-                return NaN;
+        if (divisor.valueKind == DecimalValueKind.OTHER) {
+            return new DecimalValue(this.decimalValue().remainder(divisor.decimalValue(),
+                    MathContext.DECIMAL128));
         }
+        throw ErrorUtils.createInvalidDecimalError(NAN);
     }
 
     /**
@@ -488,16 +362,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return {@code -this}
      */
     public DecimalValue negate() {
-        switch (this.valueKind) {
-            case OTHER:
-                return new DecimalValue(this.decimalValue().negate());
-            case POSITIVE_INFINITY:
-                return NEGATIVE_INF;
-            case NEGATIVE_INFINITY:
-                return POSITIVE_INF;
-            default:
-                return this;
+        if (this.valueKind == DecimalValueKind.OTHER) {
+            return new DecimalValue(this.decimalValue().negate());
         }
+        return this;
     }
 
     @Override
@@ -587,6 +455,15 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return decimal value
      */
     public static DecimalValue valueOf(double value) {
+        if (Double.isNaN(value)) {
+            throw ErrorUtils.createInvalidDecimalError(NAN);
+        }
+        if (value == Double.POSITIVE_INFINITY) {
+            throw ErrorUtils.createInvalidDecimalError(INF_STRING);
+        }
+        if (value == Double.NEGATIVE_INFINITY) {
+            throw ErrorUtils.createInvalidDecimalError(NEG_INF_STRING);
+        }
         return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128));
     }
 
