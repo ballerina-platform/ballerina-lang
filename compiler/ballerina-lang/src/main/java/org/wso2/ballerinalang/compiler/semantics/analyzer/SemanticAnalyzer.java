@@ -230,7 +230,9 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.model.tree.NodeKind.*;
+import static org.ballerinalang.model.tree.NodeKind.LITERAL;
+import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
+import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
 
 /**
  * @since 0.94
@@ -4075,18 +4077,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         BLangExpression expression = constant.expr;
-        if (expression.getKind() != UNARY_EXPR && (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
-                && constant.typeNode == null))  {
+        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
+                && constant.typeNode == null)  {
             constant.setBType(symTable.semanticError);
             dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
             return; // This has to return, because constant.symbol.type is required for further validations.
         }
 
-         BType resultType = typeChecker.checkExpr(expression, env, constant.symbol.type);
-
-//        if (expression.getKind() == UNARY_EXPR && resultType != symTable.semanticError) {
-//            constant.expr = replaceUnaryExprWithLiteral((BLangUnaryExpr) expression);
-//        }
+        typeChecker.checkExpr(expression, env, constant.symbol.type);
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);

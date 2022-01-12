@@ -4714,7 +4714,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             // Explicitly set actual type
-//            referredType.tag == TypeTags.FINITE &&
             if (exprType != symTable.semanticError && referredType.tag == TypeTags.FINITE &&
                     unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangExpression exprInUnary = unaryExpr.expr;
