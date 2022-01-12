@@ -43,7 +43,7 @@ public class HelpCommand extends AbstractCommand {
     private static final String EMPTY_STRING = "";
     private static final String NEW_LINE = "\n";
     private static final String DESCRIPTION_PREFIX = NEW_LINE + "Topic description :";
-    private static final String URL_PREFIX = NEW_LINE + "For examples visit : ";
+    private static final String URL_PREFIX = NEW_LINE + "For examples, visit ";
 
     private final BbeHelpProvider bbeHelpProvider;
     private final StringBuilder topics;
