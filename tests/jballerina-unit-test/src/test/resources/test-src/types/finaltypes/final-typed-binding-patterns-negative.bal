@@ -1,5 +1,5 @@
 type Data record {
-    int a;
+    int b;
     string s;
 };
 
@@ -9,12 +9,12 @@ type Data2 record {
 };
 
 function getRecord() returns Data {
-    Data d = { a: 1, s: "A" };
+    Data d = { b: 1, s: "A" };
     return d;
 }
 
 function getNestedRecord() returns Data2 {
-    Data d = { a: 1, s: "A" };
+    Data d = { b: 1, s: "A" };
     Data2 d2 = { a: 2, d: d };
     return d2;
 }
@@ -30,30 +30,30 @@ function getNestedTuple() returns [int, [string, float]] {
 // ---------------------------------------------------------------------------------------------------------------------
 
 function testFinalRecordVariableWithoutType() {
-    final var { a, s: j } = getRecord();
-    a = 2;
+    final var { b, s: j } = getRecord();
+    b = 2;
     j = "B";
 }
 
 function testFinalRecordVariableWithType() {
-    final Data { a, s: j } = getRecord();
-    a = 2;
+    final Data { b, s: j } = getRecord();
+    b = 2;
     j = "B";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-function testFinalNestedRecordVariableWithoutType() {
-    final var { a, s: j } = getNestedRecord();
+function testFinalNestedRecordVariableWithType1() {
+    final var { a, d: {b, s} } = getNestedRecord();
     a = 2;
-    j = "B";
+    s = "B";
 }
 
-function testFinalNestedRecordVariableWithType() {
-    final Data2 { a, d: { p, q } } = getNestedRecord();
+function testFinalNestedRecordVariableWithType2() {
+    final Data2 { a, d: { b, s } } = getNestedRecord();
     a = 2;
-    p = "B";
-    q = 2.3;
+    b = 5;
+    s = "fd";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

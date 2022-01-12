@@ -41,6 +41,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.ProjectLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
@@ -50,11 +51,17 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ServiceTemplateCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkDoneProgressBegin;
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressEnd;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -81,6 +89,7 @@ public class ServiceTemplateGenerator {
     private final Map<Pair<String, String>, List<ListenerMetaData>> moduleListenerMetaDataMap;
 
     private boolean isInitialized;
+    private static final String TITLE_INITIALIZE = "Service Template Generator";
 
     public boolean initialized() {
         return isInitialized;
@@ -89,7 +98,34 @@ public class ServiceTemplateGenerator {
     private ServiceTemplateGenerator(LanguageServerContext context) {
         context.put(SERVICE_TEMPLATE_GENERATOR_KEY, this);
         this.moduleListenerMetaDataMap = new ConcurrentHashMap<>();
-        CompletableFuture.runAsync(() -> initialize(context));
+        LSClientLogger clientLogger = LSClientLogger.getInstance(context);
+        String taskId = UUID.randomUUID().toString();
+        ExtendedLanguageClient languageClient = context.get(ExtendedLanguageClient.class);
+        CompletableFuture.runAsync(() -> {
+            clientLogger.logTrace("Loading listener symbols from the distribution");
+            if (languageClient != null) {
+                // Initialize progress notification
+                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+                workDoneProgressCreateParams.setToken(taskId);
+                languageClient.createProgress(workDoneProgressCreateParams);
+
+                // Start progress
+                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
+                beginNotification.setTitle(TITLE_INITIALIZE);
+                beginNotification.setCancellable(false);
+                beginNotification.setMessage("Initializing...");
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(beginNotification)));
+            }
+
+        }).thenRunAsync(() -> initialize(context)).thenRunAsync(() -> {
+            clientLogger
+                    .logTrace("Finished loading listener symbols from the distribution");
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.setMessage("Initialized Successfully!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
+        });
     }
 
     /**

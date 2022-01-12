@@ -88,6 +88,8 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction41.json", "createVariable6.bal"},
                 {"variableAssignmentRequiredCodeAction42.json", "createVariable7.bal"},
                 {"variableAssignmentRequiredCodeAction43.json", "createVariable7.bal"},
+                {"variableAssignmentRequiredCodeAction44.json", "createVariable8.bal"},
+                {"variableAssignmentRequiredCodeAction45.json", "createVariable8.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"projectVariableAssignmentRequiredCodeAction1.json", "testproject/main.bal"},
                 {"projectVariableAssignmentRequiredCodeAction2.json", "testproject/main.bal"},
@@ -108,7 +110,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 // Create variables of function/invocable type
                 {"createVariableWithFunctionType1.json", "createVariableWithFunctionType1.bal"},
                 {"createVariableWithFunctionType2.json", "createVariableWithFunctionType1.bal"},
-                
+
                 {"createVariableWithFunctionCall1.json", "createVariableWithFunctionCall1.bal"},
                 {"createVariableWithFunctionCall2.json", "createVariableWithFunctionCall2.bal"},
         };

@@ -894,6 +894,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(actionInvocationExpr.annAttachments);
         lookupNodes(actionInvocationExpr.requiredArgs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);

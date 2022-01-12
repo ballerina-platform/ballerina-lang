@@ -247,6 +247,8 @@ public enum Snippet {
 
     KW_IS(SnippetGenerator.getIsKeywordSnippet()),
 
+    KW_IF(SnippetGenerator.getIfKeywordSnippet()),
+
     KW_ASCENDING(SnippetGenerator.getAscendingKeywordSnippet()),
 
     KW_DESCENDING(SnippetGenerator.getDescendingKeywordSnippet()),

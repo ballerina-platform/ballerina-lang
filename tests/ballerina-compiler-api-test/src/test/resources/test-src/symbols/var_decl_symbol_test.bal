@@ -64,7 +64,7 @@ public [int, string, int...] [intVar, stringVar, ...otherValues] = [5, "myString
 
 # Record
 @varDecl
-public record {string a; int b;} {aValue, bValue} = {a: "one", b: 2};
+public record {string a; int b;} {a, b} = {a: "one", b: 2};
 
 # Mapping
 @varDecl

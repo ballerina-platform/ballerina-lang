@@ -82,6 +82,9 @@ public class Package {
     public static final String JSON_PROPERTY_SUMMARY = "summary";
     @SerializedName(JSON_PROPERTY_SUMMARY) private String summary;
 
+    public static final String JSON_PROPERTY_ICON = "icon";
+    @SerializedName(JSON_PROPERTY_ICON) private String icon;
+
     public Package organization(String organization) {
         this.organization = organization;
         return this;
@@ -351,6 +354,19 @@ public class Package {
 
     public void setModules(List<Module> modules) {
         this.modules = modules;
+    }
+
+    public Package icon(String icon) {
+        this.icon = icon;
+        return this;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
     @Override

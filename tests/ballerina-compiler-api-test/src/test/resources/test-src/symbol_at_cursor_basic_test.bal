@@ -182,3 +182,17 @@ type AnnotRec record {
 };
 
 public annotation AnnotRec v5 on type;
+
+type AnnotRec2 record {
+
+};
+
+const annotation AnnotRec2 WorkerAnnot on source worker;
+
+function fn() {
+    future<int?> f = @WorkerAnnot start add(1, 2);
+}
+
+function add(int a, int b) returns int {
+    return 1;
+}

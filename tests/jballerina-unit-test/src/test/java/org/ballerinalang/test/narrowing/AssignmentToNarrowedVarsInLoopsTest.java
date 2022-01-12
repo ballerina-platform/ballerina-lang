@@ -119,8 +119,18 @@ public class AssignmentToNarrowedVarsInLoopsTest {
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 587, 17);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 609, 21);
         BAssertUtil.validateError(result, index++, INVALID_ASSIGNMENT_TO_NARROWED_VAR_ERROR, 628, 13);
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed outside " +
+                "the query action", 640, 13);
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed outside " +
+                "the query action", 657, 21);
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed outside " +
+                "the query action", 660, 17);
+        index++; // https://github.com/ballerina-platform/ballerina-lang/issues/33535
+        BAssertUtil.validateError(result, index++, "invalid attempt to assign a value to a variable narrowed outside " +
+                "the query action", 676, 17);
 
-        Assert.assertEquals(result.getErrorCount(), index - 13);
+        Assert.assertEquals(result.getErrorCount(), index - 14);
         Assert.assertEquals(result.getWarnCount(), 13);
+        Assert.assertEquals(result.getHintCount(), 1);
     }
 }

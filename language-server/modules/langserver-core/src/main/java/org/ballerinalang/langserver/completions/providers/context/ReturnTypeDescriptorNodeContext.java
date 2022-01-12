@@ -46,8 +46,8 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.type())) {
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.type();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             /*
             Covers the following cases.
             (1) function test() returns moduleName:<cursor>

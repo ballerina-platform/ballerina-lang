@@ -33,15 +33,13 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
@@ -49,8 +47,6 @@ import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
-import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -67,8 +63,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 /**
  * Symbol resolver for the field access expressions.
@@ -94,11 +88,6 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         }
 
         return SymbolUtil.getTypeDescriptor(symbol.get());
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
@@ -148,49 +137,41 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     }
 
     @Override
-    public Optional<TypeSymbol> transform(MethodCallExpressionNode node) {
-        Optional<TypeSymbol> exprTypeSymbol = node.expression().apply(this);
-        NameReferenceNode nameRef = node.methodName();
-        if (nameRef.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return Optional.empty();
-        }
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD
-                || symbol.kind() == SymbolKind.FUNCTION;
-        String methodName = ((SimpleNameReferenceNode) nameRef).name().text();
-        List<Symbol> visibleEntries = this.getVisibleEntries(exprTypeSymbol.orElseThrow(), node.expression());
-
-        FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
-        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) SymbolUtil.getTypeDescriptor(symbol).orElseThrow();
-
-        return functionTypeSymbol.returnTypeDescriptor();
-    }
-
-    @Override
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
         NameReferenceNode nameRef = node.functionName();
 
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
+        Predicate<Symbol> fSymbolPredicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
+        Predicate<Symbol> fPointerPredicate = symbol ->
+                symbol.kind() == SymbolKind.VARIABLE
+                        && CommonUtil.getRawType(((VariableSymbol) symbol).typeDescriptor()).typeKind()
+                        == TypeDescKind.FUNCTION;
         List<Symbol> visibleEntries;
         String functionName;
         if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
-            visibleEntries = QNameReferenceUtil.getModuleContent(this.context, qNameRef, predicate);
+            visibleEntries = QNameReferenceUtil.getModuleContent(this.context, qNameRef,
+                    fSymbolPredicate.or(fPointerPredicate));
             functionName = qNameRef.identifier().text();
         } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             functionName = ((SimpleNameReferenceNode) nameRef).name().text();
             visibleEntries = context.visibleSymbols(context.getCursorPosition()).stream()
-                    .filter(predicate)
+                    .filter(fSymbolPredicate.or(fPointerPredicate))
                     .collect(Collectors.toList());
         } else {
             return Optional.empty();
         }
 
         Optional<Symbol> functionSymbol = this.getSymbolByName(visibleEntries, functionName);
-        if (functionSymbol.isEmpty() || functionSymbol.get().kind() != SymbolKind.FUNCTION) {
-            return Optional.empty();
+
+        if (functionSymbol.isPresent() && fSymbolPredicate.test(functionSymbol.get())) {
+            return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+        }
+        if (functionSymbol.isPresent() && fPointerPredicate.test(functionSymbol.get())) {
+            TypeSymbol rawType = CommonUtil.getRawType(((VariableSymbol) functionSymbol.get()).typeDescriptor());
+            return ((FunctionTypeSymbol) rawType).returnTypeDescriptor();
         }
 
-        return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+        return Optional.empty();
     }
 
     @Override
@@ -203,21 +184,8 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         if (rawType.typeKind() == TypeDescKind.MAP) {
             return Optional.of(((MapTypeSymbol) rawType).typeParam());
         }
-        if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Optional.of(rawType);
-        }
 
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(AnnotAccessExpressionNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(BasicLiteralNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
+        return context.currentSemanticModel().get().typeOf(node);
     }
 
     @Override
@@ -226,22 +194,11 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     }
 
     @Override
-    public Optional<TypeSymbol> transform(BinaryExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(XMLStepExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
-    public Optional<TypeSymbol> transform(XMLFilterExpressionNode node) {
-        return this.context.currentSemanticModel().get().typeOf(node);
-    }
-
-    @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
+        if (node instanceof ExpressionNode) {
+            return this.context.currentSemanticModel().get().typeOf(node);
+        }
+
         return Optional.empty();
     }
 
@@ -270,13 +227,6 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         return visibleSymbols.stream()
                 .filter((symbol -> symbol.nameEquals(name) && symbol.kind() != SymbolKind.TYPE_DEFINITION))
                 .findFirst();
-    }
-
-    private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name, @Nonnull Predicate<Symbol> predicate) {
-        Predicate<Symbol> namePredicate = symbol -> symbol.nameEquals(name);
-        return visibleSymbols.stream()
-                .filter(namePredicate.and(predicate))
-                .findFirst().orElseThrow();
     }
 
     private List<Symbol> getVisibleEntries(TypeSymbol typeSymbol, Node node) {
@@ -314,6 +264,26 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 currentModule.get().moduleId()))
                         .collect(Collectors.toList());
                 visibleEntries.addAll(methodSymbols);
+                break;
+            case UNION:
+                if (node.parent().kind() != SyntaxKind.OPTIONAL_FIELD_ACCESS
+                        || ((UnionTypeSymbol) rawType).memberTypeDescriptors().size() != 2) {
+                    break;
+                }
+                List<TypeSymbol> members = ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                        .map(CommonUtil::getRawType)
+                        .collect(Collectors.toList());
+                if (!members.stream().allMatch(
+                        member -> member.typeKind() == TypeDescKind.NIL || member.typeKind() == TypeDescKind.RECORD)) {
+                    break;
+                }
+                // We have ensured that the members contain two members and one is record and one is nil.
+                // Hence, safe to invoke .get without checking the isPresent
+                TypeSymbol recordType = members.stream()
+                        .filter(member -> member.typeKind() == TypeDescKind.RECORD)
+                        .findFirst()
+                        .get();
+                visibleEntries.addAll(new ArrayList<>(((RecordTypeSymbol) recordType).fieldDescriptors().values()));
                 break;
             default:
                 break;

@@ -359,7 +359,7 @@ types:
         type: s4
         repeat: expr
         repeat-expr: constituent_types_count
-      - id: effective_type_count
+      - id: effective_type_cp_index
         type: s4
   type_xml:
     seq:
@@ -577,6 +577,8 @@ types:
         type: s4
   annotation:
     seq:
+      - id: package_id_cp_index
+        type: s4
       - id: name_cp_index
         type: s4
       - id: original_name_cp_index
@@ -643,7 +645,7 @@ types:
             'type_tag_enum::type_tag_decimal': decimal_constant_info
             'type_tag_enum::type_tag_boolean': boolean_constant_info
             'type_tag_enum::type_tag_nil': nil_constant_info
-            'type_tag_enum::type_tag_map': map_constant_info
+            'type_tag_enum::type_tag_intersection': map_constant_info
     instances:
       type:
         value: _root.constant_pool.constant_pool_entries[constant_value_type_cp_index].cp_info.as<shape_cp_info>
@@ -755,6 +757,14 @@ types:
       - id: rest_param_name_cp_index
         type: s4
         if: has_rest_param != 0
+      - id: annotation_attachment_symbol_count
+        type: s4
+        if: has_rest_param != 0
+      - id: annotation_attachment_symbols
+        type: annotation
+        repeat: expr
+        repeat-expr: annotation_attachment_symbol_count
+        if: has_rest_param != 0
       - id: has_receiver
         type: u1
       - id: reciever
@@ -865,6 +875,12 @@ types:
         type: s4
       - id: flags
         type: s8
+      - id: annotation_attachment_symbol_count
+        type: s4
+      - id: annotation_attachment_symbols
+        type: annotation
+        repeat: expr
+        repeat-expr: annotation_attachment_symbol_count
   reciever:
     seq:
       - id: kind

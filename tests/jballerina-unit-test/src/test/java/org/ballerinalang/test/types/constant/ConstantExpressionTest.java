@@ -138,7 +138,7 @@ public class ConstantExpressionTest {
 
         BValue[] returns = BRunUtil.invoke(compileResult, "checkMapAccessReference");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"v1\":3.0, \"v2\":5.0}");
+        Assert.assertEquals(returns[0].stringValue(), "{v1:3.0, v2:5.0}");
     }
 
     @Test

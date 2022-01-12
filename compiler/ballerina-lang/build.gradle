@@ -69,8 +69,7 @@ processResources {
     include 'old-dependencies-toml-schema.json'
     include 'settings-toml-schema.json'
     filter { String line -> line.replace('${project.version}', "${project.version}")}
-    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
-    filter { String line -> line.replace('${display.text}', "${project.versionDisplayText}")}
+    filter { String line -> line.replace('${short.version}', "${project.version}")}
     filter { String line -> line.replace('${spec.version}', "${project.specVersion}")}
 }
 
