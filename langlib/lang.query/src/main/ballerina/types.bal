@@ -22,6 +22,7 @@ import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
 import ballerina/lang.'object as lang_object;
+import ballerina/jballerina.java;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -620,7 +621,9 @@ class _DoFunction {
         function (_Frame _frame) f = self.doFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
+            print(pFrame);
             f(pFrame);
+            print(pFrame);
             return pFrame;
         }
         if (pFrame is error) {
@@ -833,3 +836,8 @@ class _OrderTreeNode {
         }
     }
 }
+
+public function print(any value) = @java:Method {
+    'class: "org.ballerinalang.langlib.query.CheckNaN",
+    name: "print"
+} external;
