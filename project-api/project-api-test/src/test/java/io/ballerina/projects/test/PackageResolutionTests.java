@@ -717,7 +717,8 @@ public class PackageResolutionTests extends BaseTest {
                             "ERROR [fee.bal:(4:2,4:27)] undefined module 'ddd'");
     }
 
-    @Test(description = "Resolve dependencies with balas having various dist versions")
+    @Test(description = "Resolve dependencies with balas having various dist versions, " +
+            "not including higher dist versions")
     public void testDependencyResolutionWithVariousDistVersions() {
         // package_d --> package_b --> package_c
         // package_d --> package_e
@@ -727,7 +728,30 @@ public class PackageResolutionTests extends BaseTest {
 
         // Change `ballerina_version` of package.json in /repo/bala
         changeBallerinaVersionInPackageJson("package_b", "slbeta6");
-        changeBallerinaVersionInPackageJson("package_c", "slbeta4");
+        changeBallerinaVersionInPackageJson("package_c", "2201.0.0");
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+    }
+
+    @Test(description = "Resolve dependencies with balas having various dist versions including a higher dist version",
+            dependsOnMethods = "testDependencyResolutionWithVariousDistVersions")
+    public void testDependencyResolutionWithHigherDistVersion() {
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_c");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_b");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_e");
+
+        // Change `ballerina_version` of package.json in /repo/bala
+        changeBallerinaVersionInPackageJson("package_b", "slbeta6");
+        changeBallerinaVersionInPackageJson("package_c", "2301.89.0");
 
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
