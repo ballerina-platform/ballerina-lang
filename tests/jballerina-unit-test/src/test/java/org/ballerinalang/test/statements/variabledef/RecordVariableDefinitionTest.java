@@ -329,7 +329,7 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 157, 30);
         BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 158, 19);
+                "no new variables on left side", 158, 5);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'XY', " +
                 "found 'record {| never x?; never y?; anydata...; |}'", 174, 12);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<int>', " +
