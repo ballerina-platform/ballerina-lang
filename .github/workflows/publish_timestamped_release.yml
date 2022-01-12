@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - stage-slbeta6
+      - stage-slbeta6.1
   workflow_dispatch:
 
 jobs:
