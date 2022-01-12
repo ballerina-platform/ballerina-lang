@@ -16,7 +16,7 @@
               "character": 0
             }
           },
-          "newText": "import lstest/testproject.module2;\n"
+          "newText": "import testproject.module2;\n"
         },
         {
           "range": {
@@ -60,7 +60,7 @@
               "character": 0
             }
           },
-          "newText": "import lstest/testproject.module2;\n"
+          "newText": "import testproject.module2;\n"
         },
         {
           "range": {
@@ -130,7 +130,7 @@
               "character": 0
             }
           },
-          "newText": "import lstest/testproject.module2;\n"
+          "newText": "import testproject.module2;\n"
         }
       ]
     }
