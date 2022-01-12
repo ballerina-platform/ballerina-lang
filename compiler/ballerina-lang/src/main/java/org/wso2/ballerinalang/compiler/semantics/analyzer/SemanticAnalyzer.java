@@ -1456,7 +1456,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (detailType.getKind() != TypeKind.RECORD) {
             for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
-                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
                         errorDetailEntry.key.value);
             }
             return;
@@ -1469,7 +1469,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             String entryName = errorDetailEntry.key.getValue();
             BField entryField = detailFields.get(entryName);
             if (entryField == null) {
-                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
                         errorDetailEntry.key.value);
             } else if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
                 dlog.error(errorDetailEntry.pos,
@@ -2259,7 +2259,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                detailItem.name);
                     return;
                 } else {
-                    dlog.error(detailItem.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
+                    dlog.error(detailItem.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
                             detailItem.name.value);
                     continue;
                 }

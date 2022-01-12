@@ -81,7 +81,7 @@ public class ModuleErrorVariableTest {
         validateError(compileResultNegetive, index++,
                 "invalid record binding pattern with type '[int]'", 53, 33);
         validateError(compileResultNegetive, index++,
-                "unknown error detail field 'fieldD' in binding pattern", 53, 44);
+                "cannot bind undefined error detail field 'fieldD'", 53, 44);
         validateError(compileResultNegetive, index++,
                 "missing error detail arg for error detail field 'fieldB'", 56, 9);
         assertEquals(compileResultNegetive.getErrorCount(), index);

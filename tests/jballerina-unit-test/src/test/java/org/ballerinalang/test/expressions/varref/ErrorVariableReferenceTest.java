@@ -229,11 +229,11 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found '(string|boolean)'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "unknown error detail field 'message' in binding pattern", 43, 22);
+                "cannot bind undefined error detail field 'message'", 43, 22);
         BAssertUtil.validateError(resultNegative, ++i,
-                "unknown error detail field 'fatal' in binding pattern", 43, 43);
+                "cannot bind undefined error detail field 'fatal'", 43, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "unknown error detail field 'extra' in binding pattern", 43, 60);
+                "cannot bind undefined error detail field 'extra'", 43, 60);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
@@ -247,9 +247,9 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 124, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                "unknown error detail field 'message' in binding pattern", 134, 19);
+                "cannot bind undefined error detail field 'message'", 134, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "unknown error detail field 'other' in binding pattern", 134, 38);
+                "cannot bind undefined error detail field 'other'", 134, 38);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
@@ -321,37 +321,37 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid field binding pattern; can only bind required fields", 41, 65);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 45, 29);
+                "cannot bind undefined error detail field 'msg'", 45, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 45, 57);
+                "cannot bind undefined error detail field 'extra'", 45, 57);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 46, 38);
+                "cannot bind undefined error detail field 'msg'", 46, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 46, 66);
+                "cannot bind undefined error detail field 'extra'", 46, 66);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 48, 26);
+                "cannot bind undefined error detail field 'msg'", 48, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 48, 54);
+                "cannot bind undefined error detail field 'extra'", 48, 54);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 49, 35);
+                "cannot bind undefined error detail field 'msg'", 49, 35);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 49, 63);
+                "cannot bind undefined error detail field 'extra'", 49, 63);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 51, 24);
+                "cannot bind undefined error detail field 'msg'", 51, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 51, 52);
+                "cannot bind undefined error detail field 'extra'", 51, 52);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 52, 33);
+                "cannot bind undefined error detail field 'msg'", 52, 33);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 52, 61);
+                "cannot bind undefined error detail field 'extra'", 52, 61);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 63, 20);
+                "cannot bind undefined error detail field 'msg'", 63, 20);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 63, 48);
+                "cannot bind undefined error detail field 'extra'", 63, 48);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'msg' in binding pattern", 64, 29);
+                "cannot bind undefined error detail field 'msg'", 64, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "unknown error detail field 'extra' in binding pattern", 64, 57);
+                "cannot bind undefined error detail field 'extra'", 64, 57);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }

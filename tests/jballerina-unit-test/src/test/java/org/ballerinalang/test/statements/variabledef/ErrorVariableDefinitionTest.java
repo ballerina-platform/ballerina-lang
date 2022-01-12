@@ -244,25 +244,25 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
                 "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
                 "contains individual field descriptors", 36, 60);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'detail' in binding pattern",
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'detail'",
                 39, 26);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'extra' in binding pattern", 39, 45);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'extra'", 39, 45);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'detail' in binding pattern",
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'detail'",
                 42, 26);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'extra' in binding pattern", 42, 45);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'extra'", 42, 45);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'message' in binding pattern",
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
                 52, 26);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'detail' in binding pattern",
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'detail'",
                 52, 47);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'extra' in binding pattern", 52, 66);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'message' in binding pattern",
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'extra'", 52, 66);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
                 53, 26);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'message' in binding pattern",
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
                 54, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "redeclared symbol 'message'", 54, 36);
@@ -274,7 +274,7 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 64, 16);
-        BAssertUtil.validateError(resultNegative, ++i, "unknown error detail field 'message' in binding pattern",
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
                 69, 24);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 70, 16);

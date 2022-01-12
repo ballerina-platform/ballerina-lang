@@ -563,7 +563,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_TYPE_REFERENCE("BCE3712", "invalid.error.type.reference"),
     INVALID_REST_DETAIL_ARG("BCE3713",
             "invalid.error.constructor.rest.detail.arg.on.detail.type.with.individual.fields"),
-    UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN("BCE3714", "unknown.error.detail.field.in.binding.pattern"),
+    CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD("BCE3714", "cannot.bind.undefined.error.detail.field"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("BCE3800", "incompatible.stamp.type"),
