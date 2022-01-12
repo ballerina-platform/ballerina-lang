@@ -79,7 +79,7 @@ public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
 
     @Override
     public String toString() {
-        StringJoiner stringJoiner = new StringJoiner(" | ");
+        StringJoiner stringJoiner = new StringJoiner("|");
         for (BLangExpression memberTypeNode : valueSpace) {
             switch (memberTypeNode.getBType().tag) {
                 case TypeTags.FLOAT:

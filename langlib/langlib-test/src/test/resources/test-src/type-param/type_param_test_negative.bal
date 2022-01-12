@@ -39,16 +39,16 @@ function testArray() {
 
 }
 
-const Foo = "Foo";
-const Bar = "Bar";
+const FOO = "Foo";
+const BAR = "Bar";
 type FooError error;
 
 function testError1() {
     FooError f = error("Foo");
     boolean f1 = f.message();    // incompatible types: expected 'boolean', found 'string'
     string f2 = f.message(); // No error;
-    Foo x1 = f.message(); // incompatible types: expected '"Foo"', found 'string'
-    Bar x2 = f.message(); // incompatible types: expected '"Bar"', found 'Foo'
+    FOO x1 = f.message(); // incompatible types: expected '"Foo"', found 'string'
+    BAR x2 = f.message(); // incompatible types: expected '"Bar"', found 'string'
 }
 
 type BarDetail record {
@@ -59,7 +59,7 @@ type BarDetail record {
 type BarError error<BarDetail>;
 
 function testError2(){
-    BarError b = error BarError(Bar, message = "test", id = 10);
+    BarError b = error BarError(BAR, message = "test", id = 10);
     BarDetail b1 = b.detail(); // No error;
     record {| anydata|readonly...; |} b2 = b.detail(); // No error;
     boolean b3 = b.detail(); // incompatible types: expected 'boolean', found 'BarDetail'
