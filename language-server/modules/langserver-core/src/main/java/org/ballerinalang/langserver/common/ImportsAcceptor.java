@@ -130,32 +130,4 @@ public class ImportsAcceptor {
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         return new TextEdit(range, editText);
     }
-
-    /**
-     * Holds module information related to a particular Ballerina module.
-     */
-    public static class ModuleIDMetaData {
-
-        private final String orgName;
-        private final String moduleName;
-        private final String moduleAlias;
-
-        public ModuleIDMetaData(String orgName, String moduleName, String moduleAlias) {
-            this.orgName = orgName;
-            this.moduleName = moduleName;
-            this.moduleAlias = moduleAlias;
-        }
-
-        public String getModuleAlias() {
-            return moduleAlias;
-        }
-
-        public String getOrgName() {
-            return orgName;
-        }
-
-        public String getModuleName() {
-            return moduleName;
-        }
-    }
 }
