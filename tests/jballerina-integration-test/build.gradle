@@ -58,7 +58,6 @@ dependencies {
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.slf4j:slf4j-api'
-    implementation 'com.google.protobuf:protobuf-java'
 
     balRuntime project(':ballerina-runtime')
 
@@ -77,7 +76,6 @@ dependencies {
     testCompile 'org.yaml:snakeyaml'
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.hsqldb:hsqldb'
-    testCompile 'com.h2database:h2'
     testCompile 'io.ballerina.messaging:broker-amqp'
     testCompile 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'

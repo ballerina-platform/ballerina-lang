@@ -174,7 +174,7 @@ public class LangLibrary {
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
                     (!invSymbol.params.isEmpty()
-                            && basicType.compareToIgnoreCase(types.getReferredType(invSymbol.params.get(0).type)
+                            && basicType.compareToIgnoreCase(Types.getReferredType(invSymbol.params.get(0).type)
                             .getKind().name()) == 0 || invSymbol.restParam != null
                             && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
                             .eType.tsymbol.getName().getValue()) == 0)) {

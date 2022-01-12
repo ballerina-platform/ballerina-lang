@@ -782,6 +782,28 @@ public class TypeGuardTest {
                 "found '((int|string)[] & readonly)'", 354, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[] & readonly', " +
                 "found '((int|string)[] & readonly)'", 355, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'json', found '(Z|json)'", 379, 18);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'Z', found '(Z|json)'", 385, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| stream<int> s; |}', " +
+                "found '(anydata|record {| stream<int> s; |})'", 393, 41);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'anydata', " +
+                "found '(anydata|record {| stream<int> s; |})'", 399, 21);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(json|stream<int>)', " +
+                "found '(Z|json|stream<int>)'", 425, 30);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(Z|stream<int>)', found '" +
+                "(Z|json|stream<int>)'", 431, 27);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| stream<int> s; |}', " +
+                "found '(anydata|record {| stream<int> s; |}|future<string>)'", 439, 41);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(anydata|future<string>)', " +
+                "found '(anydata|record {| stream<int> s; |}|future<string>)'", 445, 36);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(map<int>|xml)', found '" +
+                "(Z|map<int>|xml)'", 462, 26);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'A2', found '(A|A2)'", 478, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(A2|A3)', found '(A|A2|A3)'", 486,
+                                  19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'A5', found '(A4|A5)'", 508, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'A6', found '(A|A6|boolean)'", 532,
+                                  16);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
@@ -795,6 +817,43 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++,
                                   "expression of type 'never' or equivalent to type 'never' not allowed here",
                       33, 13);
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 38, 8);
+        BAssertUtil.validateError(result, index++, "unreachable code", 41, 9);
+        BAssertUtil.validateError(result, index++,
+                                  "expression of type 'never' or equivalent to type 'never' not allowed here",
+                                  41, 35);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForSemTypes3() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_3.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForSemTypes4() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_4.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'OtherExpr', found '" +
+                "(VarRefExpr|OtherExpr)'", 81, 23);
+        Assert.assertEquals(result.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForSemTypes5() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_5.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testTypeGuardsAccountingForSemTypes6() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_6.bal");
+        int index = 0;
+        BAssertUtil.validateHint(result, index++, "unnecessary condition: expression will always evaluate to 'true'",
+                                 22, 15);
+        BAssertUtil.validateError(result, index++, "unreachable code", 25, 9);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
