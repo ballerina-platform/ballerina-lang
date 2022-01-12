@@ -91,6 +91,6 @@ public class AssignmentStatementTest extends AbstractStatementTest {
 
     @Test
     public void testComplexExprInLHSWithMissingEqual() {
-        test("a + b + c  d;", "assignment-stmt/assignment_stmt_assert_13.json");
+        testFile("assignment-stmt/assignment_stmt_source_13.bal", "assignment-stmt/assignment_stmt_assert_13.json");
     }
 }

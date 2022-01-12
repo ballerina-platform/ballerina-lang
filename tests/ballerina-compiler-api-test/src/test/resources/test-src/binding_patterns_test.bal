@@ -27,7 +27,7 @@ function test() {
     float lbp2;
     (decimal|string)[] rbp1;
     [lbp1, lbp2, ...rbp1] = [10, 12.34, 45.6d, "Hello"]; // destructuring assignment stmt
-    [int, float, string...] [lbp3, lbp4, ...rbp2] = [10, 23.45, "Foo", "Bar"]; // local var decl stmt
+    [int, float, string...] [lbp3, lbp4, ...rbp2] = [cbp1, 23.45, "Foo", "Bar"]; // local var decl stmt
 
     // mapping binding pattern
     string mbp1;

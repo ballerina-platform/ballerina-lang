@@ -98,7 +98,6 @@ dependencies {
     dist "io.opentelemetry:opentelemetry-context:${project.openTelemetryContextVersion}"
     dist "org.awaitility:awaitility:${project.awaitilityVersion}"
     dist "org.hdrhistogram:HdrHistogram:${project.hdrHistogramVersion}"
-    dist "com.h2database:h2:${project.h2DatabaseVersion}"
 
     // observability extensions
     //// metrics

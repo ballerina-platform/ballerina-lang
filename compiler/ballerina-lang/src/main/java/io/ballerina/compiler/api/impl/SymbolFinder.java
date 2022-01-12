@@ -894,6 +894,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(actionInvocationExpr.annAttachments);
         lookupNodes(actionInvocationExpr.requiredArgs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);
@@ -1461,6 +1462,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         lookupNodes(bLangTupleVariable.annAttachments);
+        lookupNode(bLangTupleVariable.typeNode);
         lookupNodes(bLangTupleVariable.memberVariables);
         lookupNode(bLangTupleVariable.restVariable);
         lookupNode(bLangTupleVariable.expr);
@@ -1473,11 +1475,15 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
+        lookupNodes(bLangRecordVariable.annAttachments);
+        lookupNode(bLangRecordVariable.typeNode);
+
         for (BLangRecordVariable.BLangRecordVariableKeyValue var : bLangRecordVariable.variableList) {
             lookupNode(var.valueBindingPattern);
         }
+
         lookupNode(bLangRecordVariable.restParam);
-        lookupNodes(bLangRecordVariable.annAttachments);
+        lookupNode(bLangRecordVariable.expr);
     }
 
     @Override
@@ -1487,6 +1493,8 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
+        lookupNodes(bLangErrorVariable.annAttachments);
+        lookupNode(bLangErrorVariable.typeNode);
         lookupNode(bLangErrorVariable.message);
 
         for (BLangErrorVariable.BLangErrorDetailEntry detail : bLangErrorVariable.detail) {
@@ -1497,6 +1505,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(bLangErrorVariable.cause);
         lookupNode(bLangErrorVariable.reasonMatchConst);
         lookupNode(bLangErrorVariable.restDetail);
+        lookupNode(bLangErrorVariable.expr);
     }
 
     @Override

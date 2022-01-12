@@ -430,18 +430,16 @@ public class BIRGen extends BLangNodeVisitor {
                                                           displayName,
                                                           astTypeDefinition.symbol.originalName);
         if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
-            if (type.tsymbol.owner == astTypeDefinition.symbol.owner) {
-                typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
-                typeDef.referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+            typeDef.referenceType = referenceType;
+            BTypeSymbol typeSymbol = astTypeDefinition.symbol.type.tsymbol;
+            if (type.tsymbol.owner == astTypeDefinition.symbol.owner
+                    && !(Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS))) {
+                typeDefs.put(typeSymbol, typeDef);
             } else {
-                BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
-                typeDef.referenceType = referenceType;
-
                 if (referenceType != null) {
                     typeDef.type = referenceType;
                 }
-
-                typeDefs.put(astTypeDefinition.symbol, typeDef);
             }
         } else {
             //enum symbols
@@ -505,7 +503,7 @@ public class BIRGen extends BLangNodeVisitor {
         BType nodeType = astTypeDefinition.typeNode.getBType();
         // Consider: type DE distinct E;
         // For distinct types, the type defined by typeDefStmt (DE) is different from type used to define it (E).
-        if (types.getReferredType(nodeType).tag == TypeTags.ERROR) {
+        if (Types.getReferredType(nodeType).tag == TypeTags.ERROR) {
             return astTypeDefinition.symbol.type;
         }
         return nodeType;
@@ -598,24 +596,14 @@ public class BIRGen extends BLangNodeVisitor {
 
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
         if (constValue.type.tag == TypeTags.INTERSECTION) {
-            ConstValue resultantConstValue = getBIRConstantVal(new BLangConstantValue(constValue.value,
-                    ((BIntersectionType) constValue.type).effectiveType));
-            resultantConstValue.type = constValue.type;
-            return resultantConstValue;
-//            return new ConstValue(getBIRConstantVal(new BLangConstantValue(constValue.value,
-//                    ((BIntersectionType) constValue.type).effectiveType)).value, constValue.type);
+            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
+            return getBIRConstantVal(constValue);
         }
         if (constValue.type.tag == TypeTags.RECORD) {
             Map<String, ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, constValue.type);
-        }
-        if (constValue.type.tag == TypeTags.MAP) {
-            Map<String, ConstValue> mapConstVal = new HashMap<>();
-            ((Map<String, BLangConstantValue>) constValue.value)
-                    .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, constValue.type);
+            return new ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
         }
 
         return new ConstValue(constValue.value, constValue.type);
@@ -1770,7 +1758,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef);
         } else {
-            BType connectorInitExprType = types.getReferredType(connectorInitExpr.getBType());
+            BType connectorInitExprType = Types.getReferredType(connectorInitExpr.getBType());
             BType objectType = connectorInitExprType.tag != TypeTags.UNION ? connectorInitExprType :
                     ((BUnionType) connectorInitExprType).getMemberTypes().stream()
                             .filter(bType -> bType.tag != TypeTags.ERROR)
@@ -2557,7 +2545,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         long size = -1L;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
-        BType listConstructorExprType = types.getReferredType(listConstructorExpr.getBType());
+        BType listConstructorExprType = Types.getReferredType(listConstructorExpr.getBType());
         if (listConstructorExprType.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
             size = ((BArrayType) listConstructorExprType).size;
@@ -2619,7 +2607,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
         InstructionKind insKind;
-        BType astAccessExprExprType = types.getReferredType(astIndexBasedAccessExpr.expr.getBType());
+        BType astAccessExprExprType = Types.getReferredType(astIndexBasedAccessExpr.expr.getBType());
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 
@@ -2682,7 +2670,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private BTypeSymbol getObjectTypeSymbol(BType objType) {
-        BType type = types.getReferredType(objType);
+        BType type = Types.getReferredType(objType);
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .filter(t -> t.tag == TypeTags.OBJECT)

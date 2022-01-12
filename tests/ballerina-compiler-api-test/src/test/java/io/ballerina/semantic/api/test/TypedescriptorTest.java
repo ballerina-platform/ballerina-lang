@@ -349,6 +349,27 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test(dataProvider = "UnionWithFunctionTypePos")
+    public void testUnionTypeWithFunctionType(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithFunctionTypePos")
+    public Object[][] getUnionWithFunctionTypePos() {
+        return new Object[][]{
+                {259, 34, "(function () returns int)|10|20"},
+                {260, 37, "(function () returns int)|string"},
+                {261, 35, "string|function () returns int"},
+                {262, 36, "(function () returns int)|10|20"},
+                {263, 37, "(function () returns int|string)|3"},
+                {264, 34, "ReturnIntFunctionType?|string"},
+                {265, 57, "(function () returns string)|function () returns int"},
+        };
+    }
+
     @Test(dataProvider = "FiniteTypeDataProvider")
     public void testFiniteType(int line, int column, String typeName, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);

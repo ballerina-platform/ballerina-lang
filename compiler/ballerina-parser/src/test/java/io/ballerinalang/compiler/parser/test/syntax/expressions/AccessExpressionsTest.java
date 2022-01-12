@@ -131,6 +131,7 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testMissingFieldNameInMemberAccess() {
         test("foo.bar.[baz]", "access-expr/member_access_expr_assert_06.json");
+        testFile("access-expr/field_access_expr_source_08.bal", "access-expr/field_access_expr_assert_08.json");
     }
 
     @Test

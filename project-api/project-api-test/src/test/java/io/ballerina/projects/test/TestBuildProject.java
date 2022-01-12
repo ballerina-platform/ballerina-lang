@@ -464,7 +464,7 @@ public class TestBuildProject extends BaseTest {
                 "\n" +
                 "[build-options]\n" +
                 "experimental=true\n" +
-                "observabilityIncluded=true\n" +
+                "observabilityIncluded = true\n" +
                 "skipTests=true\n" +
                 "offline=false\n" +
                 "codeCoverage=true").apply();

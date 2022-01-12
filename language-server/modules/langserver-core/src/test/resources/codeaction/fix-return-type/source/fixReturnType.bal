@@ -10,3 +10,12 @@ function addTwoIntegers3(int a, int b) returns boolean {
    int[] d = [];
    return d;
 }
+
+public function testFunctionWithObjectConstructor() {
+    var var1 = object {
+        int id = 10;
+        function getId() {
+            return self.id;
+        }
+    };
+}

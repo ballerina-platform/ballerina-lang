@@ -121,7 +121,7 @@ public type Owner object {
     public function getId() returns int;
 };
 
-public class OwnerA {
+public readonly class OwnerA {
     final int id;
 
     public function init(int id) {
@@ -220,7 +220,7 @@ public type Config object {
     public function getName() returns string;
 };
 
-public class MyConfig {
+public readonly class MyConfig {
     public final string name;
 
     public function init(string name) {

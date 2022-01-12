@@ -53,7 +53,9 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
@@ -344,7 +346,21 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(UnaryExpressionNode unaryExpressionNode) {
+        semanticModel.typeOf(unaryExpressionNode).ifPresent(this::checkAndSetTypeResult);
+
+        if (!resultFound) {
+            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+        }
+    }
+
+    @Override
     public void visit(IfElseStatementNode ifElseStatementNode) {
+        checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+    }
+
+    @Override
+    public void visit(WhileStatementNode whileStatementNode) {
         checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
     }
 

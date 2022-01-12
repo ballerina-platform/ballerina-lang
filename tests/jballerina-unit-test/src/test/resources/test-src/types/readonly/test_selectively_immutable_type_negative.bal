@@ -177,7 +177,7 @@ type Config object {
     function getName() returns string;
 };
 
-class MyConfig {
+readonly class MyConfig {
     final string name;
 
     public function init(string name) {

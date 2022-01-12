@@ -391,6 +391,9 @@ public class CommonUtil {
                 errorString.append(")");
                 typeString = errorString.toString();
                 break;
+            case SINGLETON:
+                typeString = rawType.signature();
+                break;
             case MAP:
             case FLOAT:
             case BOOLEAN:
@@ -1045,12 +1048,12 @@ public class CommonUtil {
         if (!moduleID.equals(currentModuleId)) {
             boolean preDeclaredLangLib = moduleID.orgName().equals(BALLERINA_ORG_NAME) &&
                     PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
-            String moduleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
-            String[] moduleParts = moduleName.split("/");
+            String escapeModuleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
+            String[] moduleParts = escapeModuleName.split("/");
             String orgName = moduleParts[0];
-            String alias = moduleParts[1];
+            String moduleName = moduleParts[1];
 
-            pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
+            pkgPrefix = moduleName.replaceAll(".*\\.", "");
             pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
@@ -1062,13 +1065,17 @@ public class CommonUtil {
             if (existingModuleImports.size() == 1) {
                 ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
                 if (importDeclarationNode.prefix().isPresent()) {
-                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
+            } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
+                pkgPrefix = getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
             }
-
+            CodeActionModuleId codeActionModuleId =
+                    CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());
             if (importsAcceptor != null && !preDeclaredLangLib) {
-                importsAcceptor.getAcceptor(context).accept(orgName, alias);
+                importsAcceptor.getAcceptor(context).accept(orgName, codeActionModuleId);
             }
+            return pkgPrefix + ":";
         }
         return pkgPrefix;
     }
@@ -1171,7 +1178,7 @@ public class CommonUtil {
      * Returns the URI with bala scheme for the provided file path.
      *
      * @param filePath File path
-     * @param scheme URI Scheme
+     * @param scheme   URI Scheme
      * @return URI with the given scheme
      * @throws URISyntaxException URI parsing errors
      */
@@ -1808,7 +1815,7 @@ public class CommonUtil {
      * Check whether the completion item type belongs to the types list passed.
      *
      * @param lsCItem   Completion item
-     * @param typesList List of types           
+     * @param typesList List of types
      * @return {@link Boolean}
      */
     public static boolean isCompletionItemOfType(LSCompletionItem lsCItem, List<TypeDescKind> typesList) {
@@ -1819,7 +1826,7 @@ public class CommonUtil {
 
         Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().orElse(null);
         Optional<TypeSymbol> typeDesc = SymbolUtil.getTypeDescriptor(symbol);
-        
+
         if (typeDesc.isPresent()) {
             TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
             return typesList.contains(rawType.typeKind());
@@ -1873,7 +1880,7 @@ public class CommonUtil {
         }
         return true;
     }
-    
+
     public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
         URI original = URI.create(uri);
         try {
@@ -1884,4 +1891,5 @@ public class CommonUtil {
             return uri;
         }
     }
+
 }
