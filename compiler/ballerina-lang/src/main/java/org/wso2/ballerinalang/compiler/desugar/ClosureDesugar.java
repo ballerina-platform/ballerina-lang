@@ -306,14 +306,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         assignmentStmt.expr = refToBlockClosureMap;
         assignmentStmt.pos = function.pos;
         assignmentStmt.setVariable(fieldAccess);
-        fieldAccess.parent = assignmentStmt;
+        fieldAccess.parent = assignmentStmt; // parent added to improve debuggability
 
         BLangFunction generatedInitFunction = classDef.generatedInitFunction;
         BLangBlockFunctionBody generatedInitFnBody = (BLangBlockFunctionBody) generatedInitFunction.body;
 
         // self[$map$objectCtor$_<num1>] = $map$block$_<num2>
         generatedInitFnBody.stmts.add(0, assignmentStmt);
-        assignmentStmt.parent = generatedInitFnBody;
+        assignmentStmt.parent = generatedInitFnBody; // parent added to improve debuggability
 
         desugar.rewrite(assignmentStmt, oceEnvData.objMethodsEnv);
     }
@@ -516,6 +516,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             // self[x] =  self[$map$objectCtor$_<num>][i];
             BLangAssignment assignFromPassedMapToInternalMap = ASTBuilderUtil.createAssignmentStmt(field.pos,
                     mapAccessExpr, castExpr);
+            // parent added to improve debuggability
             assignFromPassedMapToInternalMap.parent = classDef.generatedInitFunction.body;
 
             initBody.stmts.add(i, assignFromPassedMapToInternalMap);
@@ -1212,9 +1213,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        binaryExpr.lhsExpr.parent = binaryExpr;
+        binaryExpr.lhsExpr.parent = binaryExpr; // parent added to improve debuggability
         binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
-        binaryExpr.rhsExpr.parent = binaryExpr;
+        binaryExpr.rhsExpr.parent = binaryExpr; // parent added to improve debuggability
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
 
         result = binaryExpr;
