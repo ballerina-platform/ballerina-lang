@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -59,6 +60,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -225,10 +227,10 @@ public class LangLibFunctionTest {
     }
 
     @Test(dataProvider = "XMLInfoProvider")
-    public void testXMLLangLib(int line, int column, List<String> expFunctions) {
-        Symbol symbol = getSymbol(67, 8);
+    public void testXMLLangLib(int line, int column, TypeDescKind expTypeKind, List<String> expFunctions) {
+        Symbol symbol = getSymbol(line, column);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.typeKind(), XML);
+        assertEquals(type.typeKind(), expTypeKind);
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
 
@@ -239,11 +241,18 @@ public class LangLibFunctionTest {
                                             "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
                                             "toJsonString", "ensureType", "text", "data");
 
-//        List<String> additionalFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes");
+        List<String> elementFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes",
+                                            "getDescendants");
+        List<String> piFuncs = List.of("getTarget");
 
         return new Object[][]{
-                {67, 8, expFunctions},
-//                {68, 17, Stream.concat(expFunctions.stream(), additionalFuncs.stream()).collect(Collectors.toList())}
+                {67, 8, XML, expFunctions},
+                {68, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), elementFuncs.stream())
+                        .collect(Collectors.toList())},
+                {76, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
+                        .collect(Collectors.toList())},
+                {77, 17, TYPE_REFERENCE, expFunctions},
+                {78, 14, TYPE_REFERENCE, expFunctions},
         };
     }
 
