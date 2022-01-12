@@ -12,4 +12,4 @@ function createInt() returns int {
     return 1;
 }
 
-// A traling comment here
+// A trailing comment here

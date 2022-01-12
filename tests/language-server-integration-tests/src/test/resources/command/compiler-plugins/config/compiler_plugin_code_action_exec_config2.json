@@ -27,10 +27,10 @@
                   },
                   "end": {
                     "line": 14,
-                    "character": 25
+                    "character": 26
                   }
                 },
-                "newText": "// A Header comment here\nimport lstest/package_comp_plugin_with_codeactions as foo;\n\npublic function main() {\n   foo:doSomething();\n   \n   // Var assignment is required below\n   int myVar = createInt();\n}\n\nfunction createInt() returns int {\n    return 1;\n}\n\n// A traling comment here"
+                "newText": "// A Header comment here\nimport lstest/package_comp_plugin_with_codeactions as foo;\n\npublic function main() {\n   foo:doSomething();\n   \n   // Var assignment is required below\n   int myVar = createInt();\n}\n\nfunction createInt() returns int {\n    return 1;\n}\n\n// A trailing comment here"
               }
             ]
           }
