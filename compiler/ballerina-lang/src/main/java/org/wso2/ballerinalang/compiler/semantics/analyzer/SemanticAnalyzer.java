@@ -1380,7 +1380,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
-            validateErrorDetailBindings(varNode);
+            validateErrorDetailBindingPatterns(varNode);
             return;
         }
 
@@ -1442,16 +1442,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeChecker.checkExpr(varNode.expr, env, varNode.getBType());
-        validateErrorDetailBindings(varNode);
+        validateErrorDetailBindingPatterns(varNode);
     }
 
-    private void validateErrorDetailBindings(BLangErrorVariable errorVariable) {
+    private void validateErrorDetailBindingPatterns(BLangErrorVariable errorVariable) {
         BType rhsType = types.getReferredType(errorVariable.expr.getBType());
         if (rhsType.getKind() != TypeKind.ERROR) {
             return;
         }
 
-        BRecordType rhsDetailType = this.symbolEnter.getDetailAsARecordType((BErrorType) rhsType);
+        BErrorType errorType = (BErrorType) rhsType;
+        BType detailType = types.getReferredType(errorType.detailType);
+
+        if (detailType.getKind() != TypeKind.RECORD) {
+            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.UNKNOWN_ERROR_DETAIL_FIELD_IN_BINDING_PATTERN,
+                        errorDetailEntry.key.value);
+            }
+            return;
+        }
+
+        BRecordType rhsDetailType = (BRecordType) detailType;
         LinkedHashMap<String, BField> detailFields = rhsDetailType.fields;
 
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
