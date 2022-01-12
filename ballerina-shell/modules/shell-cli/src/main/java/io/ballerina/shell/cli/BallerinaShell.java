@@ -70,8 +70,8 @@ public class BallerinaShell {
     protected final Evaluator evaluator;
     protected final CommandHandler commandHandler;
     protected boolean isRunning;
-    protected  boolean isMissingModule;
-    protected boolean isContainsError;
+    private boolean isMissingModule;
+    private boolean isContainsError;
 
     public BallerinaShell(BShellConfiguration configuration, TerminalAdapter terminal) {
         this.configuration = configuration;
