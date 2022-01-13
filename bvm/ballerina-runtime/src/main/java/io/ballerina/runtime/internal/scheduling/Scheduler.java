@@ -46,6 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_MAX_YIELD_DEPTH;
 import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
 
 /**
@@ -85,8 +86,6 @@ public class Scheduler {
     private Semaphore mainBlockSem;
     private ListenerRegistry listenerRegistry;
     private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
-
-    private static final int BALLERINA_MAX_STACK_SIZE = 256;
 
     public Scheduler(boolean immortal) {
         this(getPoolSize(), immortal);
@@ -517,7 +516,7 @@ public class Scheduler {
 
     private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
         FutureValue future = new FutureValue(newStrand, callback, constraint);
-        future.strand.frames = new Object[BALLERINA_MAX_STACK_SIZE];
+        future.strand.frames = new Object[BALLERINA_MAX_YIELD_DEPTH];
         return future;
     }
 
