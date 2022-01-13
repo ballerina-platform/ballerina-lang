@@ -23,8 +23,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.javacrumbs.jsonunit.core.Option;
 import org.ballerinalang.langserver.util.TestUtil;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
@@ -35,6 +33,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -52,50 +51,40 @@ public class PerformanceAnalyzerTest {
 
     private static final String BALLERINA = "ballerina";
     private static final String RESULT = "result";
-    private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getEndpoints";
+    private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getResourcesWithEndpoints";
     private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
 
     @Test(description = "Test performance analyzer")
     public void testFunction() throws IOException, ExecutionException, InterruptedException {
 
-        Range range = new Range(new Position(21, 4), new Position(28, 5));
-
-        compare("main.bal", "main.json", range);
+        compare("main.bal", "main.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testIfElse() throws IOException, ExecutionException, InterruptedException {
 
-        Range range = new Range(new Position(20, 4), new Position(30, 5));
-
-        compare("ifElse.bal", "ifElse.json", range);
+        compare("ifElse.bal", "ifElse.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testNoData() throws IOException, ExecutionException, InterruptedException {
 
-        Range range = new Range(new Position(22, 4), new Position(24, 5));
-
-        compare("noData.bal", "noData.json", range);
+        compare("noData.bal", "noData.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testForEach() throws IOException, ExecutionException, InterruptedException {
 
-        Range range = new Range(new Position(22, 4), new Position(38, 5));
-
-        compare("forEach.bal", "forEach.json", range);
+        compare("forEach.bal", "forEach.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testWhile() throws IOException, ExecutionException, InterruptedException {
 
-        Range range = new Range(new Position(20, 4), new Position(37, 5));
-
-        compare("while.bal", "while.json", range);
+        compare("while.bal", "while.json");
     }
 
-    private void compare(String balFile, String jsonFile, Range range) throws IOException, InterruptedException,
+    private void compare(String balFile, String jsonFile) throws IOException, InterruptedException,
             ExecutionException {
 
         Path project = RES_DIR.resolve(BALLERINA).resolve(balFile);
@@ -104,31 +93,30 @@ public class PerformanceAnalyzerTest {
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, project);
 
-        PerformanceAnalyzerGraphRequest request = new PerformanceAnalyzerGraphRequest();
+        PerformanceAnalyzerRequest request = new PerformanceAnalyzerRequest();
         request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
-        request.setRange(range);
 
         CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
-        JsonObject json = (JsonObject) result.get();
+        List<PerformanceAnalyzerResponse> endpoints = (List<PerformanceAnalyzerResponse>) result.get();
+        PerformanceAnalyzerResponse endpoint = endpoints.get(0);
 
         BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
 
-        Assert.assertEquals(json.get(TYPE).getAsString(), expected.get(TYPE).getAsString());
-        Assert.assertEquals(json.get(MESSAGE).getAsString(), expected.get(MESSAGE).getAsString());
+        Assert.assertEquals(endpoint.getType(), expected.get(TYPE).getAsString());
+        Assert.assertEquals(endpoint.getMessage(), expected.get(MESSAGE).getAsString());
 
-        if (json.get(TYPE).getAsString().equals(SUCCESS)) {
-            JsonObject actionInvocations = json.getAsJsonObject(ACTION_INVOCATION_KEY);
+        if (endpoint.getType().equals(SUCCESS)) {
+            JsonObject actionInvocations = endpoint.getActionInvocations();
             JsonObject expectedActionInvocations = expected.getAsJsonObject(ACTION_INVOCATION_KEY);
 
             assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
-            validateEndpoints(json, expected);
+            validateEndpoints(endpoint.getEndpoints(), expected);
         }
     }
 
-    private void validateEndpoints(JsonObject json, JsonObject expected) {
+    private void validateEndpoints(JsonObject endpoints, JsonObject expected) {
 
-        JsonObject endpoints = json.getAsJsonObject(ENDPOINTS_KEY);
         JsonObject expectedEndpoints = expected.getAsJsonObject(ENDPOINTS_KEY);
 
         Assert.assertEquals(endpoints.size(), expectedEndpoints.size());
