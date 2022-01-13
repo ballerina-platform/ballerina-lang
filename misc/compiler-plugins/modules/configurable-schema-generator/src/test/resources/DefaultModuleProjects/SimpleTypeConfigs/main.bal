@@ -1,6 +1,6 @@
 @display {
     label: "fixedDiscount",
-    description: "Fixed dicount value in LKR"
+    description: "Fixed discount value in LKR"
 }
 configurable int fixedDiscount = -200;
 @display {
