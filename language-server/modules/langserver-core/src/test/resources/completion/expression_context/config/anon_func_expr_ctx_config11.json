@@ -622,6 +622,14 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x",
+      "kind": "Variable",
+      "detail": "FT",
+      "sortText": "F",
+      "insertText": "x",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

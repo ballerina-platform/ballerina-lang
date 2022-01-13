@@ -33,6 +33,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -54,6 +55,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Tests for the checking the types of expressions.
@@ -89,7 +91,7 @@ public class ExpressionTypeTest {
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 15, 19, 42);
+        TypeSymbol type = getExprType(19, 15, 19, 44);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
@@ -254,7 +256,8 @@ public class ExpressionTypeTest {
         return new Object[][]{
                 {72, 12, 72, 15, INT},
                 {73, 12, 73, 23, INT},
-                {73, 17, 73, 23, INT},
+                {73, 12, 73, 19, INT},
+                {73, 17, 73, 23, null},
                 {74, 12, 74, 23, INT},
                 {75, 16, 75, 22, BOOLEAN},
                 {76, 17, 76, 22, STRING},
@@ -296,7 +299,7 @@ public class ExpressionTypeTest {
 
     @Test
     public void testInferredRecordTypeForInvalidExprs() {
-        assertType(97, 5, 97, 20, RECORD);
+        assertType(97, 4, 97, 20, RECORD);
     }
 
     @Test
@@ -316,11 +319,12 @@ public class ExpressionTypeTest {
         return new Object[][]{
                 {109, 4, 109, 10, UNION},
                 {109, 4, 109, 9, UNION},
-                {112, 15, 112, 27, STRING},
+                {112, 15, 112, 27, null},
                 {112, 15, 112, 26, STRING},
                 {127, 4, 127, 35, STRING},
                 {127, 4, 127, 34, STRING},
-                {129, 12, 129, 37, INT},
+                {129, 12, 129, 36, INT},
+                {129, 12, 129, 37, null},
                 {130, 4, 130, 36, BOOLEAN}
         };
     }
@@ -367,8 +371,15 @@ public class ExpressionTypeTest {
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
-        assertEquals(type.typeKind(), kind);
+        Optional<TypeSymbol> type = model.type(
+                LineRange.from("expressions_test.bal", LinePosition.from(sLine, sCol), LinePosition.from(eLine, eCol)));
+
+        if (kind == null) {
+            assertTrue(type.isEmpty());
+            return;
+        }
+
+        assertEquals(type.get().typeKind(), kind);
     }
 
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {

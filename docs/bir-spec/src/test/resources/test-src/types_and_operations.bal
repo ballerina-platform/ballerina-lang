@@ -367,7 +367,7 @@ public function functionWithStreams() {
     }
 
 
-    error? e = studentStream2.forEach(function (Student student) {
+    error? e = studentStream2.forEach(function (Student student1) {
         // do nothing
     });
 

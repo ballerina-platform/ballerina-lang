@@ -97,7 +97,6 @@ ballerina-ldap-1.1.0.jar                                                        
 ballerina-logging-1.1.0.jar                                                                         jar            apache2
 lang.future.jar                                                                                     jar            apache2
 object-1.1.0.jar                                                                                    jar            apache2
-protobuf-java-3.9.1.jar                                                                             bundle         apache2
 module_search.jar                                                                                   jar            apache2
 broker-core-0.970.5.jar                                                                             bundle         apache2
 ballerina-grpc-1.1.0.jar                                                                            jar            apache2
@@ -215,7 +214,6 @@ HikariCP-3.3.1.jar                                                              
 runtime.jar                                                                                         jar            apache2
 org.wso2.transport.local-file-system-6.0.55.jar                                                     bundle         apache2
 ballerina-websub-1.1.0.jar                                                                          jar            apache2
-protobuf-ballerina-1.1.0.jar                                                                        jar            apache2
 lang.value.jar                                                                                      jar            apache2
 ballerina-cli-utils-1.1.0.jar                                                                       jar            apache2
 lang.annotations.jar                                                                                jar            apache2

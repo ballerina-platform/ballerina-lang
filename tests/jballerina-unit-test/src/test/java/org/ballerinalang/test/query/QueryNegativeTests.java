@@ -52,7 +52,7 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'float', found 'int'", 153, 13);
         validateError(compileResult, index++, "undefined function 'calculateScore'", 168, 22);
         validateError(compileResult, index++, "invalid record binding pattern; unknown field " +
-                "'fname' in record type 'Student'", 205, 12);
+                "'fname' in record type 'Student'", 205, 8);
         validateError(compileResult, index++, "undefined symbol 'fname'", 207, 15);
         validateError(compileResult, index++, "incompatible types: expected 'Student', found " +
                 "'(string|float)'", 222, 10);
@@ -78,9 +78,9 @@ public class QueryNegativeTests {
                 416, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', " +
                         "found 'stream<record {| int a; |},error?>'", 421, 12);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 18);
         validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 18);
         validateError(compileResult, index++, "undefined symbol 'k'", 433, 25);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
                         "table constraint type 'record {| User user; |}'", 451, 28);

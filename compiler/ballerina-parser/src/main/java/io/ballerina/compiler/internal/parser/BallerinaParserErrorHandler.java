@@ -323,8 +323,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PARAM_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
-            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.SEMICOLON, 
+            ParserRuleContext.ASSIGN_OP, ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
 
     private static final ParserRuleContext[] EXPR_STMT_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP,
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR };

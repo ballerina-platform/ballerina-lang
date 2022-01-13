@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -28,15 +29,17 @@ import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 
 import java.util.Optional;
 
 /**
  * Node Transformer to find the container expression node for a given node.
  *
- * <strong>Note</strong>: Rather than doing {@code node.apply(expressionResolver)}, 
+ * <strong>Note</strong>: Rather than doing {@code node.apply(expressionResolver)},
  * please use {@link #findExpression(Node)} since the {@code node.apply()} method may return {@code null}.
  *
  * @since 2.0.0
@@ -64,7 +67,7 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
         // Due to the way apply() method is implemented in some cases, this can return null
         return exprNode == null ? Optional.empty() : exprNode;
     }
-    
+
     @Override
     protected Optional<ExpressionNode> transformSyntaxNode(Node node) {
         if (node.parent() == null) {
@@ -135,5 +138,27 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
             return Optional.of((ExpressionNode) expressionNode.get());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<ExpressionNode> transform(ReturnStatementNode returnStatementNode) {
+        return returnStatementNode.expression();
+    }
+
+    @Override
+    public Optional<ExpressionNode> transform(IndexedExpressionNode node) {
+        if (CommonUtil.isWithinLineRange(matchedNode.lineRange(), node.containerExpression().lineRange())) {
+            return Optional.of(node.containerExpression());
+        }
+        
+        if (!node.keyExpression().isEmpty()) {
+            for (ExpressionNode expressionNode : node.keyExpression()) {
+                if (CommonUtil.isWithinLineRange(matchedNode.lineRange(), expressionNode.lineRange())) {
+                    return Optional.of(expressionNode);
+                }
+            }
+        }
+        
+        return Optional.of(node);
     }
 }

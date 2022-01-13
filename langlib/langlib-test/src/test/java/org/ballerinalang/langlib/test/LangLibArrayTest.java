@@ -510,7 +510,8 @@ public class LangLibArrayTest {
                 "testReverseMap",
                 "testReverseRecord",
                 "testArrayReverseEquality",
-                "testPushAfterSliceOnTuple"
+                "testPushAfterSliceOnTuple",
+                "testUnshiftLargeValues"
         };
     }
 }

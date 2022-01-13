@@ -147,7 +147,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
                             symbolFactory.createResourceMethodSymbol(method.symbol));
             } else {
                 methods.put(method.funcName.value,
-                            symbolFactory.createMethodSymbol(method.symbol, method.funcName.value));
+                            symbolFactory.createMethodSymbol(method.symbol, method.symbol.getOriginalName().value));
             }
         }
 

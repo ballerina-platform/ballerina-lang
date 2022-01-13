@@ -276,9 +276,9 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 796, 33);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 799, 13);
         validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 808, 20);
-        validateWarning(result, i++, "unused variable 'item2'", 817, 29);
+        validateWarning(result, i++, "unused variable 'item2'", 817, 34);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 817, 74);
-        validateWarning(result, i++, "unused variable 'item2'", 822, 29);
+        validateWarning(result, i++, "unused variable 'item2'", 822, 34);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 822, 62);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 822, 71);
         Assert.assertEquals(result.getErrorCount(), i - 19);

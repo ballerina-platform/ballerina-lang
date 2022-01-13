@@ -1049,7 +1049,7 @@ function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean 
 }
 
 type Detail record {
-    string message?;
+    string message;
     error cause?;
     int? code;
     float f?;

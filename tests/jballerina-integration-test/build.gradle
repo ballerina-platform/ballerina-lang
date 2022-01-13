@@ -52,22 +52,15 @@ dependencies {
 //    implementation project(':ballerina-transactions')
     implementation project(':ballerina-cli')
 //    implementation project(':ballerina-transactions')
-    implementation project(':ballerina-observability')
-    implementation project(':ballerina-observability-internal')
     implementation project(':ballerina-lang:jballerina.java')
-    implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.slf4j:slf4j-api'
-    implementation 'com.google.protobuf:protobuf-java'
 
     balRuntime project(':ballerina-runtime')
 
 //    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
 //    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
-    testRuntime project(path: ':ballerina-observability', configuration: 'distributionBirJar')
-    testRuntime project(path: ':ballerina-observability-internal', configuration: 'distributionBirJar')
     testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
-    testRuntime project(path: ':observability-test-utils', configuration: 'distributionBirJar')
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.netty:netty-transport'
@@ -77,15 +70,12 @@ dependencies {
     testCompile 'org.yaml:snakeyaml'
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.hsqldb:hsqldb'
-    testCompile 'com.h2database:h2'
     testCompile 'io.ballerina.messaging:broker-amqp'
     testCompile 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    observeTestUtilsBala project(path: ':observability-test-utils', configuration: 'distributionBala')
-    observeTestUtilsJar project(path: ':observability-test-utils', configuration: 'shadow')
 
     launchListenerTestUtils project(':test-launch-listener-01')
     launchListenerTestUtils project(':test-launch-listener-02')

@@ -52,7 +52,8 @@ public class VisibleSymbolsInStatementsTest extends BaseVisibleSymbolsTest {
                         from("test2", FUNCTION),
                         from("HELLO", CONSTANT),
                         from("testLetExp1", FUNCTION),
-                        from("testLetExp2", FUNCTION)
+                        from("testLetExp2", FUNCTION),
+                        from("testVarFollowingIf", FUNCTION)
                 );
         return new Object[][]{
                 {2, 13, expModuleSymbols},
@@ -104,6 +105,12 @@ public class VisibleSymbolsInStatementsTest extends BaseVisibleSymbolsTest {
                         from("y", PARAMETER),
                         from("x3", VARIABLE),
                         from("x4", VARIABLE)
+                )},
+                {68, 4, concat(expModuleSymbols,
+                        from("a", VARIABLE),
+                        from("b", VARIABLE),
+                        from("c", VARIABLE),
+                        from("d", VARIABLE)
                 )},
         };
     }

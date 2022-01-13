@@ -260,7 +260,8 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 
@@ -291,6 +292,8 @@ public class NewCommandTest extends BaseCommandTest {
                 "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
 

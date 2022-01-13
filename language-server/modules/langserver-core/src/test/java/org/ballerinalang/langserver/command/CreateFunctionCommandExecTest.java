@@ -99,10 +99,13 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_with_strands3.json", "create_function_with_strands1.bal"},
                 {"create_function_with_strands4.json", "create_function_with_strands1.bal"},
 
+                // Create function in condition expressions like in if, while
                 {"create_function_in_if_statement1.json", "create_function_in_if_statement1.bal"},
                 {"create_function_in_if_statement2.json", "create_function_in_if_statement2.bal"},
                 {"create_function_in_if_statement3.json", "create_function_in_if_statement3.bal"},
                 {"create_function_in_if_statement4.json", "create_function_in_if_statement4.bal"},
+                {"create_function_in_if_statement5.json", "create_function_in_if_statement5.bal"},
+                {"create_function_in_while_statement1.json", "create_function_in_while_statement1.bal"},
 
                 {"create_function_in_expression1.json", "create_function_in_expression1.bal"},
                 {"create_function_in_function_call_expr1.json", "create_function_in_function_call_expr1.bal"},
@@ -119,7 +122,14 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 // Error constructor
                 {"create_function_in_error_constructor1.json", "create_function_in_error_constructor1.bal"},
                 {"create_function_in_error_constructor2.json", "create_function_in_error_constructor2.bal"},
-                {"create_function_in_error_constructor3.json", "create_function_in_error_constructor3.bal"}
+                {"create_function_in_error_constructor3.json", "create_function_in_error_constructor3.bal"},
+                
+                // Variable Declaration
+                {"create_function_in_var_decl1.json", "create_function_in_var_decl1.bal"},
+                {"create_function_in_var_decl2.json", "create_function_in_var_decl2.bal"},
+                {"create_function_in_var_decl3.json", "create_function_in_var_decl3.bal"},
+                // TODO Blocked by #34448
+                // {"create_function_in_var_decl14.json", "create_function_in_var_decl4.bal"}
         };
     }
 

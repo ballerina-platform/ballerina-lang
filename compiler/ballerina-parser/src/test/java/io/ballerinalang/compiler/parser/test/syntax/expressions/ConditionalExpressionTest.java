@@ -55,6 +55,14 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testLetExprInConditionalExpr() {
+        test("true ? let int z = 0 in z : let int y = 1 in y", "conditional-expr/conditional_expr_assert_31.json");
+        test("true ? let int z = 0 in z:let int y = 1 in y", "conditional-expr/conditional_expr_assert_32.json");
+        test("true ? let int z = 0 in z:r : let int y = 1 in y", "conditional-expr/conditional_expr_assert_33.json");
+        test("true ? let int z = 0 in z:r:let int y = 1 in y", "conditional-expr/conditional_expr_assert_34.json");
+    }
+
+    @Test
     public void testConditionalExprAmbiguity() {
         testFile("conditional-expr/conditional_expr_source_26.bal", "conditional-expr/conditional_expr_assert_26.json");
         test("a ? b:c.d;", "conditional-expr/conditional_expr_assert_29.json");

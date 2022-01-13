@@ -85,7 +85,7 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("i"), 234, 20);
         validateWarning(result, i++, getUnusedVariableWarning("j"), 241, 21);
         validateWarning(result, i++, getUnusedVariableWarning("customer"), 251, 26);
-        validateWarning(result, i++, getUnusedVariableWarning("person"), 252, 25);
+        validateWarning(result, i++, getUnusedVariableWarning("person"), 252, 30);
         validateWarning(result, i++, getUnusedVariableWarning("customer"), 258, 26);
         validateWarning(result, i++, getUnusedVariableWarning("a"), 277, 9);
         validateWarning(result, i++, getUnusedVariableWarning("b"), 277, 9);

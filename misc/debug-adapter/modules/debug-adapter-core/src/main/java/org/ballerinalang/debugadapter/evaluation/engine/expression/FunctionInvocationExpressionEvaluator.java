@@ -17,7 +17,6 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -25,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.identifier.Utils;
-import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -37,7 +35,6 @@ import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -47,11 +44,9 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
-import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.constructQualifiedClassName;
 
 /**
  * Evaluator implementation for function invocation expressions.
@@ -78,7 +73,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     public BExpressionValue evaluate() throws EvaluationException {
         try {
             FunctionSymbol functionDef = resolveFunctionDefinitionSymbol();
-            String className = constructQualifiedClassNameFrom(functionDef);
+            String className = constructQualifiedClassName(context, functionDef);
             GeneratedStaticMethod jvmMethod = EvaluationUtils.getGeneratedMethod(context, className, functionName);
             FunctionTypeSymbol functionTypeDesc = functionDef.typeDescriptor();
             Map<String, Value> argValueMap = generateNamedArgs(context, functionName, functionTypeDesc, argEvaluators);
@@ -132,24 +127,6 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         }
 
         return functionMatches.get(0);
-    }
-
-    private String constructQualifiedClassNameFrom(FunctionSymbol functionDef) {
-        String className = functionDef.getLocation().get().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
-        // for ballerina single source files,
-        // qualified class name ::= <file_name>
-        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
-            return className;
-        }
-        // for ballerina package source files,
-        // qualified class name ::= <package_name>.<module_name>.<package_major_version>.<file_name>
-        ModuleID moduleMeta = functionDef.getModule().get().id();
-        return new StringJoiner(".")
-                .add(encodeModuleName(moduleMeta.orgName()))
-                .add(encodeModuleName(moduleMeta.moduleName()))
-                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
-                .add(className)
-                .toString();
     }
 
     /**

@@ -16,7 +16,7 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-    <!-- These bugs are from auto generated code of protobuff plugin-->
+    <!-- These bugs are from auto generated code of protobuf plugin-->
     <Match>
         <Package name="org.ballerinalang.test.util.grpc"/>
     </Match>

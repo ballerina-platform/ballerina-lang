@@ -1033,3 +1033,13 @@ function testUnreachableStmt(any a) {
         }
     }
 }
+
+function testUnreachableStatementInQueryAction() {
+    error? n = from int i in 0 ... 2
+    do {
+        return;
+        int _ = 1; // unreachable
+    };
+
+    _ = n is error; // reachable
+}
