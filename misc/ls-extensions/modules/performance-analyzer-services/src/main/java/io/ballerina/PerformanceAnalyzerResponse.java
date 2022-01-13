@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lsp4j.Range;
 
 /**
- * Response format for performance analyzer graph request.
+ * Response format for performance analyzer request.
  *
  * @since 2.0.0
  */
