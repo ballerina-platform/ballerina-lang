@@ -292,14 +292,16 @@ public class TesterinaUtils {
         String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
 
-        // clean file name from pkgName since we print the file name after the method name.
-        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
-        fileName = fileName.replace("/", "-");
-        int index = pkgName.lastIndexOf("." + fileName);
-        if (index != -1) {
-            pkgName = pkgName.substring(0, index);
+        if (fileName != null) {
+            // clean file name from pkgName since we print the file name after the method name.
+            fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
+            fileName = fileName.replace("/", "-");
+            int index = pkgName.lastIndexOf("." + fileName);
+            if (index != -1) {
+                pkgName = pkgName.substring(0, index);
+            }
+            // todo we need to seperate orgname and module name with '/'
         }
-        // todo we need to seperate orgname and module name with '/'
 
         sb.append(tab);
         if (!pkgName.equals(MODULE_INIT_CLASS_NAME)) {
@@ -309,7 +311,7 @@ public class TesterinaUtils {
         // Append the method name
         sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
         // Append the filename
-        sb.append("(").append(stackTraceElement.getFileName());
+        sb.append("(").append(fileName == null ? "unknown-source" : fileName);
         // Append the line number
         sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
