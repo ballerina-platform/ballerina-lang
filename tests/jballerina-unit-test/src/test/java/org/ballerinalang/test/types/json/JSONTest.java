@@ -118,11 +118,6 @@ public class JSONTest {
         Assert.assertNull(returns[0]);
     }
 
-    @Test(description = "Get JSON with null values")
-    public void testJSONWithNullValues() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONWithNullValues");
-    }
-
     @Test(description = "Get JSON object from a string")
     public void testParseObject() {
         BValue[] args = {new BString("{\"name\":\"supun\"}")};

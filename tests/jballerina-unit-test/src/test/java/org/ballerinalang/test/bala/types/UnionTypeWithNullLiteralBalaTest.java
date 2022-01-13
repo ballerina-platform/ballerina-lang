@@ -18,6 +18,7 @@
 package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -25,33 +26,33 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+
 /**
- * Test cases for import user defined type.
+ * Test cases for importing a user-defined union type containing the null literal.
  * @since 2.0.0
  */
-public class UnionTypeWithNullLiteralTest {
-
-    private CompileResult result;
-    private CompileResult negativeCompileResult;
+public class UnionTypeWithNullLiteralBalaTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test-union-type-with-null-literal/type-export");
-
-        this.result = BCompileUtil.compile("test-src/bala/test_projects/test-union-type-with-null-literal/main.bal");
-        this.negativeCompileResult = BCompileUtil.compile(
-                "test-src/bala/test_projects/test-union-type-with-null-literal/negative_assignment.bal");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test-union-type-with-null-literal");
     }
 
     @Test
     public void unionTypeWithNullLiteralValueAssignment() {
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/types/union_type_with_null_literal_test.bal");
+        BRunUtil.invoke(result, "testPositiveAssignment");
     }
 
     @Test
-    public void unionTypeWithNullLiteralValueAssignmentNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 1,
-                Arrays.asList(result.getDiagnostics()).toString());
+    public void testUnionTypeWithNullLiteralNegative() {
+        CompileResult negativeCompileResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/types/union_type_with_null_literal_test_negative.bal");
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 1);
+        validateError(negativeCompileResult, 0,
+                "incompatible types: expected 'string', found 'testorg/testType:0.1.0:TestType'",
+                20, 16);
     }
 
 }
