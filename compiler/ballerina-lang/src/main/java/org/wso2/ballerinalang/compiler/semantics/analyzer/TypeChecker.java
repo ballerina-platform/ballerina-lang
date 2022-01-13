@@ -1691,29 +1691,24 @@ public class TypeChecker extends BLangNodeVisitor {
         return errored ? symTable.semanticError : arrayType;
     }
 
-    public boolean doesConstainInferredArray(BType type) {
+    public boolean doesContainInferredArray(BType type) {
         switch (type.tag) {
             case TypeTags.UNION:
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    boolean pos = doesConstainInferredArray(memberType);
-                    if (pos) {
+                    if (doesContainInferredArray(memberType)) {
                         return true;
                     }
                 }
                 return false;
             case TypeTags.INTERSECTION:
                 for (BType memberType : ((BIntersectionType) type).getConstituentTypes()) {
-                    boolean pos = doesConstainInferredArray(memberType);
-                    if (pos) {
+                    if (doesContainInferredArray(memberType)) {
                         return true;
                     }
                 }
                 return false;
             case TypeTags.ARRAY:
-                if (isArrayOpenSealedType((BArrayType) type)) {
-                    return true;
-                }
-                return false;
+                return isArrayOpenSealedType((BArrayType) type);
             default:
                 return false;
         }
