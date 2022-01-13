@@ -29,6 +29,5 @@ public class Constants {
     static final String TYPE = "type";
     static final String MESSAGE = "message";
     static final String NO_DATA = "NO_DATA";
-    static final String RESOURCE_POS = "resourcePos";
 
 }
