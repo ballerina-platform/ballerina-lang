@@ -39,7 +39,10 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     public BLangType elemtype;
     public List<BLangExpression> sizes = new ArrayList<>();
 
-    public boolean isValidInferredArray = false;
+    public int inferredArrayValidateState = 0;  // (-1) - Invalid usage (not in correct context)
+                                                // 0 - Not a INFERRED Array
+                                                // 1 - Need to validate the initializer (In correct context)
+                                                // 2 - Valid usage
 
     // Parser Flags and Data
     public int dimensions;

@@ -3548,37 +3548,29 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             if (member.getKind() == NodeKind.LITERAL &&
                     ((BLangLiteral) member).value.equals(INFERRED_ARRAY_INDICATOR)) {
                 if (setIsInferableFlag(arrayTypeDescriptorNode)) {
-                    arrayTypeNode.isValidInferredArray = true;
-                    break;
+                    arrayTypeNode.inferredArrayValidateState = 1;
+                } else {
+                    arrayTypeNode.inferredArrayValidateState = -1;
                 }
+                break;
             }
         }
         return arrayTypeNode;
     }
 
-    private boolean setIsInferableFlag(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        Node parentNode = arrayTypeDescriptorNode.parent().parent();
+    private boolean setIsInferableFlag(Node node) {
+        if (!(node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) && node.parent() != null) {
+            return setIsInferableFlag(node.parent());
+        }
+        if (node.parent() == null) {
+            return false;
+        }
+        Node parentNode = node.parent();
         switch (parentNode.kind()) {
             case MODULE_VAR_DECL:
-                ModuleVariableDeclarationNode moduleVarDecl = (ModuleVariableDeclarationNode) parentNode;
-                if (moduleVarDecl.initializer().isPresent() &&
-                        moduleVarDecl.initializer().get().kind() == SyntaxKind.LIST_CONSTRUCTOR) {
-                    return true;
-                }
-                return false;
             case LOCAL_VAR_DECL:
-                VariableDeclarationNode localVarDecl = (VariableDeclarationNode) parentNode;
-                if (localVarDecl.initializer().isPresent() &&
-                        localVarDecl.initializer().get().kind() == SyntaxKind.LIST_CONSTRUCTOR) {
-                    return true;
-                }
-                return false;
             case CONST_DECLARATION:
-                ConstantDeclarationNode constantDecl = (ConstantDeclarationNode) parentNode;
-                if (constantDecl.initializer().kind() == SyntaxKind.LIST_CONSTRUCTOR) {
-                    return true;
-                }
-                return false;
+                return true;
             default:
                 return false;
         }

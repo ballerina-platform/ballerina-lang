@@ -1691,11 +1691,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return errored ? symTable.semanticError : arrayType;
     }
 
-    public boolean getLocationOfInferredArray(BType type) {
+    public boolean doesConstainInferredArray(BType type) {
         switch (type.tag) {
             case TypeTags.UNION:
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    boolean pos = getLocationOfInferredArray(memberType);
+                    boolean pos = doesConstainInferredArray(memberType);
                     if (pos) {
                         return true;
                     }
@@ -1703,7 +1703,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return false;
             case TypeTags.INTERSECTION:
                 for (BType memberType : ((BIntersectionType) type).getConstituentTypes()) {
-                    boolean pos = getLocationOfInferredArray(memberType);
+                    boolean pos = doesConstainInferredArray(memberType);
                     if (pos) {
                         return true;
                     }
