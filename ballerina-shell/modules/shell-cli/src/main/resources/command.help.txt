@@ -1,7 +1,7 @@
 Ballerina Shell Help
 
 Type a Ballerina language expression, statement, or declaration.
-Or type one of the following commands:
+Or, type one of the following commands:
 
 /exit           - Exit the shell.
 /debug          - Toggle the debug mode ON/OFF.
