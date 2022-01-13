@@ -46,7 +46,6 @@ import static io.ballerina.projects.util.ProjectConstants.CONFIGURATION_TOML;
 public class ConfigSchemaGenTaskTest {
 
     private static final Path RESOURCES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
-    private static final String BALLERINA_HOME_KEY = "ballerina.home";
 
     @Test(dataProvider = "project-data-provider")
     public void testAgainstToml(String projectType, String projectName, boolean isSingleFileProject) {
@@ -92,7 +91,8 @@ public class ConfigSchemaGenTaskTest {
 
     @DataProvider(name = "project-data-provider-for-schema-validation")
     public Object[][] dpMethod2() {
-        return new Object[][]{{"DefaultModuleProjects", "ComplexTypeConfigs2", false}};
+        return new Object[][]{{"DefaultModuleProjects", "ComplexTypeConfigs2", false},
+                {"DefaultModuleProjects", "ComplexTypeConfigs3", false}};
     }
 
     static Project loadBuildProject(Path projectPath, boolean isSingleFileProject) {
