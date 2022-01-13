@@ -215,7 +215,7 @@ public class ModuleStopMethodGen {
         mv.visitVarInsn(ALOAD, futureIndex);
 
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
-        mv.visitIntInsn(BIPUSH, 100);
+        mv.visitIntInsn(BIPUSH, 256);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, PUT_FRAMES);
         int schedulerIndex = indexMap.get(SCHEDULER_VAR);
