@@ -74,6 +74,21 @@ function invalidSealedLiteralUsage() {
     json[2] j1 = ["abc", 1];
     json[2][*] j2 = [j1, j1];
     float[2][*] f1;
+
+    int[*][*] a1 = [[1, 2], [3, 4]];
+    int[][2][*] a2 = [[[5, 6], [7, 8]], a1];
+    int[*][2][*] a3 = [a1, [[5, 6], [7, 8]]];
+    int[][2][][*] a4 = [[[[5, 5], [6, 6]], [[7, 7], [8, 9]]], [a1, a1]];
+
+    int[][*]|string a5 = "a1";
+    int[][*][]|string a6 = [a1];
+
+    string[*][*] & readonly a7 = [["1", "2"], ["3", "4"]];
+    string[][*] & readonly a8 = a7;
+
+    float[*] & readonly a9 = [3, 4];
+    float[][*] & readonly|string a10 = [[1, 2], a9];
+    (float[][*]|string) & readonly a11 = [[1, 2], a9];
 }
 
 function invalidSealedLiteralIndexAccess() {
