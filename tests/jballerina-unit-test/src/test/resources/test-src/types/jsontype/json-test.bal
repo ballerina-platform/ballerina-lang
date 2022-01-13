@@ -30,9 +30,9 @@ function testJSONArrayToJsonAssignment() returns (json) {
     return j2;
 }
 
-function testJSONWithNullValues() returns string {
-    json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state": null, "age":()};
-    return j.toJsonString();
+function testJSONWithNullValues() {
+    json j = {"name": {"fname": "Jack", "lname": "Taylor"}, "state": null, "age": ()};
+    assertEquality(j.toJsonString(), "{\"name\":{\"fname\":\"Jack\", \"lname\":\"Taylor\"}, \"state\":null, \"age\":null}");
 }
 
 public function testCloseRecordToMapJsonAssigment() returns [map<json>, map<json>] {
@@ -50,6 +50,13 @@ public function testAssignabilityToUnion() returns (MyJson | xml) {
     json|xml b = a;
     MyJson|xml c = b;
     return c;
+}
+
+function assertEquality(any actual, any expected) {
+    if actual is anydata && expected is anydata && actual == expected {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
 
 // all member types including rest type is json compatible
