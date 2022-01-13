@@ -38,4 +38,29 @@ public class ErrorDestructureNegetiveTest {
                 "incompatible types: expected 'error?', found 'error'", 20, 21);
         Assert.assertEquals(1, destructuringResult.getErrorCount());
     }
+
+    @Test(description = "Negative test for error destruturing with error field binding patterns")
+    public void testErrorDetailBindingNegative() {
+        CompileResult resultNegative =
+                BCompileUtil.compile("test-src/error/error_destructure_field_binding_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 31, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 31, 56);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 32, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 32, 65);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 45, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 45, 48);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 46, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 46, 57);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
 }

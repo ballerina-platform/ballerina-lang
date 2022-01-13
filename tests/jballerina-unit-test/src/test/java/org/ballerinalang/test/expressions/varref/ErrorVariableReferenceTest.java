@@ -313,45 +313,29 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid field binding pattern; can only bind required fields", 29, 69);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid field binding pattern; can only bind required fields", 40, 20);
+                "cannot bind undefined error detail field 'msg'", 33, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid field binding pattern; can only bind required fields", 40, 56);
+                "cannot bind undefined error detail field 'extra'", 33, 57);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid field binding pattern; can only bind required fields", 41, 29);
+                "cannot bind undefined error detail field 'msg'", 34, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid field binding pattern; can only bind required fields", 41, 65);
+                "cannot bind undefined error detail field 'extra'", 34, 66);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 45, 29);
+                "cannot bind undefined error detail field 'msg'", 36, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 45, 57);
+                "cannot bind undefined error detail field 'extra'", 36, 54);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 46, 38);
+                "cannot bind undefined error detail field 'msg'", 37, 35);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 46, 66);
+                "cannot bind undefined error detail field 'extra'", 37, 63);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 48, 26);
+                "cannot bind undefined error detail field 'msg'", 39, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 48, 54);
+                "cannot bind undefined error detail field 'extra'", 39, 52);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 49, 35);
+                "cannot bind undefined error detail field 'msg'", 40, 33);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 49, 63);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 51, 24);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 51, 52);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 52, 33);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 52, 61);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 63, 20);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 63, 48);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'msg'", 64, 29);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot bind undefined error detail field 'extra'", 64, 57);
+                "cannot bind undefined error detail field 'extra'", 40, 61);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }

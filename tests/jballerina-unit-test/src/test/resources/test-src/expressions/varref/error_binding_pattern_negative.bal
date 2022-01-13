@@ -27,18 +27,6 @@ function testNonRequiredFieldBindingNegative() {
 
     var error(reason5, message = message5, cause = cause5, fatal = fatal5) = err;
     var error FooError(reason6, message = message6, cause = cause6, fatal = fatal6) = err;
-
-    string? reason7;
-    string? reason8;
-    string? message7;
-    string? message8;
-    string? cause7;
-    string? cause8;
-    boolean? fatal7;
-    boolean? fatal8;
-
-    error(reason7, message = message7, cause = cause7, fatal = fatal7) = err;
-    error FooError(reason8, message = message8, cause = cause8, fatal = fatal8) = err;
 }
 
 function testUndefinedErrorDetailsNegative() {
@@ -50,16 +38,4 @@ function testUndefinedErrorDetailsNegative() {
 
     var error(reason5, msg = msg5, cause = cause5, extra = extra5) = err;
     var error FooError(reason6, msg = msg6, cause = cause6, extra = extra6) = err;
-
-    string? reason7;
-    string? reason8;
-    string? msg7;
-    string? msg8;
-    string? cause7;
-    string? cause8;
-    any? extra7;
-    any? extra8;
-
-    error(reason7, msg = msg7, cause = cause7, extra = extra7) = err;
-    error FooError(reason8, msg = msg8, cause = cause8, extra = extra8) = err;
 }
