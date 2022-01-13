@@ -21,7 +21,7 @@ package io.ballerina;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 /**
- * Request format for performance analyzer graph request.
+ * Request format for performance analyzer request.
  *
  * @since 2.0.0
  */
