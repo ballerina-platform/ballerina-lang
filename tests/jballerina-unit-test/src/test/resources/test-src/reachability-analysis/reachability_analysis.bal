@@ -835,6 +835,106 @@ function testTypeNarrowingWithDifferentWhileCompletionStatus() {
     assertEqual(res, ());
 }
 
+function testTypeNarrowingFunc1() returns int? {
+    int? i = 10;
+    if i == () {
+        return;
+    }
+
+    int j = i;
+    int m = 5;
+
+    int|string? k = 10;
+    if k is int? {
+        if k == () {
+            return;
+        }
+        m = i + k + j;
+    }
+
+    return m;
+}
+
+function testTypeNarrowingFunc2(int y, int|error x) {
+    if (x is error) {
+        var detailMessage = x.detail()["message"];
+        if (detailMessage is string) {
+            if y == 0 && detailMessage != "foo" {
+                panic error("Expected: foo, found: " + detailMessage);
+            }
+            if y != 0 && detailMessage != "int value" {
+                panic error("Expected: int value, found: " + detailMessage);
+            }
+            panic error("Expected: string value, found: " + detailMessage);
+        }
+        return;
+    }
+    panic error("Expected an error found: " + (typeof x).toString());
+}
+
+function testTypeNarrowingFunc3(int y, int|error x) {
+    if (x is error) {
+        var detailMessage = x.detail()["message"];
+        if (detailMessage is string) {
+            if y == 0 && detailMessage !is "foo" {
+                panic error("Expected: foo, found: " + detailMessage);
+            }
+            if y != 0 && detailMessage !is "int value" {
+                panic error("Expected: int value, found: " + detailMessage);
+            }
+            panic error("Found: " + detailMessage);
+        }
+        return;
+    }
+    panic error("Expected an error found: " + (typeof x).toString());
+}
+
+function testTypeNarrowingFunc4(int y, int|error x) {
+    if (x is error) {
+        var detailMessage = x.detail()["message"];
+        if (detailMessage !is string) {
+            return;
+        }
+        if y == 0 || detailMessage != "foo" {
+            panic error("Expected: foo, found: " + detailMessage);
+        }
+    }
+}
+
+function testTypeNarrowingFunc5(int y) returns int? {
+    int|string? a = 10;
+    if a is string? {
+        return;
+    }
+    if a is int {
+        if y == 10 || a == 10 {
+            return a;
+        }
+        return a + 10;
+    }
+}
+
+function testTypeNarrowingWithEqualityInCondition() {
+    assertEqual(testTypeNarrowingFunc1(), 30);
+
+    error? result = trap testTypeNarrowingFunc2(1, error("ABC", message="ABC"));
+    assertEqual(true, result is error);
+    error err = <error>result;
+    assertEqual(err.message(), "Expected: int value, found: ABC");
+
+    result = trap testTypeNarrowingFunc3(1, error("ABC", message="int value"));
+    assertEqual(true, result is error);
+    err = <error>result;
+    assertEqual(err.message(), "Found: int value");
+
+    result = trap testTypeNarrowingFunc4(0, error("ABC", message="int value"));
+    assertEqual(true, result is error);
+    err = <error>result;
+    assertEqual(err.message(), "Expected: foo, found: int value");
+
+    assertEqual(testTypeNarrowingFunc5(30), 10);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
