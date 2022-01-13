@@ -1541,8 +1541,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             NodeList<StatementNode> workerInitStmts = namedWorkerDeclarator.workerInitStatements();
             generateAndAddBLangStatements(workerInitStmts, statements, 0, functionBodyBlockNode);
 
-            int workerInitStmtSize = workerInitStmts.size();
-            stmtList = getStatementList(workerInitStmtSize, statements, workerInitStmts);
+            stmtList = getStatementList(statements, workerInitStmts);
 
             for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
                 stmtList.add((BLangStatement) workerDeclarationNode.apply(this));
@@ -1561,9 +1560,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return bLFuncBody;
     }
 
-    private List<BLangStatement> getStatementList(int workerInitStmtSize, List<BLangStatement> statements,
+    private List<BLangStatement> getStatementList(List<BLangStatement> statements,
                                                   NodeList<StatementNode> workerInitStmts) {
         int stmtSize = statements.size();
+        int workerInitStmtSize = workerInitStmts.size();
         // If there's a worker defined after an `if` statement without an `else`, need to add it to the
         // newly created block statement.
         if (stmtSize > 1 && workerInitStmtSize > 0 && statements.get(stmtSize - 1).getKind() == NodeKind.BLOCK &&
