@@ -48,77 +48,61 @@ public class ErrorVariableDefinitionTest {
     @Test(description = "Test simple error var def with string and map")
     public void testBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(returns[0].stringValue(), "Error One");
         Assert.assertEquals(returns[1].stringValue(), "Error One");
         Assert.assertEquals(returns[2].stringValue(), "Error Two");
         Assert.assertEquals(returns[3].stringValue(), "Error Two");
         Assert.assertEquals(returns[4].toString(), "{\"detail\":\"Detail Msg\"}");
         Assert.assertEquals(returns[5].stringValue(), "Msg One");
-        Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Two");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Two");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
+        Assert.assertEquals(((BMap) returns[6]).get("message").stringValue(), "Msg Two");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[6]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[7].stringValue(), "Msg Two");
     }
 
     @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(returns[0].stringValue(), "Some Error One");
         Assert.assertEquals(returns[1].stringValue(), "Some Error One");
         Assert.assertEquals(returns[2].stringValue(), "Some Error Two");
         Assert.assertEquals(returns[3].stringValue(), "Some Error Two");
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg Three");
         Assert.assertEquals(returns[5].stringValue(), "Msg Three");
-        Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Four");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Four");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
+        Assert.assertEquals(((BMap) returns[6]).get("message").stringValue(), "Msg Four");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[6]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[7].stringValue(), "Msg Four");
     }
 
     @Test(description = "Test simple error var def with string and map declared with var")
     public void testVarBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithMapDetails");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(returns[0].stringValue(), "Error One");
         Assert.assertEquals(returns[1].stringValue(), "Error One");
         Assert.assertEquals(returns[2].stringValue(), "Error Two");
         Assert.assertEquals(returns[3].stringValue(), "Error Two");
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg One");
         Assert.assertEquals(returns[5].stringValue(), "Msg One");
-        Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Two");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Two");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
+        Assert.assertEquals(((BMap) returns[6]).get("message").stringValue(), "Msg Two");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[6]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[7].stringValue(), "Msg Two");
     }
 
     @Test(description = "Test simple error var def with const and map declared with var")
     public void testVarBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testVarBasicErrorVariableWithConstAndMap");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(returns[0].stringValue(), "Some Error One");
         Assert.assertEquals(returns[1].stringValue(), "Some Error One");
         Assert.assertEquals(returns[2].stringValue(), "Some Error Two");
         Assert.assertEquals(returns[3].stringValue(), "Some Error Two");
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg Three");
         Assert.assertEquals(returns[5].stringValue(), "Msg Three");
-        Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Four");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Four");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
+        Assert.assertEquals(((BMap) returns[6]).get("message").stringValue(), "Msg Four");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[6]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[7].stringValue(), "Msg Four");
     }
 
     @Test(description = "Test simple error var def with record as detail")
@@ -251,22 +235,35 @@ public class ErrorVariableDefinitionTest {
                 "contains individual field descriptors", 22, 60);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
+                "incompatible types: expected 'SMS', found 'SMA'", 28, 64);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'string?'", 31, 28);
         BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
                 "'detail' when error detail type 'record {| string message?; error cause?; string...; |}' " +
                 "contains individual field descriptors", 35, 60);
         BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
                 "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
                 "contains individual field descriptors", 36, 60);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'detail'",
+                39, 26);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'extra'", 39, 45);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'detail'",
+                42, 26);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'extra'", 42, 45);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 45, 28);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
+                52, 26);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'detail'",
+                52, 47);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'extra'", 52, 66);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
+                53, 26);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
+                54, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -277,6 +274,8 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 64, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot bind undefined error detail field 'message'",
+                69, 24);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 70, 16);
         Assert.assertEquals(resultNegative.getErrorCount(), ++i);

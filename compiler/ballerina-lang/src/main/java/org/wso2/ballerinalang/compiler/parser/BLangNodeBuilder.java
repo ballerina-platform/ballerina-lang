@@ -4928,6 +4928,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                                                          getPosition(namedArgBindingPatternNode.bindingPattern()));
                             BLangErrorVariable.BLangErrorDetailEntry detailEntry =
                                     new BLangErrorVariable.BLangErrorDetailEntry(key, valueBindingPattern);
+                            detailEntry.pos = getPosition(namedArgBindingPatternNode);
                             namedArgs.add(detailEntry);
                             break;
                         default:// Rest binding pattern

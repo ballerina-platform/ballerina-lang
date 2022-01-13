@@ -48,7 +48,7 @@ public class ErrorVariableReferenceTest {
     @Test(description = "Test simple error var def with string and map")
     public void testBasicErrorVariableWithMapDetails() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 10);
         Assert.assertEquals(returns[0].stringValue(), "Error One");
         Assert.assertEquals(returns[1].stringValue(), "Error One");
         Assert.assertEquals(returns[2].stringValue(), "Error Two");
@@ -56,18 +56,16 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg One");
         Assert.assertEquals(returns[5].stringValue(), "Msg One");
         Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Two");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Two");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
+        Assert.assertEquals(((BMap) returns[7]).get("message").stringValue(), "Msg Two");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[7]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[8].stringValue(), "Msg Two");
+        Assert.assertTrue(((BBoolean) returns[9]).booleanValue());
     }
 
     @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
-        Assert.assertEquals(returns.length, 13);
+        Assert.assertEquals(returns.length, 11);
         Assert.assertEquals(returns[0].stringValue(), "Some Error One");
         Assert.assertEquals(returns[1].stringValue(), "Some Error One");
         Assert.assertEquals(returns[2].stringValue(), "Some Error Two");
@@ -75,13 +73,11 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(((BMap) returns[4]).get("message").stringValue(), "Msg Three");
         Assert.assertEquals(returns[5].stringValue(), "Msg Three");
         Assert.assertEquals(returns[6].stringValue(), "Detail Msg");
-        Assert.assertNull(returns[7]);
-        Assert.assertEquals(((BMap) returns[8]).get("message").stringValue(), "Msg Four");
-        Assert.assertTrue(((BBoolean) ((BMap) returns[8]).get("fatal")).booleanValue());
-        Assert.assertEquals(returns[9].stringValue(), "Msg Four");
-        Assert.assertNull(returns[10]);
-        Assert.assertNull(returns[11]);
-        Assert.assertEquals(returns[12].stringValue(), "Some Error One {message:\"Msg Three\", detail:\"Detail Msg\"}");
+        Assert.assertEquals(((BMap) returns[7]).get("message").stringValue(), "Msg Four");
+        Assert.assertTrue(((BBoolean) ((BMap) returns[7]).get("fatal")).booleanValue());
+        Assert.assertEquals(returns[8].stringValue(), "Msg Four");
+        Assert.assertTrue(((BBoolean) returns[9]).booleanValue());
+        Assert.assertEquals(returns[10].stringValue(), "Some Error One {message:\"Msg Three\", detail:\"Detail Msg\"}");
     }
 
     @Test(description = "Test simple error var def with record as detail")
@@ -177,7 +173,7 @@ public class ErrorVariableReferenceTest {
         BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorRefBindingPattern");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "msg");
-        Assert.assertNull(returns[1]);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test(description = "Test error ref binding pattern when no error reason ref is given")
@@ -228,18 +224,16 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'map<int>', found 'map<(string|error)>'", 31, 26);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found 'string?'", 32, 43);
-        BAssertUtil.validateError(resultNegative, ++i,
                                   incompatibleTypes + "expected 'map<string>', found 'map<(string|error|boolean)>'",
                 41, 25);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
+                incompatibleTypes + "expected 'string', found '(string|boolean)'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 22);
+                "cannot bind undefined error detail field 'message'", 43, 22);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 43);
+                "cannot bind undefined error detail field 'fatal'", 43, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found 'ballerina/lang.value:0.0.0:Cloneable'", 43, 62);
+                "cannot bind undefined error detail field 'extra'", 43, 60);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
@@ -253,9 +247,9 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 124, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 134, 19);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '(anydata|readonly)', found " +
-                "'ballerina/lang.value:0.0.0:Cloneable'", 134, 38);
+                "cannot bind undefined error detail field 'message'", 134, 19);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "cannot bind undefined error detail field 'other'", 134, 38);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
@@ -284,9 +278,81 @@ public class ErrorVariableReferenceTest {
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'rest'", 31, 38);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'r3'", 34, 30);
         BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'message3'", 34, 44);
-        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'abc3'", 34, 60);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'message3'", 35, 24);
 //        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to final 'abc3'", 35, 40);
         Assert.assertEquals(resultNegative.getDiagnostics().length, i);
+    }
+
+    @Test
+    public void testErrorDetailBindingNegative() {
+        CompileResult resultNegative =
+                BCompileUtil.compile("test-src/expressions/varref/error_binding_pattern_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 22, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 22, 65);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 23, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 23, 74);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 25, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 25, 62);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 26, 35);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 26, 71);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 28, 24);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 28, 60);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 29, 33);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 29, 69);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 40, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 40, 56);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 41, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 41, 65);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 45, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 45, 57);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 46, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 46, 66);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 48, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 48, 54);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 49, 35);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 49, 63);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 51, 24);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 51, 52);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 52, 33);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 52, 61);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 63, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 63, 48);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'msg'", 64, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'extra'", 64, 57);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }

@@ -18,7 +18,7 @@ import ballerina/lang.value;
 
 type UserDefinedError error <BasicErrorDetail>;
 type BasicErrorDetail record {|
-    int basicErrorNo?;
+    int basicErrorNo;
     anydata...;
 |};
 
@@ -45,7 +45,7 @@ function testWithErrorCause() {
 
 type UserDefinedErrorWithTuple error <errorWithTupleDetail>;
 type errorWithTupleDetail record {
-    [int, string] basicErrorNo?;
+    [int, string] basicErrorNo;
 };
 
 UserDefinedErrorWithTuple error(message3, basicErrorNo = [detail3, otherDetails]) =
@@ -66,10 +66,24 @@ type UserDefinedError2 error<UserDefinedErrorDetail2>;
 type UserDefinedErrorDetail2 record {
     MyRecord recordVar?;
     UserDefinedError errorVar?;
+    int errorNo;
+};
+
+type UserDefinedError3 error<UserDefinedErrorDetail3>;
+type UserDefinedErrorDetail3 record {
+    MyRecord recordVar;
+    UserDefinedError errorVar?;
     int errorNo?;
 };
 
-UserDefinedError2 error(message4, recordVar = {firstValue, secondValue}) = error UserDefinedError2(
+type UserDefinedError4 error<UserDefinedErrorDetail4>;
+type UserDefinedErrorDetail4 record {
+    MyRecord recordVar?;
+    UserDefinedError errorVar;
+    int errorNo?;
+};
+
+UserDefinedError3 error(message4, recordVar = {firstValue, secondValue}) = error UserDefinedError3(
                                         "error message four", recordVar = {firstValue: 5, secondValue: "Second value"});
 
 function testRecordVarInsideErrorVar() {
@@ -78,8 +92,8 @@ function testRecordVarInsideErrorVar() {
     assertEquality("Second value", secondValue);
 }
 
-UserDefinedError2 error(message5, errorVar = error (message6, basicErrorNo = detail6)) =
-                            error UserDefinedError2("error message five", errorVar = error UserDefinedError("error message six",
+UserDefinedError4 error(message5, errorVar = error (message6, basicErrorNo = detail6)) =
+                            error UserDefinedError4("error message five", errorVar = error UserDefinedError("error message six",
                             basicErrorNo = 7));
 
 function testErrorVarInsideErrorVar() {
@@ -90,7 +104,7 @@ function testErrorVarInsideErrorVar() {
 
 const annotation annot on source var;
 @annot
-UserDefinedError2 error(message7) = error UserDefinedError2("error message seven");
+UserDefinedError2 error(message7) = error UserDefinedError2("error message seven", errorNo = 2);
 
 function testErrorVarWithAnnotations() {
     assertEquality("error message seven", message7);
@@ -111,12 +125,11 @@ function testErrorVarWithRestVariable() {
     assertEquality("High", otherDetails2["riskLevel"]);
 }
 
-var error(message11, basicErrorNo = errorNo3, ...otherDetails3) = error UserDefinedOpenError(
+var error(message11, ...otherDetails3) = error UserDefinedOpenError(
                         "error message eleven", basicErrorNo = 8, lineNo = 342, fileName = "myfile", recoverable = true);
 
 function testErrorVarDeclaredWithVar() {
     assertEquality("error message eleven", message11);
-    assertEquality(8, errorNo3);
     assertEquality(342, otherDetails3["lineNo"]);
     assertEquality("myfile", otherDetails3["fileName"]);
     assertTrue(otherDetails3["recoverable"]);
