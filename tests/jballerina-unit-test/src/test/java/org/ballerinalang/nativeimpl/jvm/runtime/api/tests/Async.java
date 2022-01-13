@@ -39,6 +39,26 @@ import io.ballerina.runtime.internal.types.BServiceType;
  */
 public class Async {
 
+    public static long getN(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getN");
+        return 0;
+    }
+
+    public static long addAndGetN(Environment env, BObject obj, long num) {
+        invokeMethodAsyncConcurrently(env, obj, "addAndGetN", num, true);
+        return 0;
+    }
+
+    public static long getFieldValWithArgDefaultVal(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldVal", StringUtils.fromString("dummy"), false);
+        return 0;
+    }
+
+    public static long getFieldValWithProvidedArgVal(Environment env, BObject obj, BString fieldName) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldVal", fieldName, true);
+        return 0;
+    }
+
     public static long getA(Environment env, BObject obj) {
         invokeAsync(env, obj, "getA");
         return 0;
@@ -161,7 +181,7 @@ public class Async {
         return 0;
     }
 
-    private static void invokeMethodAsyncSequentially(Environment env, BObject obj, String methodName) {
+    private static void invokeMethodAsyncSequentially(Environment env, BObject obj, String methodName, Object... args) {
         Future future = env.markAsync();
         BFuture bFuture = env.getRuntime().invokeMethodAsyncSequentially(obj, methodName, null, null, new Callback() {
             @Override
@@ -173,10 +193,10 @@ public class Async {
             public void notifyFailure(BError error) {
                 future.complete(error);
             }
-        }, null, PredefinedTypes.TYPE_INT);
+        }, null, PredefinedTypes.TYPE_INT, args);
     }
 
-    private static void invokeMethodAsyncConcurrently(Environment env, BObject obj, String methodName) {
+    private static void invokeMethodAsyncConcurrently(Environment env, BObject obj, String methodName, Object... args) {
         Future future = env.markAsync();
         BFuture bFuture = env.getRuntime().invokeMethodAsyncConcurrently(obj, methodName, null, null, new Callback() {
             @Override
@@ -188,7 +208,7 @@ public class Async {
             public void notifyFailure(BError error) {
                 future.complete(error);
             }
-        }, null, PredefinedTypes.TYPE_INT);
+        }, null, PredefinedTypes.TYPE_INT, args);
     }
 
     private static void invokeAsync(Environment env, BObject obj, String methodName) {

@@ -18,6 +18,48 @@ import ballerina/test;
 import ballerina/jballerina.java;
 
 int globalVar = 2;
+
+public class ObjectMethodCallTest {
+    int n = 5;
+
+    function getN() returns int {
+        return self.n;
+    }
+
+    function addAndGetN(int num) returns int {
+        self.n += num;
+        return self.n;
+    }
+
+    function getFieldVal(string fieldName = "n") returns int {
+        if (fieldName == "n") {
+            return self.n;
+        } else {
+            return -1;
+        }
+    }
+
+    public function callGetN() returns int = @java:Method {
+        name: "getN",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callAddAndGetN(int num) returns int = @java:Method {
+        name: "addAndGetN",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithArgDefaultVal() returns int = @java:Method {
+        name: "getFieldValWithArgDefaultVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithProvidedArgVal(string fieldName) returns int = @java:Method {
+        name: "getFieldValWithProvidedArgVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+}
+
 public isolated class IsolatedClass {
 
     public final int a = 1;
@@ -222,6 +264,12 @@ public service class NonIsolatedServiceClass2 {
 }
 
 public function main() {
+    ObjectMethodCallTest objectMethodCallTest = new ();
+    test:assertEquals(objectMethodCallTest.callGetN(), 5);
+    test:assertEquals(objectMethodCallTest.callAddAndGetN(10), 15);
+    test:assertEquals(objectMethodCallTest.callGetFieldValWithArgDefaultVal(), 15);
+    test:assertEquals(objectMethodCallTest.callGetFieldValWithProvidedArgVal("not a field"), -1);
+
     IsolatedClass isolatedClass = new ();
     test:assertEquals(isolatedClass.callGetA(), 1);
     test:assertEquals(isolatedClass.asyncGetA(), 1);
