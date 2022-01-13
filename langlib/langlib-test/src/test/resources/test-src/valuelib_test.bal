@@ -1040,8 +1040,8 @@ function testCloneWithTypeArrayToTupleWithMoreTargetTypes() {
 }
 
 function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
-    int[] arr = [1, 2, 3];
-    [float|decimal, int|byte...]|error e = arr.cloneWithType();
+    int[] arr1 = [1, 2, 3];
+    [float|decimal, int|byte...]|error e = arr1.cloneWithType();
     assert(e is error, true);
     error err = <error> e;
     var message = err.detail()["message"];
@@ -1049,6 +1049,36 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]': " +
                             "\n\t\ttuple element '[0]' cannot be converted to '(float|decimal)': ambiguous target type");
+
+    float[] arr2 = [1, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 7, 10];
+    [byte|decimal, string|int, int|decimal...]|error f = arr2.cloneWithType();
+    assert(f is error, true);
+    err = <error> f;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'float[]' value cannot be converted to '[(byte|decimal),(string|int),(int|decimal)...]': " +
+    "\n\t\ttuple element '[0]' cannot be converted to '(byte|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[2]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[3]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[4]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[5]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[6]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[7]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[8]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[9]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[10]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[11]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[12]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[13]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[14]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[15]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[16]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[17]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[18]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[19]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\ttuple element '[20]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\t...");
 }
 
 function testCloneWithTypeArrayToTupleNegative() {

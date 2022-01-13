@@ -86,13 +86,6 @@ public class CloneUtils {
         return ErrorUtils.createConversionError(value, targetType, addErrorMessage(errors));
     }
 
-    public static BError createAmbiguousConversionError(Object inputValue, Type targetType, List<String> errors) {
-        if (errors.isEmpty()) {
-            return ErrorUtils.createAmbiguousConversionError(inputValue, targetType);
-        }
-        return ErrorUtils.createAmbiguousConversionError(inputValue, targetType, addErrorMessage(errors));
-    }
-
     private static String addErrorMessage(List<String> errors) {
         if (errors.size() == MAX_CONVERSION_ERROR_COUNT + 1) {
             errors.remove(MAX_CONVERSION_ERROR_COUNT);
