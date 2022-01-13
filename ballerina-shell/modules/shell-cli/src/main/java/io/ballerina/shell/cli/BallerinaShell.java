@@ -70,8 +70,6 @@ public class BallerinaShell {
     protected final Evaluator evaluator;
     protected final CommandHandler commandHandler;
     protected boolean isRunning;
-    private boolean isMissingModule;
-    private boolean isContainsError;
 
     public BallerinaShell(BShellConfiguration configuration, TerminalAdapter terminal) {
         this.configuration = configuration;
@@ -111,8 +109,7 @@ public class BallerinaShell {
         Instant end = Instant.now();
 
         while (isRunning) {
-            isMissingModule = false;
-            isContainsError = false;
+            Collection<Diagnostic> currentStateDiagnostics;
             Duration previousDuration = Duration.between(start, end);
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
@@ -132,12 +129,16 @@ public class BallerinaShell {
                         } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
                                 ExceptionStatus.INVOKER_FAILED) {
                             if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                                executeChanges(source);
+                                currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
+                                evaluator.resetDiagnostics();
+                                executeChanges(source, currentStateDiagnostics);
                             }
                         }
-                    } else if (ExceptionStatus.INVOKER_FAILED == shellCompilation.getExceptionStatus()) {
+                    } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
                         if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                            executeChanges(source);
+                            currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
+                            evaluator.resetDiagnostics();
+                            executeChanges(source, currentStateDiagnostics);
                         }
                     }
                 }
@@ -151,14 +152,8 @@ public class BallerinaShell {
                 }
             } finally {
                 end = Instant.now();
-                if (!isMissingModule) {
-                    evaluator.diagnostics().forEach(this::outputDebugDiagnostic);
-                    outputDistinctErrorDiagnostics(evaluator.diagnostics());
-                } else {
-                    if (isContainsError) {
-                        terminal.error("\nCompilation aborted due to errors.");
-                    }
-                }
+                evaluator.diagnostics().forEach(this::outputDebugDiagnostic);
+                outputDistinctErrorDiagnostics(evaluator.diagnostics());
                 evaluator.resetDiagnostics();
                 terminal.println("");
             }
@@ -293,7 +288,7 @@ public class BallerinaShell {
     public void importModules(ModuleImporter moduleImporter, List<String> modules) {
         List<String> missingModules = new ArrayList<>();
         List<String> requiredModules = new ArrayList<>();
-        terminal.info("Found following undefined module(s).");
+        terminal.info("\nFound following undefined module(s).");
         for (String module : modules) {
             module = module.replace("'", "");
             if (moduleImporter.isModuleInDistRepo(module)) {
@@ -380,21 +375,16 @@ public class BallerinaShell {
      *
      * @param source source.
      */
-    private void executeChanges(String source) {
+    private void executeChanges(String source, Collection<Diagnostic> diagnostics) {
         ModuleImporter moduleImporter = new ModuleImporter();
-        List<String> modules = moduleImporter.undefinedModules(evaluator.diagnostics());
+        List<String> modules = moduleImporter.undefinedModules(diagnostics);
         if (modules.size() > 0) {
-            isMissingModule = true;
             importModules(moduleImporter, modules);
             try {
                 terminal.println("");
                 ShellCompilation shellCompilation = evaluator.getCompilation(source);
                 Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
                 ShellReturnValue shellReturnValue = evaluator.getValue(compilation).get();
-                if (shellCompilation.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED ||
-                        shellReturnValue.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
-                    isContainsError = true;
-                }
                 String result = shellReturnValue.getResult();
                 terminal.result(result);
             } catch (BallerinaShellException error) {
