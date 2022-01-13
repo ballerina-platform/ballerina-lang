@@ -344,4 +344,14 @@ function testInvalidIntSubtypesInLangLibFunctions() {
     _ = intVal3.toHexString();
 }
 
+function testOutOfBoundValueAssignment(){
+     int:Signed16 _ = 21474803712;
+     int:Signed16 _ = 9223372036854775807;
+     int:Signed8 _ = -9223372036854775681;
+     int:Signed8 _ = 9223372036854775807;
+     int:Unsigned16 _ = -21474770945;
+     int:Unsigned16 _ = -21474836480;
+     int:Unsigned8 _ = -9223372036854775553;
+     int:Unsigned8 _ = -9223372036854775808;
+}
 // TODO : Add more test cases.
