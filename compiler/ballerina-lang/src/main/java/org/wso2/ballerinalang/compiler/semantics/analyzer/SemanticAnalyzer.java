@@ -507,29 +507,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
-        env = SymbolEnv.createFuncBodyEnv(body, env);
+        SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
         int stmtCount = -1;
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
             boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null);
+                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null, funcBodyEnv, true);
             if (analyzedStmt) {
                 continue;
             }
-            analyzeStmt(stmt, env);
+            analyzeStmt(stmt, funcBodyEnv);
         }
+        // Remove explicitly added function body env if exists
+        this.prevEnvs.remove(funcBodyEnv);
         resetNotCompletedNormally();
     }
 
-    private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement) {
+    private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement,
+                                                           SymbolEnv currentEnv, boolean inFunctionBody) {
         if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
                 && ((BLangIf) prevStatement).elseStmt == null && this.notCompletedNormally) {
             BLangIf ifStmt = (BLangIf) prevStatement;
             this.notCompletedNormally =
                     ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+            // Explicitly add function body env since it's required for resetting the types
+            if (inFunctionBody) {
+                this.prevEnvs.push(currentEnv);
+            }
             // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
-            SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(ifStmt.expr, currentStmt,
-                    env);
+            SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
             analyzeStmt(currentStmt, narrowedBlockEnv);
             return true;
         }
@@ -1884,7 +1890,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
             boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null);
+                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null, env, false);
             if (analyzedStmt) {
                 continue;
             }
@@ -2567,15 +2573,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(matchClauses.get(0), env);
 
-        SymbolEnv prevEnv = env;
+        SymbolEnv matchClauseEnv = this.env;
         for (int i = 1; i < matchClauses.size(); i++) {
             BLangMatchClause prevMatchClause = matchClauses.get(i - 1);
             BLangMatchClause currentMatchClause = matchClauses.get(i);
-            env = typeNarrower.evaluateTruth(matchStatement.expr, prevMatchClause.patternsType, currentMatchClause,
-                    env);
-            analyzeNode(currentMatchClause, env);
+            matchClauseEnv = typeNarrower.evaluateTruth(matchStatement.expr, prevMatchClause.patternsType,
+                    currentMatchClause, matchClauseEnv);
+            analyzeNode(currentMatchClause, matchClauseEnv);
         }
-        env = prevEnv;
 
         if (matchStatement.onFailClause != null) {
             this.analyzeNode(matchStatement.onFailClause, env);
