@@ -13,9 +13,9 @@ SYNOPSIS
                <ballerina-package-path> [--] <args...>
 
 DESCRIPTION
-       Build and execute the given `.bal` file, package, or program.
+       Build and execute the given standalone Ballerina file, package, or program.
 
-       If a Ballerina source file (`.bal` file) or a package directory is given, this
+       If a standalone Ballerina file or a package directory is given, this
        command builds and runs it. Compilation is done internally and the
        executable will not be created.
 
@@ -30,24 +30,32 @@ DESCRIPTION
        When both a 'main' function and a service(s) are present, this command executes
        the 'main' function first and then starts the services.
 
+       Note: Running `.bal` files, which belong to a Ballerina package is not allowed.
+
 
 OPTIONS
        --offline
-           Build offline using the local artifacts without downloading the latest artifacts of the
+           Run offline using the local artifacts without downloading the latest artifacts of the
            dependencies from the remote repository (Ballerina Central).
+
+       --sticky
+       		Disable automatic updates.
+       		This will stick to the exact versions locked in the
+       		'Dependencies.toml' file (if exists).
 
        --experimental
            Enable experimental language features.
 
-       --debug
-           Run in the remote debugging mode.
+       --debug <port>
+           Run in the remote debugging mode. The port to attach the debug
+           process should be provided.
 
        --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina 
-           program that are required to enable the observability functionalities on it.
+           Include the dependencies and artifacts that are required to enable the observability functionalities
+           in the  executable JAR file.
 
-       --target-dir
-           Target directory path.
+       --target-dir <directory-path>.
+           Target directory path. The directory path can be absolute or relative.
 
 
 ARGUMENTS
@@ -65,11 +73,12 @@ ARGUMENTS
 DEFAULT BEHAVIOR
        This command runs the 'main' function of the default module in the given package if present.
        Then, it looks for a service, and starts the relevant listeners if services
-       are present. It will fail if no 'main' function or service is present.
+       are present. It will simply exit if no 'main' function or service is present.
 
 
 EXAMPLES
-       Run the 'main' function and/or services in the `hello.bal` file.
+       Run the 'main' function and/or services in the 'hello.bal' file.
+       The file path can be relative or absolute.
           $ bal run hello.bal
 
        Run the 'main' function and/or services in the `hello` executable JAR.

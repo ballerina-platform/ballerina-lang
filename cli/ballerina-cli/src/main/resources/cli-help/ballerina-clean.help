@@ -7,9 +7,20 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Remove the `target` directory created during the build.
+       Remove the 'target' directory created during the build. This will delete
+       all files and directories in the target directory.
+
+       The default target directory that will be cleaned is the '<package-root>/target'.
+       You may also provide a custom target to be cleaned.
 
 
 OPTIONS
-       --target-dir
-           Target directory path.
+       --target-dir <directory-path>
+           Target directory path. The directory path can be absolute or relative.
+
+EXAMPLES
+       Clean the default target directory of the current package.
+          $ bal clean
+
+       Clean the provided target directory.
+          $ bal clean <target-directory-path>
