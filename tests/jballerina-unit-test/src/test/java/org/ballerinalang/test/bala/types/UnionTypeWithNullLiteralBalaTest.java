@@ -24,8 +24,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
@@ -41,7 +39,8 @@ public class UnionTypeWithNullLiteralBalaTest {
 
     @Test
     public void unionTypeWithNullLiteralValueAssignment() {
-        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/types/union_type_with_null_literal_test.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/bala/test_bala/types/union_type_with_null_literal_test.bal");
         BRunUtil.invoke(result, "testPositiveAssignment");
     }
 
