@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -52,6 +54,25 @@ public class TypeConverter {
     static final String PROPERTIES = "properties";
     static final String ADDITIONAL_PROPERTIES = "additionalProperties";
     static final String TYPE = "type";
+    // Stores already visited complex types against the type name
+    private static Map<String, VisitedType> visitedTypeMap = new HashMap<>();
+
+    public static VisitedType getVisitedType(String typeName) {
+        if (visitedTypeMap.containsKey(typeName)) {
+            return visitedTypeMap.get(typeName);
+        }
+        return null;
+    }
+
+    public static void addVisitedTypeEntry(String typeName) {
+        visitedTypeMap.put(typeName, new VisitedType());
+    }
+
+    public static void completeVisitedTypeEntry(String typeName, JsonObject typeNode) {
+        VisitedType visitedType = visitedTypeMap.get(typeName);
+        visitedType.setCompleted(true);
+        visitedType.setTypeNode(typeNode);
+    }
 
     /**
      * Get the type as a JSONObject.
@@ -67,6 +88,18 @@ public class TypeConverter {
         } else {
             if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType) {
                 BType effectiveType = ((BIntersectionType) type).getEffectiveType();
+                VisitedType visitedType = getVisitedType(effectiveType.toString());
+                if (visitedType != null) {
+                    if (visitedType.isCompleted()) {
+                        return visitedType.getTypeNode();
+                    } else {
+                        JsonObject nullType = new JsonObject();
+                        nullType.addProperty(TYPE, "null");
+                        return nullType;
+                    }
+                } else {
+                    visitedTypeMap.put(effectiveType.toString(), new VisitedType());
+                }
                 if (TypeTags.ARRAY == effectiveType.tag && effectiveType instanceof BArrayType) {
                     generateArrayType(typeNode, (BArrayType) effectiveType);
                 }
@@ -82,7 +115,10 @@ public class TypeConverter {
                 if (TypeTags.TABLE == effectiveType.tag && effectiveType instanceof BTableType) {
                     generateTableType(typeNode, (BTableType) effectiveType);
                 }
-
+                completeVisitedTypeEntry(effectiveType.toString(), typeNode);
+            } else if (TypeTags.UNION == type.tag && type instanceof BUnionType) {
+                // Handles enums
+                generateUnionType(typeNode, (BUnionType) type);
             }
             // When the type is a union of singletons
             if (TypeTags.FINITE == type.tag && type instanceof BFiniteType) {
@@ -92,6 +128,7 @@ public class TypeConverter {
                 typeNode.add("enum", enumArray);
             }
         }
+
         return typeNode;
     }
 
@@ -121,16 +158,20 @@ public class TypeConverter {
         JsonObject typeNode;
         LinkedHashMap<String, BField> fieldLinkedHashMap = effectiveType.getFields();
         JsonObject effectiveTypeNode = new JsonObject();
+        JsonArray requiredFields = new JsonArray();
         for (Map.Entry<String, BField> key : fieldLinkedHashMap.entrySet()) {
             BField field = key.getValue();
-            JsonObject fieldTypeNode = new JsonObject();
-            if (TypeTags.isSimpleBasicType(field.getType().tag)) {
-                String typeVal = getSimpleType(field.getType());
-                fieldTypeNode.addProperty(TYPE, typeVal);
-            }
+            JsonObject fieldTypeNode = getType(field.getType());
             effectiveTypeNode.add(field.getName().getValue(), fieldTypeNode);
+            if (!Symbols.isOptional(field.symbol)) {
+                requiredFields.add(field.getName().getValue());
+            }
         }
         typeNode = createObjNode(effectiveTypeNode);
+        // Set required fields
+        if (!requiredFields.isEmpty()) {
+            typeNode.add("required", requiredFields);
+        }
         return typeNode;
     }
 
@@ -178,16 +219,15 @@ public class TypeConverter {
      */
     private static void updateUnionMembers(LinkedHashSet<BType> members, JsonArray memberArray, JsonArray enumArray) {
         for (BType member : members) {
-            if (TypeTags.isSimpleBasicType(member.tag)) {
-                String typeVal = getSimpleType(member);
-                JsonObject memberObj = new JsonObject();
-                memberObj.addProperty(TYPE, typeVal);
+            if (TypeTags.isSimpleBasicType(member.tag) ||
+                    (TypeTags.INTERSECTION == member.tag && member instanceof BIntersectionType)) {
+                JsonObject memberObj = getType(member);
                 memberArray.add(memberObj);
             } else if (TypeTags.FINITE == member.tag && member instanceof BFiniteType) {
                 getEnumArray(enumArray, (BFiniteType) member);
             } else if (TypeTags.TYPEREFDESC == member.tag && member instanceof BTypeReferenceType) {
                 // When union member refers to another union type, update those union members as well
-                BType referredType =  ((BTypeReferenceType) member).referredType;
+                BType referredType = ((BTypeReferenceType) member).referredType;
                 if (TypeTags.UNION == referredType.tag && referredType instanceof BUnionType) {
                     LinkedHashSet<BType> subMembers = ((BUnionType) referredType).getMemberTypes();
                     updateUnionMembers(subMembers, memberArray, enumArray);
@@ -262,5 +302,5 @@ public class TypeConverter {
         node.addProperty(ADDITIONAL_PROPERTIES, false);
         return node;
     }
-    
+
 }

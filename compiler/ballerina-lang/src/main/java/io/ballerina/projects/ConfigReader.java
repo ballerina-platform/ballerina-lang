@@ -18,12 +18,16 @@
 package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -88,6 +92,9 @@ public class ConfigReader {
                     BVarSymbol varSymbol = (BVarSymbol) symbol;
                     // Get description
                     String description = getDescription(varSymbol, module);
+                    if (description.startsWith("\"") && description.endsWith("\"")) {
+                        description = description.substring(1, description.length() - 1);
+                    }
                     configVariables.add(new ConfigVariable(varSymbol.name.value, varSymbol.type,
                             Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED), description));
                 }
@@ -132,18 +139,30 @@ public class ConfigReader {
             if (optionalMetadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
                 for (AnnotationNode annotation : annotations) {
-                    if (annotation.annotReference().toString().trim().equals("display") &&
-                            annotation.annotValue().isPresent()) {
-                        for (MappingFieldNode fieldNode : annotation.annotValue().get().fields()) {
-                            if (((SpecificFieldNode) fieldNode).fieldName().toString().trim()
-                                    .equals("description")) {
-                                if (((SpecificFieldNode) fieldNode).valueExpr().isPresent()) {
-                                    return ((SpecificFieldNode) fieldNode).valueExpr().get().toString().trim();
+                    Node annotReference = annotation.annotReference();
+                    if (annotReference.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                        SimpleNameReferenceNode simpleNameRef = (SimpleNameReferenceNode) annotReference;
+                        if (simpleNameRef.name().text().equals("display") && annotation.annotValue().isPresent()) {
+                            for (MappingFieldNode fieldNode : annotation.annotValue().get().fields()) {
+                                if (fieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
+                                    SpecificFieldNode specificField = (SpecificFieldNode) fieldNode;
+                                    if (specificField.fieldName().kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                                        if (((IdentifierToken) specificField.fieldName()).text().
+                                                equals("description")) {
+                                            if (((SpecificFieldNode) fieldNode).valueExpr().isPresent()) {
+                                                ExpressionNode valueNode =
+                                                        ((SpecificFieldNode) fieldNode).valueExpr().get();
+                                                if (valueNode instanceof BasicLiteralNode) {
+                                                    return ((BasicLiteralNode) valueNode).literalToken().text();
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
+
                             }
                         }
                     }
-
                 }
             }
         }
