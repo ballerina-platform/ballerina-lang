@@ -38,7 +38,6 @@ import org.testng.annotations.Test;
 public class LangLibDebugTest extends BaseTestCase {
 
     private DebugTestRunner debugTestRunner;
-    private static final String BALA_URI_SCHEME = "bala";
 
     @BeforeClass
     public void setup() {

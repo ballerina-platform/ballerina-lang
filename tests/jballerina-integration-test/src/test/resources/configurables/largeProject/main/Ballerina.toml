@@ -10,4 +10,4 @@ version = "0.1.0"
 repository = "local"
 
 [build-options]
-observabilityIncluded=true
+observabilityIncluded = false

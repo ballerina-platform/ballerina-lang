@@ -29,6 +29,7 @@ public class UnionTypeTest extends AbstractTypesTest {
     @Test
     public void testValidLocalLevelUnionType() {
         testTopLevelNode("union-type/union_type_source_01.bal", "union-type/union_type_assert_01.json");
+        testTopLevelNode("union-type/union_type_source_08.bal", "union-type/union_type_assert_08.json");
     }
 
     @Test

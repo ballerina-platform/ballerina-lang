@@ -96,7 +96,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
                 "'function (ballerina/lang.array:0.0.0:Type) " +
                 "returns (boolean)', found 'function (string) returns (other)'", 68, 18);
-        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 48);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 80, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 89, 15);

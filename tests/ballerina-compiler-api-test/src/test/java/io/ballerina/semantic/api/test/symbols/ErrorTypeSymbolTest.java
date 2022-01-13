@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Documentable;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -99,15 +100,31 @@ public class ErrorTypeSymbolTest {
 
         for (TypeSymbol typeSymbol : memberTypeSymbols) {
             assertEquals(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor().typeKind(), TypeDescKind.ERROR);
-            assertEquals(((typeSymbol).getModule().get()).id().orgName(), Names.ANON_ORG.toString());
-            assertEquals(((typeSymbol).getModule().get()).id().moduleName(), PackageID.DEFAULT.toString());
+            assertModuleInfo(typeSymbol.getModule().get());
         }
 
         assertTrue(distinctErrorSymbol.isPresent());
         ErrorTypeSymbol errorTypeSymbol =
                 (ErrorTypeSymbol) ((TypeDefinitionSymbol) distinctErrorSymbol.get()).typeDescriptor();
         assertEquals(errorTypeSymbol.typeKind(), TypeDescKind.ERROR);
-        assertEquals(errorTypeSymbol.getModule().get().id().moduleName(), PackageID.DEFAULT.toString());
-        assertEquals(errorTypeSymbol.getModule().get().id().orgName(), Names.ANON_ORG.toString());
+        assertModuleInfo(errorTypeSymbol.getModule().get());
+    }
+
+    @Test
+    public void testErrorTypeRef() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(32, 4));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.TYPE);
+
+        TypeSymbol type = (TypeSymbol) symbol.get();
+        assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "SendError");
+        assertModuleInfo(type.getModule().get());
+    }
+
+    private void assertModuleInfo(ModuleSymbol module) {
+        assertEquals(module.id().orgName(), Names.ANON_ORG.toString());
+        assertEquals(module.id().moduleName(), PackageID.DEFAULT.toString());
     }
 }

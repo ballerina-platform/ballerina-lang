@@ -18,20 +18,6 @@
     "expr": "1212.23"
   },
   {
-    "description": "Fails on non existing module import.",
-    "code": "import org/no.module.name;",
-    "error": "InvokerException"
-  },
-  {
-    "description": "Import with io prefix.",
-    "code": "import ballerina/lang.'int as io;"
-  },
-  {
-    "description": "Import different module with io prefix.",
-    "code": "import ballerina/io;",
-    "error": "InvokerException"
-  },
-  {
     "description": "Add multiple statements.",
     "code": "int x = 1; int y = 2; int z = 3;"
   },

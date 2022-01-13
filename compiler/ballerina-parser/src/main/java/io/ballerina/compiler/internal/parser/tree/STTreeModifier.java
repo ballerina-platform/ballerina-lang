@@ -2083,11 +2083,19 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STArrayTypeDescriptorNode transform(
             STArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         STNode memberTypeDesc = modifyNode(arrayTypeDescriptorNode.memberTypeDesc);
-        STNode openBracket = modifyNode(arrayTypeDescriptorNode.openBracket);
-        STNode arrayLength = modifyNode(arrayTypeDescriptorNode.arrayLength);
-        STNode closeBracket = modifyNode(arrayTypeDescriptorNode.closeBracket);
+        STNode dimensions = modifyNode(arrayTypeDescriptorNode.dimensions);
         return arrayTypeDescriptorNode.modify(
                 memberTypeDesc,
+                dimensions);
+    }
+
+    @Override
+    public STArrayDimensionNode transform(
+            STArrayDimensionNode arrayDimensionNode) {
+        STNode openBracket = modifyNode(arrayDimensionNode.openBracket);
+        STNode arrayLength = modifyNode(arrayDimensionNode.arrayLength);
+        STNode closeBracket = modifyNode(arrayDimensionNode.closeBracket);
+        return arrayDimensionNode.modify(
                 openBracket,
                 arrayLength,
                 closeBracket);

@@ -103,7 +103,8 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         if (this.initMethod == null && this.internalSymbol.initializerFunc != null) {
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
             this.initMethod = symbolFactory.createMethodSymbol(internalSymbol.initializerFunc.symbol,
-                                                               internalSymbol.initializerFunc.funcName.value);
+                                                               internalSymbol.initializerFunc.symbol
+                                                                       .getOriginalName().value);
         }
 
         return Optional.ofNullable(this.initMethod);

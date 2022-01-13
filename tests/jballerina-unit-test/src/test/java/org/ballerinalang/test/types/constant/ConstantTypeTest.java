@@ -45,6 +45,11 @@ public class ConstantTypeTest {
     }
 
     @Test
+    public void testTypesOfConstantMaps() {
+        BRunUtil.invoke(compileResult, "testTypesOfConstantMaps");
+    }
+
+    @Test
     public void constExpressionNegative() {
         CompileResult compileResult1 = BCompileUtil.compile("test-src/types/constant/constant-type-negative.bal");
         int i = 0;
@@ -63,6 +68,40 @@ public class ConstantTypeTest {
 //        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE4', found '3'", 44, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE5', found 'false'", 45, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE6', found '12'", 46, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE12', found " +
+                "'(record {| record {| record {| 1 a; |} b; |} a; record {| record {| 1 a; |} a;" +
+                " record {| 2 b; 3 c; |} CMI2; record {| 1 d; |} c; |} b; |} & readonly)'", 117, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE11', found " +
+                "'(record {| 0.11f a; 2.12f b; |} & readonly)'", 118, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE10', found " +
+                "'(record {| 0.11d a; 2.12d b; |} & readonly)'", 119, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE8', found " +
+                "'(record {| true a; false b; |} & readonly)'", 121, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
+                "'(record {| C a; S b; |} & readonly)'", 122, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
+                "'(record {| C a; S b; |} & readonly)'", 123, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
+                "'(record {| C a; C b; S c; |} & readonly)'", 124, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
+                "'(record {| record {| record {| 1 a; |} b; |} a; record {| record {| 1 a; |} a; record {| 2 b; 3 c; " +
+                "|} CMI2; record {| 1 d; |} c; |} b; |} & readonly)'", 125, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| readonly 1 a; |} & " +
+                "readonly', found '(record {| 2 b; 3 c; |} & readonly)'", 126, 17);
+        BAssertUtil.validateError(compileResult1, i++, "redeclared symbol 'cmi4'", 127, 10);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 128, 17);
+        BAssertUtil.validateError(compileResult1, i++, "undefined field 'c' in record 'record {| readonly 0.11f a; " +
+                "readonly 2.12f b; |} & readonly'", 128, 28);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '0.11d', found 'float'", 129, 22);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 131, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'C', found 'string'", 132, 22);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'S', found 'string'", 132, 31);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 133, 29);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 133, 29);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 134, 17);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'CN1'", 135, 15);
+        BAssertUtil.validateError(compileResult1, i++, "undefined field 'a' in record 'record {| readonly (record {| " +
+                "() a; |} & readonly) CN1; |} & readonly'", 135, 16);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 }

@@ -260,6 +260,7 @@ public class ReachabilityAnalysisTest {
         validateWarning(result, i++, "this function should explicitly return a value", 1006, 56);
         validateWarning(result, i++, "this function should explicitly return a value", 1016, 56);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1031, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1041, 9);
         Assert.assertEquals(result.getErrorCount(), i - 35 - 11);
         Assert.assertEquals(result.getHintCount(), 35);
         Assert.assertEquals(result.getWarnCount(), 11);
@@ -304,6 +305,13 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'int', found '()'", 296, 13);
         validateError(result, i++, "incompatible types: expected '()', found 'int?'", 308, 12);
         validateError(result, i++, "incompatible types: expected '()', found 'int?'", 322, 12);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 333, 9);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 347, 9);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 363, 9);
+        validateError(result, i++, "incompatible types: expected 'int', found 'boolean'", 373, 17);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 377, 17);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 391, 17);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 407, 17);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

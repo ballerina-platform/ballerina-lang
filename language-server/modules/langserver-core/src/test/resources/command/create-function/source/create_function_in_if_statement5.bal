@@ -1,0 +1,5 @@
+function name() {
+    if !getBoolean() {
+        
+    }
+}

@@ -114,6 +114,16 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      */
     private TypeSymbol anyTypeSymbol;
 
+    private boolean noModuleDeclarations;
+    private boolean noVariableDeclarations;
+    private boolean noExecutables;
+
+    private Map<VariableDeclarationSnippet, Set<Identifier>> variableDeclarations;
+    private Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations;
+    private List<ExecutableSnippet> executableSnippets;
+    private List<Identifier> variableNames;
+    private Project project;
+
     /**
      * Creates a class load invoker from the given ballerina home.
      * Ballerina home should be tha path that contains repo directory.
@@ -171,7 +181,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     }
 
     @Override
-    public Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException {
+    public PackageCompilation getCompilation(Collection<Snippet> newSnippets) throws InvokerException {
         if (!this.initialized.get()) {
             throw new IllegalStateException("Invoker execution not initialized.");
         }
@@ -180,10 +190,10 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         // TODO: (#28036) Fix the closure bug.
 
-        Map<VariableDeclarationSnippet, Set<Identifier>> variableDeclarations = new HashMap<>();
-        Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations = new HashMap<>();
-        List<ExecutableSnippet> executableSnippets = new ArrayList<>();
-        List<Identifier> variableNames = new ArrayList<>();
+        variableDeclarations = new HashMap<>();
+        moduleDeclarations = new HashMap<>();
+        executableSnippets = new ArrayList<>();
+        variableNames = new ArrayList<>();
 
         // Fill the required arrays/maps
         // Only compilation to find import validity.
@@ -215,10 +225,34 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             }
         }
 
-        boolean noModuleDeclarations = moduleDeclarations.isEmpty();
-        boolean noVariableDeclarations = variableDeclarations.isEmpty();
-        boolean noExecutables = executableSnippets.isEmpty();
+        noModuleDeclarations = moduleDeclarations.isEmpty();
+        noVariableDeclarations = variableDeclarations.isEmpty();
+        noExecutables = executableSnippets.isEmpty();
+        PackageCompilation compilation = null;
+        if (!(noModuleDeclarations && noVariableDeclarations && noExecutables)) {
+            if (noModuleDeclarations && noVariableDeclarations) {
+                // Compile declaration template if there were declarations
+                ClassLoadContext execContext = createVariablesExecutionContext(List.of(), executableSnippets, Map.of());
+                Project project = getProject(execContext, EXECUTION_TEMPLATE_FILE);
+                compilation = compile(project);
+            } else {
+                ClassLoadContext context = createDeclarationContext(variableDeclarations.keySet(), variableNames,
+                        moduleDeclarations);
+                project = getProject(context, DECLARATION_TEMPLATE_FILE);
+                compilation = compile(project);
+            }
+        }
+        return compilation;
+    }
 
+    @Override
+    public Optional<Object> execute(Optional<PackageCompilation> compilation) throws InvokerException {
+        // Compilation was successful, so we can add the declarations
+        // to the persisted list. Here everything is persisted.
+        // Please note that this would be reversed if something went wrong in execution.
+
+        // Find all the global variables that were defined
+        // and Map all variable names with its global variable
         // If there are only imports (no other snippets), just stop execution.
         if (noModuleDeclarations && noVariableDeclarations && noExecutables) {
             return Optional.empty();
@@ -231,19 +265,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
         }
 
-        // Compile declaration template if there were declarations
-        ClassLoadContext context = createDeclarationContext(variableDeclarations.keySet(), variableNames,
-                moduleDeclarations);
-        Project project = getProject(context, DECLARATION_TEMPLATE_FILE);
-        PackageCompilation compilation = compile(project);
-
-        // Compilation was successful, so we can add the declarations
-        // to the persisted list. Here everything is persisted.
-        // Please note that this would be reversed if something went wrong in execution.
-
-        // Find all the global variables that were defined
-        // and Map all variable names with its global variable
-        Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation);
+        Collection<GlobalVariableSymbol> globalVariableSymbols = globalVariableSymbols(project, compilation.get());
         Map<Identifier, GlobalVariable> allNewVariables = new HashMap<>();
         for (VariableDeclarationSnippet snippet : variableDeclarations.keySet()) {
             Map<Identifier, GlobalVariable> newVariables = createGlobalVariables(

@@ -665,6 +665,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public void visit(STArrayDimensionNode arrayDimensionNode) {
+        visitSyntaxNode(arrayDimensionNode);
+    }
+
     public void visit(STTransactionStatementNode transactionStatementNode) {
         visitSyntaxNode(transactionStatementNode);
     }

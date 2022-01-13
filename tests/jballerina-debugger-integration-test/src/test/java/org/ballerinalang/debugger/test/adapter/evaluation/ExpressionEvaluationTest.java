@@ -172,7 +172,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         debugTestRunner.assertExpression(context, "nameWithType", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "nameWithoutType", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map (size = 1)", "map");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03,
+                                         "(debug_test_resources/evaluation_tests:0:$anonType$_10 & readonly)",
+                                         "record");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -185,8 +187,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // with qualified literals (i.e. imported modules)
         debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, "other:constMap", "map (size = 1)", "map");
+        debugTestRunner.assertExpression(context, "other:constMap",
+                                         "(debug_test_resources/evaluation_tests.other:0:$anonType$_3 & readonly)",
+                                         "record");
         debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
+        debugTestRunner.assertExpression(context, "other:publicModuleVariable", "\"public\"", "string");
+
         // qualified name references with import alias
         debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
     }
@@ -525,7 +531,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // float % float
         debugTestRunner.assertExpression(context, String.format("%s %% %s", FLOAT_VAR, FLOAT_VAR), "-0.0", "float");
         // decimal % decimal
-        debugTestRunner.assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, DECIMAL_VAR), "0",
+        debugTestRunner.assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, DECIMAL_VAR), "0.0",
                 "decimal");
     }
 
@@ -562,7 +568,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s - %s", FLOAT_VAR, FLOAT_VAR), "0.0", "float");
         // decimal - decimal
-        debugTestRunner.assertExpression(context, String.format("%s - %s", DECIMAL_VAR, DECIMAL_VAR), "0", "decimal");
+        debugTestRunner.assertExpression(context, String.format("%s - %s", DECIMAL_VAR, DECIMAL_VAR), "0.0", "decimal");
     }
 
     @Override

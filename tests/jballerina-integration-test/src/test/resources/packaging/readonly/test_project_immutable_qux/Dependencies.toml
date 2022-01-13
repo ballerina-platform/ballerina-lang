@@ -10,7 +10,6 @@ dependencies-toml-version = "2"
 org = "testorg"
 name = "selectively_immutable_bar"
 version = "1.0.0"
-transitive = false
 dependencies = [
 	{org = "testorg", name = "selectively_immutable_foo"}
 ]
@@ -22,7 +21,6 @@ modules = [
 org = "testorg"
 name = "selectively_immutable_baz"
 version = "1.0.0"
-transitive = false
 dependencies = [
 	{org = "testorg", name = "selectively_immutable_foo"}
 ]
@@ -34,9 +32,21 @@ modules = [
 org = "testorg"
 name = "selectively_immutable_foo"
 version = "1.0.0"
-transitive = false
 modules = [
 	{org = "testorg", packageName = "selectively_immutable_foo", moduleName = "selectively_immutable_foo"}
+]
+
+[[package]]
+org = "testorg"
+name = "selectively_immutable_qux"
+version = "1.0.0"
+dependencies = [
+	{org = "testorg", name = "selectively_immutable_bar"},
+	{org = "testorg", name = "selectively_immutable_baz"},
+	{org = "testorg", name = "selectively_immutable_foo"}
+]
+modules = [
+	{org = "testorg", packageName = "selectively_immutable_qux", moduleName = "selectively_immutable_qux"}
 ]
 
 

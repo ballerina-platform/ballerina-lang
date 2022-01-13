@@ -40,24 +40,25 @@ public class FinalTypedBindingPatternsNegative {
     @Test
     public void testNegative() {
         int index = 0;
-        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'a'", 33, 17);
+        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'b'", 33, 17);
         BAssertUtil.validateWarning(compileResult, index++, "unused variable 'j'", 33, 23);
-        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'a'", 34, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'b'", 34, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'j'", 35, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'a'", 39, 18);
+        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'b'", 39, 18);
         BAssertUtil.validateWarning(compileResult, index++, "unused variable 'j'", 39, 24);
-        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'a'", 40, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'b'", 40, 5);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'j'", 41, 5);
         BAssertUtil.validateWarning(compileResult, index++, "unused variable 'a'", 47, 17);
-        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'j'", 47, 23);
+        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'b'", 47, 24);
+        BAssertUtil.validateWarning(compileResult, index++, "unused variable 's'", 47, 27);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'a'", 48, 5);
-        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'j'", 49, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 's'", 49, 5);
         BAssertUtil.validateWarning(compileResult, index++, "unused variable 'a'", 53, 19);
-        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'p'", 53, 27);
-        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'q'", 53, 30);
+        BAssertUtil.validateWarning(compileResult, index++, "unused variable 'b'", 53, 27);
+        BAssertUtil.validateWarning(compileResult, index++, "unused variable 's'", 53, 30);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'a'", 54, 5);
-        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'p'", 55, 5);
-        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'q'", 56, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'b'", 55, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 's'", 56, 5);
         BAssertUtil.validateWarning(compileResult, index++, "unused variable 'i'", 62, 16);
         BAssertUtil.validateWarning(compileResult, index++, "unused variable 'j'", 62, 19);
         BAssertUtil.validateError(compileResult, index++, "cannot assign a value to final 'i'", 63, 5);

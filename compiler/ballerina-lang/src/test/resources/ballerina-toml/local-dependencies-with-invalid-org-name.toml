@@ -38,7 +38,7 @@ version = "3.0.0"
 repository = "local"
 
 [build-options]
-observabilityIncluded = true
+observabilityIncluded = false
 offline = true
 skipTests = false
 cloud = "k8s"

@@ -93,7 +93,6 @@ ballerina-xslt-1.0.0.jar                                                        
 ballerina-xslt-1.0.0-java.jar                                                                       jar            apache2
 ballerina-encoding-1.0.0.jar                                                                        jar            apache2
 ballerina-lang.query-0.0.1.jar                                                                      jar            apache2
-protobuf-java-3.9.1.jar                                                                             bundle         apache2
 ballerina-log-1.0.0.jar                                                                             jar            apache2
 broker-core-0.970.5.jar                                                                             bundle         apache2
 mimepull-1.9.7.jar                                                                                  bundle         cddl1
@@ -229,7 +228,6 @@ ballerina-jwt-1.0.0-java.jar                                                    
 ballerina-lang.boolean-1.0.0-java.jar                                                               jar            apache2
 ballerina-observe-1.0.0.jar                                                                         jar            apache2
 ballerina-core-2.0.0-Preview1.jar                                                                   jar            apache2
-protobuf-ballerina-2.0.0-Preview1.jar                                                               jar            apache2
 netty-codec-http2-4.1.59.Final.jar                                                                  bundle         apache2
 quartz-2.3.2.jar                                                                                    bundle         apache2
 ballerina-lang.float-1.0.0.jar                                                                      jar            apache2

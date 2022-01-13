@@ -1,8 +1,0 @@
-[package]
-org = "ballerina_test"
-name = "listener_tests"
-version = "0.0.1"
-
-
-[[platform.java11.dependency]]
-path = "../../../../build/libs/observability-test-utils.jar"

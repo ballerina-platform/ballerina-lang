@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.StringJoiner;
 
@@ -61,7 +60,6 @@ import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.getTypeName;
 class TypeEmitter {
 
     static final Map<String, BType> B_TYPES = new HashMap<>();
-    static LinkedHashSet<BType> visited = new LinkedHashSet<>();
 
     static String emitType(BType bType, int tabs) {
 
@@ -157,10 +155,6 @@ class TypeEmitter {
             return readonly ? bType.toString().concat(" & readonly") : bType.toString();
         }
 
-        if (!visited.add(bType.constraint)) {
-            return "...";
-        }
-
         StringBuilder keyStringBuilder = new StringBuilder();
         String stringRep;
         if (bType.fieldNameList != null) {
@@ -183,12 +177,8 @@ class TypeEmitter {
     }
 
     private static String emitBUnionType(BUnionType bType, int tabs) {
-
-        if (!visited.add(bType)) {
-            if ((bType.tsymbol != null) && !bType.tsymbol.getName().getValue().isEmpty()) {
-                return bType.tsymbol.getName().getValue();
-            }
-            return "...";
+        if (bType.isCyclic) {
+           return bType.toString();
         }
         StringBuilder unionStr = new StringBuilder();
         int length = bType.getMemberTypes().size();
@@ -202,7 +192,6 @@ class TypeEmitter {
                 }
             }
         }
-        visited.clear();
         return unionStr.toString();
     }
 
@@ -216,7 +205,9 @@ class TypeEmitter {
     }
 
     private static String emitBTupleType(BTupleType bType, int tabs) {
-
+        if (bType.isCyclic) {
+            return bType.toString();
+        }
         StringBuilder tupleStr = new StringBuilder("(");
         int length = bType.tupleTypes.size();
         int i = 0;
@@ -261,9 +252,6 @@ class TypeEmitter {
     }
 
     private static String emitBArrayType(BArrayType bType, int tabs) {
-        if (!visited.add(bType.eType)) {
-            return "...";
-        }
         String arrStr = emitTypeRef(bType.eType, 0);
         arrStr += "[";
         if (bType.size > 0) {
@@ -358,10 +346,6 @@ class TypeEmitter {
     }
 
     private static String emitBMapType(BMapType bType, int tabs) {
-        if (!visited.add(bType.constraint)) {
-            return "...";
-        }
-
         String str = "map";
         str += "<";
         str += emitTypeRef(bType.constraint, 0);

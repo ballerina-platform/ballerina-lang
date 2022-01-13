@@ -21,6 +21,6 @@ groupId = "swagger.io"
 scope = "testOnly"
 
 [build-options]
-observabilityIncluded = true
+observabilityIncluded = false
 offline = true
 skipTests = false
