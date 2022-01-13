@@ -1460,6 +1460,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
+            validateErrorDetailBindingPatterns(varNode);
             return;
         }
 
@@ -1519,8 +1520,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // We have no rhs to do type checking.
             return;
         }
-        typeChecker.checkExpr(varNode.expr, env, varNode.getBType());
 
+        typeChecker.checkExpr(varNode.expr, env, varNode.getBType());
+        validateErrorDetailBindingPatterns(varNode);
+    }
+
+    private void validateErrorDetailBindingPatterns(BLangErrorVariable errorVariable) {
+        BType rhsType = types.getReferredType(errorVariable.expr.getBType());
+        if (rhsType.getKind() != TypeKind.ERROR) {
+            return;
+        }
+
+        BErrorType errorType = (BErrorType) rhsType;
+        BType detailType = types.getReferredType(errorType.detailType);
+
+        if (detailType.getKind() != TypeKind.RECORD) {
+            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
+                        errorDetailEntry.key.value);
+            }
+            return;
+        }
+
+        BRecordType rhsDetailType = (BRecordType) detailType;
+        LinkedHashMap<String, BField> detailFields = rhsDetailType.fields;
+
+        for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+            String entryName = errorDetailEntry.key.getValue();
+            BField entryField = detailFields.get(entryName);
+            if (entryField == null) {
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
+                        errorDetailEntry.key.value);
+            } else if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
+                dlog.error(errorDetailEntry.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+            }
+        }
     }
 
     private void handleDeclaredWithVar(BLangVariable variable) {
@@ -1916,23 +1951,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         checkConstantAssignment(varRef);
 
         if (expType != symTable.semanticError && compoundAssignment.expr.getBType() != symTable.semanticError) {
+            BType expressionType = compoundAssignment.expr.getBType();
+            if (expType.isNullable() || expressionType.isNullable()) {
+                dlog.error(compoundAssignment.pos, 
+                        DiagnosticErrorCode.COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS);
+            }
+            
             BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expType,
-                                                                      compoundAssignment.expr.getBType());
+                    expressionType);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType,
-                                                                   compoundAssignment.expr.getBType());
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType, expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType,
-                                                                     compoundAssignment.expr.getBType());
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType, 
+                        expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver.getBinaryBitwiseOpsForTypeSets(compoundAssignment.opKind, expType,
-                        compoundAssignment.expr.getBType());
+                        expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                           compoundAssignment.opKind, expType, compoundAssignment.expr.getBType());
+                           compoundAssignment.opKind, expType, expressionType);
             } else {
                 compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
                         compoundAssignment.expr,
@@ -2313,10 +2353,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                detailItem.name);
                     return;
                 } else {
-                    matchedType = BUnionType.create(null, symTable.nilType, rhsDetailType.restFieldType);
+                    dlog.error(detailItem.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
+                            detailItem.name.value);
+                    continue;
                 }
             } else if (Symbols.isOptional(matchedDetailItem.symbol)) {
-                matchedType = BUnionType.create(null, symTable.nilType, matchedDetailItem.type);
+                dlog.error(detailItem.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                continue;
             } else {
                 matchedType = matchedDetailItem.type;
             }

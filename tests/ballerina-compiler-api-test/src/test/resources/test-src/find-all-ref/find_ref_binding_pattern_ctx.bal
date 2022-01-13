@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -15,19 +15,16 @@
 // under the License.
 
 function test() {
-    // capture binding pattern (local var decl)
     int cbp1 = 10;
-    var cbp2 = "Hello World";
-
-    // wildcard binding pattern (destructuring assignment stmt)
-    _ = 3.14;
 
     // list binding pattern
     int lbp1;
     float lbp2;
     (decimal|string)[] rbp1;
-    [lbp1, lbp2, ...rbp1] = [10, 12.34, 45.6d, "Hello"]; // destructuring assignment stmt
+    [lbp1, lbp2, ...rbp1] = [cbp1, 12.34, 45.6d, "Hello"]; // destructuring assignment stmt
     [int, float, string...] [lbp3, lbp4, ...rbp2] = [cbp1, 23.45, "Foo", "Bar"]; // local var decl stmt
+    int res1 = lbp3;
+    string res2 = rbp2[0];
 
     // mapping binding pattern
     string mbp1;
@@ -36,6 +33,9 @@ function test() {
     {name: mbp1, mbp2, ...rbp3} = <Person1>{name: "Jane Doe", mbp2: 10, "foo": "bar"}; // destructuring assignment stmt
     record {string name; int age;} {name: mbp3, age, ...rbp4}
                                        = <Person2>{name: "John Doe", age: 20, "foo": "bar"}; // local var decl stmt
+    res1 = age;
+    res2 = <string>rbp4["foo"];
+    res2 = mbp3;
 
     // error binding pattern
     string msg;
@@ -44,9 +44,12 @@ function test() {
     map<string> rbp5;
     error Error(msg, cause, code=code, ...rbp5) = error Error("FileNotFound", code = 400); // destructuring assignment stmt
     Error error Error(msg1, cause1, code=code1, ...rbp6) = error Error("FileNotFound", code = 500); // local var decl stmt
+    res2 = msg1;
+    res2 = rbp6["foo"];
+    res1 = code1;
 }
 
-type Error error<record {int code;}>;
+type Error error<record {|int code; string...;|}>;
 
 type Person1 record {|
     string name;
