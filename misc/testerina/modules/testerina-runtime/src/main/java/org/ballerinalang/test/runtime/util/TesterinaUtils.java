@@ -292,6 +292,10 @@ public class TesterinaUtils {
         String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
 
+        if (fileName == null) {
+            fileName = "unknown-source";
+        }
+
         // clean file name from pkgName since we print the file name after the method name.
         fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
         fileName = fileName.replace("/", "-");
@@ -309,7 +313,7 @@ public class TesterinaUtils {
         // Append the method name
         sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
         // Append the filename
-        sb.append("(").append(stackTraceElement.getFileName());
+        sb.append("(").append(fileName);
         // Append the line number
         sb.append(":").append(stackTraceElement.getLineNumber()).append(")");
     }
