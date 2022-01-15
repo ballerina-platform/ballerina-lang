@@ -1,5 +1,5 @@
 NAME
-       ballerina-pack - Create the distribution format of a package
+       ballerina-pack - Create the Ballerina archive of a package
 
 SYNOPSIS
        bal pack
@@ -11,9 +11,9 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Compiles and packages the current package into a .bala file after verifying that it can
-       build with all its dependencies. Created .bala file contains the distribution format of
-       the current package.
+       Compiles and packages the current package into a .bala file in ''<package-root>/target/bala' directory.
+       The command can only be run with a Ballerina package. Creating the Ballerina archive is not supported with
+       standalone Ballerina files.
 
 
 OPTIONS
@@ -21,6 +21,11 @@ OPTIONS
        --offline
             Pack offline using the local artifacts without downloading the latest artifacts of
             the dependencies from the remote repository (Ballerina Central).
+
+       --sticky
+       		Disable automatic updates.
+       		This will stick to the exact versions locked in the
+       		'Dependencies.toml' file (if exists).
 
        --experimental
            Enable experimental language features.
@@ -35,9 +40,10 @@ OPTIONS
 EXAMPLES
 
        Pack the 'hello' library package.
-       This will generate the `<org-name>-<package-name>-<version>-<platform>.bala` file
+       This will generate the '<org-name>-<package-name>-<version>-<platform>.bala' file
        in the '<package-root>/target/bala' directory.
           $ bal pack
 
        Pack the 'hello' package from a different directory location.
+       The file path can be relative or absolute.
           $ bal pack `<hello-package-path>`

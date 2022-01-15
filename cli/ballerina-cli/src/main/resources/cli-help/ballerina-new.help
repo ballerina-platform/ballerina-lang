@@ -20,8 +20,8 @@ DESCRIPTION
             └── main.bal
 
        Any directory becomes a Ballerina package if that directory has a
-       'Ballerina.toml' file. It contains the organization name, package name,
-       and the version. It also enables dependency management across the package.
+       'Ballerina.toml' file. For library packages, it contains the organization name,
+       package name, and the version.
        The package root directory is the default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
@@ -31,7 +31,7 @@ DESCRIPTION
        which contains the build artifacts.
 
        A template can also be specified when creating a new package. If a template is not 
-       specified, this command creates a package with a 'main' template.
+       specified, this command creates a package with the default template.
 
 
        OPTIONS
@@ -55,4 +55,3 @@ DESCRIPTION
 
             Create a package with a Ballerina library.
                $ bal new <package-name> -t lib
-

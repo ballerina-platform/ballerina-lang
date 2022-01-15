@@ -7,9 +7,8 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Download the specified package from Ballerina Central
-       along with its dependencies and cache it in the
-       '.ballerina' directory in the user home.
+       Download the specified package from Ballerina Central along with its
+       dependencies and cache it in the '.ballerina' directory in the user home.
 
        Ballerina Central is a package repository hosted at
        https://central.ballerina.io/. A package repository organizes packages

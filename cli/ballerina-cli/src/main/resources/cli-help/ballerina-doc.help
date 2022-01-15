@@ -26,8 +26,8 @@ OPTIONS
           Build offline using the local artifacts without downloading the latest artifacts of
           the dependencies from the remote repository (Ballerina Central).
 
-       --target-dir
-          Target directory path.
+       --target-dir <directory-path>
+          Target directory path. The directory path can be absolute or relative.
 
 
 EXAMPLES
@@ -35,4 +35,5 @@ EXAMPLES
           $ bal doc
 
        Generate API documentation for a Ballerina package in a given path.
-          $ bal doc /path/to/package
+       The file path can be relative or absolute.
+          $ bal doc <package-path>
