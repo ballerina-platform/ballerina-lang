@@ -53,7 +53,7 @@ public class RuntimeStaticMethod extends RuntimeMethod {
             }
             List<Value> argValueList = getMethodArgs(this);
             return ((ClassType) classRef).invokeMethod(context.getFrame().threadProxy().getThreadReference(),
-                    methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
+                    methodRef, argValueList, 0);
         } catch (ClassNotLoadedException e) {
             throw createEvaluationException(FUNCTION_NOT_FOUND, methodRef.name());
         } catch (EvaluationException e) {
