@@ -31,10 +31,6 @@ public function main() {
     x = 3;
     x = 4;
     x = 5;
-
-    int[] nums = [1, 2, 3, 4];
-    int[] numsTimes10 = from var i in nums
-        select i * 10;
 }
 
 public function function1() {
