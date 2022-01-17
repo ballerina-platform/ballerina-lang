@@ -266,8 +266,16 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, "undefined function 'toHexString' in " +
                 "type 'InvalidIntFiniteType'", 344, 17);
 
-        Assert.assertEquals(result.getErrorCount(), err);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed16', found 'int'", 348, 23);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed16', found 'int'", 349, 23);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found 'int'", 350, 22);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found 'int'", 351, 22);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 352, 25);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 353, 25);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 354, 24);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 355, 24);
 
+        Assert.assertEquals(result.getErrorCount(), err);
     }
 
     @Test

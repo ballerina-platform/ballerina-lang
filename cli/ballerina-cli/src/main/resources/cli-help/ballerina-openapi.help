@@ -1,6 +1,5 @@
 NAME
-      Generate a Ballerina service or a client from
-      an OpenAPI contract and vice versa
+      Generate a Ballerina service or a client from an OpenAPI contract and vice versa.
 
 
 SYNOPSIS
@@ -12,18 +11,19 @@ SYNOPSIS
        bal openapi [-i | --input] <ballerina-service-file-path> [--json]
                    [-s | --service] <current-service-name>
 
+
 DESCRIPTION
-       Generate a Ballerina source (either a mock
-       service or a client stub) from the given OpenAPI definition file or export
-       an OpenAPI definition from a Ballerina service.
+       Generate a Ballerina source (either a mock service or a client stub) from the given
+       OpenAPI definition file or export an OpenAPI definition from a Ballerina service.
     
        The generated Ballerina sources will be written into the provided output location.
 
        Note: This is an experimental feature, which supports only a limited
-       set of functionality.
+       set of functionalities.
+
 
 OPTIONS
-        (-i| --input) <openapi-contract-file-path> | <ballerina-service-file-path>
+        -i, --input <openapi-contract-file-path | ballerina-service-file-path>
             This is a mandatory input. The given OpenAPI contract input will generate a Ballerina 
             service and the client stub files for the given OpenAPI contract. This generated service
             can be used as a code template to start the service implementation. Generated sources 
@@ -33,43 +33,41 @@ OPTIONS
             file. The given Ballerina service file input will generate the relevant OpenAPI 
             specification for the service file.
 
-        (-o| --output) <target-location>
+        -o, --output <output>
             Location of the generated Ballerina source code. If this path is not specified,
             the output will be written to the same directory from which the command is run.
 
-        (--mode) <mode-type>
-            Mode type is optional and can be service or client. The Ballerina service and client 
+        --mode <mode-type>
+            Mode type is can be 'service' or 'client'. The Ballerina service and client
             will be generated according to the mode. 
 
-        (-n| --nullable)
-            Optional. JSON schema properties that are not marked as `nullable:true` may return as null in
+        -n, --nullable
+            JSON schema properties that are not marked as `nullable:true` may return as null in
             some responses. It will result in JSON schema to Ballerina record data binding error. This is a
             safe option to generate all data types in the record with Ballerina nil support.
 
-        (--license) <license-file-path>
+        --license <license-file-path>
             Optional. The `.bal` files will generate with the given copyright or license header.
 
-        (-s| --service ) <current-service-name>
+        -s, --service <current-service-name>
             This service name is used to identify the service that need to documented as openApi 
             specification. This option uses with the command of Ballerina to OpenAPI specification 
             generation.
 
-        (--json)
-            Optional. Ballerina service to OpenAPI output as JSON. The default is YAML.
+        --json
+            Generate the Ballerina service to OpenAPI output as JSON. The default is YAML.
 
-        (--tags) <tag-names>
+        --tags <tag-names>
             This tags use to filter the operations tag need to generate services. This option uses 
             with command of OpenAPI to Ballerina file generation.
 
-        (--operations) <operation-names>
-            Optional. List of operations to generate the Ballerina service or client.
+        --operations <operation-names>
+            List of operations to generate the Ballerina service or client.
 
-        (--with-tests)
-            Optional. Work with the client generation command and generate a test boiler-plate for all the remote
+        --with-tests
+            Work with the client generation command and generate a test boiler-plate for all the remote
             functions of the generated client.
 
-DEFAULT BEHAVIOR
-       If no options are provided, the help text for the OpenAPI Tool is shown.
 
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.

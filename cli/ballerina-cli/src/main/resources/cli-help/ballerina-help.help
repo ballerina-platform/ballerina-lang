@@ -30,22 +30,22 @@ BALLERINA COMMANDS
 
    Core Commands:
         build           Compile a Ballerina program into an executable
+        pack            Create the Ballerina archive of the package
         run             Build and run a Ballerina program
         test            Run package tests
         doc             Generate API documentation
-        clean           Clean the artifacts generated during the build
-        format          Format Ballerina sources
 
    Package Commands:
         new             Create a new Ballerina package
         init            Initialise a new Ballerina package in the current directory
         add             Add a new Ballerina module in the package
         pull            Pull a package from Ballerina Central
-        pack            Create the distribution form of the package
-        push            Upload a package to Ballerina Central
+        push            Publish a package to Ballerina Central
         search          Search Ballerina Central for packages
 
    Other Commands:
+        clean           Clean the artifacts generated during the build
+        format          Format Ballerina sources
         grpc            Generate the Ballerina sources for a given Protocol Buffer definition
         openapi         Generate the Ballerina sources for a given OpenAPI definition and 
                         vice versa [EXPERIMENTAL]

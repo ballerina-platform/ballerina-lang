@@ -19,8 +19,8 @@ DESCRIPTION
             └── main.bal
 
        Any directory becomes a Ballerina package if that directory has a
-       'Ballerina.toml' file. It contains the organization name, package name,
-       and the version. It also enables dependency management across the package.
+       'Ballerina.toml' file. For library packages, it contains the organization name,
+       package name, and the version.
        The package root directory is the default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
@@ -31,6 +31,5 @@ DESCRIPTION
 
 
 EXAMPLES
-     Initialise a package.
+     Initialise a package in the current directory.
         $ bal init
-        $ bal init <package-name>
