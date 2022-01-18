@@ -50,7 +50,7 @@ public class Async {
     }
 
     public static long getFieldValWithArgDefaultVal(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldVal", StringUtils.fromString("dummy"), false);
+        invokeMethodAsyncSequentially(env, obj, "getFieldVal", StringUtils.fromString("any value here"), false);
         return 0;
     }
 

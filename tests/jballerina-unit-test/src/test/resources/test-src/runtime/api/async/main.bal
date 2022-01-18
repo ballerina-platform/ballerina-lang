@@ -19,7 +19,7 @@ import ballerina/jballerina.java;
 
 int globalVar = 2;
 
-public class ObjectMethodCallTest {
+public class ObjectMethodsCallClass {
     int n = 5;
 
     function getN() returns int {
@@ -264,11 +264,11 @@ public service class NonIsolatedServiceClass2 {
 }
 
 public function main() {
-    ObjectMethodCallTest objectMethodCallTest = new ();
-    test:assertEquals(objectMethodCallTest.callGetN(), 5);
-    test:assertEquals(objectMethodCallTest.callAddAndGetN(10), 15);
-    test:assertEquals(objectMethodCallTest.callGetFieldValWithArgDefaultVal(), 15);
-    test:assertEquals(objectMethodCallTest.callGetFieldValWithProvidedArgVal("not a field"), -1);
+    ObjectMethodsCallClass objectMethodsCallClass = new ();
+    test:assertEquals(objectMethodsCallClass.callGetN(), 5);
+    test:assertEquals(objectMethodsCallClass.callAddAndGetN(10), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithArgDefaultVal(), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedArgVal("not a field"), -1);
 
     IsolatedClass isolatedClass = new ();
     test:assertEquals(isolatedClass.callGetA(), 1);
