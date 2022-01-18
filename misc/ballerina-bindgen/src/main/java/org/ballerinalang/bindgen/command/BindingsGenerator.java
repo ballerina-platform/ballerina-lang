@@ -269,7 +269,7 @@ public class BindingsGenerator {
                         }
                         // Prevent the overwriting of existing class implementations with partially generated classes.
                         if (Files.exists(filePath) && !env.isDirectJavaClass()) {
-                            return;
+                            continue;
                         }
                         outputSyntaxTreeFile(jClass, env, filePath.toString(), false);
                         outStream.println("\t" + c);
