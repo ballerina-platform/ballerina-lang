@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static io.ballerina.test.utils.Constants.COMMENT;
+import static io.ballerina.test.utils.Constants.DISABLED_FILE;
 import static io.ballerina.test.utils.Constants.FAILING_FILE;
 import static io.ballerina.test.utils.Constants.SUBTYPE_SYMBOL;
 
@@ -57,10 +58,11 @@ public class SemTypeTest {
         File dir = resolvePath("test-src").toFile();
         List<String> files = new ArrayList<>();
         for (File file : Objects.requireNonNull(dir.listFiles())) {
-            // This check is used to remove failing tests.
-            if (!file.getName().contains(FAILING_FILE)) {
-                files.add(file.getAbsolutePath());
+            String fileName = file.getName();
+            if (fileName.contains(FAILING_FILE) || fileName.contains(DISABLED_FILE)) {
+                continue;
             }
+            files.add(file.getAbsolutePath());
         }
         return files.toArray();
     }
