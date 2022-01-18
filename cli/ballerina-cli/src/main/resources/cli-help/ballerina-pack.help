@@ -6,7 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Compiles and packages the current package into a .bala file and write
+       Compiles and packages the current package into a '.bala' file and writes
        it to the 'target/bala' directory.
 
 
