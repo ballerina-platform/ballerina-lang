@@ -31,4 +31,4 @@ DESCRIPTION
 
 EXAMPLES
      Initialise a package in the current directory.
-        $ bal init
+         $ bal init

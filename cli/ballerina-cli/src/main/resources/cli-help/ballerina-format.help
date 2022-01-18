@@ -24,13 +24,13 @@ OPTIONS
 
 EXAMPLES
        Format the current package.
-          $ bal format
+           $ bal format
 
        Format the module 'core' in the current package.
-          $ bal format core
+           $ bal format core
 
        Format a Ballerina file.
-          $ bal format app.bal
+           $ bal format app.bal
 
        Perform a dry run to see which files will be formatted.
-          $ bal format -d
+           $ bal format -d

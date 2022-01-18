@@ -42,12 +42,12 @@ OPTIONS
            Include the dependencies that are required to enable observability.
 
        --offline
-            Proceed without accessing the network. Attempt to proceed with the previously
-            downloaded dependencies in local caches fail otherwise.
+           Proceed without accessing the network. Attempt to proceed with the previously
+           downloaded dependencies in local caches fail otherwise.
 
        --sticky
-       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
-            If the file doesn't exist, this option is ignored.
+       	   Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+           If the file doesn't exist, this option is ignored.
 
        --target-dir <path>
            Target directory path. The directory path can be absolute or relative
@@ -65,14 +65,14 @@ ARGUMENTS
 
 EXAMPLES
        Run the 'main' function and service(s) in the 'app.bal' file.
-          $ bal run app.bal
+           $ bal run app.bal
 
        Run the 'main' function and service(s) in the `app` executable JAR.
-          $ bal run app.jar
+           $ bal run app.jar
 
        Run the 'main' function and service(s) in the current package.
-          $ bal run
+           $ bal run
 
        Run the 'main' function in the current package with three program args:
        add, 10, and 5.
-          $ bal run -- add 10 5
+           $ bal run -- add 10 5

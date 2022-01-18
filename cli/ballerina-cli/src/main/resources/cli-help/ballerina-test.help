@@ -34,7 +34,7 @@ OPTIONS
            Specify the test groups to be excluded.
 
        --groups <test_group, ...>
-            Specify the test groups to be executed.
+           Specify the test groups to be executed.
 
        --list-groups
            List the test groups available in the test files.
@@ -43,12 +43,12 @@ OPTIONS
            Include the dependencies that are required to enable observability.
 
        --offline
-            Proceed without accessing the network. Attempt to proceed with the previously
-            downloaded dependencies in local caches fail otherwise.
+           Proceed without accessing the network. Attempt to proceed with the previously
+           downloaded dependencies in local caches fail otherwise.
 
        --sticky
-       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
-            If the file doesn't exist, this option is ignored.
+       	   Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+           If the file doesn't exist, this option is ignored.
 
        --rerun-failed
            Execute only the test cases in the packages that failed in the previous run.

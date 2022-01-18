@@ -71,34 +71,34 @@ OPTIONS
 
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
-          $ bal openapi -i hello.yaml --mode service 
+           $ bal openapi -i hello.yaml --mode service
 
        Generate a Ballerina client using a `hello.yaml` OpenAPI contract.
-          $ bal openapi -i hello.yaml --mode client  
+           $ bal openapi -i hello.yaml --mode client
 
        Generate a Ballerina client including boiler-plate test cases for all the client remote functions
        based on the `hello.yaml` OpenAPI contract.
-          $ bal openapi -i hello.yaml --mode client --with-tests
+           $ bal openapi -i hello.yaml --mode client --with-tests
 
        Generate both the Ballerina client and service files using a `hello.yaml` OpenAPI contract 
        and (optionally) write the output to the given directory.
           $ bal openapi --input hello.yaml -o ./output_path
 
        Generate services for the tags given in the `hello.yaml` OpenAPI contract.
-          $ bal openapi -i hello.yaml --mode service --tags tag_ID
+           $ bal openapi -i hello.yaml --mode service --tags tag_ID
 
        Generate services for the operations given in the `hello.yaml` OpenAPI contract.
-          $ bal openapi -i hello.yaml --mode service --operations operation_ID
+           $ bal openapi -i hello.yaml --mode service --operations operation_ID
 
        Generate all the record fields that are not specifically mentioned as `nullable:false` in
        the OpenAPI schema property as nullable.
-          $ bal openapi -i hello.yaml --nullable
+           $ bal openapi -i hello.yaml --nullable
 
        Generate both the Ballerina client and service files including the given license or copyright header.
-          $ bal openapi -i hello.yaml --license license.txt
+           $ bal openapi -i hello.yaml --license license.txt
 
        Export an OpenAPI definition for the `/hello` service of the `hello_service.bal` file.
-          $ bal openapi -i hello_service.bal --service-name /hello
+           $ bal openapi -i hello_service.bal --service-name /hello
 
        Generate an OpenAPI specification in the JSON format.
-          $ bal openapi -i hello_service.bal --json
+           $ bal openapi -i hello_service.bal --json

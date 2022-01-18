@@ -12,27 +12,27 @@ DESCRIPTION
 
 OPTIONS
        -e, --exclude
-          Exclude the given list of modules.
+           Exclude the given list of modules.
           
        -o <output>, --output <output>
-          Write the output to the given directory.
+           Write the output to the given directory.
 
        --offline
-            Proceed without accessing the network. Attempt to proceed with the previously
-            downloaded dependencies in local caches fail otherwise.
+           Proceed without accessing the network. Attempt to proceed with the previously
+           downloaded dependencies in local caches fail otherwise.
 
        --sticky
-       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
-            If the file doesn't exist, this option is ignored.
+           Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+           If the file doesn't exist, this option is ignored.
 
        --target-dir <path>
-          Target directory path.
+           Target directory path.
 
 
 EXAMPLES
        Generate API documentation for the current package.
-          $ bal doc
+           $ bal doc
 
        Generate API documentation for a Ballerina package in a given path.
        The file path can be relative or absolute.
-          $ bal doc <package-path>
+           $ bal doc <package-path>

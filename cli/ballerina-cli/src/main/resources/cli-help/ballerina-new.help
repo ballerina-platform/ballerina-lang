@@ -33,24 +33,24 @@ DESCRIPTION
        specified, this command creates a package with the default template.
 
 
-       OPTIONS
-            -t <template-name>, --template <template-name>
-                Create a package using a predefined template.
+OPTIONS
+    -t <template-name>, --template <template-name>
+        Create a package using a predefined template.
 
-                 There are three built-in templates named:
-                 1. `main`
-                 2. `service`
-                 3. `lib`
+        There are three built-in templates named:
+        1. `main`
+        2. `service`
+        3. `lib`
 
-       EXAMPLES
-            Create a package with the 'main' function.
-               $ bal new <package-name>
+EXAMPLES
+    Create a package with the 'main' function.
+        $ bal new <package-name>
 
-            Create a package with the 'main' function with tests.
-               $ bal new <package-name> -t main
+    Create a package with the 'main' function with tests.
+        $ bal new <package-name> -t main
 
-            Create a package with a Ballerina service.
-               $ bal new <package-name> -t service
+    Create a package with a Ballerina service.
+        $ bal new <package-name> -t service
 
-            Create a package with a Ballerina library.
-               $ bal new <package-name> -t lib
+    Create a package with a Ballerina library.
+        $ bal new <package-name> -t lib

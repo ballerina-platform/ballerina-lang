@@ -12,13 +12,13 @@ DESCRIPTION
        Any top-level directory inside the 'modules' directory becomes a
        Ballerina module and its name can be derived as:
 
-          module-name := <package-name>.<directory_name>
+           module-name := <package-name>.<directory_name>
 
        Use the 'module-name' when importing the module. The organization name
        is optional if the module is imported within the current package.
 
-          import module-name;
-          import org-name/module-name;
+           import module-name;
+           import org-name/module-name;
 
        Module names can only contain alphanumerics, underscores,
        and periods, and the maximum length is 256 characters.
@@ -26,7 +26,7 @@ DESCRIPTION
 
 EXAMPLES
        Add module 'app.core' to the current package 'app'.
-          $ bal add core
+           $ bal add core
 
        Add module 'app.core.db' to the current package 'app'.
-          $ bal add core.db
+           $ bal add core.db

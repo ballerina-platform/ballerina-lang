@@ -28,13 +28,13 @@ OPTIONS
 
 EXAMPLES
        Run the Ballerina Shell.
-          $ bal shell
+           $ bal shell
 
        Run the Ballerina Shell in the debug mode.
-          $ bal shell -d
+           $ bal shell -d
 
        Run the Ballerina Shell with a one second time out.
-          $ bal shell -t 1000
+           $ bal shell -t 1000
 
        Run the Ballerina Shell by loading the initial declarations from the `main.bal` file.
-          $ bal shell -f main.bal
+           $ bal shell -f main.bal

@@ -19,7 +19,7 @@ OPTIONS
 
 EXAMPLES
        Clean the default target directory of the current package.
-          $ bal clean
+           $ bal clean
 
        Clean the provided target directory.
-          $ bal clean <target-directory-path>
+           $ bal clean <target-directory-path>

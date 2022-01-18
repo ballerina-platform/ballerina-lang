@@ -38,12 +38,12 @@ OPTIONS
            Include the dependencies that are required to enable observability.
 
        --offline
-            Proceed without accessing the network. Attempt to proceed with the previously
-            downloaded dependencies in local caches fail otherwise.
+           Proceed without accessing the network. Attempt to proceed with the previously
+           downloaded dependencies in local caches fail otherwise.
 
        --sticky
-       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
-            If the file doesn't exist, this option is ignored.
+       	   Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+           If the file doesn't exist, this option is ignored.
 
        --target-dir <path>
            Target directory path.
@@ -51,10 +51,10 @@ OPTIONS
 
 EXAMPLES
        Build the current package. This will generate 'app.jar' in the 'target/bin' directory.
-          $ bal build
+           $ bal build
 
        Build a single .bal file. This will generate 'app.jar' in the current directory.
-          $ bal build app.bal
+           $ bal build app.bal
 
        Build the 'app' package from a different directory.
-          $ bal build <app-package-path>
+           $ bal build <app-package-path>

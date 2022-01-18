@@ -12,17 +12,17 @@ DESCRIPTION
 
 OPTIONS
        --offline
-            Proceed without accessing the network. Attempt to proceed with the previously
-            downloaded dependencies in local caches fail otherwise.
+           Proceed without accessing the network. Attempt to proceed with the previously
+           downloaded dependencies in local caches fail otherwise.
 
        --sticky
-       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
-            If the file doesn't exist, this option is ignored.
+       	   Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+           If the file doesn't exist, this option is ignored.
 
        --target-dir
-            Target directory path.
+           Target directory path.
 
 
 EXAMPLES
        Pack the current package into .bala file.
-          $ bal pack
+           $ bal pack
