@@ -19,7 +19,7 @@ DESCRIPTION
 
        Ballerina program execution consists of two consecutive phases.
        The initialization phase initializes all modules of a program one after another.
-       If a module defines a function named 'init()', It'll be invoked during this phase.
+       If a module defines a function named 'init()', it will be invoked during this phase.
        If the root module of the program defines a public function named 'main()',
        then it will be invoked.
 
