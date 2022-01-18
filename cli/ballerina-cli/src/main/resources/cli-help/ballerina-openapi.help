@@ -21,7 +21,6 @@ DESCRIPTION
        set of functionalities.
 
 
-
 OPTIONS
         -i, --input <openapi-contract-file-path | ballerina-service-file-path>
             This is a mandatory input. The given OpenAPI contract input will generate a Ballerina 

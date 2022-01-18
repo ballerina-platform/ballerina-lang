@@ -55,9 +55,6 @@ OPTIONS
        --list-conflicted-classes
            List the conflicting classes of conflicting JARs in the project.
 
-       --sticky
-       	   Stick to the exact versions locked in the `Dependencies.toml` file.
-
        --target-dir <directory-path>
            Target directory path. The directory path can be absolute or relative.
 
