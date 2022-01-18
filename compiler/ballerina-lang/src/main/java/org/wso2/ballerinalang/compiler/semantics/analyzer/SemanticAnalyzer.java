@@ -300,7 +300,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.prevEnvs.clear();
-        this.narrowedTypeInfo.clear();
+        this.narrowedTypeInfo = new HashMap<>();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
