@@ -7,12 +7,12 @@ SYNOPSIS
 
 DESCRIPTION
        Compile the current package and its dependencies to produce a
-       standalone executable jar (Java Archive) file.
+       standalone executable JAR (Java Archive) file.
 
        Build creates the resulting executable to the `target/bin` directory
        when compiling the current package.
 
-       Build creates the resulting executable to the current directory
+       Build creates the resulting executable in the current directory
        when compiling a single .bal file. The generated executable is named
        after the source file.
 
