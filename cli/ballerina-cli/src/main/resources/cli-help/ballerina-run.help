@@ -11,9 +11,9 @@ DESCRIPTION
 
        The run command executes the program when a jar file produced by 'bal build'
        is given as the argument. If not, compiles and runs the given package
-       or single bal file.
+       or .bal file.
 
-       Ballerina program consists of one or more modules; one of these modules
+       A Ballerina program consists of one or more modules; one of these modules
        is distinguished as the root module, which is the default module of
        current package.
 
