@@ -436,7 +436,7 @@ function f25() {
     if c is anydata|future<string> {
         anydata|future<string> _ = c; // OK
     } else {
-        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |}|future<string>)'
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
     }
 
     if c is record {| stream<int> s; |} {
@@ -529,6 +529,6 @@ function f28() {
     if w is A|boolean {
         A|boolean _ = w;
     } else {
-        A6 _ = w; // OK, not yet allowed.
+        A6 _ = w; // OK
     }
 }

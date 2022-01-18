@@ -4402,14 +4402,18 @@ public class Types {
             originalType = ((BIntersectionType) originalType).effectiveType;
         }
 
+        boolean unionOriginalType = false;
+
         switch (originalType.tag) {
             case TypeTags.UNION:
+                unionOriginalType = true;
                 remainingType = getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove, true));
 
-                BType typeRemovedFromOriginalType = getReferredType(getRemainingType((BUnionType) originalType,
-                                                                      getAllTypes(remainingType, true)));
-                if (typeRemovedFromOriginalType == symTable.nullSet ||
-                        isSubTypeOfReadOnly(typeRemovedFromOriginalType) ||
+                BType typeRemovedFromOriginalUnionType = getReferredType(getRemainingType((BUnionType) originalType,
+                                                                                          getAllTypes(remainingType,
+                                                                                                      true)));
+                if (typeRemovedFromOriginalUnionType == symTable.nullSet ||
+                        isSubTypeOfReadOnly(typeRemovedFromOriginalUnionType) ||
                         isSubTypeOfReadOnly(remainingType)) {
                     return remainingType;
                 }
@@ -4437,11 +4441,21 @@ public class Types {
             return remainingType;
         }
 
-        if (isClosedRecordTypes(getReferredType(typeToRemove)) && removesDistinctRecords(typeToRemove, remainingType)) {
+        BType referredTypeToRemove = getReferredType(typeToRemove);
+        if (isClosedRecordTypes(referredTypeToRemove) && removesDistinctRecords(typeToRemove, remainingType)) {
             return remainingType;
         }
 
         if (removesDistinctBasicTypes(typeToRemove, remainingType)) {
+            return remainingType;
+        }
+
+        if (unionOriginalType && referredTypeToRemove.tag == UNION) {
+            BType typeToRemoveFrom = originalType;
+            for (BType memberTypeToRemove : ((BUnionType) referredTypeToRemove).getMemberTypes()) {
+                remainingType = typeToRemoveFrom =  getRemainingType(typeToRemoveFrom, memberTypeToRemove);
+            }
+
             return remainingType;
         }
 
