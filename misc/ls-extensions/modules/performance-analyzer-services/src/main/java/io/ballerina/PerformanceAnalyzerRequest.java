@@ -18,18 +18,16 @@
 
 package io.ballerina;
 
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 /**
- * Request format for performance analyzer graph request.
+ * Request format for performance analyzer request.
  *
  * @since 2.0.0
  */
-public class PerformanceAnalyzerGraphRequest {
+public class PerformanceAnalyzerRequest {
 
     private TextDocumentIdentifier documentIdentifier;
-    private Range range;
 
     public TextDocumentIdentifier getDocumentIdentifier() {
 
@@ -39,16 +37,6 @@ public class PerformanceAnalyzerGraphRequest {
     public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
 
         this.documentIdentifier = documentIdentifier;
-    }
-
-    public Range getRange() {
-
-        return range;
-    }
-
-    public void setRange(Range range) {
-
-        this.range = range;
     }
 
 }
