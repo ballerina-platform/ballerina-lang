@@ -151,7 +151,7 @@ set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024
 set jar=%~2
 if "%1" == "run" if "%jar:~-4%" == ".jar" goto runJar
 
-set jar=%4
+set jar=%~4
 if "%1" == "run" if "%~2" == "--debug" if "%jar:~-4%" == ".jar" goto debugJar
 
 :runJava
