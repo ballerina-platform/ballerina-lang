@@ -21,7 +21,7 @@ DESCRIPTION
 
 OPTIONS
        --export-openapi
-           Generate openAPI definition for service declarations in the current package.
+           Generate openAPI definitions for service declarations in the current package.
 
        --cloud <provider>
            Generate cloud artifacts: '--cloud=k8s' for Kubernetes
