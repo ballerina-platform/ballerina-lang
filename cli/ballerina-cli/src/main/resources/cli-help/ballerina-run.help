@@ -31,7 +31,7 @@ DESCRIPTION
        A service declaration is syntactic sugar for creating a service object and
        attaching it to the module listener specified in the service declaration.
 
-       Note: Running individual '.bal' files of the current package is not allowed.
+       Note: Running individual '.bal' files of a package is not allowed.
 
 
 OPTIONS

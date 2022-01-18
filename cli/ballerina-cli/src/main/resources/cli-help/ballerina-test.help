@@ -13,7 +13,7 @@ DESCRIPTION
        current package. It runs test functions defined in the given source file
        when building a single '.bal' file.
 
-       Note: Testing individual '.bal' files of the current package is not allowed.
+       Note: Testing individual '.bal' files of a package is not allowed.
 
 
 OPTIONS
