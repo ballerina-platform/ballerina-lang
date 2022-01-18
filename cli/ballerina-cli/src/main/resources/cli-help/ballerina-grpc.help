@@ -12,7 +12,7 @@ DESCRIPTION
 
 OPTIONS
        --input <proto-file-path>
-           Path of the input `.proto` file.
+           Input .proto file or a directory containing multiple .proto files.
 
        --output <path>
            Location of the generated Ballerina source files.
@@ -23,8 +23,10 @@ OPTIONS
 
        --mode client | service | proxy
            Set the `client` or `service` mode to generate sample code.
-           Set the `proxy` mode to generate a gateway proxy.
            If not specified, only the stub file is generated.
+
+       --proto_path
+            Path to a directory in which to look for .proto files when resolving import directives.
 
 EXAMPLES
        Generate the Ballerina gRPC stub file (for the given `.proto` file) in a
