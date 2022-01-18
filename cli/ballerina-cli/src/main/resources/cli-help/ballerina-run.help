@@ -21,7 +21,7 @@ DESCRIPTION
        The initialization phase initializes all modules of a program one after another.
        If a module defines a function named 'init()', It'll be invoked during this phase.
        If the root module of the program defines a public function named 'main()',
-       then it'll be invoked.
+       then it will be invoked.
 
        If the initialization phase of program execution completes successfully,
        then execution proceeds to the listening phase. If there are no module listeners,
@@ -31,7 +31,7 @@ DESCRIPTION
        A service declaration is syntactic sugar for creating a service object and
        attaching it to the module listener specified in the service declaration.
 
-       Note: Building individual '.bal' files of the current package is not allowed.
+       Note: Running individual '.bal' files of the current package is not allowed.
 
 
 OPTIONS

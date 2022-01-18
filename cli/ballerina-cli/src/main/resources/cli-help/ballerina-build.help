@@ -13,7 +13,7 @@ DESCRIPTION
        when compiling the current package.
 
        Build creates the resulting executable in the current directory
-       when compiling a single .bal file. The generated executable is named
+       when compiling a single '.bal' file. The generated executable is named
        after the source file.
 
        Note: Building individual '.bal' files of the current package is not allowed.
@@ -21,7 +21,7 @@ DESCRIPTION
 
 OPTIONS
        --export-openapi
-           Generate openAPI definition for service declarations in the current package.
+           Generate openAPI definitions for service declarations in the current package.
 
        --cloud <provider>
            Generate cloud artifacts: '--cloud=k8s' for Kubernetes
@@ -32,7 +32,7 @@ OPTIONS
 
        -o <output>, --output <output>
            Write the output to the given file. These options will only work
-           for the single .bal file scenario.
+           for the single '.bal' file scenario.
 
        --observability-included
            Include the dependencies that are required to enable observability.
