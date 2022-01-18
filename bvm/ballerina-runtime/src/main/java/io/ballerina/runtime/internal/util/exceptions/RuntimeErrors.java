@@ -121,7 +121,8 @@ public enum RuntimeErrors implements DiagnosticCode {
     CONFIG_CLI_VARIABLE_AMBIGUITY("config.cli.variable.ambiguity", "RUNTIME_0093"),
     CONFIG_CLI_ARGS_AMBIGUITY("config.cli.args.ambiguity", "RUNTIME_0094"),
     CONFIG_CLI_UNUSED_CLI_ARGS("config.cli.unused.args", "RUNTIME_0095"),
-    LARGE_EXPONENTS_IN_DECIMAL("large.number.of.exponents.in.decimal", "RUNTIME_0096");
+    LARGE_EXPONENTS_IN_DECIMAL("large.number.of.exponents.in.decimal", "RUNTIME_0096"),
+    UNSUPPORTED_DECIMAL_VALUE("unsupported.decimal.value", "RUNTIME_0097");
 
     private String errorMsgKey;
     private String errorCode;

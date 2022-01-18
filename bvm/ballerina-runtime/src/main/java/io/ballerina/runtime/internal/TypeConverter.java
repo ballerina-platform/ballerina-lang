@@ -551,11 +551,19 @@ public class TypeConverter {
         }
         ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
-        if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = ((BArrayType) source.getType()).getElementType();
+        Type sourceType = source.getType();
+        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            Type sourceElementType = ((BArrayType) sourceType).getElementType();
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
+        }
+        int targetSize = targetType.getSize();
+        long sourceSize = source.getLength();
+        if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
+            addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
+                    "type '" + targetType + "' does not have a filler value");
+            return false;
         }
 
         int initialErrorCount;
