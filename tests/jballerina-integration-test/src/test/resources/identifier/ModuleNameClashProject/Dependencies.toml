@@ -11,19 +11,30 @@ org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
 scope = "testOnly"
-transitive = true
 
 [[package]]
 org = "ballerina"
 name = "test"
 version = "0.0.0"
 scope = "testOnly"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
 modules = [
 	{org = "ballerina", packageName = "test", moduleName = "test"}
+]
+
+[[package]]
+org = "testModuleClash"
+name = "main"
+version = "1.1.0"
+dependencies = [
+	{org = "ballerina", name = "test"}
+]
+modules = [
+	{org = "testModuleClash", packageName = "main", moduleName = "main"},
+	{org = "testModuleClash", packageName = "main", moduleName = "main.pkg.test"},
+	{org = "testModuleClash", packageName = "main", moduleName = "main.pkg_test"}
 ]
 
 

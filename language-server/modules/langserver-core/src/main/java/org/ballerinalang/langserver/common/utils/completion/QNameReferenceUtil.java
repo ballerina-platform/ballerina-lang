@@ -138,10 +138,12 @@ public class QNameReferenceUtil {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
         }
-        int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
+        QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node;
+        int colonPos = qNameRef.colon().textRange().startOffset();
         int cursor = context.getCursorPositionInTree();
 
-        return colonPos < cursor;
+        return colonPos < cursor
+                && (qNameRef.identifier().isMissing() || cursor <= qNameRef.identifier().textRange().endOffset());
     }
 
     /**

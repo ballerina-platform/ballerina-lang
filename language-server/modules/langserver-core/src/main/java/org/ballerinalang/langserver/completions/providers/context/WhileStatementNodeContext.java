@@ -16,23 +16,19 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link WhileStatementNode} context.
@@ -50,16 +46,15 @@ public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileS
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WhileStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION)
-                .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        List<Snippet> snippets = Arrays.asList(Snippet.KW_TRUE, Snippet.KW_FALSE);
-        snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
+            List<Symbol> symbols = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            completionItems.addAll(this.getCompletionItemList(symbols, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
+        }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 

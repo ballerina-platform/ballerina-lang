@@ -18,8 +18,14 @@
 
 package io.ballerina.shell.cli.jline.validator;
 
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 
 /**
  * Validates user input as a complete module member.
@@ -42,6 +48,14 @@ public class ModuleMemberValidator implements Validator {
     @Override
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
+        TextDocument document = TextDocuments.from(source);
+        SyntaxTree tree = SyntaxTree.from(document);
+        ModulePartNode node = tree.rootNode();
+        NodeList<ModuleMemberDeclarationNode> members = node.members();
+        if (members.size() > 1) {
+            return false;
+        }
+
         boolean isIncomplete = NodeParser.parseModuleMemberDeclaration(source).apply(incompleteInputFinder);
         if (!NodeParser.parseModuleMemberDeclaration(source).hasDiagnostics()) {
             return false;

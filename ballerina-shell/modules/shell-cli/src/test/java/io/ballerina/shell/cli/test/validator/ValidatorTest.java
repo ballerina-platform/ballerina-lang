@@ -47,6 +47,34 @@ public class ValidatorTest {
                 "                      limit 3\n" +
                 "\n" +
                 "                      select e;"));
+        Assert.assertFalse(inputValidator.isIncomplete("function name() {\n" +
+                "}\n" +
+                "\n" +
+                "function foo() {\n" +
+                "}"));
+        Assert.assertFalse(inputValidator.isIncomplete("type Coord record {\n" +
+                "    int x;\n" +
+                "    int y;\n" +
+                "};\n" +
+                "\n" +
+                "type Coord2 record {\n" +
+                "    int a;\n" +
+                "    int b;\n" +
+                "};"));
+        Assert.assertFalse(inputValidator.isIncomplete("function foo() {\n" +
+                "}"));
+        Assert.assertFalse(inputValidator.isIncomplete("\n" +
+                "\n" +
+                "function sum2(float[] v) returns float {\n" +
+                "    float r = 0.0;\n" +
+                "\n" +
+                "    foreach int i in 0 ..< v.length() {\n" +
+                "        r += v[i];\n" +
+                "    }\n" +
+                "\n" +
+                "    return r;\n" +
+                "}"));
+
 
         Assert.assertTrue(inputValidator.isIncomplete("x + "));
         Assert.assertTrue(inputValidator.isIncomplete("[1,2,3"));

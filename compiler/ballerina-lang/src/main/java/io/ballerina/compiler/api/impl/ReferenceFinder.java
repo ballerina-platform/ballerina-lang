@@ -1143,6 +1143,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         find(bLangTupleVariable.annAttachments);
+        find(bLangTupleVariable.typeNode);
         find(bLangTupleVariable.memberVariables);
         find(bLangTupleVariable.restVariable);
         find(bLangTupleVariable.expr);
@@ -1155,11 +1156,14 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
+        find(bLangRecordVariable.annAttachments);
+        find(bLangRecordVariable.typeNode);
+
         for (BLangRecordVariable.BLangRecordVariableKeyValue variableKeyValue : bLangRecordVariable.variableList) {
             find(variableKeyValue.valueBindingPattern);
         }
 
-        find(bLangRecordVariable.annAttachments);
+        find(bLangRecordVariable.expr);
         find(bLangRecordVariable.restParam);
     }
 
@@ -1170,10 +1174,13 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
+        find(bLangErrorVariable.annAttachments);
+        find(bLangErrorVariable.typeNode);
         find(bLangErrorVariable.message);
         find(bLangErrorVariable.restDetail);
         find(bLangErrorVariable.cause);
         find(bLangErrorVariable.reasonMatchConst);
+        find(bLangErrorVariable.expr);
 
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : bLangErrorVariable.detail) {
             find(errorDetailEntry.valueBindingPattern);

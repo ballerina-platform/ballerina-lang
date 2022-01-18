@@ -426,11 +426,6 @@
                   "endColumn": 9
                 },
                 "typeData": {
-                  "typeSymbol": {
-                    "typeKind": "int",
-                    "kind": "TYPE",
-                    "signature": "int"
-                  },
                   "symbol": {
                     "deprecated": false,
                     "moduleID": {
@@ -706,11 +701,6 @@
                   "endColumn": 9
                 },
                 "typeData": {
-                  "typeSymbol": {
-                    "typeKind": "int",
-                    "kind": "TYPE",
-                    "signature": "int"
-                  },
                   "symbol": {
                     "deprecated": false,
                     "moduleID": {

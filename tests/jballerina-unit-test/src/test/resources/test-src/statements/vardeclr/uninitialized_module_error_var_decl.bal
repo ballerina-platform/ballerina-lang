@@ -15,7 +15,7 @@
 // under the License.
 
 type ErrorDetail record {
-    int riskLevel?;
+    int riskLevel;
 };
 
 type RiskError error<ErrorDetail>;

@@ -365,6 +365,44 @@ function getCurrentThreadName() returns string {
     return java:toString(tName) ?: "";
 }
 
+function basicWorkerTest1() returns error? {
+    string username = "";
+
+    if username == "" {
+        return;
+    }
+
+    int x = 1;
+
+    worker w {
+        int _ = x;
+    }
+
+    function _ = function () {
+        int _ = x;
+    };
+}
+
+function basicWorkerTest2() returns error? {
+    string? username = "ABC";
+
+    if username is () {
+        return;
+    }
+
+    string x = username;
+
+    worker w {
+        string y = x;
+    }
+
+    function _ = function () {
+        string z = x;
+    };
+
+    string _ = x;
+}
+
 function currentThread() returns handle = @java:Method {
     'class: "java.lang.Thread"
 } external;

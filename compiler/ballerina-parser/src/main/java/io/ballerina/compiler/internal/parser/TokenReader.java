@@ -17,7 +17,10 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 /**
  * Reader that can read tokens from a given lexer. Supports k-lookahead
@@ -80,12 +83,21 @@ public class TokenReader extends AbstractTokenReader {
      */
     public STToken peek(int k) {
         STToken nextToken;
-        while (this.tokensAhead.size < k) {
+        TokenBuffer tokensAhead = this.tokensAhead;
+
+        while (tokensAhead.size < k) {
             nextToken = this.lexer.nextToken();
-            this.tokensAhead.add(nextToken);
+            if (tokensAhead.size == tokensAhead.capacity) {
+                // We reach here when the BUFFER_SIZE is exceeded.
+                // To avoid parser being crashed, return EOF token as peek(k) for k > BUFFER_SIZE.
+                STNode emptyTrivia = STNodeFactory.createEmptyNodeList();
+                return STNodeFactory.createToken(SyntaxKind.EOF_TOKEN, emptyTrivia, emptyTrivia);
+            }
+
+            tokensAhead.add(nextToken);
         }
 
-        return this.tokensAhead.peek(k);
+        return tokensAhead.peek(k);
     }
 
     /**

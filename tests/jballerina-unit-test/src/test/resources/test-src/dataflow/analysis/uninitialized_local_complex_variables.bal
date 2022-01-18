@@ -35,7 +35,7 @@ function testUninitializedRecordVar() {
 }
 
 type errorDetail record {|
-    int errorNo?;
+    int errorNo;
     anydata...;
 |};
 type outOfResourceError error<errorDetail>;
