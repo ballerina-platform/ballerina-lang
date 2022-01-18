@@ -170,7 +170,7 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("ballerina-add - Add a new module to the current Ballerina package"));
+        Assert.assertTrue(readOutput().contains("ballerina-add - Add a new module to the current package"));
     }
 
     @Test(description = "Test add command", dependsOnMethods = {"testAddCommand"})
