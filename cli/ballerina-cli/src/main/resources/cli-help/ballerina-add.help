@@ -6,7 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Creates a new directory called '<directory_name>' the inside 'modules'
+       Creates a new directory called '<directory_name>' inside the 'modules'
        directory of the package.
 
        Any top-level directory insides the 'modules' directory becomes a
