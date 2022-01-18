@@ -29,4 +29,4 @@ EXAMPLES
           $ bal add core
 
        Add module 'app.core.db' to the current package 'app'.
-                 $ bal add core.db
+          $ bal add core.db
