@@ -4,7 +4,7 @@ NAME
 
 SYNOPSIS
        bal grpc --input <proto-file-path> [--output <path>]
-                        [--mode (client | service)]
+                        [--mode mode]
                         [--proto_path <path>]
 
 DESCRIPTION
@@ -22,7 +22,7 @@ OPTIONS
            definition. If a package is not specified, the output will be written
            to a 'temp' directory in the current location.
 
-       --mode client | service
+       --mode mode
            Set the 'client' or 'service' mode to generate sample code.
            If not specified, only the stub file is generated.
 
