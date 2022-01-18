@@ -90,7 +90,7 @@ public class RemotePackageRepository implements PackageRepository {
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         // Avoid resolving from remote repository for lang repo tests
         String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
-        if (langRepoBuild != null) {
+        if (langRepoBuild != null && !langRepoBuild.equals("False")) {
             return Optional.empty();
         }
 

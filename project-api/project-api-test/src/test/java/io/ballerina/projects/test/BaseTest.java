@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 
 /**
@@ -100,6 +101,30 @@ public class BaseTest {
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
         Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();
         ProjectUtils.extractBala(balaPath, localRepoBalaCache);
+        try {
+            Files.delete(balaPath);
+        } catch (IOException e) {
+            // ignore the delete operation since we can continue
+        }
+    }
+
+    protected void cacheDependencyToCentralRepository(Path dependency) throws IOException {
+        BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
+        Package currentPackage = dependencyProject.currentPackage();
+        PackageCompilation compilation = currentPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+
+        Path centralRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME);
+        Path centralRepoBalaCache = centralRepoPath
+                .resolve(currentPackage.packageOrg().value())
+                .resolve(currentPackage.packageName().value())
+                .resolve(currentPackage.packageVersion().value().toString())
+                .resolve(jBallerinaBackend.targetPlatform().code());
+        Files.createDirectories(centralRepoBalaCache);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
+        Path balaPath = Files.list(centralRepoBalaCache).findAny().orElseThrow();
+        ProjectUtils.extractBala(balaPath, centralRepoBalaCache);
         try {
             Files.delete(balaPath);
         } catch (IOException e) {
