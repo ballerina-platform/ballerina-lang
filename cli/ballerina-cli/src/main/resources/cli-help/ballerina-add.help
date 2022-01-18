@@ -20,7 +20,7 @@ DESCRIPTION
            import module-name;
            import org-name/module-name;
 
-       Module names can only contain alphanumerics, underscores,
+       Module names can contain only alphanumerics, underscores,
        and periods, and the maximum length is 256 characters.
 
 
