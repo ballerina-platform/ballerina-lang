@@ -74,6 +74,7 @@ public class BindingsGenerator {
     }
 
     void generateJavaBindings() throws BindgenException {
+        outStream.println("\nResolving maven dependencies...");
         // Resolve existing platform.libraries specified in the Ballerina.toml
         resolvePlatformLibraries();
 
