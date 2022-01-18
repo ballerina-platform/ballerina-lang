@@ -368,6 +368,7 @@ public class LangLibValueTest {
                 { "testCloneWithTypeUnionTuple" },
                 { "testCloneWithTypeTupleRestTypeNegative" },
                 { "testCloneWithTypeUnionTupleRestTypeNegative" },
+                { "testCloneWithTypeToTupleTypeWithFiniteTypesNegative" },
                 { "testCloneWithTypeTupleWithoutFillerValues" }
         };
     }

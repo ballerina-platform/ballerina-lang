@@ -1153,6 +1153,18 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
                             "\n\t\ttuple element '[3]' cannot be converted to '(decimal|int)': ambiguous target type");
 }
 
+function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
+    [1|"1"|"2", 2|"2"|"3"] tupleVal = [1, "2"];
+    ["1", 2]|error ans = trap tupleVal.cloneWithType();
+    assert(ans is error, true);
+    error err = <error> ans;
+    string message = <string> checkpanic err.detail()["message"];
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(message, "'[(1|\"1\"|\"2\"),(2|\"2\"|\"3\")]' value cannot be converted to '[\"1\",2]': "
+    + "\n\t\ttuple element '[0]' should be of type '\"1\"', found '1'"
+    + "\n\t\ttuple element '[1]' should be of type '2', found '\"2\"'");
+}
+
 type NoFillerValue 1|"foo";
 
 function testCloneWithTypeTupleWithoutFillerValues() {
@@ -1176,8 +1188,8 @@ function testCloneWithTypeTupleWithoutFillerValues() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'[(1|2),(2|3)]' value cannot be converted to '(1|2|2)[4]': "
-    + "\n\t\tarray cannot be expanded to size '4' because, the target type '(1|2|2)[4]' does not have a filler value");
+    assert(messageString, "'[(1|\"2\"),(2|\"3\")]' value cannot be converted to '(1|2|\"2\")[4]': "
+    + "\n\t\tarray cannot be expanded to size '4' because, the target type '(1|2|\"2\")[4]' does not have a filler value");
 
     [string, string] tuple3 = ["test", "string"];
     string[5]|error result3 = tuple3.cloneWithType();
