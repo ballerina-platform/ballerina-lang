@@ -28,7 +28,7 @@
                                         "character": 1
                                     }
                                 },
-                                "newText": "\n\nfunction getCounter() returns Counter {\n    return new ();\n}\n"
+                                "newText": "\n\nfunction getCounter() returns Counter {\n    return new (new ());\n}\n"
                             }
                         ]
                     }
