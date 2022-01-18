@@ -9,7 +9,7 @@ DESCRIPTION
        Compile the current package and its dependencies to produce a
        standalone executable JAR (Java Archive) file.
 
-       Build creates the resulting executable to the `target/bin` directory
+       Build creates the resulting executable in the `target/bin` directory
        when compiling the current package.
 
        Build creates the resulting executable in the current directory
