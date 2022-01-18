@@ -9,7 +9,7 @@ DESCRIPTION
        Creates a new directory called '<directory_name>' inside the 'modules'
        directory of the package.
 
-       Any top-level directory insides the 'modules' directory becomes a
+       Any top-level directory inside the 'modules' directory becomes a
        Ballerina module and its name can be derived as:
 
           module-name := <package-name>.<directory_name>
