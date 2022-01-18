@@ -18,7 +18,7 @@ DESCRIPTION
        is optional if the module is imported within the current package.
 
           import module-name;
-          import org-name/module-name
+          import org-name/module-name;
 
        Module names can only contain alphanumerics, underscores,
        and periods, and the maximum length is 256 characters.
