@@ -30,5 +30,5 @@ DESCRIPTION
 
 
 EXAMPLES
-     Initialise a package in the current directory.
-         $ bal init
+       Initialise a package in the current directory.
+           $ bal init
