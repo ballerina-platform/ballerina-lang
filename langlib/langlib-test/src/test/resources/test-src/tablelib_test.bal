@@ -783,6 +783,38 @@ function testGetKeysFromUnionConstrained() returns any[] {
     return tab.keys();
 }
 
+type KeylessPersonTable table<Person>;
+
+function testKeylessTableForeach() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
+function testKeylessReadOnlyTableForeach() {
+    KeylessPersonTable & readonly personTable = table [
+      { name: "Harry", age: 14 },
+      { name: "Hermione", age: 28 },
+      { name: "Ron", age: 11 },
+      { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
