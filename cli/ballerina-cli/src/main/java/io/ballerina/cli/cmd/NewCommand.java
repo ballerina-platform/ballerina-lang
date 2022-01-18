@@ -209,7 +209,7 @@ public class NewCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
         }
         if (Files.exists(path)) {
-            errStream.println("Created new Ballerina package '" + guessPkgName(packageName)
+            errStream.println("Created new package '" + guessPkgName(packageName)
                     + "' at " + userDir.relativize(path) + ".");
         }
         if (this.exitWhenFinish) {
