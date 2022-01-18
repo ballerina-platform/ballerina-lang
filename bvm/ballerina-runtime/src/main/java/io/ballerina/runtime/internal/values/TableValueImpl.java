@@ -585,11 +585,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             if (entryList == null) {
                 return null;
             }
-            if (entryList.size() >= 1) {
-                for (Map.Entry<K, V> entry: entryList) {
-                    if (TypeChecker.isEqual(key, entry.getKey())) {
-                        return entry.getValue();
-                    }
+            for (Map.Entry<K, V> entry: entryList) {
+                if (TypeChecker.isEqual(key, entry.getKey())) {
+                    return entry.getValue();
                 }
             }
             return null;
