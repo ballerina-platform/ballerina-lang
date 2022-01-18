@@ -46,6 +46,7 @@ import static io.ballerina.test.utils.Constants.SUBTYPE_SYMBOL;
 
 /**
  * Test semantic type relations.
+ * The notation T1<:T2 means T1 is a subtype of T2.
  *
  * @since 2.0.0
  */
