@@ -24,7 +24,7 @@ OPTIONS
            This feature is not supported with standalone Ballerina file executions.
 
        --coverage-format
-           Generate a coverage report in the specified format. Only the
+           Generate a coverage report in the specified format. Only
            'xml' is supported.
 
        --debug <port>
