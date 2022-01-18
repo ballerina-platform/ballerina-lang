@@ -248,7 +248,7 @@ public class WaitForAllActionsTest {
         String mapString = ((BMap) returns[0]).getMap().values().toArray()[1].toString();
         if (!Arrays.asList("{\"name\":\"hello foo\", \"id\":12}", "{\"id\":\"12\", \"name\":\"hello foo\"}")
                 .contains(mapString)) {
-            Assert.fail("Wrong output: " + mapString);
+            Assert.fail("Wrong output: " + mapString + "\nPlease contact the runtime team if this test fails.");
         }
     }
 
