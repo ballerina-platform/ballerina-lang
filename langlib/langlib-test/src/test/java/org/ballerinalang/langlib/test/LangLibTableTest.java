@@ -478,4 +478,14 @@ public class LangLibTableTest {
     public void testReadOnlyTableFilter() {
         BRunUtil.invoke(compileResult, "testReadOnlyTableFilter");
     }
+
+    @Test
+    public void testKeylessTableForeach() {
+        BRunUtil.invoke(compileResult, "testKeylessTableForeach");
+    }
+
+    @Test
+    public void testKeylessReadOnlyTableForeach() {
+        BRunUtil.invoke(compileResult, "testKeylessReadOnlyTableForeach");
+    }
 }
