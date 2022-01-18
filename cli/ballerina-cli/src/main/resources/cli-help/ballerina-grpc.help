@@ -29,12 +29,12 @@ OPTIONS
 EXAMPLES
        Generate the Ballerina gRPC stub file (for the given `.proto` file) in a
        'stub' directory.
-          $ bal grpc --input chat.proto --output stub
+           $ bal grpc --input chat.proto --output stub
 
        Generate the Ballerina gRPC stub file and client sample code (for the
        given `.proto` file) in a 'client' directory.
-          $ bal grpc --input chat.proto --output client --mode client
+           $ bal grpc --input chat.proto --output client --mode client
 
        Generate the Ballerina gRPC stub file and service sample code (for the
        given `.proto` file) in a 'service' directory.
-          $ bal grpc --input chat.proto --output service --mode service
+           $ bal grpc --input chat.proto --output service --mode service
