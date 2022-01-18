@@ -25,9 +25,6 @@ public class Constants {
     public static final String CAPABILITY_NAME = "performanceAnalyzer";
     static final String ERROR = "error";
     static final String SUCCESS = "Success";
-    static final String CONNECTION_ERROR = "CONNECTION_ERROR";
-    static final String AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR";
-    static final String SOME_ERROR = "SOME_ERROR_OCCURRED";
     static final String ENDPOINT_RESOLVE_ERROR = "ENDPOINT_RESOLVE_ERROR";
     static final String TYPE = "type";
     static final String MESSAGE = "message";

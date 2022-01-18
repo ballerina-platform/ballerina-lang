@@ -18,37 +18,41 @@
 
 package io.ballerina;
 
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
+import io.ballerina.tools.text.LineRange;
 
 /**
- * Request format for performance analyzer graph request.
+ * Represents a service resource.
  *
  * @since 2.0.0
  */
-public class PerformanceAnalyzerGraphRequest {
+public class Resource {
 
-    private TextDocumentIdentifier documentIdentifier;
-    private Range range;
+    private String name;
+    private LineRange lineRange;
 
-    public TextDocumentIdentifier getDocumentIdentifier() {
+    public Resource(String name, LineRange lineRange) {
 
-        return documentIdentifier;
+        this.name = name;
+        this.lineRange = lineRange;
     }
 
-    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
+    public String getName() {
 
-        this.documentIdentifier = documentIdentifier;
+        return name;
     }
 
-    public Range getRange() {
+    public void setName(String name) {
 
-        return range;
+        this.name = name;
     }
 
-    public void setRange(Range range) {
+    public LineRange getLineRange() {
 
-        this.range = range;
+        return lineRange;
     }
 
+    public void setLineRange(LineRange lineRange) {
+
+        this.lineRange = lineRange;
+    }
 }
