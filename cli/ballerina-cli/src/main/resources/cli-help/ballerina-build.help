@@ -32,7 +32,7 @@ OPTIONS
 
        -o <output>, --output <output>
            Write the output to the given file. These options will only work
-           for the single .bal file scenario.
+           for the single '.bal' file scenario.
 
        --observability-included
            Include the dependencies that are required to enable observability.
