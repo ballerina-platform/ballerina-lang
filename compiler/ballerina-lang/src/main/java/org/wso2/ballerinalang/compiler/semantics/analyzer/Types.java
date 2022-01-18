@@ -4453,7 +4453,8 @@ public class Types {
         if (unionOriginalType && referredTypeToRemove.tag == UNION) {
             BType typeToRemoveFrom = originalType;
             for (BType memberTypeToRemove : ((BUnionType) referredTypeToRemove).getMemberTypes()) {
-                remainingType = typeToRemoveFrom =  getRemainingType(typeToRemoveFrom, memberTypeToRemove);
+                remainingType =  getRemainingType(typeToRemoveFrom, memberTypeToRemove);
+                typeToRemoveFrom = remainingType;
             }
 
             return remainingType;

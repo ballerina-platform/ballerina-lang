@@ -532,3 +532,58 @@ function f28() {
         A6 _ = w; // OK
     }
 }
+
+function f29() {
+    json|xml|stream<string[], error?> content = 1;
+
+    if content is string[][] || content is stream<string[], error?> {
+        stream<string[], error?>|string[][] _ = content; // OK
+    } else {
+        json|xml _ = content; // OK
+        xml _ = content; // error incompatible types: expected 'xml', found '(json|xml)'
+    }
+
+    if content is string[][]|stream<string[], error?> {
+        stream<string[], error?>|string[][] _ = content; // OK
+    } else {
+        json|xml _ = content; // OK
+        json _ = content; // error incompatible types: expected 'json', found '(json|xml)'
+    }
+
+    if content is json {
+        json _ = content; // OK
+    } else {
+        xml|stream<string[], error?> _  = content; // OK
+        stream<string[], error?> _ = content; // error incompatible types: expected 'stream<string[],error?>', found '(xml|stream<string[],error?>)'
+    }
+}
+
+function f30() {
+    int[]|boolean[]|stream<string[], error?> content = [1, 2];
+
+    if content is int[] || content is stream<string[], error?> {
+        int[]|stream<string[], error?> _ = content; // OK
+    } else {
+        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
+        boolean[]|int[] _ = content; // OK
+    }
+
+    if content is int[]|stream<string[], error?> {
+        int[]|stream<string[], error?> _ = content; // OK
+    } else {
+        boolean[]|int[] _ = content; // OK
+        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
+    }
+}
+
+function f31() {
+    int[]|boolean[]|xml content = [1];
+
+    if content is int[]|float[] {
+        int[] _ = content; // OK
+    } else {
+        boolean[]|xml _ = content; // error incompatible types: expected '(boolean[]|xml)', found '(int[]|boolean[]|xml)'
+        anydata[]|xml _ = content; // OK
+        boolean[]|xml|int[] _ = content; // OK
+    }
+}

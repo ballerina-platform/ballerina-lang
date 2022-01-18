@@ -802,6 +802,16 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(A2|A3)', found '(A|A2|A3)'", 486,
                                   19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'A5', found '(A4|A5)'", 508, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'xml', found '(json|xml)'", 543, 17);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'json', found '(json|xml)'", 550, 18);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'stream<string[],error?>', found '" +
+                "(xml|stream<string[],error?>)'", 557, 38);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'boolean[]', found '" +
+                "(int[]|boolean[])'", 567, 23);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'boolean[]', found '" +
+                "(int[]|boolean[])'", 575, 23);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(boolean[]|xml)', found '" +
+                "(int[]|boolean[]|xml)'", 585, 27);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
