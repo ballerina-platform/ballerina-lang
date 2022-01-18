@@ -109,6 +109,11 @@ public class LangLibTableTest {
     }
 
     @Test
+    public void testGetValue() {
+        BRunUtil.invoke(compileResult, "testGetValue");
+    }
+
+    @Test
     public void testHashCollisionHandlingScenarios() {
         BRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
     }
