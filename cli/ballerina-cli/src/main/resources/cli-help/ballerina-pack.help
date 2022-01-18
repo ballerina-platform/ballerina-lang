@@ -1,49 +1,28 @@
 NAME
-       ballerina-pack - Create the Ballerina archive of a package
+       ballerina-pack - Create distribution format of the current package
 
 SYNOPSIS
-       bal pack
-       bal pack <ballerina-package-path>
-       bal pack [--target-dir] <target-directory-path>
-       bal pack [--test-report] [--offline] [--experimental] <ballerina-package-path>
-       bal pack [--offline] [experimental] [--cloud] [--observability-included]
-                [--list-conflicted-classes] <ballerina-package-path>
+       bal build [OPTIONS] [<package>]
 
 
 DESCRIPTION
-       Compiles and packages the current package into a .bala file in ''<package-root>/target/bala' directory.
-       The command can only be run with a Ballerina package. Creating the Ballerina archive is not supported with
-       standalone Ballerina files.
+       Compiles and packages the current package into a .bala file and write
+       it to the 'target/bala' directory.
 
 
 OPTIONS
-
        --offline
-            Pack offline using the local artifacts without downloading the latest artifacts of
-            the dependencies from the remote repository (Ballerina Central).
+            Proceed without accessing the network. Attempt to proceed with the previously
+            downloaded dependencies in local caches fail otherwise.
 
        --sticky
-       		Disable automatic updates.
-       		This will stick to the exact versions locked in the
-       		'Dependencies.toml' file (if exists).
-
-       --experimental
-           Enable experimental language features.
-
-       --debug
-           Run tests in remote debugging mode.
+       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+            If the file doesn't exist, this option is ignored.
 
        --target-dir
             Target directory path.
 
 
 EXAMPLES
-
-       Pack the 'hello' library package.
-       This will generate the '<org-name>-<package-name>-<version>-<platform>.bala' file
-       in the '<package-root>/target/bala' directory.
+       Pack the current package into .bala file.
           $ bal pack
-
-       Pack the 'hello' package from a different directory location.
-       The file path can be relative or absolute.
-          $ bal pack `<hello-package-path>`

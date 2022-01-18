@@ -2,50 +2,59 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test
-       bal test [--debug] <port>
-       bal test [--offline] [--rerun-failed] [--experimental] [--observability-included]
-       bal test [--code-coverage] [--coverage-format] <xml> [--test-report]
-       bal test [--target-dir] <target-directory-path>
-       bal test [<ballerina-file-path> | <ballerina-package-path>] [--list-groups]
-       bal test [<ballerina-file-path> | <ballerina-package-path>] [--groups] <test_group, ...>
-       bal test [<ballerina-file-path> | <ballerina-package-path>] 
-                [--disable-groups] <test_group, ...>
-       bal test [<ballerina-file-path> | <ballerina-package-path>] 
-                <PackageName>.<ModuleName>:<test_function_name, ...>        
+       bal test [OPTIONS] [<package>|<source-file>]
                
-            
 
 DESCRIPTION
-       Compile and execute Ballerina test sources and print a summary of
-       the test results. You can execute tests in a Ballerina package or a 
-       standalone Ballerina file.
-    
-       Use `bal test` to execute the tests in the current package.
+       Compiles and executes test functions and prints a summary of
+       the test results.
 
-       Use `bal test <balfile>` to execute the tests in the given standalone Ballerina file.
+       Test runs test functions defined in each module of a package when building the
+       current package and runs test functions defined in the given source file
+       when building a single .bal file.
 
-       Note: Testing `.bal` files, which belong to a Ballerina package is not allowed.
+       Note: Testing individual '.bal' files of the current package is not allowed.
 
 
 OPTIONS
-       --offline
-           Test offline using the local artifacts without downloading the latest artifacts of
-           the dependencies from the remote repository (Ballerina Central).
+       --code-coverage
+           Enable code coverage. This will analyze the line coverage of
+           source `.bal` files in the Ballerina package and add a section
+           to the test report with the code coverage details.
+           This feature is not supported with standalone Ballerina file executions.
 
-       --sticky
-       		Disable automatic updates.
-       		This will stick to the exact versions locked in the
-       		'Dependencies.toml' file (if exists).
+       --coverage-format
+           Generate a coverage report in the specified format. Only the
+           'xml' is supported.
+
+       --debug <port>
+           Run in the remote debugging mode.
+
+       --disable-groups <test_group, ...>
+           Specify the test groups to be excluded.
+
+       --groups <test_group, ...>
+            Specify the test groups to be executed.
 
        --list-groups
            List the test groups available in the test files.
 
-       --groups <test_group, ...>
-           Specify the test groups to be executed.
+       --observability-included
+           Include the dependencies that are required to enable observability.
 
-       --disable-groups <test_group, ...>
-           Specify the test groups to be excluded.
+       --offline
+            Proceed without accessing the network. Attempt to proceed with the previously
+            downloaded dependencies in local caches fail otherwise.
+
+       --sticky
+       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+            If the file doesn't exist, this option is ignored.
+
+       --rerun-failed
+           Execute only the test cases in the packages that failed in the previous run.
+
+       --target-dir <path>
+           Target directory path.
 
        --tests <test_function_name, ...>
            Specify the test functions to be executed. A specific set of
@@ -58,35 +67,8 @@ OPTIONS
            Wildcards can be used to specify the set of functions
            to be executed.
 
-       --rerun-failed
-           Execute only the test cases in the packages that failed in the previous run.
-
-       --code-coverage
-           Enable code coverage. This will analyze the line coverage of
-           source `.bal` files in the Ballerina package and add a section
-           to the test report with the code coverage details.
-           This feature is not supported with standalone Ballerina file executions.
-
        --test-report
            Generate an HTML report containing the test results.
-
-       --coverage-format
-           Generate a coverage report in the specified format. Only the 
-           'xml' value is allowed.
-
-       --experimental
-           Enable the experimental language features.
-
-       --debug <port>
-           Run test functions in remote debugging mode. The port to attach the debug
-           process should be provided.
-
-       --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a 
-           Ballerina program that are required to enable the observability functionalities on it.
-
-       --target-dir <path>.
-           Target directory path. The directory path can be absolute or relative.
 
 
 EXAMPLES

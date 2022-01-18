@@ -1,75 +1,60 @@
 NAME
-       ballerina-build - Build the Ballerina package or standalone file and generate an executable
+       ballerina-build - Compiles the current package
 
 SYNOPSIS
-       bal build
-       bal build <ballerina-file-path>
-       bal build <ballerina-package-path>
-       bal build [--target-dir] <target-directory-path>
-       bal build [--offline] [--experimental] [-o | --output] <output-path> <ballerina-file-path>
-       bal build [--offline] [--experimental] [--cloud] [--observability-included]
-                 [--list-conflicted-classes] <ballerina-package-path>
+       bal build [OPTIONS] [<package>|<source-file>]
 
 
 DESCRIPTION
-       Compile Ballerina sources and produce the executable JAR file. However,
-       if the package does not contain an entry point, it will produce a non-executable
-       JAR file, which can be used in another package/program.
+       Compile the current package and its dependencies to produce a
+       standalone executable jar (Java Archive) file.
 
-       Building a Ballerina package creates the executable `.jar` file
-       in the `<package-root>/target/bin` directory.
+       Build creates the resulting executable to the `target/bin` directory
+       when compiling the current package.
 
-       Building a standalone Ballerina file will create an executable `.jar` file in the
-       current directory. The name of the executable file will be
-       <ballerina-file-name>.jar'.
+       Build creates the resulting executable to the current directory
+       when compiling a single .bal file. The generated executable is named
+       after the source file.
 
-       Note: Building `.bal` files, which belong to a Ballerina package is not allowed.
+       Note: Building individual '.bal' files of the current package is not allowed.
 
 
 OPTIONS
-       -o, --output <output>
-           Write the output to the given file. The provided output
-           file name may or may not contain the ‘.jar’ extension. The -o flag will only work
-           for standalone Ballerina files.
-
-       --offline
-            Build offline using the local artifacts without downloading the latest artifacts of
-            the dependencies from the remote repository (Ballerina Central).
-
-       --sticky
-       		Disable automatic updates.
-       		This will stick to the exact versions locked in the
-       		'Dependencies.toml' file (if exists).
-
-       --experimental
-           Enable experimental language features.
-
-       --observability-included
-           Include the dependencies and artifacts that are required to enable the observability functionalities
-           in the  executable JAR file.
+       --export-openapi
+           Generate openAPI definition for service declarations in the current package.
 
        --cloud <provider>
-           Enable cloud artifact generation for cloud providers: (`--cloud=k8s`) for Kubernetes
-           and (`--cloud=docker`) for Docker.
+           Generate cloud artifacts: '--cloud=k8s' for Kubernetes
+           and '--cloud=docker' for Docker.
 
        --list-conflicted-classes
-       		List the conflicting classes of conflicting JARs in the package.
+           List the conflicting classes of conflicting JARs in the package.
 
-       --target-dir <directory-path>
-           Target directory path. The directory path can be absolute or relative.
+       -o <output>, --output <output>
+           Write the output to the given file. These options will only work
+           for the single .bal file scenario.
 
-       --export-openapi
-           Generate openAPI contract files for all the services in the current package.
+       --observability-included
+           Include the dependencies that are required to enable observability.
+
+       --offline
+            Proceed without accessing the network. Attempt to proceed with the previously
+            downloaded dependencies in local caches fail otherwise.
+
+       --sticky
+       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+            If the file doesn't exist, this option is ignored.
+
+       --target-dir <path>
+           Target directory path.
+
 
 EXAMPLES
-       Build the 'hello' package that has an entry point. This will generate a
-       'hello.jar' file in the '<package-root>/target/bin' directory.
+       Build the current package. This will generate 'app.jar' in the 'target/bin' directory.
           $ bal build
 
-       Build a standalone Ballerina file and create an executable JAR. This will generate a
-       'hello.jar' file in the present working directory. The file path can be relative or absolute.
-          $ bal build hello.bal
+       Build a single .bal file. This will generate 'app.jar' in the current directory.
+          $ bal build app.bal
 
-       Build the 'hello' package from a different directory location.
-       The file path can be relative or absolute.
-          $ bal build `<hello-package-path>`
+       Build the 'app' package from a different directory.
+          $ bal build <app-package-path>

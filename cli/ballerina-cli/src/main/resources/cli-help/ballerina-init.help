@@ -2,8 +2,7 @@ NAME
        ballerina-init - Create a new Ballerina package inside the current directory
 
 SYNOPSIS
-       bal init
-       bal init <package-name>
+       bal init [<package>]
 
 
 DESCRIPTION

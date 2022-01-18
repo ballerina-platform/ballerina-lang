@@ -3,10 +3,7 @@ NAME
        to Ballerina Central or to the local repository
 
 SYNOPSIS
-       bal push
-       bal push [--repository=local]
-       bal push <bala-path>
-       bal push [--repository=local] <bala-path>
+       bal push [OPTIONS] <bala-path>
 
 
 DESCRIPTION
@@ -15,8 +12,7 @@ DESCRIPTION
        it becomes public and sharable and will be permanent.
 
        To be able to publish a package to Ballerina Central, you should sign in to
-       Ballerina Central and obtain an access token first. For more information, go to
-       https://ballerina.io/learn/user-guide/ballerina-packages/sharing-a-library-package/#publishing-a-library-package-to-ballerina-central.
+       Ballerina Central and obtain an access token first.
 
 
 OPTIONS

@@ -2,32 +2,31 @@ NAME
        ballerina-doc - Build the documentation of a Ballerina package
 
 SYNOPSIS
-       bal doc 
-       bal doc <package-path>
-       bal doc [--target-dir] <target-directory-path>
-       bal doc <package-path> [-o | --output] <output-path>]
-       bal doc [--offline] [--experimental] <package-path>
+       bal build [OPTIONS] [<package>]
+
 
 DESCRIPTION
-       Build the documentation of a Ballerina package and write the module documentation to 
-       the 'target/apidocs' directory inside the package.
+       Generates the documentation of the current package and writes it to
+       the 'target/apidocs' directory.
+
 
 OPTIONS
-       -o <output>, --output <output>
-          Write the output to the given folder.
-
        -e, --exclude
           Exclude the given list of modules.
-
-       --experimental
-          Enable the experimental language features.
+          
+       -o <output>, --output <output>
+          Write the output to the given directory.
 
        --offline
-          Build offline using the local artifacts without downloading the latest artifacts of
-          the dependencies from the remote repository (Ballerina Central).
+            Proceed without accessing the network. Attempt to proceed with the previously
+            downloaded dependencies in local caches fail otherwise.
 
-       --target-dir <directory-path>
-          Target directory path. The directory path can be absolute or relative.
+       --sticky
+       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+            If the file doesn't exist, this option is ignored.
+
+       --target-dir <path>
+          Target directory path.
 
 
 EXAMPLES

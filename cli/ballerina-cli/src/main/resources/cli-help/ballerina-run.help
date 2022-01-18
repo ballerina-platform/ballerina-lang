@@ -1,94 +1,78 @@
 NAME
-       ballerina-run - Build and execute a Ballerina program
+       ballerina-run - Compile and run the current package
 
 SYNOPSIS
-       bal run 
-       bal run <executable-jar>
-       bal run [--target-dir] <target-directory-path>
-       bal run [--offline] [--experimental] [--debug] [--observability-included] 
-               <ballerina-file-path> 
-       bal run [--offline] [--experimental] [--debug] [--observability-included] 
-               <ballerina-file-path> [--] <args...>
-       bal run [--offline] [--experimental] [--debug] [--observability-included] 
-               <ballerina-package-path> [--] <args...>
+       bal run [OPTIONS] [<package>|<source-file>|<jar-file>] [--] <args...>
+
 
 DESCRIPTION
-       Build and execute the given standalone Ballerina file, package, or program.
+       Compile the current package and run it. This command does not produce
+       an executable program.
 
-       If a standalone Ballerina file or a package directory is given, this
-       command builds and runs it. Compilation is done internally and the
-       executable will not be created.
+       The run command executes the program when a jar file produced by 'bal build'
+       is given as the argument. If not, compiles and runs the given package
+       or single bal file.
 
-       You may use the 'bal build' command to compile a source and
-       provide the generated binary (JAR) file to the run command.
-       The binary runs much faster than a source file because running a source
-       file requires a compilation phase.
+       Ballerina program consists of one or more modules; one of these modules
+       is distinguished as the root module, which is the default module of
+       current package.
 
-       You must have either a public 'main' function or a service(s) or both
-       in order to run a program or a package.
+       Ballerina program execution consists of two consecutive phases.
+       The initialization phase initializes all modules of a program one after another.
+       If a module defines a function named 'init()', It'll be invoked during this phase.
+       If the root module of the program defines a public function named 'main()',
+       then it'll be invoked.
 
-       When both a 'main' function and a service(s) are present, this command executes
-       the 'main' function first and then starts the services.
+       If the initialization phase of program execution completes successfully,
+       then execution proceeds to the listening phase. If there are no module listeners,
+       then the listening phase immediately terminates successfully. Otherwise,
+       the listening phase initializes module listeners.
 
-       Note: Running `.bal` files, which belong to a Ballerina package is not allowed.
+       A service declaration is syntactic sugar for creating a service object and
+       attaching it to the module listener specified in the service declaration.
+
+       Note: Building individual '.bal' files of the current package is not allowed.
 
 
 OPTIONS
-       --offline
-           Run offline using the local artifacts without downloading the latest artifacts of the
-           dependencies from the remote repository (Ballerina Central).
-
-       --sticky
-       		Disable automatic updates.
-       		This will stick to the exact versions locked in the
-       		'Dependencies.toml' file (if exists).
-
-       --experimental
-           Enable experimental language features.
-
        --debug <port>
-           Run in the remote debugging mode. The port to attach the debug
-           process should be provided.
+           Run in the remote debugging mode.
 
        --observability-included
-           Include the dependencies and artifacts that are required to enable the observability functionalities
-           in the  executable JAR file.
+           Include the dependencies that are required to enable observability.
 
-       --target-dir <directory-path>.
-           Target directory path. The directory path can be absolute or relative.
+       --offline
+            Proceed without accessing the network. Attempt to proceed with the previously
+            downloaded dependencies in local caches fail otherwise.
+
+       --sticky
+       		Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
+            If the file doesn't exist, this option is ignored.
+
+       --target-dir <path>
+           Target directory path. The directory path can be absolute or relative
+           to the current package.
 
 
 ARGUMENTS
        --
-           The '--' argument signals the end of the Ballerina environment
-           parameters. Any and all arguments following '--' are treated as
-           arguments to the program even if they start with '--'.
+           The '--' argument signals the end of the bal tool options
+           Arguments following '--' are treated as arguments to the program.
 
        args...
-           The list of command-line arguments for the Ballerina program
-           being run. The semantics of these arguments are defined by
-           the program design.
-
-
-DEFAULT BEHAVIOR
-       This command runs the 'main' function of the default module in the given package if present.
-       Then, it looks for a service, and starts the relevant listeners if services
-       are present. It will simply exit if no 'main' function or service is present.
+           The list of command-line arguments for the Ballerina program.
 
 
 EXAMPLES
-       Run the 'main' function and/or services in the 'hello.bal' file.
-       The file path can be relative or absolute.
-          $ bal run hello.bal
+       Run the 'main' function and service(s) in the 'app.bal' file.
+          $ bal run app.bal
 
-       Run the 'main' function and/or services in the `hello` executable JAR.
-          $ bal run hello.jar
+       Run the 'main' function and service(s) in the `app` executable JAR.
+          $ bal run app.jar
 
-       Run the 'main' function and/or services in the current package.
+       Run the 'main' function and service(s) in the current package.
           $ bal run
 
-       Run the 'main' function in the `math` package with three program args:
-       add, 10, and 5. If the second and third parameters of the 'main'
-       function are of types int and int, the second and third arguments
-       would be passed as integer values (10 and 5).
-          $ bal run math -- add 10 5
+       Run the 'main' function in the current package with three program args:
+       add, 10, and 5.
+          $ bal run -- add 10 5

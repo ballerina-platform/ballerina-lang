@@ -2,7 +2,7 @@ NAME
        ballerina-version - Print the Ballerina version
 
 SYNOPSIS
-       bal [-v | version]
+       bal version
 
 
 DESCRIPTION
@@ -11,8 +11,3 @@ DESCRIPTION
 
        Note: The 'bal -v' and 'bal --version' commands are
        identical to 'bal version'.
-
-
-OPTIONS
-       -v, -version
-           Shorthand syntax for 'bal version'.

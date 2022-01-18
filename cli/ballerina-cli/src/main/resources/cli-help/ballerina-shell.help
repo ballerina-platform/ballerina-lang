@@ -2,11 +2,7 @@ NAME
        ballerina-shell - Run Ballerina interactive REPL
 
 SYNOPSIS
-       bal shell 
-       bal shell [-d|--debug]
-       bal shell [--force-dumb] 
-       bal shell [-t|--time-out] <timeout-value>
-       bal shell [-f|--file] <file-name>
+       bal shell [OPTIONS]
 
 
 DESCRIPTION

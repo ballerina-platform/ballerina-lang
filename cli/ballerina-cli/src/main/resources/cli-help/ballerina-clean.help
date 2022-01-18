@@ -2,8 +2,7 @@ NAME
        ballerina-clean - Remove the artifacts created during the build
 
 SYNOPSIS
-       bal clean
-       bal clean [--target-dir] <target-directory-path>
+       bal clean [OPTIONS]
 
 
 DESCRIPTION
@@ -15,8 +14,8 @@ DESCRIPTION
 
 
 OPTIONS
-       --target-dir <directory-path>
-           Target directory path. The directory path can be absolute or relative.
+       --target-dir <path>
+           Target directory path.
 
 EXAMPLES
        Clean the default target directory of the current package.

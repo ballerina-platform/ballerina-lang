@@ -2,8 +2,7 @@ NAME
        ballerina-new - Create a new Ballerina package
 
 SYNOPSIS
-       bal new <package-path>
-       bal new <package-path> [-t |--template] <template-name>
+       bal new <package-name> [-t |--template <template-name> ]
 
 
 DESCRIPTION

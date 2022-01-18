@@ -1,20 +1,32 @@
 NAME
-       ballerina-add - Add a new module to the current Ballerina package
+       ballerina-add - Add a new module to the current package
 
 SYNOPSIS
-       bal add <module-name> [-t | --template] <template-name>
+       bal add <directory_name>
 
 
 DESCRIPTION
-       Add a new module to the current package. The command should be run
-       from within the package root.
-       This will create a new directory with the given name inside
-       '<package-root>/modules' directory.
+       Creates a new directory called '<directory_name>' the inside 'modules'
+       directory of the package.
+
+       Any top-level directory insides the 'modules' directory becomes a
+       Ballerina module and its name can be derived as:
+
+          module-name := <package-name>.<directory_name>
+
+       Use the 'module-name' when importing the module. The organization name
+       is optional if the module is imported within the current package.
+
+          import module-name;
+          import org-name/module-name
 
        Module names can only contain alphanumerics, underscores,
-       and periods and the maximum length is 256 characters.
+       and periods, and the maximum length is 256 characters.
 
 
 EXAMPLES
-       Add a module named 'hello'.
-          $ bal add hello
+       Add module 'app.core' to the current package 'app'.
+          $ bal add core
+
+       Add module 'app.core.db' to the current package 'app'.
+                 $ bal add core.db

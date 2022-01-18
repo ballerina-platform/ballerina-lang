@@ -2,8 +2,7 @@ NAME
        ballerina-pull - Fetch packages from Ballerina Central
 
 SYNOPSIS
-       bal pull <org-name>/<package-name>
-       bal pull <org-name>/<package-name>:<version>
+       bal pull <org-name>/<package-name>[:<version>]
 
 
 DESCRIPTION
