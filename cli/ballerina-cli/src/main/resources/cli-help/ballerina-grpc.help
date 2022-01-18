@@ -4,15 +4,15 @@ NAME
 
 SYNOPSIS
        bal grpc [--input <proto-file-path>] [--output <path>]
-                        [--mode] (client | service | proxy)
+                        [--mode] (client | service)
 
 DESCRIPTION
        Generate the Ballerina gRPC client/service sources for a given
        gRPC protocol buffer (Protobuf) definition.
 
 OPTIONS
-       --input <proto-file-path>
-           Input .proto file or a directory containing multiple .proto files.
+       --input <path>
+           Path to a .proto file or a directory containing multiple .proto files.
 
        --output <path>
            Location of the generated Ballerina source files.
@@ -21,11 +21,11 @@ OPTIONS
            definition. If a package is not specified, the output will be written
            to a 'temp' directory in the current location.
 
-       --mode client | service | proxy
+       --mode client | service
            Set the `client` or `service` mode to generate sample code.
            If not specified, only the stub file is generated.
 
-       --proto_path
+       --proto_path <path>
             Path to a directory in which to look for .proto files when resolving import directives.
 
 EXAMPLES
