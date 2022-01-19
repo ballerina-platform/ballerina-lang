@@ -287,9 +287,8 @@ public class TypeConverter {
                         !convertibleTypes.contains(TypeChecker.getType(inputValue)) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
-                    addErrorMessage(0, errors,
-                            "Value '" + getShortSourceValue(inputValue) + "' cannot be converted to '" +
-                                    targetType + "': ambiguous target type");
+                    addErrorMessage(0, errors, "Value '" + getShortSourceValue(inputValue)
+                            + "' cannot be converted to '" + targetType + "': ambiguous target type");
                     return new LinkedHashSet<>();
                 }
                 break;
