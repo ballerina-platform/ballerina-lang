@@ -78,10 +78,13 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             node = node.parent();
         }
 
-        BindingPatternNode bindingPatternNode;
+        BindingPatternNode bindingPatternNode = null;
         if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode varDeclNode = (VariableDeclarationNode) node;
-            bindingPatternNode = varDeclNode.typedBindingPattern().bindingPattern();
+            if (varDeclNode.initializer().isPresent()) {
+                // If no initializer is present, we can't ignore the variable
+                bindingPatternNode = varDeclNode.typedBindingPattern().bindingPattern();
+            }
         } else if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
             TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) node;
             bindingPatternNode = typedBindingPatternNode.bindingPattern();
@@ -92,14 +95,17 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             bindingPatternNode = (BindingPatternNode) node;
         } else if (node.kind() == SyntaxKind.LET_VAR_DECL) {
             bindingPatternNode = ((LetVariableDeclarationNode) node).typedBindingPattern().bindingPattern();
-        } else {
+        }
+
+        if (bindingPatternNode == null) {
             return Collections.emptyList();
         }
 
         // If it's a variable, need to check for references
         if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            BindingPatternNode finalBindingPatternNode = bindingPatternNode;
             Optional<Integer> refCount = context.currentSemanticModel()
-                    .flatMap(semanticModel -> semanticModel.symbol(bindingPatternNode))
+                    .flatMap(semanticModel -> semanticModel.symbol(finalBindingPatternNode))
                     .flatMap(symbol -> context.workspace().project(context.filePath())
                             .map(project -> ReferencesUtil.getReferences(project, symbol)))
                     .map(modRefMap -> modRefMap.values().stream().map(List::size).reduce(0, Integer::sum));
