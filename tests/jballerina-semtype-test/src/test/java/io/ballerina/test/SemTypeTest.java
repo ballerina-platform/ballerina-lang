@@ -18,6 +18,7 @@
 package io.ballerina.test;
 
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -81,7 +82,7 @@ public class SemTypeTest {
         List<BTypeDefinitionSymbol> bTypeDefinitionSymbols = new ArrayList<>();
         for (Scope.ScopeEntry value : bLangPackage.symbol.scope.entries.values()) {
             BSymbol bSymbol = value.symbol;
-            if (bSymbol.kind == SymbolKind.TYPE_DEF) {
+            if (bSymbol.kind == SymbolKind.TYPE_DEF && bSymbol.origin == SymbolOrigin.SOURCE) {
                 bTypeDefinitionSymbols.add((BTypeDefinitionSymbol) bSymbol);
             }
         }

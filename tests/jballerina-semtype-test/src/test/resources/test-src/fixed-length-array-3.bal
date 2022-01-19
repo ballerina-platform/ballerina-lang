@@ -1,13 +1,15 @@
-// ArrayFiveOfIntFive<:ArrayOfIntFive
-// ROArrayFiveOfIntFive<:ArrayOfIntFive
-// ROArrayFiveOfIntFive<:ArrayFiveOfIntFive
+// ROInt5<:IntArray
+// ROInt5<:Int5
+// ROInt5<:ROIntArray
+// Int5<:IntArray
+// ROIntArray<:IntArray
 
-const FIVE = 5;
+type ROIntArray readonly & IntArray;
 
-type ArrayOfIntFive int[][FIVE];
+type ROInt5 readonly & int[5];
 
-type ArrayFiveOfIntFive int[FIVE][FIVE];
-
-type ROArrayFiveOfIntFive ArrayFiveOfIntFive & readonly;
+type IntArray int[];
 
 type INT int;
+
+type Int5 int[5];
