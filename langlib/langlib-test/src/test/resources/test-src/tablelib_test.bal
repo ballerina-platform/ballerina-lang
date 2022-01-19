@@ -815,6 +815,30 @@ function testKeylessReadOnlyTableForeach() {
     assertTrue(ageSum == 76);
 }
 
+type R record {|
+    readonly int|float|decimal|boolean v;
+    int code;
+|};
+
+type Tab table<R> key(v);
+
+function testGetValue() {
+    Tab t = table [
+            {v: 0, code: 0},
+            {v: 1d, code: 1},
+            {v: false, code: 3},
+            {v: 2.0, code: 4}
+        ];
+
+    R r1 = {"v":1d,"code":1};
+    R r2 = {v: false, code: 3};
+
+    assertEquals(t[0f], ());
+    assertEquals(t[1d], r1);
+    assertEquals(t[false], r2);
+    assertEquals(t[2], ());
+}
+
 function testReduceForKeylessTables() {
     KeylessPersonTable personTable = table [
           { name: "Harry", age: 14 },
