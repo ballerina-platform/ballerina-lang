@@ -864,15 +864,6 @@ function testCloneWithTypeDecimalToIntNegative() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'decimal' value cannot be converted to 'int'");
-
-    decimal a2 = 0.0 / 0;
-    int|error nan = a2.cloneWithType(int);
-    assert(nan is error, true);
-    err = <error>nan;
-    message = err.detail()["message"];
-    messageString = message is error ? message.toString() : message.toString();
-    assert(err.message(), "{ballerina}NumberConversionError");
-    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
 }
 
 type IntSubtypeArray1 int:Signed32[];
@@ -1050,8 +1041,8 @@ function testCloneWithTypeArrayToTupleWithMoreTargetTypes() {
 }
 
 function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
-    int[] arr = [1, 2, 3];
-    [float|decimal, int|byte...]|error e = arr.cloneWithType();
+    int[] arr1 = [1, 2, 3];
+    [float|decimal, int|byte...]|error e = arr1.cloneWithType();
     assert(e is error, true);
     error err = <error> e;
     var message = err.detail()["message"];
@@ -1059,6 +1050,36 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]': " +
                             "\n\t\tValue '1' cannot be converted to '(float|decimal)': ambiguous target type");
+
+    float[] arr2 = [1, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 7, 10];
+    [byte|decimal, string|int, int|decimal...]|error f = arr2.cloneWithType();
+    assert(f is error, true);
+    err = <error> f;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'float[]' value cannot be converted to '[(byte|decimal),(string|int),(int|decimal)...]': " +
+    "\n\t\tValue '1.0' cannot be converted to '(byte|decimal)': ambiguous target type" +
+    "\n\t\tValue '1.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.2' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.3' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.7' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '3.4' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '4.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '5.0' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '1.2' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '1.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.2' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.3' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '2.7' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '3.4' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '4.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tValue '5.0' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\t...");
 }
 
 function testCloneWithTypeArrayToTupleNegative() {
@@ -1131,6 +1152,52 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]': "
     + "\n\t\tValue '2.5' cannot be converted to '(decimal|int)': ambiguous target type"
     + "\n\t\tValue '5.2' cannot be converted to '(decimal|int)': ambiguous target type");
+}
+
+function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
+    [1|"1"|"2", 2|"2"|"3"] tupleVal = [1, "2"];
+    ["1", 2]|error ans = trap tupleVal.cloneWithType();
+    assert(ans is error, true);
+    error err = <error> ans;
+    string message = <string> checkpanic err.detail()["message"];
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(message, "'[(1|\"1\"|\"2\"),(2|\"2\"|\"3\")]' value cannot be converted to '[\"1\",2]': "
+    + "\n\t\ttuple element '[0]' should be of type '\"1\"', found '1'"
+    + "\n\t\ttuple element '[1]' should be of type '2', found '\"2\"'");
+}
+
+type NoFillerValue 1|"foo";
+
+function testCloneWithTypeTupleWithoutFillerValues() {
+
+    [NoFillerValue, NoFillerValue] tuple1 = [1, "foo"];
+    NoFillerValue[5]|error result1 = tuple1.cloneWithType();
+
+    assert(result1 is error, true);
+    error err = <error>result1;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[NoFillerValue,NoFillerValue]' value cannot be converted to 'NoFillerValue[5]': "
+    + "\n\t\tarray cannot be expanded to size '5' because, the target type 'NoFillerValue[5]' does not " +
+    "have a filler value");
+
+    [1|"2", 2|"3"] tuple2 = [1, 2];
+    (1|2|"2")[4]|error result2 = tuple2.cloneWithType();
+    assert(result2 is error, true);
+    err = <error>result2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[(1|\"2\"),(2|\"3\")]' value cannot be converted to '(1|2|\"2\")[4]': "
+    + "\n\t\tarray cannot be expanded to size '4' because, the target type '(1|2|\"2\")[4]' does not have a filler value");
+
+    [string, string] tuple3 = ["test", "string"];
+    string[5]|error result3 = tuple3.cloneWithType();
+    assert(result3 is string[], true);
+    if (result3 is string[]) {
+        assert(result3, ["test", "string", "", "", ""]);
+    }
 }
 
 type StringArray string[];

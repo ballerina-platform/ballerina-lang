@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
@@ -35,6 +36,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
@@ -56,6 +58,7 @@ public class Values {
 
     private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
     private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
+    private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -147,5 +150,19 @@ public class Values {
             index++;
         }
         return arrayValue;
+    }
+
+    public static BObject getInvalidObject(BString objectName) {
+        return ValueCreator.createObjectValue(invalidValueModule, objectName.getValue());
+    }
+
+    public static BMap<BString, Object> getInvalidRecord(BString recordName) {
+        return ValueCreator.createRecordValue(invalidValueModule, recordName.getValue());
+    }
+
+    public static BError getInvalidError(BString errorName) {
+        BString errorMsg = StringUtils.fromString("error message!");
+        return ErrorCreator.createError(invalidValueModule, errorName.getValue(), errorMsg,
+                ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
     }
 }

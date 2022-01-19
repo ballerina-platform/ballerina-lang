@@ -188,6 +188,13 @@ public function interopWithHandleOrErrorReturn() {
     test:assertEquals(messageString, "Invalid state");
 }
 
+public function testInteropWithErrorUnionReturn() {
+    int|error intOrError = acceptIntErrorUnionReturnWhichThrowsCheckedException(1);
+    test:assertTrue(intOrError is error);
+    error err = <error> intOrError;
+    test:assertEquals(err.message(), "error message");
+}
+
 public function acceptIntAnydataReturn(int s) returns anydata = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntUnionReturn"
@@ -223,6 +230,10 @@ public function acceptStringErrorReturnWhichThrowsCheckedException(string s) ret
 } external;
 
 public function getArrayValueFromMapWhichThrowsCheckedException(string key, map<int> mapValue) returns int[] | error = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptIntErrorUnionReturnWhichThrowsCheckedException(int flag) returns int|error = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

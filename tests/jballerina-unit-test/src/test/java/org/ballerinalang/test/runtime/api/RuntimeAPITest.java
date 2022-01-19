@@ -20,6 +20,7 @@ package org.ballerinalang.test.runtime.api;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -29,27 +30,20 @@ import org.testng.annotations.Test;
  */
 public class RuntimeAPITest {
 
-    @Test
-    public void valueCreatorTest() {
-        CompileResult result = BCompileUtil.compile("test-src/runtime/api/values");
+    @Test(dataProvider = "packageNameProvider")
+    public void testRuntimeAPIs(String packageName) {
+        CompileResult result = BCompileUtil.compile("test-src/runtime/api/" + packageName);
         BRunUtil.invoke(result, "main");
     }
 
-    @Test
-    public void errorCreatorTest() {
-        CompileResult result = BCompileUtil.compile("test-src/runtime/api/errors");
-        BRunUtil.invoke(result, "main");
-    }
-
-    @Test
-    public void methodTypeTest() {
-        CompileResult result = BCompileUtil.compile("test-src/runtime/api/types");
-        BRunUtil.invoke(result, "main");
-    }
-
-    @Test
-    public void asyncCallTest() {
-        CompileResult result = BCompileUtil.compile("test-src/runtime/api/async");
-        BRunUtil.invoke(result, "main");
+    @DataProvider
+    public Object[] packageNameProvider() {
+        return new String[]{
+                "values",
+                "errors",
+                "types",
+                "async",
+                "invalid_values",
+        };
     }
 }

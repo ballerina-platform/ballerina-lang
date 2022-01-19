@@ -277,8 +277,7 @@ public class TypeConverter {
                 int initialErrorCount = errors.size();
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     if (TypeChecker.getType(inputValue) == memType
-                            || isIntegerSubtypeAndConvertible(inputValue, memType)
-                    ) {
+                            || isIntegerSubtypeAndConvertible(inputValue, memType)) {
                         return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
@@ -581,11 +580,19 @@ public class TypeConverter {
         }
         ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
-        if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = ((BArrayType) source.getType()).getElementType();
+        Type sourceType = source.getType();
+        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            Type sourceElementType = ((BArrayType) sourceType).getElementType();
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
+        }
+        int targetSize = targetType.getSize();
+        long sourceSize = source.getLength();
+        if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
+            addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
+                    "type '" + targetType + "' does not have a filler value");
+            return false;
         }
 
         int initialErrorCount;
@@ -599,7 +606,7 @@ public class TypeConverter {
                     false, unresolvedValues, errors, allowAmbiguity);
             if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "array element '" +
-                        elementIndex + "' should be of type '" + targetTypeElementType.toString() + "', found '" +
+                        elementIndex + "' should be of type '" + targetTypeElementType + "', found '" +
                         getShortSourceValue(source.get(i)) + "'");
                 if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
                     return false;

@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION_AMBIGUOUS_TARGET;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.
@@ -167,5 +168,10 @@ public class ErrorUtils {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": " + detailMessage)));
+    }
+
+    public static BError createInvalidDecimalError(String value) {
+        throw createError(BallerinaErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_DECIMAL_VALUE, value));
     }
 }

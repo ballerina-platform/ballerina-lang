@@ -203,7 +203,6 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
-    public static final String IDENTIFIER_UTILS = "io/ballerina/runtime/api/utils/IdentifierUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";

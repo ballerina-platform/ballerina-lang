@@ -355,6 +355,23 @@ public class TomlProvider implements ConfigProvider {
     }
 
     @Override
+    public Optional<ConfigValue> getAsFiniteAndMark(Module module, VariableKey key) {
+        for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
+            if (moduleNode.entries().containsKey(key.variable)) {
+                TomlNode tomlValue = moduleNode.entries().get(key.variable);
+                BFiniteType type;
+                if (key.type.getTag() == TypeTags.INTERSECTION_TAG) {
+                    type = (BFiniteType) ((IntersectionType) key.type).getEffectiveType();
+                } else {
+                    type = (BFiniteType) key.type;
+                }
+                return getTomlConfigValue(validateAndGetFiniteValue(tomlValue, key.variable, type), key);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key) {
         Object value = getPrimitiveTomlValue(module, key);
         if (value == null) {
@@ -546,6 +563,17 @@ public class TomlProvider implements ConfigProvider {
         }
         visitedNodes.add(tomlValue);
         validateByteValue(variableName, type, value);
+    }
+
+    private Object validateAndGetFiniteValue(TomlNode tomlValue, String variableName, BFiniteType type) {
+        visitedNodes.add(tomlValue);
+        Object balValue = Utils.getFiniteBalValue(tomlValue, visitedNodes, type, invalidTomlLines,
+                variableName);
+        if (!type.valueSpace.contains(balValue)) {
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
+                    decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
+        }
+        return balValue;
     }
 
     private void validateUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
