@@ -176,7 +176,7 @@ public class WhileStmtTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
 
         String actual = returns[0].stringValue();
-        String expected = "level2level3level1";
+        String expected = "level2level1";
         Assert.assertEquals(actual, expected);
     }
 

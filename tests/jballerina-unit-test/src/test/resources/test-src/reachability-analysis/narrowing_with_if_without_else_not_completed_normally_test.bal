@@ -406,3 +406,25 @@ function testTypeNarrowingWithNestedIfs3() {
 
     boolean _ = x;
 }
+
+function testTypeNarrowingWithEqualityInCondition() {
+    int? i = 10;
+    if i == () {
+        return;
+    }
+
+    string j = i;
+}
+
+function testTypeNarrowingWithEqualityInCondition2() {
+    int|string? i = 10;
+    if i is int? {
+        if i == () {
+            return;
+        }
+        string j = i;
+        return;
+    }
+
+    int j = i;
+}

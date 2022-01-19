@@ -783,6 +783,88 @@ function testGetKeysFromUnionConstrained() returns any[] {
     return tab.keys();
 }
 
+type KeylessPersonTable table<Person>;
+
+function testKeylessTableForeach() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
+function testKeylessReadOnlyTableForeach() {
+    KeylessPersonTable & readonly personTable = table [
+      { name: "Harry", age: 14 },
+      { name: "Hermione", age: 28 },
+      { name: "Ron", age: 11 },
+      { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
+type R record {|
+    readonly int|float|decimal|boolean v;
+    int code;
+|};
+
+type Tab table<R> key(v);
+
+function testGetValue() {
+    Tab t = table [
+            {v: 0, code: 0},
+            {v: 1d, code: 1},
+            {v: false, code: 3},
+            {v: 2.0, code: 4}
+        ];
+
+    R r1 = {"v":1d,"code":1};
+    R r2 = {v: false, code: 3};
+
+    assertEquals(t[0f], ());
+    assertEquals(t[1d], r1);
+    assertEquals(t[false], r2);
+    assertEquals(t[2], ());
+}
+
+function testReduceForKeylessTables() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
+}
+
+function testReduceForKeylessReadOnlyTables() {
+    KeylessPersonTable & readonly personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {

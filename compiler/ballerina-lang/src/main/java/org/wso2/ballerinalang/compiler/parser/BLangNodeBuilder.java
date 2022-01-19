@@ -1541,15 +1541,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             NodeList<StatementNode> workerInitStmts = namedWorkerDeclarator.workerInitStatements();
             generateAndAddBLangStatements(workerInitStmts, statements, 0, functionBodyBlockNode);
 
-            int stmtSize = statements.size();
-            int workerInitStmtSize = workerInitStmts.size();
-            // If there's a worker defined after an `if` statement without an `else`, need to add it to the
-            // newly created block statement.
-            if (stmtSize > 1 && workerInitStmtSize > 0 && statements.get(stmtSize - 1).getKind() == NodeKind.BLOCK &&
-                    statements.get(stmtSize - 2).getKind() == NodeKind.IF &&
-                    workerInitStmts.get(workerInitStmtSize - 1).kind() != SyntaxKind.BLOCK_STATEMENT) {
-                stmtList = ((BLangBlockStmt) statements.get(stmtSize - 1)).stmts;
-            }
+            stmtList = getStatementList(statements, workerInitStmts);
 
             for (NamedWorkerDeclarationNode workerDeclarationNode : namedWorkerDeclarator.namedWorkerDeclarations()) {
                 stmtList.add((BLangStatement) workerDeclarationNode.apply(this));
@@ -1566,6 +1558,20 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLFuncBody.pos = getPosition(functionBodyBlockNode);
         this.isInLocalContext = false;
         return bLFuncBody;
+    }
+
+    private List<BLangStatement> getStatementList(List<BLangStatement> statements,
+                                                  NodeList<StatementNode> workerInitStmts) {
+        int stmtSize = statements.size();
+        int workerInitStmtSize = workerInitStmts.size();
+        // If there's a worker defined after an `if` statement without an `else`, need to add it to the
+        // newly created block statement.
+        if (stmtSize > 1 && workerInitStmtSize > 0 && statements.get(stmtSize - 1).getKind() == NodeKind.BLOCK &&
+                statements.get(stmtSize - 2).getKind() == NodeKind.IF &&
+                workerInitStmts.get(workerInitStmtSize - 1).kind() != SyntaxKind.BLOCK_STATEMENT) {
+            return ((BLangBlockStmt) statements.get(stmtSize - 1)).stmts;
+        }
+        return statements;
     }
 
     @Override

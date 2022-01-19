@@ -157,61 +157,6 @@ public class TypeNarrower extends BLangNodeVisitor {
         return targetEnv;
     }
 
-    /**
-     * Evaluate the expression in an `if` statement to its false value, following the `if` statement
-     * without an `else` clause if its statement block cannot complete normally. Returns an environment
-     * containing the symbols with their narrowed types, defined by the falsity of the expression.
-     * If there are no symbols that get affected by type narrowing, then this will return the same environment.
-     *
-     * @param expr Expression to evaluate
-     * @param currentEnv Current environment
-     * @return target environment
-     */
-    public SymbolEnv evaluateFalsityFollowingIfWithoutElse(BLangExpression expr,
-                                                           BLangNode targetNode, SymbolEnv currentEnv) {
-        if (!checkValidExpressionToEvaluateFalsity(expr)) {
-            return currentEnv;
-        }
-
-        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, currentEnv);
-        if (narrowedTypes.isEmpty()) {
-            return currentEnv;
-        }
-
-        SymbolEnv narrowedEnv = getTargetEnv(targetNode, currentEnv);
-
-        for (Map.Entry<BVarSymbol, NarrowedTypes> narrowedType : narrowedTypes.entrySet()) {
-            BVarSymbol originalSym = getOriginalVarSymbol(narrowedType.getKey());
-            BType falseType = narrowedType.getValue().falseType;
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, narrowedEnv, originalSym,
-                    falseType == symTable.nullSet || falseType == symTable.semanticError ?
-                            symTable.neverType : falseType, originalSym.origin == VIRTUAL);
-        }
-
-        return narrowedEnv;
-    }
-
-    private boolean checkValidExpressionToEvaluateFalsity(BLangExpression expr) {
-        switch (expr.getKind()) {
-            case TYPE_TEST_EXPR:
-            case LITERAL:
-            case NUMERIC_LITERAL:
-                return true;
-            case GROUP_EXPR:
-                return checkValidExpressionToEvaluateFalsity(((BLangGroupExpr) expr).expression);
-            case BINARY_EXPR:
-                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
-                return checkValidExpressionToEvaluateFalsity(binaryExpr.lhsExpr) &&
-                        checkValidExpressionToEvaluateFalsity(binaryExpr.rhsExpr);
-            case UNARY_EXPR:
-                return checkValidExpressionToEvaluateFalsity(((BLangUnaryExpr) expr).expr);
-            case SIMPLE_VARIABLE_REF:
-                return Types.getReferredType(expr.getBType()).tag == TypeTags.FINITE;
-            default:
-                return false;
-        }
-    }
-
     public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
         return evaluateTruth(expr, targetNode, env, false);
     }
@@ -368,7 +313,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             lhsTrueType = narrowedTypes.trueType;
             lhsFalseType = narrowedTypes.falseType;
         } else {
-            lhsTrueType = lhsFalseType = symbol.type;
+            lhsTrueType = lhsFalseType = getValidTypeInScope(symbol);
         }
 
         if (rhsTypes.containsKey(symbol)) {
@@ -387,7 +332,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                 rhsFalseType = types.getRemainingType(symbol.type, rhsTrueType);
             }
         } else {
-            rhsTrueType = rhsFalseType = symbol.type;
+            rhsTrueType = rhsFalseType = getValidTypeInScope(symbol);
         }
         BType trueType, falseType;
         var nonLoggingContext = Types.IntersectionContext.typeTestIntersectionCalculationContext();
@@ -402,6 +347,18 @@ public class TypeNarrower extends BLangNodeVisitor {
             falseType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsFalseType, this.env);
         }
         return new NarrowedTypes(trueType, falseType);
+    }
+
+    private BType getValidTypeInScope(BVarSymbol symbol) {
+        // Type may have been narrowed for the current scope.
+        if (env.scope.entries.containsKey(symbol.name)) {
+            BVarSymbol symbolInScope = (BVarSymbol) env.scope.entries.get(symbol.name).symbol;
+            BType typeInScope = symbolInScope.type;
+            if (!types.isAssignable(symbol.type, typeInScope)) {
+                return Types.getReferredType(typeInScope);
+            }
+        }
+        return Types.getReferredType(symbol.type);
     }
 
     private BType getTypeUnion(BType currentType, BType targetType) {

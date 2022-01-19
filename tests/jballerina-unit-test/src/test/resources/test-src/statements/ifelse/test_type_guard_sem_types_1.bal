@@ -436,7 +436,7 @@ function f25() {
     if c is anydata|future<string> {
         anydata|future<string> _ = c; // OK
     } else {
-        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |}|future<string>)'
+        record {| stream<int> s; |} _ = c; // error incompatible types: expected 'record {| stream<int> s; |}', found '(anydata|record {| stream<int> s; |})'
     }
 
     if c is record {| stream<int> s; |} {
@@ -529,6 +529,152 @@ function f28() {
     if w is A|boolean {
         A|boolean _ = w;
     } else {
-        A6 _ = w; // OK, not yet allowed.
+        A6 _ = w; // OK
+    }
+}
+
+function f29() {
+    json|xml|stream<string[], error?> content = 1;
+
+    if content is string[][] || content is stream<string[], error?> {
+        stream<string[], error?>|string[][] _ = content; // OK
+    } else {
+        json|xml _ = content; // OK
+        xml _ = content; // error incompatible types: expected 'xml', found '(json|xml)'
+    }
+
+    if content is string[][]|stream<string[], error?> {
+        stream<string[], error?>|string[][] _ = content; // OK
+    } else {
+        json|xml _ = content; // OK
+        json _ = content; // error incompatible types: expected 'json', found '(json|xml)'
+    }
+
+    if content is json {
+        json _ = content; // OK
+    } else {
+        xml|stream<string[], error?> _  = content; // OK
+        stream<string[], error?> _ = content; // error incompatible types: expected 'stream<string[],error?>', found '(xml|stream<string[],error?>)'
+    }
+}
+
+function f30() {
+    int[]|boolean[]|stream<string[], error?> content = [1, 2];
+
+    if content is int[] || content is stream<string[], error?> {
+        int[]|stream<string[], error?> _ = content; // OK
+    } else {
+        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
+        boolean[]|int[] _ = content; // OK
+    }
+
+    if content is int[]|stream<string[], error?> {
+        int[]|stream<string[], error?> _ = content; // OK
+    } else {
+        boolean[]|int[] _ = content; // OK
+        boolean[] _ = content; // error incompatible types: expected 'boolean[]', found '(int[]|boolean[])'
+    }
+}
+
+function f31() {
+    int[]|boolean[]|xml content = [1];
+
+    if content is int[]|float[] {
+        int[] _ = content; // OK
+    } else {
+        boolean[]|xml _ = content; // error incompatible types: expected '(boolean[]|xml)', found '(int[]|boolean[]|xml)'
+        anydata[]|xml _ = content; // OK
+        boolean[]|xml|int[] _ = content; // OK
+    }
+}
+
+public type Utc readonly & [int, decimal];
+
+public type ValueType Utc|record {}|byte[];
+
+function f32(ValueType x) {
+    if x is byte[] {
+
+    } else if x is Utc {
+
+    } else {
+        record {} _ = x; // OK
+        byte[] _ = x; // error incompatible types: expected 'byte[]', found 'record {| anydata...; |}'
+    }
+
+    if x is byte[]|Utc {
+
+    } else {
+        record {} _ = x; // OK
+        byte[]|Utc _ = x; // error incompatible types: expected '(byte[]|Utc)', found 'record {| anydata...; |}'
+    }
+
+    if x is byte[]|record {} {
+
+    } else {
+        byte[] _ = x; // error incompatible types: expected 'byte[]', found 'Utc'
+        Utc _ = x; // OK
+    }
+
+    if x is byte[] {
+
+    } else {
+        byte[]|Utc _ = x; // error incompatible types: expected (byte[]|Utc)', found '(Utc|record {| anydata...; |})'
+        Utc|record {} _ = x; // OK
+    }
+
+    if x is Utc {
+
+    } else {
+        byte[]|record {} _ = x; // OK
+        Utc|record {} _ = x; // error incompatible types: expected '(Utc|record {| anydata...; |})', found '(record {| anydata...; |}|byte[])'
+    }
+
+    Utc|byte[] y = <byte[]> [];
+
+    if y is byte[] {
+
+    } else {
+        Utc _ = y; // OK
+        byte[] _ = y; // error incompatible types: expected 'byte[]', found 'Utc'
+    }
+
+    [int, decimal]|record {}|byte[] z = {};
+
+    if z is byte[] {
+
+    } else if z is [int, decimal] {
+
+    } else {
+        record {} _ = z; // error incompatible types: expected 'record {| anydata...; |}', found '([int,decimal]|record {| anydata...; |}|byte[])'
+    }
+
+    if z is byte[]|[int, decimal] {
+        if z is byte[] {
+
+        } else {
+            [int, decimal] _ = z; // error incompatible types: expected '[int,decimal]', found '(byte[]|[int,decimal])'
+        }
+    } else {
+        record {} _ = z; // OK
+        byte[]|[int, decimal] _ = z; // error incompatible types: expected '(byte[]|[int,decimal])', found 'record {| anydata...; |}'
+    }
+
+    if z is byte[]|record {} {
+
+    } else {
+        [int, decimal] _ = z; // error incompatible types: expected '[int,decimal]', found '([int,decimal]|byte[])'
+    }
+
+    if z is byte[] {
+
+    } else {
+        [int, decimal]|record {} _ = z; // error incompatible types: expected '([int,decimal]|record {| anydata...; |})', found '([int,decimal]|record {| anydata...; |}|byte[])'
+    }
+
+    if z is [int, decimal] {
+
+    } else {
+        byte[]|record {} _ = z; // error incompatible types: expected '(byte[]|record {| anydata...; |})', found '([int,decimal]|record {| anydata...; |}|byte[])'
     }
 }
