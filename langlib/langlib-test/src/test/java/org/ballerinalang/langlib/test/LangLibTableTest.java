@@ -488,4 +488,14 @@ public class LangLibTableTest {
     public void testKeylessReadOnlyTableForeach() {
         BRunUtil.invoke(compileResult, "testKeylessReadOnlyTableForeach");
     }
+    
+    @Test
+    public void testReduceForKeylessTables() {
+        BRunUtil.invoke(compileResult, "testReduceForKeylessTables");
+    }
+
+    @Test
+    public void testReduceForKeylessReadOnlyTables() {
+        BRunUtil.invoke(compileResult, "testReduceForKeylessReadOnlyTables");
+    }
 }

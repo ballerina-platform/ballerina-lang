@@ -839,6 +839,32 @@ function testGetValue() {
     assertEquals(t[2], ());
 }
 
+function testReduceForKeylessTables() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
+}
+
+function testReduceForKeylessReadOnlyTables() {
+    KeylessPersonTable & readonly personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
