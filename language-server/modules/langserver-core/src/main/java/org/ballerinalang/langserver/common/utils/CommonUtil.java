@@ -380,7 +380,7 @@ public class CommonUtil {
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
-                if (errorType.typeKind() == TypeDescKind.RECORD) {
+                if (errorType.typeKind() == TypeDescKind.RECORD && depth <= MAX_DEPTH) {
                     List<RecordFieldSymbol> mandatoryFields = getMandatoryRecordFields((RecordTypeSymbol) errorType);
                     if (!mandatoryFields.isEmpty()) {
                         errorString.append(", ");
