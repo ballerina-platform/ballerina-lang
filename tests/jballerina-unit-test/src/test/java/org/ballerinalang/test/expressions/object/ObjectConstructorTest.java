@@ -37,7 +37,6 @@ public class ObjectConstructorTest {
     private CompileResult compiledConstructedObjects, closures, annotations, multiLevelClosures;
     private static String path = "test-src/expressions/object/";
 
-
     @BeforeClass
     public void setup() {
         compiledConstructedObjects = BCompileUtil.compile(path + "object_constructor_expression.bal");
@@ -162,6 +161,19 @@ public class ObjectConstructorTest {
                         "constructors which are fields", 18, 29);
         validateError(negativeResult, index++, "closure variable 'i' : closures not yet supported for object " +
                 "constructors which are fields", 49, 25);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testRedeclaredSymbolsScenarios() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/expressions/object/object_constructor_redeclared_symbols_negative.bal");
+        int index = 0;
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 7, 32);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 11, 42);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 12, 17);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 17, 17);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @DataProvider(name = "MultiLevelClosureTestFunctionList")

@@ -22,9 +22,6 @@ apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
-ext.setProperty("grpcVersion", "1.27.2")
-ext.setProperty("protobufVersion", "3.11.0")
-
 dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle "com.puppycrawl.tools:checkstyle:${project.puppycrawlCheckstyleVersion}"
@@ -39,11 +36,9 @@ dependencies {
         implementation "com.atlassian.commonmark:commonmark-ext-gfm-tables:${project.atalassianCommonmarkExtGfmTablesVersion}"
         implementation "com.fasterxml.jackson.core:jackson-databind:${project.jacksonDatabindVersion}"
         implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${project.jacksonDataformatYamlVersion}"
-        implementation "com.h2database:h2:${project.h2DatabaseVersion}"
         implementation "org.hsqldb:hsqldb:${project.hsqldbVersion}"
         implementation "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
         implementation "com.github.jknack:handlebars:${project.jknackHandlebarsVersion}"
-        implementation "com.google.protobuf:protobuf-java:${project.protobufJavaVersion}"
         implementation "com.google.code.findbugs:jsr305:${project.findbugsJsr305Version}"
         implementation "com.google.code.gson:gson:${project.gsonVersion}"
         implementation "com.google.guava:guava:${project.guavaVersion}"
@@ -54,9 +49,6 @@ dependencies {
         implementation "io.jaegertracing:jaeger-core:${project.jaegerCoreVersion}"
         implementation "io.jaegertracing:jaeger-thrift:${project.jaegerThriftVersion}"
         implementation "com.zaxxer:HikariCP:${project.hikariCPVersion}"
-        implementation "io.grpc:grpc-protobuf:${project.ext.grpcVersion}"
-        implementation "io.grpc:grpc-stub:${project.ext.grpcVersion}"
-        implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
         implementation "com.github.spullara.mustache.java:compiler:${project.mustacheJavaCompilerVersion}"
         implementation "org.bitbucket.cowwoc:diff-match-patch:${project.bitbucketCowwocVersion}"
         implementation "guru.nidi:graphviz-java:${project.guruNidiGraphvizVersion}"

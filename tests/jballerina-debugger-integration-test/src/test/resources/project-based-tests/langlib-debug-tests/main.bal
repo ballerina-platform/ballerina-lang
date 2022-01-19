@@ -23,4 +23,7 @@ public function main() {
 
     // 'string' language library.
     string concatedString = string:concat("Hello", "World");
+
+    int[] nums = [1, 2, 3, 4];
+    int[] numsTimes10 = from var i in nums select i * 10;
 }

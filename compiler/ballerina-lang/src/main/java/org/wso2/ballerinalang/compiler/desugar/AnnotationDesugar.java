@@ -1024,7 +1024,7 @@ public class AnnotationDesugar {
     }
 
     private boolean hasTypeSymbol(BTypeSymbol symbol, BType type) {
-        BType bType = types.getReferredType(type);
+        BType bType = Types.getReferredType(type);
         if (bType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
                 if (hasTypeSymbol(symbol, memberType)) {

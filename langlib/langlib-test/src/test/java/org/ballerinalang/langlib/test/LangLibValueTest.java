@@ -484,6 +484,11 @@ public class LangLibValueTest {
         };
     }
 
+    @Test
+    public void testDecimalZeroToStringWithDifferentPrecisions() {
+        BRunUtil.invokeFunction(compileResult, "testDecimalZeroToStringWithDifferentPrecisions");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
