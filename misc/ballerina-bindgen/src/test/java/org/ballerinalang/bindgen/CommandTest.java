@@ -66,7 +66,7 @@ public abstract class CommandTest {
                     try {
                         Files.delete(path);
                     } catch (IOException e) {
-                        // Ignore exceptions in the test temp file cleanup
+                        // TODO: Fix the ignoring of exceptions in the test temp file cleanup
                     }
                 });
         console.close();
