@@ -37,6 +37,7 @@ public class SealedArraysOfArraysTest {
 
     private CompileResult compileResult;
     private CompileResult resultNegative;
+    private CompileResult codeAnalysisNegative;
 
     @BeforeClass
     public void setup() {
@@ -44,6 +45,8 @@ public class SealedArraysOfArraysTest {
                 .compile("test-src/statements/arrays/arraysofarrays/sealed-arrays-of-arrays.bal");
         resultNegative = BCompileUtil
                 .compile("test-src/statements/arrays/arraysofarrays/negative-sealed-arrays-of-arrays.bal");
+        codeAnalysisNegative = BCompileUtil.compile("test-src/statements/arrays/arraysofarrays/" +
+                        "code_analysis_negative_sealed_arrays_of_arrays.bal");
     }
 
     @Test
@@ -106,7 +109,7 @@ public class SealedArraysOfArraysTest {
 
     @Test()
     public void testNegativeSealedArraysOfArrays() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 36);
+        Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "size mismatch in closed array. expected '2', but found '3'", 19, 23);
@@ -145,36 +148,36 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "size mismatch in closed array. expected '3', but found '4'", 73, 66);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 75, 5);
-        BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'json[*]', found 'json[2]'", 75, 22);
         BAssertUtil.validateError(
                 resultNegative, i++, "incompatible types: expected 'json[*]', found 'json[2]'", 75, 26);
         BAssertUtil.validateError(
                 resultNegative, i++, "invalid usage of closed type: array not initialized", 76, 5);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 76, 5);
+                resultNegative, i++, "incompatible types: expected 'int[2][*]', found 'int[2][2]'", 79, 22);
         BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 79, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 80, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'int[2][*]', found 'int[2][2]'", 80, 24);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 81, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 83, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 84, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected '(int[][*][]|string)', found '[int[2][2]]'", 84, 28);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 87, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 90, 5);
-        BAssertUtil.validateError(
-                resultNegative, i++, "invalid usage of closed type: can not infer array size", 91, 6);
-        BAssertUtil.validateError(
-                resultNegative, i, "list index out of range: index: '4'", 98, 11);
+                resultNegative, i, "list index out of range: index: '4'", 86, 11);
+    }
+
+    @Test
+    public void testCodeAnalysisNegativeSealedArrays() {
+        Assert.assertEquals(codeAnalysisNegative.getErrorCount(), 8);
+        int i = 0;
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+                19, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+                20, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+                21, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+                23, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+                24, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+                27, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+                30, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i, "invalid usage of closed type: can not infer array size",
+                31, 6);
     }
 }

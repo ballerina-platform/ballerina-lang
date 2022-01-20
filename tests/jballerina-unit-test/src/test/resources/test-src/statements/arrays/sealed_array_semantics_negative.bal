@@ -114,27 +114,8 @@ function openToSealArrrayAssignment() {
     int[*] intArr2 = intArr1.clone();
 }
 
-function fn1() returns int[*] & readonly {
-    return [2];
-}
-
-function fn2() returns string[*]|string[1] {
-    return ["1"];
-}
-
 function fn3() returns int[1] {
     return [2];
 }
 
-function fn4(int[*] x = [1]) {
-}
-
 int[*] a1 = fn3();
-
-[int[*]] a2 = [[1]];
-[string|int[*], float] a3 = [[1], 1.2];
-[int[*] & readonly, float] a4 = [[1], 1.2d];
-
-map<int[*]> a5 = {"1" : [3]};
-map<float|int[*]> a6 = {"1" : [3]};
-map<int[1][*]> a7 = {};
