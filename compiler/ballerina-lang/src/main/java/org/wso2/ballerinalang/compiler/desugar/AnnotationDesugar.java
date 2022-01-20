@@ -999,11 +999,14 @@ public class AnnotationDesugar {
             BLangStatement stmt = statements.get(i);
 
             BLangExpression expr = null;
-            if (stmt.getKind() == NodeKind.VARIABLE_DEF) {
+            NodeKind stmtKind = stmt.getKind();
+            if (stmtKind == NodeKind.VARIABLE_DEF) {
                 BLangSimpleVariable variable = ((BLangSimpleVariableDef) stmt).var;
                 expr  = variable.expr;
-            } else if (stmt.getKind() == NodeKind.ASSIGNMENT) {
+            } else if (stmtKind == NodeKind.ASSIGNMENT) {
                 expr = ((BLangAssignment) stmt).expr;
+            } else if (stmtKind == NodeKind.RETURN) {
+                return i;
             }
 
             if (expr != null && desugar.isMappingOrObjectConstructorOrObjInit(expr)
