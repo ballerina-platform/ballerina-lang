@@ -997,16 +997,16 @@ public class AnnotationDesugar {
     private int calculateOCEExprIndex(List<BLangStatement> statements, BTypeSymbol symbol) {
         for (int i = 0; i < statements.size(); i++) {
             BLangStatement stmt = statements.get(i);
-
-            BLangExpression expr = null;
             NodeKind stmtKind = stmt.getKind();
+            if (stmtKind == NodeKind.RETURN) {
+                return i;
+            }
+            BLangExpression expr = null;
             if (stmtKind == NodeKind.VARIABLE_DEF) {
                 BLangSimpleVariable variable = ((BLangSimpleVariableDef) stmt).var;
                 expr  = variable.expr;
             } else if (stmtKind == NodeKind.ASSIGNMENT) {
                 expr = ((BLangAssignment) stmt).expr;
-            } else if (stmtKind == NodeKind.RETURN) {
-                return i;
             }
 
             if (expr != null && desugar.isMappingOrObjectConstructorOrObjInit(expr)
