@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.bindgen;
 
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -67,7 +66,7 @@ public abstract class CommandTest {
                     try {
                         Files.delete(path);
                     } catch (IOException e) {
-                        Assert.fail(e.getMessage(), e);
+                        // Ignore exceptions in the test temp file cleanup
                     }
                 });
         console.close();
