@@ -3544,36 +3544,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensionSize;
         arrayTypeNode.sizes = sizes;
-        for (BLangExpression member : sizes) {
-            if (member.getKind() == NodeKind.LITERAL &&
-                    ((BLangLiteral) member).value.equals(INFERRED_ARRAY_INDICATOR)) {
-                if (setIsInferableFlag(arrayTypeDescriptorNode)) {
-                    arrayTypeNode.inferredArrayValidateState = 1;
-                } else {
-                    arrayTypeNode.inferredArrayValidateState = -1;
-                }
-                break;
-            }
-        }
         return arrayTypeNode;
-    }
-
-    private boolean setIsInferableFlag(Node node) {
-        if (!(node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) && node.parent() != null) {
-            return setIsInferableFlag(node.parent());
-        }
-        if (node.parent() == null) {
-            return false;
-        }
-        Node parentNode = node.parent();
-        switch (parentNode.kind()) {
-            case MODULE_VAR_DECL:
-            case LOCAL_VAR_DECL:
-            case CONST_DECLARATION:
-                return true;
-            default:
-                return false;
-        }
     }
 
     public BLangNode transform(EnumDeclarationNode enumDeclarationNode) {

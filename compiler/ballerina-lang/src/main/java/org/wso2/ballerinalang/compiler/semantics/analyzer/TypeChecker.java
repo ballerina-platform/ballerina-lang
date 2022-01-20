@@ -1691,29 +1691,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return errored ? symTable.semanticError : arrayType;
     }
 
-    public boolean doesContainInferredArray(BType type) {
-        switch (type.tag) {
-            case TypeTags.UNION:
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    if (doesContainInferredArray(memberType)) {
-                        return true;
-                    }
-                }
-                return false;
-            case TypeTags.INTERSECTION:
-                for (BType memberType : ((BIntersectionType) type).getConstituentTypes()) {
-                    if (doesContainInferredArray(memberType)) {
-                        return true;
-                    }
-                }
-                return false;
-            case TypeTags.ARRAY:
-                return isArrayOpenSealedType((BArrayType) type);
-            default:
-                return false;
-        }
-    }
-
     private BType checkTupleType(BLangListConstructorExpr listConstructor, BTupleType tupleType) {
         List<BLangExpression> exprs = listConstructor.exprs;
         List<BType> memberTypes = tupleType.tupleTypes;

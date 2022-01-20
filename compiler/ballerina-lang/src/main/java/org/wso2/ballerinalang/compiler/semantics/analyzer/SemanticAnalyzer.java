@@ -200,7 +200,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -816,9 +815,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        if (arrayType.inferredArrayValidateState == -1 || arrayType.inferredArrayValidateState == 1) {
-            dlog.error(arrayType.getBType().tsymbol.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
-        }
         analyzeDef(arrayType.elemtype, env);
     }
 
@@ -883,10 +879,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             handleDeclaredWithVar(varNode);
             transferForkFlag(varNode);
             return;
-        }
-
-        if (varNode.typeNode != null) {
-            validateInferredArrays(varNode.typeNode, varNode.expr);
         }
 
         int ownerSymTag = env.scope.owner.tag;
@@ -977,66 +969,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         checkSelfReferencesInVarNode(varNode, rhsExpr);
         transferForkFlag(varNode);
-    }
-
-    private void validateInferredArrays(BLangNode node, BLangExpression expr) {
-        switch (node.getKind()) {
-            case ARRAY_TYPE:
-                BLangArrayType arrayType = (BLangArrayType) node;
-                if (arrayType.inferredArrayValidateState == 1) {
-                    if (expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
-                            validateInitializer(((BLangArrayType) node).sizes,
-                            ((BLangArrayType) node).sizes.size() - 2, (BLangListConstructorExpr) expr)) {
-                        arrayType.inferredArrayValidateState = 2;
-                    }
-                }
-                return;
-            case INTERSECTION_TYPE_NODE:
-                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) node;
-                for (BLangType member : intersectionTypeNode.constituentTypeNodes) {
-                    validateInferredArrays(member, expr);
-                }
-                return;
-            case UNION_TYPE_NODE:
-                BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) node;
-                for (BLangType member : unionTypeNode.memberTypeNodes) {
-                    validateInferredArrays(member, expr);
-                }
-                return;
-            default:
-                return;
-        }
-    }
-
-    private boolean validateInitializer(List<BLangExpression> sizes, int index, BLangListConstructorExpr expr) {
-        if (index < 0) {
-            return true;
-        }
-
-        boolean isInferred = false;
-        if ((sizes.get(index).getKind() == LITERAL) &&
-                ((BLangLiteral) sizes.get(index)).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
-            isInferred = true;
-        }
-
-        for (BLangExpression member : expr.exprs) {
-            if (member.getKind() != NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                if (isInferred) {
-                    return false;
-                }
-                for (int i = index - 1; i > -1; i++) {
-                    if ((sizes.get(i).getKind() == LITERAL) &&
-                            ((BLangLiteral) sizes.get(i)).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            if (!validateInitializer(sizes, index - 1, (BLangListConstructorExpr) member)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void analyzeModuleConfigurableAmbiguity(BLangPackage pkgNode) {
@@ -3942,13 +3874,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        BType returnType = this.env.enclInvokable.returnTypeNode.getBType();
-        if (this.typeChecker.doesContainInferredArray(returnType)) {
-            Location pos = returnType.getKind() == TypeKind.INTERSECTION ?
-                    ((BIntersectionType) returnType).effectiveType.tsymbol.pos : returnType.tsymbol.pos;
-            dlog.error(pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
-        }
-        this.typeChecker.checkExpr(returnNode.expr, this.env, returnType);
+        this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.getBType());
         validateWorkerAnnAttachments(returnNode.expr);
         this.notCompletedNormally = true;
     }

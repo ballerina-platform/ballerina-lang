@@ -241,6 +241,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
@@ -262,6 +263,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -456,6 +458,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         validateParams(funcNode);
+        logErrorsForInferredArrays(funcNode.returnTypeNode);
 
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
@@ -485,6 +488,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
 
         validateNamedWorkerUniqueReferences();
+    }
+
+    private void logErrorsForInferredArrays(BLangType node) {
+        List<Location> posArray = new ArrayList<>();
+        getPositionsOfInferredArrays(node, posArray);
+        for (Location pos : posArray) {
+            dlog.error(pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+        }
     }
 
     private void validateNamedWorkerUniqueReferences() {
@@ -2438,6 +2449,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
+        if (varNode.typeNode != null && validateContext(varNode.parent)) {
+            validateInferredArrays(varNode.typeNode, varNode.expr);
+        }
 
         analyzeTypeNode(varNode.typeNode, this.env);
 
@@ -2460,6 +2474,114 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
+    }
+
+    private boolean validateContext(BLangNode node) {
+        switch (node.getKind()) {
+            case PACKAGE:
+            case EXPR_FUNCTION_BODY:
+            case BLOCK_FUNCTION_BODY:
+            case BLOCK:
+                return true;
+            case VARIABLE_DEF:
+                return validateContext(node.parent);
+            default:
+                return false;
+        }
+    }
+
+    private void validateInferredArrays(BLangNode node, BLangExpression expr) {
+        switch (node.getKind()) {
+            case ARRAY_TYPE:
+                BLangArrayType arrayType = (BLangArrayType) node;
+                if (isInferredArray(arrayType.sizes)) {
+                    if (expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
+                            validateInitializer(arrayType.sizes, arrayType.sizes.size() - 2,
+                                    (BLangListConstructorExpr) expr)) {
+                        arrayType.isValidInferredArray = true;
+                    }
+                }
+                return;
+            case INTERSECTION_TYPE_NODE:
+                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) node;
+                for (BLangType member : intersectionTypeNode.constituentTypeNodes) {
+                    validateInferredArrays(member, expr);
+                }
+                return;
+            case UNION_TYPE_NODE:
+                BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) node;
+                for (BLangType member : unionTypeNode.memberTypeNodes) {
+                    validateInferredArrays(member, expr);
+                }
+                return;
+            default:
+                return;
+        }
+    }
+
+    private void getPositionsOfInferredArrays(BLangNode node, List<Location> posArray) {
+        switch (node.getKind()) {
+            case ARRAY_TYPE:
+                BLangArrayType arrayType = (BLangArrayType) node;
+                if (isInferredArray(arrayType.sizes)) {
+                    posArray.add(arrayType.pos);
+                }
+                return;
+            case INTERSECTION_TYPE_NODE:
+                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) node;
+                for (BLangType member : intersectionTypeNode.constituentTypeNodes) {
+                    getPositionsOfInferredArrays(member, posArray);
+                }
+                return;
+            case UNION_TYPE_NODE:
+                BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) node;
+                for (BLangType member : unionTypeNode.memberTypeNodes) {
+                    getPositionsOfInferredArrays(member, posArray);
+                }
+                return;
+            default:
+                return;
+        }
+    }
+
+    private boolean validateInitializer(List<BLangExpression> indexSizes, int index, BLangListConstructorExpr expr) {
+        if (index < 0) {
+            return true;
+        }
+
+        boolean isInferred = false;
+        if ((indexSizes.get(index).getKind() == LITERAL) &&
+                ((BLangLiteral) indexSizes.get(index)).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
+            isInferred = true;
+        }
+
+        for (BLangExpression member : expr.exprs) {
+            if (member.getKind() != NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                if (isInferred) {
+                    return false;
+                }
+                for (int i = index - 1; i > -1; i++) {
+                    if ((indexSizes.get(i).getKind() == LITERAL) &&
+                            ((BLangLiteral) indexSizes.get(i)).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            if (!validateInitializer(indexSizes, index - 1, (BLangListConstructorExpr) member)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isInferredArray(List<BLangExpression> indexSizes) {
+        for (BLangExpression size : indexSizes) {
+            if ((size.getKind() == LITERAL) && ((BLangLiteral) size).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isCurrentPositionInWorker(SymbolEnv env) {
@@ -3629,6 +3751,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
+        if (!arrayType.isValidInferredArray && isInferredArray(arrayType.sizes)) {
+            dlog.error(arrayType.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+        }
 
         analyzeTypeNode(arrayType.elemtype, env);
     }
@@ -3705,6 +3830,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         functionTypeNode.params.forEach(node -> analyzeNode(node, env));
         analyzeTypeNode(functionTypeNode.returnTypeNode, env);
+        logErrorsForInferredArrays(functionTypeNode.returnTypeNode);
     }
 
     @Override
