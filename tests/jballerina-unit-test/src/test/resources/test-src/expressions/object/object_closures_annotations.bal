@@ -93,10 +93,11 @@ function testAnnotsOfServiceObjectConstructorInReturnStmt() {
     Record? a = td.@A;
     assertTrue(a !is ());
     int[] annotArr = (<Record> a).x;
-    assertTrue(annotArr === arr);
+    assertTrue(annotArr == arr);
     assertValueEquality(annotArr, [1, 2, 3]);
     arr.push(4);
-    assertValueEquality(annotArr, [1, 2, 3, 4]);
+    assertValueEquality(arr, [1, 2, 3, 4]);
+    assertValueEquality(annotArr, [1, 2, 3]);
 
     true? b = td.@B;
     assertTrue(b);
