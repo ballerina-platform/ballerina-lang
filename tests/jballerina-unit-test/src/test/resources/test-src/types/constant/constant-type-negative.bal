@@ -134,3 +134,31 @@ function testTypesOfConstantMaps() {
     CMI5 cmi5 = {};
     CN2 cn2 = {a : ()};
 }
+
+const int A = 123;
+const int B = A;
+const int C = B - A - 1;
+
+function f1() {
+    A _ = 1; // error incompatible types: expected '123', found 'int'
+    B _ = 2; // error incompatible types: expected '123', found 'int'
+    C _ = 3; // error incompatible types: expected '-1', found 'int'
+}
+
+function f2() {
+    var a = A;
+    var b = B;
+    var c = C;
+    a = 1; // OK, using the broad type.
+    b = 2; // OK, using the broad type.
+    c = 3; // OK, using the broad type.
+}
+
+function f3() {
+    A[] _ = [A, B, C, 1]; // error
+    B[] _ = [A, B, C, 1, 123]; // error
+    (B|C)[] _ = [A, 1, C, 123, B, -1]; // error
+    C[] _ = [A, B, C, -1, 1]; // error
+}
+
+

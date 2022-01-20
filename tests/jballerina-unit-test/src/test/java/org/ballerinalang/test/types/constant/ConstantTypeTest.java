@@ -50,7 +50,7 @@ public class ConstantTypeTest {
     }
 
     @Test
-    public void constExpressionNegative() {
+    public void constExpressionSemanticAnalysisNegative() {
         CompileResult compileResult1 = BCompileUtil.compile("test-src/types/constant/constant-type-negative.bal");
         int i = 0;
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 34, 15);
@@ -102,6 +102,28 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'CN1'", 135, 15);
         BAssertUtil.validateError(compileResult1, i++, "undefined field 'a' in record 'record {| readonly (record {| " +
                 "() a; |} & readonly) CN1; |} & readonly'", 135, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '123', found 'int'", 143, 11);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '123', found 'int'", 144, 11);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found 'int'", 145, 11);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '123', found '-1'", 158, 20);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '123', found 'int'", 158, 23);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '123', found '-1'", 159, 20);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '123', found 'int'", 159, 23);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '(123|-1)', found 'int'", 160, 21);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found '123'", 161, 14);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found '123'", 161, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found 'int'", 161, 27);
+        Assert.assertEquals(compileResult1.getErrorCount(), i);
+    }
+
+    @Test
+    public void constExpressionCodeAnalysisNegative() {
+        CompileResult compileResult1 = BCompileUtil.compile(
+                "test-src/types/constant/constant_code_analysis_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: '1' will not be matched to '123'", 24, 8);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: '1' will not be matched to '123'", 24, 18);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: '1' will not be matched to '-1'", 24, 28);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 }
