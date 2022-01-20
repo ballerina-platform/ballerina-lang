@@ -108,11 +108,24 @@ public class GroupingTest extends BaseTestCase {
     }
 
     @Test
-    public void testListingOfTestGroups() throws BallerinaTestException {
+    public void testListingOfSingleTestGroups() throws BallerinaTestException {
         String msg = "[g1, g2, g3, g4, g5, g6]";
         String[] args = mergeCoverageArgs(new String[]{"--list-groups", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        if (!output.contains(msg)) {
+            Assert.fail("Test failed due to listing test groups failure.");
+        }
+    }
+
+    @Test
+    public void testListingOfTestGroups() throws BallerinaTestException {
+        String msg = "[g1, g2, g3, g4, g5, g6]";
+        String[] args = {"--list-groups"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(),
+                projectBasedTestsPath.resolve("group-test").toString(),
+                false);
         if (!output.contains(msg)) {
             Assert.fail("Test failed due to listing test groups failure.");
         }

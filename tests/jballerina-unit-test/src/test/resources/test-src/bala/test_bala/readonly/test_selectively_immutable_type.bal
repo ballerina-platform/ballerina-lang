@@ -410,7 +410,7 @@ type IdentifierAbstractObj object {
     function getId() returns string;
 };
 
-class IdentifierObj {
+readonly class IdentifierObj {
     final string id;
 
     function init() {

@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -174,7 +175,7 @@ public class LangLibrary {
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
                     (!invSymbol.params.isEmpty()
-                            && basicType.compareToIgnoreCase(types.getReferredType(invSymbol.params.get(0).type)
+                            && basicType.compareToIgnoreCase(Types.getReferredType(invSymbol.params.get(0).type)
                             .getKind().name()) == 0 || invSymbol.restParam != null
                             && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
                             .eType.tsymbol.getName().getValue()) == 0)) {
@@ -213,7 +214,10 @@ public class LangLibrary {
             case STREAM:
                 return ((BStreamType) type).constraint;
             case XML:
-                return ((BXMLType) type).constraint;
+                if (type.tag == TypeTags.XML) {
+                    return ((BXMLType) type).constraint;
+                }
+                return type;
             // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
             case ERROR:
             default:
