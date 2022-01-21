@@ -78,6 +78,9 @@ public class ValueUtils {
             Object val = fieldEntry.getValue();
             if (val instanceof String) {
                 val = StringUtils.fromString((String) val);
+            } else if (!(val instanceof Number) && !(val instanceof BString) &&
+                    !(val instanceof Boolean) && !(val instanceof BValue)) {
+                throw ErrorUtils.createJToBTypeCastError(val.getClass());
             }
             record.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }

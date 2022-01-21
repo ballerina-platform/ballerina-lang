@@ -52,3 +52,11 @@ function getRecordValue() returns anydata = @java:Method {
 function getRecordValueWithInitialValues() returns Details = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
+
+public type Foo record {
+    int[] y;
+};
+
+public function getRecordNegative(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;

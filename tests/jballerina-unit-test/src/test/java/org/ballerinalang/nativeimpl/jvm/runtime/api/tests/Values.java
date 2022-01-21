@@ -48,6 +48,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BFunctionType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -208,5 +209,13 @@ public class Values {
         BString errorMsg = StringUtils.fromString("error message!");
         return ErrorCreator.createError(invalidValueModule, errorName.getValue(), errorMsg,
                 ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
+    }
+
+    public static BMap<BString, Object> getRecordNegative(BString recordName) {
+        ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+        Map<String, Object> map = Map.ofEntries(
+                Map.entry("arrList", arrayList)
+        );
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), map);
     }
 }

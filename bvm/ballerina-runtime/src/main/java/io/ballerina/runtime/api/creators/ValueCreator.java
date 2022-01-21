@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.JsonDataSource;
 import io.ballerina.runtime.internal.ValueUtils;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -828,6 +829,7 @@ public class ValueCreator {
      * @return value of the record.
      */
     public static BMap<BString, Object> createRecordValue(BMap<BString, Object> record, Object... values) {
+        RuntimeUtils.validateObjectAssignabilityToBType(record);
         return ValueUtils.createRecordValue(record, values);
     }
 

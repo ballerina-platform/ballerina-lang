@@ -40,6 +40,11 @@ public function main() {
     test:assertValueEqual(e1.message(), "No such object: Person2");
     test:assertValueEqual(e2.message(), "No such record: Address2");
 
+    records:Foo|error fooOrError =  trap <records:Foo> records:getRecordNegative("Foo");
+    test:assertTrue(fooOrError is error);
+    error e3 = <error> fooOrError;
+    test:assertValueEqual(e3.message(), "'class java.util.ArrayList' cannot be assigned to a Ballerina type directly");
+
     maps:validateAPI();
     records:validateAPI();
 }
