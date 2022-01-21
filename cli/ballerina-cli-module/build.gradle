@@ -35,7 +35,7 @@ dependencies {
     implementation project(':toml-parser')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
-    implementation 'org.apache.commons:commons-compress:1.19'
+    implementation 'org.apache.commons:commons-compress:1.21'
     implementation 'me.tongfei:progressbar:0.7.4'
     implementation 'org.jline:jline:3.11.0'
     implementation 'javax.ws.rs:javax.ws.rs-api'

@@ -8,5 +8,5 @@ target = "java8"
     [[platform.libraries]]
         artifactId = "mock"
         version = "0.0.0"
-        path = "./lib/testerina-core-1.2.23.jar"
+        path = "./lib/testerina-core-1.2.24-SNAPSHOT.jar"
         groupId = "ballerina"
