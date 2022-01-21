@@ -3497,7 +3497,6 @@ public class Types {
         Object baseValue = baseLiteral.value;
         Object candidateValue = candidateLiteral.value;
         int candidateTypeTag = candidateLiteral.getBType().tag;
-        int baseTypeTag = baseLiteral.getBType().tag;
 
         // Numeric literal assignability is based on assignable type and numeric equivalency of values.
         // If the base numeric literal is,
@@ -3506,7 +3505,7 @@ public class Types {
         // (3) float: we can assign int simple literal(Not an int constant) or a float literal/constant with same value.
         // (4) decimal: we can assign int simple literal or float simple literal (Not int/float constants) or decimal
         // with the same value.
-        switch (baseTypeTag) {
+        switch (baseLiteral.getBType().tag) {
             case TypeTags.BYTE:
                 if (candidateTypeTag == TypeTags.BYTE || (candidateTypeTag == TypeTags.INT &&
                         !candidateLiteral.isConstant && isByteLiteralValue((Long) candidateValue))) {

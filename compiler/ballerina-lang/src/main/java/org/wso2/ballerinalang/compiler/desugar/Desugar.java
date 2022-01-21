@@ -7182,9 +7182,8 @@ public class Desugar extends BLangNodeVisitor {
             createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
         }
 
-        // Replacing unary expression with numeric literal for finite types
-        if ((opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) && unaryExpr.getBType().tag == TypeTags.FINITE
-                && unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+        // Replacing unary expression with numeric literal
+        if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
             BLangExpression exprInUnary = unaryExpr.expr;
             BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
             Object objectValueInUnary = numericLiteralInUnary.value;

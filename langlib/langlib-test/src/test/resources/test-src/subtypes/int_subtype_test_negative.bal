@@ -345,15 +345,15 @@ function testInvalidIntSubtypesInLangLibFunctions() {
 }
 
 function testOutOfBoundValueAssignment(){
-     int:Signed16 x1 = 21474803712;
-     int:Signed16 x2 = 9223372036854775807;
-     int:Signed8 x3 = -9223372036854775681;
-     int:Signed8 x4 = 9223372036854775807;
-     int:Unsigned16 x5 = -21474770945;
-     int:Unsigned16 x6 = -21474836480;
-     int:Unsigned8 x7 = -9223372036854775553;
-     int:Unsigned8 x8 = -9223372036854775808;
-     int:Signed8 x9 = 9223372036854775808;
-     int:Signed16 x10 = -9223372036854775809;
+     int:Signed16 _ = 21474803712;
+     int:Signed16 _ = 9223372036854775807;
+     int:Signed8 _ = -9223372036854775681;
+     int:Signed8 _ = 9223372036854775807;
+     int:Unsigned16 _ = -21474770945;
+     int:Unsigned16 _ = -21474836480;
+     int:Unsigned8 _ = -9223372036854775553;
+     int:Unsigned8 _ = -9223372036854775808;
+     int:Signed8 _ = 9223372036854775808;
+     int:Signed16 _ = -9223372036854775809;
 }
 // TODO : Add more test cases.

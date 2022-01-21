@@ -1399,8 +1399,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 finiteTypeNode.pos, SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            finiteType.addValue(literal);
+        for (BLangExpression expression : finiteTypeNode.valueSpace) {
+            finiteType.addValue(expression);
         }
         finiteTypeSymbol.type = finiteType;
         return finiteType;

@@ -727,9 +727,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
             BLangExpression value = finiteTypeNode.valueSpace.get(i);
-            newValueSpace.add(value);
+//            newValueSpace.add(value);
 
-            if (value instanceof BLangUnaryExpr) {
+            if (value.getKind() == NodeKind.UNARY_EXPR) {
                 foundUnaryExpr = true;
                 BType resultType = typeChecker.checkExpr(value, env, symTable.noType);
 
@@ -4091,7 +4091,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BLangExpression expression = constant.expr;
         if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
-                && constant.typeNode == null)  {
+                && constant.typeNode == null) {
             constant.setBType(symTable.semanticError);
             dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
             return; // This has to return, because constant.symbol.type is required for further validations.
