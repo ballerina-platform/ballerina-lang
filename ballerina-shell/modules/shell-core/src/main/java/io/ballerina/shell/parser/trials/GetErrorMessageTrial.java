@@ -83,7 +83,7 @@ public class GetErrorMessageTrial extends TreeParserTrial {
      */
     private void processSource(String source) {
         try {
-            TextDocument document = TextDocuments.from(String.format("function main(){%n%s%n}", source));
+            TextDocument document = TextDocuments.from(source);
             SyntaxTree tree = SyntaxTree.from(document);
             for (Diagnostic diagnostic : tree.diagnostics()) {
                 DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
