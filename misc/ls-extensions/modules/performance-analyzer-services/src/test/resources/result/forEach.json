@@ -3,32 +3,32 @@
     "0": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "https://postman-echo.com/post1",
+      "baseUrl": "https://api.chucknorris.io/",
       "pos": {
-        "filePath": "ifElse.bal",
+        "filePath": "main.bal",
         "startLine": {
-          "line": 21,
+          "line": 22,
           "offset": 20
         },
         "endLine": {
-          "line": 21,
-          "offset": 28
+          "line": 22,
+          "offset": 32
         }
       }
     },
     "1": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "https://postman-echo.com/post2",
+      "baseUrl": "https://api.chucknorris.io/",
       "pos": {
-        "filePath": "ifElse.bal",
+        "filePath": "main.bal",
         "startLine": {
-          "line": 26,
-          "offset": 24
+          "line": 31,
+          "offset": 20
         },
         "endLine": {
-          "line": 26,
-          "offset": 33
+          "line": 31,
+          "offset": 32
         }
       }
     },
@@ -67,59 +67,47 @@
     "4": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "https://api.chucknorris.io/",
+      "baseUrl": "https://postman-echo.com/post1",
       "pos": {
-        "filePath": "main.bal",
+        "filePath": "ifElse.bal",
         "startLine": {
-          "line": 22,
+          "line": 21,
           "offset": 20
         },
         "endLine": {
-          "line": 22,
-          "offset": 32
+          "line": 21,
+          "offset": 28
         }
       }
     },
     "5": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
-      "baseUrl": "https://api.chucknorris.io/",
+      "baseUrl": "https://postman-echo.com/post2",
       "pos": {
-        "filePath": "main.bal",
+        "filePath": "ifElse.bal",
         "startLine": {
-          "line": 31,
-          "offset": 20
+          "line": 26,
+          "offset": 24
         },
         "endLine": {
-          "line": 31,
-          "offset": 32
+          "line": 26,
+          "offset": 33
         }
       }
     }
   },
   "actionInvocations": {
     "nextNode": {
-      "endPointRef": "${json-unit.ignore}",
-      "name": "forward",
-      "path": "/",
-      "pos": "ifElse.bal/(22:36,22:63)",
-      "nextNode": {
-        "ifBody": {
-          "endPointRef": "${json-unit.ignore}",
-          "name": "forward",
-          "path": "/",
-          "pos": "ifElse.bal/(24:41,24:68)",
-          "nextNode": null
-        },
-        "elseBody": {
-          "endPointRef": "${json-unit.ignore}",
-          "name": "forward",
-          "path": "/",
-          "pos": "ifElse.bal/(27:41,27:69)",
-          "nextNode": null
-        },
+      "length": 2,
+      "forBody": {
+        "endPointRef": "${json-unit.ignore}",
+        "name": "get",
+        "path": null,
+        "pos": "forEach.bal/(29:41,29:93)",
         "nextNode": null
-      }
+      },
+      "nextNode": null
     }
   },
   "type": "Success",
