@@ -1043,3 +1043,187 @@ function testUnreachableStatementInQueryAction() {
 
     _ = n is error; // reachable
 }
+
+function testUnreachableStatementInQueryAction2() returns error? {
+    check from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction3() returns error? {
+    checkpanic from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction4() returns error? {
+    error? a = from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction5() returns error? {
+    error? a = trap from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction6() returns error? {
+    error? a = <error?> from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction7() returns error? {
+    return check from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction8() returns error? {
+    return checkpanic from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction9() returns error? {
+    return from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction10() returns error? {
+    return trap from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction11() returns error? {
+    return <error?> from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction12() returns error? {
+    error? a = (from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        });
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction13() returns error? {
+    return (trap from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        });
+}
+
+function testUnreachableStatementInQueryAction14() returns error? {
+    error? a;
+    a = (from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        });
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction15() {
+    match from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        } {
+        () => {
+        }
+    }
+}
+
+function testUnreachableStatementInQueryAction16() returns error? {
+    match check from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        } {
+        () => {
+        }
+    }
+}
+
+function testUnreachableStatementInQueryAction17() {
+    match (from var item in 1 ... 5
+        where false
+        do {
+            int _ = 10; // unreachable code
+        }) {
+        () => {
+        }
+    }
+}
+
+function testUnreachableStatementInQueryAction18() returns error? {
+    error? a = from var item in 1 ... 5
+        where false
+        where item < 2
+        do {
+            int _ = 10; // unreachable code
+        };
+
+    return a;
+}
+
+function testUnreachableStatementInQueryAction19() returns error? {
+    return trap (from var item in 1 ... 5
+        where false
+        where item < 2
+        do {
+            int _ = 10; // unreachable code
+        });
+}
+
+function testUnreachableStatementInQueryAction20() returns error? {
+    error? a = ();
+    check from var item in 1 ... 5
+        where item < 2
+        do {
+            a = (from var item in 1 ... 5
+                where false
+                where item < 2
+                do {
+                    int _ = 10; // unreachable code
+                });
+        };
+
+    return a;
+}
