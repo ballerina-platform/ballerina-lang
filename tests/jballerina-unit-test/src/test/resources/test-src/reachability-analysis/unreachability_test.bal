@@ -1227,3 +1227,39 @@ function testUnreachableStatementInQueryAction20() returns error? {
 
     return a;
 }
+
+function testUnreachableStatementInQueryAction21() {
+    var error(m) = <error>from var item in 1 ... 5
+        where false
+        do {
+            int _ = 1; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction22() {
+    string m;
+    error(m) = <error>from var item in 1 ... 5
+        where false
+        do {
+            int _ = 1; // unreachable code
+        };
+}
+
+function testUnreachableTupleVarDef() {
+    [int, string] arr = [1, "A"];
+    while false {
+        var [a, b] = arr; // unreachable code
+    }
+}
+
+type Record record {|
+    int a;
+    string b;
+|};
+
+function testUnreachableRecordVarDef() {
+    Record rec = {a: 1, b: "A"};
+    while false {
+        var {a: val1, b: val2} = rec; // unreachable code
+    }
+}
