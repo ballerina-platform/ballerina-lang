@@ -2259,20 +2259,20 @@ function testUsingCloneableReturnType() {
     assertEquality("dummyVal", caller.getAttribute("dummy"));
 }
 
-function testDecimalZeroToStringWithDifferentPrecisions() {
+function testDecimalZeroToString() {
     decimal d1 = 0.0d;
     decimal d2 = 0d;
 
-    assertFalse(d1.toString() == d2.toString());
+    assertTrue(d1.toString() == d2.toString());
     assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
-    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
 
     d1 = 0.00000000d;
     d2 = 0.0d;
 
-    assertFalse(d1.toString() == d2.toString());
+    assertTrue(d1.toString() == d2.toString());
     assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
-    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
     
     d1 = 0.0000d;
     d2 = 0.0000d;
@@ -2280,6 +2280,36 @@ function testDecimalZeroToStringWithDifferentPrecisions() {
     assertEquality(d1.toString(), d2.toString());
     assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
     assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+}
+
+function testDecimalNonZeroToString() {
+    decimal d1 = 1.0d;
+    decimal d2 = 1.00d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+
+    d1 = 10.0d;
+    d2 = 10.0000d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+
+    d1 = 0.1d;
+    d2 = 0.10d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+
+    d1 = 0.110d;
+    d2 = 0.11000000d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
 }
 
 type AssertionError distinct error;
