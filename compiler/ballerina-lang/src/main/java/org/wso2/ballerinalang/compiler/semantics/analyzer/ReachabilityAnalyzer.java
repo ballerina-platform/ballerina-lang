@@ -337,11 +337,15 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorDestructure errorDestructureStmt) {
         checkStatementExecutionValidity(errorDestructureStmt);
+        analyzeReachabilityInExpressionIfApplicable(errorDestructureStmt.expr, env);
         validateAssignmentToNarrowedVariables(getVarRefs(errorDestructureStmt.varRef), errorDestructureStmt.pos, env);
     }
 
     @Override
-    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+    public void visit(BLangErrorVariableDef errorVariableDef) {
+        checkStatementExecutionValidity(errorVariableDef);
+        BLangExpression expr = errorVariableDef.errorVariable.expr;
+        analyzeReachabilityInExpressionIfApplicable(expr, env);
     }
 
     @Override
@@ -454,7 +458,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+    public void visit(BLangRecordVariableDef recordVariableDef) {
+        checkStatementExecutionValidity(recordVariableDef);
     }
 
     @Override
@@ -586,6 +591,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef tupleVariableDef) {
+        checkStatementExecutionValidity(tupleVariableDef);
     }
 
     @Override
@@ -672,7 +678,10 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                                                                                               env.enclInvokable));
 
         BLangBlockStmt body = doClause.body;
-        if (!(doClause.parent != null && doClause.parent.getKind() == NodeKind.DO_ACTION)) {
+        // If the `do` clause is in a query action we need to analyze reachability for the statements in the `do` block
+        // instead of checking whether the block itself is reachable. If not, need to analyze the reachability for the
+        // block first.
+        if (doClause.parent == null || doClause.parent.getKind() != NodeKind.DO_ACTION) {
             checkStatementExecutionValidity(body);
         }
         analyzeReachability(body, doEnv);
