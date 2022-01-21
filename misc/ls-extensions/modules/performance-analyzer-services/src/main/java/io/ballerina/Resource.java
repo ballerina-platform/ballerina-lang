@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -31,28 +31,23 @@ public class Resource {
     private LineRange lineRange;
 
     public Resource(String name, LineRange lineRange) {
-
         this.name = name;
         this.lineRange = lineRange;
     }
 
     public String getName() {
-
         return name;
     }
 
     public void setName(String name) {
-
         this.name = name;
     }
 
     public LineRange getLineRange() {
-
         return lineRange;
     }
 
     public void setLineRange(LineRange lineRange) {
-
         this.lineRange = lineRange;
     }
 }

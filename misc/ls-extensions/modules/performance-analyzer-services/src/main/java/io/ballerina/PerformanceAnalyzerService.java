@@ -130,7 +130,6 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
             List<Resource> resourceRanges = nodeVisitor.getResources();
 
             for (Resource resource : resourceRanges) {
-
                 LineRange range = resource.getLineRange();
                 Range lineRange = new Range(new Position(range.startLine().line(), range.startLine().offset()),
                         new Position(range.endLine().line(), range.endLine().offset()));
