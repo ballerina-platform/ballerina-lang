@@ -1,0 +1,42 @@
+name: Trivy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ubuntu-build:
+    name: Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 8
+      -   name: Initialize Submodules
+          run: |
+            git submodule update --init
+      -   name: Cache Gradle packages
+          uses: actions/cache@v2
+          with:
+            path: |
+              ~/.gradle/caches
+              ~/.gradle/wrapper
+            key: 1.2.x-${{ runner.os }}-gradle-${{ github.sha }}
+            restore-keys: 1.2.x-${{ runner.os }}-gradle-
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.22.1'
+      - name: Build
+        run: |
+          ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          timeout: '10m0s'
+          exit-code: '1'
