@@ -1263,3 +1263,29 @@ function testUnreachableRecordVarDef() {
         var {a: val1, b: val2} = rec; // unreachable code
     }
 }
+
+function testUnreachableStatementInQueryAction23() {
+    error? x = from var item in 1 ... 5
+        where false
+        do {
+            error? y = from var item2 in 1 ...2 // unreachable code
+            where true
+            do {
+                int _ = 1;
+                int _ = 1;
+            };
+        };
+}
+
+function testUnreachableStatementInQueryAction24() {
+    error? x = from var item in 1 ... 5
+        where true
+        do {
+            error? y = from var item2 in 1 ...2
+            where false
+            do {
+                int _ = 1; // unreachable code
+                int _ = 1;
+            };
+        };
+}

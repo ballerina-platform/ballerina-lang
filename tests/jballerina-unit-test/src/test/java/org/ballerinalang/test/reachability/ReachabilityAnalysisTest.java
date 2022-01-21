@@ -292,9 +292,15 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1263, 9);
         validateWarning(result, i++, "unused variable 'val1'", 1263, 17);
         validateWarning(result, i++, "unused variable 'val2'", 1263, 26);
-        Assert.assertEquals(result.getErrorCount(), i - 35 - 17);
+        validateWarning(result, i++, "unused variable 'x'", 1268, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1271, 13);
+        validateWarning(result, i++, "unused variable 'y'", 1271, 13);
+        validateWarning(result, i++, "unused variable 'x'", 1281, 5);
+        validateWarning(result, i++, "unused variable 'y'", 1284, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1287, 17);
+        Assert.assertEquals(result.getErrorCount(), i - 35 - 21);
         Assert.assertEquals(result.getHintCount(), 35);
-        Assert.assertEquals(result.getWarnCount(), 17);
+        Assert.assertEquals(result.getWarnCount(), 21);
     }
 
     @Test
