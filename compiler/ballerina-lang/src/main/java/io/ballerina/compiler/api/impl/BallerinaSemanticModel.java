@@ -137,7 +137,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet);
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet,
+                        compilationUnit.getName());
             }
         }
 
@@ -493,7 +494,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
-                                      Name name, SymbolEnv symbolEnv, Set<DiagnosticState> states) {
+                                      Name name, SymbolEnv symbolEnv, Set<DiagnosticState> states,
+                                      String compUnitName) {
         if (scopeEntry == null || scopeEntry.symbol == null || isFilteredVarSymbol(scopeEntry.symbol, states)) {
             return;
         }
@@ -532,9 +534,12 @@ public class BallerinaSemanticModel implements SemanticModel {
                 }
             }
 
-            compiledSymbols.add(compiledSymbol);
+            if (!(symbol.getKind() == SymbolKind.PACKAGE
+                    && !((BPackageSymbol) symbol).compUnit.getValue().equals(compUnitName))) {
+                    compiledSymbols.add(compiledSymbol);
+            }
         }
-        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states);
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states, compUnitName);
     }
 
     private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {
