@@ -162,6 +162,6 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "guava"
     version = "19.0"
-    path = "./lib/guava-19.0.jar"
+    path = "./lib/guava-31.0.1-jre.jar"
     groupId = "com.google.guava"
     modules = ["web-sub"]
