@@ -678,12 +678,6 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                                                                                               env.enclInvokable));
 
         BLangBlockStmt body = doClause.body;
-        // If the `do` clause is in a query action we need to analyze reachability for the statements in the `do` block
-        // instead of checking whether the block itself is reachable. If not, need to analyze the reachability for the
-        // block first.
-        if (doClause.parent == null || doClause.parent.getKind() != NodeKind.DO_ACTION) {
-            checkStatementExecutionValidity(body);
-        }
         analyzeReachability(body, doEnv);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
