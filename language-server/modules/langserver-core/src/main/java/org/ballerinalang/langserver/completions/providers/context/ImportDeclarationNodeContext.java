@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import com.google.common.collect.Lists;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
@@ -273,7 +274,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 return;
             }
 
-            List<String> moduleNameParts = Arrays.asList(module.moduleName().moduleNamePart().split("\\."));
+            List<String> moduleNameParts = Lists.newArrayList(module.moduleName().moduleNamePart().split("\\."));
             moduleName.forEach(token -> moduleNameParts.remove(token.text()));
             String label = module.moduleName().moduleNamePart();
             String insertText = moduleNameParts.stream()
