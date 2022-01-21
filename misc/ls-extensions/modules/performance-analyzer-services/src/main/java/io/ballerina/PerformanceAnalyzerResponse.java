@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -47,66 +47,53 @@ public class PerformanceAnalyzerResponse {
     }
 
     public PerformanceAnalyzerResponse() {
-
     }
 
     public Range getResourcePos() {
-
         return resourcePos;
     }
 
     public void setResourcePos(Range resourcePos) {
-
         this.resourcePos = resourcePos;
     }
 
     public String getType() {
-
         return type;
     }
 
     public void setType(String type) {
-
         this.type = type;
     }
 
     public String getMessage() {
-
         return message;
     }
 
     public void setMessage(String message) {
-
         this.message = message;
     }
 
     public String getName() {
-
         return name;
     }
 
     public void setName(String name) {
-
         this.name = name;
     }
 
     public JsonObject getEndpoints() {
-
         return endpoints;
     }
 
     public void setEndpoints(JsonObject endpoints) {
-
         this.endpoints = endpoints;
     }
 
     public JsonObject getActionInvocations() {
-
         return actionInvocations;
     }
 
     public void setActionInvocations(JsonObject actionInvocations) {
-
         this.actionInvocations = actionInvocations;
     }
 }

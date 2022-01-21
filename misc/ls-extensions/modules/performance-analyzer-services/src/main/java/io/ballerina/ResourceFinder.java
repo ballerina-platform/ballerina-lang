@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Visitor to find the base url of endpoint.
@@ -44,11 +45,9 @@ public class ResourceFinder extends NodeVisitor {
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
 
         if (functionDefinitionNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
-            StringBuilder name = new StringBuilder();
-            for (Node node : functionDefinitionNode.relativeResourcePath()) {
-                name.append(node.toString());
-            }
-            resources.add(new Resource(name.toString(), functionDefinitionNode.lineRange()));
+            String name = functionDefinitionNode.relativeResourcePath().stream().map(Node::toSourceCode).
+                    collect(Collectors.joining(""));
+            resources.add(new Resource(name, functionDefinitionNode.lineRange()));
         }
     }
 }
