@@ -287,6 +287,37 @@ function testToBalStringOnCycles() {
      "\"4\":{\"mm\":5,\"1\":...[4],\"2\":...[2]}},\"3\":...[0]}");
 }
 
+function testDecimalZeroToBalStringWithDifferentPrecisions() {
+    decimal d1 = 0.0d;
+    decimal d2 = 0d;
+    
+    assertFalse(d1.toBalString() == d2.toBalString());
+    assertTrue(checkpanic value:fromBalString(d1.toBalString()) == checkpanic value:fromBalString(d2.toBalString()));
+    assertFalse(checkpanic value:fromBalString(d1.toBalString()) === checkpanic value:fromBalString(d2.toBalString()));
+    
+    d1 = 0.00000000d;
+    d2 = 0.0d;
+    
+    assertFalse(d1.toBalString() == d2.toBalString());
+    assertTrue(checkpanic value:fromBalString(d1.toBalString()) == checkpanic value:fromBalString(d2.toBalString()));
+    assertFalse(checkpanic value:fromBalString(d1.toBalString()) === checkpanic value:fromBalString(d2.toBalString()));
+    
+    d1 = 0.0000d;
+    d2 = 0.0000d;
+    
+    assert(d1.toBalString(), d2.toBalString());
+    assertTrue(checkpanic value:fromBalString(d1.toBalString()) == checkpanic value:fromBalString(d2.toBalString()));
+    assertTrue(checkpanic value:fromBalString(d1.toBalString()) === checkpanic value:fromBalString(d2.toBalString()));
+}
+
+function assertTrue(anydata actual) {
+    assert(actual, true);
+}
+
+function assertFalse(anydata actual) {
+    assert(actual, false);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

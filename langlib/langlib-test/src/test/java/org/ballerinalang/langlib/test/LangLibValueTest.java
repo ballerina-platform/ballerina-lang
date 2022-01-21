@@ -284,6 +284,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(testFile, "testXmlToBalString");
         BRunUtil.invokeFunction(testFile, "testObjectToBalString");
         BRunUtil.invokeFunction(testFile, "testToBalStringOnCycles");
+        BRunUtil.invokeFunction(testFile, "testDecimalZeroToBalStringWithDifferentPrecisions");
     }
 
     @Test
