@@ -37,6 +37,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
+          scan-ref: '/github/workspace/distribution'
           format: 'table'
           timeout: '10m0s'
           exit-code: '1'
