@@ -4693,11 +4693,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 newExpectedType = BUnionType.create(null,
                         symTable.intType, symTable.floatType, symTable.decimalType);
             } else if (referredType.tag == TypeTags.FINITE || referredType.tag == TypeTags.UNION) {
-                if (referredType.tag == TypeTags.FINITE) {
-                    basicNumericTypes = getBasicNumericTypesInFiniteType(referredType);
-                } else {
-                    basicNumericTypes = getBasicNumericTypesInUnionType(referredType);
-                }
+                basicNumericTypes = referredType.tag == TypeTags.FINITE ?
+                        getBasicNumericTypesInFiniteType(referredType) : getBasicNumericTypesInUnionType(referredType);
 
                 if (basicNumericTypes.isEmpty()) {
                     dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,

@@ -727,7 +727,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
             BLangExpression value = finiteTypeNode.valueSpace.get(i);
-//            newValueSpace.add(value);
+            newValueSpace.add(value);
 
             if (value.getKind() == NodeKind.UNARY_EXPR) {
                 foundUnaryExpr = true;
