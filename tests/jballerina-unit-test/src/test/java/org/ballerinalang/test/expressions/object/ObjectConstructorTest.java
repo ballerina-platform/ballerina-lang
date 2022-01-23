@@ -40,8 +40,8 @@ public class ObjectConstructorTest {
     public void setup() {
         compiledConstructedObjects =
                 BCompileUtil.compile("test-src/expressions/object/object_constructor_expression.bal");
-        closures = BCompileUtil.compile( "test-src/expressions/object/object_closures.bal");
-//        multiLevelClosures = BCompileUtil.compile(ath + "test-src/expressions/object/object_multilevel_closures.bal");
+        closures = BCompileUtil.compile("test-src/expressions/object/object_closures.bal");
+        multiLevelClosures = BCompileUtil.compile("test-src/expressions/object/object_multilevel_closures.bal");
         annotations = BCompileUtil.compile("test-src/expressions/object/object_closures_annotations.bal");
     }
 
