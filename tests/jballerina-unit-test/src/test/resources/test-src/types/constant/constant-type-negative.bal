@@ -161,4 +161,42 @@ function f3() {
     C[] _ = [A, B, C, -1, 1]; // error
 }
 
+const X = 1;
+int i = 2;
 
+const map<int> D = {
+    a: X,
+    b: i, // error expression is not a constant expression
+    X
+};
+
+record { string a; } _ = D; // error incompatible types: expected 'record {| string a; anydata...; |}', found 'map<int>'
+
+const map<int> E = {
+    a: X,
+    b: 2
+};
+
+const map<map<int>> F = {
+    a: E,
+    b: {
+        a: 1
+    }
+};
+
+function f4() {
+    record {| int a; string...; |} _ = D; // error incompatible types: expected 'record {| int a; string...; |}', found 'map<int>'
+    record {| 1 a; |} _ = E; // error incompatible types: expected 'record {| 1 a; |}', found '(record {| 1 a; 2 b; |} & readonly)'
+    readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |} _ = F; // error incompatible types: expected 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly', found '(record {| record {| 1 a; 2 b; |} a; record {| 1 a; |} b; |} & readonly)'
+}
+
+function f5() {
+    var a = E;
+    a.a = 1; // error cannot update 'readonly' value of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'
+    a.b = 1; // error cannot update 'readonly' value of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'
+
+    var b = F;
+    b.a.a = 2; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
+    b.b.a = 2; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
+    b.b = {}; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
+}

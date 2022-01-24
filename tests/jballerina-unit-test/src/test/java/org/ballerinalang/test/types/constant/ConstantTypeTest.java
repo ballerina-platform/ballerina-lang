@@ -23,6 +23,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -39,14 +40,19 @@ public class ConstantTypeTest {
         compileResult = BCompileUtil.compile("test-src/types/constant/constant-type.bal");
     }
 
-    @Test
-    public void testTypesOfConstants() {
-        BRunUtil.invoke(compileResult, "testTypesOfConstants");
+    @Test(dataProvider = "testFunctions")
+    public void testTypesOfConstants(String functionName) {
+        BRunUtil.invoke(compileResult, functionName);
     }
 
-    @Test
-    public void testTypesOfConstantMaps() {
-        BRunUtil.invoke(compileResult, "testTypesOfConstantMaps");
+    @DataProvider
+    public Object[] testFunctions() {
+        return new Object[]{
+           "testTypesOfSimpleConstants",
+           "testTypesOfConstantMaps",
+           "testConstTypesInline",
+           "testInvalidRuntimeUpdateOfConstMaps"
+        };
     }
 
     @Test
@@ -113,6 +119,32 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found '123'", 161, 14);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found '123'", 161, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found 'int'", 161, 27);
+        BAssertUtil.validateError(compileResult1, i++, "expression is not a constant expression", 169, 8);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected " +
+                "'record {| string a; anydata...; |}', found 'map<int>'", 173, 26);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| int a; string...; " +
+                "|}', found 'map<int>'", 188, 40);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| 1 a; |}', found '" +
+                "(record {| 1 a; 2 b; |} & readonly)'", 189, 27);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| readonly (" +
+                "record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly', " +
+                "found '(record {| record {| 1 a; 2 b; |} a; record {| 1 a; |} b; |} & readonly)'", 190, 80);
+        BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type " +
+                "'record {| readonly 1 a; readonly 2 b; |} & readonly'", 195, 5);
+        BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type " +
+                "'record {| readonly 1 a; readonly 2 b; |} & readonly'", 196, 5);
+        BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type 'record {| " +
+                                          "readonly (record {| 1 a; 2 b; |} & readonly) a; " +
+                                          "readonly (record {| 1 a; |} & readonly) b; |} & readonly'",
+                                  199, 5);
+        BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type 'record {| " +
+                                          "readonly (record {| 1 a; 2 b; |} & readonly) a; " +
+                                          "readonly (record {| 1 a; |} & readonly) b; |} & readonly'",
+                                  200, 5);
+        BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type 'record {| " +
+                                          "readonly (record {| 1 a; 2 b; |} & readonly) a; " +
+                                          "readonly (record {| 1 a; |} & readonly) b; |} & readonly'",
+                                  201, 5);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 
