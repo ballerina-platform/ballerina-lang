@@ -151,3 +151,14 @@ function testErrorAsAMemberOfAnydata() {
      (anydata|error)[] x = [error("")];
      anydata y = x;
 }
+
+type TANY table<map<any>>;
+type TERR table<map<error>>;
+
+public function testInvalidTableAssignment() {
+    TANY tany = table [ { "a": 2 } ];
+    anydata _ = tany; // error
+
+    TERR terror = table [ { "e": error("Message") } ];
+    anydata _ = terror; // error
+}

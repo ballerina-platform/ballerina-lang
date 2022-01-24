@@ -70,7 +70,6 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.BOOLEAN:
             case TypeTags.JSON:
             case TypeTags.XML:
-            case TypeTags.TABLE:
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.ANYDATA:
@@ -232,7 +231,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
 
     @Override
     public Boolean visit(BTableType type) {
-        return isAnydata(type);
+        return visit(type.constraint);
     }
 
     @Override
