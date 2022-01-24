@@ -152,6 +152,9 @@ function f2() {
     a = 1; // OK, using the broad type.
     b = 2; // OK, using the broad type.
     c = 3; // OK, using the broad type.
+    a = "1"; // error incompatible types: expected 'int', found 'string'
+    b = "2"; // error incompatible types: expected 'int', found 'string'
+    c = "3"; // error incompatible types: expected 'int', found 'string'
 }
 
 function f3() {
