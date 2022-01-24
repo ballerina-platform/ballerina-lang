@@ -510,7 +510,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
-                && !isServiceDeclSymbol(symbol)) {
+                && !isServiceDeclSymbol(symbol)
+                && (symbol.getKind() != SymbolKind.PACKAGE || isPackageImportedOnTheCompUnit(symbol, compUnitName))) {
             Symbol compiledSymbol;
             // TODO: Fix #31808 and remove this if-check
             if (symbol.getKind() == SymbolKind.PACKAGE) {
@@ -534,10 +535,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                 }
             }
 
-            if (!(symbol.getKind() == SymbolKind.PACKAGE
-                    && !((BPackageSymbol) symbol).compUnit.getValue().equals(compUnitName))) {
-                    compiledSymbols.add(compiledSymbol);
-            }
+            compiledSymbols.add(compiledSymbol);
         }
         addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states, compUnitName);
     }
@@ -581,5 +579,9 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isNonNamedArgExprNode(BLangNode node) {
         return node instanceof BLangExpression && !(node instanceof BLangNamedArgsExpression);
+    }
+
+    private boolean isPackageImportedOnTheCompUnit(BSymbol symbol, String compUnit) {
+        return symbol.getKind() == SymbolKind.PACKAGE && ((BPackageSymbol) symbol).compUnit.getValue().equals(compUnit);
     }
 }
