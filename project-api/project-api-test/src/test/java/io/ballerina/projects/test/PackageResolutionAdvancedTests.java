@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -28,16 +29,12 @@ import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.ballerina.projects.test.TestUtils.deleteDirectory;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
@@ -62,11 +59,6 @@ public class PackageResolutionAdvancedTests extends BaseTest {
     Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
-    @BeforeMethod
-    public void setUp() {
-        System.setProperty("LANG_REPO_BUILD", "False");
-    }
-
     @Test(description = "A new patch and minor version of a transitive has been released to central")
     public void testCase0001(ITestContext ctx) throws IOException {
         // package_c --> package_b
@@ -77,52 +69,172 @@ public class PackageResolutionAdvancedTests extends BaseTest {
         BCompileUtil.compileAndCacheBala("projects_for_adv_resolution_tests/package_b_1_0_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
 
-        // First build package_c
+        // 1. First build package_c
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_c_1_0_0");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
-        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+        failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
         // package_a ---> 1.0.0
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Build1Dependencies.toml")));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml")));
 
         // Cache package_a patch version 1.0.2 to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_a_1_0_2"));
         // Cache package_a minor version 1.1.0 to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_a_1_1_0"));
 
-        // Build package_c again w/o deleting Dependencies.toml
+        // 2. Build package_c again w/o deleting Dependencies.toml and build file
         BuildProject buildProjectAgain = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProjectAgain.save();
-        PackageCompilation compilationAgain = buildProjectAgain.currentPackage().getCompilation();
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResultAgain = compilationAgain.diagnosticResult();
-        diagnosticResultAgain.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResultAgain.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+        failIfDiagnosticsExists(buildProjectAgain);
         // Compare Dependencies.toml file
         // package_a ---> 1.0.0
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Build1Dependencies.toml")));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml")));
 
-        // Build package_c again after deleting Dependencies.toml
-        deleteDependenciesTomlAndBuildFile(projectDirPath);
-        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting sticky == false
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
         buildProject3.save();
-        PackageCompilation compilation3 = buildProject3.currentPackage().getCompilation();
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult3 = compilation3.diagnosticResult();
-        diagnosticResult3.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult3.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+        failIfDiagnosticsExists(buildProject3);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.0.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
+
+        // 4. Build package_c again after deleting Dependencies.toml and build file
+        deleteDependenciesTomlAndBuildFile(projectDirPath);
+        BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject4.save();
+        failIfDiagnosticsExists(buildProject4);
         // Compare Dependencies.toml file
         // package_a ---> 1.0.2 patch version
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Build2Dependencies.toml")));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
+
+        // 5. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
+        deleteDependenciesTomlAndBuildFile(projectDirPath);
+        BuildProject buildProject5 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject5.save();
+        failIfDiagnosticsExists(buildProject5);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.0.2 patch version
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
+    }
+
+    @Test(description = "Adding of a new import which is already there as a transitive in the graph with " +
+            "an old version", dependsOnMethods = "testCase0001")
+    public void testCase0002(ITestContext ctx) throws IOException {
+        // package_c --> package_b 1.0.0
+        // package_b --> package_a 1.0.0, 1.0.2, 1.1.0
+        // 1. Build package_c after adding import to package_a
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_c_1_0_0_new_import");
+        // Add Dependencies.toml
+        // package_a ---> 1.0.0
+        Files.copy(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(DEPENDENCIES_TOML));
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.1.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0002.toml")));
+    }
+
+    @Test(description = "Remove existing import which is also a transitive dependency from another import")
+    public void testCase0003(ITestContext ctx) throws IOException {
+        // package_c --> package_b 1.0.0
+        // package_b --> package_a 1.0.0, 1.0.2, 1.1.0
+        // 1. Build package_c after adding import to package_a
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_c_1_0_0_remove_import");
+        // Add Dependencies.toml
+        // package_a ---> 1.1.0
+        Files.copy(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(DEPENDENCIES_TOML));
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.1.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml")));
+
+        // 2. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting sticky == false
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject3.save();
+        failIfDiagnosticsExists(buildProject3);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.0.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml")));
+
+        // 3. Build package_c again after deleting Dependencies.toml and build file
+        deleteDependenciesTomlAndBuildFile(projectDirPath);
+        BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject4.save();
+        failIfDiagnosticsExists(buildProject4);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.0.2 patch version
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-2.toml")));
+
+        // 4. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
+        deleteDependenciesTomlAndBuildFile(projectDirPath);
+        BuildProject buildProject5 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject5.save();
+        failIfDiagnosticsExists(buildProject5);
+        // Compare Dependencies.toml file
+        // package_a ---> 1.0.2 patch version
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-2.toml")));
+    }
+
+    @Test(description = "Remove existing import which also is a dependency of a newer patch version of another import")
+    public void testCase0004(ITestContext ctx) throws IOException {
+        // package_f --> package_d 1.0.0, package_e 2.0.0
+        // Cache package_d to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_d_1_0_0"));
+        // Cache package_e to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_e_2_0_0"));
+
+        // 1. Build package_f
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_f_1_0_0");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+        // Compare Dependencies.toml file
+        // package_d ---> 1.0.0
+        // package_e ---> 2.0.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-1.toml")));
+
+        // 2. Publish new patch version of package_e which has dependency on package_d to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_e_2_0_2"), projectEnvironmentBuilder);
+        // Remove package_d import from package_f
+        projectDirPath = RESOURCE_DIRECTORY.resolve("package_f_1_0_0_remove_import_d");
+        // Build package_f w/o deleting Dependencies.toml and build file
+        // package_f ---> package_e 2.0.0, 2.0.2
+        // package_e 2.0.2 ---> package_d 1.0.0
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
+        // Compare Dependencies.toml file
+        // package_e ---> 2.0.2
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-2.toml")));
     }
 
     @AfterMethod
@@ -133,19 +245,24 @@ public class PackageResolutionAdvancedTests extends BaseTest {
 
     @AfterClass
     public void afterClass() {
-        deleteDirectory(testBuildDirectory.resolve("user-home").toFile());
+        deleteDirectory(testBuildDirectory.resolve("user-home").resolve("repositories")
+                .resolve("central.ballerina.io").resolve("bala").resolve("adv_res").toFile());
     }
 
     private static void deleteDependenciesTomlAndBuildFile(Path packagePath) throws IOException {
         Files.deleteIfExists(packagePath.resolve(DEPENDENCIES_TOML));
+        deleteBuildFile(packagePath);
+    }
+
+    private static void deleteBuildFile(Path packagePath) throws IOException {
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
     }
 
-    private static void updateFileToken(Path filePath, String guessToken, String actualToken) throws IOException {
-        Stream<String> lines = Files.lines(filePath);
-        List<String> replaced = lines.map(line -> line.replaceAll(guessToken, actualToken))
-                .collect(Collectors.toList());
-        Files.write(filePath, replaced);
-        lines.close();
+    private void failIfDiagnosticsExists(BuildProject buildProject) {
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
     }
 }
