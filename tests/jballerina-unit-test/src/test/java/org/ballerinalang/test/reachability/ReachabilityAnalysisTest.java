@@ -80,7 +80,8 @@ public class ReachabilityAnalysisTest {
                 "testReachableCodeWithUnaryConditionsInIf",
                 "testReachableCodeWithTypeNarrowing",
                 "testTerminatingAndNonTerminatingLoops",
-                "testTypeNarrowingWithDifferentWhileCompletionStatus"
+                "testTypeNarrowingWithDifferentWhileCompletionStatus",
+                "testTypeNarrowingWithEqualityInCondition"
         };
     }
 
@@ -312,6 +313,10 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 377, 17);
         validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 391, 17);
         validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 407, 17);
+        validateError(result, i++, "incompatible types: expected 'string', found 'int'", 416, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found 'int'", 425, 20);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 429, 13);
+
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

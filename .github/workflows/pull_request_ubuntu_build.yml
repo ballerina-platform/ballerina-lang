@@ -8,6 +8,7 @@ on:
       - release-stage
       - stage
       - ballerina-1.2.x
+      - ballerina-2.0.x
       - stage-swan-lake
 
 jobs:

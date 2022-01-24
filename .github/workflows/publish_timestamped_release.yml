@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - stage-swan-lake
+      - ballerina-2.0.x
   workflow_dispatch:
 
 jobs:
