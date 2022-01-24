@@ -22,16 +22,16 @@ int globalVar = 2;
 public class ObjectMethodsCallClass {
     int n = 5;
 
-    function getN() returns int {
+    function getFieldValWithNoArgs() returns int {
         return self.n;
     }
 
-    function addAndGetN(int num) returns int {
+    function getFieldValWithRequiredArg(int num) returns int {
         self.n += num;
         return self.n;
     }
 
-    function getFieldVal(string fieldName = "n") returns int {
+    function getFieldValWithOptionalArg(string fieldName = "n") returns int {
         if (fieldName == "n") {
             return self.n;
         } else {
@@ -39,23 +39,23 @@ public class ObjectMethodsCallClass {
         }
     }
 
-    public function callGetN() returns int = @java:Method {
-        name: "getN",
+    public function callGetFieldValWithNoArgs() returns int = @java:Method {
+        name: "getFieldValWithNoArgs",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
-    public function callAddAndGetN(int num) returns int = @java:Method {
-        name: "addAndGetN",
+    public function callGetFieldValWithRequiredArg(int num) returns int = @java:Method {
+        name: "getFieldValWithRequiredArg",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
-    public function callGetFieldValWithArgDefaultVal() returns int = @java:Method {
-        name: "getFieldValWithArgDefaultVal",
+    public function callGetFieldValWithOptionalArgDefaultVal() returns int = @java:Method {
+        name: "getFieldValWithOptionalArgDefaultVal",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
-    public function callGetFieldValWithProvidedArgVal(string fieldName) returns int = @java:Method {
-        name: "getFieldValWithProvidedArgVal",
+    public function callGetFieldValWithProvidedOptionalArgVal(string fieldName) returns int = @java:Method {
+        name: "getFieldValWithProvidedOptionalArgVal",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 }
@@ -265,10 +265,10 @@ public service class NonIsolatedServiceClass2 {
 
 public function main() {
     ObjectMethodsCallClass objectMethodsCallClass = new ();
-    test:assertEquals(objectMethodsCallClass.callGetN(), 5);
-    test:assertEquals(objectMethodsCallClass.callAddAndGetN(10), 15);
-    test:assertEquals(objectMethodsCallClass.callGetFieldValWithArgDefaultVal(), 15);
-    test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedArgVal("not a field"), -1);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithNoArgs(), 5);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithRequiredArg(10), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedOptionalArgVal("not a field"), -1);
 
     IsolatedClass isolatedClass = new ();
     test:assertEquals(isolatedClass.callGetA(), 1);

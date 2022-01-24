@@ -39,23 +39,24 @@ import io.ballerina.runtime.internal.types.BServiceType;
  */
 public class Async {
 
-    public static long getN(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getN");
+    public static long getFieldValWithNoArgs(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithNoArgs");
         return 0;
     }
 
-    public static long addAndGetN(Environment env, BObject obj, long num) {
-        invokeMethodAsyncConcurrently(env, obj, "addAndGetN", num, true);
+    public static long getFieldValWithRequiredArg(Environment env, BObject obj, long num) {
+        invokeMethodAsyncConcurrently(env, obj, "getFieldValWithRequiredArg", num, true);
         return 0;
     }
 
-    public static long getFieldValWithArgDefaultVal(Environment env, BObject obj) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldVal", StringUtils.fromString("any value here"), false);
+    public static long getFieldValWithOptionalArgDefaultVal(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", StringUtils.fromString("any value here"),
+                false);
         return 0;
     }
 
-    public static long getFieldValWithProvidedArgVal(Environment env, BObject obj, BString fieldName) {
-        invokeMethodAsyncSequentially(env, obj, "getFieldVal", fieldName, true);
+    public static long getFieldValWithProvidedOptionalArgVal(Environment env, BObject obj, BString fieldName) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", fieldName, true);
         return 0;
     }
 
