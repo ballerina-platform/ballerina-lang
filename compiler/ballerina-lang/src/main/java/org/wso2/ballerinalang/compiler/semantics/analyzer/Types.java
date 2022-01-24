@@ -4402,15 +4402,20 @@ public class Types {
             originalType = ((BIntersectionType) originalType).effectiveType;
         }
 
+        boolean unionOriginalType = false;
+
         switch (originalType.tag) {
             case TypeTags.UNION:
+                unionOriginalType = true;
                 remainingType = getRemainingType((BUnionType) originalType, getAllTypes(typeToRemove, true));
 
-                BType typeRemovedFromOriginalType = getReferredType(getRemainingType((BUnionType) originalType,
-                                                                      getAllTypes(remainingType, true)));
-                if (typeRemovedFromOriginalType == symTable.nullSet ||
-                        isSubTypeOfReadOnly(typeRemovedFromOriginalType) ||
-                        isSubTypeOfReadOnly(remainingType)) {
+                BType typeRemovedFromOriginalUnionType = getReferredType(getRemainingType((BUnionType) originalType,
+                                                                                          getAllTypes(remainingType,
+                                                                                                      true)));
+                if (typeRemovedFromOriginalUnionType == symTable.nullSet ||
+                        isSubTypeOfReadOnly(typeRemovedFromOriginalUnionType) ||
+                        isSubTypeOfReadOnly(remainingType) ||
+                        narrowsToUnionOfImmutableTypesOrDistinctBasicTypes(remainingType, typeToRemove)) {
                     return remainingType;
                 }
 
@@ -4437,11 +4442,22 @@ public class Types {
             return remainingType;
         }
 
-        if (isClosedRecordTypes(getReferredType(typeToRemove)) && removesDistinctRecords(typeToRemove, remainingType)) {
+        BType referredTypeToRemove = getReferredType(typeToRemove);
+        if (isClosedRecordTypes(referredTypeToRemove) && removesDistinctRecords(typeToRemove, remainingType)) {
             return remainingType;
         }
 
         if (removesDistinctBasicTypes(typeToRemove, remainingType)) {
+            return remainingType;
+        }
+
+        if (unionOriginalType && referredTypeToRemove.tag == UNION) {
+            BType typeToRemoveFrom = originalType;
+            for (BType memberTypeToRemove : ((BUnionType) referredTypeToRemove).getMemberTypes()) {
+                remainingType =  getRemainingType(typeToRemoveFrom, memberTypeToRemove);
+                typeToRemoveFrom = remainingType;
+            }
+
             return remainingType;
         }
 
@@ -4554,6 +4570,44 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private boolean narrowsToUnionOfImmutableTypesOrDistinctBasicTypes(BType remainingType, BType typeToRemove) {
+        BType referredRemainingType = getReferredType(remainingType);
+        if (referredRemainingType.tag != UNION) {
+            return false;
+        }
+
+        LinkedHashSet<BType> mutableRemainingTypes =
+                filterMutableMembers(((BUnionType) referredRemainingType).getMemberTypes());
+        remainingType = mutableRemainingTypes.size() == 1 ? mutableRemainingTypes.iterator().next() :
+                BUnionType.create(null, mutableRemainingTypes);
+
+        BType referredTypeToRemove = getReferredType(typeToRemove);
+
+        if (referredTypeToRemove.tag == UNION) {
+            LinkedHashSet<BType> mutableTypesToRemove =
+                    filterMutableMembers(((BUnionType) referredTypeToRemove).getMemberTypes());
+            typeToRemove = mutableTypesToRemove.size() == 1 ? mutableTypesToRemove.iterator().next() :
+                    BUnionType.create(null, mutableTypesToRemove);
+        } else {
+            typeToRemove = referredTypeToRemove;
+        }
+
+        return removesDistinctBasicTypes(typeToRemove, remainingType);
+    }
+
+    private LinkedHashSet<BType> filterMutableMembers(LinkedHashSet<BType> types) {
+        LinkedHashSet<BType> remainingMemberTypes = new LinkedHashSet<>();
+
+        for (BType type : types) {
+            BType referredType = getReferredType(type);
+            if (!isSubTypeOfReadOnly(referredType)) {
+                remainingMemberTypes.add(referredType);
+            }
+        }
+
+        return remainingMemberTypes;
     }
 
     // TODO: now only works for error. Probably we need to properly define readonly types here.

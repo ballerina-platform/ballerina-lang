@@ -560,6 +560,28 @@ function testFiniteType() {
     assertEquality(f5 is 0x0.00p00, true);
 }
 
+type UnaryType1 1|-3;
+type UnaryType2 -2;
+type UnaryType3 string|-3|int;
+type UnaryType4 UnaryType2|-3;
+type UnaryType5 anydata;
+
+function testFiniteTypeWithUnaryMinus() {
+    UnaryType1 x1 = -3;
+    UnaryType2 x2 = -2;
+    UnaryType3 x3 = -3;
+    UnaryType4 x4 = -2;
+    UnaryType4 x5 = -3;
+    UnaryType5 x6 = -3;
+
+    assertEquality(x1, -3);
+    assertEquality(x2, -2);
+    assertEquality(x3, -3);
+    assertEquality(x4, -2);
+    assertEquality(x5, -3);
+    assertEquality(x6, -3);
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

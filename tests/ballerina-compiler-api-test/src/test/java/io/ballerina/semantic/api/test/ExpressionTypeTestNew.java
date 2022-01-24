@@ -97,7 +97,7 @@ public class ExpressionTypeTestNew {
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 15, 19, 42);
+        TypeSymbol type = getExprType(19, 15, 19, 44);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
@@ -267,7 +267,8 @@ public class ExpressionTypeTestNew {
         return new Object[][]{
                 {72, 12, 15, INT},
                 {73, 12, 23, INT},
-                {73, 17, 23, INT},
+                {73, 12, 19, INT},
+                {73, 17, 23, null},
                 {74, 12, 23, INT},
                 {75, 16, 22, BOOLEAN},
                 {76, 17, 22, STRING},
@@ -309,7 +310,7 @@ public class ExpressionTypeTestNew {
 
     @Test
     public void testInferredRecordTypeForInvalidExprs() {
-        assertType(97, 5, 97, 20, RECORD);
+        assertType(97, 4, 97, 20, RECORD);
     }
 
     @Test
@@ -477,7 +478,7 @@ public class ExpressionTypeTestNew {
                 {209, 16, 209, 68, FUNCTION},
                 {209, 46, 209, 68, STRING},
                 {211, 14, 213, 5, FUNCTION},
-                {211, 27, 213, 5, FUNCTION},
+                {211, 27, 213, 5, null},
                 {211, 51, 211, 52, INT},
                 {216, 42, 216, 61, FUNCTION},
                 {216, 43, 216, 44, null},

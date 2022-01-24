@@ -1723,6 +1723,8 @@ public class BIRPackageSymbolEnter {
                 litExpr.value = dataInStream.readBoolean();
                 break;
             case TypeTags.NIL:
+                litExpr.value = "null";
+                litExpr.originalValue = "null";
                 break;
             default:
                 throw new UnsupportedOperationException("finite type value is not supported for type: " + valueType);

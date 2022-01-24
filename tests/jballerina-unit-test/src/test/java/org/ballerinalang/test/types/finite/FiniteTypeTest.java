@@ -394,6 +394,11 @@ public class FiniteTypeTest {
         BRunUtil.invoke(result, "testFiniteType");
     }
 
+    @Test
+    public void testFiniteTypeWithUnaryMinus() {
+        BRunUtil.invoke(result, "testFiniteTypeWithUnaryMinus");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

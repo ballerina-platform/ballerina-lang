@@ -302,6 +302,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.prevEnvs.clear();
+
+        if (this.narrowedTypeInfo != null) {
+            this.narrowedTypeInfo.clear();
+        }
+
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
@@ -509,29 +514,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
-        env = SymbolEnv.createFuncBodyEnv(body, env);
+        SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
         int stmtCount = -1;
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
             boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null);
+                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null, funcBodyEnv, true);
             if (analyzedStmt) {
                 continue;
             }
-            analyzeStmt(stmt, env);
+            analyzeStmt(stmt, funcBodyEnv);
         }
+        // Remove explicitly added function body env if exists
+        this.prevEnvs.remove(funcBodyEnv);
         resetNotCompletedNormally();
     }
 
-    private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement) {
+    private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement,
+                                                           SymbolEnv currentEnv, boolean inFunctionBody) {
         if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
                 && ((BLangIf) prevStatement).elseStmt == null && this.notCompletedNormally) {
             BLangIf ifStmt = (BLangIf) prevStatement;
             this.notCompletedNormally =
                     ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
+            // Explicitly add function body env since it's required for resetting the types
+            if (inFunctionBody) {
+                this.prevEnvs.push(currentEnv);
+            }
             // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
-            SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsityFollowingIfWithoutElse(ifStmt.expr, currentStmt,
-                    env);
+            SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
             analyzeStmt(currentStmt, narrowedBlockEnv);
             return true;
         }
@@ -1515,6 +1526,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
+            validateErrorDetailBindingPatterns(varNode);
             return;
         }
 
@@ -1574,8 +1586,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // We have no rhs to do type checking.
             return;
         }
-        typeChecker.checkExpr(varNode.expr, env, varNode.getBType());
 
+        typeChecker.checkExpr(varNode.expr, env, varNode.getBType());
+        validateErrorDetailBindingPatterns(varNode);
+    }
+
+    private void validateErrorDetailBindingPatterns(BLangErrorVariable errorVariable) {
+        BType rhsType = types.getReferredType(errorVariable.expr.getBType());
+        if (rhsType.getKind() != TypeKind.ERROR) {
+            return;
+        }
+
+        BErrorType errorType = (BErrorType) rhsType;
+        BType detailType = types.getReferredType(errorType.detailType);
+
+        if (detailType.getKind() != TypeKind.RECORD) {
+            for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
+                        errorDetailEntry.key.value);
+            }
+            return;
+        }
+
+        BRecordType rhsDetailType = (BRecordType) detailType;
+        LinkedHashMap<String, BField> detailFields = rhsDetailType.fields;
+
+        for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
+            String entryName = errorDetailEntry.key.getValue();
+            BField entryField = detailFields.get(entryName);
+            if (entryField == null) {
+                dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
+                        errorDetailEntry.key.value);
+            } else if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
+                dlog.error(errorDetailEntry.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+            }
+        }
     }
 
     private void handleDeclaredWithVar(BLangVariable variable) {
@@ -1910,7 +1956,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
             boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null);
+                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null, env, false);
             if (analyzedStmt) {
                 continue;
             }
@@ -1971,23 +2017,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         checkConstantAssignment(varRef);
 
         if (expType != symTable.semanticError && compoundAssignment.expr.getBType() != symTable.semanticError) {
+            BType expressionType = compoundAssignment.expr.getBType();
+            if (expType.isNullable() || expressionType.isNullable()) {
+                dlog.error(compoundAssignment.pos, 
+                        DiagnosticErrorCode.COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS);
+            }
+            
             BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expType,
-                                                                      compoundAssignment.expr.getBType());
+                    expressionType);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType,
-                                                                   compoundAssignment.expr.getBType());
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType, expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType,
-                                                                     compoundAssignment.expr.getBType());
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType, 
+                        expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver.getBinaryBitwiseOpsForTypeSets(compoundAssignment.opKind, expType,
-                        compoundAssignment.expr.getBType());
+                        expressionType);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                           compoundAssignment.opKind, expType, compoundAssignment.expr.getBType());
+                           compoundAssignment.opKind, expType, expressionType);
             } else {
                 compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
                         compoundAssignment.expr,
@@ -2368,10 +2419,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                detailItem.name);
                     return;
                 } else {
-                    matchedType = BUnionType.create(null, symTable.nilType, rhsDetailType.restFieldType);
+                    dlog.error(detailItem.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
+                            detailItem.name.value);
+                    continue;
                 }
             } else if (Symbols.isOptional(matchedDetailItem.symbol)) {
-                matchedType = BUnionType.create(null, symTable.nilType, matchedDetailItem.type);
+                dlog.error(detailItem.pos,
+                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                continue;
             } else {
                 matchedType = matchedDetailItem.type;
             }
@@ -2584,15 +2639,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(matchClauses.get(0), env);
 
-        SymbolEnv prevEnv = env;
+        SymbolEnv matchClauseEnv = this.env;
         for (int i = 1; i < matchClauses.size(); i++) {
             BLangMatchClause prevMatchClause = matchClauses.get(i - 1);
             BLangMatchClause currentMatchClause = matchClauses.get(i);
-            env = typeNarrower.evaluateTruth(matchStatement.expr, prevMatchClause.patternsType, currentMatchClause,
-                    env);
-            analyzeNode(currentMatchClause, env);
+            matchClauseEnv = typeNarrower.evaluateTruth(matchStatement.expr, prevMatchClause.patternsType,
+                    currentMatchClause, matchClauseEnv);
+            analyzeNode(currentMatchClause, matchClauseEnv);
         }
-        env = prevEnv;
 
         if (matchStatement.onFailClause != null) {
             this.analyzeNode(matchStatement.onFailClause, env);
