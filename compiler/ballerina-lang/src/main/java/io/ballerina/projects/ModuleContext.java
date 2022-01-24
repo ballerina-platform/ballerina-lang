@@ -456,31 +456,45 @@ class ModuleContext {
             }
         }
 
+        ByteArrayOutputStream birContent;
+
+        // Skip caching BIR if there are diagnostics
+        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+            return;
+        }
+
         // Serialize the BIR  model
-        cacheBIR(moduleContext, compilerContext);
+        birContent = generateBIR(moduleContext, compilerContext);
 
         // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
-        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
-    }
 
-    private static void cacheBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        // Skip caching BIR if there are diagnostics
-        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+        // Generate and write the thin jar to the file system
+        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+
+        // skip writing the bir for BuildProject
+        if (birContent == null) {
             return;
         }
+
+        // Write the bir to the file system
+        // Note: The bir is cached after the jar because if jar caching fails due to any issues
+        // the cache will be incomplete causing the subsequent runs to fail.
+        moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+    }
+
+    private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
 
         // Skip caching BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
         if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
                 moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
             CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
             if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
-                return;
+                return null;
             }
         }
-
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
@@ -492,7 +506,7 @@ class ModuleContext {
             }
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);
-            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+            return birContent;
         } catch (IOException e) {
             // This path may never be executed
             throw new RuntimeException("Failed to convert BIR model to a byte array", e);

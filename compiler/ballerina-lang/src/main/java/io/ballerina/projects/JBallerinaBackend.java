@@ -300,7 +300,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
         if (compiledJarFile == null) {
-            return;
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
