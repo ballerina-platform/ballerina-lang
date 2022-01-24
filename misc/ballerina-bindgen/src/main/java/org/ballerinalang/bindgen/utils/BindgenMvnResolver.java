@@ -70,13 +70,12 @@ public class BindgenMvnResolver {
         } else {
             mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
         }
-        outStream.println("\nResolving maven dependencies...");
         Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
         handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null);
         if (resolve) {
             dependencyTraversal(dependency, mvnRepository.toString(), projectRoot);
             if (projectRoot != null) {
-                outStream.println("\nUpdated the Ballerina.toml file with new platform libraries.");
+                outStream.println("\nUpdated the `Ballerina.toml` file with the new platform libraries.");
             }
         }
     }

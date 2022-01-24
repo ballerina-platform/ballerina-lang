@@ -28,6 +28,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -117,6 +119,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
                     .filter(predicate)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
         }
         completionItems.addAll(this.getCompletionItemList(constants, context));
 

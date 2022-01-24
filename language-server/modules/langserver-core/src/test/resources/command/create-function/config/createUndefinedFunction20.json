@@ -2,12 +2,12 @@
   "arguments": {
     "node.range": {
       "start": {
-        "line": 14,
-        "character": 16
+        "line": 1,
+        "character": 25
       },
       "end": {
-        "line": 14,
-        "character": 28
+        "line": 1,
+        "character": 35
       }
     }
   },
@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 15,
+                    "line": 2,
                     "character": 1
                   },
                   "end": {
-                    "line": 15,
+                    "line": 2,
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction createData() returns Data {\n    return {id: \"\", value: \"\", count: 0, summary: {total: 0, rejected: 0, reference: \"\"}};\n}\n"
+                "newText": "\n\nfunction getTuple() returns [int|string] {\n    return [0];\n}\n"
               }
             ]
           }

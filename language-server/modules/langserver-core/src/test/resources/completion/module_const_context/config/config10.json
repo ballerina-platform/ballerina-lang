@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 2,
-    "character": 28
+    "character": 23
   },
-  "source": "module_const_context/source/source7.bal",
+  "source": "module_const_context/source/source10.bal",
   "items": [
     {
       "label": "module1",
@@ -247,34 +247,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CONST1",
-      "kind": "Variable",
-      "detail": "1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "B",
-      "insertText": "CONST1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "varName",
-      "kind": "Variable",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "B",
-      "insertText": "varName",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -290,6 +262,20 @@
       "sortText": "Q",
       "filterText": "false",
       "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "varName",
+      "kind": "Variable",
+      "detail": "$UndefinedType$",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "varName",
       "insertTextFormat": "Snippet"
     }
   ]
