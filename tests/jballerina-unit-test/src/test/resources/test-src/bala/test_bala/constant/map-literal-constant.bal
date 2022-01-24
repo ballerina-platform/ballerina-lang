@@ -1,3 +1,4 @@
+import ballerina/jballerina.java;
 import testorg/foo;
 
 function testSimpleBooleanConstMap() returns map<boolean> {
@@ -182,21 +183,22 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         a["a"] = 1;
     };
     error? res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo:(testorg/foo:1:$anonType$_190 & readonly)'");
+    // TODO: replace with an equality check once https://github.com/ballerina-platform/ballerina-lang/issues/34808 is fixed.
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
 
     record {| 1 a; 2 b; |} b = foo:CCONST.a;
     fn = function () {
         b.b = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'foo:(testorg/foo:1:$anonType$_190 & readonly)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
 
     map<map<int>> c = foo:CCONST;
     fn = function () {
         c["a"]["a"] = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo:(testorg/foo:1:$anonType$_190 & readonly)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
 
     fn = function () {
         c["c"] = {};
@@ -209,15 +211,14 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         c["a"] = {a: 1, b: 2};
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type " +
-                                    "'foo:(testorg/foo:1:$anonType$_191 & readonly)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
 }
 
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
     assertTrue(res is error);
     error err = <error> res;
     assertEqual("{ballerina/lang.map}InherentTypeViolation", err.message());
-    assertEqual(expectedDetailMessage, <string> checkpanic err.detail()["message"]);
+    assertTrue(matches(<string> checkpanic err.detail()["message"], expectedDetailMessage));
 }
 
 function assertTrue(anydata actual) {
@@ -230,3 +231,13 @@ function assertEqual(anydata expected, anydata actual) {
     }
     panic error(string `expected '${expected.toBalString()}', found '${actual.toBalString()}'`);
 }
+
+isolated function matches(string stringToMatch, string regex) returns boolean {
+    return matchesExternal(java:fromString(stringToMatch), java:fromString(regex));
+}
+
+isolated function matchesExternal(handle stringToMatch, handle regex) returns boolean = @java:Method {
+    name: "matches",
+    'class: "java.lang.String",
+    paramTypes: ["java.lang.String"]
+} external;
