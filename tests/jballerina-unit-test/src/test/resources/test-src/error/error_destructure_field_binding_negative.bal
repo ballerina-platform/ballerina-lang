@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type FooError error<record {|string message?; string cause; boolean fatal?; string...; |}>;
+type FooError error<record {|string message?; string cause; boolean fatal?; string...;|}>;
 
 FooError err = error("Error One", message = "Msg One", cause = "Cause One", fatal = false);
 
