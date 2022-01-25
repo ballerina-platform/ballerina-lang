@@ -102,15 +102,15 @@ public class SemTypeTest {
                 String n1 = td1.name.getValue();
                 String n2 = td2.name.getValue();
 
-                checkSubTypeRelation(t1, t2, n1, n2, types, relations);
-                checkSubTypeRelation(t2, t1, n2, n1, types, relations);
+                computeSubTypeRelation(t1, t2, n1, n2, types, relations);
+                computeSubTypeRelation(t2, t1, n2, n1, types, relations);
             }
         }
         return relations;
     }
 
-    private void checkSubTypeRelation(BType sourceType, BType targetType, String sourceTypeName,
-                                      String targetTypeName, Types types, List<String> relations) {
+    private void computeSubTypeRelation(BType sourceType, BType targetType, String sourceTypeName,
+                                        String targetTypeName, Types types, List<String> relations) {
         if (types.isAssignable(sourceType, targetType)) {
             relations.add(relation(sourceTypeName, targetTypeName));
         }
