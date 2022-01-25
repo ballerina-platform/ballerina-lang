@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -203,11 +204,24 @@ public class RuntimeUtils {
 
     public static void validateObjectAssignabilityToBType(BMap<BString, Object> bMap) {
         for (Object value : bMap.values()) {
-            if (value != null && !(value instanceof Number) && !(value instanceof BString) &&
-                    !(value instanceof Boolean) && !(value instanceof BValue)) {
+            if (isInvalidBallerinaValue(value)) {
                 throw ErrorUtils.createJToBTypeCastError(value.getClass());
             }
         }
+    }
+
+    public static void validateObjectAssignabilityToBType(Map<String, Object> bMap) {
+        for (Map.Entry<String, Object> fieldEntry : bMap.entrySet()) {
+            Object value = fieldEntry.getValue();
+            if (isInvalidBallerinaValue(value) && !(value instanceof String)) {
+                throw ErrorUtils.createJToBTypeCastError(value.getClass());
+            }
+        }
+    }
+
+    private static boolean isInvalidBallerinaValue(Object value) {
+        return (value != null && !(value instanceof Number) && !(value instanceof BString) &&
+                !(value instanceof Boolean) && !(value instanceof BValue));
     }
 
     private RuntimeUtils() {

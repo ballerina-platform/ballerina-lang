@@ -76,11 +76,9 @@ public class ValueUtils {
         BMap<BString, Object> record = createRecordValue(packageId, recordTypeName);
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             Object val = fieldEntry.getValue();
+            // TODO: Remove the following String to BString conversion.
             if (val instanceof String) {
                 val = StringUtils.fromString((String) val);
-            } else if (val != null && !(val instanceof Number) && !(val instanceof BString) &&
-                    !(val instanceof Boolean) && !(val instanceof BValue)) {
-                throw ErrorUtils.createJToBTypeCastError(val.getClass());
             }
             record.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }
