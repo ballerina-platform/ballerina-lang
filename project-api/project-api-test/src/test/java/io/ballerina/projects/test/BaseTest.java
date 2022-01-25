@@ -98,7 +98,7 @@ public class BaseTest {
 
     protected void cacheDependencyToCentralRepository(Path dependency, ProjectEnvironmentBuilder environmentBuilder)
             throws IOException {
-        BuildProject dependencyProject = BuildProject.load(environmentBuilder, dependency,
+        BuildProject dependencyProject = TestUtils.loadBuildProject(environmentBuilder, dependency,
                 BuildOptions.builder().setOffline(true).build());
         cacheDependencyToCentralRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
     }
