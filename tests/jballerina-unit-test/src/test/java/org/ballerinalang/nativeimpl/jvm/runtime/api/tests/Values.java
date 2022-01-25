@@ -218,4 +218,24 @@ public class Values {
         );
         return ValueCreator.createRecordValue(recordModule, recordName.getValue(), map);
     }
+
+    public static BMap<BString, Object> getReadonlyRecordNegative(BString recordName) {
+        Map<String, Integer> map = Map.ofEntries(
+                Map.entry("a", 1),
+                Map.entry("b", 2)
+        );
+        Map<String, Object> valueMap = Map.ofEntries(
+                Map.entry("valueMap", map)
+        );
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), valueMap);
+    }
+
+    public static BMap<BString, Object> getRecordWithRestFieldsNegative() {
+        BMap<BString, Object> map = ValueCreator.createMapValue();
+        map.put(StringUtils.fromString("key"), "map value");
+        Object[] values = new Object[2];
+        values[0] = 1;
+        values[1] = "abc";
+        return ValueCreator.createRecordValue(map, values);
+    }
 }

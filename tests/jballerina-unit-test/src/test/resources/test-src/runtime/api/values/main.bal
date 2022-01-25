@@ -43,7 +43,17 @@ public function main() {
     records:Foo|error fooOrError =  trap <records:Foo> records:getRecordNegative("Foo");
     test:assertTrue(fooOrError is error);
     error e3 = <error> fooOrError;
-    test:assertValueEqual(e3.message(), "'class java.util.ArrayList' cannot be assigned to a Ballerina type directly");
+    test:assertValueEqual(e3.message(), "value creation with 'class java.util.ArrayList' not supported: expected a BValue");
+
+    records:Bar|error barOrError = trap <records:Bar> records:getReadonlyRecordNegative("Bar");
+    test:assertTrue(barOrError is error);
+    error e4 = <error> barOrError;
+    test:assertValueEqual(e4.message(), "value creation with 'class java.util.ImmutableCollections$MapN' not supported: expected a BValue");
+
+    record{}|error res = trap records:getRecordWithRestFieldsNegative();
+    test:assertTrue(res is error);
+    error e5 = <error> res;
+    test:assertValueEqual(e5.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
 
     maps:validateAPI();
     records:validateAPI();

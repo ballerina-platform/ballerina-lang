@@ -32,6 +32,17 @@ public function main() {
     test:assertValueEqual(invalidError.message(), "No such error: UserError2");
 
     testTypeIds();
+
+    errors:IOError|error res = trap errors:getDistinctErrorNegative("UserError");
+    test:assertTrue(res is error);
+    error e = <error> res;
+    test:assertValueEqual(e.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
+
+    error err = trap errors:getErrorNegative2("error message");
+    test:assertValueEqual(err.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
+
+    err = trap errors:getErrorWithTypeNegative("error message");
+    test:assertValueEqual(err.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
 }
 
 function testTypeIds() {
