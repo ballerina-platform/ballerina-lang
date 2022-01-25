@@ -203,3 +203,72 @@ function f5() {
     b.b.a = 2; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
     b.b = {}; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
 }
+
+const G = 1;
+const int H = G + 1;
+
+G _ = 1; // OK
+G _ = 0; // error incompatible types: expected '1', found 'int'
+
+H _ = 2; // OK
+H _ = 0; // error incompatible types: expected '2', found 'int'
+
+const map<boolean> I = {a: true, b: false};
+
+I _ = {a: true, b: false}; // OK
+I _ = {}; // error missing non-defaultable required record field 'a', missing non-defaultable required record field 'b'
+I _ = {a: false}; // error missing non-defaultable required record field 'b', incompatible types: expected 'true', found 'boolean'
+
+const map<string> J = {
+    a: "greetings",
+    b: "map"
+};
+
+const map<map<string>> K = {
+    a: J,
+    b: {
+        x: "hello",
+        y: "world"
+    },
+    c: {
+        x: "from",
+        z: "Ballerina",
+        b: "!"
+    }
+};
+
+record {| record {| "greetings" a; "map" b; |} a; record {| "hello" x; "world" y; |} b; record {| "!" b; "from" x; "Ballerina" z; |} c; |} & readonly _ = K; // OK
+record {| record {| "greetings" a; "map" b; |}...; |} _ = K; // error incompatible types: expected 'record {| record {| greetings a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'
+
+K _ = {}; // error missing non-defaultable required record field 'a', missing non-defaultable required record field 'b', missing non-defaultable required record field 'c'
+K _ = { // OK
+    b: K.b,
+    a: {
+        a: "greetings",
+        b: "map"
+    },
+    c: {
+        x: "from",
+        z: "Ballerina",
+        b: K.c.b
+    }
+};
+
+function f6() {
+    record {| record {| "greetings" a; "map" b; |} a; record {| "hello" x; "world" y; |} b; record {| "!" b; "from" x; "Ballerina" z; |} c; |} & readonly _ = K; // OK
+    record {| record {| "greetings" a; "map" b; |}...; |} _ = K; // error incompatible types: expected 'record {| record {| greetings a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'
+
+    K _ = {}; // error missing non-defaultable required record field 'a', missing non-defaultable required record field 'b', missing non-defaultable required record field 'c'
+    K _ = { // OK
+        b: K.b,
+        a: {
+            a: "greetings",
+            b: "map"
+        },
+        c: {
+            x: "from",
+            z: "Ballerina",
+            b: K.c.b
+        }
+    };
+}

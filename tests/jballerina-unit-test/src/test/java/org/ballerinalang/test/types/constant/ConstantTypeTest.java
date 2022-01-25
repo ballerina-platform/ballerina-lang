@@ -148,6 +148,32 @@ public class ConstantTypeTest {
                                           "readonly (record {| 1 a; 2 b; |} & readonly) a; " +
                                           "readonly (record {| 1 a; |} & readonly) b; |} & readonly'",
                                   204, 5);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '1', found 'int'", 211, 7);
+
+        // https://github.com/ballerina-platform/ballerina-lang/issues/33890
+        // BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '2', found 'int'", 214, 7);
+        // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 219, 7);
+        // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 219, 7);
+        // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 220, 7);
+        // BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'true', found 'boolean'",
+        //                          220, 11);
+
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| record {| greetings " +
+                "a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world" +
+                " y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'", 241, 59);
+
+        // https://github.com/ballerina-platform/ballerina-lang/issues/33890
+        // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 243, 7);
+        // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 243, 7);
+        // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'c'", 243, 7);
+
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| record {| greetings " +
+                "a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world" +
+                " y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'", 259, 63);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 261, 11);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 261, 11);
+        BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'c'", 261, 11);
+
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 
