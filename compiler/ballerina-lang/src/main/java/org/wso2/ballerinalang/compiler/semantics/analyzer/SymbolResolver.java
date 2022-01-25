@@ -403,7 +403,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
-        boolean isAdditiveExpr = (opKind.equals(OperatorKind.ADD) || opKind.equals(OperatorKind.SUB));
+        boolean isAdditiveExpr = opKind.equals(OperatorKind.ADD) || opKind.equals(OperatorKind.SUB);
         return resolveOperator(isAdditiveExpr, names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
     }
 
