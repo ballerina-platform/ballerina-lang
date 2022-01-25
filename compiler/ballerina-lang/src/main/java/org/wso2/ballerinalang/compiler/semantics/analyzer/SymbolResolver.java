@@ -403,7 +403,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
+        boolean isAdditiveExpr = (opKind.equals(OperatorKind.ADD) || opKind.equals(OperatorKind.SUB));
+        return resolveOperator(isAdditiveExpr, names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
     }
 
     private BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
@@ -415,12 +416,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public BSymbol resolveUnaryOperator(OperatorKind opKind,
                                         BType type) {
-        return resolveOperator(names.fromString(opKind.value()), Lists.of(type));
+        return resolveOperator(false, names.fromString(opKind.value()), Lists.of(type));
     }
 
-    public BSymbol resolveOperator(Name name, List<BType> types) {
+    public BSymbol resolveOperator(boolean isAdditiveExpr, Name name, List<BType> types) {
         ScopeEntry entry = symTable.rootScope.lookup(name);
-        return resolveOperator(entry, types);
+        return resolveOperator(isAdditiveExpr, entry, types);
     }
 
     private BSymbol createBinaryComparisonOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
@@ -2146,7 +2147,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     // private methods
 
-    private BSymbol resolveOperator(ScopeEntry entry, List<BType> typeList) {
+    private BSymbol resolveOperator(boolean isAdditiveExpr, ScopeEntry entry, List<BType> typeList) {
         BSymbol foundSymbol = symTable.notFoundSymbol;
         while (entry != NOT_FOUND_ENTRY) {
             BInvokableType opType = (BInvokableType) entry.symbol.type;
@@ -2154,7 +2155,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 boolean match = true;
                 for (int i = 0; i < typeList.size(); i++) {
                     BType t = Types.getReferredType(typeList.get(i));
-                    if ((t.getKind() == TypeKind.UNION) &&
+                    if (isAdditiveExpr) {
+                        if (t.getKind() == TypeKind.NIL || !types.isAssignable(t, opType.paramTypes.get(i))) {
+                            match = false;
+                        }
+                    } else if ((t.getKind() == TypeKind.UNION) &&
                             (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
                         if (!this.types.isSameType(t, opType.paramTypes.get(i))) {
                             match = false;
