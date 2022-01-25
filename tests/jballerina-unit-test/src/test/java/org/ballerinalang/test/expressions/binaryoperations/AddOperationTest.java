@@ -156,7 +156,9 @@ public class AddOperationTest {
                 "testAdditionWithTypes",
                 "testAddSingleton",
                 "testStringCharAddition",
-                "testStringXmlSubtypesAddition"
+                "testStringXmlSubtypesAddition",
+                "testStringSubtypesAddition",
+                "testXmlSubtypesAddition"
         };
     }
 
