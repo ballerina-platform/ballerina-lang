@@ -45,11 +45,11 @@ import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 
 /**
- * Contains cases to test package resolution logic.
+ * Contains integrations test cases to test package resolution logic.
  *
  * @since 2.0.0
  */
-public class PackageResolutionAdvancedTests extends BaseTest {
+public class PackageResolutionIntegrationTests extends BaseTest {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_adv_resolution_tests").toAbsolutePath();
@@ -101,7 +101,7 @@ public class PackageResolutionAdvancedTests extends BaseTest {
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
-        // package_a ---> 1.0.0
+        // package_a ---> 1.0.2
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
 
@@ -132,6 +132,9 @@ public class PackageResolutionAdvancedTests extends BaseTest {
     public void testCase0002(ITestContext ctx) throws IOException {
         // package_c --> package_b 1.0.0
         // package_b --> package_a 1.0.0, 1.0.2, 1.1.0
+        // Add package_a major version to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_a_2_0_0"));
+        // package_a 1.0.0, 1.0.2, 1.1.0, 2.0.0
         // 1. Build package_c after adding import to package_a
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_c_1_0_0_new_import");
         // Add Dependencies.toml
@@ -148,7 +151,8 @@ public class PackageResolutionAdvancedTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0002.toml")));
     }
 
-    @Test(description = "Remove existing import which is also a transitive dependency from another import")
+    @Test(description = "Remove existing import which is also a transitive dependency from another import",
+        dependsOnMethods = "testCase0002")
     public void testCase0003(ITestContext ctx) throws IOException {
         // package_c --> package_b 1.0.0
         // package_b --> package_a 1.0.0, 1.0.2, 1.1.0
@@ -174,7 +178,7 @@ public class PackageResolutionAdvancedTests extends BaseTest {
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
-        // package_a ---> 1.0.0
+        // package_a ---> 1.1.0
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml")));
 
@@ -232,7 +236,7 @@ public class PackageResolutionAdvancedTests extends BaseTest {
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
         // Compare Dependencies.toml file
-        // package_e ---> 2.0.2
+        // package_e ---> 2.0.2 TODO: need to check (2.0.0)
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-2.toml")));
     }
