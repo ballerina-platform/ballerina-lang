@@ -68,6 +68,9 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.XML_TEXT:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_PI:
             case TypeTags.TABLE:
             case TypeTags.NIL:
             case TypeTags.NEVER:

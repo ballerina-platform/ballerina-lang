@@ -156,9 +156,9 @@ type TANY table<map<any>>;
 type TERR table<map<error>>;
 
 public function testInvalidTableAssignment() {
-    TANY tany = table [ { "a": 2 } ];
+    TANY tany = table [{"a": 2}];
     anydata _ = tany; // error
 
-    TERR terror = table [ { "e": error("Message") } ];
+    TERR terror = table [{"e": error("Message")}];
     anydata _ = terror; // error
 }
