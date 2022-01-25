@@ -5119,7 +5119,7 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseErrorConstructorExpr(consume());
             case LET_KEYWORD:
-                return parseLetExpression(isRhsExpr);
+                return parseLetExpression(isRhsExpr, isInConditionalExpr);
             case BACKTICK_TOKEN:
                 return parseTemplateExpression();
             case OBJECT_KEYWORD:
@@ -6806,7 +6806,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first resource path segment, that has no leading slash
-        STNode pathSegment = parseResourcePathSegment();
+        STNode pathSegment = parseResourcePathSegment(true);
         pathElementList.add(pathSegment);
 
         STNode leadingSlash;
@@ -6817,7 +6817,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             pathElementList.add(leadingSlash);
-            pathSegment = parseResourcePathSegment();
+            pathSegment = parseResourcePathSegment(false);
             pathElementList.add(pathSegment);
             nextToken = peek();
         }
@@ -6873,16 +6873,22 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseResourcePathSegment() {
+    private STNode parseResourcePathSegment(boolean isFirstSegment) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
+                if (isFirstSegment && nextToken.isMissing() && getNextNextToken().kind == SyntaxKind.SLASH_TOKEN) {
+                    // special case `[MISSING]/` to improve the error message for `/hello`
+                    consume(); // to ignore current missing identifier diagnostic
+                    return SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN, 
+                            DiagnosticErrorCode.ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH);
+                }
                 return consume();
             case OPEN_BRACKET_TOKEN:
                 return parseResourcePathParameter();
             default:
                 recover(nextToken, ParserRuleContext.RESOURCE_PATH_SEGMENT);
-                return parseResourcePathSegment();
+                return parseResourcePathSegment(isFirstSegment);
         }
     }
 
@@ -10539,7 +10545,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseLetExpression(boolean isRhsExpr) {
+    private STNode parseLetExpression(boolean isRhsExpr, boolean isInConditionalExpr) {
         STNode letKeyword = parseLetKeyword();
         STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr);
         STNode inKeyword = parseInKeyword();
@@ -10550,7 +10556,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false, isInConditionalExpr);
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
     }
 
@@ -11524,9 +11530,11 @@ public class BallerinaParser extends AbstractParser {
             }
 
             selectClause = intermediateClause;
-            
-            // Break the loop for nested query expressions, as remaining clauses belong to the parent.
-            if (isNestedQueryExpr()) {
+
+            if (isNestedQueryExpr() || !isValidIntermediateQueryStart(peek().kind)) {
+                // Break the loop for,
+                // 1. nested query expressions as remaining clauses belong to the parent.
+                // 2. next token not being an intermediate-clause start as that token could belong to the parent node.
                 break;
             }
         }
@@ -11572,7 +11580,26 @@ public class BallerinaParser extends AbstractParser {
     private boolean isNestedQueryExpr() {
         return Collections.frequency(this.errorHandler.getContextStack(), ParserRuleContext.QUERY_EXPRESSION) > 1;
     }
-    
+
+    private boolean isValidIntermediateQueryStart(SyntaxKind syntaxKind) {
+        switch (syntaxKind) {
+            case FROM_KEYWORD:
+            case WHERE_KEYWORD:
+            case LET_KEYWORD:
+            case SELECT_KEYWORD:
+            case JOIN_KEYWORD:
+            case OUTER_KEYWORD:
+            case ORDER_KEYWORD:
+            case BY_KEYWORD:
+            case ASCENDING_KEYWORD:
+            case DESCENDING_KEYWORD:
+            case LIMIT_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Parse an intermediate clause.
      * <p>
@@ -11663,6 +11690,8 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
             case DO_KEYWORD:
+            case ON_KEYWORD:
+            case CONFLICT_KEYWORD:
                 return true;
             default:
                 return isValidExprRhsStart(tokenKind, SyntaxKind.NONE);
@@ -12325,7 +12354,14 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
                 SyntaxKind nextNextTokenKind = peek(nextTokenIndex).kind;
-                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN || nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
+                if (nextNextTokenKind == SyntaxKind.PIPE_TOKEN || nextNextTokenKind == SyntaxKind.BITWISE_AND_TOKEN) {
+                    // e.g. -2|0 t1;
+                    nextTokenIndex++;
+                    return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
+                }
+
+                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN ||
+                        nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
                         nextNextTokenKind == SyntaxKind.CLOSE_BRACKET_TOKEN ||
                         isValidExprRhsStart(nextNextTokenKind, SyntaxKind.SIMPLE_NAME_REFERENCE);
             case IDENTIFIER_TOKEN:
@@ -12348,6 +12384,8 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
             case ISOLATED_KEYWORD:
+            case BASE16_KEYWORD:
+            case BASE64_KEYWORD:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -13390,7 +13428,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nodeKind) {
             case FINAL_KEYWORD:
 
-                // Statements starts other than var-decl
+                // Statement starts other than var-decl
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case DO_KEYWORD:

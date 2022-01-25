@@ -269,18 +269,18 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            BType refType = types.getReferredType(queryExpr.getBType());
+            BType refType = Types.getReferredType(queryExpr.getBType());
             if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
                     && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
-                                    TypeTags.isXMLTypeTag(types.getReferredType(memType).tag)))) {
+                                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag)))) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (TypeTags.isStringTypeTag(types.getReferredType(queryExpr.getBType()).tag)) {
+            } else if (TypeTags.isStringTypeTag(refType.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
-                BType arrayType = queryExpr.getBType();
+                BType arrayType = refType;
                 if (refType.tag == TypeTags.UNION) {
                     arrayType = ((BUnionType) refType).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.ARRAY)
+                            .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.ARRAY)
                             .findFirst().orElse(symTable.arrayType);
                 }
                 BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
@@ -415,7 +415,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
         BType completionType = symTable.nilType;
-        BType refType = types.getReferredType(resultType);
+        BType refType = Types.getReferredType(resultType);
         if (refType.tag == TypeTags.ARRAY) {
             constraintType = ((BArrayType) refType).eType;
         } else if (refType.tag == TypeTags.STREAM) {
@@ -743,10 +743,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         final BType type = queryExpr.getBType();
         String name = getNewVarName();
         BType tableType = type;
-        BType refType = types.getReferredType(type);
+        BType refType = Types.getReferredType(type);
         if (refType.tag == TypeTags.UNION) {
             tableType = ((BUnionType) refType).getMemberTypes()
-                    .stream().filter(m -> m.tag == TypeTags.TABLE)
+                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.TABLE)
                     .findFirst().orElse(symTable.tableType);
         }
         final List<IdentifierNode> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
@@ -1109,7 +1109,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BVarSymbol symbol : symbols) {
             BType type = symbol.type;
             String key = symbol.name.value;
-            BType structureType = types.getReferredType(type);
+            BType structureType = Types.getReferredType(type);
             if (structureType.tag == TypeTags.RECORD || structureType.tag == TypeTags.OBJECT) {
                 List<BVarSymbol> nestedSymbols = new ArrayList<>();
                 for (BField field : ((BStructureType) structureType).fields.values()) {

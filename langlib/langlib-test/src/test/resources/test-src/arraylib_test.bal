@@ -1447,3 +1447,14 @@ function testToStreamOnImmutableArray() {
     stream<byte[] & readonly> castedstrm = <stream<byte[] & readonly>>strm;
     assertValueEquality([1, 2], castedstrm.next()?.value);
 }
+
+function testUnshiftLargeValues() {
+    int[] list = [];
+    foreach int i in 0 ..< 400 {
+        list.unshift(i);
+    }
+    assertValueEquality(400, list.length());
+    assertValueEquality(399, list[0]);
+    assertValueEquality(199, list[200]);
+    assertValueEquality(0, list[399]);
+}

@@ -53,6 +53,10 @@ public class FinalObjectFieldTest {
         validateError(result, index++, "incompatible types: expected 'readonly', found 'Controller'", 122, 19);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'object { final string id; " +
                 "final map<int> config; }'", 133, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found " +
+                "'NonReadOnlyClassWithImmutableFieldsOnly'", 143, 17);
+        validateError(result, index++, "incompatible types: expected 'object { } & readonly', found " +
+                "'NonReadOnlyClassWithImmutableFieldsOnly'", 147, 30);
         assertEquals(result.getErrorCount(), index);
     }
 

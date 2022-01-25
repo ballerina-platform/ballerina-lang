@@ -2317,7 +2317,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType varArgType = types.getReferredType(restArgsExpression.getBType());
+        BType varArgType = Types.getReferredType(restArgsExpression.getBType());
         if (varArgType.tag == TypeTags.ARRAY) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
                                                            ((BArrayType) varArgType).eType, pos);
@@ -2895,7 +2895,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
-            if (!invokedOnSelf && types.getReferredType(invocation.getBType()).tag == TypeTags.NIL) {
+            if (!invokedOnSelf && Types.getReferredType(invocation.getBType()).tag == TypeTags.NIL) {
                 return true;
             }
 

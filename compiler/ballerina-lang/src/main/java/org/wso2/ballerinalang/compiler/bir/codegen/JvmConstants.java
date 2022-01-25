@@ -400,6 +400,8 @@ public class JvmConstants {
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
 
+    public static final int BALLERINA_MAX_YIELD_DEPTH = 256;
+
 
     private JvmConstants() {
     }
