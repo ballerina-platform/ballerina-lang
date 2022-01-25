@@ -455,11 +455,11 @@ public class SymbolTable {
     }
 
     public void defineOperators() {
-        // Binary arithmetic operators
-        defineIntegerArithmeticOperations();
-
         // Binary arithmetic operators for nullable integer types
         defineNilableIntegerArithmeticOperations();
+
+        // Binary arithmetic operators
+        defineIntegerArithmeticOperations();
 
         // Binary bitwise operators for nullable integer types
         defineNilableIntegerBitwiseAndOperations();
@@ -707,21 +707,6 @@ public class SymbolTable {
                 defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intOptional);
                 defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intOptional);
                 defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
-            }
-        }
-
-        for (BType lhs : intTypes) {
-            for (BUnionType rhs : nilableIntTypes) {
-                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.ADD, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.SUB, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.DIV, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.MUL, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.MOD, rhs, lhs, intOptional);
             }
         }
     }
