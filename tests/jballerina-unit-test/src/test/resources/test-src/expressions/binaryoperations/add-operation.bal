@@ -377,6 +377,56 @@ function testStringXmlSubtypesAddition() {
     assertEquality(x2 + c, xml `textd`);
 }
 
+type Chars "B"|"bar";
+type bar Chars|string;
+
+function testStringSubtypesAddition() {
+    string a = "abc";
+    string:Char|Strings b = "d";
+    Strings|Chars c = "bar";
+    bar d = "B";
+    string:Char e = "e";
+    assertEquality(a + c, "abcbar");
+    assertEquality(a + b, "abcd");
+    assertEquality(a + b + a, "abcdabc");
+    assertEquality(c + b, "bard");
+    assertEquality(a + e, "abce");
+    assertEquality(b + e, "de");
+    assertEquality(c + e, "bare");
+    assertEquality(d + e, "Be");
+    assertEquality(b + e + b, "ded");
+}
+type foo xml<'xml:Text>|xml<'xml:Comment> ;
+type foo2 xml<'xml:Element|'xml:ProcessingInstruction>;
+type foo3 foo|foo2;
+
+function testXmlSubtypesAddition() {
+    xml a = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
+    xml<'xml:Element>|foo b = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    foo2 c = xml `<?foo?><?faa?>`;
+    foo3 d = xml `text1 text2`;
+    xml<'xml:Comment> e = xml `<!--comment1--><!--comment2-->`;
+    xml<'xml:Text|'xml:Comment> f = xml `<!--comment-->`;
+    xml<'xml:Text>|xml<'xml:Comment> g = xml `<!--comment-->`;
+    xml<'xml:Element|'xml:ProcessingInstruction> h = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    xml<'xml:Element>|'xml:Text i = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
+
+    xml result1 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><foo>Anne</foo><fuu>Peter</fuu>`;
+    xml result2 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><?foo ?><?faa ?>`;
+    xml result3 = xml `<foo>foo</foo><?foo ?>text1<!--comment-->text1 text2`;
+    xml result4 = xml `<?foo ?><?faa ?><!--comment-->`;
+    xml result5 = xml `<?foo ?><?faa ?><root> text1<foo>100</foo><foo>200</foo></root><?foo ?>`;
+    xml result6 = xml `text1 text2<!--comment-->`;
+    xml result7 = xml `<!--comment--><root> text1<foo>100</foo><foo>200</foo></root><?foo ?>`;
+    assertEquality(a + b, result1);
+    assertEquality(a + c, result2);
+    assertEquality(a + d, result3);
+    assertEquality(c + g, result4);
+    assertEquality(c + h, result5);
+    assertEquality(d + f, result6);
+    assertEquality(g + h, result7);
+}
+
 function assertEquality(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
