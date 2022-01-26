@@ -37,6 +37,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 
 /**
  * Test cases for bal new command.
@@ -245,19 +246,18 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"admin\"\n" +
                 "name = \"sample_pull_local\"\n" +
                 "version = \"0.1.5\"\n" +
                 "export = [\"sample_pull_local\"]\n" +
-                "ballerina_version = \"slbeta4\"\n" +
+                "distribution = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
@@ -278,19 +278,18 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"parkavik\"\n" +
                 "name = \"sample_pull_WO_Module_Version\"\n" +
                 "version = \"1.0.1\"\n" +
                 "export = [\"sample_pull_WO_Module_Version\"]\n" +
-                "ballerina_version = \"slbeta4\"\n" +
+                "distribution = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
@@ -317,12 +316,13 @@ public class NewCommandTest extends BaseCommandTest {
                 "name = \"sample_pull\"\n" +
                 "version = \"1.0.0\"\n" +
                 "export = [\"sample_pull\"]\n" +
-                "ballerina_version = \"slbeta4\"\n" +
+                "distribution = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
@@ -348,22 +348,25 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/types.wrappers/string.bal")));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
-        String tomlContent = Files.readString(
-                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedTomlContent = "[package]\n" +
                 "org = \"ballerina\"\n" +
                 "name = \"sample_multi_module\"\n" +
                 "version = \"1.0.1\"\n" +
                 "export = [\"sample_multi_module\",\"sample_multi_module.types.timestamp\"," +
                 "\"sample_multi_module.types.wrappers\"]\n" +
-                "ballerina_version = \"slbeta4\"\n" +
+                "distribution = \"slbeta4\"\n" +
+                "license = [\"Apache-2.0\"]\n" +
+                "authors = [\"Ballerina\"]\n" +
+                "keywords = [\"wrappers\"]\n" +
+                "repository = \"https://github.com/ballerina-platform/module-ballerina-protobuf\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n" +
                 "\n[[platform.java11.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
-        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
@@ -400,7 +403,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "name = \"sample_pull_libs\"\n" +
                 "version = \"0.1.0\"\n" +
                 "export = [\"sample_pull_libs\"]\n" +
-                "ballerina_version = \"slbeta4\"\n" +
+                "distribution = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n";
         String expectedTomlLibContent =
