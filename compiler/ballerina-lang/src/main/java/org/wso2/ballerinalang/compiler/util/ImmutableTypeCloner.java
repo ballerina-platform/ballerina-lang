@@ -405,7 +405,8 @@ public class ImmutableTypeCloner {
         BTypeSymbol origTupleTypeSymbol = type.tsymbol;
         List<BType> origTupleMemTypes = type.tupleTypes;
 
-        if (unresolvedTypes.contains(type) && type.immutableType != null) {
+        if (unresolvedTypes.contains(type) && type.immutableType != null &&
+                type.immutableType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
             return type.immutableType;
         } else {
             type.immutableType = createImmutableIntersectionType(env,
@@ -749,7 +750,8 @@ public class ImmutableTypeCloner {
         BTypeSymbol origUnionTypeSymbol = type.tsymbol;
 
         LinkedHashSet<BType> originalMemberList = type.getMemberTypes();
-        if (unresolvedTypes.contains(type) && type.immutableType != null) {
+        if (unresolvedTypes.contains(type) && type.immutableType != null &&
+                type.immutableType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
             return type.immutableType;
         } else {
             type.immutableType = createImmutableIntersectionType(env,
