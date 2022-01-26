@@ -916,7 +916,6 @@ public class MethodGen {
         if (func.receiver != null) {
             mv.visitLocalVariable("self", GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
         }
-        BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
@@ -930,7 +929,7 @@ public class MethodGen {
                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
+                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;
