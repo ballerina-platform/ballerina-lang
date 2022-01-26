@@ -38,8 +38,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.ballerina.test.utils.Constants.COMMENT;
 import static io.ballerina.test.utils.Constants.DISABLED_FILE;
@@ -70,16 +72,14 @@ public class SemTypeTest {
 
     @Test(dataProvider = "filePathProvider")
     public void testSubTypeRelationship(String filePath) throws IOException {
-        List<String> actualRelations = actualSubTypeRelations(filePath);
-        List<String> expectedRelations = expectedSubTypeRelations(filePath);
+        Set<String> actualRelations = actualSubTypeRelations(filePath);
+        Set<String> expectedRelations = expectedSubTypeRelations(filePath);
         Assert.assertEquals(actualRelations.size(), expectedRelations.size());
-        for (String actualRelation : actualRelations) {
-            expectedRelations.removeIf(expectedRelation -> Objects.equals(actualRelation, expectedRelation));
-        }
-        Assert.assertEquals(expectedRelations.size(), 0);
+        actualRelations.removeAll(expectedRelations);
+        Assert.assertTrue(actualRelations.isEmpty());
     }
 
-    private List<String> actualSubTypeRelations(String filePath) {
+    private Set<String> actualSubTypeRelations(String filePath) {
         CompileResult compileResult = BCompileUtil.compile(filePath);
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         List<BTypeDefinitionSymbol> bTypeDefinitionSymbols = new ArrayList<>();
@@ -91,7 +91,7 @@ public class SemTypeTest {
         }
 
         Types types = Types.getInstance(new CompilerContext());
-        List<String> relations = new ArrayList<>();
+        Set<String> relations = new HashSet<>();
         int len = bTypeDefinitionSymbols.size();
         for (int i = 0; i < len; i++) {
             for (int j = i + 1; j < len; j++) {
@@ -110,14 +110,14 @@ public class SemTypeTest {
     }
 
     private void computeSubTypeRelation(BType sourceType, BType targetType, String sourceTypeName,
-                                        String targetTypeName, Types types, List<String> relations) {
+                                        String targetTypeName, Types types, Set<String> relations) {
         if (types.isAssignable(sourceType, targetType)) {
             relations.add(relation(sourceTypeName, targetTypeName));
         }
     }
 
-    private List<String> expectedSubTypeRelations(String filePath) throws IOException {
-        List<String> relations = new ArrayList<>();
+    private Set<String> expectedSubTypeRelations(String filePath) throws IOException {
+        Set<String> relations = new HashSet<>();
         List<String> lines = Files.readAllLines(resolvePath(filePath));
         for (String line : lines) {
             // This check can be changed based on other notations.
