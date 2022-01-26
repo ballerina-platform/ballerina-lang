@@ -109,7 +109,8 @@ public class CloneWithType {
 
         List<String> errors = new ArrayList<>();
         Set<Type> convertibleTypes;
-        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false, errors, allowAmbiguity);
+        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false,
+                new ArrayList<>(), errors, allowAmbiguity);
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {

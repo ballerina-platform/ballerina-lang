@@ -260,31 +260,25 @@ public class TypeConverter {
 
     // TODO: return only the first matching type
     public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
-                                                List<String> errors, boolean allowAmbiguity) {
-        return getConvertibleTypes(inputValue, targetType, varName, isFromJson, new ArrayList<>(),
-                errors, allowAmbiguity);
-    }
-
-    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                 List<TypeValuePair> unresolvedValues, List<String> errors,
                                                 boolean allowAmbiguity) {
         Set<Type> convertibleTypes = new LinkedHashSet<>();
 
+        Type inputValueType;
         int targetTypeTag = targetType.getTag();
 
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 int initialErrorCount = errors.size();
+                inputValueType = TypeChecker.getType(inputValue);
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    if (TypeChecker.getType(inputValue) == memType
-                            || isIntegerSubtypeAndConvertible(inputValue, memType)) {
+                    if ((inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType)) {
                         return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
                             isFromJson, unresolvedValues, errors, allowAmbiguity));
                 }
-                if (!allowAmbiguity && (convertibleTypes.size() > 1) &&
-                        !convertibleTypes.contains(TypeChecker.getType(inputValue)) &&
+                if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
                     addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
@@ -346,8 +340,8 @@ public class TypeConverter {
                                 errors, allowAmbiguity);
                     }
                 }
+                inputValueType = TypeChecker.getType(inputValue);
                 for (Object valueSpaceItem : finiteType.valueSpace) {
-                    Type inputValueType = TypeChecker.getType(inputValue);
                     if (inputValue == valueSpaceItem) {
                         return Set.of(inputValueType);
                     }
