@@ -72,7 +72,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  *
  * @since 2.0.0
  */
-public class BJvmRunUtil {
+public class JvmRunUtil {
 
     /**
      * Invoke a ballerina function.
@@ -439,7 +439,7 @@ public class BJvmRunUtil {
         }
     }
 
-    private BJvmRunUtil() {
+    private JvmRunUtil() {
 
     }
 }
