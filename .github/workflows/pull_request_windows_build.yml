@@ -9,6 +9,7 @@ on:
       - stage
       - stage-swan-lake
       - ballerina-[0-9]+.[0-9]+.x
+      - runtime-bvm-value-migration
 
 jobs:
   windows_build:
