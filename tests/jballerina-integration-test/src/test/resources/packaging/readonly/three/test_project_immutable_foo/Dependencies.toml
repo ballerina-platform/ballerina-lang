@@ -8,11 +8,10 @@ dependencies-toml-version = "2"
 
 [[package]]
 org = "testorg"
-name = "selectively_immutable_foo"
+name = "selectively_immutable_foo3"
 version = "1.0.0"
-transitive = false
 modules = [
-	{org = "testorg", packageName = "selectively_immutable_foo", moduleName = "selectively_immutable_foo"}
+	{org = "testorg", packageName = "selectively_immutable_foo3", moduleName = "selectively_immutable_foo3"}
 ]
 
 
