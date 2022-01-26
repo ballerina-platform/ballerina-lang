@@ -160,8 +160,8 @@ public function interopWithAnydataReturn() returns boolean {
         return false;
     }
     var e = acceptIntAnydataReturn(5);
-    if (e is anydata) {
-        // do nothing
+    if (!(e is map<anydata>)) {
+        return false;
     }
     var f = acceptIntAnydataReturn(-1);
     if (!(f is boolean)) {

@@ -160,7 +160,7 @@ public class FromJsonWithType {
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                     count++;
                 }
-                return ValueCreator.createMapValue(targetType, initialValues);
+                return ValueCreator.createMapValue((MapType) targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
                 Type restFieldType = recordType.getRestFieldType();

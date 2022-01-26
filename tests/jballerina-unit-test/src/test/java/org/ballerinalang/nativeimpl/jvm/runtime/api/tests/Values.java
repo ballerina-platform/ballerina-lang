@@ -23,11 +23,14 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
@@ -40,6 +43,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -47,6 +51,7 @@ import io.ballerina.runtime.internal.types.BFunctionType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -150,6 +155,45 @@ public class Values {
             index++;
         }
         return arrayValue;
+    }
+
+    public static Object getMapValue() {
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+        mapValue.put(StringUtils.fromString("a"), 5);
+        return mapValue;
+    }
+
+    public static BMap<BString, Object> getMapValueWithInitialValues() {
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("aa"), StringUtils.fromString("55")), ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("bb"), StringUtils.fromString("66"))};
+        return ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA), mapInitialValueEntries);
+    }
+
+    public static Object getRecordValue() {
+        Field stringField = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", 1);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", stringField));
+        RecordType recordType = TypeCreator.createRecordType("Student", null, 1, fields,
+                null, true, 6);
+        BMap<BString, Object> recordValue = ValueCreator.createRecordValue(recordType);
+        recordValue.populateInitialValue(StringUtils.fromString("name"), StringUtils.fromString("nameOfStudent"));
+        return recordValue;
+    }
+
+    public static BMap<BString, Object> getRecordValueWithInitialValues() {
+        Map<String, Field> fieldMap = new HashMap<>();
+        fieldMap.put("name", TypeCreator
+                .createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        fieldMap.put("id", TypeCreator
+                .createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        RecordType recordType = TypeCreator.createRecordType("Details", null, SymbolFlags.READONLY
+                , fieldMap, null, true, 0);
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("studentName")),
+                ValueCreator.createKeyFieldEntry(StringUtils.fromString("id"), 123L)};
+        return ValueCreator.createRecordValue(recordType, mapInitialValueEntries);
     }
 
     public static BObject getInvalidObject(BString objectName) {

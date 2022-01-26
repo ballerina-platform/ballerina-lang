@@ -17,38 +17,19 @@
 import ballerina/jballerina.java;
 import ballerina/test;
 
-public type Address record {
-    string city;
-    string country;
-    int postalCode;
-};
-
-public function getRecord(string recordName) returns record{} = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
-} external;
-
-type Details record {
-    string name;
-    int id;
-};
-
-type Student record {|
-    string name;
-|};
-
 public function validateAPI() {
-    anydata recordVal1 = getRecordValue();
-    test:assertTrue(recordVal1 is Student);
-    test:assertEquals(recordVal1, {"name": "nameOfStudent"});
+    anydata mapAnydataVal1 = getMapValue();
+    test:assertTrue(mapAnydataVal1 is map<anydata>);
+    test:assertEquals(mapAnydataVal1, {"a":5});
 
-    Details recordVal2 = getRecordValueWithInitialValues();
-    test:assertEquals(recordVal2, {"name": "studentName", "id": 123});
+    map<anydata> mapAnydataVal2 = getMapValueWithInitialValues();
+    test:assertEquals(mapAnydataVal2, {"aa": "55", "bb": "66"});
 }
 
-function getRecordValue() returns anydata = @java:Method {
+function getMapValue() returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-function getRecordValueWithInitialValues() returns Details = @java:Method {
+function getMapValueWithInitialValues() returns map<anydata> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
