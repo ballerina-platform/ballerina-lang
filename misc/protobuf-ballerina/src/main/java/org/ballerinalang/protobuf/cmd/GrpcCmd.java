@@ -95,7 +95,7 @@ public class GrpcCmd implements BLauncherCmd {
     private String protocExePath;
 
     @CommandLine.Option(names = {"--protocVersion"}, hidden = true)
-    private String protocVersion = "3.9.1";
+    private String protocVersion = "3.19.2";
 
     @Override
     public void execute() {
