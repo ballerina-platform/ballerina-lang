@@ -527,7 +527,7 @@ public class JvmCodeGenUtil {
             return IdentifierUtils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
                     .typeDefinitionSymbol.name.value);
         }
-        return IdentifierUtils.encodeNonFunctionIdentifier(t.tsymbol.name.value);
+        return IdentifierUtils.encodeNonFunctionIdentifier(typeSymbol.name.value);
     }
 
     public static boolean isBallerinaBuiltinModule(String orgName, String moduleName) {
