@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -32,10 +32,10 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
+public class ReadOnlyIntersectionViaMultipleModulesTest3 extends BaseTest {
 
     private static final String testFileLocation =
-            Paths.get("src", "test", "resources", "packaging", "readonly", "one")
+            Paths.get("src", "test", "resources", "packaging", "readonly", "three")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
@@ -44,11 +44,11 @@ public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
         bMainInstance = new BMainInstance(balServer);
         // Build and push down stream packages.
         compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_immutable_foo").toString(),
-                                     "testorg-selectively_immutable_foo-any-1.0.0");
+                                     "testorg-selectively_immutable_foo3-any-1.0.0");
         compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_immutable_bar").toString(),
-                                     "testorg-selectively_immutable_bar-any-1.0.0");
+                                     "testorg-selectively_immutable_bar3-any-1.0.0");
         compilePackageAndPushToLocal(Paths.get(testFileLocation, "test_project_immutable_baz").toString(),
-                                     "testorg-selectively_immutable_baz-any-1.0.0");
+                                     "testorg-selectively_immutable_baz3-any-1.0.0");
     }
 
     private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
@@ -71,7 +71,7 @@ public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
     }
 
     private void buildQux() throws BallerinaTestException {
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testorg-selectively_immutable_qux-any-1.0.0.bala");
+        LogLeecher buildLeecher = new LogLeecher("target/bala/testorg-selectively_immutable_qux3-any-1.0.0.bala");
         bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               Paths.get(testFileLocation, "test_project_immutable_qux").toString());
         buildLeecher.waitForText(5000);
