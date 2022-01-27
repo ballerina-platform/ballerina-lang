@@ -32,6 +32,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -114,6 +115,8 @@ public class JvmRunUtil {
                 paramTypes[i] = MapValue.class;
             } else if (arg instanceof ErrorValue) {
                 paramTypes[i] = ErrorValue.class;
+            } else if (arg instanceof DecimalValue) {
+                paramTypes[i] = DecimalValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());

@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -81,8 +80,8 @@ public class TypeParamTest {
 
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_infer_test.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        BRunUtil.invoke(result, "testArrayFunctionInfer");
-        BRunUtil.invoke(result, "testMapFunctionInfer");
+        JvmRunUtil.invoke(result, "testArrayFunctionInfer");
+        JvmRunUtil.invoke(result, "testMapFunctionInfer");
     }
 
     @Test(description = "Tests for the bound type as the contextually expected type for arguments")
@@ -90,10 +89,10 @@ public class TypeParamTest {
 
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_bound_type_as_cet.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        BRunUtil.invoke(result, "testBoundRestParamAsCET");
-        BRunUtil.invoke(result, "testIntLiteralAsByte");
-        BRunUtil.invoke(result, "testIntAndFloatLiteralAsDecimal");
-        BRunUtil.invoke(result, "testBroadTypeAsCET");
+        JvmRunUtil.invoke(result, "testBoundRestParamAsCET");
+        JvmRunUtil.invoke(result, "testIntLiteralAsByte");
+        JvmRunUtil.invoke(result, "testIntAndFloatLiteralAsDecimal");
+        JvmRunUtil.invoke(result, "testBroadTypeAsCET");
     }
 
     @Test
@@ -102,31 +101,31 @@ public class TypeParamTest {
         CompileResult result = BCompileUtil.compile("test-src/type-param/imported_type_param.bal");
         Assert.assertEquals(result.getErrorCount(), 0, "compilation contains error\n"
                 + Arrays.toString(result.getDiagnostics()));
-        BValue[] ret1 = BRunUtil.invoke(result, "testImportedModuleTypeParam1");
+        Object[] ret1 = JvmRunUtil.invoke(result, "testImportedModuleTypeParam1");
         Assert.assertEquals(ret1.length, 1);
-        Assert.assertEquals(ret1[0].stringValue(), "[20, 40, 60, 80]");
-        BValue[] ret2 = BRunUtil.invoke(result, "testImportedModuleTypeParam2");
+        Assert.assertEquals(ret1[0].toString(), "[20,40,60,80]");
+        Object[] ret2 = JvmRunUtil.invoke(result, "testImportedModuleTypeParam2");
         Assert.assertEquals(ret2.length, 1);
-        Assert.assertEquals(ret2[0].stringValue(), "100");
+        Assert.assertEquals(ret2[0].toString(), "100");
     }
 
     @Test(description = "Tests for type narrowing for union return parameters")
     public void testTypeNarrowingForUnionReturnParameters() {
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_narrowing_for_union_return.bal");
-        BRunUtil.invoke(result, "testSimpleUnion");
-        BRunUtil.invoke(result, "testUnionOfMaps");
-        BRunUtil.invoke(result, "testStringIntFloatSimpleAndArrayUnion");
-        BRunUtil.invoke(result, "testIntFloatSimpleAndMapUnion");
-        BRunUtil.invoke(result, "testIntFloatSimpleArrayMapUnion");
-        BRunUtil.invoke(result, "testUnionOfRecordTypes");
-        BRunUtil.invoke(result, "testUnionOfSimpleTupleTypes");
+        JvmRunUtil.invoke(result, "testSimpleUnion");
+        JvmRunUtil.invoke(result, "testUnionOfMaps");
+        JvmRunUtil.invoke(result, "testStringIntFloatSimpleAndArrayUnion");
+        JvmRunUtil.invoke(result, "testIntFloatSimpleAndMapUnion");
+        JvmRunUtil.invoke(result, "testIntFloatSimpleArrayMapUnion");
+        JvmRunUtil.invoke(result, "testUnionOfRecordTypes");
+        JvmRunUtil.invoke(result, "testUnionOfSimpleTupleTypes");
     }
 
     @Test(description = "Tests for type param resolution with non variable reference expressions. Tests that no " +
             "unnecessary types are created.", dataProvider = "testFileNames")
     public void testTypeParamResolutionWithExpression(String fileName) {
         CompileResult result = BCompileUtil.compile(fileName);
-        BRunUtil.invoke(result, "testTypeParamResolutionWithExpression");
+        JvmRunUtil.invoke(result, "testTypeParamResolutionWithExpression");
     }
 
     @DataProvider(name = "testFileNames")
@@ -143,7 +142,7 @@ public class TypeParamTest {
     public void testTypeParamAnalysisWithTypeReferenceTypes(String fileName) {
         CompileResult result = BCompileUtil.compile(fileName);
         Assert.assertEquals(result.getErrorCount(), 0);
-        BRunUtil.invoke(result, "testFn");
+        JvmRunUtil.invoke(result, "testFn");
     }
 
     @DataProvider

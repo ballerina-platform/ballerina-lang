@@ -17,15 +17,14 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,6 +33,7 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
@@ -77,122 +77,123 @@ public class LangLibValueTest {
     @Test
     public void testToJsonString() {
 
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToJsonString");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testToJsonString");
+        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
 
-        BMap<String, BString> arr = (BMap<String, BString>) returns[0];
-        assertEquals(arr.get("aNil").stringValue(), "null");
-        assertEquals(arr.get("aString").stringValue(), "\"aString\"");
-        assertEquals(arr.get("aNumber").stringValue(), "10");
-        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
-        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
-        assertEquals(arr.get("anObject").stringValue(),
+        BMap<BString, BString> arr = (BMap<BString, BString>) returns[0];
+        assertEquals(arr.get(StringUtils.fromString("aNil")).toString(), "null");
+        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "\"aString\"");
+        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10");
+        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
+        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\", \"world\"]");
+        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
                 "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
-        assertEquals(arr.get("anotherMap").stringValue(),
+        assertEquals(arr.get(StringUtils.fromString("anotherMap")).toString(),
                 "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", " +
                         "\"intVal\":2324, \"boolVal\":true, \"floatVal\":45.4, " +
                         "\"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, \"nilVal\":null}}");
-        assertEquals(arr.get("aStringMap").stringValue(),
+        assertEquals(arr.get(StringUtils.fromString("aStringMap")).toString(),
                 "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}");
-        assertEquals(arr.get("aArr").stringValue(),
+        assertEquals(arr.get(StringUtils.fromString("aArr")).toString(),
                 "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
                         "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
                         "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
-        assertEquals(arr.get("iArr").stringValue(), "[0, 1, 255]");
-        assertEquals(arr.get("arr1").stringValue(), "{\"country\":\"x\", \"city\":\"y\", \"street\":\"z\", \"no\":3}");
+        assertEquals(arr.get(StringUtils.fromString("iArr")).toString(), "[0, 1, 255]");
+        assertEquals(arr.get(StringUtils.fromString("arr1")).toString(),
+                "{\"country\":\"x\", \"city\":\"y\", \"street\":\"z\", \"no\":3}");
         assertEquals(arr.size(), 11);
     }
 
     @Test
     public void testToJsonForNonJsonTypes() {
-        BRunUtil.invokeFunction(compileResult, "testToJsonStringForNonJsonTypes");
+        JvmRunUtil.invoke(compileResult, "testToJsonStringForNonJsonTypes");
     }
 
     @Test
     public void testToStringOnCycles() {
-        BRunUtil.invokeFunction(compileResult, "testToStringOnCycles");
+        JvmRunUtil.invoke(compileResult, "testToStringOnCycles");
     }
 
     @Test
     public void testFromJsonString() {
 
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromJsonString");
+        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
 
-        BMap<String, BValue> arr = (BMap<String, BValue>) returns[0];
-        assertEquals(arr.get("aNil").getType().getTag(), TypeTags.ERROR_TAG);
-        assertNull(arr.get("aNull"));
-        assertEquals(arr.get("aString").stringValue(), "aString");
-        assertEquals(arr.get("aNumber").stringValue(), "10");
-        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
-        assertEquals(arr.get("positiveZero").stringValue(), "0");
-        assertEquals(arr.get("negativeZero").stringValue(), "-0.0");
-        assertEquals(arr.get("negativeNumber").stringValue(), "-25");
-        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
-        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
-        assertEquals(arr.get("anObject").stringValue(),
-                "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
-        assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
+        BMap<BString, Object> arr = (BMap<BString, Object>) returns[0];
+        assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
+        assertNull(arr.get(StringUtils.fromString("aNull")));
+        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
+        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10");
+        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
+        assertEquals(arr.get(StringUtils.fromString("positiveZero")).toString(), "0");
+        assertEquals(arr.get(StringUtils.fromString("negativeZero")).toString(), "-0.0");
+        assertEquals(arr.get(StringUtils.fromString("negativeNumber")).toString(), "-25");
+        assertEquals(arr.get(StringUtils.fromString("negativeFloatNumber")).toString(), "-10.5");
+        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\",\"world\"]");
+        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
+                "{\"name\":\"anObject\",\"value\":10,\"sub\":{\"subName\":\"subObject\",\"subValue\":10}}");
+        assertEquals(getType(arr.get(StringUtils.fromString("anInvalid"))).getTag(), TypeTags.ERROR_TAG);
         assertEquals(arr.size(), 12);
     }
 
     @Test
     public void testFromJsonStringNegative() {
-        BRunUtil.invokeFunction(compileResult, "testFromJsonStringNegative");
+        JvmRunUtil.invoke(compileResult, "testFromJsonStringNegative");
     }
 
     @Test
     public void testFromJsonFloatString() {
 
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonFloatString");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromJsonFloatString");
+        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
 
-        BMap<String, BValue> arr = (BMap<String, BValue>) returns[0];
-        assertEquals(arr.get("aNil").getType().getTag(), TypeTags.ERROR_TAG);
-        assertNull(arr.get("aNull"));
-        assertEquals(arr.get("aString").stringValue(), "aString");
-        assertEquals(arr.get("aNumber").stringValue(), "10.0");
-        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
-        assertEquals(arr.get("positiveZero").stringValue(), "0.0");
-        assertEquals(arr.get("negativeZero").stringValue(), "-0.0");
-        assertEquals(arr.get("negativeNumber").stringValue(), "-25.0");
-        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
-        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
-        assertEquals(arr.get("anObject").stringValue(),
-                "{\"name\":\"anObject\", \"value\":10.0, \"sub\":{\"subName\":\"subObject\", \"subValue\":10.0}}");
-        assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
+        BMap<BString, Object> arr = (BMap<BString, Object>) returns[0];
+        assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
+        assertNull(arr.get(StringUtils.fromString("aNull")));
+        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
+        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10.0");
+        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
+        assertEquals(arr.get(StringUtils.fromString("positiveZero")).toString(), "0.0");
+        assertEquals(arr.get(StringUtils.fromString("negativeZero")).toString(), "-0.0");
+        assertEquals(arr.get(StringUtils.fromString("negativeNumber")).toString(), "-25.0");
+        assertEquals(arr.get(StringUtils.fromString("negativeFloatNumber")).toString(), "-10.5");
+        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\",\"world\"]");
+        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
+                "{\"name\":\"anObject\",\"value\":10.0,\"sub\":{\"subName\":\"subObject\",\"subValue\":10.0}}");
+        assertEquals(getType(arr.get(StringUtils.fromString("anInvalid"))).getTag(), TypeTags.ERROR_TAG);
         assertEquals(arr.size(), 12);
     }
 
     @Test
     public void testFromJsonDecimalString() {
 
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonDecimalString");
-        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromJsonDecimalString");
+        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
 
-        BMap<String, BValue> arr = (BMap<String, BValue>) returns[0];
-        assertEquals(arr.get("aNil").getType().getTag(), TypeTags.ERROR_TAG);
-        assertNull(arr.get("aNull"));
-        assertEquals(arr.get("aString").stringValue(), "aString");
-        assertEquals(arr.get("aNumber").stringValue(), "10");
-        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
-        assertEquals(arr.get("positiveZero").stringValue(), "0.0");
-        assertEquals(arr.get("negativeZero").stringValue(), "0.0");
-        assertEquals(arr.get("negativeNumber").stringValue(), "-25");
-        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
-        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
-        assertEquals(arr.get("anObject").stringValue(),
-                "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
-        assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
+        BMap<BString, Object> arr = (BMap<BString, Object>) returns[0];
+        assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
+        assertNull(arr.get(StringUtils.fromString("aNull")));
+        assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
+        assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10");
+        assertEquals(arr.get(StringUtils.fromString("aFloatNumber")).toString(), "10.5");
+        assertEquals(arr.get(StringUtils.fromString("positiveZero")).toString(), "0");
+        assertEquals(arr.get(StringUtils.fromString("negativeZero")).toString(), "0");
+        assertEquals(arr.get(StringUtils.fromString("negativeNumber")).toString(), "-25");
+        assertEquals(arr.get(StringUtils.fromString("negativeFloatNumber")).toString(), "-10.5");
+        assertEquals(arr.get(StringUtils.fromString("anArray")).toString(), "[\"hello\",\"world\"]");
+        assertEquals(arr.get(StringUtils.fromString("anObject")).toString(),
+                "{\"name\":\"anObject\",\"value\":10,\"sub\":{\"subName\":\"subObject\",\"subValue\":10}}");
+        assertEquals(getType(arr.get(StringUtils.fromString("anInvalid"))).getTag(), TypeTags.ERROR_TAG);
         assertEquals(arr.size(), 12);
     }
 
     @Test
     public void testToString() {
-        BRunUtil.invokeFunction(compileResult, "testToStringMethod");
+        JvmRunUtil.invoke(compileResult, "testToStringMethod");
 
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToString");
-        BValueArray array = (BValueArray) returns[0];
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testToString");
+        BArray array = (BArray) returns[0];
         int i = 0;
         Assert.assertEquals(array.getString(i++), "6");
         Assert.assertEquals(array.getString(i++), "6.0");
@@ -239,69 +240,69 @@ public class LangLibValueTest {
 
     @Test
     public void testToStringOnSubTypes() {
-        BRunUtil.invoke(compileResult, "testToStringOnSubTypes");
+        JvmRunUtil.invoke(compileResult, "testToStringOnSubTypes");
     }
 
     @Test
     public void testToStringOnFiniteTypes() {
-        BRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
+        JvmRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
     }
 
     @Test
     public void testXMLToStringWithXMLTextContainingAngleBrackets() {
-        BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
+        JvmRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
     }
 
     @Test
     public void testToStringForTable() {
-        BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
+        JvmRunUtil.invoke(compileResult, "testToStringMethodForTable");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")
     public void testMergeJson(String function) {
-        BValue[] returns = BRunUtil.invoke(compileResult, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, function);
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void xmlSequenceFragmentToString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
-        Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
+        Object[] returns = JvmRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
+        Assert.assertEquals((returns[0]).toString(), "<def>DEF</def><ghi>1</ghi>");
     }
 
     @Test
     public void testToBalStringMethod() {
         CompileResult testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
-        BRunUtil.invokeFunction(testFile, "testIntValueToBalString");
-        BRunUtil.invokeFunction(testFile, "testStringValueToBalString");
-        BRunUtil.invokeFunction(testFile, "testFloatingPointNumbersToBalString");
-        BRunUtil.invokeFunction(testFile, "testAnyAnydataNilToBalString");
-        BRunUtil.invokeFunction(testFile, "testTableToBalString");
-        BRunUtil.invokeFunction(testFile, "testErrorToBalString");
-        BRunUtil.invokeFunction(testFile, "testArrayToBalString");
-        BRunUtil.invokeFunction(testFile, "testTupleToBalString");
-        BRunUtil.invokeFunction(testFile, "testJsonToBalString");
-        BRunUtil.invokeFunction(testFile, "testXmlToBalString");
-        BRunUtil.invokeFunction(testFile, "testObjectToBalString");
-        BRunUtil.invokeFunction(testFile, "testToBalStringOnCycles");
+        JvmRunUtil.invoke(testFile, "testIntValueToBalString");
+        JvmRunUtil.invoke(testFile, "testStringValueToBalString");
+        JvmRunUtil.invoke(testFile, "testFloatingPointNumbersToBalString");
+        JvmRunUtil.invoke(testFile, "testAnyAnydataNilToBalString");
+        JvmRunUtil.invoke(testFile, "testTableToBalString");
+        JvmRunUtil.invoke(testFile, "testErrorToBalString");
+        JvmRunUtil.invoke(testFile, "testArrayToBalString");
+        JvmRunUtil.invoke(testFile, "testTupleToBalString");
+        JvmRunUtil.invoke(testFile, "testJsonToBalString");
+        JvmRunUtil.invoke(testFile, "testXmlToBalString");
+        JvmRunUtil.invoke(testFile, "testObjectToBalString");
+        JvmRunUtil.invoke(testFile, "testToBalStringOnCycles");
     }
 
     @Test
     public void testFromBalString() {
         CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
-        BRunUtil.invokeFunction(file, "testIntValueFromBalString");
-        BRunUtil.invokeFunction(file, "testStringValueFromBalString");
-        BRunUtil.invokeFunction(file, "testFloatingPointNumbersFromBalString");
-        BRunUtil.invokeFunction(file, "testAnydataNilFromBalString");
-        BRunUtil.invokeFunction(file, "testMapFromBalString");
-        BRunUtil.invokeFunction(file, "testTableFromBalString");
-        BRunUtil.invokeFunction(file, "testArrayFromBalString");
-        BRunUtil.invokeFunction(file, "testTupleFromBalString");
-        BRunUtil.invokeFunction(file, "testJsonFromBalString");
-        BRunUtil.invokeFunction(file, "testXmlFromBalString");
-        BRunUtil.invokeFunction(file, "testObjectFromString");
-        BRunUtil.invokeFunction(file, "testFromBalStringOnCycles");
-        BRunUtil.invokeFunction(file, "testFromBalStringNegative");
+        JvmRunUtil.invoke(file, "testIntValueFromBalString");
+        JvmRunUtil.invoke(file, "testStringValueFromBalString");
+        JvmRunUtil.invoke(file, "testFloatingPointNumbersFromBalString");
+        JvmRunUtil.invoke(file, "testAnydataNilFromBalString");
+        JvmRunUtil.invoke(file, "testMapFromBalString");
+        JvmRunUtil.invoke(file, "testTableFromBalString");
+        JvmRunUtil.invoke(file, "testArrayFromBalString");
+        JvmRunUtil.invoke(file, "testTupleFromBalString");
+        JvmRunUtil.invoke(file, "testJsonFromBalString");
+        JvmRunUtil.invoke(file, "testXmlFromBalString");
+        JvmRunUtil.invoke(file, "testObjectFromString");
+        JvmRunUtil.invoke(file, "testFromBalStringOnCycles");
+        JvmRunUtil.invoke(file, "testFromBalStringNegative");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
@@ -322,7 +323,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "cloneWithTypeFunctions")
     public void testCloneWithType(String function) {
-        BRunUtil.invoke(compileResult, function);
+        JvmRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "cloneWithTypeFunctions")
@@ -351,7 +352,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "cloneWithTypeToTupleTypeFunctions")
     public void testCloneWithTypeToTuple(String function) {
-        BRunUtil.invoke(compileResult, function);
+        JvmRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "cloneWithTypeToTupleTypeFunctions")
@@ -374,18 +375,18 @@ public class LangLibValueTest {
     @Test(dataProvider = "fromJsonWithTypeFunctions")
     public void testFromJsonWithType(String function) {
         file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
-        BRunUtil.invoke(file, function);
+        JvmRunUtil.invoke(file, function);
     }
 
     @Test
     public void testAssigningCloneableToAnyOrError() {
-        BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
-        BRunUtil.invokeFunction(compileResult, "testUsingCloneableReturnType");
+        JvmRunUtil.invoke(compileResult, "testAssigningCloneableToAnyOrError");
+        JvmRunUtil.invoke(compileResult, "testUsingCloneableReturnType");
     }
 
     @Test
     public void testDestructuredNamedArgs() {
-        BRunUtil.invokeFunction(compileResult, "testDestructuredNamedArgs");
+        JvmRunUtil.invoke(compileResult, "testDestructuredNamedArgs");
     }
 
     @DataProvider(name = "fromJsonWithTypeFunctions")
@@ -417,7 +418,7 @@ public class LangLibValueTest {
     @Test(dataProvider = "fromJsonStringWithTypeFunctions")
     public void testFromJsonStringWithType(String function) {
         file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
-        BRunUtil.invoke(file, function);
+        JvmRunUtil.invoke(file, function);
     }
 
     @DataProvider(name = "fromJsonStringWithTypeFunctions")
@@ -436,7 +437,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "toJsonFunctions")
     public void testToJson(String function) {
-        BRunUtil.invoke(compileResult, function);
+        JvmRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "toJsonFunctions")
@@ -460,7 +461,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "ensureTypeFunctions")
     public void testEnsureType(String function) {
-        BRunUtil.invokeFunction(compileResult, function);
+        JvmRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "ensureTypeFunctions")
@@ -473,7 +474,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "ensureTypeNegativeFunctions")
     public void testEnsureTypeNegative(String function) {
-        BRunUtil.invokeFunction(compileResult, function);
+        JvmRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "ensureTypeNegativeFunctions")
@@ -486,7 +487,7 @@ public class LangLibValueTest {
 
     @Test
     public void testDecimalZeroToStringWithDifferentPrecisions() {
-        BRunUtil.invokeFunction(compileResult, "testDecimalZeroToStringWithDifferentPrecisions");
+        JvmRunUtil.invoke(compileResult, "testDecimalZeroToStringWithDifferentPrecisions");
     }
 
     @AfterClass
