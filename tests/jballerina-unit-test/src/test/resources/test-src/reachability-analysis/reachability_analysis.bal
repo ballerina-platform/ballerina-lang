@@ -935,6 +935,114 @@ function testTypeNarrowingWithEqualityInCondition() {
     assertEqual(testTypeNarrowingFunc5(30), 10);
 }
 
+function testReachableStatementInQueryAction1() returns error? {
+    check from var item in 1 ... 5
+        where true
+        do {
+            int _ = 10;
+        };
+}
+
+function testReachableStatementInQueryAction2() returns error? {
+    checkpanic from var item in 1 ... 5
+        where true
+        do {
+            int _ = 10;
+        };
+}
+
+function testReachableStatementInQueryAction3() returns error? {
+    error? a = from var item in 1 ... 5
+        where true
+        do {
+            int _ = 10;
+        };
+
+    return a;
+}
+
+function testReachableStatementInQueryAction4() returns error? {
+    error? a = trap from var item in 1 ... 5
+        where true
+        do {
+            int _ = 10;
+        };
+
+    return a;
+}
+
+function testReachableStatementInQueryAction5() returns error? {
+    error? a = <error?> from var item in 1 ... 5
+        where true
+        do {
+            int _ = 10;
+        };
+
+    return a;
+}
+
+function testReachableStatementInQueryAction6() returns error? {
+    return (from var item in 1 ... 5
+        where true
+        do {
+            int _ = 10;
+        });
+}
+
+function testReachableStatementInQueryAction7() returns int {
+    match from var item in 1 ... 5
+        where true
+        do {
+            int _ = 10;
+        } {
+        () => {
+            return 1;
+        }
+    }
+    return 2;
+}
+
+function testReachableStatementInQueryAction8() returns int {
+    error? a = from int item in 1 ... 5
+        where item is int
+        do {
+            int _ = 10;
+        };
+
+    if a is () {
+        return 1;
+    }
+    return 2;
+}
+
+function testReachableStatementInQueryAction9() returns error? {
+    error? a = ();
+    check from var item in 1 ... 5
+        where item < 2
+        do {
+            a = (from var item in 1 ... 5
+                where item is int
+                where item < 2
+                do {
+                    int _ = 10;
+                });
+        };
+
+    return a;
+}
+
+function testReachableStatementInQueryAction() {
+    assertEqual(true, testReachableStatementInQueryAction1() is ());
+    assertEqual(true, testReachableStatementInQueryAction2() is ());
+    assertEqual(true, testReachableStatementInQueryAction3() is ());
+    assertEqual(true, testReachableStatementInQueryAction4() is ());
+    assertEqual(true, testReachableStatementInQueryAction5() is ());
+    assertEqual(true, testReachableStatementInQueryAction6() is ());
+    assertEqual(1, testReachableStatementInQueryAction7());
+    assertEqual(1, testReachableStatementInQueryAction8());
+    assertEqual(true, testReachableStatementInQueryAction9() is ());
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

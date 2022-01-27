@@ -380,13 +380,16 @@ public class CommonUtil {
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
-                if (errorType.typeKind() == TypeDescKind.RECORD) {
-                    errorString.append(", ");
-                    errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
-                            .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
-                                    .orElse(""))
-                            .collect(Collectors.joining(", ")));
+                if (errorType.typeKind() == TypeDescKind.RECORD && depth <= MAX_DEPTH) {
+                    List<RecordFieldSymbol> mandatoryFields = getMandatoryRecordFields((RecordTypeSymbol) errorType);
+                    if (!mandatoryFields.isEmpty()) {
+                        errorString.append(", ");
+                        errorString.append(mandatoryFields.stream()
+                                .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
+                                        + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
+                                        .orElse(""))
+                                .collect(Collectors.joining(", ")));
+                    }
                 }
                 errorString.append(")");
                 typeString = errorString.toString();

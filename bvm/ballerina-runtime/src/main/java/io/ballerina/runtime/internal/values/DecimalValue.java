@@ -253,7 +253,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @param parent The link to the parent node
      */
     public String stringValue(BLink parent) {
-        if (this.valueKind != DecimalValueKind.OTHER && this.valueKind != DecimalValueKind.ZERO) {
+        if (this.valueKind != DecimalValueKind.OTHER) {
             return this.valueKind.getValue();
         }
         return value.toString();

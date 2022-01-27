@@ -58,6 +58,7 @@ public class IgnoreUnusedVariableCodeActionTest extends AbstractCodeActionTest {
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeDataProvider() {
         return new Object[][]{
+                {"ignore_unused_var8.json", "ignore_unused_var8.bal"},
                 {"ignore_unused_var_assignment1.json", "ignore_unused_var_assignment1.bal"},
                 {"ignore_unused_var_assignment2.json", "ignore_unused_var_assignment2.bal"},
         };

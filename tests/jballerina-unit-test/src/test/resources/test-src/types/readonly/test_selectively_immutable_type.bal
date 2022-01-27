@@ -1119,6 +1119,24 @@ function testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField() {
     record { int a; } _ = a;
 }
 
+type ImmutableXmlElement xml:Element & readonly;
+
+function testTypeDefinitionForReadOnlyIntersectionWithBuiltinType() {
+    ImmutableXmlElement a = xml `<foo>hello</foo>`;
+    xml:Element b = a;
+
+    assertTrue(b is readonly & xml:Element);
+    assertTrue(b is ImmutableXmlElement);
+
+    error? c = trap b.setChildren(xml `text`);
+    assertTrue(c is error);
+
+    error d = <error> c;
+    assertEquality("{ballerina/lang.xml}XMLOperationError", d.message());
+    assertEquality("Failed to set children to xml element: modification not allowed on readonly value",
+                   <string> checkpanic d.detail()["message"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
