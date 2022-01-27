@@ -39,7 +39,6 @@ import io.ballerina.runtime.internal.values.NonBmpStringValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -217,7 +216,7 @@ public class JvmRunUtil {
                             functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
-                throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
+                throw new BLangRuntimeException(futureValue.panic.getMessage(),
                         futureValue.panic);
             }
             jvmResult = futureValue.result;
@@ -377,11 +376,11 @@ public class JvmRunUtil {
             final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             response = method.invoke(null, args);
             if (response instanceof Throwable) {
-                throw new BallerinaException(String.format(errorMsg, funcName, response),
+                throw new BLangRuntimeException(String.format(errorMsg, funcName, response),
                         (Throwable) response);
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new BallerinaException(String.format(errorMsg, funcName, e.getMessage()), e);
+            throw new BLangRuntimeException(String.format(errorMsg, funcName, e.getMessage()), e);
         }
     }
 
@@ -401,7 +400,7 @@ public class JvmRunUtil {
                         throw new RuntimeException(targetException);
                     }
                 } catch (IllegalAccessException e) {
-                    throw new BallerinaException("Method has private access", e);
+                    throw new BLangRuntimeException("Method has private access", e);
                 }
             };
             final FutureValue out = scheduler
@@ -410,11 +409,10 @@ public class JvmRunUtil {
             final Throwable t = out.panic;
             if (t != null) {
                 if (t instanceof BLangRuntimeException) {
-                    throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                    throw new BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                 }
                 throw (RuntimeException) t;
             }
