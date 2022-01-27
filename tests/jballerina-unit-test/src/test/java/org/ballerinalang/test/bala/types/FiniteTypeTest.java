@@ -36,11 +36,13 @@ import org.testng.annotations.Test;
 public class FiniteTypeTest {
 
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/finite_type_project");
         result = BCompileUtil.compile("test-src/bala/test_bala/types/finite_type_test.bal");
+        negativeResult = BCompileUtil.compile("test-src/bala/test_bala/types/finite_type_negative_test.bal");
     }
 
     @Test()
@@ -288,6 +290,14 @@ public class FiniteTypeTest {
                 {"testFiniteTypesAsUnionsAsBroaderTypes_1"},
                 {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
         };
+    }
+
+    @Test
+    public void testTypeDefinitionsWithNullNegative() {
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'finitetypetest/finite_type_project:0.0.0:Bar', found 'string'", 4, 33);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass
