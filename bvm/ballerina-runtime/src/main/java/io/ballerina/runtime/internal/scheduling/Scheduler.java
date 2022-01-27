@@ -515,7 +515,7 @@ public class Scheduler {
 
     private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
         FutureValue future = new FutureValue(newStrand, callback, constraint);
-        future.strand.frames = new Object[100];
+        future.strand.frames = new Stack<>();
         return future;
     }
 

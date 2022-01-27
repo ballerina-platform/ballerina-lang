@@ -102,7 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_MAIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PUT_FRAMES;
+
 /**
  * Generates Jvm byte code for the main method.
  *
@@ -396,9 +396,10 @@ public class MainMethodGen {
         storeFuture(indexMap, mv, futureVar);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND,
                          GET_STRAND);
-        mv.visitIntInsn(BIPUSH, 100);
-        mv.visitTypeInsn(ANEWARRAY , OBJECT);
-        mv.visitFieldInsn(PUTFIELD , STRAND_CLASS, MethodGenUtils.FRAMES, PUT_FRAMES);
+        mv.visitTypeInsn(NEW, "java/util/Stack");
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, "java/util/Stack", "<init>", "()V", false);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "Ljava/util/Stack;");
 
         startScheduler(indexMap.get(SCHEDULER_VAR), mv);
         handleErrorFromFutureValue(mv, futureVar);
