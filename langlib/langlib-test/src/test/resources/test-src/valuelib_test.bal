@@ -666,7 +666,8 @@ function testCloneWithTypeAmbiguousTargetType() {
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
     assert(bbe.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
+    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': \n\t\t" +
+    "value '{\"s\":\"test string\"}' cannot be converted to '(Bar|Baz)': ambiguous target type");
 }
 
 type StringOrNull string?;
@@ -930,8 +931,8 @@ function testCloneWithTypeIntArrayToUnionArray() {
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     string errMsg = "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]': " +
-        "\n\t\tarray element '[0]' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type" +
-        "\n\t\tarray element '[1]' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type";
+        "\n\t\tvalue '10.0' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type" +
+        "\n\t\tvalue '20.0' cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)': ambiguous target type";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 
@@ -989,8 +990,8 @@ function testCloneWithTypeIntArrayToUnionArray() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     errMsg = "'int[]' value cannot be converted to '(byte|float|decimal)[]': " +
-              		"\n\t\tarray element '[1]' cannot be converted to '(byte|float|decimal)': ambiguous target type" +
-              		"\n\t\tarray element '[2]' cannot be converted to '(byte|float|decimal)': ambiguous target type";
+              		"\n\t\tvalue '500' cannot be converted to '(byte|float|decimal)': ambiguous target type" +
+              		"\n\t\tvalue '65000' cannot be converted to '(byte|float|decimal)': ambiguous target type";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 
@@ -1000,7 +1001,7 @@ function testCloneWithTypeIntArrayToUnionArray() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     errMsg = "'int[]' value cannot be converted to '(lang.int:Signed16|float|decimal)[]': " +
-            "\n\t\tarray element '[2]' cannot be converted to '(lang.int:Signed16|float|decimal)': ambiguous target type";
+            "\n\t\tvalue '65000' cannot be converted to '(lang.int:Signed16|float|decimal)': ambiguous target type";
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, errMsg);
 }
@@ -1048,7 +1049,7 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]': " +
-                            "\n\t\ttuple element '[0]' cannot be converted to '(float|decimal)': ambiguous target type");
+                            "\n\t\tvalue '1' cannot be converted to '(float|decimal)': ambiguous target type");
 
     float[] arr2 = [1, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 1.2, 1.5, 2.1, 2.2, 2.3, 2.5, 2.7, 3.4, 4.1, 5, 7, 10];
     [byte|decimal, string|int, int|decimal...]|error f = arr2.cloneWithType();
@@ -1058,26 +1059,26 @@ function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'float[]' value cannot be converted to '[(byte|decimal),(string|int),(int|decimal)...]': " +
-    "\n\t\ttuple element '[0]' cannot be converted to '(byte|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[2]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[3]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[4]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[5]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[6]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[7]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[8]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[9]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[10]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[11]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[12]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[13]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[14]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[15]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[16]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[17]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[18]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[19]' cannot be converted to '(int|decimal)': ambiguous target type" +
-    "\n\t\ttuple element '[20]' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '1.0' cannot be converted to '(byte|decimal)': ambiguous target type" +
+    "\n\t\tvalue '1.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.2' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.3' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.7' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '3.4' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '4.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '5.0' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '1.2' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '1.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.2' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.3' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.5' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '2.7' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '3.4' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '4.1' cannot be converted to '(int|decimal)': ambiguous target type" +
+    "\n\t\tvalue '5.0' cannot be converted to '(int|decimal)': ambiguous target type" +
     "\n\t\t...");
 }
 
@@ -1148,9 +1149,9 @@ function testCloneWithTypeUnionTupleRestTypeNegative() {
     var message = err.detail()["message"];
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]': " +
-                            "\n\t\ttuple element '[1]' cannot be converted to '(decimal|int)': ambiguous target type" +
-                            "\n\t\ttuple element '[3]' cannot be converted to '(decimal|int)': ambiguous target type");
+    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]': "
+    + "\n\t\tvalue '2.5' cannot be converted to '(decimal|int)': ambiguous target type"
+    + "\n\t\tvalue '5.2' cannot be converted to '(decimal|int)': ambiguous target type");
 }
 
 function testCloneWithTypeToTupleTypeWithFiniteTypesNegative() {
@@ -1245,7 +1246,8 @@ function testCloneWithTypeWithInferredArgument() {
    message = err.detail()["message"];
    messageString = message is error ? message.toString() : message.toString();
    assert(err.message(), "{ballerina/lang.value}ConversionError");
-   assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
+   assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': \n\t\tvalue '{\"s\":\"test string\"}' " +
+   "cannot be converted to '(Bar|Baz)': ambiguous target type");
 
    anydata k = ();
    string|error? l = k.cloneWithType();
@@ -1535,7 +1537,8 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     err = <error> f;
     message = err.detail()["message"];
     messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
+    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': \n\t\t" +
+    "value '[3,4]' cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
 }
 
 type Boss record {
@@ -1632,6 +1635,26 @@ string errorMsgContent = "\n\t\tmissing required field 'grade' of type 'float' i
         "\n\t\tfield 'intern.fruit.amount' in record 'Mango' should be of type 'int', found '\"five\"'" +
         "\n\t\t...";
 
+type Organization record {
+    string id;
+    string login;
+    string name;
+};
+
+type User record {
+    string id;
+    string login;
+    string? name?;
+};
+
+type Repository record {
+    string orgName;
+};
+
+type Bazz record {
+    (User|Organization|Repository)[] x;
+};
+
 function testConvertJsonToNestedRecordsWithErrors() {
 
     Factory|error val = trap jsonVal.cloneWithType(Factory);
@@ -1640,6 +1663,29 @@ function testConvertJsonToNestedRecordsWithErrors() {
     string errorMsg = "'map<json>' value cannot be converted to 'Factory': " + errorMsgContent;
     assert(<string> checkpanic err.detail()["message"], errorMsg);
     assert(err.message(),"{ballerina/lang.value}ConversionError");
+
+    json j = {
+        x: [
+            {id: "0", name: "a", login: "c"},
+            {id: "1", name: "b", login: "d"},
+            {height: 12.5, weight: "medium", login: 4}
+        ]
+    };
+
+    Bazz|error result = trap j.cloneWithType();
+    assert(result is error, true);
+    err = <error> result;
+    string errMsg = "'map<json>' value cannot be converted to 'Bazz': " +
+    "\n\t\tvalue '{\"id\":\"0\",\"name\":\"a\"...' cannot be converted to '(User|Organization|Repository)': ambiguous target type" +
+    "\n\t\tvalue '{\"id\":\"1\",\"name\":\"b\"...' cannot be converted to '(User|Organization|Repository)': ambiguous target type" +
+    "\n\t\tmissing required field 'x[2].id' of type 'string' in record 'User'" +
+    "\n\t\tfield 'x[2].login' in record 'User' should be of type 'string', found '4'" +
+    "\n\t\tmissing required field 'x[2].name' of type 'string' in record 'Organization'" +
+    "\n\t\tmissing required field 'x[2].id' of type 'string' in record 'Organization'" +
+    "\n\t\tfield 'x[2].login' in record 'Organization' should be of type 'string', found '4'" +
+    "\n\t\tmissing required field 'x[2].orgName' of type 'string' in record 'Repository'";
+    assert(<string> checkpanic err.detail()["message"], errMsg);
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
 }
 
 type Journey record {|
