@@ -59,7 +59,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
-    @Test(description = "A new patch and minor version of a transitive has been released to central")
+    @Test(enabled = false, description = "A new patch and minor version of a transitive has been released to central")
     public void testCase0001(ITestContext ctx) throws IOException {
         // package_c --> package_b
         // package_b --> package_a
@@ -127,7 +127,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
     }
 
-    @Test(description = "Adding of a new import which is already there as a transitive in the graph with " +
+    @Test(enabled = false, description = "Adding of a new import which is already there as a transitive in the graph " +
+            "with " +
             "an old version", dependsOnMethods = "testCase0001")
     public void testCase0002(ITestContext ctx) throws IOException {
         // package_c --> package_b 1.0.0
@@ -327,6 +328,114 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         // clean up project
         deleteDependenciesTomlAndBuildFile(projectDirPath2);
+    }
+
+    @Test(description = "A newer pre-release version of a dependency has been released to central")
+    public void testCase0007(ITestContext ctx) throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_k");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        // User has imported package_j:2.0.0 which depends on package_i:1.0.1
+        // Cache package_i to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_i_1_0_1"));
+        // Cache package_j
+        BCompileUtil.compileAndCacheBala("projects_for_adv_resolution_tests/package_j_2_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+
+        //1. Build project_k
+        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject1.save();
+        failIfDiagnosticsExists(buildProject1);
+
+        // Compare dependencies.toml
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+        // User caches package_j:1_3_0-beta.1
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_i_1_3_0_beta"));
+        // Cache package_j
+        BCompileUtil.compileAndCacheBala("projects_for_adv_resolution_tests/package_j_2_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+
+        //2. Build project_k
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+
+        //3. Build project_k
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject3.save();
+        failIfDiagnosticsExists(buildProject3);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+        projectDirPath = RESOURCE_DIRECTORY.resolve("project_k_with_import");
+        BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject4.save();
+        failIfDiagnosticsExists(buildProject4);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+    }
+
+    @Test(enabled = false, description = "A newer pre-release version of a dependency is being used from the local " +
+            "repo")
+    public void testCase0008(ITestContext ctx) throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_h_pre_release_only");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        // User has imported package_g:1.0.0-alpha.1
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_g_1_0_0_alpha"));
+
+
+        //1. Build project_h_pre_release_only
+        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject1.save();
+        failIfDiagnosticsExists(buildProject1);
+
+        // Compare dependencies.toml
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+
+        // The following versions have been releasing to central
+        //      - package_g:1.0.0-beta.1
+
+        // Cache package_g pre-release version 1.0.0-beta.1 to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_g_1_0_0_beta"));
+
+
+        //2. User builds the project_h again with sticky = true as default
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+
+        //3. User deletes the project_h build file
+        deleteBuildFile(projectDirPath);
+
+        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject3.save();
+        failIfDiagnosticsExists(buildProject3);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml")));
     }
 
     @AfterMethod
