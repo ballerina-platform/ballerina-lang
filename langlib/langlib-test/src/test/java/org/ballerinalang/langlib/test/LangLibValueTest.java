@@ -485,8 +485,9 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testDecimalZeroToStringWithDifferentPrecisions() {
-        BRunUtil.invokeFunction(compileResult, "testDecimalZeroToStringWithDifferentPrecisions");
+    public void testDecimalToString() {
+        BRunUtil.invokeFunction(compileResult, "testDecimalZeroToString");
+        BRunUtil.invokeFunction(compileResult, "testDecimalNonZeroToString");
     }
 
     @AfterClass
