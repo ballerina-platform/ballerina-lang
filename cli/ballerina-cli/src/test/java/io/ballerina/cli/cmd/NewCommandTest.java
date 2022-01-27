@@ -252,8 +252,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "version = \"0.1.5\"\n" +
                 "export = [\"sample_pull_local\"]\n" +
                 "distribution = \"slbeta4\"\n" +
-                "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertEquals(
@@ -284,8 +282,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "version = \"1.0.1\"\n" +
                 "export = [\"sample_pull_WO_Module_Version\"]\n" +
                 "distribution = \"slbeta4\"\n" +
-                "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertEquals(
@@ -317,8 +313,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "version = \"1.0.0\"\n" +
                 "export = [\"sample_pull\"]\n" +
                 "distribution = \"slbeta4\"\n" +
-                "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertEquals(
@@ -359,8 +353,6 @@ public class NewCommandTest extends BaseCommandTest {
                 "authors = [\"Ballerina\"]\n" +
                 "keywords = [\"wrappers\"]\n" +
                 "repository = \"https://github.com/ballerina-platform/module-ballerina-protobuf\"\n" +
-                "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n" +
                 "\n[[platform.java11.dependency]]\n" +
@@ -403,9 +395,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "name = \"sample_pull_libs\"\n" +
                 "version = \"0.1.0\"\n" +
                 "export = [\"sample_pull_libs\"]\n" +
-                "distribution = \"slbeta4\"\n" +
-                "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"\n";
+                "distribution = \"slbeta4\"\n";
         String expectedTomlLibContent =
                 "artifactId = \"snakeyaml\"\n" +
                 "groupId = \"org.yaml\"\n" +

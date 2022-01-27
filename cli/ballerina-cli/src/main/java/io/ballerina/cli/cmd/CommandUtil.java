@@ -359,11 +359,6 @@ public class CommandUtil {
         writePackageAttributeValue(balTomlPath, packageJson.getVisibility(), "visibility");
         writePackageAttributeValue(balTomlPath, packageJson.getIcon(), "icon");
 
-        Files.writeString(balTomlPath, "\nimplementation_vendor = \"" + packageJson.getImplementationVendor()
-                + "\"", StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nlanguage_spec_version = \"" + packageJson.getLanguageSpecVersion()
-                + "\"", StandardOpenOption.APPEND);
-
         Files.writeString(balTomlPath, "\n\n[build-options]", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nobservabilityIncluded = true\n", StandardOpenOption.APPEND);
 

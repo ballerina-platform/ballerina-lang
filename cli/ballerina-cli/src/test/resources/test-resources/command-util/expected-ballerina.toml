@@ -6,8 +6,6 @@ export = ["gsheet_new_row_to_github_new_issue"]
 distribution = "slbeta6"
 keywords = ["Type/Webhook","Category/Integration","Internal/http"]
 icon = "docs/icon.png"
-implementation_vendor = "WSO2"
-language_spec_version = "2021R1"
 
 [build-options]
 observabilityIncluded = true
