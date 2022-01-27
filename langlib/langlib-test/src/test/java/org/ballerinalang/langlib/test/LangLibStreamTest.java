@@ -17,12 +17,9 @@
  */
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,44 +40,44 @@ public class LangLibStreamTest {
 
     @Test
     public void testFilterFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testFilterFunc", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object[] values = JvmRunUtil.invoke(result, "testFilterFunc", new Object[]{});
+        Assert.assertTrue((Boolean) values[0]);
     }
 
     @Test
     public void testMapFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testMapFunc", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object[] values = JvmRunUtil.invoke(result, "testMapFunc", new Object[]{});
+        Assert.assertTrue((Boolean) values[0]);
     }
 
     @Test
     public void testFilterAndMapFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testFilterAndMapFunc", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object[] values = JvmRunUtil.invoke(result, "testFilterAndMapFunc", new Object[]{});
+        Assert.assertTrue((Boolean) values[0]);
     }
 
     @Test
     public void testReduceFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testReduce", new BValue[]{});
-        Assert.assertEquals(((BFloat) values[0]).floatValue(), 135.0);
+        Object[] values = JvmRunUtil.invoke(result, "testReduce", new Object[]{});
+        Assert.assertEquals(values[0], 135.0d);
     }
 
     @Test
     public void testForReachFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testForEach", new BValue[]{});
-        Assert.assertEquals(((BFloat) values[0]).floatValue(), 135.0);
+        Object[] values = JvmRunUtil.invoke(result, "testForEach", new Object[]{});
+        Assert.assertEquals(values[0], 135.0d);
     }
 
     @Test
     public void testIteratorFunc() {
-        BValue[] values = BRunUtil.invoke(result, "testIterator", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object[] values = JvmRunUtil.invoke(result, "testIterator", new Object[]{});
+        Assert.assertTrue((Boolean) values[0]);
     }
 
     @Test
     public void testMapFuncWithRecordType() {
-        BValue[] values = BRunUtil.invoke(result, "testMapFuncWithRecordType", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object[] values = JvmRunUtil.invoke(result, "testMapFuncWithRecordType", new Object[]{});
+        Assert.assertTrue((Boolean) values[0]);
     }
 
 }

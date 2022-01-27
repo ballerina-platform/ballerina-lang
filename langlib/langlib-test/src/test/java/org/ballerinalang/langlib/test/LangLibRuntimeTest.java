@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,12 +40,12 @@ public class LangLibRuntimeTest {
 
     @Test
     public void testGetStackTraceToString() {
-        BRunUtil.invoke(compileResult, "getCallStacktoStringTest");
+        JvmRunUtil.invoke(compileResult, "getCallStacktoStringTest");
     }
 
     @Test
     public void testSleepDecimalValue() {
-        BRunUtil.invoke(compileResult, "testSleepDecimalValue");
+        JvmRunUtil.invoke(compileResult, "testSleepDecimalValue");
     }
 
 }

@@ -18,15 +18,11 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,85 +47,85 @@ public class LangLibTableTest {
 
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTableLength");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testTableLength");
+        assertEquals(returns[0], 4L);
     }
 
     @Test
     public void testIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testIterator");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void getKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getValueFromKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "getValueFromKey");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testMap");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testForeach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0].stringValue(), "Chiran Granier ");
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns[0].toString(), "Chiran Granier ");
     }
 
     @Test
     public void testFilter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testFilter");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testReduce() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(((BFloat) returns[0]).floatValue(), 35.5);
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns[0], 35.5d);
     }
 
     @Test
     public void testRemoveWithKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeWithKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "removeWithKey");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void removeIfHasKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "removeIfHasKey");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testHasKey() {
-        BRunUtil.invoke(compileResult, "testHasKey");
+        JvmRunUtil.invoke(compileResult, "testHasKey");
     }
 
     @Test
     public void testGetValue() {
-        BRunUtil.invoke(compileResult, "testGetValue");
+        JvmRunUtil.invoke(compileResult, "testGetValue");
     }
 
     @Test
     public void testHashCollisionHandlingScenarios() {
-        BRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
+        JvmRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
     }
 
     @Test
     public void testGetKeyList() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testGetKeyList");
-        BValueArray returns = (BValueArray) result[0];
+        Object[] result = JvmRunUtil.invoke(compileResult, "testGetKeyList");
+        BArray returns = (BArray) result[0];
         assertEquals(returns.size(), 4);
         assertEquals(returns.getString(0), "Chiran");
         assertEquals(returns.getString(1), "Mohan");
         assertEquals(returns.getString(2), "Gima");
         assertEquals(returns.getString(3), "Granier");
 
-        BValue[] unionReturns = BRunUtil.invoke(compileResult, "testGetKeysFromUnionConstrained");
-        BValueArray unionResult = (BValueArray) unionReturns[0];
+        Object[] unionReturns = JvmRunUtil.invoke(compileResult, "testGetKeysFromUnionConstrained");
+        BArray unionResult = (BArray) unionReturns[0];
         assertEquals(unionResult.size(), 2);
         assertEquals(unionResult.getString(0), "Adam");
         assertEquals(unionResult.getString(1), "Mark");
@@ -137,27 +133,27 @@ public class LangLibTableTest {
 
     @Test
     public void testRemoveAllFromTable() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeAllFromTable");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "removeAllFromTable");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testTableToArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "tableToArray");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "tableToArray");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testNextKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNextKey");
-        assertEquals(((BInteger) returns[0]).intValue(), 101);
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testNextKey");
+        assertEquals(returns[0], 101L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
     public void getWithInvalidKey() {
-        BRunUtil.invoke(compileResult, "getWithInvalidKey");
+        JvmRunUtil.invoke(compileResult, "getWithInvalidKey");
         Assert.fail();
     }
 
@@ -165,7 +161,7 @@ public class LangLibTableTest {
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
     public void removeWithInvalidKey() {
-        BRunUtil.invoke(compileResult, "removeWithInvalidKey");
+        JvmRunUtil.invoke(compileResult, "removeWithInvalidKey");
         Assert.fail();
     }
 
@@ -235,8 +231,8 @@ public class LangLibTableTest {
 
     @Test
     public void testAddData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddData");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -244,7 +240,7 @@ public class LangLibTableTest {
                     "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"a value found for key " +
                             "'5'\"\\}.*")
     public void testAddExistingMember() {
-        BRunUtil.invoke(compileResult, "testAddExistingMember");
+        JvmRunUtil.invoke(compileResult, "testAddExistingMember");
         Assert.fail();
     }
 
@@ -253,7 +249,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
                     + "key\\(name\\)'\"\\}.*")
     public void testAddInconsistentData() {
-        BRunUtil.invoke(compileResult, "testAddInconsistentData");
+        JvmRunUtil.invoke(compileResult, "testAddInconsistentData");
         Assert.fail();
     }
 
@@ -262,7 +258,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
                     + " key\\(name\\)'\"\\}.*")
     public void testAddInconsistentData2() {
-        BRunUtil.invoke(compileResult, "testAddInconsistentData2");
+        JvmRunUtil.invoke(compileResult, "testAddInconsistentData2");
         Assert.fail();
     }
 
@@ -271,7 +267,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl() {
-        BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl");
+        JvmRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl");
         Assert.fail();
     }
 
@@ -280,32 +276,32 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
                     "'table<Teacher>'\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl2() {
-        BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl2");
+        JvmRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl2");
         Assert.fail();
     }
 
     @Test
     public void testAddValidData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidData");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testAddValidData2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidData2");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testAddValidDataWithMapConstrTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidDataWithMapConstrTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidDataWithMapConstrTbl");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testPutData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutData");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -313,7 +309,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
                     + "key\\(name\\)'\"\\}.*")
     public void testPutInconsistentData() {
-        BRunUtil.invoke(compileResult, "testPutInconsistentData");
+        JvmRunUtil.invoke(compileResult, "testPutInconsistentData");
         Assert.fail();
     }
 
@@ -322,7 +318,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
                     + " key\\(name\\)'\"\\}.*")
     public void testPutInconsistentData2() {
-        BRunUtil.invoke(compileResult, "testPutInconsistentData2");
+        JvmRunUtil.invoke(compileResult, "testPutInconsistentData2");
         Assert.fail();
     }
 
@@ -331,7 +327,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl() {
-        BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl");
+        JvmRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl");
         Assert.fail();
     }
 
@@ -340,90 +336,90 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
                     "'table<Teacher>'\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl2() {
-        BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl2");
+        JvmRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl2");
         Assert.fail();
     }
 
     @Test
     public void testPutValidData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidData");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testPutValidData2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidData2");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testPutValidDataWithMapConstrTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataWithMapConstrTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidDataWithMapConstrTbl");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testPutWithKeyLessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testAddWithKeyLessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
                     + "was mutated after the iterator was created\"\\}.*")
     public void testAddNewRecordAfterIteratorCreation() {
-        BRunUtil.invoke(compileResult, "testAddNewRecordAfterIteratorCreation");
+        JvmRunUtil.invoke(compileResult, "testAddNewRecordAfterIteratorCreation");
     }
 
     @Test
     public void testRemoveAlreadyReturnedRecordFromIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void removeIfHasKeyReturnedRecordFromIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKeyReturnedRecordFromIterator");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "removeIfHasKeyReturnedRecordFromIterator");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testChangeValueForAGivenKeyWhileIterating() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testRemoveThenIterate() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveThenIterate");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testRemoveThenIterate");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
                     + "was mutated after the iterator was created\"\\}.*")
     public void testPutWithKeylessTableAfterIteratorCreation() {
-        BRunUtil.invoke(compileResult, "testPutWithKeylessTableAfterIteratorCreation");
+        JvmRunUtil.invoke(compileResult, "testPutWithKeylessTableAfterIteratorCreation");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
                     + "was mutated after the iterator was created\"\\}.*")
     public void testAddWithKeylessTableAfterIteratorCreation() {
-        BRunUtil.invoke(compileResult, "testAddWithKeylessTableAfterIteratorCreation");
+        JvmRunUtil.invoke(compileResult, "testAddWithKeylessTableAfterIteratorCreation");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
                     + "was mutated after the iterator was created\"\\}.*")
     public void testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {
-        BRunUtil.invoke(compileResult, "testRemoveAllReturnedRecordsFromIteratorKeylessTbl");
+        JvmRunUtil.invoke(compileResult, "testRemoveAllReturnedRecordsFromIteratorKeylessTbl");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -431,7 +427,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl() {
-        BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl");
+        JvmRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl");
         Assert.fail();
     }
 
@@ -440,7 +436,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl2() {
-        BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl2");
+        JvmRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl2");
         Assert.fail();
     }
 
@@ -449,7 +445,7 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl() {
-        BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl");
+        JvmRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl");
         Assert.fail();
     }
 
@@ -458,44 +454,44 @@ public class LangLibTableTest {
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl2() {
-        BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl2");
+        JvmRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl2");
         Assert.fail();
     }
 
     @Test
     public void testAddValidDataToKeylessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidDataToKeylessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidDataToKeylessTbl");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testPutValidDataToKeylessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test
     public void testReadOnlyTableFilter() {
-        BRunUtil.invoke(compileResult, "testReadOnlyTableFilter");
+        JvmRunUtil.invoke(compileResult, "testReadOnlyTableFilter");
     }
 
     @Test
     public void testKeylessTableForeach() {
-        BRunUtil.invoke(compileResult, "testKeylessTableForeach");
+        JvmRunUtil.invoke(compileResult, "testKeylessTableForeach");
     }
 
     @Test
     public void testKeylessReadOnlyTableForeach() {
-        BRunUtil.invoke(compileResult, "testKeylessReadOnlyTableForeach");
+        JvmRunUtil.invoke(compileResult, "testKeylessReadOnlyTableForeach");
     }
     
     @Test
     public void testReduceForKeylessTables() {
-        BRunUtil.invoke(compileResult, "testReduceForKeylessTables");
+        JvmRunUtil.invoke(compileResult, "testReduceForKeylessTables");
     }
 
     @Test
     public void testReduceForKeylessReadOnlyTables() {
-        BRunUtil.invoke(compileResult, "testReduceForKeylessReadOnlyTables");
+        JvmRunUtil.invoke(compileResult, "testReduceForKeylessReadOnlyTables");
     }
 }
