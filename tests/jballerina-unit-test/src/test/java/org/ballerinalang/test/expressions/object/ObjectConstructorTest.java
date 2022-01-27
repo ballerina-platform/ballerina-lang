@@ -72,6 +72,7 @@ public class ObjectConstructorTest {
                 {"testClosureButAsArgument"},
                 {"testAttachedMethodClosuresMapFromFunctionBlock"},
                 {"testFunctionPointerAsFieldValue"},
+                {"testClosuresWithObjectConstrExpr"}
         };
     }
 
@@ -90,6 +91,7 @@ public class ObjectConstructorTest {
         BRunUtil.invoke(annotations, "testAnnotations");
         BRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
         BRunUtil.invoke(annotations, "testAnnotsOfServiceObjectConstructorInReturnStmt");
+        BRunUtil.invoke(annotations, "testClosuresWithObjectConstrExprWithAnnots");
     }
 
     @Test
@@ -162,6 +164,8 @@ public class ObjectConstructorTest {
                         "constructors which are fields", 18, 29);
         validateError(negativeResult, index++, "closure variable 'i' : closures not yet supported for object " +
                 "constructors which are fields", 49, 25);
+        validateError(negativeResult, index++, "closure variable 'a1' : closures not yet supported for object " +
+                "constructors which are fields", 72, 22);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
