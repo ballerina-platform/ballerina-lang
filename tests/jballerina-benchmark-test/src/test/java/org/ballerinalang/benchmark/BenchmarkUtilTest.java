@@ -21,8 +21,8 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.JvmRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -161,7 +161,7 @@ public class BenchmarkUtilTest {
             final double d1 = 123456789.123456789;
             final boolean b1 = true;
             final String expected = s1 + l1 + d1 + b1;
-            Object[] args = {StringUtils.fromString(s1), l1, d1,b1};
+            Object[] args = {StringUtils.fromString(s1), l1, d1, b1};
             JvmRunUtil.invoke(compileResult, "testPrintMixVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
@@ -251,7 +251,7 @@ public class BenchmarkUtilTest {
 
     @Test
     public void testFormatHex() {
-        BArray fArgs = getAnyArrayValue( new Object[]{57005L});
+        BArray fArgs = getAnyArrayValue(new Object[]{57005L});
         Object[] args = {StringUtils.fromString("%x"), fArgs};
         Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns[0].toString(), "dead");
