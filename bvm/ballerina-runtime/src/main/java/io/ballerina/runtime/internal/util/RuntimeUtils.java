@@ -220,8 +220,8 @@ public class RuntimeUtils {
     }
 
     private static boolean isInvalidBallerinaValue(Object value) {
-        return (value != null && !(value instanceof Number) && !(value instanceof BString) &&
-                !(value instanceof Boolean) && !(value instanceof BValue));
+        return (value != null && !(value instanceof Number) && !(value instanceof Boolean) &&
+                !(value instanceof BValue));
     }
 
     private RuntimeUtils() {

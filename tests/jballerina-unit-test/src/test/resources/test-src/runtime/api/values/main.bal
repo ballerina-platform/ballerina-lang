@@ -43,17 +43,20 @@ public function main() {
     records:Foo|error fooOrError =  trap <records:Foo> records:getRecordNegative("Foo");
     test:assertTrue(fooOrError is error);
     error e3 = <error> fooOrError;
-    test:assertValueEqual(e3.message(), "value creation with 'class java.util.ArrayList' not supported: expected a BValue");
+    test:assertValueEqual(e3.message(), "'class java.util.ArrayList' is not from a valid java runtime class. " +
+        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
 
     records:Bar|error barOrError = trap <records:Bar> records:getReadonlyRecordNegative("Bar");
     test:assertTrue(barOrError is error);
     error e4 = <error> barOrError;
-    test:assertValueEqual(e4.message(), "value creation with 'class java.util.ImmutableCollections$MapN' not supported: expected a BValue");
+    test:assertValueEqual(e4.message(), "'class java.util.ImmutableCollections$MapN' is not from a valid java runtime class. " +
+        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
 
     record{}|error res = trap records:getRecordWithRestFieldsNegative();
     test:assertTrue(res is error);
     error e5 = <error> res;
-    test:assertValueEqual(e5.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
+    test:assertValueEqual(e5.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
 
     maps:validateAPI();
     records:validateAPI();

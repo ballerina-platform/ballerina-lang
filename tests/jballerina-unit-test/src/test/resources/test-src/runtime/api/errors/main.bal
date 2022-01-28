@@ -36,13 +36,16 @@ public function main() {
     errors:IOError|error res = trap errors:getDistinctErrorNegative("UserError");
     test:assertTrue(res is error);
     error e = <error> res;
-    test:assertValueEqual(e.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
+    test:assertValueEqual(e.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
 
     error err = trap errors:getErrorNegative2("error message");
-    test:assertValueEqual(err.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
+    test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
 
     err = trap errors:getErrorWithTypeNegative("error message");
-    test:assertValueEqual(err.message(), "value creation with 'class java.lang.String' not supported: expected a BValue");
+    test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
 }
 
 function testTypeIds() {
