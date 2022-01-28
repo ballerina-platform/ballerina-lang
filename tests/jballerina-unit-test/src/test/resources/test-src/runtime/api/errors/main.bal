@@ -37,15 +37,18 @@ public function main() {
     test:assertTrue(res is error);
     error e = <error> res;
     test:assertValueEqual(e.message(), "'class java.lang.String' is not from a valid java runtime class. " +
-        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
 
     error err = trap errors:getErrorNegative2("error message");
     test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
-        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
 
     err = trap errors:getErrorWithTypeNegative("error message");
     test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
-        "It should be subclass of one of the following: java.lang.Number, java.lang.Boolean or package io.runtime.api.values");
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
 }
 
 function testTypeIds() {

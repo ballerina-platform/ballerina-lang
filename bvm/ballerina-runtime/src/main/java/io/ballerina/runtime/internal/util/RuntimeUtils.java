@@ -211,8 +211,7 @@ public class RuntimeUtils {
     }
 
     public static void validateObjectAssignabilityToBType(Map<String, Object> bMap) {
-        for (Map.Entry<String, Object> fieldEntry : bMap.entrySet()) {
-            Object value = fieldEntry.getValue();
+        for (Object value : bMap.values()) {
             if (isInvalidBallerinaValue(value) && !(value instanceof String)) {
                 throw ErrorUtils.createJToBTypeCastError(value.getClass());
             }
