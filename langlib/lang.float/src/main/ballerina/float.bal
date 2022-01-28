@@ -328,7 +328,7 @@ public isolated function tanh(float x) returns float = @java:Method {
 # - `NaN` is allowed
 # - `Infinity` is allowed with an optional leading `+` or `-` sign
 # - a FloatingPointTypeSuffix is not allowed
-# This is the inverse of function `value:toString` applied to an `float`.
+# This is the inverse of function ``value:toString`` applied to an `float`.
 #
 # + s - string representation of a float
 # + return - float value or error
