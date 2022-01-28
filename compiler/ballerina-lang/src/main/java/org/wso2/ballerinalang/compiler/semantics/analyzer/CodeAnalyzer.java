@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -301,7 +302,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
-    private SymbolEnv env;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
     private boolean enableExperimentalFeatures;
@@ -340,6 +340,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
     }
 
+    // We need this `analyze`
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.workerReferences.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
@@ -355,6 +356,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         parent = pkgNode;
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        data.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeTopLevelNodes(pkgNode, pkgEnv, data);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visitNode(testablePackage, data));
     }
@@ -370,15 +372,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     // TODO: remove methods starting from `analyze`
+    // TODO: remove `env`
     private void analyzeNode(BLangNode node, SymbolEnv env, AnalyzerData data) {
-        SymbolEnv prevEnv = this.env;
-        this.env = env;
+        SymbolEnv prevEnv = data.env;
+        data.env = env;
         BLangNode myParent = parent;
         node.parent = parent;
         parent = node;
         node.accept(this, data);
         parent = myParent;
-        this.env = prevEnv;
+        data.env = prevEnv;
     }
 
     private void analyzeTypeNode(BLangType node, SymbolEnv env, AnalyzerData data) {
@@ -391,18 +394,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangCompilationUnit compUnitNode, AnalyzerData data) {
-        compUnitNode.topLevelNodes.forEach(e -> analyzeNode((BLangNode) e, env, data));
+        compUnitNode.topLevelNodes.forEach(e -> analyzeNode((BLangNode) e, data.env, data));
     }
 
     public void visit(BLangTypeDefinition typeDefinition, AnalyzerData data) {
 
-        analyzeTypeNode(typeDefinition.typeNode, this.env, data);
-        typeDefinition.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env, data));
+        analyzeTypeNode(typeDefinition.typeNode, data.env, data);
+        typeDefinition.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
     }
 
     @Override
     public void visit(BLangClassDefinition classDefinition, AnalyzerData data) {
-        SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
+        SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, data.env);
         for (BLangSimpleVariable field : classDefinition.fields) {
             DefaultValueState prevDefaultValueState = this.defaultValueState;
             this.defaultValueState = DefaultValueState.OBJECT_FIELD_INITIALIZER;
@@ -421,7 +424,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.analyzeNode(function, objectEnv, data);
         }
 
-        classDefinition.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env, data));
+        classDefinition.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
     }
 
     @Override
@@ -432,19 +435,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef, AnalyzerData data) {
 
-        analyzeNode(bLangTupleVariableDef.var, this.env, data);
+        analyzeNode(bLangTupleVariableDef.var, data.env, data);
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef, AnalyzerData data) {
 
-        analyzeNode(bLangRecordVariableDef.var, this.env, data);
+        analyzeNode(bLangRecordVariableDef.var, data.env, data);
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef, AnalyzerData data) {
 
-        analyzeNode(bLangErrorVariableDef.errorVariable, this.env, data);
+        analyzeNode(bLangErrorVariableDef.errorVariable, data.env, data);
     }
 
     @Override
@@ -486,7 +489,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         } finally {
             this.finalizeCurrentWorkerActionSystem();
         }
-        funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env, data));
+        funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
 
         validateNamedWorkerUniqueReferences();
     }
@@ -505,15 +508,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void validateParams(BLangFunction funcNode, AnalyzerData data) {
         for (BLangSimpleVariable parameter : funcNode.requiredParams) {
-            analyzeNode(parameter, env, data);
+            analyzeNode(parameter, data.env, data);
         }
         if (funcNode.restParam != null) {
-            analyzeNode(funcNode.restParam, env, data);
+            analyzeNode(funcNode.restParam, data.env, data);
         }
     }
 
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
-        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         this.returnWithinTransactionCheckStack.push(true);
         this.doneWithinTransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
@@ -556,7 +559,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
-        final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
         for (BLangStatement e : body.stmts) {
             this.inInternallyDefinedBlockStmt = true;
             analyzeNode(e, blockEnv, data);
@@ -614,7 +617,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!this.failureHandled) {
             this.failureHandled = transactionNode.onFailClause != null;
         }
-        analyzeNode(transactionNode.transactionBody, env, data);
+        analyzeNode(transactionNode.transactionBody, data.env, data);
         this.failureHandled = failureHandled;
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticErrorCode.INVALID_COMMIT_COUNT);
@@ -634,7 +637,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, AnalyzerData data) {
         if (onFailClause != null) {
-            analyzeNode(onFailClause, env, data);
+            analyzeNode(onFailClause, data.env, data);
         }
     }
 
@@ -714,8 +717,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction, AnalyzerData data) {
-        analyzeNode(retryTransaction.retrySpec, env, data);
-        analyzeNode(retryTransaction.transaction, env, data);
+        analyzeNode(retryTransaction.retrySpec, data.env, data);
+        analyzeNode(retryTransaction.transaction, data.env, data);
     }
 
     @Override
@@ -726,7 +729,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.rollbackCountWithinBlock = 0;
         boolean inInternallyDefinedBlockStmt = this.inInternallyDefinedBlockStmt;
         this.inInternallyDefinedBlockStmt = checkBlockIsAnInternalBlockInImmediateFunctionBody(blockNode);
-        final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
+        final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, data.env);
         blockNode.stmts.forEach(e -> {
             analyzeNode(e, blockEnv, data);
         });
@@ -784,7 +787,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.withinTransactionScope = true;
         }
         BLangBlockStmt body = ifStmt.body;
-        analyzeNode(body, env, data);
+        analyzeNode(body, data.env, data);
 
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = prevTxMode;
@@ -794,7 +797,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 commitRollbackAllowed = true;
                 withinTransactionScope = true;
             }
-            analyzeNode(elseStmt, env, data);
+            analyzeNode(elseStmt, data.env, data);
             if ((prevCommitCount != commitCount) || prevRollbackCount != rollbackCount) {
                 commitRollbackAllowed = false;
             }
@@ -823,7 +826,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 }
                 checkSimilarMatchPatternsBetweenClauses(matchClauses.get(j - 1), matchClause);
             }
-            analyzeNode(matchClause, env, data);
+            analyzeNode(matchClause, data.env, data);
         }
         analyzeOnFailClause(matchStatement.onFailClause, data);
         this.errorTypes.pop();
@@ -849,18 +852,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     dlog.warning(matchPattern.pos, DiagnosticWarningCode.MATCH_STMT_PATTERN_UNREACHABLE);
                 }
             }
-            analyzeNode(matchPattern, env, data);
+            analyzeNode(matchPattern, data.env, data);
         }
 
         if (matchGuard != null) {
-            analyzeNode(matchGuard, env, data);
+            analyzeNode(matchGuard, data.env, data);
         }
 
         if (!patternListContainsSameVars) {
             dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
         }
 
-        analyzeNode(matchClause.blockStmt, env, data);
+        analyzeNode(matchClause.blockStmt, data.env, data);
     }
 
     @Override
@@ -876,7 +879,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangMatchGuard matchGuard, AnalyzerData data) {
         boolean prevInMatchGuard = this.inMatchGuard;
         this.inMatchGuard = true;
-        analyzeExpr(matchGuard.expr, env, data);
+        analyzeExpr(matchGuard.expr, data.env, data);
         this.inMatchGuard = prevInMatchGuard;
     }
 
@@ -1527,13 +1530,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangConstPattern constMatchPattern, AnalyzerData data) {
-        analyzeNode(constMatchPattern.expr, env, data);
+        analyzeNode(constMatchPattern.expr, data.env, data);
     }
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern, AnalyzerData data) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
-        analyzeNode(bindingPattern, env, data);
+        analyzeNode(bindingPattern, data.env, data);
         switch (bindingPattern.getKind()) {
             case WILDCARD_BINDING_PATTERN:
                 varBindingPattern.isLastPattern =
@@ -1646,14 +1649,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangMatchStaticBindingPatternClause patternClause, AnalyzerData data) {
-        analyzeNode(patternClause.matchExpr, env, data);
-        analyzeNode(patternClause.body, env, data);
+        analyzeNode(patternClause.matchExpr, data.env, data);
+        analyzeNode(patternClause.body, data.env, data);
     }
 
     @Override
     public void visit(BLangMatchStructuredBindingPatternClause patternClause, AnalyzerData data) {
-        analyzeNode(patternClause.matchExpr, env, data);
-        analyzeNode(patternClause.body, env, data);
+        analyzeNode(patternClause.matchExpr, data.env, data);
+        analyzeNode(patternClause.body, data.env, data);
     }
 
     private void analyzeMatchedPatterns(BLangMatch matchStmt, boolean staticLastPattern,
@@ -1668,7 +1671,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                            DiagnosticErrorCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
             }
             for (BLangMatchBindingPatternClause patternClause : matchStmt.getPatternClauses()) {
-                analyzeNode(patternClause.body, env, data);
+                analyzeNode(patternClause.body, data.env, data);
             }
         }
     }
@@ -1683,7 +1686,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         for (BLangMatchStructuredBindingPatternClause patternClause : matchStmt.getStructuredPatternClauses()) {
-            analyzeNode(patternClause, env, data);
+            analyzeNode(patternClause, data.env, data);
         }
 
         return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses(),
@@ -1750,7 +1753,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         List<BLangMatchStaticBindingPatternClause> matchedPatterns = new ArrayList<>();
         for (BLangMatchStaticBindingPatternClause patternClause : matchStmt.getStaticPatternClauses()) {
-            analyzeNode(patternClause, env, data);
+            analyzeNode(patternClause, data.env, data);
 
             List<BType> matchedExpTypes = new ArrayList<>();
             for (BType exprType : matchStmt.exprTypes) {
@@ -1764,7 +1767,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 dlog.warning(patternClause.pos, DiagnosticWarningCode.MATCH_STMT_UNMATCHED_PATTERN);
                 continue;
             }
-            analyzeNode(patternClause.literal, env, data);
+            analyzeNode(patternClause.literal, data.env, data);
             matchedPatterns.add(patternClause);
         }
 
@@ -2231,7 +2234,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangForeach foreach, AnalyzerData data) {
-        SymbolEnv foreachEnv = SymbolEnv.createLoopEnv(foreach, env);
+        SymbolEnv foreachEnv = SymbolEnv.createLoopEnv(foreach, data.env);
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
@@ -2253,7 +2256,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangWhile whileNode, AnalyzerData data) {
-        SymbolEnv whileEnv = SymbolEnv.createLoopEnv(whileNode, env);
+        SymbolEnv whileEnv = SymbolEnv.createLoopEnv(whileNode, data.env);
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
@@ -2278,7 +2281,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!this.failureHandled) {
             this.failureHandled = doNode.onFailClause != null;
         }
-        analyzeNode(doNode.body, env, data);
+        analyzeNode(doNode.body, data.env, data);
         this.failureHandled = failureHandled;
         doNode.body.failureBreakMode = doNode.onFailClause != null ?
                 BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
@@ -2291,16 +2294,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangFail failNode, AnalyzerData data) {
         this.failVisited = true;
         analyzeExpr(failNode.expr, data);
-        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+        if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
             return;
         }
-        typeChecker.checkExpr(failNode.expr, env);
+        typeChecker.checkExpr(failNode.expr, data.env);
         if (!this.errorTypes.empty()) {
             this.errorTypes.peek().add(getErrorTypes(failNode.expr.getBType()));
         }
         if (!this.failureHandled) {
-            BType exprType = env.enclInvokable.getReturnTypeNode().getBType();
+            BType exprType = data.env.enclInvokable.getReturnTypeNode().getBType();
             this.returnTypes.peek().add(exprType);
             if (!types.isAssignable(getErrorTypes(failNode.expr.getBType()), exprType)) {
                 dlog.error(failNode.pos, DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
@@ -2317,7 +2320,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         boolean previousWithinLockBlock = this.withinLockBlock;
         this.withinLockBlock = true;
-        lockNode.body.stmts.forEach(e -> analyzeNode(e, env, data));
+        lockNode.body.stmts.forEach(e -> analyzeNode(e, data.env, data));
         this.withinLockBlock = previousWithinLockBlock;
         this.failureHandled = failureHandled;
         lockNode.body.failureBreakMode = lockNode.onFailClause != null ?
@@ -2348,7 +2351,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        analyzeNode(pkgEnv.node, env, data);
+        analyzeNode(pkgEnv.node, data.env, data);
     }
 
     public void visit(BLangXMLNS xmlnsNode, AnalyzerData data) {
@@ -2449,7 +2452,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
-        int ownerSymTag = this.env.scope.owner.tag;
+        int ownerSymTag = data.env.scope.owner.tag;
         if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
             dlog.error(letExpression.pos, DiagnosticErrorCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
         } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
@@ -2465,7 +2468,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangSimpleVariable varNode, AnalyzerData data) {
 
-        analyzeTypeNode(varNode.typeNode, this.env, data);
+        analyzeTypeNode(varNode.typeNode, data.env, data);
 
         analyzeExpr(varNode.expr, data);
 
@@ -2477,15 +2480,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        int ownerSymTag = this.env.scope.owner.tag;
+        int ownerSymTag = data.env.scope.owner.tag;
         if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD || (ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
-            analyzeExportableTypeRef(this.env.scope.owner, varNode.getBType().tsymbol, false, varNode.pos);
+            analyzeExportableTypeRef(data.env.scope.owner, varNode.getBType().tsymbol, false, varNode.pos);
         } else if ((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
             // Only global level simpleVarRef, listeners etc.
             analyzeExportableTypeRef(varNode.symbol, varNode.getBType().tsymbol, false, varNode.pos);
         }
 
-        varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env, data));
+        varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
     }
 
     // TODO: delete this no usage
@@ -2505,7 +2508,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangTupleVariable bLangTupleVariable, AnalyzerData data) {
 
         if (bLangTupleVariable.typeNode != null) {
-            analyzeNode(bLangTupleVariable.typeNode, this.env, data);
+            analyzeNode(bLangTupleVariable.typeNode, data.env, data);
         }
         analyzeExpr(bLangTupleVariable.expr, data);
     }
@@ -2514,7 +2517,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangRecordVariable bLangRecordVariable, AnalyzerData data) {
 
         if (bLangRecordVariable.typeNode != null) {
-            analyzeNode(bLangRecordVariable.typeNode, this.env, data);
+            analyzeNode(bLangRecordVariable.typeNode, data.env, data);
         }
         analyzeExpr(bLangRecordVariable.expr, data);
     }
@@ -2523,7 +2526,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangErrorVariable bLangErrorVariable, AnalyzerData data) {
 
         if (bLangErrorVariable.typeNode != null) {
-            analyzeNode(bLangErrorVariable.typeNode, this.env, data);
+            analyzeNode(bLangErrorVariable.typeNode, data.env, data);
         }
         analyzeExpr(bLangErrorVariable.expr, data);
     }
@@ -2556,7 +2559,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     public void visit(BLangAnnotation annotationNode, AnalyzerData data) {
-        annotationNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env, data));
+        annotationNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode, AnalyzerData data) {
@@ -2568,7 +2571,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     public void visit(BLangSimpleVariableDef varDefNode, AnalyzerData data) {
-        analyzeNode(varDefNode.var, env, data);
+        analyzeNode(varDefNode.var, data.env, data);
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment, AnalyzerData data) {
@@ -2724,25 +2727,24 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private boolean isTopLevel() {
-        SymbolEnv env = this.env;
+    private boolean isTopLevel(SymbolEnv env) {
         return env.enclInvokable.body == env.node;
     }
 
-    private boolean isInWorker() {
+    private boolean isInWorker(SymbolEnv env) {
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isCommunicationAllowedLocation() {
-        return isTopLevel();
+    private boolean isCommunicationAllowedLocation(SymbolEnv env) {
+        return isTopLevel(env);
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
         return workerIdentifier.equals(DEFAULT_WORKER_NAME);
     }
 
-    private boolean workerExists(BType type, String workerName) {
-        if (isDefaultWorkerCommunication(workerName) && isInWorker()) {
+    private boolean workerExists(BType type, String workerName, SymbolEnv env) {
+        if (isDefaultWorkerCommunication(workerName) && isInWorker(env)) {
             return true;
         }
         if (type == symTable.semanticError) {
@@ -2755,11 +2757,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     // Asynchronous Send Statement
     public void visit(BLangWorkerSend workerSendNode, AnalyzerData data) {
-        BSymbol receiver = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerSendNode.workerIdentifier));
+        BSymbol receiver = symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerSendNode.workerIdentifier));
         if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             receiver = symTable.notFoundSymbol;
         }
-        verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value);
+        verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
@@ -2774,13 +2776,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
+        if (!isCommunicationAllowedLocation(data.env) && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerSendNode.getBType(), workerName)
-                || (!isWorkerFromFunction(env, names.fromString(workerName)) && !workerName.equals("function"))) {
+        if (!this.workerExists(workerSendNode.getBType(), workerName, data.env)
+                || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
@@ -2816,23 +2818,23 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr, AnalyzerData data) {
-        BSymbol receiver = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(syncSendExpr.workerIdentifier));
+        BSymbol receiver = symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(syncSendExpr.workerIdentifier));
         if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             receiver = symTable.notFoundSymbol;
         }
-        verifyPeerCommunication(syncSendExpr.pos, receiver, syncSendExpr.workerIdentifier.value);
+        verifyPeerCommunication(syncSendExpr.pos, receiver, syncSendExpr.workerIdentifier.value, data.env);
 
         // Validate worker synchronous send
         validateActionParentNode(syncSendExpr.pos, syncSendExpr);
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
+        if (!isCommunicationAllowedLocation(data.env) && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(syncSendExpr.workerType, workerName)) {
+        if (!this.workerExists(syncSendExpr.workerType, workerName, data.env)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, syncSendExpr.workerSymbol);
             was.hasErrors = true;
         }
@@ -2846,21 +2848,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangWorkerReceive workerReceiveNode, AnalyzerData data) {
         // Validate worker receive
         validateActionParentNode(workerReceiveNode.pos, workerReceiveNode);
-        BSymbol sender = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerReceiveNode.workerIdentifier));
+        BSymbol sender = symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerReceiveNode.workerIdentifier));
         if ((sender.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             sender = symTable.notFoundSymbol;
         }
-        verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
+        verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
+        if (!isCommunicationAllowedLocation(data.env) && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerReceiveNode.workerType, workerName)) {
+        if (!this.workerExists(workerReceiveNode.workerType, workerName, data.env)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
@@ -2869,7 +2871,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         was.addWorkerAction(workerReceiveNode);
     }
 
-    private void verifyPeerCommunication(Location pos, BSymbol otherWorker, String otherWorkerName) {
+    private void verifyPeerCommunication(Location pos, BSymbol otherWorker, String otherWorkerName, SymbolEnv env) {
         if (env.enclEnv.node.getKind() != NodeKind.FUNCTION) {
             return;
         }
@@ -3345,7 +3347,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean validActionParent = validateActionParentNode(awaitExpr.pos, awaitExpr);
 
         WorkerActionSystem was = this.workerActionSystemStack.peek();
-        was.addWorkerAction(awaitExpr, env);
+        was.addWorkerAction(awaitExpr, data.env);
         if (!(validWaitFuture || validActionParent)) {
             was.hasErrors = true;
         }
@@ -3362,7 +3364,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean validActionParent = validateActionParentNode(waitForAllExpr.pos, waitForAllExpr);
 
         WorkerActionSystem was = this.workerActionSystemStack.peek();
-        was.addWorkerAction(waitForAllExpr, env);
+        was.addWorkerAction(waitForAllExpr, data.env);
         if (!(validWaitFuture || validActionParent)) {
             was.hasErrors = true;
         }
@@ -3521,7 +3523,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangTypeConversionExpr conversionExpr, AnalyzerData data) {
         analyzeExpr(conversionExpr.expr, data);
-        conversionExpr.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env, data));
+        conversionExpr.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
     }
 
     public void visit(BLangXMLQName xmlQName, AnalyzerData data) {
@@ -3627,7 +3629,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode, AnalyzerData data) {
 
-        SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, data.env);
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             DefaultValueState prevDefaultValueState = this.defaultValueState;
             this.defaultValueState = DefaultValueState.RECORD_FIELD_DEFAULT;
@@ -3639,7 +3641,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode, AnalyzerData data) {
 
-        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
+        SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, data.env);
         for (BLangSimpleVariable field : objectTypeNode.fields) {
             analyzeNode(field, objectEnv, data);
         }
@@ -3664,7 +3666,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangArrayType arrayType, AnalyzerData data) {
 
-        analyzeTypeNode(arrayType.elemtype, env, data);
+        analyzeTypeNode(arrayType.elemtype, data.env, data);
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType, AnalyzerData data) {
@@ -3673,21 +3675,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangConstrainedType constrainedType, AnalyzerData data) {
 
-        analyzeTypeNode(constrainedType.constraint, env, data);
+        analyzeTypeNode(constrainedType.constraint, data.env, data);
     }
 
     public void visit(BLangStreamType streamType, AnalyzerData data) {
 
-        analyzeTypeNode(streamType.constraint, env, data);
-        analyzeTypeNode(streamType.error, env, data);
+        analyzeTypeNode(streamType.constraint, data.env, data);
+        analyzeTypeNode(streamType.error, data.env, data);
     }
 
     public void visit(BLangTableTypeNode tableType, AnalyzerData data) {
 
-        analyzeTypeNode(tableType.constraint, env, data);
+        analyzeTypeNode(tableType.constraint, data.env, data);
 
         if (tableType.tableKeyTypeConstraint != null) {
-            analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, env, data);
+            analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, data.env, data);
         }
     }
 
@@ -3705,7 +3707,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         }
 
-        analyzeTypeNode(errorType.detailType, env, data);
+        analyzeTypeNode(errorType.detailType, data.env, data);
     }
 
     public void visit(BLangUserDefinedType userDefinedType, AnalyzerData data) {
@@ -3717,19 +3719,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
 
-        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, env, data));
-        analyzeTypeNode(tupleTypeNode.restParamType, env, data);
+        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data.env, data));
+        analyzeTypeNode(tupleTypeNode.restParamType, data.env, data);
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode, AnalyzerData data) {
 
-        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, env, data));
+        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data.env, data));
     }
 
     public void visit(BLangIntersectionTypeNode intersectionTypeNode, AnalyzerData data) {
 
         for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
-            analyzeTypeNode(constituentTypeNode, env, data);
+            analyzeTypeNode(constituentTypeNode, data.env, data);
         }
     }
 
@@ -3737,8 +3739,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
             return;
         }
-        functionTypeNode.params.forEach(node -> analyzeNode(node, env, data));
-        analyzeTypeNode(functionTypeNode.returnTypeNode, env, data);
+        functionTypeNode.params.forEach(node -> analyzeNode(node, data.env, data));
+        analyzeTypeNode(functionTypeNode.returnTypeNode, data.env, data);
     }
 
     @Override
@@ -3768,12 +3770,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.failVisited = true;
         analyzeExpr(checkedExpr.expr, data);
 
-        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+        if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
             return;
         }
 
-        BLangInvokableNode enclInvokable = env.enclInvokable;
+        BLangInvokableNode enclInvokable = data.env.enclInvokable;
 
         List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
         if (equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty()) {
@@ -3785,7 +3787,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
             if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
                 BAttachedFunction initializerFunc =
-                        ((BObjectTypeSymbol) getEnclosingClass(env).getBType().tsymbol).initializerFunc;
+                        ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
 
                 if (initializerFunc == null) {
                     dlog.error(checkedExpr.pos,
@@ -3859,7 +3861,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     }
                 }
             }
-            analyzeNode(clause, env, data);
+            analyzeNode(clause, data.env, data);
         }
     }
 
@@ -3877,7 +3879,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     }
                 }
             }
-            analyzeNode(clause, env, data);
+            analyzeNode(clause, data.env, data);
         }
         validateActionParentNode(queryAction.pos, queryAction);
     }
@@ -3891,14 +3893,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangJoinClause joinClause, AnalyzerData data) {
         analyzeExpr(joinClause.collection, data);
         if (joinClause.onClause != null) {
-            analyzeNode((BLangNode) joinClause.onClause, env, data);
+            analyzeNode((BLangNode) joinClause.onClause, data.env, data);
         }
     }
 
     @Override
     public void visit(BLangLetClause letClause, AnalyzerData data) {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), env, data);
+            analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), data.env, data);
         }
     }
 
@@ -3933,7 +3935,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangDoClause doClause, AnalyzerData data) {
-        analyzeNode(doClause.body, env, data);
+        analyzeNode(doClause.body, data.env, data);
     }
 
     @Override
@@ -3947,7 +3949,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                            onFailVarNode.getBType());
             }
         }
-        analyzeNode(onFailClause.body, env, data);
+        analyzeNode(onFailClause.body, data.env, data);
         onFailClause.bodyContainsFail = this.failVisited;
         this.failVisited = currentFailVisited;
     }
@@ -3959,7 +3961,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr, AnalyzerData data) {
-        analyzeNode(typeTestExpr.expr, env, data);
+        analyzeNode(typeTestExpr.expr, data.env, data);
         BType exprType = typeTestExpr.expr.getBType();
         BType typeNodeType = typeTestExpr.typeNode.getBType();
         if (typeNodeType == symTable.semanticError || exprType == symTable.semanticError) {
@@ -3984,7 +3986,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!intersectionExists(typeTestExpr.expr, typeNodeType)) {
+        if (!intersectionExists(typeTestExpr.expr, typeNodeType, data)) {
             dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
@@ -3998,12 +4000,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private boolean intersectionExists(BLangExpression expression, BType testType) {
+    private boolean intersectionExists(BLangExpression expression, BType testType, AnalyzerData data) {
         BType expressionType = expression.getBType();
 
         BType intersectionType = types.getTypeIntersection(
                 Types.IntersectionContext.typeTestIntersectionExistenceContext(),
-                expressionType, testType, env);
+                expressionType, testType, data.env);
 
         if (intersectionType != symTable.semanticError) {
             return true;
@@ -4032,7 +4034,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         parent = node;
         node.accept(this, data);
         parent = myParent;
-        checkAccess(node);
+        checkAccess(node, data);
         checkExpressionValidity(node);
     }
 
@@ -4040,16 +4042,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (node == null) {
             return;
         }
-        SymbolEnv prevEnv = this.env;
-        this.env = env;
+        SymbolEnv prevEnv = data.env;
+        data.env = env;
         BLangNode myParent = parent;
         node.parent = parent;
         parent = node;
         node.accept(this, data);
         parent = myParent;
-        checkAccess(node);
+        checkAccess(node, data);
         checkExpressionValidity(node);
-        this.env = prevEnv;
+        data.env = prevEnv;
     }
 
     private  <E extends BLangExpression> void checkExpressionValidity(E exprNode) {
@@ -4078,10 +4080,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangConstant constant, AnalyzerData data) {
 
-        analyzeTypeNode(constant.typeNode, env, data);
-        analyzeNode(constant.expr, env, data);
+        analyzeTypeNode(constant.typeNode, data.env, data);
+        analyzeNode(constant.expr, data.env, data);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
-        constant.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env, data));
+        constant.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
     }
 
     /**
@@ -4089,25 +4091,26 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
      * used in public fields of objects/records and will fail those occurrences.
      *
      * @param node expression node to analyze
+     * @param data data used to analyze the node
      */
-    private <E extends BLangExpression> void checkAccess(E node) {
+    private <E extends BLangExpression> void checkAccess(E node, AnalyzerData data) {
         if (node.getBType() != null) {
-            checkAccessSymbol(node.getBType().tsymbol, node.pos);
+            checkAccessSymbol(node.getBType().tsymbol, data.env.enclPkg.symbol.pkgID, node.pos);
         }
 
         //check for object new invocation
         if (node.getKind() == NodeKind.INVOCATION) {
             BLangInvocation bLangInvocation = (BLangInvocation) node;
-            checkAccessSymbol(bLangInvocation.symbol, bLangInvocation.pos);
+            checkAccessSymbol(bLangInvocation.symbol, data.env.enclPkg.symbol.pkgID, bLangInvocation.pos);
         }
     }
 
-    private void checkAccessSymbol(BSymbol symbol, Location position) {
+    private void checkAccessSymbol(BSymbol symbol, PackageID pkgID, Location position) {
         if (symbol == null) {
             return;
         }
 
-        if (env.enclPkg.symbol.pkgID != symbol.pkgID && !Symbols.isPublic(symbol)) {
+        if (pkgID != symbol.pkgID && !Symbols.isPublic(symbol)) {
             dlog.error(position, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }
