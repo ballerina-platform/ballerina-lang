@@ -24,11 +24,9 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -57,10 +55,10 @@ public class AnnotationRuntimeTest {
     public void testAnnotAccess(String testFunction) {
         CompileResult resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         Assert.assertEquals(resultOne.getErrorCount(), 0);
-        BValue[] returns = BRunUtil.invoke(resultOne, testFunction);
+        Object[] returns = JvmRunUtil.invoke(resultOne, testFunction);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[0].getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test(description = "test accessing source only annots at runtime, the annots should not be available",
@@ -68,10 +66,10 @@ public class AnnotationRuntimeTest {
     public void testSourceOnlyAnnotAccess(String testFunction) {
         CompileResult resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
         Assert.assertEquals(resultTwo.getErrorCount(), 0);
-        BValue[] returns = BRunUtil.invoke(resultTwo, testFunction);
+        Object[] returns = JvmRunUtil.invoke(resultTwo, testFunction);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertSame(returns[0].getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns[0]);
     }
 
     @Test(description = "Test if constants used in annotation are replaced on constant propagation phase")
@@ -130,8 +128,8 @@ public class AnnotationRuntimeTest {
     public void testAnnotAvailabilty() {
         CompileResult resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
         Assert.assertEquals(resultFour.getErrorCount(), 0);
-        Object obj = BRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
-        Assert.assertEquals(TypeChecker.getType(obj).getTag(), TypeTags.TUPLE_TAG);
+        Object obj = JvmRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
+        Assert.assertEquals(TypeChecker.getType(obj).getTag(), io.ballerina.runtime.api.TypeTags.TUPLE_TAG);
 
         TupleValueImpl tupleValue = (TupleValueImpl) obj;
 
@@ -139,7 +137,7 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
 
         Object fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.i"));
-        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
         MapValueImpl<BString, Object> fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
 
         Object annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
@@ -147,7 +145,7 @@ public class AnnotationRuntimeTest {
         Assert.assertTrue((Boolean) annotValue);
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("X"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
 
         MapValueImpl<BString, Object> mapValue = (MapValueImpl<BString, Object>) annotValue;
         Assert.assertEquals(mapValue.size(), 1);
@@ -156,15 +154,15 @@ public class AnnotationRuntimeTest {
         annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
         Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
         fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.j"));
-        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
         fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.BOOLEAN_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG);
         Assert.assertTrue((Boolean) annotValue);
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("Y"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
 
         mapValue = (MapValueImpl<BString, Object>) annotValue;
         Assert.assertEquals(mapValue.size(), 2);
@@ -174,28 +172,28 @@ public class AnnotationRuntimeTest {
         annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(2)).getDescribingType();
         Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
         fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.j"));
-        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
         fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
 
         annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
-        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.BOOLEAN_TAG);
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG);
         Assert.assertTrue((Boolean) annotValue);
     }
 
     public void testRecordTypeAnnotationReadonlyValueEdit() {
-        BRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
+        JvmRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
     }
 
     public void testAnnotationOnObjectTypeReadonlyValueEdit() {
-        BRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
+        JvmRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
     }
 
     public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
-        BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
+        JvmRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
     }
 
     public void testReadonlyTypeAnnotationAttachment() {
         CompileResult readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
-        BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
+        JvmRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 }
