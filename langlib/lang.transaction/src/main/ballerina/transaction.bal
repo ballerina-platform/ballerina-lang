@@ -41,9 +41,9 @@ public type Info readonly & InfoInternal;
 
 # An instant in time.
 public type Timestamp readonly & object {
-    # + return - milliseconds since 1970-01-01T00:00:00Z, not including leap seconds.
+    # + return - milliseconds since 1970-01-01T00:00:00Z, not including leap seconds
     public function toMillisecondsInt() returns int;
-    # + return - string representation of the timestamp in ISO 8601 format.
+    # + return - string representation of the timestamp in ISO 8601 format
     public function toString() returns string;
 };
 
