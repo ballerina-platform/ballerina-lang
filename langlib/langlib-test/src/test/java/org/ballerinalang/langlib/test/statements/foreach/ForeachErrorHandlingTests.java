@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -41,7 +41,7 @@ public class ForeachErrorHandlingTests {
 
     @Test
     public void testArrayForeachAndTrap() {
-        BRunUtil.invoke(program, "testArrayForeachAndTrap");
+        JvmRunUtil.invoke(program, "testArrayForeachAndTrap");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
@@ -50,6 +50,6 @@ public class ForeachErrorHandlingTests {
                     "\tat ballerina.lang.int.0:fromString\\(int.bal:128\\)\n" +
                     "\t   foreach_error_handling:\\$lambda\\$_0\\(foreach_error_handling.bal:41\\)")
     public void testArrayForeachAndPanic() {
-        BRunUtil.invoke(program, "testArrayForeachAndPanic");
+        JvmRunUtil.invoke(program, "testArrayForeachAndPanic");
     }
 }

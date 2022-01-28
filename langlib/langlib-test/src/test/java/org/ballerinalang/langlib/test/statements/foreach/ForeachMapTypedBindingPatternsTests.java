@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -42,271 +41,271 @@ public class ForeachMapTypedBindingPatternsTests {
 
     @Test
     public void testUnconstrainedMapWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:A 1:B 2:C ");
+        Assert.assertEquals(returns[0].toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testUnconstrainedMapWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:A 1:B 2:C ");
+        Assert.assertEquals(returns[0].toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testConstrainedMapWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:A 1:B 2:C ");
+        Assert.assertEquals(returns[0].toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testConstrainedMapWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:A 1:B 2:C ");
+        Assert.assertEquals(returns[0].toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testConstrainedMapWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithAnyType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:A 1:B 2:C ");
+        Assert.assertEquals(returns[0].toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
+        Assert.assertEquals(returns[0].toString(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
+        Assert.assertEquals(returns[0].toString(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
     }
 
     @Test
     public void testConstrainedMapWithTupleWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:A 1:2:B 2:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:A 1:2:B 2:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleWithAnyType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
+        Assert.assertEquals(returns[0].toString(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInTupleWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
+        Assert.assertEquals(returns[0].toString(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInTupleWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
+        Assert.assertEquals(returns[0].toString(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInTupleWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 ");
+        Assert.assertEquals(returns[0].toString(), "0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInTupleWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 ");
+        Assert.assertEquals(returns[0].toString(), "0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInTupleWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithAnyType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
+        Assert.assertEquals(returns[0].toString(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInTupleWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] 2:[4," +
+        Assert.assertEquals(returns[0].toString(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] 2:[4," +
                 "{\"i\":3,\"v\":\"C\"}] ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInTupleWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] 2:[4," +
+        Assert.assertEquals(returns[0].toString(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] 2:[4," +
                 "{\"i\":3,\"v\":\"C\"}] ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInTupleWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2:1:A 1:3:2:B 2:4:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInTupleWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2:1:A 1:3:2:B 2:4:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInTupleWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithAnyType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] " +
+        Assert.assertEquals(returns[0].toString(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] " +
                 "2:[4,{\"i\":3,\"v\":\"C\"}] ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2,\"v\":\"B\"} " +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2,\"v\":\"B\"} " +
                 "2:{\"i\":3,\"v\":\"C\"} ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2,\"v\":\"B\"} " +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2,\"v\":\"B\"} " +
                 "2:{\"i\":3,\"v\":\"C\"} ");
     }
 
     @Test
     public void testConstrainedMapWithRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:A 1:2:B 2:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:A 1:2:B 2:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordWithAnyType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2," +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2," +
                 "\"v\":\"B\"} 2:{\"i\":3,\"v\":\"C\"} ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
                 "\"v\":{\"i\":2,\"v\":\"B\"}} 2:{\"i\":4,\"v\":{\"i\":3,\"v\":\"C\"}} ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
                 "\"v\":{\"i\":2,\"v\":\"B\"}} 2:{\"i\":4,\"v\":{\"i\":3,\"v\":\"C\"}} ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2:1:A 1:3:2:B 2:4:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2:1:A 1:3:2:B 2:4:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInRecordWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithAnyType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
                 "\"v\":{\"i\":2,\"v\":\"B\"}} 2:{\"i\":4,\"v\":{\"i\":3,\"v\":\"C\"}} ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
                 "2:{\"i\":3,\"v\":[3,\"C\"]} ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
                 "2:{\"i\":3,\"v\":[3,\"C\"]} ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInRecordWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:1:A 1:2:2:B 2:3:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:1:1:A 1:2:2:B 2:3:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInRecordWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:1:A 1:2:2:B 2:3:3:C ");
+        Assert.assertEquals(returns[0].toString(), "0:1:1:A 1:2:2:B 2:3:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInRecordWithAnyType() {
-        BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithAnyType");
+        Object[] returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
+        Assert.assertEquals(returns[0].toString(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
                 "2:{\"i\":3,\"v\":[3,\"C\"]} ");
     }
 
     @Test
     public void testEmptyMapIteration() {
-        BValue[] returns = BRunUtil.invoke(program, "testEmptyMapIteration");
+        Object[] returns = JvmRunUtil.invoke(program, "testEmptyMapIteration");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(returns[0].toString(), "");
     }
 
     @Test(dataProvider = "bindingPatternWithVarInForeachStatementForReadOnlyMembersOfMappings")
     public void testBindingPatternWithVarInForeachStatementForReadOnlyMembersOfMappings(String function) {
-        BRunUtil.invoke(program, function);
+        JvmRunUtil.invoke(program, function);
     }
 
     @DataProvider
@@ -319,7 +318,7 @@ public class ForeachMapTypedBindingPatternsTests {
 
     @Test(dataProvider = "bindingPatternInForeachStatementForReadOnlyMembersOfMappings")
     public void testBindingPatternInForeachStatementForReadOnlyMembersOfMappings(String function) {
-        BRunUtil.invoke(program, function);
+        JvmRunUtil.invoke(program, function);
     }
 
     @DataProvider

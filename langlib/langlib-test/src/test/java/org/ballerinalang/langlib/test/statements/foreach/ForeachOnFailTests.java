@@ -18,11 +18,10 @@
 
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,38 +49,38 @@ public class ForeachOnFailTests {
 
     @Test
     public void testIntArrayWithArityOne() {
-        BValue[] returns = BRunUtil.invoke(program, "testIntArrayWithArityOne");
+        Object[] returns = JvmRunUtil.invoke(program, "testIntArrayWithArityOne");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), " (Positive:1), (Negative:-3) within grace, "
+        Assert.assertEquals(returns[0].toString(), " (Positive:1), (Negative:-3) within grace, "
                 + "(Positive:5), (Negative:-30) within grace, (Positive:4), (Positive:11), "
                 + "(Negative:-25) Throttle reached");
     }
 
     @Test(description = "Test foreach with check which evaluates to error")
     public void testWhileStmtWithCheck() {
-        BValue[] returns = BRunUtil.invoke(program, "testForeachStmtWithCheck");
+        Object[] returns = JvmRunUtil.invoke(program, "testForeachStmtWithCheck");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "Value: 1 Value: -3 -> error caught. " +
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].toString(), "Value: 1 Value: -3 -> error caught. " +
                 "Hence value returning", "mismatched output value");
     }
 
     @Test(description = "Test nested foreach with fail")
     public void testNestedWhileStmtWithFail() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedWhileStmtWithFail");
+        Object[] returns = JvmRunUtil.invoke(program, "testNestedWhileStmtWithFail");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertTrue(returns[0] instanceof BString);
 
-        String actual = returns[0].stringValue();
+        String actual = returns[0].toString();
         String expected = "level3-> error caught at level 3, level2-> error caught at level 2, " +
                 "level1-> error caught at level 1.";
         Assert.assertEquals(actual, expected);
 
-        BValue[] result = BRunUtil.invoke(program, "testNestedForeachLoopBreak");
+        Object[] result = JvmRunUtil.invoke(program, "testNestedForeachLoopBreak");
         Assert.assertEquals(result.length, 1);
-        Assert.assertSame(result[0].getClass(), BString.class);
-        Assert.assertEquals(result[0].stringValue(), expected);
+        Assert.assertTrue(result[0] instanceof BString);
+        Assert.assertEquals(result[0].toString(), expected);
     }
 }
