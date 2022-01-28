@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -54,36 +53,36 @@ public class ForeachXMLTypedBindingPatternsTests {
 
     @Test
     public void testXmlWithRootWithSimpleVariableWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), expectedXml1);
+        Assert.assertEquals(returns[0].toString(), expectedXml1);
     }
 
     @Test
     public void testXmlWithRootWithSimpleVariableWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), expectedXml1);
+        Assert.assertEquals(returns[0].toString(), expectedXml1);
     }
 
     @Test
     public void testXmlInnerElementsWithSimpleVariableWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), expectedXml2);
+        Assert.assertEquals(returns[0].toString(), expectedXml2);
     }
 
     @Test
     public void testXmlInnerElementsWithSimpleVariableWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), expectedXml2);
+        Assert.assertEquals(returns[0].toString(), expectedXml2);
     }
 
     @Test
     public void testEmptyXmlIteration() {
-        BValue[] returns = BRunUtil.invoke(program, "testEmptyXmlIteration");
+        Object[] returns = JvmRunUtil.invoke(program, "testEmptyXmlIteration");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(returns[0].toString(), "");
     }
 }

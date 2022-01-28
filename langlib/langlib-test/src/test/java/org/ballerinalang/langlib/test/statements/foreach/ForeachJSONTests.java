@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,25 +43,25 @@ public class ForeachJSONTests {
     public void testJSONObject() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONObject");
+        Object[] returns = JvmRunUtil.invoke(program, "testJSONObject");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 
     @Test
     public void testJSONArray() {
         String result = "{\"subject\":\"maths\", \"marks\":75} {\"subject\":\"English\", \"marks\":85} ";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONArray");
+        Object[] returns = JvmRunUtil.invoke(program, "testJSONArray");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 
     @Test
     public void testArrayOfJSON() {
         String result = "0:{\"subject\":\"maths\", \"marks\":75} 1:{\"subject\":\"English\", \"marks\":85} ";
-        BValue[] returns = BRunUtil.invoke(program, "testArrayOfJSON");
+        Object[] returns = JvmRunUtil.invoke(program, "testArrayOfJSON");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -70,9 +69,9 @@ public class ForeachJSONTests {
     public void testJSONString() {
         String result = "{ballerina}ConversionError {\"message\":\"'string' value "
                 + "cannot be converted to 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONString");
+        Object[] returns = JvmRunUtil.invoke(program, "testJSONString");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 
     @Test(expectedExceptions =  BLangRuntimeException.class,
@@ -80,9 +79,9 @@ public class ForeachJSONTests {
     public void testJSONNumber() {
         String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot"
                 + " be converted to 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONNumber");
+        Object[] returns = JvmRunUtil.invoke(program, "testJSONNumber");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -90,9 +89,9 @@ public class ForeachJSONTests {
     public void testJSONBoolean() {
         String result = "{ballerina}ConversionError {\"message\":\"'boolean' value " 
                 + "cannot be converted to 'map<json>'\"}";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONBoolean");
+        Object[] returns = JvmRunUtil.invoke(program, "testJSONBoolean");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -100,32 +99,32 @@ public class ForeachJSONTests {
                     " not found in JSON mapping\"\\}\n" +
                     "\tat foreach-json:testJSONNull\\(foreach-json.bal:79\\)")
     public void testJSONNull() {
-        BRunUtil.invoke(program, "testJSONNull");
+        JvmRunUtil.invoke(program, "testJSONNull");
     }
 
     @Test(enabled = false)
     public void testJSONToStructCast() {
         String result = "a-h1 b-h2 ";
-        BValue[] returns = BRunUtil.invoke(program, "testJSONToStructCast");
+        Object[] returns = JvmRunUtil.invoke(program, "testJSONToStructCast");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 
     @Test()
     public void testAddWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
+        Object[] returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result + "\"smith\" ");
+        Assert.assertEquals(returns[0].toString(), result + "\"smith\" ");
     }
 
     @Test()
     public void testDeleteWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] \"bob\" 10 true ";
-        BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
+        Object[] returns = JvmRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), result);
+        Assert.assertEquals(returns[0].toString(), result);
     }
 }

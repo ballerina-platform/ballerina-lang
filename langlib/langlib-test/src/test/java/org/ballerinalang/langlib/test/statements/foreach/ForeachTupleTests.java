@@ -18,12 +18,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -47,16 +46,16 @@ public class ForeachTupleTests {
 
     @Test
     public void testTupleWithBasicTypes() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithBasicTypes");
+        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithBasicTypes");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("20stringtrue()15.520.2", returns[0].stringValue());
+        Assert.assertEquals("20stringtrue()15.520.2", returns[0].toString());
     }
 
     @Test
     public void testTupleWithBasicTypesAddingInt() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithBasicTypesAddingInt");
+        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithBasicTypesAddingInt");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
+        Assert.assertEquals(returns[0], 18L);
     }
 
     @Test
@@ -74,65 +73,66 @@ public class ForeachTupleTests {
                 sb.append(i).append(":").append(value).append(" ");
             }
         }
-        BValue[] returns = BRunUtil.invoke(program, "testIntTupleComplex");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), sum);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), negSum);
-        Assert.assertEquals(returns[2].stringValue(), sb.toString());
+        Object[] returns = JvmRunUtil.invoke(program, "testIntTupleComplex");
+        BArray result = (BArray) returns[0];
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertEquals(result.get(0), (long) sum);
+        Assert.assertEquals(result.get(1), (long) negSum);
+        Assert.assertEquals(result.get(2).toString(), sb.toString());
     }
 
     @Test
     public void testTupleWithTypeAny() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithTypeAny");
+        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithTypeAny");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Assert.assertEquals(returns[0], 8L);
     }
 
     @Test
     public void testTupleWithTypeAnydata() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithTypeAnydata");
+        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithTypeAnydata");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Assert.assertEquals(returns[0], 8L);
     }
 
     @Test
     public void testBreak() {
-        BValue[] returns = BRunUtil.invoke(program, "testBreak");
+        Object[] returns = JvmRunUtil.invoke(program, "testBreak");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 break");
+        Assert.assertEquals(returns[0].toString(), "0:d0 break");
     }
 
     @Test
     public void testContinue() {
-        BValue[] returns = BRunUtil.invoke(program, "testContinue");
+        Object[] returns = JvmRunUtil.invoke(program, "testContinue");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 continue 2:d2 ");
+        Assert.assertEquals(returns[0].toString(), "0:d0 continue 2:d2 ");
     }
 
     @Test
     public void testReturn() {
-        BValue[] returns = BRunUtil.invoke(program, "testReturn");
+        Object[] returns = JvmRunUtil.invoke(program, "testReturn");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 ");
+        Assert.assertEquals(returns[0].toString(), "0:d0 ");
     }
 
     @Test
     public void testNestedBreakContinue() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedWithBreakContinue");
+        Object[] returns = JvmRunUtil.invoke(program, "testNestedWithBreakContinue");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
+        Assert.assertEquals(returns[0].toString(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
     }
 
     @Test
     public void testTupleWithNullElements() {
-        BValue[] returns = BRunUtil.invoke(program, "testTupleWithNullElements");
+        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithNullElements");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
+        Assert.assertEquals(returns[0].toString(), "0:d0 1: 2:d2 3: ");
     }
 
     @Test(dataProvider = "dataToTestTupleWithRestDescriptorInForeach")
     public void testTupleWithRestDescriptorInForeach(String functionName) {
-        BRunUtil.invoke(program, functionName);
+        JvmRunUtil.invoke(program, functionName);
     }
 
     @DataProvider

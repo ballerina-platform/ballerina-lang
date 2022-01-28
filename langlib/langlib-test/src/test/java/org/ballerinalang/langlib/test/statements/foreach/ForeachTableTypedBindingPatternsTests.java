@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,18 +41,18 @@ public class ForeachTableTypedBindingPatternsTests {
 
     @Test
     public void testTableWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testTableWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testTableWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
+        Assert.assertEquals(returns[0].toString(),
                 "0:{\"id\":1,\"name\":\"Mary\",\"salary\":300.5} 1:{\"id\":2,\"name\":\"John\"," +
                         "\"salary\":200.5} 2:{\"id\":3,\"name\":\"Jim\",\"salary\":330.5} ");
     }
 
     @Test
     public void testTableWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "testTableWithType");
+        Object[] returns = JvmRunUtil.invoke(program, "testTableWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
+        Assert.assertEquals(returns[0].toString(),
                 "0:{\"id\":1,\"name\":\"Mary\",\"salary\":300.5} " +
                         "1:{\"id\":2,\"name\":\"John\",\"salary\":200.5} " +
                         "2:{\"id\":3,\"name\":\"Jim\",\"salary\":330.5} ");
@@ -62,21 +60,21 @@ public class ForeachTableTypedBindingPatternsTests {
 
     @Test
     public void testRecordInTableWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "testRecordInTableWithoutType");
+        Object[] returns = JvmRunUtil.invoke(program, "testRecordInTableWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 ");
+        Assert.assertEquals(returns[0].toString(), "0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 ");
     }
 
     @Test
     public void testEmptyTableIteration() {
-        BValue[] returns = BRunUtil.invoke(program, "testEmptyTableIteration");
+        Object[] returns = JvmRunUtil.invoke(program, "testEmptyTableIteration");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(returns[0].toString(), "");
     }
 
     @Test
     public void testIterationOverKeylessTable() {
-        BValue[] returns = BRunUtil.invoke(program, "testIterationOverKeylessTable");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object[] returns = JvmRunUtil.invoke(program, "testIterationOverKeylessTable");
+        Assert.assertTrue((Boolean) returns[0]);
     }
 }

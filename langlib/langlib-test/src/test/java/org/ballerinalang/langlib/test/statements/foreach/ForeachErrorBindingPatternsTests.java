@@ -18,11 +18,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,25 +44,27 @@ public class ForeachErrorBindingPatternsTests {
 
     @Test
     public void testArrayWithErrors() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayWithErrors");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object[] returns = JvmRunUtil.invoke(program, "testArrayWithErrors");
+        BArray result = (BArray) returns[0];
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertEquals(result.get(0).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[1].stringValue(),
+        Assert.assertEquals(result.get(1).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[2].stringValue(),
+        Assert.assertEquals(result.get(2).toString(),
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
     }
 
     @Test
     public void testMapWithErrors() {
-        BValue[] returns = BRunUtil.invoke(program, "testMapWithErrors");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object[] returns = JvmRunUtil.invoke(program, "testMapWithErrors");
+        BArray result = (BArray) returns[0];
+        Assert.assertEquals(result.size(), 3);
+        Assert.assertEquals(result.get(0).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[1].stringValue(),
+        Assert.assertEquals(result.get(1).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
-        Assert.assertEquals(returns[2].stringValue(),
+        Assert.assertEquals(result.get(2).toString(),
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
     }
 
