@@ -2490,20 +2490,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data.env, data));
     }
-
-    // TODO: delete this no usage
-    private boolean isCurrentPositionInWorker(SymbolEnv env) {
-        if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.WORKER)) {
-            return true;
-        }
-        if (env.enclEnv != null
-                && !(env.enclEnv.node.getKind() == NodeKind.PACKAGE
-                    || env.enclEnv.node.getKind() == NodeKind.OBJECT_TYPE)) {
-            return isCurrentPositionInWorker(env.enclEnv);
-        }
-        return false;
-    }
-
+    
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable, AnalyzerData data) {
 
