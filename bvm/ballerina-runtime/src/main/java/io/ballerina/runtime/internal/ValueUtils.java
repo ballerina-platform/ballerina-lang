@@ -75,11 +75,7 @@ public class ValueUtils {
                                                           Map<String, Object> valueMap) {
         BMap<BString, Object> record = createRecordValue(packageId, recordTypeName);
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
-            Object val = fieldEntry.getValue();
-            if (val instanceof String) {
-                val = StringUtils.fromString((String) val);
-            }
-            record.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
+            record.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), fieldEntry.getValue());
         }
 
         return record;
