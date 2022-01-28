@@ -342,7 +342,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.workerReferences.clear();
-        this.reachabilityAnalyzer.clearStacks();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
@@ -534,6 +533,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(funcNode.body, invokableEnv);
             this.defaultValueState = prevDefaultValueState;
         }
+        reachabilityAnalyzer.clearStacks();
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
         this.returnTypes.pop();
         this.returnWithinTransactionCheckStack.pop();
