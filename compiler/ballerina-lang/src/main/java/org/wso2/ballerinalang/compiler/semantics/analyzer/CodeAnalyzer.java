@@ -342,8 +342,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     // We need this `analyze`
     public BLangPackage analyze(BLangPackage pkgNode) {
-        this.workerReferences.clear();
-        this.dlog.setCurrentPackageId(pkgNode.packageID);
         final AnalyzerData data = new AnalyzerData();
         visitNode(pkgNode, data);
         return pkgNode;
@@ -351,6 +349,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangPackage pkgNode, AnalyzerData data) {
+        this.workerReferences.clear();
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
             return;
         }
