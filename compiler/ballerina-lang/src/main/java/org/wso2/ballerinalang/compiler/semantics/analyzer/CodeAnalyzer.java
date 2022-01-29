@@ -300,7 +300,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
-    private BLangNode parent;
     private final Names names;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
@@ -354,7 +353,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
             return;
         }
-        parent = pkgNode;
+        data.parent = pkgNode;
         data.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeTopLevelNodes(pkgNode, data);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visitNode(testablePackage, data));
@@ -367,7 +366,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             analyzeNodex((BLangNode) topLevelNode, data);
         }
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
-        parent = null;
     }
 
     // TODO: Change the method name
@@ -385,11 +383,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void analyzeNodeWithParent(BLangNode node, AnalyzerData data) {
-        BLangNode prevParent = parent;
+        BLangNode parent = data.parent;
         node.parent = parent;
-        parent = node;
+        data.parent = node;
         node.accept(this, data);
-        parent = prevParent;
+        data.parent = parent;
     }
 
     private void analyzeTypeNode(BLangType node, SymbolEnv env, AnalyzerData data) {
@@ -4020,55 +4018,57 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     // private methods
 
+    // TODO: Refactor these methods
     private <E extends BLangExpression> void analyzeExpr(E node, AnalyzerData data) {
         if (node == null) {
             return;
         }
-        BLangNode myParent = parent;
-        node.parent = parent;
-        parent = node;
+        BLangNode parent = data.parent;
+        node.parent = data.parent;
+        data.parent = node;
         node.accept(this, data);
-        parent = myParent;
+        data.parent = parent;
         checkAccess(node, data);
-        checkExpressionValidity(node);
+        checkExpressionValidity(node, data);
     }
 
+    // TODO: Refactor these methods
     private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env, AnalyzerData data) {
         if (node == null) {
             return;
         }
         SymbolEnv prevEnv = data.env;
         data.env = env;
-        BLangNode myParent = parent;
-        node.parent = parent;
-        parent = node;
+        BLangNode myParent = data.parent;
+        node.parent = data.parent;
+        data.parent = node;
         node.accept(this, data);
-        parent = myParent;
+        data.parent = myParent;
         checkAccess(node, data);
-        checkExpressionValidity(node);
+        checkExpressionValidity(node, data);
         data.env = prevEnv;
     }
 
-    private  <E extends BLangExpression> void checkExpressionValidity(E exprNode) {
+    private  <E extends BLangExpression> void checkExpressionValidity(E exprNode, AnalyzerData data) {
         if (exprNode.getKind() == NodeKind.GROUP_EXPR ||
                 !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprNode.getBType())) {
             return;
         }
-        if (!checkExpressionInValidParent(exprNode.parent)) {
+        if (!checkExpressionInValidParent(exprNode.parent, data)) {
             dlog.error(exprNode.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
         }
     }
 
-    private boolean checkExpressionInValidParent(BLangNode currentParent) {
+    private boolean checkExpressionInValidParent(BLangNode currentParent, AnalyzerData data) {
         if (currentParent == null) {
             return false;
         }
         if (currentParent.getKind() == NodeKind.GROUP_EXPR) {
-            return checkExpressionInValidParent(currentParent.parent);
+            return checkExpressionInValidParent(currentParent.parent, data);
         }
         return  currentParent.getKind() == NodeKind.EXPRESSION_STATEMENT ||
                 (currentParent.getKind() == NodeKind.VARIABLE &&
-                        ((BLangSimpleVariable) parent).typeNode.getBType().tag == TypeTags.FUTURE)
+                        ((BLangSimpleVariable) data.parent).typeNode.getBType().tag == TypeTags.FUTURE)
                 || currentParent.getKind() == NodeKind.TRAP_EXPR;
     }
 
@@ -4771,5 +4771,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
      */
     public static class AnalyzerData {
         SymbolEnv env;
+        BLangNode parent;
     }
 }
