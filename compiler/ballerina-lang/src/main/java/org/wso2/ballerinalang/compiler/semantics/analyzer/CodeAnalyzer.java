@@ -355,18 +355,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
         parent = pkgNode;
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         data.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        analyzeTopLevelNodes(pkgNode, pkgEnv, data);
+        analyzeTopLevelNodes(pkgNode, data);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visitNode(testablePackage, data));
     }
 
-    private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv, AnalyzerData data) {
+    private void analyzeTopLevelNodes(BLangPackage pkgNode, AnalyzerData data) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
         for (int i = 0; i < topLevelNodes.size(); i++) {
             TopLevelNode topLevelNode = topLevelNodes.get(i);
-            // TODO: Remove pkgEnv, then we can move change the method to `analyzeNode`
-            analyzeNodeWithEnv((BLangNode) topLevelNode, pkgEnv, data);
+            analyzeNodex((BLangNode) topLevelNode, data);
         }
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;
