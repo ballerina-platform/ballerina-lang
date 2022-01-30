@@ -284,7 +284,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
-    private boolean loopAlterNotAllowed;
     private int transactionCount;
     private boolean failureHandled;
     private boolean failVisited;
@@ -559,8 +558,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
         boolean prevWithinTxScope = withinTransactionScope;
-        boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
-        loopAlterNotAllowed = data.loopCount > 0;
+        boolean prevLoopAlterNotAllowed = data.loopAlterNotAllowed;
+        data.loopAlterNotAllowed = data.loopCount > 0;
         if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
@@ -573,7 +572,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             withinTransactionScope = prevWithinTxScope;
         }
-        loopAlterNotAllowed = prevLoopAlterNotAllowed;
+        data.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
 
     @Override
@@ -2344,7 +2343,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
-        if (loopAlterNotAllowed) {
+        if (data.loopAlterNotAllowed) {
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_NOT_ALLOWED);
         }
     }
@@ -2673,7 +2672,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
-        if (loopAlterNotAllowed) {
+        if (data.loopAlterNotAllowed) {
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_NOT_ALLOWED);
         }
     }
@@ -4755,16 +4754,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         FUNCTION_IN_DEFAULT_VALUE
     }
 
-    private static class PotentiallyInvalidAssignmentInfo {
-        List<Location> locations;
-        BLangInvokableNode enclInvokable;
-
-        private PotentiallyInvalidAssignmentInfo(List<Location> locations, BLangInvokableNode enclInvokable) {
-            this.locations = locations;
-            this.enclInvokable = enclInvokable;
-        }
-    }
-
     /**
      * @since 2.0.0
      */
@@ -4772,5 +4761,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         SymbolEnv env;
         BLangNode parent;
         int loopCount;
+        boolean loopAlterNotAllowed;
     }
 }
