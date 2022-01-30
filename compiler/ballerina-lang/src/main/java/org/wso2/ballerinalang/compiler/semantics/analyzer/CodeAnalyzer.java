@@ -288,7 +288,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean failureHandled;
     private boolean failVisited;
     private boolean withinLockBlock;
-    private boolean inMatchGuard;
     private final SymbolTable symTable;
     private final Types types;
     private final BLangDiagnosticLog dlog;
@@ -881,10 +880,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangMatchGuard matchGuard, AnalyzerData data) {
-        boolean prevInMatchGuard = this.inMatchGuard;
-        this.inMatchGuard = true;
         analyzeExpr(matchGuard.expr, data.env, data);
-        this.inMatchGuard = prevInMatchGuard;
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
