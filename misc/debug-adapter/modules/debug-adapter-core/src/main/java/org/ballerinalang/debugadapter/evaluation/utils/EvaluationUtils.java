@@ -30,6 +30,7 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -55,6 +56,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 
 /**
  * Debug expression evaluation utils.
@@ -463,20 +465,24 @@ public class EvaluationUtils {
     /**
      * Returns the fully-qualified generated java class name for the source file, which includes the given symbol.
      *
-     * @param context suspended context
-     * @param symbol  source symbol
+     * @param symbol source symbol
      * @return the fully-qualified generated java class name for the source file, which includes the given symbol
      */
-    public static String constructQualifiedClassName(SuspendedContext context, Symbol symbol) {
+    public static String constructQualifiedClassName(Symbol symbol) {
         String className = symbol.getLocation().orElseThrow().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
-        // for ballerina single source files,
-        // qualified class name ::= <file_name>
-        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
+        if (symbol.getModule().isEmpty()) {
             return className;
         }
+
+        ModuleID moduleMeta = symbol.getModule().get().id();
+        // for ballerina single source files, the package name will be "." and  package org will be "$anon". Therefore,
+        // qualified class name ::= <file_name>
+        if (moduleMeta.orgName().equals("$anon") || moduleMeta.orgName().equals(".")) {
+            return className;
+        }
+
         // for ballerina package source files,
         // qualified class name ::= <package_name>.<module_name>.<package_major_version>.<file_name>
-        ModuleID moduleMeta = symbol.getModule().orElseThrow().id();
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))
