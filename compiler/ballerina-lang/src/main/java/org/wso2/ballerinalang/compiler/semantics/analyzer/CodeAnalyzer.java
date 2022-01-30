@@ -284,7 +284,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
-    private int loopCount;
     private boolean loopAlterNotAllowed;
     private int transactionCount;
     private boolean failureHandled;
@@ -561,7 +560,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
         boolean prevWithinTxScope = withinTransactionScope;
         boolean prevLoopAlterNotAllowed = loopAlterNotAllowed;
-        loopAlterNotAllowed = loopCount > 0;
+        loopAlterNotAllowed = data.loopCount > 0;
         if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
@@ -2247,10 +2246,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!this.failureHandled) {
             this.failureHandled = foreach.onFailClause != null;
         }
-        this.loopCount++;
+        data.loopCount++;
         BLangBlockStmt body = foreach.body;
         analyzeNodeWithEnv(body, foreachEnv, data);
-        this.loopCount--;
+        data.loopCount--;
         this.failureHandled = failureHandled;
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection, data);
@@ -2269,10 +2268,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!this.failureHandled) {
             this.failureHandled = whileNode.onFailClause != null;
         }
-        this.loopCount++;
+        data.loopCount++;
         BLangBlockStmt body = whileNode.body;
         analyzeNodeWithEnv(body, whileEnv, data);
-        this.loopCount--;
+        data.loopCount--;
         this.failureHandled = failureHandled;
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr, data);
@@ -2337,7 +2336,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangContinue continueNode, AnalyzerData data) {
-        if (this.loopCount == 0) {
+        if (data.loopCount == 0) {
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
@@ -2666,7 +2665,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     public void visit(BLangBreak breakNode, AnalyzerData data) {
-        if (this.loopCount == 0) {
+        if (data.loopCount == 0) {
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
@@ -4772,5 +4771,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public static class AnalyzerData {
         SymbolEnv env;
         BLangNode parent;
+        int loopCount;
     }
 }
