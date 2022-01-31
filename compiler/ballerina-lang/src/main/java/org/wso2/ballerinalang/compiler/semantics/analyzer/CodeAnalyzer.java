@@ -284,7 +284,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
-    private boolean withinLockBlock;
     private final SymbolTable symTable;
     private final Types types;
     private final BLangDiagnosticLog dlog;
@@ -2316,10 +2315,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!data.failureHandled) {
             data.failureHandled = lockNode.onFailClause != null;
         }
-        boolean previousWithinLockBlock = this.withinLockBlock;
-        this.withinLockBlock = true;
+        boolean previousWithinLockBlock = data.withinLockBlock;
+        data.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNodex(e, data));
-        this.withinLockBlock = previousWithinLockBlock;
+        data.withinLockBlock = previousWithinLockBlock;
         data.failureHandled = failureHandled;
         lockNode.body.failureBreakMode = lockNode.onFailClause != null ?
                 BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
@@ -3220,7 +3219,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        if (actionInvocation.async && this.withinLockBlock) {
+        if (actionInvocation.async && data.withinLockBlock) {
             dlog.error(actionInvocation.pos, actionInvocation.functionPointerInvocation ?
                     DiagnosticErrorCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED :
                     DiagnosticErrorCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
@@ -4735,5 +4734,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         int transactionCount;
         boolean failureHandled;
         boolean failVisited;
+        boolean withinLockBlock;
     }
 }
