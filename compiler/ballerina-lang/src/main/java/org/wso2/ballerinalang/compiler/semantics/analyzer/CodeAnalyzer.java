@@ -284,7 +284,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
-    private boolean failVisited;
     private boolean withinLockBlock;
     private final SymbolTable symTable;
     private final Types types;
@@ -2291,7 +2290,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangFail failNode, AnalyzerData data) {
-        this.failVisited = true;
+        data.failVisited = true;
         analyzeExpr(failNode.expr, data);
         if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
@@ -3239,7 +3238,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-
         if (actionInvocation.async && this.withinLockBlock) {
             dlog.error(actionInvocation.pos, actionInvocation.functionPointerInvocation ?
                     DiagnosticErrorCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED :
@@ -3753,7 +3751,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
-        this.failVisited = true;
+        data.failVisited = true;
         analyzeExpr(checkedExpr.expr, data);
 
         if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
@@ -3926,8 +3924,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
-        boolean currentFailVisited = this.failVisited;
-        this.failVisited = false;
+        boolean currentFailVisited = data.failVisited;
+        data.failVisited = false;
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {
             if (!types.isAssignable(errorType, onFailVarNode.getBType())) {
@@ -3936,8 +3934,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         }
         analyzeNodex(onFailClause.body, data);
-        onFailClause.bodyContainsFail = this.failVisited;
-        this.failVisited = currentFailVisited;
+        onFailClause.bodyContainsFail = data.failVisited;
+        data.failVisited = currentFailVisited;
     }
 
     @Override
@@ -3993,6 +3991,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 Types.IntersectionContext.typeTestIntersectionExistenceContext(),
                 expressionType, testType, data.env);
 
+        // TODO: Simplify this
         if (intersectionType != symTable.semanticError) {
             return true;
         }
@@ -4760,5 +4759,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean inInternallyDefinedBlockStmt;
         int transactionCount;
         boolean failureHandled;
+        boolean failVisited;
     }
 }
