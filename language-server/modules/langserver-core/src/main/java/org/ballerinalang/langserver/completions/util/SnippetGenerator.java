@@ -1663,6 +1663,19 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Service Initializer Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getServiceInitFunctionSnippet() {
+        String snippet = "function init() {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.SERVICE_INITIALIZER_TYPE,
+                generateFilterText(Arrays.asList("init", ItemResolverConstants.FUNCTION)), snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get string keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

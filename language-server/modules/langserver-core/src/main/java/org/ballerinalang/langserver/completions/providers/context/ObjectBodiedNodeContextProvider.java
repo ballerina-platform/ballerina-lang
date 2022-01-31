@@ -16,10 +16,12 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -67,6 +69,9 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+            if (this.onSuggestInitFunction(node)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_INIT_FUNCTION.get()));
+            }
         } else if (this.isClientObject(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
@@ -91,5 +96,17 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
         return (node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                 && ((ObjectConstructorExpressionNode) node).objectTypeQualifiers().stream()
                 .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD));
+    }
+
+    public static boolean onSuggestInitFunction(Node node) {
+        if (node.kind() != SyntaxKind.SERVICE_DECLARATION) {
+            return false;
+        }
+
+        ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
+        return serviceDeclarationNode.members().stream()
+                .filter(member-> member.kind()== SyntaxKind.OBJECT_METHOD_DEFINITION)
+                .map(member->(FunctionDefinitionNode)member)
+                .noneMatch(funcDef -> "init".equals(funcDef.functionName().text()));
     }
 }
