@@ -284,7 +284,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
-    private int transactionCount;
     private boolean failureHandled;
     private boolean failVisited;
     private boolean withinLockBlock;
@@ -615,7 +614,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.loopWithinTransactionCheckStack.push(false);
         this.returnWithinTransactionCheckStack.push(false);
         this.doneWithinTransactionCheckStack.push(false);
-        this.transactionCount++;
+        data.transactionCount++;
         if (!this.failureHandled) {
             this.failureHandled = transactionNode.onFailClause != null;
         }
@@ -625,7 +624,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(transactionNode.pos, DiagnosticErrorCode.INVALID_COMMIT_COUNT);
         }
 
-        this.transactionCount--;
+        data.transactionCount--;
         this.withinTransactionScope = previousWithinTxScope;
         this.commitCount = previousCommitCount;
         this.rollbackCount = previousRollbackCount;
@@ -651,7 +650,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangCommitExpr commitExpr, AnalyzerData data) {
         this.commitCount++;
         this.commitCountWithinBlock++;
-        if (this.transactionCount == 0) {
+        if (data.transactionCount == 0) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
@@ -671,7 +670,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangRollback rollbackNode, AnalyzerData data) {
         rollbackCount++;
         this.rollbackCountWithinBlock++;
-        if (this.transactionCount == 0 && !withinTransactionScope) {
+        if (data.transactionCount == 0 && !withinTransactionScope) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
@@ -763,7 +762,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangReturn returnStmt, AnalyzerData data) {
-        if (checkReturnValidityInTransaction()) {
+        if (checkReturnValidityInTransaction(data)) {
             this.dlog.error(returnStmt.pos, DiagnosticErrorCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
@@ -2334,7 +2333,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
-        if (checkNextBreakValidityInTransaction()) {
+        if (checkNextBreakValidityInTransaction(data)) {
             this.dlog.error(continueNode.pos, DiagnosticErrorCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
@@ -2663,7 +2662,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
-        if (checkNextBreakValidityInTransaction()) {
+        if (checkNextBreakValidityInTransaction(data)) {
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
@@ -4411,13 +4410,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private boolean checkNextBreakValidityInTransaction() {
-        return !this.loopWithinTransactionCheckStack.peek() && transactionCount > 0 && withinTransactionScope;
+    private boolean checkNextBreakValidityInTransaction(AnalyzerData data) {
+        return !this.loopWithinTransactionCheckStack.peek() && data.transactionCount > 0 && withinTransactionScope;
     }
 
-    private boolean checkReturnValidityInTransaction() {
+    private boolean checkReturnValidityInTransaction(AnalyzerData data) {
         return (this.returnWithinTransactionCheckStack.empty() || !this.returnWithinTransactionCheckStack.peek())
-                && transactionCount > 0 && withinTransactionScope;
+                && data.transactionCount > 0 && withinTransactionScope;
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -4758,5 +4757,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         int loopCount;
         boolean loopAlterNotAllowed;
         boolean inInternallyDefinedBlockStmt;
+        int transactionCount;
     }
 }
