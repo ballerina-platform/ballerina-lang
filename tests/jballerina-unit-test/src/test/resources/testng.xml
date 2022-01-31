@@ -21,13 +21,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-new-parser-test-suite" time-out="120000">
-    <test name="jballerina-test-parallel" parallel="true">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <packages>
-            <package name="org.ballerinalang.test.statements.matchstmt.*"/>
-        </packages>
-    </test>
-
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
@@ -111,6 +104,7 @@
             <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
             <package name="org.ballerinalang.test.statements.fail.*"/>
             <package name="org.ballerinalang.test.statements.ifelse.*"/>
+            <package name="org.ballerinalang.test.statements.matchstmt.*"/>
             <package name="org.ballerinalang.test.statements.onfail.*"/>
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
             <package name="org.ballerinalang.test.statements.retrystmt.*"/>
