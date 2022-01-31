@@ -3973,16 +3973,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 Types.IntersectionContext.typeTestIntersectionExistenceContext(),
                 expressionType, testType, data.env);
 
-        // TODO: Simplify this
-        if (intersectionType != symTable.semanticError) {
-            return true;
-        }
-
-        // any and readonly has a intersection
-        if (expressionType.tag == TypeTags.ANY && testType.tag == TypeTags.READONLY) {
-            return true;
-        }
-        return false;
+        // any and readonly has an intersection
+        return (intersectionType != symTable.semanticError) ||
+                (expressionType.tag == TypeTags.ANY && testType.tag == TypeTags.READONLY);
     }
 
     @Override
