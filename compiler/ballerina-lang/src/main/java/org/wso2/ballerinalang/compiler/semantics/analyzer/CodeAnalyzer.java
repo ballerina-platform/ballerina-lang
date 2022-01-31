@@ -296,7 +296,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Names names;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
-    private final boolean enableExperimentalFeatures;
     private boolean withinTransactionScope;
     private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
@@ -325,8 +324,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.reachabilityAnalyzer = ReachabilityAnalyzer.getInstance(context);
-        this.enableExperimentalFeatures = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
     }
 
     // We need this `analyze`
@@ -4560,15 +4557,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 }
             }
         }
-    }
-
-    private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, Location pos) {
-
-        if (enableExperimentalFeatures) {
-            return;
-        }
-
-        dlog.error(pos, DiagnosticErrorCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName.value);
     }
 
     public static String generateChannelName(String source, String target) {
