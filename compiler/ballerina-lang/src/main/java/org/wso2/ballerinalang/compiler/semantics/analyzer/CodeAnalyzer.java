@@ -302,7 +302,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
-    private int workerSystemMovementSequence;
     private final ReachabilityAnalyzer reachabilityAnalyzer;
 
     private DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
@@ -480,7 +479,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.visitFunction(funcNode, data);
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
-            this.finalizeCurrentWorkerActionSystem();
+            this.finalizeCurrentWorkerActionSystem(data);
         }
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNodex(annotationAttachment, data));
 
@@ -3564,7 +3563,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 this.visitFunction(bLangLambdaFunction.function, data);
                 this.workerActionSystemStack.peek().endWorkerActionStateMachine();
             } finally {
-                this.finalizeCurrentWorkerActionSystem();
+                this.finalizeCurrentWorkerActionSystem(data);
             }
         }
 
@@ -4081,10 +4080,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.workerActionSystemStack.push(new WorkerActionSystem());
     }
 
-    private void finalizeCurrentWorkerActionSystem() {
+    private void finalizeCurrentWorkerActionSystem(AnalyzerData data) {
         WorkerActionSystem was = this.workerActionSystemStack.pop();
         if (!was.hasErrors) {
-            this.validateWorkerInteractions(was);
+            this.validateWorkerInteractions(was, data);
         }
     }
 
@@ -4110,16 +4109,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private void validateWorkerInteractions(WorkerActionSystem workerActionSystem) {
+    private void validateWorkerInteractions(WorkerActionSystem workerActionSystem, AnalyzerData data) {
         if (!validateWorkerInteractionsAfterWaitAction(workerActionSystem)) {
             return;
         }
 
         BLangNode currentAction;
         boolean systemRunning;
-        this.workerSystemMovementSequence = 0;
+        data.workerSystemMovementSequence = 0;
         int systemIterationCount = 0;
-        int prevWorkerSystemMovementSequence = this.workerSystemMovementSequence;
+        int prevWorkerSystemMovementSequence = data.workerSystemMovementSequence;
         do {
             systemRunning = false;
             systemIterationCount++;
@@ -4130,7 +4129,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 currentAction = worker.currentAction();
 
                 if (isWaitAction(currentAction)) {
-                    handleWaitAction(workerActionSystem, currentAction, worker);
+                    handleWaitAction(workerActionSystem, currentAction, worker, data);
                     systemRunning = true;
                     continue;
                 }
@@ -4156,9 +4155,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
                 }
                 otherSM.next();
-                this.workerSystemMovementSequence++;
+                data.workerSystemMovementSequence++;
                 worker.next();
-                this.workerSystemMovementSequence++;
+                data.workerSystemMovementSequence++;
 
 
                 systemRunning = true;
@@ -4172,10 +4171,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             // this means we are in a deadlock.
             if (systemIterationCount > workerActionSystem.finshedWorkers.size()) {
                 systemIterationCount = 0;
-                if (prevWorkerSystemMovementSequence == this.workerSystemMovementSequence) {
+                if (prevWorkerSystemMovementSequence == data.workerSystemMovementSequence) {
                     systemRunning = false;
                 }
-                prevWorkerSystemMovementSequence = this.workerSystemMovementSequence;
+                prevWorkerSystemMovementSequence = data.workerSystemMovementSequence;
             }
         } while (systemRunning);
 
@@ -4230,7 +4229,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void handleWaitAction(WorkerActionSystem workerActionSystem, BLangNode currentAction,
-                                  WorkerActionStateMachine worker) {
+                                  WorkerActionStateMachine worker, AnalyzerData data) {
         if (currentAction instanceof BLangWaitForAllExpr) {
             boolean allWorkersAreDone = true;
             BLangWaitForAllExpr waitForAllExpr = (BLangWaitForAllExpr) currentAction;
@@ -4246,7 +4245,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             if (allWorkersAreDone) {
                 worker.next();
-                this.workerSystemMovementSequence++;
+                data.workerSystemMovementSequence++;
             }
         } else {
             BLangWaitExpr wait = (BLangWaitExpr) currentAction;
@@ -4255,14 +4254,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if (workerNameList.isEmpty()) {
                 // No workers found, there must be only future references in the waiting list, we can move to next state
                 worker.next();
-                this.workerSystemMovementSequence++;
+                data.workerSystemMovementSequence++;
             }
             for (String workerName : workerNameList) {
                 // If any worker in wait is done, we can continue.
                 var otherSM = workerActionSystem.find(workerName);
                 if (otherSM.done()) {
                     worker.next();
-                    this.workerSystemMovementSequence++;
+                    data.workerSystemMovementSequence++;
                     break;
                 }
             }
@@ -4723,5 +4722,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean withinLockBlock;
         int commitCount;
         int rollbackCount;
+        int workerSystemMovementSequence;
     }
 }
