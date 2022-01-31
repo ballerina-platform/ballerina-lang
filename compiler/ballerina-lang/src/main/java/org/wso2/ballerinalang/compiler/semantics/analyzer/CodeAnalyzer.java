@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -241,7 +240,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
@@ -296,7 +294,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Names names;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
-    private boolean withinTransactionScope;
     private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
@@ -544,11 +541,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
-        boolean prevWithinTxScope = withinTransactionScope;
+        boolean prevWithinTxScope = data.withinTransactionScope;
         boolean prevLoopAlterNotAllowed = data.loopAlterNotAllowed;
         data.loopAlterNotAllowed = data.loopCount > 0;
-        if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
-            withinTransactionScope = transactionalFuncCheckStack.peek();
+        if (!transactionalFuncCheckStack.empty() && !prevWithinTxScope) {
+            data.withinTransactionScope = transactionalFuncCheckStack.peek();
         }
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
         for (BLangStatement e : body.stmts) {
@@ -557,7 +554,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         data.inInternallyDefinedBlockStmt = false;
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
-            withinTransactionScope = prevWithinTxScope;
+            data.withinTransactionScope = prevWithinTxScope;
         }
         data.loopAlterNotAllowed = prevLoopAlterNotAllowed;
     }
@@ -590,7 +587,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         this.errorTypes.push(new LinkedHashSet<>());
 
-        boolean previousWithinTxScope = this.withinTransactionScope;
+        boolean previousWithinTxScope = data.withinTransactionScope;
         int previousCommitCount = data.commitCount;
         int previousRollbackCount = data.rollbackCount;
         boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
@@ -598,7 +595,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.commitCount = 0;
         data.rollbackCount = 0;
 
-        this.withinTransactionScope = true;
+        data.withinTransactionScope = true;
 
         this.loopWithinTransactionCheckStack.push(false);
         this.returnWithinTransactionCheckStack.push(false);
@@ -615,7 +612,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         data.transactionCount--;
-        this.withinTransactionScope = previousWithinTxScope;
+        data.withinTransactionScope = previousWithinTxScope;
         data.commitCount = previousCommitCount;
         data.rollbackCount = previousRollbackCount;
         this.commitRollbackAllowed = prevCommitRollbackAllowed;
@@ -648,19 +645,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope || !commitRollbackAllowed ||
+        if (!data.withinTransactionScope || !commitRollbackAllowed ||
                 (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
         }
-        withinTransactionScope = false;
+        data.withinTransactionScope = false;
     }
 
     @Override
     public void visit(BLangRollback rollbackNode, AnalyzerData data) {
         data.rollbackCount++;
         this.rollbackCountWithinBlock++;
-        if (data.transactionCount == 0 && !withinTransactionScope) {
+        if (data.transactionCount == 0 && !data.withinTransactionScope) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
@@ -668,12 +665,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!withinTransactionScope || !commitRollbackAllowed ||
+        if (!data.withinTransactionScope || !commitRollbackAllowed ||
                 (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
         }
-        this.withinTransactionScope = false;
+        data.withinTransactionScope = false;
         analyzeExpr(rollbackNode.expr, data);
     }
 
@@ -767,26 +764,26 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         int prevCommitCount = data.commitCount;
         int prevRollbackCount = data.rollbackCount;
         BLangStatement elseStmt = ifStmt.elseStmt;
-        if (withinTransactionScope && elseStmt != null && elseStmt.getKind() != NodeKind.IF) {
+        if (data.withinTransactionScope && elseStmt != null && elseStmt.getKind() != NodeKind.IF) {
                 independentBlocks = true;
                 commitRollbackAllowed = true;
         }
-        boolean prevTxMode = this.withinTransactionScope;
+        boolean prevTxMode = data.withinTransactionScope;
         if ((ifStmt.expr.getKind() == NodeKind.GROUP_EXPR ?
                 ((BLangGroupExpr) ifStmt.expr).expression.getKind() :
                 ifStmt.expr.getKind()) == NodeKind.TRANSACTIONAL_EXPRESSION) {
-            this.withinTransactionScope = true;
+            data.withinTransactionScope = true;
         }
         BLangBlockStmt body = ifStmt.body;
         analyzeNodex(body, data);
 
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
-            this.withinTransactionScope = prevTxMode;
+            data.withinTransactionScope = prevTxMode;
         }
         if (elseStmt != null) {
             if (independentBlocks) {
                 commitRollbackAllowed = true;
-                withinTransactionScope = true;
+                data.withinTransactionScope = true;
             }
             analyzeNodex(elseStmt, data);
             if ((prevCommitCount != data.commitCount) || prevRollbackCount != data.rollbackCount) {
@@ -3164,7 +3161,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
-            if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !withinTransactionScope) {
+            if (Symbols.isFlagOn(funcSymbol.flags, Flags.TRANSACTIONAL) && !data.withinTransactionScope) {
                 dlog.error(invocationExpr.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
                 return;
             }
@@ -3185,14 +3182,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation, AnalyzerData data) {
         validateInvocationInMatchGuard(actionInvocation);
 
-        if (!actionInvocation.async && !this.withinTransactionScope &&
+        if (!actionInvocation.async && !data.withinTransactionScope &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED,
                        actionInvocation.symbol);
             return;
         }
 
-        if (actionInvocation.async && this.withinTransactionScope &&
+        if (actionInvocation.async && data.withinTransactionScope &&
                 !Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);
             return;
@@ -3207,7 +3204,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
         }
 
-        if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !withinTransactionScope) {
+        if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !data.withinTransactionScope) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
             return;
         }
@@ -3228,7 +3225,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
 
-        if (!actionInvocation.async && this.withinTransactionScope) {
+        if (!actionInvocation.async && data.withinTransactionScope) {
             actionInvocation.invokedInsideTransaction = true;
         }
     }
@@ -3534,7 +3531,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean isWorker = false;
 
         if (bLangLambdaFunction.function.flagSet.contains(Flag.TRANSACTIONAL) &&
-                bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !withinTransactionScope) {
+                bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !data.withinTransactionScope) {
             dlog.error(bLangLambdaFunction.pos, DiagnosticErrorCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
                     bLangLambdaFunction);
             return;
@@ -4378,12 +4375,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean checkNextBreakValidityInTransaction(AnalyzerData data) {
-        return !this.loopWithinTransactionCheckStack.peek() && data.transactionCount > 0 && withinTransactionScope;
+        return !this.loopWithinTransactionCheckStack.peek() && data.transactionCount > 0 && data.withinTransactionScope;
     }
 
     private boolean checkReturnValidityInTransaction(AnalyzerData data) {
         return (this.returnWithinTransactionCheckStack.empty() || !this.returnWithinTransactionCheckStack.peek())
-                && data.transactionCount > 0 && withinTransactionScope;
+                && data.transactionCount > 0 && data.withinTransactionScope;
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -4723,5 +4720,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         int rollbackCount;
         int workerSystemMovementSequence;
         boolean queryToTableWithKey;
+        boolean withinTransactionScope;
     }
 }
