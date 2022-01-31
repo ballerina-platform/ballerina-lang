@@ -149,7 +149,7 @@ function testMapAssignment() {
     map<ClosedFoo> mcr = {};
     ad = mcr;
 
-    map<table<map<any>>> mt = {};
+    map<table<map<anydata>>> mt = {};
     ad = mt;
 
     map<map<anydata>> mmad = {};
@@ -554,10 +554,10 @@ function testAnydataToMap() {
         convertedMCfoo = ad;
     }
 
-    map<table<map<any>>> mt = {};
+    map<table<map<anydata>>> mt = {};
     ad = mt;
     map<table<map<any>>> convertedMt;
-    if (ad is map<table<map<any>>>) {
+    if (ad is map<table<map<anydata>>>) {
         convertedMt = ad;
     }
 
