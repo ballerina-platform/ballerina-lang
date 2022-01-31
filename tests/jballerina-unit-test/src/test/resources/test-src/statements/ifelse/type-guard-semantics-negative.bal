@@ -357,7 +357,7 @@ function testErrorDestructuringAssignmentTypeResetting() {
 }
 
 type Detail record {
-    string message?;
+    string message;
     error cause?;
     int? code;
 };

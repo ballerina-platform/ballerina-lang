@@ -61,7 +61,6 @@ dependencies {
     dist "commons-pool.wso2:commons-pool:${project.wso2CommonsPoolVersion}"
     dist "org.wso2.carbon.messaging:org.wso2.carbon.messaging:${project.wso2CarbonMessagingVersion}"
     dist "org.wso2.carbon.metrics:org.wso2.carbon.metrics.core:${project.wso2CarbonMetricsVersion}"
-    dist "com.google.protobuf:protobuf-java:${project.protobufJavaVersion}"
     dist "com.sun.mail:javax.mail:${project.javaxMailVersion}"
     dist "org.yaml:snakeyaml:${project.snakeyamlVersion}"
     dist "org.wso2.staxon:staxon-core:${project.wso2StaxonCoreVersion}"
@@ -80,9 +79,7 @@ dependencies {
 
     dist project(':ballerina-core')
     dist project(':ballerina-lang')
-    dist project(':ballerina-observability')
     dist project(':ballerina-cli')
-    dist project(':ballerina-observability-internal')
     dist project(':ballerina-io-internal')
 //    dist project(':ballerina-transactions')
     dist project(':ballerina-lang:jballerina.java')

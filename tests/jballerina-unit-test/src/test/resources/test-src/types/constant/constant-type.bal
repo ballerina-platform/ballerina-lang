@@ -91,6 +91,8 @@ const map<int> CMI5 = {a};
 const map<()> CN1 = {a : ()};
 const map<map<()>> CN2 = {CN1};
 
+const map<int> empty = {};
+
 type TYPE7 readonly & record {|
     readonly & record {|
         readonly & record {|
@@ -161,6 +163,8 @@ type TYPE14 readonly & record {|
     |} e;
 |};
 
+type TYPE15 readonly & record {||};
+
 function testTypesOfConstantMaps() {
     TYPE7 t7 = CMI4;
     TYPE8 t8 = CMF1;
@@ -170,6 +174,7 @@ function testTypesOfConstantMaps() {
     TYPE12 t12 = CMS1;
     TYPE13 t13 = CN2;
     TYPE14 t14 = CMS34_CLONE;
+    TYPE15 t15 = empty;
 
     assertEqual(CMI4 is TYPE7, true);
     assertEqual(CMF1 is TYPE8, true);
@@ -177,6 +182,7 @@ function testTypesOfConstantMaps() {
     // assertEqual(CMBT is TYPE10, true); // Uncomment after fixing #33889
     assertEqual(CMB1 is TYPE11, true);
     assertEqual(CMS1 is TYPE12, true);
+    assertEqual(empty is TYPE15, true);
 
     assertEqual(t7, {a : {b : {a : 1}}, b : {a : {a : 1}, CMI2 : {b : 2, c : 3}, c : {d : 1}}});
     assertEqual(t8, {a : 0.11, b : 2.12});
@@ -186,6 +192,7 @@ function testTypesOfConstantMaps() {
     assertEqual(t12, {a : "C", b : "S"});
     assertEqual(t13, {CN1 : {a : ()}});
     assertEqual(t14, {a : {e : "C", f : "S"}, b : {g : "C", h : "S"}, d : {i : "C", j : "S"}, e : {k : "C", l : "S"}});
+    assertEqual(t15, {});
 }
 
 function assertEqual(anydata expected, anydata actual) {

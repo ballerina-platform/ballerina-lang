@@ -22,6 +22,8 @@ type Module record {|
     map<StringDefn> stringDefns = {};
 |};
 
+type FooFunctionDecl tr:FunctionDecl;
+
 type Object1 object {
     public int a;
     *tr:Object2;
@@ -31,6 +33,15 @@ function testFn() {
     Module m = {stringDefns: {a: new (1234)}};
     assertEquality(1, m.stringDefns.length());
     assertEquality(1234, m.stringDefns.get("a").i);
+
+    tr:FooFunction fn1 = new ("llvmFunction1");
+    assertEquality("llvmFunction1", fn1.getFuncName());
+
+    tr:FunctionDecl fn2 = new ("llvmFunction2");
+    assertEquality("llvmFunction2", fn2.getFuncName());
+
+    FooFunctionDecl fn3 = new ("llvmFunction3");
+    assertEquality("llvmFunction3", fn3.getFuncName());
 
     Object1 obj = object {
         public int a = 1;

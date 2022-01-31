@@ -432,7 +432,15 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)",
+      "label": "testOptional",
+      "kind": "Field",
+      "detail": "int?",
+      "sortText": "CA",
+      "insertText": "testOptional",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'map(function () func)",
       "kind": "Function",
       "detail": "map<map:Type1>",
       "documentation": {
@@ -442,21 +450,13 @@
         }
       },
       "sortText": "CD",
-      "filterText": "map",
-      "insertText": "map(${1})",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "testOptional",
-      "kind": "Field",
-      "detail": "int?",
-      "sortText": "CA",
-      "insertText": "testOptional",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

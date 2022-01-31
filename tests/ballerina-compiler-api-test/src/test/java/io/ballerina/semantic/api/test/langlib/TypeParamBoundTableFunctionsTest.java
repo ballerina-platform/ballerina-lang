@@ -109,7 +109,7 @@ public class TypeParamBoundTableFunctionsTest {
 
     @Test
     public void testMap() {
-        FunctionTypeSymbol mapFnType = assertFnNameAndGetParams("map");
+        FunctionTypeSymbol mapFnType = assertFnNameAndGetParams("'map");
         List<ParameterSymbol> params = mapFnType.params().get();
 
         assertEquals(params.size(), 2);

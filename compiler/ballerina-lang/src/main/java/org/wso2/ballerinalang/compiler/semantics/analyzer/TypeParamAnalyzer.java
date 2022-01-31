@@ -313,8 +313,8 @@ public class TypeParamAnalyzer {
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
             case TypeTags.XML:
-                if (!TypeTags.isXMLTypeTag(types.getReferredType(actualType).tag)) {
-                    if (types.getReferredType(actualType).tag == TypeTags.UNION) {
+                if (!TypeTags.isXMLTypeTag(Types.getReferredType(actualType).tag)) {
+                    if (Types.getReferredType(actualType).tag == TypeTags.UNION) {
                         dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
                     }
                     return;
@@ -443,7 +443,7 @@ public class TypeParamAnalyzer {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                visitType(loc, types.getReferredType(expType), actualType, env, resolvedTypes,
+                visitType(loc, Types.getReferredType(expType), actualType, env, resolvedTypes,
                         result, checkContravariance);
                 break;
         }
@@ -452,7 +452,7 @@ public class TypeParamAnalyzer {
                     result, checkContravariance);
         }
         if (actualType.tag == TypeTags.TYPEREFDESC) {
-            visitType(loc, expType, types.getReferredType(actualType), env, resolvedTypes,
+            visitType(loc, expType, Types.getReferredType(actualType), env, resolvedTypes,
                     result, checkContravariance);
         }
     }
@@ -669,7 +669,7 @@ public class TypeParamAnalyzer {
             BUnionType errorUnion = (BUnionType) actualType;
             LinkedHashSet<BType> errorDetailTypes = new LinkedHashSet<>();
             for (BType errorType : errorUnion.getMemberTypes()) {
-                BType member = types.getReferredType(errorType);
+                BType member = Types.getReferredType(errorType);
                 errorDetailTypes.add(((BErrorType) member).detailType);
             }
             BUnionType errorDetailUnionType = BUnionType.create(null, errorDetailTypes);
@@ -769,7 +769,7 @@ public class TypeParamAnalyzer {
             case TypeTags.INTERSECTION:
                 return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
             case TypeTags.TYPEREFDESC:
-                return getMatchingBoundType(types.getReferredType(expType), env, resolvedTypes);
+                return getMatchingBoundType(Types.getReferredType(expType), env, resolvedTypes);
             default:
                 return expType;
         }
@@ -780,7 +780,7 @@ public class TypeParamAnalyzer {
             return false;
         }
 
-        return types.getReferredType(expType) != types.getReferredType(boundType);
+        return Types.getReferredType(expType) != Types.getReferredType(boundType);
     }
 
     private BType getMatchingReadonlyIntersectionBoundType(BIntersectionType intersectionType, SymbolEnv env,

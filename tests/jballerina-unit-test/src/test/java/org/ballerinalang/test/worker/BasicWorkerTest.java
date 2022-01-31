@@ -109,6 +109,19 @@ public class BasicWorkerTest {
         };
     }
 
+    @Test(dataProvider = "basicWorkerFunctions")
+    public void testBasicWorkerTests(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "basicWorkerFunctions")
+    public Object[] basicWorkerFunctions() {
+        return new Object[]{
+                "basicWorkerTest1",
+                "basicWorkerTest2"
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
