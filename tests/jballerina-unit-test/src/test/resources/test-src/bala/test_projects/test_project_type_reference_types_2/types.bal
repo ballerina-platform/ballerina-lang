@@ -21,3 +21,12 @@ public readonly class ConstPointerValue {
         self.i = i;
     }
 }
+
+public type Object2 object {
+    public int b;
+    *Object3;
+};
+
+public type Object3 object {
+    public int c;
+};

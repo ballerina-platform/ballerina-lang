@@ -22,10 +22,24 @@ type Module record {|
     map<StringDefn> stringDefns = {};
 |};
 
+type Object1 object {
+    public int a;
+    *tr:Object2;
+};
+
 function testFn() {
     Module m = {stringDefns: {a: new (1234)}};
     assertEquality(1, m.stringDefns.length());
     assertEquality(1234, m.stringDefns.get("a").i);
+
+    Object1 obj = object {
+        public int a = 1;
+        public int b = 2;
+        public int c = 3;
+    };
+    assertEquality(1, obj.a);
+    assertEquality(2, obj.b);
+    assertEquality(3, obj.c);
 }
 
 function assertEquality(anydata expected, anydata actual) {
