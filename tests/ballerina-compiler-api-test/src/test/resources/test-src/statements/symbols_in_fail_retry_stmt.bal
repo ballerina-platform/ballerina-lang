@@ -63,3 +63,12 @@ class RetryMgr {
         return true;
     }
 }
+
+function testWhileOnFail(){
+    int iter = 0;
+    while (iter < 3) {
+
+    } on fail error ee { 
+
+    }
+}

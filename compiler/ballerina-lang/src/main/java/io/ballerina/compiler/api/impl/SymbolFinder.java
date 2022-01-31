@@ -722,6 +722,7 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangWhile whileNode) {
         lookupNode(whileNode.expr);
         lookupNode(whileNode.body);
+        lookupNode(whileNode.onFailClause);
     }
 
     @Override

@@ -53,6 +53,10 @@ public class FindRefsInFailTrtryStmtTest extends FindAllReferencesTest {
                                 location(45, 13, 18),
                                 location(52, 9, 14))
                 },
+                {70, 21, location(70, 20, 22),
+                        List.of(location(70, 20, 22),
+                                location(71, 20, 22))
+                }
         };
     }
 
