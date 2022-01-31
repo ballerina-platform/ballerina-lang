@@ -2515,25 +2515,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         analyzeExpr(bLangErrorVariable.expr, data);
     }
-
-    // TODO: remove this, no usage
-    private BType getNilableType(BType type) {
-        if (type.isNullable()) {
-            return type;
-        }
-
-        BUnionType unionType = BUnionType.create(null);
-
-        if (type.tag == TypeTags.UNION) {
-            LinkedHashSet<BType> memTypes = new LinkedHashSet<>(((BUnionType) type).getMemberTypes());
-            unionType.addAll(memTypes);
-        }
-
-        unionType.add(type);
-        unionType.add(symTable.nilType);
-        return unionType;
-    }
-
+    
     public void visit(BLangIdentifier identifierNode, AnalyzerData data) {
         /* ignore */
     }
