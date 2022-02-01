@@ -338,7 +338,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     // TODO: Change the method name
-    public void analyzeNodex(BLangNode node, AnalyzerData data) {
+    private void analyzeNodex(BLangNode node, AnalyzerData data) {
         SymbolEnv prevEnv = data.env;
         analyzeNodeWithParent(node, data);
         data.env = prevEnv;
@@ -359,12 +359,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.parent = parent;
     }
 
-    private void analyzeTypeNode(BLangType node, SymbolEnv env, AnalyzerData data) {
+    private void analyzeTypeNode(BLangType node, AnalyzerData data) {
 
         if (node == null) {
             return;
         }
-        analyzeNodeWithEnv(node, env, data);
+        analyzeNodex(node, data);
     }
 
     @Override
@@ -374,7 +374,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangTypeDefinition typeDefinition, AnalyzerData data) {
 
-        analyzeTypeNode(typeDefinition.typeNode, data.env, data);
+        analyzeTypeNode(typeDefinition.typeNode, data);
         typeDefinition.annAttachments.forEach(annotationAttachment -> analyzeNodex(annotationAttachment, data));
     }
 
@@ -2438,7 +2438,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangSimpleVariable varNode, AnalyzerData data) {
 
-        analyzeTypeNode(varNode.typeNode, data.env, data);
+        analyzeTypeNode(varNode.typeNode, data);
 
         analyzeExpr(varNode.expr, data);
 
@@ -3608,7 +3608,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangArrayType arrayType, AnalyzerData data) {
 
-        analyzeTypeNode(arrayType.elemtype, data.env, data);
+        analyzeTypeNode(arrayType.elemtype, data);
     }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType, AnalyzerData data) {
@@ -3617,21 +3617,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangConstrainedType constrainedType, AnalyzerData data) {
 
-        analyzeTypeNode(constrainedType.constraint, data.env, data);
+        analyzeTypeNode(constrainedType.constraint, data);
     }
 
     public void visit(BLangStreamType streamType, AnalyzerData data) {
 
-        analyzeTypeNode(streamType.constraint, data.env, data);
-        analyzeTypeNode(streamType.error, data.env, data);
+        analyzeTypeNode(streamType.constraint, data);
+        analyzeTypeNode(streamType.error, data);
     }
 
     public void visit(BLangTableTypeNode tableType, AnalyzerData data) {
 
-        analyzeTypeNode(tableType.constraint, data.env, data);
+        analyzeTypeNode(tableType.constraint, data);
 
         if (tableType.tableKeyTypeConstraint != null) {
-            analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, data.env, data);
+            analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, data);
         }
     }
 
@@ -3649,7 +3649,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         }
 
-        analyzeTypeNode(errorType.detailType, data.env, data);
+        analyzeTypeNode(errorType.detailType, data);
     }
 
     public void visit(BLangUserDefinedType userDefinedType, AnalyzerData data) {
@@ -3661,19 +3661,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
 
-        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data.env, data));
-        analyzeTypeNode(tupleTypeNode.restParamType, data.env, data);
+        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data));
+        analyzeTypeNode(tupleTypeNode.restParamType, data);
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode, AnalyzerData data) {
 
-        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data.env, data));
+        unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data));
     }
 
     public void visit(BLangIntersectionTypeNode intersectionTypeNode, AnalyzerData data) {
 
         for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
-            analyzeTypeNode(constituentTypeNode, data.env, data);
+            analyzeTypeNode(constituentTypeNode, data);
         }
     }
 
@@ -3682,7 +3682,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
         functionTypeNode.params.forEach(node -> analyzeNodex(node, data));
-        analyzeTypeNode(functionTypeNode.returnTypeNode, data.env, data);
+        analyzeTypeNode(functionTypeNode.returnTypeNode, data);
     }
 
     @Override
@@ -4018,7 +4018,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangConstant constant, AnalyzerData data) {
 
-        analyzeTypeNode(constant.typeNode, data.env, data);
+        analyzeTypeNode(constant.typeNode, data);
         analyzeNodex(constant.expr, data);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
         constant.annAttachments.forEach(annotationAttachment -> analyzeNodex(annotationAttachment, data));
