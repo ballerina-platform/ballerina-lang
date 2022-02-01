@@ -286,7 +286,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final TypeChecker typeChecker;
-    private Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
     private final Names names;
@@ -500,7 +499,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
-        this.returnWithinTransactionCheckStack.push(true);
+        data.returnWithinTransactionCheckStack.push(true);
         this.doneWithinTransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
         this.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
@@ -524,7 +523,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
         this.returnTypes.pop();
-        this.returnWithinTransactionCheckStack.pop();
+        data.returnWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
         this.transactionalFuncCheckStack.pop();
     }
@@ -593,7 +592,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.withinTransactionScope = true;
 
         data.loopWithinTransactionCheckStack.push(false);
-        this.returnWithinTransactionCheckStack.push(false);
+        data.returnWithinTransactionCheckStack.push(false);
         this.doneWithinTransactionCheckStack.push(false);
         data.transactionCount++;
         boolean failureHandled = data.failureHandled;
@@ -611,7 +610,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.commitCount = previousCommitCount;
         data.rollbackCount = previousRollbackCount;
         data.commitRollbackAllowed = prevCommitRollbackAllowed;
-        this.returnWithinTransactionCheckStack.pop();
+        data.returnWithinTransactionCheckStack.pop();
         data.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
         analyzeOnFailClause(transactionNode.onFailClause, data);
@@ -4377,8 +4376,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean checkReturnValidityInTransaction(AnalyzerData data) {
-        return (this.returnWithinTransactionCheckStack.empty() || !this.returnWithinTransactionCheckStack.peek())
-                && data.transactionCount > 0 && data.withinTransactionScope;
+        return !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0 && data.withinTransactionScope;
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -4724,5 +4722,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         int rollbackCountWithinBlock;
         Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
         Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
+        Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
     }
 }
