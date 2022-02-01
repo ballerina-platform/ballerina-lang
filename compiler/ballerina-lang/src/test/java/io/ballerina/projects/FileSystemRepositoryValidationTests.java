@@ -39,11 +39,11 @@ public class FileSystemRepositoryValidationTests {
                 PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = fileSystemRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
-        Assert.assertEquals(versions.size(), 2);
         Assert.assertFalse(versions.contains(PackageVersion.from("0.1.0")));
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.2")));
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.3")));
-        Assert.assertFalse(versions.contains(PackageVersion.from("0.2.0")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.2.0")));
+        Assert.assertEquals(versions.size(), 3);
     }
 
 }
