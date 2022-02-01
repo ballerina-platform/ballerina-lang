@@ -56,3 +56,19 @@ public type ImmutableIntArray int[] & readonly;
 public type FooBar "foo"|1;
 
 public const int ConstInt = 5;
+
+type Integer2 int;
+
+type Decimal2 decimal;
+
+type Strings2 string;
+
+type IntArray2 int[2];
+
+type FloatBooleanTuple2 [float, boolean];
+
+type Record2 record {|
+    FloatBooleanTuple2 a;
+    () b;
+|};
+
