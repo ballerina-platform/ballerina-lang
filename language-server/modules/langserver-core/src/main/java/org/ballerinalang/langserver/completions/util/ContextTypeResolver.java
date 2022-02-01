@@ -291,14 +291,20 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
         Optional<TypeSymbol> typeRefSymbol = semanticModel.get().typeOf(errorConstructorExpressionNode);
-        if (typeRefSymbol.isEmpty() || typeRefSymbol.get().typeKind() != TypeDescKind.TYPE_REFERENCE) {
+        if (typeRefSymbol.isEmpty()) {
             return Optional.empty();
         }
-        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) typeRefSymbol.get()).typeDescriptor();
-        if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
-            return Optional.empty();
+        if (typeRefSymbol.get().typeKind() == TypeDescKind.ERROR) {
+            return Optional.ofNullable(((ErrorTypeSymbol) typeRefSymbol.get()).detailTypeDescriptor());
         }
-        return Optional.ofNullable(CommonUtil.getRawType(((ErrorTypeSymbol) typeSymbol).detailTypeDescriptor()));
+        if (typeRefSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) typeRefSymbol.get()).typeDescriptor();
+            if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
+                return Optional.empty();
+            }
+            return Optional.ofNullable(CommonUtil.getRawType(((ErrorTypeSymbol) typeSymbol).detailTypeDescriptor()));
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -614,11 +620,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(node))
                 .or(() -> node.parent().apply(this));
-        
+
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.FUNCTION) {
             return Optional.empty();
         }
-        
+
         FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol.get();
         if (!node.rightDoubleArrow().isMissing() &&
                 context.getCursorPositionInTree() >= node.rightDoubleArrow().textRange().endOffset()) {
