@@ -76,7 +76,8 @@ public class SelectivelyImmutableTypeTest {
                 {"testReadOnlyIntersectionWithNever"},
                 {"testReadOnlyIntersectionWithNeverExplicitlyInType"},
                 {"testReadOnlyIntersectionWithRecordThatHasAnOptionalNeverReadOnlyField"},
-                {"testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField"}
+                {"testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField"},
+                {"testTypeDefinitionForReadOnlyIntersectionWithBuiltinType"}
         };
     }
 
@@ -170,6 +171,12 @@ public class SelectivelyImmutableTypeTest {
                       345, 6);
         validateError(result, index++, "invalid intersection type with 'readonly', 'R4' can never be 'readonly'",
                       346, 5);
+        validateError(result, index++, "incompatible types: expected 'ImmutableXmlElement', found 'xml:Text'",
+                      352, 29);
+        validateError(result, index++, "incompatible types: expected 'ImmutableXmlElement', found 'xml:Element'",
+                      355, 29);
+        validateError(result, index++, "incompatible types: expected '(xml:Text|ImmutableXmlElement)', found " +
+                "'xml:Element'", 363, 12);
 
         assertEquals(result.getErrorCount(), index);
     }

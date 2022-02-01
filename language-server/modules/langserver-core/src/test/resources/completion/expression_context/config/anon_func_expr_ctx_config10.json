@@ -791,6 +791,22 @@
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

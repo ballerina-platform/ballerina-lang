@@ -2,9 +2,20 @@ import ballerina/jballerina.java;
 
 type SType service object {
     string message;
+    Person[] people;
 
     remote function foo(int i) returns int;
 };
+
+class Person {
+    final string name;
+    final int age;
+
+    function init(string name, int age) {
+        self.name = name;
+        self.age = age;
+    }
+}
 
 service class SClass {
     *SType;
@@ -45,8 +56,17 @@ service class SClass {
 
     }
 
+    resource function get profile(string name) returns Person[] {
+        return self.people.filter(p => p.name.includes(name));
+    }
+
     function init() {
         self.message = "returned from `barPath`";
+        self.people = [];
+        self.people.push(new Person("John Doe", 10));
+        self.people.push(new Person("Jane Doe", 20));
+        self.people.push(new Person("Will Smith", 30));
+        self.people.push(new Person("Steve Smith", 40));
     }
 }
 
@@ -73,6 +93,14 @@ function testServiceObjectValue() {
     boolean[] paramDefaultability = <boolean[]> getParamDefaultability(s, "$get$foo$zee");
     boolean[] d = [false, true, true, true];
     assertEquality(paramDefaultability, d);
+
+    var persons = wait callMethodWithParams(s, "$get$profile", ["Will Smith"]);
+    if (persons is Person[]) {
+        Person[] personArray = <Person[]> persons;
+        assertEquality(personArray[0].age, 30);
+    } else {
+        panic error("AssertionError", message = "no profiles returned");
+    }
 }
 
 

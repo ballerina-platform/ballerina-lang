@@ -96,7 +96,7 @@ public isolated function ceiling(decimal x) returns decimal = @java:Method {
 # with the following modifications
 # - the DecimalFloatingPointLiteral may have a leading `+` or `-` sign
 # - a FloatingPointTypeSuffix is not allowed
-# This is the inverse of function `value:toString` applied to an `decimal`.
+# This is the inverse of function ``value:toString`` applied to an `decimal`.
 #
 # + s - string representation of a decimal
 # + return - decimal representation of the argument or error

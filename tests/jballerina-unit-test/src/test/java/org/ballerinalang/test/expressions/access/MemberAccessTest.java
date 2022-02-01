@@ -386,6 +386,11 @@ public class MemberAccessTest {
                 { "testMemberAccessOutOfRangeWithBinaryExpr4" }
         };
     }
+
+    @Test
+    public void testMemberAccessInInferTypeCtxWithTypeRef() {
+        BRunUtil.invoke(result, "testMemberAccessInInferTypeCtxWithTypeRef");
+    }
     
     @Test
     public void testNestedMemberAccessOnIntersectionTypes() {

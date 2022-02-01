@@ -69,7 +69,7 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         //Check if there is a check expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
-        Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
+        Optional<ExpressionNode> expressionNode = expressionResolver.findExpression(positionDetails.matchedNode());
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
             return Collections.emptyList();
         }

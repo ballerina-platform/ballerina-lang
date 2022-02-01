@@ -80,7 +80,9 @@ public class ReachabilityAnalysisTest {
                 "testReachableCodeWithUnaryConditionsInIf",
                 "testReachableCodeWithTypeNarrowing",
                 "testTerminatingAndNonTerminatingLoops",
-                "testTypeNarrowingWithDifferentWhileCompletionStatus"
+                "testTypeNarrowingWithDifferentWhileCompletionStatus",
+                "testTypeNarrowingWithEqualityInCondition",
+                "testReachableStatementInQueryAction"
         };
     }
 
@@ -260,9 +262,45 @@ public class ReachabilityAnalysisTest {
         validateWarning(result, i++, "this function should explicitly return a value", 1006, 56);
         validateWarning(result, i++, "this function should explicitly return a value", 1016, 56);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1031, 5);
-        Assert.assertEquals(result.getErrorCount(), i - 35 - 11);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1041, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1051, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1059, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1067, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1077, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1087, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1097, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1105, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1113, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1121, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1129, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1137, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1147, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1156, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1166, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1177, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1188, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1200, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1211, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1224, 21);
+        validateWarning(result, i++, "unused variable 'm'", 1232, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1235, 13);
+        validateWarning(result, i++, "unused variable 'm'", 1240, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1244, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1251, 9);
+        validateWarning(result, i++, "unused variable 'a'", 1251, 14);
+        validateWarning(result, i++, "unused variable 'b'", 1251, 17);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1263, 9);
+        validateWarning(result, i++, "unused variable 'val1'", 1263, 17);
+        validateWarning(result, i++, "unused variable 'val2'", 1263, 26);
+        validateWarning(result, i++, "unused variable 'x'", 1268, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1271, 13);
+        validateWarning(result, i++, "unused variable 'y'", 1271, 13);
+        validateWarning(result, i++, "unused variable 'x'", 1281, 5);
+        validateWarning(result, i++, "unused variable 'y'", 1284, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1287, 17);
+        Assert.assertEquals(result.getErrorCount(), i - 35 - 21);
         Assert.assertEquals(result.getHintCount(), 35);
-        Assert.assertEquals(result.getWarnCount(), 11);
+        Assert.assertEquals(result.getWarnCount(), 21);
     }
 
     @Test
@@ -304,6 +342,17 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'int', found '()'", 296, 13);
         validateError(result, i++, "incompatible types: expected '()', found 'int?'", 308, 12);
         validateError(result, i++, "incompatible types: expected '()', found 'int?'", 322, 12);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 333, 9);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 347, 9);
+        validateError(result, i++, "incompatible types: expected 'string?', found 'int?'", 363, 9);
+        validateError(result, i++, "incompatible types: expected 'int', found 'boolean'", 373, 17);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 377, 17);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 391, 17);
+        validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 407, 17);
+        validateError(result, i++, "incompatible types: expected 'string', found 'int'", 416, 16);
+        validateError(result, i++, "incompatible types: expected 'string', found 'int'", 425, 20);
+        validateError(result, i++, "incompatible types: expected 'int', found 'string'", 429, 13);
+
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

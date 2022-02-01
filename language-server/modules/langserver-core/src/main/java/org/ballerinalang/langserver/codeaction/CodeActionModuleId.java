@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class CodeActionModuleId implements ModuleID {
+
     private static final String ORG_SEPARATOR = "/";
     private final String orgName;
     private final String moduleName;
@@ -49,6 +50,10 @@ public class CodeActionModuleId implements ModuleID {
     public static CodeActionModuleId from(String orgName, String moduleName, String version) {
         List<String> names = Arrays.stream(moduleName.split("\\.")).collect(Collectors.toList());
         String alias = moduleName.equals(".") ? moduleName : names.get(names.size() - 1);
+        return new CodeActionModuleId(orgName, moduleName, alias, version);
+    }
+
+    public static CodeActionModuleId from(String orgName, String moduleName, String alias, String version) {
         return new CodeActionModuleId(orgName, moduleName, alias, version);
     }
 

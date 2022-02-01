@@ -819,7 +819,8 @@ public class CodeActionUtil {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
                     (parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION
-                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION)) {
+                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                            || parentNode.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR)) {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {

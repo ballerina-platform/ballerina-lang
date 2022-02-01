@@ -77,7 +77,6 @@ class PositionUtil {
 
     // Checks whether the specified range falls within the node
     static boolean isRangeWithinNode(LineRange range, Location nodePosition) {
-
         return nodePosition != null && withinRange(range, nodePosition.lineRange());
     }
 
