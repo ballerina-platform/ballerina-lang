@@ -289,8 +289,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Names names;
     private final ReachabilityAnalyzer reachabilityAnalyzer;
 
-    private DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
-
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
         if (codeGenerator == null) {
@@ -382,10 +380,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangClassDefinition classDefinition, AnalyzerData data) {
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, data.env);
         for (BLangSimpleVariable field : classDefinition.fields) {
-            DefaultValueState prevDefaultValueState = this.defaultValueState;
-            this.defaultValueState = DefaultValueState.OBJECT_FIELD_INITIALIZER;
+            DefaultValueState prevDefaultValueState = data.defaultValueState;
+            data.defaultValueState = DefaultValueState.OBJECT_FIELD_INITIALIZER;
             analyzeNodeWithEnv(field, objectEnv, data);
-            this.defaultValueState = prevDefaultValueState;
+            data.defaultValueState = prevDefaultValueState;
         }
 
         List<BLangFunction> bLangFunctionList = new ArrayList<>(classDefinition.functions);
@@ -505,13 +503,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
 
-            DefaultValueState prevDefaultValueState = this.defaultValueState;
-            if (this.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                    this.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
-                this.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
+            DefaultValueState prevDefaultValueState = data.defaultValueState;
+            if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                    prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+                data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
             }
             analyzeNodeWithEnv(funcNode.body, invokableEnv, data);
-            this.defaultValueState = prevDefaultValueState;
+            data.defaultValueState = prevDefaultValueState;
         }
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
         data.returnTypes.pop();
@@ -3557,13 +3555,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     public void visit(BLangArrowFunction bLangArrowFunction, AnalyzerData data) {
 
-        DefaultValueState prevDefaultValueState = this.defaultValueState;
-        if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
-            this.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
+        DefaultValueState prevDefaultValueState = data.defaultValueState;
+        if (prevDefaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                prevDefaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            data.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
         }
         analyzeExpr(bLangArrowFunction.body.expr, data);
-        this.defaultValueState = prevDefaultValueState;
+        data.defaultValueState = prevDefaultValueState;
     }
 
     /* Type Nodes */
@@ -3573,10 +3571,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, data.env);
         for (BLangSimpleVariable field : recordTypeNode.fields) {
-            DefaultValueState prevDefaultValueState = this.defaultValueState;
-            this.defaultValueState = DefaultValueState.RECORD_FIELD_DEFAULT;
+            DefaultValueState prevDefaultValueState = data.defaultValueState;
+            data.defaultValueState = DefaultValueState.RECORD_FIELD_DEFAULT;
             analyzeNodeWithEnv(field, recordEnv, data);
-            this.defaultValueState = prevDefaultValueState;
+            data.defaultValueState = prevDefaultValueState;
         }
     }
 
@@ -3721,13 +3719,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
         if (equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty()) {
-            if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
+            if (data.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
                 dlog.error(checkedExpr.pos,
                            DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
                 return;
             }
 
-            if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            if (data.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
                 BAttachedFunction initializerFunc =
                         ((BObjectTypeSymbol) getEnclosingClass(data.env).getBType().tsymbol).initializerFunc;
 
@@ -4718,5 +4716,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
         Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
         Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
+        DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
     }
 }
