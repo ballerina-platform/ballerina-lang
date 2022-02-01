@@ -294,7 +294,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Names names;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
-    private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
@@ -590,8 +589,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean previousWithinTxScope = data.withinTransactionScope;
         int previousCommitCount = data.commitCount;
         int previousRollbackCount = data.rollbackCount;
-        boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
-        this.commitRollbackAllowed = true;
+        boolean prevCommitRollbackAllowed = data.commitRollbackAllowed;
+        data.commitRollbackAllowed = true;
         data.commitCount = 0;
         data.rollbackCount = 0;
 
@@ -615,7 +614,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.withinTransactionScope = previousWithinTxScope;
         data.commitCount = previousCommitCount;
         data.rollbackCount = previousRollbackCount;
-        this.commitRollbackAllowed = prevCommitRollbackAllowed;
+        data.commitRollbackAllowed = prevCommitRollbackAllowed;
         this.returnWithinTransactionCheckStack.pop();
         this.loopWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
@@ -645,7 +644,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!data.withinTransactionScope || !commitRollbackAllowed ||
+        if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
                 (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_NOT_ALLOWED);
             return;
@@ -665,7 +664,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
-        if (!data.withinTransactionScope || !commitRollbackAllowed ||
+        if (!data.withinTransactionScope || !data.commitRollbackAllowed ||
                 (!this.loopWithinTransactionCheckStack.empty() && this.loopWithinTransactionCheckStack.peek())) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_NOT_ALLOWED);
             return;
@@ -766,7 +765,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         BLangStatement elseStmt = ifStmt.elseStmt;
         if (data.withinTransactionScope && elseStmt != null && elseStmt.getKind() != NodeKind.IF) {
                 independentBlocks = true;
-                commitRollbackAllowed = true;
+                data.commitRollbackAllowed = true;
         }
         boolean prevTxMode = data.withinTransactionScope;
         if ((ifStmt.expr.getKind() == NodeKind.GROUP_EXPR ?
@@ -782,12 +781,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         if (elseStmt != null) {
             if (independentBlocks) {
-                commitRollbackAllowed = true;
+                data.commitRollbackAllowed = true;
                 data.withinTransactionScope = true;
             }
             analyzeNodex(elseStmt, data);
             if ((prevCommitCount != data.commitCount) || prevRollbackCount != data.rollbackCount) {
-                commitRollbackAllowed = false;
+                data.commitRollbackAllowed = false;
             }
         }
 
@@ -4721,5 +4720,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         int workerSystemMovementSequence;
         boolean queryToTableWithKey;
         boolean withinTransactionScope;
+        boolean commitRollbackAllowed;
     }
 }
