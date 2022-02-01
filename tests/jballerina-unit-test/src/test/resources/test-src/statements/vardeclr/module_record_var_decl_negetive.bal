@@ -61,3 +61,31 @@ type ComplexRecord record {|
 
 function foo() returns ComplexRecord =>
     {fieldA: [8], fieldB: {a: "Ballerina"}, fieldC: error("NullPointer"), "int1": 1, "int2": 2};
+
+type Employee record {
+    string name;
+    int id;
+    int age?;
+};
+
+function getEmployee() returns Employee {
+    return {name: "Jo", id: 1234, age: 12};
+}
+
+var {name: eName, id: eId, age: eAge} = getEmployee();
+
+Employee {name: eNameNew, id: eIdNew, age: eAgeNew} = getEmployee();
+
+type EmployeeNew record {
+    string name;
+    record {
+        int id;
+        int age?;
+    } details?;
+};
+
+function getNewEmployeeList() returns EmployeeNew[2] {
+    return [{name: "Jo", details: {id: 1234}}, {name: "Amy", details: {id: 1234}}];
+}
+
+var [{name: nameNew, details: {id: idNew, age: ageNew}}, ...x] = getNewEmployeeList();

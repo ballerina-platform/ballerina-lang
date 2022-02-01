@@ -50,11 +50,11 @@ public class Foreach {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        Object[] keys = tbl.getKeys();
+        Object[] values = tbl.values().toArray();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{parentStrand,
-                                tbl.get(keys[index.incrementAndGet()]), true},
+                                values[index.incrementAndGet()], true},
                         result -> {
                         }, () -> null, Scheduler.getStrand().scheduler);
     }

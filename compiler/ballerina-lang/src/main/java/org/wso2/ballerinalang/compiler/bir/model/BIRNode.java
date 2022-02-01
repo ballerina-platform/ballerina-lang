@@ -186,11 +186,13 @@ public abstract class BIRNode {
     public static class BIRParameter extends BIRNode {
         public Name name;
         public long flags;
+        public List<BIRAnnotation> annotAttachmentSymbols;
 
         public BIRParameter(Location pos, Name name, long flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
+            this.annotAttachmentSymbols = new ArrayList<>();
         }
 
         @Override
@@ -612,6 +614,11 @@ public abstract class BIRNode {
          * Type of the annotation body.
          */
         public BType annotationType;
+
+        /**
+         * Temporary packageID field for when BIRAnnotation is used to identify attachments.
+         */
+        public PackageID packageID;
 
         public BIRAnnotation(Location pos, Name name, Name originalName, long flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {

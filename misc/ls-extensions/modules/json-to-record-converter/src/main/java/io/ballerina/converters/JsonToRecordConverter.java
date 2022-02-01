@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
@@ -216,11 +217,13 @@ public class JsonToRecordConverter {
                                 AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
                         fieldTypeName =  NodeFactory.createBuiltinSimpleNameReferenceNode(null, type);
                     }
-                    ArrayTypeDescriptorNode arrayField =
-                            NodeFactory.createArrayTypeDescriptorNode(fieldTypeName, openSBracketToken,
+                    
+                    ArrayTypeDescriptorNode arrayField = createArrayTypeDesc(fieldTypeName, openSBracketToken,
                                     null, closeSBracketToken);
+                    
                     RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null,
                             null, arrayField, fieldName, null, semicolonToken);
+                    
                     NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldNode);
                     Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
                     RecordTypeDescriptorNode recordTypeDescriptorNode =
@@ -320,7 +323,7 @@ public class JsonToRecordConverter {
                         typeName = AbstractNodeFactory.createIdentifierToken(convertOpenAPITypeToBallerina(type));
                         memberTypeDesc = createBuiltinSimpleNameReferenceNode(null, typeName);
                     }
-                    return NodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, openSBracketToken, null,
+                    return createArrayTypeDesc(memberTypeDesc, openSBracketToken, null,
                             closeSBracketToken);
                 }
             } else if (schemaType.equals("object") && schema.getProperties() != null) {
@@ -367,6 +370,23 @@ public class JsonToRecordConverter {
         }
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
         return createBuiltinSimpleNameReferenceNode(null, typeName);
+    }
+    
+    private static ArrayTypeDescriptorNode createArrayTypeDesc(TypeDescriptorNode memberTypeDesc, 
+                                                               Token openBracketToken, Node arrayLengthNode, 
+                                                               Token closeBracketToken) {
+        NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
+        if (memberTypeDesc.kind() == SyntaxKind.ARRAY_TYPE_DESC) {
+            ArrayTypeDescriptorNode innerArrayType = (ArrayTypeDescriptorNode) memberTypeDesc;
+            arrayDimensions = innerArrayType.dimensions();
+            memberTypeDesc = innerArrayType.memberTypeDesc();
+        }
+
+        ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openBracketToken, arrayLengthNode,
+                closeBracketToken);
+        arrayDimensions = arrayDimensions.add(arrayDimension);
+
+        return NodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, arrayDimensions);
     }
 
     /**

@@ -764,7 +764,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void populateParamMapFromRestArg(List<BVarSymbol> params, int currentParamIndex, BLangExpression restArg) {
-        BType type = types.getReferredType(restArg.getBType());
+        BType type = Types.getReferredType(restArg.getBType());
         int tag = type.tag;
         if (tag == TypeTags.RECORD) {
             populateParamMapFromRecordRestArg(params, currentParamIndex, (BRecordType) type);
@@ -886,8 +886,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private boolean hasSameBasicType(BType t1, BType t2) {
-        int tag1 = types.getReferredType(t1).tag;
-        int tag2 = types.getReferredType(t2).tag;
+        int tag1 = Types.getReferredType(t1).tag;
+        int tag2 = Types.getReferredType(t2).tag;
 
         if (tag1 == tag2) {
             return true;
@@ -1106,12 +1106,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        if (types.getReferredType(expType).tag != TypeTags.UNION) {
+        if (Types.getReferredType(expType).tag != TypeTags.UNION) {
             return expType;
         }
 
         LinkedHashSet<BType> types = new LinkedHashSet<>();
-        for (BType expMemType : ((BUnionType) this.types.getReferredType(expType)).getMemberTypes()) {
+        for (BType expMemType : ((BUnionType) Types.getReferredType(expType)).getMemberTypes()) {
             boolean hasMatchWithOtherType = false;
             for (BType origMemType : originalType.getMemberTypes()) {
                 if (origMemType == member) {

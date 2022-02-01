@@ -12,34 +12,44 @@
           "kind": "ARRAY_TYPE_DESC",
           "children": [
             {
-              "kind": "ARRAY_TYPE_DESC",
+              "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "T"
-                    }
-                  ]
-                },
-                {
-                  "kind": "OPEN_BRACKET_TOKEN"
-                },
-                {
-                  "kind": "CLOSE_BRACKET_TOKEN"
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "T"
                 }
               ]
             },
             {
-              "kind": "OPEN_BRACKET_TOKEN"
-            },
-            {
-              "kind": "CLOSE_BRACKET_TOKEN",
-              "trailingMinutiae": [
+              "kind": "LIST",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "ARRAY_DIMENSION",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "ARRAY_DIMENSION",
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN"
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }

@@ -19,8 +19,13 @@
 package io.ballerina.shell;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.exceptions.PreprocessorException;
+import io.ballerina.shell.exceptions.SnippetException;
+import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
@@ -62,7 +67,8 @@ class EvaluatorImpl extends Evaluator {
         try {
             Collection<Node> nodes = treeParser.parseString(source);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
-            Optional<Object> invokerOut = invoker.execute(snippets);
+            Optional<PackageCompilation> compilation = Optional.ofNullable(invoker.getCompilation(snippets));
+            Optional<Object> invokerOut = invoker.execute(compilation);
             return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
         } finally {
             addAllDiagnostics(treeParser.diagnostics());
@@ -74,13 +80,64 @@ class EvaluatorImpl extends Evaluator {
         }
     }
 
+    public ShellCompilation getCompilation(String source) {
+        PackageCompilation compilation;
+        ExceptionStatus exceptionStatus;
+        try {
+            Collection<Node> nodes = treeParser.parseString(source);
+            Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
+            compilation = invoker.getCompilation(snippets);
+            exceptionStatus = ExceptionStatus.SUCCESS;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(compilation, exceptionStatus);
+        } catch (TreeParserException e) {
+            exceptionStatus = ExceptionStatus.TREE_PARSER_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(exceptionStatus);
+        } catch (SnippetException e) {
+            exceptionStatus = ExceptionStatus.SNIPPET_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(exceptionStatus);
+        } catch (InvokerException e) {
+            exceptionStatus = ExceptionStatus.INVOKER_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return new ShellCompilation(exceptionStatus);
+        }
+    }
+
+    @Override
+    public Optional<ShellReturnValue> getValue(Optional<PackageCompilation> compilation) throws
+            BallerinaShellException {
+        String result;
+        ExceptionStatus exceptionStatus;
+        try {
+            Optional<Object> invokerOut = invoker.execute(compilation);
+            result = invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
+            exceptionStatus = ExceptionStatus.SUCCESS;
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            return Optional.of(new ShellReturnValue(result, exceptionStatus));
+        } catch (InvokerPanicException e) {
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            throw e;
+        } catch (InvokerException e) {
+            exceptionStatus = ExceptionStatus.INVOKER_FAILED;
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            return Optional.of(new ShellReturnValue(exceptionStatus));
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     @Override
     public void evaluateDeclarationFile(String filePath) throws BallerinaShellException {
         try {
             String statements = Files.readString(Paths.get(filePath), Charset.defaultCharset());
             Collection<Node> nodes = treeParser.parseDeclarations(statements);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
-            invoker.execute(snippets);
+            getValue(Optional.ofNullable(invoker.getCompilation(snippets)));
         } catch (IOException e) {
             addErrorDiagnostic("Failed to load declarations from file: " + filePath);
             throw new PreprocessorException();
@@ -114,5 +171,28 @@ class EvaluatorImpl extends Evaluator {
         invoker.resetDiagnostics();
         this.resetDiagnostics();
         invoker.reset();
+    }
+
+    private void clearDiagnostics(ExceptionStatus exceptionStatus) {
+        switch (exceptionStatus) {
+            case TREE_PARSER_FAILED:
+                addAllDiagnostics(treeParser.diagnostics());
+                treeParser.resetDiagnostics();
+                break;
+            case SNIPPET_FAILED:
+                addAllDiagnostics(treeParser.diagnostics());
+                addAllDiagnostics(snippetFactory.diagnostics());
+                snippetFactory.resetDiagnostics();
+                treeParser.resetDiagnostics();
+                break;
+            default:
+                addAllDiagnostics(treeParser.diagnostics());
+                addAllDiagnostics(snippetFactory.diagnostics());
+                addAllDiagnostics(invoker.diagnostics());
+                snippetFactory.resetDiagnostics();
+                treeParser.resetDiagnostics();
+                invoker.resetDiagnostics();
+                break;
+        }
     }
 }

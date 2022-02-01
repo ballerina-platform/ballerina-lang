@@ -29,7 +29,6 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-runtime')
     testCompile 'org.testng:testng'
-    testCompile 'com.h2database:h2'
 
     testRuntime project(':ballerina-lang:annotations')
     testRuntime project(':ballerina-lang:array')

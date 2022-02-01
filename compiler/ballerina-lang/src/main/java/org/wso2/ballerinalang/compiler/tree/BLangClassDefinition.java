@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -60,7 +62,14 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangFunction generatedInitFunction;
     public BLangSimpleVariable receiver;
     public List<BLangSimpleVariable> referencedFields;
+    public List<BLangSimpleVarRef.BLangLocalVarRef> localVarRefs;
     public int precedence;
+
+    public boolean definitionCompleted;
+    public OCEDynamicEnvironmentData oceEnvData;
+    public boolean isObjectContructorDecl = false;
+    public BObjectType objectType = null;
+    public boolean hasClosureVars;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();
@@ -70,6 +79,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.flagSet.add(Flag.CLASS);
         this.annAttachments = new ArrayList<>();
         this.referencedFields = new ArrayList<>();
+        this.oceEnvData = new OCEDynamicEnvironmentData();
     }
 
     @Override

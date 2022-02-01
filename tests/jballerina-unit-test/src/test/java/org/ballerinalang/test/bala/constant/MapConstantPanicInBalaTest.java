@@ -41,25 +41,27 @@ public class MapConstantPanicInBalaTest {
     // boolean ----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type 'foo:.*")
     public void updateReturnedConstantBooleanMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'boolean'.*")
     public void updateReturnedConstantBooleanMap2WithNewKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type 'foo:.*")
     public void updateConstantBooleanMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantBooleanMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'boolean'.*")
     public void updateConstantBooleanMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantBooleanMapValueInArrayWithNewKey");
     }
@@ -67,37 +69,40 @@ public class MapConstantPanicInBalaTest {
     // int ---------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type 'foo:.*")
     public void updateNestedConstantIntMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantIntMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'int'.*")
     public void updateNestedConstantIntMapValueWithNewKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantIntMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type 'foo:.*")
     public void updateReturnedConstantIntMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantIntMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'int'.*")
     public void updateReturnedConstantIntMap2WithNewKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantIntMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type 'foo:.*")
     public void updateConstantIntMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantIntMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'int'.*")
     public void updateConstantIntMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantIntMapValueInArrayWithNewKey");
     }
@@ -105,37 +110,40 @@ public class MapConstantPanicInBalaTest {
     // byte --------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type 'foo:.*")
     public void updateNestedConstantByteMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantByteMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'byte'.*")
     public void updateNestedConstantByteMapValueWithNewKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantByteMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type 'foo:.*")
     public void updateReturnedConstantByteMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantByteMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'byte'.*")
     public void updateReturnedConstantByteMap2WithNewKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantByteMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type 'foo:.*")
     public void updateConstantByteMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'byte'.*")
     public void updateConstantByteMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithNewKey");
     }
@@ -143,37 +151,40 @@ public class MapConstantPanicInBalaTest {
     // float -------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type 'foo:.*")
     public void updateNestedConstantFloatMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantFloatMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'float'.*")
     public void updateNestedConstantFloatMapValueWithNewKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantFloatMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type 'foo:.*")
     public void updateReturnedConstantFloatMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantFloatMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'float'.*")
     public void updateReturnedConstantFloatMap2WithNewKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantFloatMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type 'foo:.*")
     public void updateConstantFloatMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantFloatMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'float'.*")
     public void updateConstantFloatMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantFloatMapValueInArrayWithNewKey");
     }
@@ -181,37 +192,40 @@ public class MapConstantPanicInBalaTest {
     // decimal -----------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type 'foo:.*")
     public void updateNestedConstantDecimalMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantDecimalMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'decimal'.*")
     public void updateNestedConstantDecimalMapValueWithNewKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantDecimalMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type 'foo:.*")
     public void updateReturnedConstantDecimalMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantDecimalMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'decimal'.*")
     public void updateReturnedConstantDecimalMap2WithNewKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantDecimalMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type 'foo:.*")
     public void updateConstantDecimalMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantDecimalMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'decimal'.*")
     public void updateConstantDecimalMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantDecimalMapValueInArrayWithNewKey");
     }
@@ -219,37 +233,40 @@ public class MapConstantPanicInBalaTest {
     // string ------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type 'foo:.*")
     public void updateNestedConstantStringMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantStringMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'string'.*")
     public void updateNestedConstantStringMapValueWithNewKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantStringMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type 'foo:.*")
     public void updateReturnedConstantStringMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantStringMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'string'.*")
     public void updateReturnedConstantStringMap2WithNewKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantStringMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type 'foo:.*")
     public void updateConstantStringMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantStringMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found 'string'.*")
     public void updateConstantStringMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantStringMapValueInArrayWithNewKey");
     }
@@ -257,37 +274,40 @@ public class MapConstantPanicInBalaTest {
     // nil ---------------------------------------------------
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type 'foo:.*")
     public void updateNestedConstantNilMapValueWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantNilMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found .*")
     public void updateNestedConstantNilMapValueWithNewKey() {
         BRunUtil.invoke(compileResult, "updateNestedConstantNilMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type 'foo:.*")
     public void updateReturnedConstantNilMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantNilMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found .*")
     public void updateReturnedConstantNilMap2WithNewKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantNilMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type 'foo:.*")
     public void updateConstantNilMapValueInArrayWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateConstantNilMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type" +
+                    " 'never', found.*")
     public void updateConstantNilMapValueInArrayWithNewKey() {
         BRunUtil.invoke(compileResult, "updateConstantNilMapValueInArrayWithNewKey");
     }

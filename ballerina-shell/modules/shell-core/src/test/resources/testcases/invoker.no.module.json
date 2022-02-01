@@ -1,0 +1,6 @@
+[
+  {
+    "description": "Fails on non existing module import.",
+    "input": "import org/no.module.name;"
+  }
+]

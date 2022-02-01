@@ -676,6 +676,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public T transform(ArrayDimensionNode arrayDimensionNode) {
+        return transformSyntaxNode(arrayDimensionNode);
+    }
+
     public T transform(TransactionStatementNode transactionStatementNode) {
         return transformSyntaxNode(transactionStatementNode);
     }
