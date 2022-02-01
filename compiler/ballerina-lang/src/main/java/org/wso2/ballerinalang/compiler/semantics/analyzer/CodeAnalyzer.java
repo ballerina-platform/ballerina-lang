@@ -286,7 +286,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final TypeChecker typeChecker;
-    private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
@@ -465,12 +464,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         this.validateModuleInitFunction(funcNode);
         try {
-            this.initNewWorkerActionSystem();
-            this.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
+            this.initNewWorkerActionSystem(data);
+            data.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
                                                                               funcNode.pos,
                                                                               funcNode);
             this.visitFunction(funcNode, data);
-            this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+            data.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
             this.finalizeCurrentWorkerActionSystem(data);
         }
@@ -2717,7 +2716,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value, data.env);
 
-        WorkerActionSystem was = this.workerActionSystemStack.peek();
+        WorkerActionSystem was = data.workerActionSystemStack.peek();
 
         BType type = workerSendNode.expr.getBType();
         if (type == symTable.semanticError) {
@@ -2782,7 +2781,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // Validate worker synchronous send
         validateActionParentNode(syncSendExpr.pos, syncSendExpr);
         String workerName = syncSendExpr.workerIdentifier.getValue();
-        WorkerActionSystem was = this.workerActionSystemStack.peek();
+        WorkerActionSystem was = data.workerActionSystemStack.peek();
 
         if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
@@ -2810,7 +2809,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value, data.env);
 
-        WorkerActionSystem was = this.workerActionSystemStack.peek();
+        WorkerActionSystem was = data.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
         if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
@@ -3301,7 +3300,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(expr, data);
         boolean validActionParent = validateActionParentNode(awaitExpr.pos, awaitExpr);
 
-        WorkerActionSystem was = this.workerActionSystemStack.peek();
+        WorkerActionSystem was = data.workerActionSystemStack.peek();
         was.addWorkerAction(awaitExpr, data.env);
         if (!(validWaitFuture || validActionParent)) {
             was.hasErrors = true;
@@ -3318,7 +3317,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         boolean validActionParent = validateActionParentNode(waitForAllExpr.pos, waitForAllExpr);
 
-        WorkerActionSystem was = this.workerActionSystemStack.peek();
+        WorkerActionSystem was = data.workerActionSystemStack.peek();
         was.addWorkerAction(waitForAllExpr, data.env);
         if (!(validWaitFuture || validActionParent)) {
             was.hasErrors = true;
@@ -3377,7 +3376,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // 1) flush w1 -> Wait till all the asynchronous sends to worker w1 is completed
         // 2) flush -> Wait till all asynchronous sends to all workers are completed
         BLangIdentifier flushWrkIdentifier = workerFlushExpr.workerIdentifier;
-        Stack<WorkerActionSystem> workerActionSystems = this.workerActionSystemStack;
+        Stack<WorkerActionSystem> workerActionSystems = data.workerActionSystemStack;
         WorkerActionSystem currentWrkerAction = workerActionSystems.peek();
         List<BLangWorkerSend> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
         if (flushWrkIdentifier != null) {
@@ -3541,7 +3540,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 String workerName = workerVarName.substring(1);
                 isWorker = true;
-                this.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
+                data.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
                                                                                   bLangLambdaFunction.function.pos,
                                                                                   bLangLambdaFunction.function);
             }
@@ -3552,19 +3551,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.visitFunction(bLangLambdaFunction.function, data);
         } else {
             try {
-                this.initNewWorkerActionSystem();
-                this.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
+                this.initNewWorkerActionSystem(data);
+                data.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
                         bLangLambdaFunction.pos,
                         bLangLambdaFunction.function);
                 this.visitFunction(bLangLambdaFunction.function, data);
-                this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+                data.workerActionSystemStack.peek().endWorkerActionStateMachine();
             } finally {
                 this.finalizeCurrentWorkerActionSystem(data);
             }
         }
 
         if (isWorker) {
-            this.workerActionSystemStack.peek().endWorkerActionStateMachine();
+            data.workerActionSystemStack.peek().endWorkerActionStateMachine();
         }
     }
 
@@ -4072,12 +4071,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private void initNewWorkerActionSystem() {
-        this.workerActionSystemStack.push(new WorkerActionSystem());
+    private void initNewWorkerActionSystem(AnalyzerData data) {
+        data.workerActionSystemStack.push(new WorkerActionSystem());
     }
 
     private void finalizeCurrentWorkerActionSystem(AnalyzerData data) {
-        WorkerActionSystem was = this.workerActionSystemStack.pop();
+        WorkerActionSystem was = data.workerActionSystemStack.pop();
         if (!was.hasErrors) {
             this.validateWorkerInteractions(was, data);
         }
@@ -4724,5 +4723,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean commitRollbackAllowed;
         int commitCountWithinBlock;
         int rollbackCountWithinBlock;
+        Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     }
 }
