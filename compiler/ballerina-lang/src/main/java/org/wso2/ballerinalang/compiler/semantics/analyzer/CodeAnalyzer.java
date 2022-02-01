@@ -533,7 +533,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(funcNode.body, invokableEnv);
             this.defaultValueState = prevDefaultValueState;
         }
-        reachabilityAnalyzer.clearStacks();
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
         this.returnTypes.pop();
         this.returnWithinTransactionCheckStack.pop();
