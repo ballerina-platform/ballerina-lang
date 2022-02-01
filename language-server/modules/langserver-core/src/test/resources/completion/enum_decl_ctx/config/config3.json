@@ -281,7 +281,7 @@
               "character": 0
             }
           },
-          "newText": "import projectls.constants as constants1 ;\n"
+          "newText": "import projectls.constants as constants1;\n"
         }
       ]
     },
