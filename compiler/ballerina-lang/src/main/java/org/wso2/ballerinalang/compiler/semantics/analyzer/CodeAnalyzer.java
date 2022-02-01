@@ -286,7 +286,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final TypeChecker typeChecker;
-    private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
     private final Names names;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
@@ -500,7 +499,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         data.returnWithinTransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
-        this.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
+        data.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
         if (Symbols.isNative(funcNode.symbol)) {
             return;
         }
@@ -522,7 +521,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
         this.returnTypes.pop();
         data.returnWithinTransactionCheckStack.pop();
-        this.transactionalFuncCheckStack.pop();
+        data.transactionalFuncCheckStack.pop();
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -535,8 +534,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean prevWithinTxScope = data.withinTransactionScope;
         boolean prevLoopAlterNotAllowed = data.loopAlterNotAllowed;
         data.loopAlterNotAllowed = data.loopCount > 0;
-        if (!transactionalFuncCheckStack.empty() && !prevWithinTxScope) {
-            data.withinTransactionScope = transactionalFuncCheckStack.peek();
+        if (!prevWithinTxScope) {
+            data.withinTransactionScope = data.transactionalFuncCheckStack.peek();
         }
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
         for (BLangStatement e : body.stmts) {
@@ -544,7 +543,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             analyzeNodeWithEnv(e, blockEnv, data);
         }
         data.inInternallyDefinedBlockStmt = false;
-        if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
+        if (data.transactionalFuncCheckStack.peek()) {
             data.withinTransactionScope = prevWithinTxScope;
         }
         data.loopAlterNotAllowed = prevLoopAlterNotAllowed;
@@ -570,7 +569,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangTransaction transactionNode, AnalyzerData data) {
         //Check whether transaction statement occurred in a transactional scope
-        if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
+        if (data.transactionalFuncCheckStack.peek()) {
             this.dlog.error(transactionNode.pos,
                             DiagnosticErrorCode.TRANSACTION_CANNOT_BE_USED_WITHIN_TRANSACTIONAL_SCOPE);
             return;
@@ -630,7 +629,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
-        if (!this.transactionalFuncCheckStack.empty() && this.transactionalFuncCheckStack.peek()) {
+        if (data.transactionalFuncCheckStack.peek()) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
@@ -650,7 +649,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
-        if (!this.transactionalFuncCheckStack.empty() && this.transactionalFuncCheckStack.peek()) {
+        if (!data.transactionalFuncCheckStack.empty() && data.transactionalFuncCheckStack.peek()) {
             this.dlog.error(rollbackNode.pos, DiagnosticErrorCode.ROLLBACK_CANNOT_BE_WITHIN_TRANSACTIONAL_FUNCTION);
             return;
         }
@@ -4371,7 +4370,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private boolean checkReturnValidityInTransaction(AnalyzerData data) {
-        return !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0 && data.withinTransactionScope;
+        return !data.returnWithinTransactionCheckStack.peek() && data.transactionCount > 0
+                && data.withinTransactionScope;
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {
@@ -4718,5 +4718,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
         Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
         Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
+        Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
     }
 }
