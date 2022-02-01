@@ -287,7 +287,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final BLangDiagnosticLog dlog;
     private final TypeChecker typeChecker;
     private final Names names;
-    private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private final ReachabilityAnalyzer reachabilityAnalyzer;
@@ -498,7 +497,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         data.returnWithinTransactionCheckStack.push(true);
-        this.returnTypes.push(new LinkedHashSet<>());
+        data.returnTypes.push(new LinkedHashSet<>());
         data.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -519,7 +518,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.defaultValueState = prevDefaultValueState;
         }
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
-        this.returnTypes.pop();
+        data.returnTypes.pop();
         data.returnWithinTransactionCheckStack.pop();
         data.transactionalFuncCheckStack.pop();
     }
@@ -743,7 +742,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         analyzeExpr(returnStmt.expr, data);
-        this.returnTypes.peek().add(returnStmt.expr.getBType());
+        data.returnTypes.peek().add(returnStmt.expr.getBType());
     }
 
     @Override
@@ -2279,7 +2278,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         if (!data.failureHandled) {
             BType exprType = data.env.enclInvokable.getReturnTypeNode().getBType();
-            this.returnTypes.peek().add(exprType);
+            data.returnTypes.peek().add(exprType);
             if (!types.isAssignable(getErrorTypes(failNode.expr.getBType()), exprType)) {
                 dlog.error(failNode.pos, DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
             }
@@ -2733,14 +2732,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         workerSendNode.setBType(
-                createAccumulatedErrorTypeForMatchingRecive(workerSendNode.pos, workerSendNode.expr.getBType()));
+                createAccumulatedErrorTypeForMatchingReceive(workerSendNode.pos, workerSendNode.expr.getBType(), data));
         was.addWorkerAction(workerSendNode);
         analyzeExpr(workerSendNode.expr, data);
         validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
     }
 
-    private BType createAccumulatedErrorTypeForMatchingRecive(Location pos, BType exprType) {
-        Set<BType> returnTypesUpToNow = this.returnTypes.peek();
+    private BType createAccumulatedErrorTypeForMatchingReceive(Location pos, BType exprType, AnalyzerData data) {
+        Set<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
             {
                 Comparator.comparing(BType::toString);
@@ -2785,7 +2784,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
         syncSendExpr.setBType(
-                createAccumulatedErrorTypeForMatchingRecive(syncSendExpr.pos, syncSendExpr.expr.getBType()));
+                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data));
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }
@@ -2814,7 +2813,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode);
+        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode, data);
         was.addWorkerAction(workerReceiveNode);
     }
 
@@ -2852,8 +2851,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    public BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerReceive workerReceiveNode) {
-        Set<BType> returnTypesUpToNow = this.returnTypes.peek();
+    public BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerReceive workerReceiveNode,
+                                                               AnalyzerData data) {
+        Set<BType> returnTypesUpToNow = data.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
         for (BType returnType : returnTypesUpToNow) {
             if (onlyContainErrors(returnType)) {
@@ -3780,7 +3780,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         } else {
             errorTypes = exprType;
         }
-        returnTypes.peek().add(errorTypes);
+        data.returnTypes.peek().add(errorTypes);
     }
 
     @Override
@@ -4719,5 +4719,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
         Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
         Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
+        Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     }
 }
