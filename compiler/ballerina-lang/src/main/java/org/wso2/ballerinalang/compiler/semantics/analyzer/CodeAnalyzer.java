@@ -286,7 +286,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Types types;
     private final BLangDiagnosticLog dlog;
     private final TypeChecker typeChecker;
-    private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
     private final Names names;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
@@ -500,7 +499,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private void visitFunction(BLangFunction funcNode, AnalyzerData data) {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
         data.returnWithinTransactionCheckStack.push(true);
-        this.doneWithinTransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
         this.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
         if (Symbols.isNative(funcNode.symbol)) {
@@ -524,7 +522,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
         this.returnTypes.pop();
         data.returnWithinTransactionCheckStack.pop();
-        this.doneWithinTransactionCheckStack.pop();
         this.transactionalFuncCheckStack.pop();
     }
 
@@ -593,7 +590,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         data.loopWithinTransactionCheckStack.push(false);
         data.returnWithinTransactionCheckStack.push(false);
-        this.doneWithinTransactionCheckStack.push(false);
         data.transactionCount++;
         boolean failureHandled = data.failureHandled;
         if (!failureHandled) {
@@ -612,7 +608,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.commitRollbackAllowed = prevCommitRollbackAllowed;
         data.returnWithinTransactionCheckStack.pop();
         data.loopWithinTransactionCheckStack.pop();
-        this.doneWithinTransactionCheckStack.pop();
         analyzeOnFailClause(transactionNode.onFailClause, data);
         this.errorTypes.pop();
     }
