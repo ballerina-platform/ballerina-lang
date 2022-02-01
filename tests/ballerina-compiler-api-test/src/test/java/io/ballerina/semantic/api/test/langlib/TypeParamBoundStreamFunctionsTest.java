@@ -106,7 +106,10 @@ public class TypeParamBoundStreamFunctionsTest {
 
         TypeSymbol mapFnRetType = mapFnType.returnTypeDescriptor().get();
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.STREAM);
-        assertEquals(((StreamTypeSymbol) mapFnRetType).typeParameter().typeKind(), TypeDescKind.UNION);
+
+        TypeSymbol returnTypeSymbol = ((StreamTypeSymbol) mapFnRetType).typeParameter();
+        assertEquals(returnTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) returnTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
     }
 
     @Test
@@ -163,7 +166,7 @@ public class TypeParamBoundStreamFunctionsTest {
 //        assertEquals(fnType.params().get().get(0).typeDescriptor().typeKind(), TypeDescKind.INT);
 //        assertEquals(fnType.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
 
-        assertEquals(params.get(2).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(params.get(2).typeDescriptor().typeKind(), TypeDescKind.TYPE_REFERENCE);
 
         TypeSymbol pushFnRetType = reduceFnType.returnTypeDescriptor().get();
         assertEquals(pushFnRetType.typeKind(), TypeDescKind.UNION);

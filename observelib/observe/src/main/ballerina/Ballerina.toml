@@ -1,14 +1,14 @@
 [package]
 org = "ballerina"
 name = "observe"
-version = "0.9.0"
+version = "1.0.0"
 export = ["observe", "observe.mockextension" ]
 
 [[platform.java11.dependency]]
 path = "../libs/ballerina-observability-2.0.0-alpha7-SNAPSHOT.jar"
 groupId = "ballerina"
 artifactId = "observability"
-version = "0.9.0"
+version = "1.0.0"
 
 [[platform.java11.dependency]]
 groupId = "io.opentelemetry"

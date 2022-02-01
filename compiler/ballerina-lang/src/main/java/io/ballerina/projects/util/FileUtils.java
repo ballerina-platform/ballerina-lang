@@ -18,9 +18,11 @@
 package io.ballerina.projects.util;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +40,8 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class FileUtils {
+
+    private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
 
     /**
      * Get the name of the without the extension.
@@ -147,7 +152,49 @@ public class FileUtils {
 
         Files.delete(path);
     }
-        
+
+    /**
+     * Check if the given image is a PNG.
+     *
+     * @param filePath image file path
+     * @return is valid PNG file
+     * @throws IOException error when reading the given file path
+     */
+    public static boolean isValidPng(Path filePath) throws IOException {
+        return isMatchingImageFormat(filePath, PNG_HEX_HEADER, 8);
+    }
+
+    /**
+     * Validate any image file against given image format header hex value.
+     *
+     * @param imgPath        image file path
+     * @param formatHexValue image format header hex value
+     * @param formatOffset   image format header hex value length
+     * @return is matched with the given image format hex value
+     * @throws IOException error when reading the given file path
+     */
+    private static boolean isMatchingImageFormat(Path imgPath, String formatHexValue, int formatOffset)
+            throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(String.valueOf(imgPath))) {
+            try {
+                byte[] imgHeaderByteArray = new byte[formatOffset];
+                int bytesRead = fileInputStream.read(imgHeaderByteArray, 0, formatOffset);
+                if (bytesRead != 8) {
+                    return false;
+                }
+                byte[] formatHeaderByteArray = Arrays.copyOfRange(new BigInteger(formatHexValue, 16)
+                        .toByteArray(), 1, formatOffset + 1);
+                if (Arrays.equals(imgHeaderByteArray, formatHeaderByteArray)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                //Ignore
+                return false;
+            }
+            return false;
+        }
+    }
+
     /**
      * Copy files to the given destination.
      */

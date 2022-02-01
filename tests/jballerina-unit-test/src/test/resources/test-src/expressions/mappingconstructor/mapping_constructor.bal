@@ -131,6 +131,16 @@ function testTypeWithReadOnlyInUnionCET() {
     assertEquality(m, mj["c"]);
 }
 
+function testFieldsWithEscapeSequences() {
+    map<int> _ = {a\\: 454, "a\\\\": 543};
+    map<int> _ = {a\\: 454, "b\\": 543};
+    
+    string s = "a\\";
+    map<int> m = {a\\: 454, [s]: 543};
+    map<int> n = {"a\\": 543};
+    assertEquality(n, m);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if isEqual(expected, actual) {
         return;

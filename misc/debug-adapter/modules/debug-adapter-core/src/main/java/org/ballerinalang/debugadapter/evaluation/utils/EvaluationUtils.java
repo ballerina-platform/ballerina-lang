@@ -68,6 +68,7 @@ public class EvaluationUtils {
     public static final String B_RANGE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "range_operations";
     public static final String B_UTILS_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "utils";
     public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
+    public static final String B_DEBUGGER_RUNTIME_UTILS_CLASS = "org.ballerinalang.debugadapter.runtime.VariableUtils";
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
@@ -152,6 +153,7 @@ public class EvaluationUtils {
     public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
     public static final String GET_XML_FILTER_RESULT_METHOD = "getXMLFilterResult";
     public static final String GET_XML_STEP_RESULT_METHOD = "getXMLStepResult";
+    public static final String GET_BMAP_TYPE_METHOD = "getBMapType";
     public static final String GET_STRING_AT_METHOD = "getStringAt";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
@@ -165,7 +167,9 @@ public class EvaluationUtils {
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
-    public static final String MODULE_VERSION_SEPARATOR = "\\.";
+    public static final String MODULE_NAME_SEPARATOR = ".";
+    public static final String MODULE_VERSION_SEPARATOR_REGEX = "\\.";
+    public static final String MODULE_NAME_SEPARATOR_REGEX = "\\.";
 
     private EvaluationUtils() {
     }
@@ -253,7 +257,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param value JDI value instance.
@@ -307,7 +311,7 @@ public class EvaluationUtils {
     }
 
     /**
-     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * As some of the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
      * java primitive types need to be converted into their wrapper implementations.
      *
      * @param variable ballerina variable instance.

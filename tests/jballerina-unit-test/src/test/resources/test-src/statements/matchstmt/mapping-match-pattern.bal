@@ -598,6 +598,40 @@ function testMappingMatchPattern26() {
     assertEquals(1, mappingMatchPattern27({y: "hello world", x: 1}));
 }
 
+type Foo record {|
+    int x;
+    int y = 1;
+|};
+
+function fn1() returns string {
+    Foo v = {x: 0, y: 1};
+    string matched = "";
+
+    match v {
+        {x: 0, y: 1} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function fn2() returns string {
+    Foo v = {x: 0};
+    string matched = "";
+
+    match v {
+        {x: 0} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function testMappingBindingToRecordWithDefaultValue() {
+    assertEquals("Matched", fn1());
+    assertEquals("Matched", fn2());
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

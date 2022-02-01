@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
@@ -223,7 +224,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
         Package currentPackage = currentProject.get().currentPackage();
         String currentPackageName = CommonUtil.escapeReservedKeyword(currentPackage.packageName().value());
-        
+
         completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
         Optional<Module> currentModule = ctx.currentModule();
         for (Module module : currentPackage.modules()) {
@@ -356,6 +357,17 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 && module.isPresent() && (moduleNameComponents.size() >= 2 || node.moduleName().separatorSize() != 0)
                 && node.orgName().isEmpty()
                 && moduleNameComponents.get(moduleNameComponents.size() - 1).textRange().endOffset() <= cursor;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ImportDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token semicolon = node.semicolon();
+        if (semicolon.isMissing()) {
+            return true;
+        }
+        
+        return cursor < semicolon.textRange().endOffset();
     }
 
     private enum ContextScope {

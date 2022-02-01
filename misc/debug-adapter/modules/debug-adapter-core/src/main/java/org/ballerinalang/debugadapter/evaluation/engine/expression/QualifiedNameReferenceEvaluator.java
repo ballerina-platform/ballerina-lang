@@ -61,7 +61,7 @@ public class QualifiedNameReferenceEvaluator extends Evaluator {
             }
 
             // Validates whether the given module has a public constant, using semantic API.
-            ModuleSymbol moduleSymbol = resolvedImports.get(modulePrefix);
+            ModuleSymbol moduleSymbol = resolvedImports.get(modulePrefix).getResolvedSymbol();
             List<ConstantSymbol> constSymbol = moduleSymbol.constants().stream()
                     .filter(constantSymbol -> constantSymbol.getName().isPresent()
                             && constantSymbol.getName().get().equals(nameReference))

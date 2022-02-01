@@ -823,6 +823,74 @@ function testDependentlyTypedFunctionWithIncludedRecordParam() {
     assert("application/json 5", checkpanic p29);
 }
 
+client class ClientObjImpl {
+    *ClientObject;
+    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream <rowType> =
+    @java:Method {
+                'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                name: "getStreamOfRecords",
+                paramTypes: ["io.ballerina.runtime.api.values.BStream", "io.ballerina.runtime.api.values.BTypedesc"]
+                } external;
+}
+
+public type ClientObject client object {
+    remote isolated function query(stream<record {}> strm, typedesc<record {}> rowType = <>) returns stream <rowType>;
+};
+
+function testDependentlyTypedMethodCallOnObjectType() {
+    ClientObject cl = new ClientObjImpl();
+    Person p1 = getRecord();
+    Person p2 = getRecord();
+    Person[] personList = [p1, p2];
+    stream<Person> personStream = personList.toStream();
+    stream<Person> y = cl->query(personStream, Person);
+    var rec = y.next();
+    if (rec is record {| Person value; |}) {
+        Person person = rec.value;
+        assert(20, person.age);
+        assert("John Doe", person.name);
+    }
+    rec = y.next();
+    assert(true, rec is record {| Person value; |});
+}
+
+function testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument() {
+    ClientObject cl = new ClientObjImpl();
+    Person p1 = getRecord();
+    Person p2 = getRecord();
+    Person[] personList = [p1, p2];
+    stream<Person> personStream = personList.toStream();
+    stream<Person> y = cl->query(personStream);
+    var rec = y.next();
+    if (rec is record {| Person value; |}) {
+        Person person = rec.value;
+        assert(20, person.age);
+        assert("John Doe", person.name);
+    }
+    rec = y.next();
+    assert(true, rec is record {| Person value; |});
+}
+
+function functionWithInferredArgForParamOfTypeReferenceType(TargetType t = <>) returns t =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "functionWithInferredArgForParamOfTypeReferenceType"
+    } external;
+
+function testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType() {
+    int a = functionWithInferredArgForParamOfTypeReferenceType();
+    assert(9876, a);
+
+    string b = functionWithInferredArgForParamOfTypeReferenceType();
+    assert("hello!", b);
+
+    int c = functionWithInferredArgForParamOfTypeReferenceType(int);
+    assert(9876, c);
+
+    var d = functionWithInferredArgForParamOfTypeReferenceType(string);
+    assert("hello!", d);
+}
+
 // Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {

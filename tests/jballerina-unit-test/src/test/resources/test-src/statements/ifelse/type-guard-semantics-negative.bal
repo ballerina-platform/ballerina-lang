@@ -488,7 +488,7 @@ function jsonIntersectionNegative(json j) {
 public type Bar record {|
     record {|
         string s;
-    |} baz?;
+    |}? baz?;
 |};
 
 function testIntersectionWithIntersectionTypeNegative() {

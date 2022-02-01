@@ -60,17 +60,14 @@ class EvaluatorImpl extends Evaluator {
     @Override
     public String evaluate(String source) throws BallerinaShellException {
         try {
-            Collection<String> statements = preprocessor.process(source);
-            Collection<Node> nodes = treeParser.parse(statements);
+            Collection<Node> nodes = treeParser.parseString(source);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
             Optional<Object> invokerOut = invoker.execute(snippets);
             return invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
         } finally {
-            addAllDiagnostics(preprocessor.diagnostics());
             addAllDiagnostics(treeParser.diagnostics());
             addAllDiagnostics(snippetFactory.diagnostics());
             addAllDiagnostics(invoker.diagnostics());
-            preprocessor.resetDiagnostics();
             treeParser.resetDiagnostics();
             snippetFactory.resetDiagnostics();
             invoker.resetDiagnostics();

@@ -38,6 +38,20 @@ public class ServiceDeclTest {
     }
 
     @Test()
+    public void testServiceDeclDistinctListenerArg() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/service_decl_distinct_listener_arg.bal");
+        BRunUtil.invoke(compileResult, "testServiceDecl");
+    }
+
+    @Test()
+    public void testServiceDeclWithTypeRefDistinctListenerArg() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/service_decl_with_type_ref_distinct_listener_arg.bal");
+        BRunUtil.invoke(compileResult, "testServiceDecl");
+    }
+
+    @Test()
     public void testServiceNameLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
         BRunUtil.invoke(compileResult, "testServiceName");
@@ -53,6 +67,19 @@ public class ServiceDeclTest {
     public void testServiceClassMethodAnnot() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_class_method_annot.bal");
         BRunUtil.invoke(compileResult, "testAnnot");
+    }
+
+    @Test
+    public void testServiceDeclAnnot() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_annot.bal");
+        BRunUtil.invoke(compileResult, "testServiceDeclAnnots");
+    }
+
+    @Test
+    public void testServiceDeclOnListenerThatMayReturnCustomError() {
+        CompileResult result = BCompileUtil.compileWithoutInitInvocation(
+                "test-src/services/service_decl_with_listener_returning_custom_error.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
@@ -76,10 +103,15 @@ public class ServiceDeclTest {
         validateError(result, i++, "listener variable incompatible types: 'ue' is not a Listener object", 162, 1);
         validateError(result, i++, "listener variable incompatible types: 'ui' is not a Listener object", 165, 1);
         validateError(result, i++, "incompatible types: expected 'listener', found 'UnionWithInt'", 167, 14);
-        validateError(result, i++, "service type is not supported by the listener", 190, 14);
+        validateError(result, i++,
+                "service declaration does not implement all required constructs of type: 'ServType'", 190, 1);
         validateError(result, i++, "service absolute path or literal is required by listener", 209, 12);
         validateError(result, i++, "no implementation found for the method 'exec' of service declaration " +
                 "'object { function exec () returns ((any|error)); }'", 213, 1);
+        validateError(result, i++, "invalid object constructor return type 'Int?', expected a subtype of 'error?' " +
+                "containing '()'", 245, 36);
+        validateError(result, i++, "incompatible types: expected 'listener', found '" +
+                "(ListenerWithNonNilInitReturnType|Int)'", 264, 12);
         Assert.assertEquals(i, result.getErrorCount());
     }
 }

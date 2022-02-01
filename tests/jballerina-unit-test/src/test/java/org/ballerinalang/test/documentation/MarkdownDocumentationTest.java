@@ -786,4 +786,25 @@ public class MarkdownDocumentationTest {
         BLangMarkdownDocumentation markdownDocumentationAttachment = bLangFunction.getMarkdownDocumentationAttachment();
         Assert.assertEquals(markdownDocumentationAttachment.getDocumentation(), "This is the doc");
     }
+
+    @Test(description = "Test error message for docs on disallowed constructs")
+    public void testDocumentationOnDisallowedConstructs() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/documentation/markdown_on_disallowed_constructs.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+
+        int index = 0;
+
+        BAssertUtil.validateError(compileResult, index++,
+                "documentation and annotations are not allowed for 'import declaration'", 17, 1);
+        BAssertUtil.validateError(compileResult, index++,
+                "cannot resolve module 'foobar/foo.bar.baz as pkg1'", 18, 1);
+        BAssertUtil.validateError(compileResult, index++,
+                "documentation and annotations are not allowed for 'XML namespace declaration'", 20, 1);
+        BAssertUtil.validateError(compileResult, index++,
+                "documentation and annotations are not allowed for 'record rest descriptor'", 25, 15);
+        BAssertUtil.validateError(compileResult, index,
+                "documentation and annotations are not allowed for 'object type inclusion'", 34, 5);
+    }
 }

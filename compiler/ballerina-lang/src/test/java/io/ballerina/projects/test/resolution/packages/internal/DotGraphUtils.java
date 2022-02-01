@@ -27,24 +27,19 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-
-import static guru.nidi.graphviz.model.Factory.mutGraph;
-import static guru.nidi.graphviz.model.Factory.mutNode;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Contains a list of utility methods to work with dot graphs.
@@ -54,6 +49,14 @@ import static guru.nidi.graphviz.model.Factory.mutNode;
 public class DotGraphUtils {
 
     private DotGraphUtils() {
+    }
+
+    public static MutableGraph createGraph(String content) {
+        try {
+            return new Parser().read(content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static MutableGraph createGraph(Path dotFilePath) {
@@ -66,24 +69,40 @@ public class DotGraphUtils {
 
     public static DependencyNode getDependencyNode(String name,
                                                    String repo,
-                                                   String scopeStr,
+                                                   PackageDependencyScope scope,
                                                    String resolutionTypeStr) {
-        PackageDescriptor pkgDesc = getPkgDescFromNode(name, repo);
-        PackageDependencyScope scope = PackageDependencyScope.valueOf(scopeStr.toUpperCase(Locale.ENGLISH));
+        PackageDescriptor pkgDesc = Utils.getPkgDescFromNode(name, repo);
         DependencyResolutionType resolutionType = DependencyResolutionType.valueOf(
                 resolutionTypeStr.toUpperCase(Locale.ENGLISH));
         return new DependencyNode(pkgDesc, scope, resolutionType);
     }
 
-    public static PackageDescriptor getPkgDescFromNode(String name) {
-        return getPkgDescFromNode(name, null);
-    }
+    public static DependencyGraph<PackageDescriptor> createPackageDescGraph(MutableGraph mutableGraph) {
+        Map<String, PackageDescriptor> pkgDescMap = new HashMap<>();
+        DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder =
+                DependencyGraph.DependencyGraphBuilder.getBuilder();
+        for (MutableNode node : mutableGraph.nodes()) {
+            MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
 
-    public static PackageDescriptor getPkgDescFromNode(String name, String repo) {
-        String[] split = name.split("/");
-        String[] split1 = split[1].split(":");
-        return PackageDescriptor.from(PackageOrg.from(split[0]), PackageName.from(split1[0]),
-                PackageVersion.from(split1[1]), repo);
+            String repo = null;
+            if (attrs.get("repo") != null) {
+                repo = Objects.requireNonNull(attrs.get("repo")).toString();
+                if (!repo.equals("local")) {
+                    throw new IllegalStateException("Unsupported repository: " + repo);
+                }
+            }
+
+            String name = node.name().toString();
+            pkgDescMap.put(name, Utils.getPkgDescFromNode(name, repo));
+        }
+
+        for (Link edge : mutableGraph.edges()) {
+            PackageDescriptor dependent = pkgDescMap.get(edge.from().name().toString());
+            PackageDescriptor dependency = pkgDescMap.get(edge.to().name().toString());
+            graphBuilder.addDependency(dependent, dependency);
+        }
+
+        return graphBuilder.build();
     }
 
     public static DependencyGraph<DependencyNode> createDependencyNodeGraph(MutableGraph mutableGraph) {
@@ -102,12 +121,7 @@ public class DotGraphUtils {
                 }
             }
 
-            String scope;
-            if (attrs.get("scope") != null) {
-                scope = Objects.requireNonNull(attrs.get("scope")).toString();
-            } else {
-                scope = "default";
-            }
+            PackageDependencyScope scope = Utils.getDependencyScope(attrs.get("scope"));
 
             String kind;
             if (attrs.get("kind") != null) {
@@ -128,22 +142,26 @@ public class DotGraphUtils {
         return graphBuilder.build();
     }
 
-    public static MutableGraph getDotGraph(DependencyGraph<DependencyNode> actualGraph,
-                                           OutputStream outputStream) throws IOException {
-        MutableGraph dotGraph = mutGraph("dependency-graph").setDirected(true);
-        Collection<DependencyNode> dependencyNodes = actualGraph.getNodes();
-        for (DependencyNode dependencyNode : dependencyNodes) {
-            Collection<DependencyNode> directDependencies = actualGraph.getDirectDependencies(dependencyNode);
-            if (directDependencies.isEmpty()) {
-                continue;
-            }
-            MutableNode rootNode = mutNode(dependencyNode.pkgDesc().toString());
-            for (DependencyNode directDependency : directDependencies) {
-                rootNode = rootNode.addLink(mutNode(directDependency.pkgDesc().toString()));
-            }
-            dotGraph = dotGraph.add(rootNode);
+    public static Set<String> getModuleNames(MutableGraph packageGraph, PackageDescriptor rootPkgDesc) {
+        Optional<MutableNode> rootNodeOptional = packageGraph.nodes().stream()
+                .filter(node -> node.name().toString().equals(packageGraph.name().toString()))
+                .findAny();
+
+        // Add the default modules;
+        Set<String> modules = new HashSet<>();
+        modules.add(rootPkgDesc.name().value());
+        if (rootNodeOptional.isEmpty()) {
+            return modules;
         }
 
-        return dotGraph;
+        Object otherModuleAttr = rootNodeOptional.get().attrs().get("other_modules");
+        if (otherModuleAttr != null) {
+            String[] otherModules = otherModuleAttr.toString().split(",");
+            for (String otherModule : otherModules) {
+                modules.add(otherModule.trim());
+            }
+        }
+
+        return modules;
     }
 }

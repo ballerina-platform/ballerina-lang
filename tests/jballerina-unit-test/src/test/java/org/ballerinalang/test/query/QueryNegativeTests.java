@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Negative test cases for query expressions.
@@ -99,8 +100,11 @@ public class QueryNegativeTests {
     public void testFromClauseWithInvalidAssignmentToFinalVar() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query_dataflow_negative.bal");
         int index = 0;
+        validateWarning(compileResult, index++, "unused variable 'x'", 42, 5);
+        validateWarning(compileResult, index++, "unused variable 'person'", 42, 21);
         validateError(compileResult, index++, "cannot assign a value to final 'person'", 44, 17);
+        validateWarning(compileResult, index++, "unused variable 'outputNameList'", 58, 5);
         validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 62, 10);
-        Assert.assertEquals(compileResult.getErrorCount(), index);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }

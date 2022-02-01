@@ -52,7 +52,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_OBJECT_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getAsJString;
 
 /**
@@ -117,7 +117,7 @@ public class NewExpressionEvaluator extends Evaluator {
 
         Optional<ClassSymbol> classSymbol;
         if (modulePrefix.isPresent()) {
-            ModuleSymbol importedModule = resolvedImports.get(modulePrefix.get());
+            ModuleSymbol importedModule = resolvedImports.get(modulePrefix.get()).getResolvedSymbol();
             classSymbol = classDefResolver.findBalClassDefWithinModule(importedModule, className);
         } else {
             classSymbol = classDefResolver.findBalClassDefWithinModule(className);
@@ -155,7 +155,7 @@ public class NewExpressionEvaluator extends Evaluator {
         List<Value> argValues = new ArrayList<>();
         argValues.add(getAsJString(context, moduleId.orgName()));
         argValues.add(getAsJString(context, moduleId.moduleName()));
-        argValues.add(getAsJString(context, moduleId.version().split(MODULE_VERSION_SEPARATOR)[0]));
+        argValues.add(getAsJString(context, moduleId.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0]));
         argValues.add(getAsJString(context, className));
         for (Map.Entry<String, Evaluator> evaluator : argEvaluators) {
             try {

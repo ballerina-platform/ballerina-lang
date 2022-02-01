@@ -24,7 +24,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -50,7 +50,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
@@ -102,7 +102,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             if (!resolvedImports.containsKey(modulePrefix.get())) {
                 throw createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix.get());
             }
-            functionMatches = resolvedImports.get(modulePrefix.get()).functions().stream()
+            functionMatches = resolvedImports.get(modulePrefix.get()).getResolvedSymbol().functions().stream()
                     .filter(symbol -> symbol.getName().isPresent() &&
                             modifyName(symbol.getName().get()).equals(functionName))
                     .collect(Collectors.toList());
@@ -147,7 +147,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))
-                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR)[0])
+                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
                 .add(className)
                 .toString();
     }
@@ -157,7 +157,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
      * Todo - remove
      */
     public static String modifyName(String identifier) {
-        return IdentifierUtils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
+        return Utils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
                 IdentifierModifier.IdentifierType.OTHER));
     }
 }

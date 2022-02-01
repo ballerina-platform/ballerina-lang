@@ -29,7 +29,8 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext<OptionalFieldAccessExpressionNode> {
+public class OptionalFieldAccessExpressionNodeContext
+        extends AbstractFieldAccessExpressionNodeContext<OptionalFieldAccessExpressionNode> {
     public OptionalFieldAccessExpressionNodeContext() {
         super(OptionalFieldAccessExpressionNode.class);
     }

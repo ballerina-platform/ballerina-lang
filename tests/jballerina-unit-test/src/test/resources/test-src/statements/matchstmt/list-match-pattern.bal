@@ -116,6 +116,9 @@ function listMatchPattern3(any v) returns string {
         [CONST1, CONST2] => {
             return "[CONST1, CONST2]";
         }
+        [CONST2, CONST1] => {
+            return "[CONST2, CONST1]";
+        }
         [[CONST1, CONST2]] => {
             return "[[CONST1, CONST2]]";
         }
@@ -135,6 +138,8 @@ function testListMatchPattern3() {
     assertEquals("[CONST1]", listMatchPattern3(["Ballerina"]));
     assertEquals("[CONST1, CONST2]", listMatchPattern3(["Ballerina", 200]));
     assertEquals("[CONST1, CONST2]", listMatchPattern3([CONST1, CONST2]));
+    assertEquals("[CONST2, CONST1]", listMatchPattern3([200, "Ballerina"]));
+    assertEquals("[CONST2, CONST1]", listMatchPattern3([CONST2, CONST1]));
     assertEquals("[[CONST1, CONST2]]", listMatchPattern3([[CONST1, CONST2]]));
     assertEquals("[[CONST1, CONST2]]", listMatchPattern3([["Ballerina", 200]]));
     assertEquals("[[CONST1], [CONST2]]", listMatchPattern3([[CONST1], [CONST2]]));
@@ -846,6 +851,36 @@ function testListMatchPattern30() {
         }
     }
     assertEquals("Pattern2", result);
+}
+
+type T readonly & S;
+type S [INT, int]|[STRING, string];
+
+const INT = 1;
+const STRING = 2;
+
+function testListMatchPattern31() {
+    T t1 = [STRING, "hello"];
+    T t2 = [INT, 1234];
+
+    assertEquals(["hello", ()], listMatchPattern31(t1));
+    assertEquals([(), 1234], listMatchPattern31(t2));
+}
+
+function listMatchPattern31(T t) returns [string?, int?] {
+    string? s = ();
+    int? i = ();
+
+    match t {
+        [STRING, var val] => {
+            s = val;
+        }
+        [INT, var val] => {
+            i = val;
+        }
+    }
+
+    return [s, i];
 }
 
 function assertEquals(anydata expected, anydata actual) {

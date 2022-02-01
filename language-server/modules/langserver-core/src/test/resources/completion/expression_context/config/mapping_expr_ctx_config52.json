@@ -1,0 +1,64 @@
+{
+  "position": {
+    "line": 6,
+    "character": 19
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source52.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONST1",
+      "kind": "Variable",
+      "detail": "\"Test\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "AB",
+      "insertText": "CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "param2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "param2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "param1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "param1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b",
+      "kind": "Variable",
+      "detail": "map<any>",
+      "sortText": "AB",
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

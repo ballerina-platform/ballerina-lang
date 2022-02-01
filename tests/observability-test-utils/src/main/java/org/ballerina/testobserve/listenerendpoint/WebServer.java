@@ -248,8 +248,9 @@ public class WebServer {
                     TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getMajorVersion(),
                     resourceFunctionName);
             Utils.logInfo("Dispatching resource " + resourcePath);
-            runtime.invokeMethodAsync(serviceObject, resourceFunctionName, null, strandMetadata,
-                    new WebServerCallableUnitCallback(ctx, resourcePath), properties, resource.getReturnType(), args);
+            runtime.invokeMethodAsyncConcurrently(serviceObject, resourceFunctionName, null, strandMetadata,
+                                                  new WebServerCallableUnitCallback(ctx, resourcePath), properties,
+                                                  resource.getReturnType(), args);
         }
 
         @Override

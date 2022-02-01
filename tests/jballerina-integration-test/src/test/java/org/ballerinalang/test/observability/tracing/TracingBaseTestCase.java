@@ -46,8 +46,8 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
     protected static final String TEST_SRC_PACKAGE_NAME = "tracing_tests";
     protected static final String TEST_SRC_UTILS_MODULE_NAME = TEST_SRC_PACKAGE_NAME + ".utils";
 
-    protected static final String DEFAULT_MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0";
-    protected static final String UTILS_MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_UTILS_MODULE_NAME + ":0";
+    protected static final String DEFAULT_MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0.0.1";
+    protected static final String UTILS_MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_UTILS_MODULE_NAME + ":0.0.1";
 
     protected static final String MOCK_CLIENT_FILE_NAME = "mock_client_endpoint.bal";
 

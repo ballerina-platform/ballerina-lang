@@ -16,7 +16,7 @@
   {
     "description": "Field access of non-existing field.",
     "code": "j1.age.year",
-    "expr": "error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'age' not found in JSON mapping\")"
+    "expr": "error(\"{ballerina/lang.map}KeyNotFound\",message=\"key 'age' not found in JSON mapping\")"
   },
   {
     "description": "Optional field access.",
@@ -24,6 +24,10 @@
   },
   {
     "description": "Field access of null.",
-    "code": "json j2 = null; j2?.name"
+    "code": "json j2 = null;"
+  },
+  {
+    "description": "Field access of null - get value.",
+    "code": "j2?.name"
   }
 ]

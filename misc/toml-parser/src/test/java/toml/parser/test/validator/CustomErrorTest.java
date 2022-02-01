@@ -56,7 +56,7 @@ public class CustomErrorTest {
         Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
 
         Diagnostic customDiagMessage = toml.diagnostics().get(0);
-        Assert.assertEquals(customDiagMessage.message(), "org cant be empty");
+        Assert.assertEquals(customDiagMessage.message(), "org can only contain a-z chars");
 
         Diagnostic defaultDiagMessage = toml.diagnostics().get(1);
         Assert.assertEquals(defaultDiagMessage.message(), "value for key 'version' expected to match the regex: ^" +
@@ -90,5 +90,19 @@ public class CustomErrorTest {
 
         Diagnostic customDiagMessageAddtionalProp = toml.diagnostics().get(1);
         Assert.assertEquals(customDiagMessageAddtionalProp.message(), "field 'additional' is not supported");
+    }
+
+    @Test
+    public void testMinMaxLengthMessage() throws IOException {
+        Path resourceDirectory = basePath.resolve("schema.json");
+        Path sampleInput = basePath.resolve("string-length.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        Diagnostic maxLenDiag = toml.diagnostics().get(0);
+        Assert.assertEquals(maxLenDiag.message(), "Custom message for exceeding max length goes here");
+
+        Diagnostic minLenDiag = toml.diagnostics().get(1);
+        Assert.assertEquals(minLenDiag.message(), "Custom message for min length goes here");
     }
 }

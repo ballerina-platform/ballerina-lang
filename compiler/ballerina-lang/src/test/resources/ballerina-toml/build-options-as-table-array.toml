@@ -1,0 +1,11 @@
+[package]
+org = "foo"
+name = "mod"
+version = "0.0.1"
+
+[[build-options]]
+observabilityIncluded = true
+offline = true
+skipTests = false
+cloud = "k8s"
+taintCheck = true

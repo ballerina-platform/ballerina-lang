@@ -357,10 +357,10 @@ public class RecordVariableDefinitionTest {
                 260, 24);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'map<(int|string)>', found " +
-                        "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}'",
+                        "'record {| never name?; (int|boolean|string) age; boolean? married?; (string|int)...; |}'",
                 285, 29);
-        BAssertUtil.validateError(resultNegative, ++i, "field access cannot be used to access an optional field, use " +
-                        "optional field access or member access", 287, 23);
+        BAssertUtil.validateError(resultNegative, ++i, "field access cannot be used to access an optional field " +
+                "of a type that includes nil, use optional field access or member access", 287, 24);
         BAssertUtil.validateError(resultNegative, ++i,
                 "a wildcard binding pattern can be used only with a value that belong to type 'any'",
                 298, 12);

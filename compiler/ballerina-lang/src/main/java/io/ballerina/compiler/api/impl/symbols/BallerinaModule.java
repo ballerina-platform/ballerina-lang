@@ -83,7 +83,13 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             return this.id;
         }
 
-        this.id = new BallerinaModuleID(this.packageSymbol.pkgID);
+        ModuleID moduleID;
+        if (this.packageSymbol.importPrefix != null) {
+            moduleID = new BallerinaModuleID(this.packageSymbol.pkgID, this.packageSymbol.importPrefix);
+        } else {
+            moduleID = new BallerinaModuleID(this.packageSymbol.pkgID);
+        }
+        this.id = moduleID;
         return this.id;
     }
 

@@ -1,6 +1,7 @@
 import ballerina/module1;
 
 public class testClass {
+    public int field2 = 1234; 
     public int field1 = 
 }
 

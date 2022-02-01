@@ -31,14 +31,14 @@ dependencies {
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
 
-    implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:"${project.jacksonCoreVersion}"'
 
     testCompile 'org.testng:testng'
 
-    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '11.0.0'
-    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '11.0.0'
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: "${project.eclipseJettyServerVersion}"
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: "${project.eclipseJettyServletVersion}"
 }
 
 test {

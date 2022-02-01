@@ -60,7 +60,7 @@ public class RuntimeConstants {
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
 
     public static final Module BALLERINA_LANG_ERROR_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                        "lang.error", "1");
+                                                                        "lang.error", "0");
 
     // Lang libs
     public static final String STRING_LANG_LIB = "lang.string";
@@ -107,12 +107,13 @@ public class RuntimeConstants {
                                                                                          MathContext.DECIMAL128);
     // runtime related error message constant values
     public static final String INTERNAL_ERROR_MESSAGE =
-            "ballerina: Oh no, something really went wrong.\n" +
+            "ballerina: Oh no, something really went wrong. Bad. Sad.\n" +
             "\n" +
-            "If you are able to share with us the code that broke Ballerina then\n" +
-            "we would REALLY appreciate if you would report this to us:\n" +
-            "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
-            "create a bug report with both this log and the sample code.\n";
+            "We appreciate it if you can report the code that broke Ballerina in\n" +
+            "https://github.com/ballerina-platform/ballerina-lang/issues with the\n" +
+            "log you get below and your sample code.\n" +
+            "\n" +
+            "We thank you for helping make us better.\n";
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";

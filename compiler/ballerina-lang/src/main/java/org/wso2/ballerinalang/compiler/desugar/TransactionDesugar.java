@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -413,7 +412,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         int stmtIndex = onFailBodyBlock.stmts.isEmpty() ? 0 : 1;
         onFailBodyBlock.stmts.add(stmtIndex, rollbackCheck);
 
-        BErrorTypeSymbol transactionErrorSymbol = (BErrorTypeSymbol) symTable.langTransactionModuleSymbol
+        BSymbol transactionErrorSymbol = symTable.langTransactionModuleSymbol
                 .scope.lookup(names.fromString("Error")).symbol;
         BType errorType = transactionErrorSymbol.type;
 

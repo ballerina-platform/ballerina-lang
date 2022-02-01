@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -34,9 +36,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
  */
 public class BLangCompoundAssignment extends BLangStatement implements CompoundAssignmentNode {
 
+    // BLangNodes
     public BLangValueExpression varRef;
     public BLangExpression expr;
+
+    // Parser Flags and Data
     public OperatorKind opKind;
+
+    // Semantic Data
     public BLangExpression modifiedExpr;
 
     public BLangCompoundAssignment() {
@@ -77,6 +84,16 @@ public class BLangCompoundAssignment extends BLangStatement implements CompoundA
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

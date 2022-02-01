@@ -262,7 +262,7 @@ function testComplexTernary_2() returns string {
     int|string|float|boolean|xml x = "string";
     if(x is boolean) {return "boolean";}
     if (x is int|string|float|boolean) {
-        return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
+        return x is int ? "int" : (x is float ? "float" : x);
     } else {
         xml y = x;
         return "xml";
@@ -943,24 +943,16 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     boolean isGenericError = a1 is error && a2 is error;
     return [isSpecificError, isGenericError];
 }
+
 function testCustomErrorType() {
-    Details d = { message: "detail message" };
+    Details d = {message: "detail message"};
     MyError|MyErrorTwo e = error MyError(ERR_REASON, message = d.message);
-    if (e is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e is MyErrorTwo);
+    test:assertTrue(e is MyError);
+
     MyErrorTwo|MyError e1 = error MyError(ERR_REASON, message = d.message);
-    if (e1 is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e1 is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e1 is MyErrorTwo);
+    test:assertTrue(e1 is MyError);
 }
 
 function testTypeGuardForCustomErrorNegative() returns boolean {
@@ -1148,16 +1140,12 @@ function testNarrowedTypeResetWithNestedTypeGuards() {
                     int j = i;
                     jo = j;
                     i = "hello";
-                } else {
-                    int k = i;
                 }
             } else {
                 string s = i;
             }
             int|string? q = i;
             qo = q;
-        } else {
-            int|string x = i;
         }
         int|string? r = i;
         ro = r;

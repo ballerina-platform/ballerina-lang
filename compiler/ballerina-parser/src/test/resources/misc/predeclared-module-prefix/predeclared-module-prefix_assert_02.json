@@ -772,6 +772,10 @@
                         },
                         {
                           "kind": "COLON_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -1074,6 +1078,7 @@
                     },
                     {
                       "kind": "LOCAL_VAR_DECL",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -1130,12 +1135,15 @@
                         },
                         {
                           "kind": "BINARY_EXPRESSION",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "BINARY_EXPRESSION",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "QUALIFIED_NAME_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
@@ -1143,6 +1151,10 @@
                                     },
                                     {
                                       "kind": "COLON_TOKEN",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                      ],
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
@@ -1418,6 +1430,10 @@
                             },
                             {
                               "kind": "COLON_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -1512,6 +1528,10 @@
                             },
                             {
                               "kind": "COLON_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -1963,6 +1983,7 @@
                           "children": [
                             {
                               "kind": "QUALIFIED_NAME_REFERENCE",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
@@ -1976,6 +1997,10 @@
                                 },
                                 {
                                   "kind": "COLON_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -2171,6 +2196,10 @@
                                 },
                                 {
                                   "kind": "COLON_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -2373,6 +2402,10 @@
                                             },
                                             {
                                               "kind": "COLON_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                              ],
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "WHITESPACE_MINUTIAE",
@@ -2582,6 +2615,10 @@
                                 },
                                 {
                                   "kind": "COLON_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -2669,6 +2706,10 @@
                 },
                 {
                   "kind": "COLON_TOKEN",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -2871,7 +2912,8 @@
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_COLON_TOKEN"
+                                    "ERROR_MISSING_COLON_TOKEN",
+                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
                                   ]
                                 },
                                 {
@@ -2996,7 +3038,8 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_COLON_TOKEN"
+                                "ERROR_MISSING_COLON_TOKEN",
+                                "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
                               ]
                             },
                             {
@@ -3197,6 +3240,10 @@
                                 },
                                 {
                                   "kind": "COLON_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -3280,6 +3327,10 @@
                                 },
                                 {
                                   "kind": "COLON_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",

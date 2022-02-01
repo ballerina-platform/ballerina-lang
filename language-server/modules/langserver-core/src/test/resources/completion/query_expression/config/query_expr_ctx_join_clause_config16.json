@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 16,
+    "character": 23
+  },
+  "source": "query_expression/source/query_expr_ctx_join_clause_source16.bal",
+  "items": [
+    {
+      "label": "join",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "join",
+      "insertText": "join ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "join clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "join",
+      "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

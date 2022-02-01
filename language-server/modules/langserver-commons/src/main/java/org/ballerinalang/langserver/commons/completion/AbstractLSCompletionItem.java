@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.commons.completion;
 
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.InsertTextFormat;
 
 /**
@@ -62,7 +63,9 @@ public abstract class AbstractLSCompletionItem implements LSCompletionItem {
     }
 
     private void setInsertTextFormat(BallerinaCompletionContext context) {
-        boolean isSnippetSupported = context.getCapabilities().getCompletionItem().getSnippetSupport();
+        CompletionItemCapabilities itemCapabilities = context.getCapabilities().getCompletionItem();
+        boolean isSnippetSupported = itemCapabilities != null
+                && Boolean.TRUE.equals(itemCapabilities.getSnippetSupport());
         if (!isSnippetSupported) {
             this.completionItem.setInsertText(this.getPlainTextSnippet(this.completionItem.getInsertText()));
             this.completionItem.setInsertTextFormat(InsertTextFormat.PlainText);

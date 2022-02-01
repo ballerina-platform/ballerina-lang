@@ -77,46 +77,36 @@ jacocoTestReport {
 
 task downloadBalTestProject(type: Download) {
     // Download nBallerina latest tag
-    src "https://github.com/ballerina-platform/nballerina/archive/refs/tags/subset06.zip"
+    src "https://github.com/ballerina-platform/nballerina/archive/refs/tags/subset10.zip"
     onlyIfModified true
     dest new File("${buildDir}/nballeirna-src.zip")
 }
 
-def extractedBalSrcDir
-
 task unpackBalTestProject(type: Copy) {
+    dependsOn downloadBalTestProject
     def sourceDir = "${buildDir}/${balSourceDir}"
     from zipTree { "${buildDir}/nballeirna-src.zip" }
     new File("${sourceDir}").mkdirs()
     into new File("${sourceDir}")
-
-    // Find the compiler directory within nballerina source
-    new File("${sourceDir}").eachDir { parentDir ->
-        if (parentDir.isDirectory()) {
-            parentDir.eachDir { child ->
-                if (child.name == "compiler" && child.isDirectory()) {
-                    extractedBalSrcDir = "${sourceDir}/${parentDir.name}/${child.name}"
-                }
-            }
-        }
-    }
 }
 
 task runLSSimulator(type: JavaExec) {
-    dependsOn unpackBalTestProject
     dependsOn loadDistributionCache
+    dependsOn unpackBalTestProject
+
+    def extractedBalSrcDir =  "${buildDir}/${balSourceDir}/nballerina-subset10/compiler"
+    systemProperty "ls.simulation.src", "${extractedBalSrcDir}"
+
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "ballerina.version", project.version
     systemProperty "ls.simulation.duration", "60"
-    systemProperty "ls.simulation.src", "${extractedBalSrcDir}"
     systemProperty "LANG_REPO_BUILD", "false"
 
-    jvmArgs = ['-Xms256m', '-Xmx1024m', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=\"$buildDir\""]
+    jvmArgs = ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=$rootDir/dump.hprof"]
 
+    maxHeapSize "1024m"
     group = "Execution"
     description = "Run the main class with JavaExecTask"
     classpath = sourceSets.main.runtimeClasspath
     main = "org.ballerinalang.langserver.simulator.EditorSimulator"
 }
-
-unpackBalTestProject.dependsOn downloadBalTestProject

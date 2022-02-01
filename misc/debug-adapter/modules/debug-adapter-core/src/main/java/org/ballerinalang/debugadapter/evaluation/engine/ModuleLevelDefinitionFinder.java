@@ -17,7 +17,9 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -45,7 +47,7 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
 
     private final SuspendedContext context;
     private final Set<SyntaxKind> filters = new HashSet<>();
-    private final List<ModuleMemberDeclarationNode> result = new ArrayList<>();
+    private final List<NonTerminalNode> result = new ArrayList<>();
 
     public ModuleLevelDefinitionFinder(SuspendedContext context) {
         this.context = context;
@@ -56,11 +58,11 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
     }
 
     /**
-     * Search for all the top level declarations, in the the ballerina module that contains the debug hit source line.
+     * Search for all the top level declarations, in the ballerina module that contains the debug hit source line.
      *
      * @return any function definitions with the specified name, if present.
      */
-    public List<ModuleMemberDeclarationNode> getModuleDeclarations() {
+    public List<NonTerminalNode> getCurrentModuleDeclarations() {
         return getModuleDeclarations(context.getModule());
     }
 
@@ -70,7 +72,7 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
      * @param module Ballerina module
      * @return any function definitions with the specified name, if present.
      */
-    public List<ModuleMemberDeclarationNode> getModuleDeclarations(Module module) {
+    public List<NonTerminalNode> getModuleDeclarations(Module module) {
         for (DocumentId documentId : module.documentIds()) {
             searchInFile(module.document(documentId));
         }
@@ -78,27 +80,30 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
     }
 
     private void searchInFile(Document document) {
-        document.syntaxTree().rootNode().accept(this);
+        if (!document.syntaxTree().containsModulePart()) {
+            return;
+        }
+        ModulePartNode modulePartNode = document.syntaxTree().rootNode();
+        modulePartNode.imports().forEach(this::visitSyntaxNode);
+        modulePartNode.members().forEach(this::visitSyntaxNode);
     }
 
     @Override
     protected void visitSyntaxNode(Node node) {
-        if (node instanceof ModuleMemberDeclarationNode) {
-            if (!filters.contains(node.kind())) {
-                return;
-            }
-            // Need to ignore the entry points ('main' function and services), when capturing top level definitions.
-            if (!(node instanceof FunctionDefinitionNode) ||
-                    !((FunctionDefinitionNode) node).functionName().toSourceCode().equals(MAIN_FUNCTION_NAME)) {
-                result.add((ModuleMemberDeclarationNode) node);
-            }
-        } else if (node instanceof Token) {
-            node.accept(this);
-        } else {
-            NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-            for (Node child : nonTerminalNode.children()) {
-                child.accept(this);
-            }
+        if (!filters.contains(node.kind()) || node instanceof Token) {
+            return;
         }
+
+        if (!(node instanceof ImportDeclarationNode) && !(node instanceof ModuleMemberDeclarationNode)) {
+            return;
+        }
+
+        // Need to ignore the entry points, when capturing top level definitions.
+        if (node instanceof FunctionDefinitionNode && ((FunctionDefinitionNode) node).functionName().toSourceCode()
+                .equals(MAIN_FUNCTION_NAME)) {
+            return;
+        }
+
+        result.add((NonTerminalNode) node);
     }
 }

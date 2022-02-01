@@ -189,6 +189,7 @@ function runTableTestcasesWithVarType() {
     testTableWithMultiKeySpecifier2();
     testInferTableType();
     testInferTableTypeV2();
+    testTableConstructExprVar();
 }
 
 function testSimpleTableInitializationWithVarType() {
@@ -458,6 +459,203 @@ function testUnionConstrainedTableIteration() {
     }
 
     assertEquality(expectedNames, names);
+}
+
+type FooRec record {
+    readonly int x;
+    int y;
+};
+
+public function testSpreadFieldInConstructor() {
+    string expected = "[{\"x\":1001,\"y\":20},{\"x\":1002,\"y\":30}]";
+    FooRec spreadField1 = {x: 1002, y: 30};
+
+    table<FooRec> tb1 = table key(x) [
+            {x: 1001, y: 20},
+            {...spreadField1}
+        ];
+    assertEquality(expected, tb1.toString());
+
+    var spreadField2 = {x: 1002, y: 30};
+
+    var tb2 = table key(x) [
+            {x: 1001, y: 20},
+            {...spreadField2}
+        ];
+    assertEquality(expected, tb2.toString());
+
+    var spreadField3 = {id: 2, name: "Jo", age: 12};
+    var tb3 = table [
+            {id: 1, name: "Mary", salary: 100.0},
+            {...spreadField3}
+        ];
+    assertEquality("[{\"id\":1,\"name\":\"Mary\",\"salary\":100.0},{\"id\":2,\"name\":\"Jo\",\"age\":12}]",
+    tb3.toString());
+}
+
+function testTableConstructExprVar() {
+    string s1 = "id";
+    string s2 = "employed";
+
+    var v1 = table [
+        {name: "Jo"},
+        {[s1]: 2},
+        {[s2]: false}
+    ];
+
+    table<record {|(string|int|boolean) name?; int|boolean...;|}> t1 = v1;
+    assertEquality("[{\"name\":\"Jo\"},{\"id\":2},{\"employed\":false}]", t1.toString());
+}
+
+function testTableTypeInferenceWithVarType() {
+    testTableTypeInferenceWithVarType1();
+    testTableTypeInferenceWithVarType2();
+    testTableTypeInferenceWithVarType3();
+    testTableTypeInferenceWithVarType4();
+    testTableTypeInferenceWithVarType5();
+    testTableTypeInferenceWithVarType6();
+    testTableTypeInferenceWithVarType7({i: 2});
+    testTableTypeInferenceWithVarType8();
+    testTableTypeInferenceWithVarType9();
+    testTableTypeInferenceWithVarType10();
+}
+
+function testTableTypeInferenceWithVarType1() {
+    var v1 = table [
+            {a: 1},
+            {a: "str", b: 2}
+        ];
+
+    table<record {|int|string a; int b?;|}> _ = v1;
+    v1.add({a: 1});
+    v1.add({a: "str", b: 2});
+}
+
+function testTableTypeInferenceWithVarType2() {
+    record {|string a; int b?;|} m = {a: "str", b: 2};
+    var v1 = table [
+            {a: 1},
+            {...m},
+            {a: true, c: 2, b: false}
+        ];
+
+    table<record {|(int|string|boolean) a; (int|boolean) b?; int c?;|}> _ = v1;
+    v1.add({a: 1});
+    v1.add({...m});
+    v1.add({a: true, c: 2, b: false});
+}
+
+function testTableTypeInferenceWithVarType3() {
+    record {|string|boolean a; int b?;|} m = {a: "str", b: 2};
+    var v1 = table [
+            {a: 1},
+            {...m}
+        ];
+
+    table<record {|(int|string|boolean) a; int b?;|}> _ = v1;
+    assertFalse(v1 is table<record {|(int|string) a; int b?;|}>);
+    v1.add({a: 1});
+    v1.add({...m});
+}
+
+function testTableTypeInferenceWithVarType4() {
+    record {|string|boolean a; int|json b?;|} m = {a: "str", b: 2};
+    var v1 = table [
+            {a: 1, b: "c"},
+            {...m}
+        ];
+
+    table<record {|(int|string|boolean) a; (int|string|json) b?;|}> _ = v1;
+    assertFalse(v1 is table<record {|(int|string) a; (int|string) b?;|}>);
+    v1.add({a: 1, b: "c"});
+    v1.add({...m});
+}
+
+function testTableTypeInferenceWithVarType5() {
+    record {string a; int b?;} m = {a: "str", b: 2};
+    string s1 = "a";
+    string s2 = "b";
+
+    var v1 = table [
+            {a: 1},
+            {...m},
+            {[s1] : true, c: 2, [s2] : false}
+        ];
+
+    table<record {|int|string|boolean a?; int|boolean b?; anydata c?; anydata...; |}> _ = v1;
+    v1.add({a: 1});
+    v1.add({...m});
+    v1.add({[s1] : true, c: 2, [s2] : false});
+}
+
+type FooUnion int|string;
+
+function testTableTypeInferenceWithVarType6() {
+    FooUnion f = 1;
+
+    var v1 = table [
+        {a: f},
+        {a: 1}
+    ];
+    table<record {| (int|string) a; |}> _ = v1;
+    v1.add({a: f});
+    v1.add({a: 1});
+}
+
+type FooRec2 record {|
+    int i;
+    never j?;
+    never k?;
+    never...;
+|};
+
+function testTableTypeInferenceWithVarType7(FooRec2 f) {
+    var v1 = table [
+            {...f},
+            {i: 1, j: 2, l: ""}
+        ];
+
+    table<record {|int i; int j?; never k?; string l?;never...; |}> _ = v1;
+    v1.add({...f});
+    v1.add({i: 1, j: 2, l: ""});
+}
+
+function testTableTypeInferenceWithVarType8() {
+    anydata f = 1;
+
+    var v1 = table [
+            {a: f},
+            {a: 1}
+        ];
+    table<record {|anydata a;|}> _ = v1;
+    v1.add({a: f});
+    v1.add({a: 1});
+}
+
+function testTableTypeInferenceWithVarType9() {
+    any f = 1;
+
+    var v1 = table [
+            {a: f},
+            {a: 1}
+        ];
+    table<record {|any a;|}> _ = v1;
+    v1.add({a: f});
+    v1.add({a: 1});
+}
+
+type IntArray int[];
+
+function testTableTypeInferenceWithVarType10() {
+    IntArray intArr = [0, 1];
+
+    var v1 = table [
+            {a: intArr},
+            {a: 1}
+        ];
+    table<record {|(int[]|int) a;|}> _ = v1;
+    v1.add({a: intArr});
+    v1.add({a: 1});
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -26,6 +26,14 @@
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.cli.cmd.PackCommand"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.PackCommand"/>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.cli.cmd.RunCommand"/>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
@@ -48,6 +56,11 @@
     <Match>
         <Class name="io.ballerina.cli.utils.BuildTime"/>
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Method name="addModules" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>>
         <Package name="io.ballerina.cli.launcher"/>

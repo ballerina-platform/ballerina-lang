@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
-import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -82,10 +82,10 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader)
+    public static void executeTests(Path sourceRootPath, Path targetPath, TestSuite testSuite, ClassLoader classLoader)
             throws RuntimeException {
         try {
-            BTestRunner testRunner = new BTestRunner(outStream, errStream);
+            BTestRunner testRunner = new BTestRunner(outStream, errStream, targetPath);
             // Run the tests
             testRunner.runTest(testSuite, classLoader);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
@@ -289,7 +289,7 @@ public class TesterinaUtils {
     }
 
     private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = IdentifierUtils.decodeIdentifier(stackTraceElement.getClassName());
+        String pkgName = Utils.decodeIdentifier(stackTraceElement.getClassName());
         String fileName = stackTraceElement.getFileName();
 
         // clean file name from pkgName since we print the file name after the method name.
@@ -307,7 +307,7 @@ public class TesterinaUtils {
         }
 
         // Append the method name
-        sb.append(IdentifierUtils.decodeIdentifier(stackTraceElement.getMethodName()));
+        sb.append(Utils.decodeIdentifier(stackTraceElement.getMethodName()));
         // Append the filename
         sb.append("(").append(stackTraceElement.getFileName());
         // Append the line number

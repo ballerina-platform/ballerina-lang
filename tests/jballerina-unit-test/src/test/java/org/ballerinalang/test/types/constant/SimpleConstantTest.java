@@ -458,6 +458,12 @@ public class SimpleConstantTest {
         Assert.assertEquals(returns[0].stringValue(), "25.5 rocks");
     }
 
+    @Test
+    public void testDecimalConstsWithTypeReferenceTypeDescriptorsDefinedWithNumericLiterals() {
+        BRunUtil.invoke(compileResult,
+                        "testDecimalConstsWithTypeReferenceTypeDescriptorsDefinedWithNumericLiterals");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

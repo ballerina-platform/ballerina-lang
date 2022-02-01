@@ -19,7 +19,6 @@ package org.ballerinalang.debugadapter.utils;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -114,7 +113,7 @@ public class PackageUtils {
         Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
         ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
         Path projectRoot = projectKindAndProjectRootPair.getValue();
-        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
+        BuildOptions options = BuildOptions.builder().setOffline(true).build();
         if (projectKind == ProjectKind.BUILD_PROJECT) {
             return BuildProject.load(projectRoot, options);
         } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {

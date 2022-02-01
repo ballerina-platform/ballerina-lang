@@ -6,6 +6,7 @@ SYNOPSIS
        bal test [--debug] <port>
        bal test [--offline] [--rerun-failed] [--experimental] [--observability-included]
        bal test [--code-coverage] [--coverage-format] <xml> [--test-report]
+       bal test [--target-dir] <target-directory-path>
        bal test [<ballerina-file-path> | <ballerina-package-path>] [--list-groups]
        bal test [<ballerina-file-path> | <ballerina-package-path>] [--groups] <test_group, ...>
        bal test [<ballerina-file-path> | <ballerina-package-path>] 
@@ -99,6 +100,9 @@ OPTIONS
        --observability-included
            Include the dependencies and artifacts in the  executable JAR file(s) of a 
            Ballerina program that are required to enable the observability functionalities on it.
+
+       --target-dir
+           Target directory path.
 
 
 EXAMPLES

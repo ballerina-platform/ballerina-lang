@@ -157,7 +157,7 @@ public class SymbolAtCursorTest {
 
     @Test(dataProvider = "WorkerSymbolPosProvider")
     public void testWorkers(int line, int column, String expSymbolName) {
-        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_workers_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/visiblesymbols/symbol_lookup_with_workers_test.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
 
@@ -172,13 +172,13 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "WorkerSymbolPosProvider")
     public Object[][] getWorkerPos() {
         return new Object[][]{
-                {21, 12, "w1"},
-                {23, 12, "w2"},
-                {26, 13, "w2"},
-                {28, 23, "w2"},
-                {34, 14, "w1"},
-                {36, 20, "w1"},
-                {39, 20, "w2"},
+                {20, 12, "w1"},
+                {22, 12, "w2"},
+                {25, 13, "w2"},
+                {27, 23, "w2"},
+                {33, 14, "w1"},
+                {35, 20, "w1"},
+                {38, 20, "w2"},
         };
     }
 
@@ -325,7 +325,7 @@ public class SymbolAtCursorTest {
                 {27, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {30, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {33, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
-                {35, 8, INT, DiagnosticState.VALID},
+                {35, 8, TYPE_REFERENCE, DiagnosticState.VALID},
         };
     }
 }

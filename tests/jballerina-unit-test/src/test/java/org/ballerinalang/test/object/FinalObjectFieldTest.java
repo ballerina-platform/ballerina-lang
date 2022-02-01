@@ -66,6 +66,6 @@ public class FinalObjectFieldTest {
         validateError(result, index++, "cannot update 'final' object field 'name'", 74, 5);
         validateError(result, index++, "cannot update 'final' object field 'name'", 91, 5);
         validateError(result, index++, "cannot update 'final' object field 'name'", 92, 5);
-        assertEquals(result.getErrorCount(), index);
+        assertEquals(result.getDiagnostics().length, index);
     }
 }

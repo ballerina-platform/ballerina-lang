@@ -389,6 +389,11 @@ public class FiniteTypeTest {
         BRunUtil.invoke(result, "testRecordStringEquality");
     }
 
+    @Test
+    public void testFiniteType() {
+        BRunUtil.invoke(result, "testFiniteType");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

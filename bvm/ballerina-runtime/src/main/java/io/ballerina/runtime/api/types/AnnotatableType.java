@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.api.types;
 
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -32,4 +33,5 @@ public interface AnnotatableType extends Type {
 
     Object getAnnotation(BString pkg, BString annotName);
 
+    BMap<BString, Object> getAnnotations();
 }

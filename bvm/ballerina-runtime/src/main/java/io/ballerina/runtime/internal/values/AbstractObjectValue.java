@@ -198,7 +198,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         if (type.isReadOnly()) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
         }
 
         Field field = type.getFields().get(fieldName);
@@ -206,7 +206,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL)) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
                                                          fieldName, type));
         }
         checkFieldUpdateType(fieldName, value);
@@ -219,10 +219,8 @@ public abstract class AbstractObjectValue implements ObjectValue {
         }
 
         throw ErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
-                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       StringUtils.fromString("invalid value for object field '" + fieldName +
-                                                                       "': expected value of type '" + fieldType +
-                                                                       "', found '" + TypeChecker.getType(value) +
-                                                                       "'"));
+                        INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_OBJECT_FIELD_VALUE_ERROR,
+                        fieldName, fieldType, TypeChecker.getType(value)));
     }
 }

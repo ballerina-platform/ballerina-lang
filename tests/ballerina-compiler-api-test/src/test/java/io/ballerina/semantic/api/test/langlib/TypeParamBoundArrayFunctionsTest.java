@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
@@ -114,7 +115,10 @@ public class TypeParamBoundArrayFunctionsTest {
 
         TypeSymbol mapFnRetType = mapFnType.returnTypeDescriptor().get();
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.ARRAY);
-        assertEquals(((ArrayTypeSymbol) mapFnRetType).memberTypeDescriptor().typeKind(), TypeDescKind.UNION);
+
+        TypeSymbol memberTypeSymbol = ((ArrayTypeSymbol) mapFnRetType).memberTypeDescriptor();
+        assertEquals(memberTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) memberTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
     }
 
     @Test
@@ -171,10 +175,13 @@ public class TypeParamBoundArrayFunctionsTest {
 //        assertEquals(fnType.params().get().get(0).typeDescriptor().typeKind(), TypeDescKind.INT);
 //        assertEquals(fnType.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
 
-        assertEquals(params.get(2).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        TypeSymbol typeParameterSymbol = params.get(2).typeDescriptor();
+        assertEquals(typeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) typeParameterSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
 
         TypeSymbol pushFnRetType = reduceFnType.returnTypeDescriptor().get();
-        assertEquals(pushFnRetType.typeKind(), TypeDescKind.UNION);
+        assertEquals(pushFnRetType.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) pushFnRetType).typeDescriptor().typeKind(), TypeDescKind.UNION);
     }
 
     @Test

@@ -565,7 +565,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.EXPRESSION, ParserRuleContext.BINDING_PATTERN };
 
     private static final ParserRuleContext[] LIST_BINDING_MEMBER_OR_ARRAY_LENGTH =
-            { ParserRuleContext.BINDING_PATTERN, ParserRuleContext.ARRAY_LENGTH };
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINDING_PATTERN, 
+                    ParserRuleContext.ARRAY_LENGTH_START };
 
     private static final ParserRuleContext[] BRACKETED_LIST_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS,
@@ -3726,6 +3727,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BLOCK_STMT;
             case BRACED_EXPRESSION:
                 return ParserRuleContext.OPEN_PARENTHESIS;
+            case ARRAY_LENGTH_START:
+                switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                startContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
+                return ParserRuleContext.ARRAY_LENGTH; 
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }

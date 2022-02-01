@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -179,19 +180,38 @@ public class UnaryExprTest {
 
     }
 
-    @Test(description = "Test complement operator")
-    public void testComplementOperator() {
-        BRunUtil.invoke(result, "testComplementOperator");
+    @Test(dataProvider = "dataToTestUnaryOperations", description = "test unary operators with types")
+    public void testUnaryOperations(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test(description = "Test unary operators with int sub types")
-    public void testUnaryOperationsWithIntSubtypes() {
-        BRunUtil.invoke(result, "testUnaryOperationsWithIntSubtypes");
+    @DataProvider(name = "dataToTestUnaryOperations")
+    public Object[] dataToTestUnaryOperations() {
+        return new String[] {
+                "testComplementOperator",
+                "testUnaryOperationsWithIntSubtypes",
+                "testUnaryOperationsWithNonBasicTypes"
+        };
+    }
+
+    @Test(description = "Test unary operators for nullable expressions")
+    public void testNullableUnaryExpressions() {
+        BRunUtil.invoke(result, "testNullableUnaryExpressions");
+    }
+
+    @Test(description = "Test unary operators with user defined subtypes")
+    public void testUnaryOperationsWithUserDefinedTypes() {
+        BRunUtil.invoke(result, "testUnaryOperationsWithUserDefinedTypes");
+    }
+
+    @Test(description = "Test resulting type of unary plus")
+    public void testResultingTypeOfUnaryPlus() {
+        BRunUtil.invoke(result, "testResultingTypeOfUnaryPlus");
     }
 
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
@@ -204,6 +224,19 @@ public class UnaryExprTest {
                 38, 15);
         BAssertUtil.validateError(resultNegative, 7, "incompatible types: expected 'int:Unsigned8', found 'int'",
                 41, 24);
+        BAssertUtil.validateError(resultNegative, 8, "operator '~' not defined for 'decimal'", 45, 18);
+        BAssertUtil.validateError(resultNegative, 9, "operator '~' not defined for 'float'", 46, 17);
+        BAssertUtil.validateError(resultNegative, 10, "operator '~' not defined for 'decimal'", 47, 18);
+        BAssertUtil.validateError(resultNegative, 11, "operator '!' not defined for 'decimal'", 48, 18);
+        BAssertUtil.validateError(resultNegative, 12, "incompatible types: expected 'A', found 'int'",
+                56, 11);
+        BAssertUtil.validateError(resultNegative, 13, "incompatible types: expected 'B', found 'float'",
+                59, 11);
+        BAssertUtil.validateError(resultNegative, 14, "operator '-' not defined for 'C'", 74, 13);
+        BAssertUtil.validateError(resultNegative, 15, "operator '-' not defined for 'D'", 77, 13);
+        BAssertUtil.validateError(resultNegative, 16, "operator '+' not defined for '(decimal|DecimalType1)'", 80, 24);
+        BAssertUtil.validateError(resultNegative, 17, "operator '-' not defined for 'DecimalType1'", 83, 24);
+        BAssertUtil.validateError(resultNegative, 18, "operator '+' not defined for '(decimal|DecimalType2)'", 86, 24);
     }
 
     @AfterClass

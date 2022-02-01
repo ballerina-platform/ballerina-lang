@@ -35,9 +35,6 @@ public class PackageFileWriter {
     public static byte[] writePackage(PackageFile packageFile) throws IOException {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {
-            dataOutStream.writeInt(PackageFile.MAGIC_VALUE);
-            dataOutStream.writeShort(PackageFile.LANG_VERSION);
-
             dataOutStream.write(packageFile.pkgBinaryContent);
             return byteArrayOS.toByteArray();
         }
@@ -46,9 +43,6 @@ public class PackageFileWriter {
     public static byte[] writePackage(BIRPackageFile packageFile) throws IOException {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         try (DataOutputStream dataOutStream = new DataOutputStream(byteArrayOS)) {
-            dataOutStream.write(BIRPackageFile.BIR_MAGIC);
-            dataOutStream.writeInt(BIRPackageFile.BIR_VERSION);
-
             dataOutStream.write(packageFile.pkgBirBinaryContent);
             return byteArrayOS.toByteArray();
         }

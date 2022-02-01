@@ -221,10 +221,42 @@ function testStringTemplateExprWithUnionType() {
 function testNumericEscapes() {
         string s1 = string `\u{61}`;
         string s2 = string `\u{61}ppl\\u{65}`;
+        string s3 = string `A \u{5C} B`;
+        string s4 = string `A \\u{5C} B`;
 
         assertEquality("\\u{61}", s1);
         assertEquality("[92,117,123,54,49,125]", s1.toBytes().toString());
         assertEquality("\\u{61}ppl\\\\u{65}", s2);
+        assertEquality("A \\u{5C} B", s3);
+        assertEquality("A \\\\u{5C} B", s4);
+}
+
+type Type1 1|2|3;
+type Type2 "int"|"string"|Type1;
+type Type3 1|"hello"|Type2;
+type Type4 2.0|3.0|5.0;
+
+function testStringTemplateWithFiniteType() {
+    Type1 a = 2;
+    Type2 b = 3;
+    Type2 c = "string";
+    Type3 d = "hello";
+    Type4 e = 2.0;
+
+    string str = string `${a}`;
+    assertEquality("2", str);
+
+    str = string `${b}`;
+    assertEquality("3", str);
+
+    str = string `${c}`;
+    assertEquality("string", str);
+
+    str = string `${d}`;
+    assertEquality("hello", str);
+
+    str = string `${e}`;
+    assertEquality("2.0", str);
 }
 
 function assertEquality(anydata expected, anydata actual) {

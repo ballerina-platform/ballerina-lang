@@ -23,6 +23,7 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -90,6 +92,8 @@ public class BIRBinaryWriter {
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
+            dataOut.write(CompiledBinaryFile.BIRPackageFile.BIR_MAGIC);
+            dataOut.writeInt(CompiledBinaryFile.BIRPackageFile.BIR_VERSION);
             dataOut.write(cp.serialize());
             dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
             return baos.toByteArray();
@@ -176,13 +180,15 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(typeDef.originalName.value));
         // Flags
         buf.writeLong(typeDef.flags);
-        buf.writeByte(typeDef.isLabel ? 1 : 0);
         // Origin
         buf.writeByte(typeDef.origin.value());
         // write documentation
         typeWriter.writeMarkdownDocAttachment(buf, typeDef.markdownDocAttachment);
         writeAnnotAttachments(buf, typeDef.annotAttachments);
         writeType(buf, typeDef.type);
+
+        boolean hasReferenceType = typeDef.referenceType != null;
+        buf.writeBoolean(hasReferenceType);
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter,
@@ -512,16 +518,17 @@ public class BIRBinaryWriter {
     }
 
     private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
-        if (annotValue.type.tag == TypeTags.ARRAY) {
-            writeType(annotBuf, annotValue.type);
+        BType annotType = JvmCodeGenUtil.getReferredType(annotValue.type);
+        if (annotType.tag == TypeTags.ARRAY) {
+            writeType(annotBuf, annotType);
             BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;
             annotBuf.writeInt(annotArrayValue.annotArrayValue.length);
             for (BIRAnnotationValue annotValueEntry : annotArrayValue.annotArrayValue) {
                 writeAnnotAttachValue(annotBuf, annotValueEntry);
             }
 
-        } else if (annotValue.type.tag == TypeTags.RECORD || annotValue.type.tag == TypeTags.MAP) {
-            writeType(annotBuf, annotValue.type);
+        } else if (annotType.tag == TypeTags.RECORD || annotType.tag == TypeTags.MAP) {
+            writeType(annotBuf, annotType);
             BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) annotValue;
             annotBuf.writeInt(annotRecValue.annotValueEntryMap.size());
             for (Map.Entry<String, BIRAnnotationValue> annotValueEntry : annotRecValue.annotValueEntryMap.entrySet()) {

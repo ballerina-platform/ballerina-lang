@@ -1,3 +1,3 @@
 ## Module Overview
 
-The `lang.decimal` module corresponds to basic type decimal.
+The `lang.decimal` module corresponds to the `decimal` basic type.

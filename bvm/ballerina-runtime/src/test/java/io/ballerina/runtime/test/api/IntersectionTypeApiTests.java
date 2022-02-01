@@ -23,10 +23,12 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -75,6 +77,16 @@ public class IntersectionTypeApiTests {
         Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType1);
         Assert.assertEquals(bIntersectionType1.getIntersectionType().get(), bIntersectionType2);
         Assert.assertNotEquals(arrayType.getIntersectionType().get(), bIntersectionType2);
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "Unsupported " +
+            "intersection type found: \\(test_module:TestError & error\\).*")
+    public void testNonReadonlyIntersectionType() {
+        ErrorType type1 = TypeCreator.createErrorType("TestError", module, PredefinedTypes.TYPE_MAP);
+        BIntersectionType bIntersectionType =
+                new BIntersectionType(module, new Type[]{type1, PredefinedTypes.TYPE_ERROR},
+                        PredefinedTypes.TYPE_READONLY, 0, true);
+        ReadOnlyUtils.getMutableType(bIntersectionType);
     }
 
     @Test

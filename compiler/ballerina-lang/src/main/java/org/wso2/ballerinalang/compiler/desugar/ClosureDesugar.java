@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -68,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -105,7 +105,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -350,7 +349,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private void updateRecordInitFunction(BLangTypeDefinition typeDef) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
         BInvokableSymbol initFnSym = recordTypeNode.initFunction.symbol;
-        BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
+        BRecordTypeSymbol recordTypeSymbol;
+        if (typeDef.symbol.kind == SymbolKind.TYPE_DEF) {
+            recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol.type.tsymbol;
+        } else {
+            recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
+        }
         recordTypeSymbol.initializerFunc.symbol = initFnSym;
         recordTypeSymbol.initializerFunc.type = (BInvokableType) initFnSym.type;
     }
@@ -966,14 +970,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.textFragments.forEach(this::rewriteExpr);
         xmlTextLiteral.concatExpr = rewriteExpr(xmlTextLiteral.concatExpr);
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.textFragments.forEach(this::rewriteExpr);
+        xmlCommentLiteral.concatExpr = rewriteExpr(xmlCommentLiteral.concatExpr);
         result = xmlCommentLiteral;
     }
 
@@ -986,7 +989,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.textFragments.forEach(this::rewriteExpr);
+        xmlQuotedString.concatExpr = rewriteExpr(xmlQuotedString.concatExpr);
         result = xmlQuotedString;
     }
 
@@ -1016,13 +1019,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         result = workerFlushExpr;
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        xmlAttributeAccessExpr.indexExpr = rewriteExpr(xmlAttributeAccessExpr.indexExpr);
-        xmlAttributeAccessExpr.expr = rewriteExpr(xmlAttributeAccessExpr.expr);
-        result = xmlAttributeAccessExpr;
     }
 
     @Override
@@ -1343,13 +1339,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
         result = accessExpr;
-    }
-
-    @Override
-    public void visit(BLangIntRangeExpression intRangeExpression) {
-        intRangeExpression.startExpr = rewriteExpr(intRangeExpression.startExpr);
-        intRangeExpression.endExpr = rewriteExpr(intRangeExpression.endExpr);
-        result = intRangeExpression;
     }
 
     @Override

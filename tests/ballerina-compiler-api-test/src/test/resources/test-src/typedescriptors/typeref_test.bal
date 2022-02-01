@@ -36,3 +36,19 @@ function test() {
     Employee e;
     Colour c;
 }
+
+type Age int;
+
+function test() {
+    record {|
+        Age age;
+    |} p;
+
+    Foo f;
+    Bar b;
+}
+
+// utils
+type Foo Person;
+
+type Bar Foo;

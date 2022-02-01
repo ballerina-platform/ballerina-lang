@@ -1,7 +1,7 @@
 [
   {
     "name": "Function Definition",
-    "input": "function printValue(string value) { };",
+    "input": "function printValue(string value) { }",
     "expected": [
       "FunctionDefinitionNode"
     ]
@@ -22,7 +22,7 @@
   },
   {
     "name": "Service Declaration",
-    "input": "service hello on new http:Listener(9090) { };",
+    "input": "service hello on new http:Listener(9090) { }",
     "expected": [
       "ServiceDeclarationNode"
     ]
@@ -43,14 +43,14 @@
   },
   {
     "name": "Class Definition",
-    "input": "class Person { };",
+    "input": "class Person { }",
     "expected": [
       "ClassDefinitionNode"
     ]
   },
   {
     "name": "Enum Declaration",
-    "input": "enum Color { RED, GREEN, BLUE };",
+    "input": "enum Color { RED, GREEN, BLUE }",
     "expected": [
       "EnumDeclarationNode"
     ]

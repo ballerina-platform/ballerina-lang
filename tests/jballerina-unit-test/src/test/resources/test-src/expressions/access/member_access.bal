@@ -771,6 +771,119 @@ public function testNestedMemberAccessOnIntersectionTypes() {
     assertEquality((), v3);
 }
 
+type MyRec record {|
+    string name;
+|};
+
+const LENGTH = 10;
+
+function testMemberAccessWithBinaryExprAsIndex() {
+    int x = 8;
+    int[3] intArr = [0, 1, 2];
+    int member1 = intArr[10 - 9];
+    assertEquality(1,member1);
+    member1 = intArr[x - 6];
+    assertEquality(2, member1);
+    
+    [int, string] tupleVar = [101, "Jhone"];
+    int|string member2 = tupleVar[2 - 1];
+    assertEquality("Jhone", member2);
+    member2 = tupleVar[x - 8];
+    assertEquality(101, member2);
+    
+    int member3 = intArr[10 - x];
+    assertEquality(2, member3);
+    
+    int member4 = intArr[10 - LENGTH];
+    assertEquality(0, member4);
+    
+    string y = "na";
+    MyRec myRecVar = {name: "Ballerina"};
+    string? member5 = myRecVar["na" + "me"];
+    assertEquality("Ballerina", member5);
+    member5 = myRecVar[y + "me"];
+    assertEquality("Ballerina", member5);
+    
+    (string|error)? member6 = trap myRecVar["Ballerina" + "1"];
+    assertEquality(null, member6);
+    member6 = trap myRecVar["Ballerina" + y];
+    assertEquality(null, member6);
+    
+    map<int> mapVar = {field1: 202, field2: 303};
+    int? member7 = mapVar["field" + "1"];
+    assertEquality(202, member7);
+    string z = "2";
+    member7 = mapVar["field" + z];
+    assertEquality(303, member7);
+    
+    (int|error)? member8 = trap mapVar["field1" + "1"];
+    assertEquality(null, member8);
+    member8 = trap mapVar["field1" + z];
+    assertEquality(null, member8);
+}
+
+function testMemberAccessWithGroupExprAsIndex() {
+    int[3] intArr = [0, 1, 2];
+    int member1 = intArr[((1))];
+    assertEquality(1, member1);
+    
+    [int, int] intTuple = [3, 4];
+    int member2 = intTuple[(10 - 9)];
+    assertEquality(4, member2);
+    member2 = intTuple[(LENGTH - 10)];
+    assertEquality(3, member2);
+    
+    MyRec myRecVar = {name: "Ballerina"};
+    string member3 = myRecVar[("name")];
+    assertEquality("Ballerina", member3);
+    
+    map<int> mapVar = {field1: 202};
+    int? member4 = mapVar[("field1")];
+    assertEquality(202, member4);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr1() {
+    int[3] intArr = [0, 1, 2];
+    int|error a = trap intArr[2 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("array index out of range: index: 3, size: 3", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr2() {
+    [int, string] tupleVar = [0, "Car"];
+    int|string|error a = trap tupleVar[1 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("tuple index out of range: index: 2, size: 2", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr3() {
+    int[3] intArr = [0, 1, 2];
+    int int2 = 2;
+    int|error a = trap intArr[int2 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("array index out of range: index: 3, size: 3", e.detail()["message"]);
+}
+
+function testMemberAccessOutOfRangeWithBinaryExpr4() {
+    [int, string] tupleVar = [0, "Car"];
+    int int1 = 1;
+    int|string|error a = trap tupleVar[int1 + 1];
+    
+    assertTrue(a is error);
+    error e = <error> a;
+    assertEquality("{ballerina/lang.array}IndexOutOfRange", e.message());
+    assertEquality("tuple index out of range: index: 2, size: 2", e.detail()["message"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

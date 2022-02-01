@@ -65,7 +65,7 @@ public class ReferenceTest {
         Position position = gson.fromJson(configObject.get("position"), Position.class);
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String actualStr = TestUtil.getReferencesResponse(sourcePath.toString(), position, serviceEndpoint);
+        String actualStr = TestUtil.getReferencesResponse(sourcePath.toUri().toString(), position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");

@@ -21,3 +21,9 @@ function missingSemiColon() {
 function reservedWordUse() {
     int string = 30;
 }
+
+int y = 10;
+
+var fn1 = function (astring s) {
+    int z = y + 1;
+};

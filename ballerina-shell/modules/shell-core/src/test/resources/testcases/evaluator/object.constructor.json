@@ -9,7 +9,11 @@
   },
   {
     "description": "Create new person object.",
-    "code": "Person john = { name: \"John Doe\", age: 25, address: object Address { public function init() { self.city = \"Colombo\"; self.country = \"Sri Lanka\"; } public function value() returns string { return self.city + \", \" + self.country; }  } }; john.address.city",
+    "code": "Person john = { name: \"John Doe\", age: 25, address: object Address { public function init() { self.city = \"Colombo\"; self.country = \"Sri Lanka\"; } public function value() returns string { return self.city + \", \" + self.country; }  } };"
+  },
+  {
+    "description": "Create new person object - get value.",
+    "code": "john.address.city",
     "expr": "\"Colombo\""
   },
   {
@@ -18,7 +22,11 @@
   },
   {
     "description": "Create person with the address.",
-    "code": "Person jane = {name: \"Jane Doe\", age: 20, address: adr}; jane.address.country",
+    "code": "Person jane = {name: \"Jane Doe\", age: 20, address: adr};"
+  },
+  {
+    "description": "Create person with the address - get value.",
+    "code": "jane.address.country",
     "expr": "\"UK\""
   }
 ]

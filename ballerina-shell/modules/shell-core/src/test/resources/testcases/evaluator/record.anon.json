@@ -9,22 +9,38 @@
   },
   {
     "description": "Define variables - john.",
-    "code": "Person john = { name: \"John Doe\", age: 25, address: {city: \"Colombo\", country: \"Sri Lanka\"} }; john",
+    "code": "Person john = { name: \"John Doe\", age: 25, address: {city: \"Colombo\", country: \"Sri Lanka\"} };"
+  },
+  {
+    "description": "Define variables - john - get value.",
+    "code": "john",
     "expr": "{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}}"
   },
   {
     "description": "Define variables - addr with anon record.",
-    "code": "record {| string city; string country; |} addr = {city: \"London\", country: \"UK\"}; addr",
+    "code": "record {| string city; string country; |} addr = {city: \"London\", country: \"UK\"};"
+  },
+  {
+    "description": "Define variables - addr with anon record - get value.",
+    "code": "addr",
     "expr": "{\"city\":\"London\",\"country\":\"UK\"}"
   },
   {
     "description": "Define variables - jane.",
-    "code": "Person jane = {name: \"Jane Doe\", age: 20, address: addr}; jane",
+    "code": "Person jane = {name: \"Jane Doe\", age: 20, address: addr};"
+  },
+  {
+    "description": "Define variables - jane - get value.",
+    "code": "jane",
     "expr": "{\"name\":\"Jane Doe\",\"age\":20,\"address\":{\"city\":\"London\",\"country\":\"UK\"}}"
   },
   {
     "description": "Define variables - fields.",
-    "code": "anydata[] fields = toFieldsArray(john); fields",
+    "code": "anydata[] fields = toFieldsArray(john);"
+  },
+  {
+    "description": "Define variables - fields - get value.",
+    "code": "fields",
     "expr": "[\"John Doe\",25,{\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}]"
   }
 ]

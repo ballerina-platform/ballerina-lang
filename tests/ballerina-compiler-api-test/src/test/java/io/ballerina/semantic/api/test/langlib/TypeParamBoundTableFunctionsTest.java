@@ -68,15 +68,6 @@ public class TypeParamBoundTableFunctionsTest {
     }
 
     @Test
-    public void testLength() {
-        FunctionTypeSymbol lengthFnType = assertFnNameAndGetParams("length");
-        List<ParameterSymbol> params = lengthFnType.params().get();
-
-        assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
-    }
-
-    @Test
     public void testIterator() {
         FunctionTypeSymbol iteratorFnType = assertFnNameAndGetParams("iterator");
         List<ParameterSymbol> params = iteratorFnType.params().get();
@@ -134,7 +125,11 @@ public class TypeParamBoundTableFunctionsTest {
 
         TypeSymbol mapFnRetType = mapFnType.returnTypeDescriptor().get();
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.TABLE);
-        assertEquals(((TableTypeSymbol) mapFnRetType).rowTypeParameter().typeKind(), TypeDescKind.UNION);
+
+        TypeSymbol rowTypeParameterSymbol = ((TableTypeSymbol) mapFnRetType).rowTypeParameter();
+        assertEquals(rowTypeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) rowTypeParameterSymbol).typeDescriptor().typeKind(),
+                TypeDescKind.MAP);
     }
 
     @Test
@@ -191,10 +186,13 @@ public class TypeParamBoundTableFunctionsTest {
 //        assertEquals(fnType.params().get().get(0).typeDescriptor().typeKind(), TypeDescKind.INT);
 //        assertEquals(fnType.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
 
-        assertEquals(params.get(2).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        TypeSymbol paramTypeSymbol = params.get(2).typeDescriptor();
+        assertEquals(paramTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) paramTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
 
         TypeSymbol pushFnRetType = reduceFnType.returnTypeDescriptor().get();
-        assertEquals(pushFnRetType.typeKind(), TypeDescKind.UNION);
+        assertEquals(pushFnRetType.typeKind(), TypeDescKind.TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) pushFnRetType).typeDescriptor().typeKind(), TypeDescKind.UNION);
     }
 
     @Test
@@ -226,15 +224,6 @@ public class TypeParamBoundTableFunctionsTest {
     }
 
     @Test
-    public void testRemoveAll() {
-        FunctionTypeSymbol removeAllFnType = assertFnNameAndGetParams("removeAll");
-        List<ParameterSymbol> params = removeAllFnType.params().get();
-
-        assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
-    }
-
-    @Test
     public void testHasKey() {
         FunctionTypeSymbol hasKeyFnType = assertFnNameAndGetParams("hasKey");
         List<ParameterSymbol> params = hasKeyFnType.params().get();
@@ -243,14 +232,15 @@ public class TypeParamBoundTableFunctionsTest {
         assertFirstParam(params.get(0));
     }
 
-    @Test
-    public void testKeys() {
-        FunctionTypeSymbol hasKeyFnType = assertFnNameAndGetParams("keys");
-        List<ParameterSymbol> params = hasKeyFnType.params().get();
-
-        assertEquals(params.size(), 1);
-        assertFirstParam(params.get(0));
-    }
+    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/33474
+//    @Test
+//    public void testKeys() {
+//        FunctionTypeSymbol hasKeyFnType = assertFnNameAndGetParams("keys");
+//        List<ParameterSymbol> params = hasKeyFnType.params().get();
+//
+//        assertEquals(params.size(), 1);
+//        assertFirstParam(params.get(0));
+//    }
 
     @Test
     public void testToArray() {

@@ -50,7 +50,8 @@ public class EvaluatorMiscTest {
                 .build();
         Assert.assertTrue(evaluator.diagnostics().isEmpty());
         evaluator.initialize();
-        String result = evaluator.evaluate("int i = 4; i");
+        String assignment = evaluator.evaluate("int i = 4;");
+        String result = evaluator.evaluate("i");
         Assert.assertEquals(result, "4");
         Assert.assertFalse(evaluator.diagnostics().isEmpty());
         evaluator.reset();

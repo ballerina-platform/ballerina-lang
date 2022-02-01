@@ -55,22 +55,22 @@ public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam 
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
 #
-# + strm - The stream
+# + stm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
-public isolated function next(stream<Type, CompletionType> strm) returns record {| Type value; |}|CompletionType {
+public isolated function next(stream<Type, CompletionType> stm) returns record {| Type value; |}|CompletionType {
     object {
         public isolated function next() returns record {|Type value;|}|CompletionType;
     } iteratorObj = <object {
                             public isolated function next() returns record {|Type value;|}|CompletionType;
-                     }>internal:getIteratorObj(strm);
+                     }>internal:getIteratorObj(stm);
     var val = iteratorObj.next();
     if (val is ()) {
         return ();
     } else if (val is error) {
         return val;
     } else {
-        return internal:setNarrowType(internal:getElementType(typeof strm), {value : val.value});
+        return internal:setNarrowType(internal:getElementType(typeof stm), {value : val.value});
     }
 }
 

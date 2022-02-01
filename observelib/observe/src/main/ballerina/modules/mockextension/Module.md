@@ -1,8 +1,8 @@
 ## Module Overview
 
-This module provides an API for accessing observability mock functionality.
+This module provides an API for accessing the observability mock functionality.
 
-Following functions are provided.
+The following functions are provided.
 
 ```ballerina
 var metrics = mockextension:getMetrics();

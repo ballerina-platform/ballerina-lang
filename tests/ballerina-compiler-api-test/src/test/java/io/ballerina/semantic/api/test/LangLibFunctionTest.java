@@ -25,7 +25,9 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -122,10 +124,47 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), DECIMAL);
 
         List<String> expFunctions = List.of("abs", "max", "min", "sum", "round", "floor", "ceiling", "clone",
-                                            "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString",
-                                            "toJson", "toJsonString", "fromJsonWithType", "mergeJson", "ensureType");
+                "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString",
+                "toJson", "toJsonString", "fromJsonWithType", "mergeJson", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
+    }
+
+    @Test
+    public void testSingletonLangLib1() {
+        Symbol symbol = getSymbol(72, 4);
+        TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) symbol;
+        UnionTypeSymbol unionSymbol = (UnionTypeSymbol) typeRefTypeSymbol.typeDescriptor();
+        List<TypeSymbol> memberTypeDescriptors = unionSymbol.memberTypeDescriptors();
+        TypeSymbol typeSymbol = memberTypeDescriptors.get(0);
+        assertEquals(typeSymbol.typeKind(), SINGLETON);
+
+        List<String> expFunctions = List.of("abs", "max", "min", "sum", "clone", "cloneReadOnly", "cloneWithType",
+                "isReadOnly", "toString", "toBalString", "toJson", "toJsonString",
+                "fromJsonWithType", "mergeJson", "ensureType", "toHexString");
+
+        assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
+    }
+
+    @Test
+    public void testSingletonLangLib2() {
+        Symbol symbol = getSymbol(74, 4);
+        TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) symbol;
+        UnionTypeSymbol unionSymbol = (UnionTypeSymbol) typeRefTypeSymbol.typeDescriptor();
+        List<TypeSymbol> memberTypeDescriptors = unionSymbol.memberTypeDescriptors();
+        TypeSymbol typeSymbol = memberTypeDescriptors.get(0);
+        assertEquals(typeSymbol.typeKind(), SINGLETON);
+
+        List<String> expFunctions = List.of("length", "iterator", "getCodePoint", "substring", "codePointCompare",
+                "'join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
+                "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes",
+                "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
+                "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
+                "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
+                "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
+                "includes", "concat");
+
+        assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
     }
 
     @Test
@@ -135,8 +174,8 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), STRING);
 
         List<String> expFunctions = List.of("length", "iterator", "getCodePoint", "substring", "codePointCompare",
-                                            "'join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
-                                            "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes",
+                "'join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
+                "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes",
                                             "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                                             "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",

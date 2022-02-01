@@ -18,6 +18,7 @@
 package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -65,8 +66,10 @@ public class DumpBuildTimeTask implements Task {
         try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
             try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
                 Gson gson = new Gson();
-                String json = gson.toJson(BuildTime.getInstance());
+                BuildTime buildTime = BuildTime.getInstance();
+                String json = gson.toJson(buildTime);
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                printBuildTime(buildTime);
             } catch (IOException e) {
                 throw createLauncherException("couldn't write build time to file : " + e.getMessage());
             }
@@ -77,8 +80,15 @@ public class DumpBuildTimeTask implements Task {
 
     private Path getBuildTimeFilePath(Project project) {
         if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-            return project.sourceRoot().resolve("target").resolve(BUILD_TIME_JSON).toAbsolutePath();
+            return project.targetDir().resolve(BUILD_TIME_JSON).toAbsolutePath();
         }
-        return currentDir.resolve("build-time.json").toAbsolutePath();
+        return currentDir.resolve(BUILD_TIME_JSON).toAbsolutePath();
+    }
+
+    private void printBuildTime(BuildTime buildTime) {
+        Gson gson = new Gson();
+        JsonObject buildTimeJson = (JsonObject) gson.toJsonTree(buildTime);
+        buildTimeJson.entrySet()
+                .forEach(entry -> this.out.println("\t" + entry.getKey() + " : " + entry.getValue().toString()));
     }
 }

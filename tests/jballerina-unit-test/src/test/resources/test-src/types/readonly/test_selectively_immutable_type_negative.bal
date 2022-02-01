@@ -298,3 +298,50 @@ function testNonReadOnlyAssignmentToReadOnlyAndClassIntersection() {
     ReadOnlyClass & readonly r1 = nrc;
     NonReadOnlyClass & readonly r2 = nrc;
 }
+
+function testInvalidUsageOfReadOnlyIntersectionWithNever() {
+    never & readonly a;
+
+    record { never i?; int j; } & readonly b = {i: 1, j: 1, "k": "str"};
+}
+
+type Grault record {
+    stream<int>|never x;
+};
+
+function testNeverReadOnlyIntersectionWithNeverExplicitlyInType() {
+    Grault & readonly y;
+}
+
+type R1 record {
+    stream<int> a?;
+};
+
+function testReadOnlyIntersectionWithRecordThatHasAnOptionalNeverReadOnlyFieldNegative() {
+    R1 & readonly a = {a: new stream<int>(), "b": 1};
+    record {| never a?; |} _ = a;
+}
+
+type R2 record {|
+    int a;
+    stream<int>...;
+|};
+
+function testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestFieldNegative() {
+    R2 & readonly a = {a: 1, "b": 1, "c": new stream<int>()};
+    record {| never a?; |} _ = a;
+    R2 & readonly _ = {"b": 1};
+}
+
+type R3 record {
+    stream<int> a;
+};
+
+type R4 record {
+    stream<int> a = new;
+};
+
+function testReadOnlyIntersectionWithRecordThatHasARequiredNeverReadOnlyFieldNegative() {
+    (R3 & readonly)? _ = ();
+    R4 & readonly _ = {};
+}

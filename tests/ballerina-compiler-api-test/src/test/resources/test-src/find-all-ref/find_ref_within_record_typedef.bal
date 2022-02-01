@@ -23,3 +23,13 @@ public type Vehicle record {|
 public type Car record {|
     *Vehicle;
 |};
+
+public type UniformTypeBitSet int:Unsigned32;
+
+public type SemType UniformTypeBitSet|ComplexSemType;
+
+public type ComplexSemType readonly & record {|
+    UniformTypeBitSet all;
+    UniformTypeBitSet some;
+    Car aCar;
+|};

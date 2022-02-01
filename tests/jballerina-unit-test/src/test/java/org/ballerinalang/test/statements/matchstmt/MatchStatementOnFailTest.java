@@ -127,16 +127,22 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 29, 14);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 31, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 56, 14);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 59, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 85, 14);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 88, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 88, 7);
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 90, 9);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 124, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 124, 7);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i + 1);
     }
 
     @AfterClass

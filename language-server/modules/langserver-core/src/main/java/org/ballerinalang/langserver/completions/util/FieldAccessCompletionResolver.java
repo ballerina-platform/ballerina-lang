@@ -35,6 +35,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -225,6 +226,11 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     }
 
     @Override
+    public Optional<TypeSymbol> transform(BinaryExpressionNode node) {
+        return this.context.currentSemanticModel().get().typeOf(node);
+    }
+
+    @Override
     public Optional<TypeSymbol> transform(XMLStepExpressionNode node) {
         return this.context.currentSemanticModel().get().typeOf(node);
     }
@@ -262,7 +268,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     private Optional<Symbol> getSymbolByName(List<Symbol> visibleSymbols, String name) {
         return visibleSymbols.stream()
-                .filter((symbol -> symbol.nameEquals(name)))
+                .filter((symbol -> symbol.nameEquals(name) && symbol.kind() != SymbolKind.TYPE_DEFINITION))
                 .findFirst();
     }
 

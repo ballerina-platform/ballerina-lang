@@ -187,6 +187,18 @@ public function main() {
         }
     };
 
+    Pet pet2 = {
+        id: 2,
+        name: "Rova",
+        'type: { 
+            'type: "Dog",
+            owner: {
+                name: "lnash",
+                address: ()
+            }
+        }
+    };
+
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
 
     EmployeeTable tableWithKeyVar = table [
@@ -251,16 +263,16 @@ public function main() {
     }
 
     // variable visibility in 'else' statement
-    if (false) {
+    if (intVar == 0) {
         intVar = 2;
     } else {
         intVar = 3;
     }
 
     // variable visibility in 'else-if' statement
-    if (false) {
+    if (intVar == 1) {
         intVar = 4;
-    } else if (true) {
+    } else if (intVar == 3) {
         intVar = 5;
     } else {
         intVar = 6;

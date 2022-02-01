@@ -103,7 +103,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
         BError expectedError = (BError) returnValues[0];
         Assert.assertEquals(expectedError.stringValue(), "{ballerina/lang.table}KeyConstraintViolation " +
-                "{\"message\":\"A value found for key '[1,\"Melina\"]'\"}");
+                "{\"message\":\"a value found for key '[1,\"Melina\"]'\"}");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
@@ -160,7 +160,7 @@ public class QueryExprWithQueryConstructTypeTest {
                         "found '(table<Customer> key(id, name)|error)'",
                 71, 32);
         validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'table<Customer> key(id, name)', found '(table<Customer> key(id, name)|error)'",
+                        "'CustomerTable', found '(table<Customer> key(id, name)|error)'",
                 86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
                 107, 21);

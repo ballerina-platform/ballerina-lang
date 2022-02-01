@@ -231,6 +231,25 @@ function testTypeDefReferringToTypeDefDefinedAfter() {
     assertEquality(person, d);
 }
 
+type FuncTypeDef function (int x, int y) returns int;
+
+final FuncTypeDef sumFunc = function(int x, int y) returns int {
+    return x + y;
+};
+
+class C1 {
+    FuncTypeDef func = sumFunc;
+
+    function sum() returns int {
+        return self.func(4, 100);
+    }
+}
+
+function testFuncInvocation() {
+    var obj = new C1();
+    assertEquality(104, obj.sum());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

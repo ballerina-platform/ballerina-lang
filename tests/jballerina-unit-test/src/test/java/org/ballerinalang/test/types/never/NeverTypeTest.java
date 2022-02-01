@@ -41,6 +41,7 @@ public class NeverTypeTest {
     public void setup() {
         neverTypeTestResult = BCompileUtil.compile("test-src/types/never/never-type.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/types/never/never-type-negative.bal");
+        runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
     }
 
 
@@ -140,7 +141,8 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "table key specifier '[name]' does not match with key constraint type '[never]'", 125, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 134, 37);
+                "table key specifier mismatch with key constraint. " +
+                        "expected: '[(never|string)]' fields but key specifier is empty", 134, 37);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -194,6 +196,10 @@ public class NeverTypeTest {
                 "or equivalent to type 'never'", 229, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                 "or equivalent to type 'never'", 230, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| never x?; never y?; anydata...; |}', found 'record {| never x?; anydata...; |}'", 244, 39);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| never x?; anydata...; |}', found 'record {| anydata...; |}'", 247, 29);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -301,7 +307,6 @@ public class NeverTypeTest {
 
     @Test(dataProvider = "dataToTestNeverRuntime", description = "Test never runtime")
     public void testNeverRuntime(String functionName) {
-        runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
         BRunUtil.invoke(runtimeResult, functionName);
     }
 
@@ -320,7 +325,8 @@ public class NeverTypeTest {
                 "testNeverRuntime10",
                 "testNeverRuntime11",
                 "testNeverRuntime12",
-                "testNeverWithAnyAndAnydataRuntime"
+                "testNeverWithAnyAndAnydataRuntime",
+                "testNeverFieldTypeCheck"
         };
     }
 
@@ -333,24 +339,26 @@ public class NeverTypeTest {
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 22, 11);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 30, 14);
+                "type 'never' not allowed here", 30, 13);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 30, 20);
+                "type 'never' not allowed here", 30, 19);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 31, 14);
+                "type 'never' not allowed here", 31, 13);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 31, 25);
+                "type 'never' not allowed here", 31, 24);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 35, 17);
+                "type 'never' not allowed here", 36, 17);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 35, 30);
+                "type 'never' not allowed here", 36, 30);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 43, 12);
+                "type 'never' not allowed here", 44, 12);
+        BAssertUtil.validateWarning(compileResult, i++, "unused variable 'x'", 48, 5);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 47, 16);
+                "type 'never' not allowed here", 48, 16);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 47, 23);
-        Assert.assertEquals(compileResult.getErrorCount(), i);
+                "type 'never' not allowed here", 48, 23);
+        Assert.assertEquals(compileResult.getErrorCount(), i - 1);
+        Assert.assertEquals(compileResult.getWarnCount(), 1);
     }
 
     @AfterClass

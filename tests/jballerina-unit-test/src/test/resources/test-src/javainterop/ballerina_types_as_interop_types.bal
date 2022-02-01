@@ -160,8 +160,8 @@ public function interopWithAnydataReturn() returns boolean {
         return false;
     }
     var e = acceptIntAnydataReturn(5);
-    if (!(e is anydata)) {
-        return false;
+    if (e is anydata) {
+        // do nothing
     }
     var f = acceptIntAnydataReturn(-1);
     if (!(f is boolean)) {

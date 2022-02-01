@@ -47,6 +47,9 @@ DESCRIPTION
             Create a package with the 'main' function.
                $ bal new <package-name>
 
+            Create a package with the 'main' function with tests.
+               $ bal new <package-name> -t main
+
             Create a package with a Ballerina service.
                $ bal new <package-name> -t service
 

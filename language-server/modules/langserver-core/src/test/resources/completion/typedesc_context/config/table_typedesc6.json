@@ -15,7 +15,7 @@
           "value": ""
         }
       },
-      "sortText": "E",
+      "sortText": "BE",
       "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "D",
+      "sortText": "BD",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": ""
         }
       },
-      "sortText": "D",
+      "sortText": "BD",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -51,7 +51,7 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BM",
+      "sortText": "BBM",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -62,7 +62,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
-      "sortText": "BI",
+      "sortText": "BBI",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -73,7 +73,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
-      "sortText": "BI",
+      "sortText": "BBI",
       "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
@@ -81,7 +81,7 @@
       "label": "TestEnum1",
       "kind": "Enum",
       "detail": "enum",
-      "sortText": "E",
+      "sortText": "BE",
       "insertText": "TestEnum1",
       "insertTextFormat": "Snippet"
     },
@@ -89,7 +89,7 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BM",
+      "sortText": "BBM",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -97,7 +97,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BM",
+      "sortText": "BBM",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +105,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BN",
+      "sortText": "BBN",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +113,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BN",
+      "sortText": "BBN",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -121,7 +121,7 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
-      "sortText": "BK",
+      "sortText": "BBK",
       "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
@@ -129,7 +129,7 @@
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "BL",
+      "sortText": "BBL",
       "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
@@ -137,7 +137,7 @@
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "BL",
+      "sortText": "BBL",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
@@ -148,7 +148,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
-      "sortText": "BK",
+      "sortText": "BBK",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -159,7 +159,7 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
-      "sortText": "BK",
+      "sortText": "BBK",
       "insertText": "Response",
       "insertTextFormat": "Snippet"
     },
@@ -167,7 +167,7 @@
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "BK",
+      "sortText": "BBK",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
@@ -175,7 +175,7 @@
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "BK",
+      "sortText": "BBK",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     }

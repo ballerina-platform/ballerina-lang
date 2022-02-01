@@ -99,6 +99,8 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testMethodCallOnNumerics() {
         testFile("access-expr/method_call_expr_source_01.bal", "access-expr/method_call_expr_assert_01.json");
+        testFile("access-expr/method_call_expr_source_04.bal", "access-expr/method_call_expr_assert_04.json");
+        testFile("access-expr/method_call_expr_source_06.bal", "access-expr/method_call_expr_assert_06.json");
     }
 
     // Recovery tests
@@ -173,5 +175,12 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testMemberAccessRecovery() {
         testFile("access-expr/member_access_expr_source_11.bal", "access-expr/member_access_expr_assert_11.json");
+    }
+
+    @Test
+    public void testMethodCallOnNumericsNegative() {
+        testFile("access-expr/method_call_expr_source_02.bal", "access-expr/method_call_expr_assert_02.json");
+        testFile("access-expr/method_call_expr_source_03.bal", "access-expr/method_call_expr_assert_03.json");
+        testFile("access-expr/method_call_expr_source_05.bal", "access-expr/method_call_expr_assert_05.json");
     }
 }

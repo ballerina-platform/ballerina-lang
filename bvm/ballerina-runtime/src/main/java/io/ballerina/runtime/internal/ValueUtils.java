@@ -170,7 +170,6 @@ public class ValueUtils {
         return xml;
     }
 
-
     /**
      * Provide the Typedesc Value with the singleton type with a value.
      * @param value Ballerina value
@@ -192,4 +191,5 @@ public class ValueUtils {
         }
         return new TypedescValueImpl(type);
     }
+
 }

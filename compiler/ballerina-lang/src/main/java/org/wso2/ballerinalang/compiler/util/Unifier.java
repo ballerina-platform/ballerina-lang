@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -540,7 +541,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         String paramVarName = originalType.paramSymbol.name.value;
 
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
-            BTypedescType paramSymbolTypedescType = (BTypedescType) originalType.paramSymbol.type;
+            BTypedescType paramSymbolTypedescType =
+                    (BTypedescType) getConstraintFromReferenceType(originalType.paramSymbol.type);
             BType paramSymbolType = paramSymbolTypedescType.constraint;
             if (expType != null) {
                 if (expType == symbolTable.noType) {
@@ -597,11 +599,23 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return type;
             }
 
-            type = ((BTypedescType) type).constraint;
+            type = ((BTypedescType) getConstraintFromReferenceType(type)).constraint;
         } else {
-            type = ((BTypedescType) originalType.paramSymbol.type).constraint;
+            type = ((BTypedescType) getConstraintFromReferenceType(originalType.paramSymbol.type)).constraint;
         }
         return type;
+    }
+
+    public BType visit(BTypeReferenceType t, BType s) {
+        return visit(getConstraintFromReferenceType(t), s);
+    }
+
+    private BType getConstraintFromReferenceType(BType type) {
+        BType constraint = type;
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            constraint = getConstraintFromReferenceType(((BTypeReferenceType) type).referredType);
+        }
+        return constraint;
     }
 
     private BType getTypeAddingArgIfNotProvided(BParameterizedType originalType, BType expType) {
@@ -750,7 +764,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void populateParamMapFromRestArg(List<BVarSymbol> params, int currentParamIndex, BLangExpression restArg) {
-        BType type = restArg.getBType();
+        BType type = types.getReferredType(restArg.getBType());
         int tag = type.tag;
         if (tag == TypeTags.RECORD) {
             populateParamMapFromRecordRestArg(params, currentParamIndex, (BRecordType) type);
@@ -872,8 +886,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private boolean hasSameBasicType(BType t1, BType t2) {
-        int tag1 = t1.tag;
-        int tag2 = t2.tag;
+        int tag1 = types.getReferredType(t1).tag;
+        int tag2 = types.getReferredType(t2).tag;
 
         if (tag1 == tag2) {
             return true;
@@ -1092,12 +1106,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return null;
         }
 
-        if (expType.tag != TypeTags.UNION) {
+        if (types.getReferredType(expType).tag != TypeTags.UNION) {
             return expType;
         }
 
         LinkedHashSet<BType> types = new LinkedHashSet<>();
-        for (BType expMemType : ((BUnionType) expType).getMemberTypes()) {
+        for (BType expMemType : ((BUnionType) this.types.getReferredType(expType)).getMemberTypes()) {
             boolean hasMatchWithOtherType = false;
             for (BType origMemType : originalType.getMemberTypes()) {
                 if (origMemType == member) {

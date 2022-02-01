@@ -270,15 +270,15 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<ballerina/lang.value:1.0.0:Cloneable>'", 56, 18);
+                "incompatible types: expected 'int', found 'map<ballerina/lang.value:0.0.0:Cloneable>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid error variable; expecting an error type but found 'int' in type definition", 57, 47);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 64, 16);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 70, 16);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:0.0.0:Cloneable'", 70, 16);
         Assert.assertEquals(resultNegative.getErrorCount(), ++i);
     }
 

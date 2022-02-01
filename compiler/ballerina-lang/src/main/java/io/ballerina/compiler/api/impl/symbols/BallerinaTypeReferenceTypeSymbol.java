@@ -27,8 +27,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -51,16 +51,19 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private ModuleSymbol module;
     private Symbol definition;
     private boolean moduleEvaluated;
-    private BTypeSymbol tSymbol;
     private boolean fromIntersectionType;
+    public BSymbol tSymbol;
+    public BType referredType;
+
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
-                                            BTypeSymbol tSymbol, boolean fromIntersectionType) {
+                                            BSymbol tSymbol, boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
-        this.definitionName = tSymbol != null ? tSymbol.getOriginalName().getValue() : null;
+        referredType = getReferredType(bType);
+        this.definitionName = tSymbol.getOriginalName().getValue();
         this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
-        this.location = tSymbol != null ? tSymbol.pos : null;
+        this.location = tSymbol.pos;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         if (this.typeDescriptorImpl == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             this.typeDescriptorImpl = typesFactory.getTypeDescriptor(
-                    this.getBType(), this.tSymbol, true, !fromIntersectionType, false);
+                    referredType, referredType.tsymbol, true, !fromIntersectionType, false);
         }
 
         return this.typeDescriptorImpl;
@@ -91,7 +94,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.definition = symbolFactory.getBCompiledSymbol(this.getBType().tsymbol, this.name());
+        this.definition = symbolFactory.getBCompiledSymbol(tSymbol, this.name());
         return this.definition;
     }
 
@@ -166,5 +169,13 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
     private boolean isAnonOrg(ModuleID moduleID) {
         return ANON_ORG.equals(moduleID.orgName());
+    }
+
+    private BType getReferredType(BType type) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            return ((BTypeReferenceType) type).referredType;
+        }
+
+        return type;
     }
 }

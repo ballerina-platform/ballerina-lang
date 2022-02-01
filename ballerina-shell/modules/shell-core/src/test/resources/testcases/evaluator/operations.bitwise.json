@@ -20,12 +20,12 @@
   {
     "description": "OR operation I.",
     "code": "e | f",
-    "expr": "255"
+    "expr": "511"
   },
   {
     "description": "XOR operation I.",
     "code": "e ^ f",
-    "expr": "1"
+    "expr": "257"
   },
   {
     "description": "OR operation II.",

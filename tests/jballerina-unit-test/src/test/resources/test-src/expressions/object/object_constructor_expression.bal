@@ -315,6 +315,19 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
 }
 
+type Bar readonly & object {
+    int i;
+};
+
+function testObjectConstructorWithReferredIntersectionType() {
+    Bar b = object {
+        int i = 1;
+        int j = 2;
+    };
+    assertTrue(b is readonly & object {int i; int j;});
+    assertValueEquality(1, b.i);
+}
+
 // assertion helpers
 
 const ASSERTION_ERROR_REASON = "AssertionError";

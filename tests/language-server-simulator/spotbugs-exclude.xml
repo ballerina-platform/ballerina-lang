@@ -20,4 +20,8 @@
         <Class name="org.ballerinalang.langserver.simulator.EditorSimulator"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.simulator.EditorSimulator"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
 </FindBugsFilter>

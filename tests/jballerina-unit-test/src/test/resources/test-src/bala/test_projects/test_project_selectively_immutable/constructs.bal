@@ -241,3 +241,41 @@ public type Versioning record {|
     boolean allow = true;
     boolean matchMajor = false;
 |};
+
+public type EmployeeMap map<Employee>;
+
+public type EmployeeTable table<Employee>;
+
+public type User record {|
+    int id = 1;
+    string username = "admin";
+|};
+
+public type UnionMap map<User|Identifier>;
+
+public type UnionTable table<User|Identifier>;
+
+public type Zone readonly & object {
+    public isolated function utcToCivil(Utc utc) returns Civil;
+};
+
+public type Utc readonly & [int, decimal];
+
+public type Seconds decimal;
+
+type DateFields record {
+    int year;
+    int month;
+    int day;
+};
+
+type TimeOfDayFields record {
+    int hour;
+    int minute;
+    Seconds second?;
+};
+
+public type Civil record {
+    *DateFields;
+    *TimeOfDayFields;
+};

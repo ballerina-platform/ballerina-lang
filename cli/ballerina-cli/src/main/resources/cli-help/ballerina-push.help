@@ -5,6 +5,7 @@ NAME
 SYNOPSIS
        bal push
        bal push [--repository=local]
+       bal push <bala-path>
 
 
 DESCRIPTION
@@ -28,3 +29,6 @@ EXAMPLES
 
        Push the BALA of the current package to the local repository for testing.
            $ bal push --repository=local
+
+       Push the specified bala in the provided bala path.
+           $ bal push <bala-path>

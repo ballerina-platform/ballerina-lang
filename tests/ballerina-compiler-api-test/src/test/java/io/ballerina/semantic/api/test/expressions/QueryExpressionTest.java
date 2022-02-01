@@ -131,7 +131,7 @@ public class QueryExpressionTest {
     @DataProvider(name = "visibleSymbolPosProvider")
     public Object[][] getVisibleSymbolsAtPos() {
         return new Object[][]{
-                {20, 14, 6, asList("testQueryExpression", "Student", "fname", "lname", "age", "gpa")},
+                {20, 14, 2, asList("testQueryExpression", "Student")},
                 {29, 14, 6, asList("testQueryExpression", "Student", "s1", "s2", "s3",
                         "students")},
                 {40, 14, 8, asList("testQueryExpression", "Student", "s1", "s2", "s3",

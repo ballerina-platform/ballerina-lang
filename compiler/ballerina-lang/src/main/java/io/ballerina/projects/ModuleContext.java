@@ -23,17 +23,22 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
+import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -67,6 +72,10 @@ class ModuleContext {
     private final Collection<DocumentId> testSrcDocIds;
     private final MdDocumentContext moduleMdContext;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
+    private final Collection<DocumentId> resourceIds;
+    private final Collection<DocumentId> testResourceIds;
+    private final Map<DocumentId, ResourceContext> resourceContextMap;
+    private final Map<DocumentId, ResourceContext> testResourceContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
     private final List<ModuleDescriptor> moduleDescDependencies;
@@ -77,7 +86,7 @@ class ModuleContext {
     private byte[] birBytes = new byte[0];
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
-    private Set<ModuleLoadRequest> allModuleLoadRequests;
+    private Set<ModuleLoadRequest> allModuleLoadRequests = null;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -86,7 +95,9 @@ class ModuleContext {
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
                   MdDocumentContext moduleMd,
-                  List<ModuleDescriptor> moduleDescDependencies) {
+                  List<ModuleDescriptor> moduleDescDependencies,
+                  Map<DocumentId, ResourceContext> resourceContextMap,
+                  Map<DocumentId, ResourceContext> testResourceContextMap) {
         this.project = project;
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
@@ -97,6 +108,10 @@ class ModuleContext {
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleMdContext = moduleMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
+        this.resourceContextMap = resourceContextMap;
+        this.testResourceContextMap = testResourceContextMap;
+        this.resourceIds = Collections.unmodifiableCollection(resourceContextMap.keySet());
+        this.testResourceIds = Collections.unmodifiableCollection(testResourceContextMap.keySet());
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
         this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
@@ -114,10 +129,20 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
+        Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
+        for (ResourceConfig resourceConfig : moduleConfig.resources()) {
+            resourceContextMap.put(resourceConfig.documentId(), ResourceContext.from(resourceConfig));
+        }
+
+        Map<DocumentId, ResourceContext> testResourceContextMap = new HashMap<>();
+        for (ResourceConfig resourceConfig : moduleConfig.testResources()) {
+            testResourceContextMap.put(resourceConfig.documentId(), ResourceContext.from(resourceConfig));
+        }
+
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
                 moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
                 moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
-                moduleConfig.dependencies());
+                moduleConfig.dependencies(), resourceContextMap, testResourceContextMap);
     }
 
     ModuleId moduleId() {
@@ -140,11 +165,27 @@ class ModuleContext {
         return this.testSrcDocIds;
     }
 
+    Collection<DocumentId> resourceIds() {
+        return this.resourceIds;
+    }
+
+    Collection<DocumentId> testResourceIds() {
+        return this.testResourceIds;
+    }
+
     DocumentContext documentContext(DocumentId documentId) {
         if (this.srcDocIds.contains(documentId)) {
             return this.srcDocContextMap.get(documentId);
         } else {
             return this.testDocContextMap.get(documentId);
+        }
+    }
+
+    ResourceContext resourceContext(DocumentId documentId) {
+        if (this.resourceIds.contains(documentId)) {
+            return this.resourceContextMap.get(documentId);
+        } else {
+            return this.testResourceContextMap.get(documentId);
         }
     }
 
@@ -170,10 +211,14 @@ class ModuleContext {
     }
 
     Set<ModuleLoadRequest> populateModuleLoadRequests() {
+        if (allModuleLoadRequests != null) {
+            return allModuleLoadRequests;
+        }
         allModuleLoadRequests = new LinkedHashSet<>();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            for (ModuleLoadRequest request : docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT)) {
+            for (ModuleLoadRequest request : docContext.moduleLoadRequests(moduleName(),
+                    PackageDependencyScope.DEFAULT)) {
                 if (allModuleLoadRequests.contains(request) && !request.locations().isEmpty()) {
                     // If module load request already exists, and it's `locations` is not empty
                     // add `locations` to already existing module load request
@@ -187,7 +232,7 @@ class ModuleContext {
                     allModuleLoadRequests.add(request);
                 }
             }
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.DEFAULT));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);
@@ -197,7 +242,7 @@ class ModuleContext {
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : testDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.TEST_ONLY));
+            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY));
         }
 
         allModuleLoadRequests.addAll(moduleLoadRequests);
@@ -370,7 +415,8 @@ class ModuleContext {
         pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(
                 moduleContext.isExported(),
                 moduleContext.descriptor(),
-                moduleContext.project().kind());
+                moduleContext.project.kind(),
+                moduleContext.project.buildOptions().skipTests());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files
@@ -387,12 +433,7 @@ class ModuleContext {
         try {
             symbolEnter.definePackage(pkgNode);
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
-
-            if (bootstrapLangLibName != null) {
-                compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
-            } else {
-                compilerPhaseRunner.performTypeCheckPhases(pkgNode);
-            }
+            compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         } catch (Throwable t) {
             compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
@@ -417,7 +458,7 @@ class ModuleContext {
         }
 
         // Serialize the BIR  model
-        cacheBIR(moduleContext);
+        cacheBIR(moduleContext, compilerContext);
 
         // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
@@ -426,17 +467,31 @@ class ModuleContext {
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
     }
 
-    private static void cacheBIR(ModuleContext moduleContext) {
+    private static void cacheBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
         // Skip caching BIR if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
 
+        // Skip caching BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
+        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
+                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
+            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+                return;
+            }
+        }
+
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
-            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(
-                    moduleContext.bLangPackage.symbol.birPackageFile);
+            CompiledBinaryFile.BIRPackageFile birPackageFile = moduleContext.bLangPackage.symbol.birPackageFile;
+            if (birPackageFile == null) {
+                birPackageFile = new CompiledBinaryFile
+                        .BIRPackageFile(new BIRBinaryWriter(moduleContext.bLangPackage.symbol.bir).serialize());
+                moduleContext.bLangPackage.symbol.birPackageFile = birPackageFile;
+            }
+            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);
             moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
         } catch (IOException e) {
@@ -471,5 +526,22 @@ class ModuleContext {
 
     Optional<MdDocumentContext> moduleMdContext() {
         return Optional.ofNullable(this.moduleMdContext);
+    }
+
+    ModuleContext duplicate(Project project) {
+        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+        for (DocumentId documentId : this.srcDocumentIds()) {
+            DocumentContext documentContext = this.documentContext(documentId);
+            srcDocContextMap.put(documentId, documentContext.duplicate());
+        }
+
+        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        for (DocumentId documentId : this.testSrcDocumentIds()) {
+            DocumentContext documentContext = this.documentContext(documentId);
+            testDocContextMap.put(documentId, documentContext.duplicate());
+        }
+        return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
+                srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
+                this.moduleDescDependencies, this.resourceContextMap, this.testResourceContextMap);
     }
 }
