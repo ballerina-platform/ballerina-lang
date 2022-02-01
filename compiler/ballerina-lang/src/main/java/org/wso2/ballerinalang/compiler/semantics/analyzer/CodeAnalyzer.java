@@ -288,7 +288,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final TypeChecker typeChecker;
     private final Names names;
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
-    private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private final ReachabilityAnalyzer reachabilityAnalyzer;
 
     private DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
@@ -321,7 +320,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangPackage pkgNode, AnalyzerData data) {
-        this.workerReferences.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
             return;
@@ -334,8 +332,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, AnalyzerData data) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        for (int i = 0; i < topLevelNodes.size(); i++) {
-            TopLevelNode topLevelNode = topLevelNodes.get(i);
+        for (TopLevelNode topLevelNode : topLevelNodes) {
             analyzeNodex((BLangNode) topLevelNode, data);
         }
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
@@ -470,11 +467,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNodex(annotationAttachment, data));
 
-        validateNamedWorkerUniqueReferences();
+        validateNamedWorkerUniqueReferences(data);
     }
 
-    private void validateNamedWorkerUniqueReferences() {
-        for (var nodes : this.workerReferences.values()) {
+    private void validateNamedWorkerUniqueReferences(AnalyzerData data) {
+        for (var nodes : data.workerReferences.values()) {
             if (nodes.size() > 1) {
                 for (BLangNode node: nodes) {
                     dlog.error(node.pos, DiagnosticErrorCode.ILLEGAL_WORKER_REFERENCE_AS_A_VARIABLE_REFERENCE, node);
@@ -482,7 +479,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
         }
 
-        this.workerReferences.clear();
+        data.workerReferences.clear();
     }
 
     private void validateParams(BLangFunction funcNode, AnalyzerData data) {
@@ -3087,7 +3084,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return;
             default:
                 if (varRefExpr.getBType() != null && varRefExpr.getBType().tag == TypeTags.FUTURE) {
-                    trackNamedWorkerReferences(varRefExpr);
+                    trackNamedWorkerReferences(varRefExpr, data);
                 }
         }
         if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
@@ -3095,13 +3092,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
-    private void trackNamedWorkerReferences(BLangSimpleVarRef varRefExpr) {
+    private void trackNamedWorkerReferences(BLangSimpleVarRef varRefExpr, AnalyzerData data) {
         if (varRefExpr.symbol == null || (varRefExpr.symbol.flags & Flags.WORKER) != Flags.WORKER) {
             return;
         }
 
-        this.workerReferences.computeIfAbsent(varRefExpr.symbol, s -> new LinkedHashSet<>());
-        this.workerReferences.get(varRefExpr.symbol).add(varRefExpr);
+        data.workerReferences.computeIfAbsent(varRefExpr.symbol, s -> new LinkedHashSet<>());
+        data.workerReferences.get(varRefExpr.symbol).add(varRefExpr);
     }
 
     public void visit(BLangRecordVarRef varRefExpr, AnalyzerData data) {
@@ -4720,5 +4717,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
         Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
         Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
+        Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     }
 }
