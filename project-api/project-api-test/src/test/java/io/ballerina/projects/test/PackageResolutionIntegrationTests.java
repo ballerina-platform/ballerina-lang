@@ -52,7 +52,7 @@ import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 public class PackageResolutionIntegrationTests extends BaseTest {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get(
-            "src/test/resources/projects_for_adv_resolution_tests").toAbsolutePath();
+            "src/test/resources/projects_for_resolution_integration_tests").toAbsolutePath();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
     private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
     Path customUserHome = Paths.get("build", "user-home");
@@ -66,7 +66,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Cache package_a to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_a_1_0_0"));
         // Cache package_b
-        BCompileUtil.compileAndCacheBala("projects_for_adv_resolution_tests/package_b_1_0_0",
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_b_1_0_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
 
         // 1. First build package_c
@@ -152,7 +152,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     }
 
     @Test(description = "Remove existing import which is also a transitive dependency from another import",
-        dependsOnMethods = "testCase0002")
+            dependsOnMethods = "testCase0002")
     public void testCase0003(ITestContext ctx) throws IOException {
         // package_c --> package_b 1.0.0
         // package_b --> package_a 1.0.0, 1.0.2, 1.1.0
@@ -204,14 +204,86 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-2.toml")));
     }
 
-    @Test(description = "Remove existing import which also is a dependency of a newer patch version of another import")
+    @Test(description = "Package contains a built-in transitive dependency with a non-zero version")
     public void testCase0004(ITestContext ctx) throws IOException {
-        // package_f --> package_d 1.0.0, package_e 2.0.0
-        // Cache package_d to central
-        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_d_1_0_0"));
-        // Cache package_e to central
-        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_e_2_0_0"));
+        // package_i --> package_h 1.0.0 --> ballerinai/package_g 1.0.0
+        // Cache ballerinai/package_g
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_g_1_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        // Cache package_h to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_h_1_0_0"));
 
+        // 1. Build package_i
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_i_1_0_0");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+        // Compare Dependencies.toml file
+        // package_h ---> 1.0.0
+        // package_g ---> 0.0.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-1.toml")));
+    }
+
+    @Test(description = "Package contains a built-in transitive dependency which has " +
+            "its dependencies changed in the current dist", dependsOnMethods = "testCase0003")
+    public void testCase0005(ITestContext ctx) throws IOException {
+        // package_l            --> package_k 1.0.0
+        // package_k            --> ballerinai/package_j 1.0.0
+        // ballerinai/package_j --> package_d 1.0.0, package_e 2.0.0
+        // Cache package_d
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_d_1_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        // Cache package_e
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_e_2_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        // Cache ballerinai/package_j
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_j_1_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        // Cache package_k
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_k_1_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+        // 1. Build package_l
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_l_1_0_0");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+        // Compare Dependencies.toml file
+        // package_d            ---> 1.0.0
+        // package_e            ---> 2.0.0
+        // ballerinai/package_j ---> 0.0.0
+        // package_k            ---> 1.0.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0005-1.toml")));
+
+        // 2. Build package_l after releasing new version of ballerinai/package_j
+        // ballerinai/package_j --> package_dd 2.0.0, package_e 2.0.0
+        // Cache package_dd
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_dd_2_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        // Cache ballerinai/package_j again
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_j_2_0_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        // Build package_l again
+        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject1.save();
+        failIfDiagnosticsExists(buildProject1);
+        // Compare Dependencies.toml file
+        // package_dd           ---> 2.0.0
+        // package_e            ---> 2.0.0
+        // ballerinai/package_j ---> 0.0.0
+        // package_k            ---> 1.0.0
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0005-2.toml")));
+    }
+
+    @Test(description = "Remove existing import which also is a dependency of a newer patch version of another import",
+            dependsOnMethods = "testCase0005")
+    public void testCase0006(ITestContext ctx) throws IOException {
+        // package_f --> package_d 1.0.0, package_e 2.0.0
         // 1. Build package_f
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_f_1_0_0");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
@@ -222,14 +294,14 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // package_d ---> 1.0.0
         // package_e ---> 2.0.0
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-1.toml")));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-1.toml")));
 
         // 2. Publish new patch version of package_e which has dependency on package_d to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_e_2_0_2"), projectEnvironmentBuilder);
         // Remove package_d import from package_f
         projectDirPath = RESOURCE_DIRECTORY.resolve("package_f_1_0_0_remove_import_d");
         // Build package_f w/o deleting Dependencies.toml and build file
-        // package_f ---> package_e 2.0.0, 2.0.2
+        // package_f       ---> package_e 2.0.0, 2.0.2
         // package_e 2.0.2 ---> package_d 1.0.0
         deleteBuildFile(projectDirPath);
         BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
@@ -238,7 +310,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Compare Dependencies.toml file
         // package_e ---> 2.0.2 TODO: need to check (2.0.0)
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-2.toml")));
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-2.toml")));
     }
 
     @AfterMethod
