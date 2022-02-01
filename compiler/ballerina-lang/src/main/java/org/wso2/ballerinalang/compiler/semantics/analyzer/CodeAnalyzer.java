@@ -294,7 +294,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private final Names names;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
-    private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private final ReachabilityAnalyzer reachabilityAnalyzer;
@@ -635,7 +634,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangCommitExpr commitExpr, AnalyzerData data) {
         data.commitCount++;
-        this.commitCountWithinBlock++;
+        data.commitCountWithinBlock++;
         if (data.transactionCount == 0) {
             this.dlog.error(commitExpr.pos, DiagnosticErrorCode.COMMIT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
@@ -710,9 +709,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
-        int prevCommitCount = this.commitCountWithinBlock;
+        int prevCommitCount = data.commitCountWithinBlock;
         int prevRollbackCount = this.rollbackCountWithinBlock;
-        this.commitCountWithinBlock = 0;
+        data.commitCountWithinBlock = 0;
         this.rollbackCountWithinBlock = 0;
         boolean inInternallyDefinedBlockStmt = data.inInternallyDefinedBlockStmt;
         data.inInternallyDefinedBlockStmt = checkBlockIsAnInternalBlockInImmediateFunctionBody(blockNode);
@@ -721,10 +720,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             analyzeNodeWithEnv(e, blockEnv, data);
         });
         data.inInternallyDefinedBlockStmt = inInternallyDefinedBlockStmt;
-        if (commitCountWithinBlock > 1 || rollbackCountWithinBlock > 1) {
+        if (data.commitCountWithinBlock > 1 || rollbackCountWithinBlock > 1) {
             this.dlog.error(blockNode.pos, DiagnosticErrorCode.MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH);
         }
-        this.commitCountWithinBlock = prevCommitCount;
+        data.commitCountWithinBlock = prevCommitCount;
         this.rollbackCountWithinBlock = prevRollbackCount;
     }
 
@@ -4721,5 +4720,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean queryToTableWithKey;
         boolean withinTransactionScope;
         boolean commitRollbackAllowed;
+        int commitCountWithinBlock;
     }
 }
