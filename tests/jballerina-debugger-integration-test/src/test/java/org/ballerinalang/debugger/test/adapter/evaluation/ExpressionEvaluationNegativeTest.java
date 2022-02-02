@@ -26,15 +26,13 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.CUSTOM_ERROR;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
-import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_CLASS;
-import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.UNSUPPORTED_EXPRESSION;
 
 /**
- * Test implementation for debug expression evaluation negative scenarios.
+ * Common expression evaluation negative test scenarios for Ballerina packages and single file projects.
  */
-public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
+public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
@@ -89,10 +87,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, "new Location()", String.format(CUSTOM_ERROR.getString(),
                 "missing required parameter 'city'."));
 
-        // Accessing non-public classes
-        debugTestRunner.assertEvaluationError(context, "new other:Location(\"New York\",\"USA\")",
-                String.format(NON_PUBLIC_OR_UNDEFINED_CLASS.getString(), "Location", "other"));
-
         // Using undefined import
         debugTestRunner.assertEvaluationError(context, "new foo:Location(\"New York\",\"USA\")",
                 String.format(IMPORT_RESOLVING_ERROR.getString(), "foo"));
@@ -101,14 +95,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        // package-private constant evaluation
-        debugTestRunner.assertEvaluationError(context, "other:constant", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
-                .getString(), "other", "constant"));
-
-        // package-private module variable evaluation
-        debugTestRunner.assertEvaluationError(context, "other:privateModuleVariable",
-                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other", "privateModuleVariable"));
-
         // undefined constant evaluation
         debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
                 .getString(), "int", "MAX"));
@@ -211,14 +197,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, "printDetails(\"Hi\", 20, ...stringArrayVar, 20);",
                 EvaluationExceptionKind.PREFIX + "Syntax errors found: " + System.lineSeparator() +
                         "arguments not allowed after rest argument");
-
-        // qualified functions (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "other:addition(2,6)",
-                String.format(NON_PUBLIC_OR_UNDEFINED_FUNCTION.getString(), "addition", "other"));
-        debugTestRunner.assertEvaluationError(context, "other:foo(-6)",
-                String.format(NON_PUBLIC_OR_UNDEFINED_FUNCTION.getString(), "foo", "other"));
-        debugTestRunner.assertEvaluationError(context, "foo:addition(2,6)", String.format(IMPORT_RESOLVING_ERROR
-                .getString(), "foo"));
     }
 
     @Override
@@ -281,9 +259,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, String.format("<boolean|string>%s", ANY_VAR),
                 "{ballerina}TypeCastError");
 
-        // qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "<other:Location> location",
-                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other", "Location"));
     }
 
     @Override
@@ -303,9 +278,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "operator '~' not defined for 'string'");
         debugTestRunner.assertEvaluationError(context, String.format("!%s", STRING_VAR),
                 "operator '!' not defined for 'string'");
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "-other:constant", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
-                .getString(), "other", "constant"));
     }
 
     @Override
@@ -370,10 +342,6 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         "evaluation: " + System.lineSeparator() + "unknown type 'NotDefinedClass'"));
 
         // qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "location is other:Location",
-                String.format(CUSTOM_ERROR.getString(), "compilation error(s) found while creating executables for " +
-                        "evaluation: " + System.lineSeparator() + "attempt to refer to non-accessible symbol " +
-                        "'Location'" + System.lineSeparator() + "unknown type 'Location'"));
         debugTestRunner.assertEvaluationError(context, "location is foo:Place",
                 String.format(IMPORT_RESOLVING_ERROR.getString(), "foo"));
     }
