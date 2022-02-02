@@ -136,6 +136,11 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         test("service-decl/service_decl_source_17.bal", "service-decl/service_decl_assert_17.json");
     }
 
+    @Test
+    public void testRelativePathRecovery() {
+        testFile("service-decl/service_decl_source_23.bal", "service-decl/service_decl_assert_23.json");
+    }
+
     // Service function recovery tests
 
     @Test

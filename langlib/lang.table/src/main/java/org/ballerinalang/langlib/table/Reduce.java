@@ -54,10 +54,10 @@ public class Reduce {
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        Object[] keys = tbl.getKeys();
+        Object[] values = tbl.values().toArray();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand, accum.get(), tbl.get(keys[index.incrementAndGet()])},
+                        () -> new Object[]{parentStrand, accum.get(), values[index.incrementAndGet()]},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }

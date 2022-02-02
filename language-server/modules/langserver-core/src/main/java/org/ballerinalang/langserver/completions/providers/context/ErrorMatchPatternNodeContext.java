@@ -58,7 +58,7 @@ public class ErrorMatchPatternNodeContext extends MatchStatementContext<ErrorMat
          */
         List<Symbol> errorTypes;
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (this.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             // Covers 3 and 4
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             errorTypes = QNameReferenceUtil.getModuleContent(context, qNameRef, this.errorTypeFilter());
@@ -90,5 +90,10 @@ public class ErrorMatchPatternNodeContext extends MatchStatementContext<ErrorMat
         }
 
         return rawType.typeKind() == TypeDescKind.ERROR;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ErrorMatchPatternNode node) {
+        return !node.errorKeyword().isMissing();
     }
 }

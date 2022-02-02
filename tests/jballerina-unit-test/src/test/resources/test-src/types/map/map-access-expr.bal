@@ -86,9 +86,9 @@ function testGetMapValues () returns [string, string] {
                   finfo:j
                 };
     any[] values = [];
-    values = m.reduce(function(any[] array, any value) returns any[] {
-        array[array.length()] = value;
-        return array;
+    values = m.reduce(function(any[] arr1, any value) returns any[] {
+        arr1[arr1.length()] = value;
+        return arr1;
     }, values);
     var nam = <string> values[0];
     var jsn = <json> values[8];

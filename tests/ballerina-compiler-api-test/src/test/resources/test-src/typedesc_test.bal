@@ -255,3 +255,20 @@ function testObjectTypeSignature() {
         remote function testRFunc();
     } obj;
 }
+
+function testUnionTypeWithFunctionType() {
+    10|20|function () returns int aVar = 10;
+    (function () returns int)|string bVar = "10";
+    string|function () returns int cVar = "10";
+    10|(function () returns int)|20 dVar = 10;
+    3|function () returns int|string eVar = 3;
+    ReturnIntFunctionType?|string fVar = returnIntFunc;
+    (function () returns string)|function () returns int gVar = returnIntFunc;
+}
+
+// utils
+type ReturnIntFunctionType function () returns int;
+
+function returnIntFunc() returns int {
+    return 1;
+}

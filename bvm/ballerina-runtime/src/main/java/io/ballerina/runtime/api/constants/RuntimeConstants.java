@@ -58,6 +58,7 @@ public class RuntimeConstants {
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
+    public static final int BALLERINA_MAX_YIELD_DEPTH = 256;
 
     public static final Module BALLERINA_LANG_ERROR_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                         "lang.error", "0");

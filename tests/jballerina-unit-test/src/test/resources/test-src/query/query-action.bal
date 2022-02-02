@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
+
 type Person record {|
    string firstName;
    string lastName;
@@ -332,6 +334,16 @@ function testWildcardBindingPatternInQueryAction2() {
 
     assertEquality(4, m);
     assertEquality(true, res is ());
+}
+
+function testQueryActionWithAsyncCalls() returns error? {
+    int sum = 0;
+    check from var x in [1, 2, 3]
+    do {
+         runtime:sleep(0.1);
+         sum = sum + x;
+    };
+    assertEquality(sum, 6);
 }
 
 function assertEquality(any|error expected, any|error actual) {

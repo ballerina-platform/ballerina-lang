@@ -60,6 +60,8 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.SIPUSH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_MAX_YIELD_DEPTH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
@@ -396,7 +398,7 @@ public class MainMethodGen {
         storeFuture(indexMap, mv, futureVar);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND,
                          GET_STRAND);
-        mv.visitIntInsn(BIPUSH, 100);
+        mv.visitIntInsn(SIPUSH, BALLERINA_MAX_YIELD_DEPTH);
         mv.visitTypeInsn(ANEWARRAY , OBJECT);
         mv.visitFieldInsn(PUTFIELD , STRAND_CLASS, MethodGenUtils.FRAMES, PUT_FRAMES);
 

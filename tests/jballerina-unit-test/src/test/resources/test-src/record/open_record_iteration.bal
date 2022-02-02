@@ -325,8 +325,10 @@ function testOpChainsWithTerminalOps(int m, int p, int c) returns [int, int, int
 
     int count1 = f.'map(mapTo).filter(filter).reduce(function (int count, int v) returns int { return count + 1; }, 0);
     int sum1 = f.'map(mapTo).filter(filter).reduce(function (int sum, int v) returns int { return sum + v; }, 0);
-    int max1 = f.'map(mapTo).filter(filter).reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
-    int min1 = f.'map(mapTo).filter(filter).reduce(function (int min, int v) returns int { return v < min ? v : min; }, 100000);
+    int max1 = f.'map(mapTo).filter(filter).reduce(function (int max, int v) returns int { return v > max ? v : max; },
+    0);
+    int min1 = f.'map(mapTo).filter(filter).reduce(function (int min, int v) returns int { return v < min ? v : min; },
+    100000);
     int length = f.'map(mapTo).filter(filter).length();
     float avg1 = f.'map(mapTo).filter(filter).reduce(function (float avg, int v) returns float {
         return avg + <float>v / <float>length; }, 0.0);

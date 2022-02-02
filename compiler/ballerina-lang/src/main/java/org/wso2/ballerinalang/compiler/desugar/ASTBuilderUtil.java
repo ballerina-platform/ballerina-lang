@@ -868,7 +868,10 @@ public class ASTBuilderUtil {
                                                                       PackageID newPkgID,
                                                                       Location location,
                                                                       SymbolOrigin origin) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newName, newPkgID,
+        // Since this is a duplicate, there's no reason for the original name to change. The name changes since we're
+        // taking the name as AttachedType'sName.methodName
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName,
+                                                                      invokableSymbol.getOriginalName(), newPkgID,
                                                                       null, owner, invokableSymbol.bodyExist,
                                                                       location, origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
