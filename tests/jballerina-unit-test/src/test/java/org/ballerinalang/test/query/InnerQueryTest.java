@@ -17,15 +17,14 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 
@@ -36,6 +35,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 @Test(groups = {"disableOnOldParser"})
 public class InnerQueryTest {
+
     private CompileResult result;
     private CompileResult negativeResult;
 
@@ -47,38 +47,38 @@ public class InnerQueryTest {
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClauses() {
-        BValue[] values = BRunUtil.invoke(result, "testMultipleJoinClauses");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClauses");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClausesWithInnerQueries1() {
-        BValue[] values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries1");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries1");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClausesWithInnerQueries2() {
-        BValue[] values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries2");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries2");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple nested join clauses with a query action")
     public void testMultipleJoinClausesWithInnerQueries3() {
-        BValue[] values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries3");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries3");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClausesWithInnerQueries4() {
-        BValue[] values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries4");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries4");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple clauses with inner queries and xml")
     public void testMultipleJoinClausesWithInnerQueries5() {
-        BValue[] values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries5");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries5");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test negative scenarios for inner queries")
@@ -92,7 +92,7 @@ public class InnerQueryTest {
 
     @Test(description = "Test type test in where clause")
     public void testTypeTestInWhereClause() {
-        BRunUtil.invoke(result, "testTypeTestInWhereClause");
+        JvmRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
     @AfterClass

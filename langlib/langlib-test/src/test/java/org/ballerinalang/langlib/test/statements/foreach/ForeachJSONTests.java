@@ -43,25 +43,22 @@ public class ForeachJSONTests {
     public void testJSONObject() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        Object[] returns = JvmRunUtil.invoke(program, "testJSONObject");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testJSONObject");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
     public void testJSONArray() {
         String result = "{\"subject\":\"maths\", \"marks\":75} {\"subject\":\"English\", \"marks\":85} ";
-        Object[] returns = JvmRunUtil.invoke(program, "testJSONArray");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testJSONArray");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
     public void testArrayOfJSON() {
         String result = "0:{\"subject\":\"maths\", \"marks\":75} 1:{\"subject\":\"English\", \"marks\":85} ";
-        Object[] returns = JvmRunUtil.invoke(program, "testArrayOfJSON");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testArrayOfJSON");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -69,9 +66,8 @@ public class ForeachJSONTests {
     public void testJSONString() {
         String result = "{ballerina}ConversionError {\"message\":\"'string' value "
                 + "cannot be converted to 'map<json>'\"}";
-        Object[] returns = JvmRunUtil.invoke(program, "testJSONString");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testJSONString");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions =  BLangRuntimeException.class,
@@ -79,9 +75,8 @@ public class ForeachJSONTests {
     public void testJSONNumber() {
         String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot"
                 + " be converted to 'map<json>'\"}";
-        Object[] returns = JvmRunUtil.invoke(program, "testJSONNumber");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testJSONNumber");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -89,9 +84,8 @@ public class ForeachJSONTests {
     public void testJSONBoolean() {
         String result = "{ballerina}ConversionError {\"message\":\"'boolean' value " 
                 + "cannot be converted to 'map<json>'\"}";
-        Object[] returns = JvmRunUtil.invoke(program, "testJSONBoolean");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testJSONBoolean");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -105,26 +99,23 @@ public class ForeachJSONTests {
     @Test(enabled = false)
     public void testJSONToStructCast() {
         String result = "a-h1 b-h2 ";
-        Object[] returns = JvmRunUtil.invoke(program, "testJSONToStructCast");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testJSONToStructCast");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test()
     public void testAddWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        Object[] returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result + "\"smith\" ");
+        Object returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
+        Assert.assertEquals(returns.toString(), result + "\"smith\" ");
     }
 
     @Test()
     public void testDeleteWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] \"bob\" 10 true ";
-        Object[] returns = JvmRunUtil.invoke(program, "testDeleteWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testDeleteWhileIteration");
+        Assert.assertEquals(returns.toString(), result);
     }
 }

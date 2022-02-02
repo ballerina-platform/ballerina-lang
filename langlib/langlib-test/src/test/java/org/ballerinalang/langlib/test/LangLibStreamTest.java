@@ -40,44 +40,44 @@ public class LangLibStreamTest {
 
     @Test
     public void testFilterFunc() {
-        Object[] values = JvmRunUtil.invoke(result, "testFilterFunc", new Object[]{});
-        Assert.assertTrue((Boolean) values[0]);
+        Object values = JvmRunUtil.invoke(result, "testFilterFunc", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testMapFunc() {
-        Object[] values = JvmRunUtil.invoke(result, "testMapFunc", new Object[]{});
-        Assert.assertTrue((Boolean) values[0]);
+        Object values = JvmRunUtil.invoke(result, "testMapFunc", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testFilterAndMapFunc() {
-        Object[] values = JvmRunUtil.invoke(result, "testFilterAndMapFunc", new Object[]{});
-        Assert.assertTrue((Boolean) values[0]);
+        Object values = JvmRunUtil.invoke(result, "testFilterAndMapFunc", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testReduceFunc() {
-        Object[] values = JvmRunUtil.invoke(result, "testReduce", new Object[]{});
-        Assert.assertEquals(values[0], 135.0d);
+        Object values = JvmRunUtil.invoke(result, "testReduce", new Object[]{});
+        Assert.assertEquals(values, 135.0d);
     }
 
     @Test
     public void testForReachFunc() {
-        Object[] values = JvmRunUtil.invoke(result, "testForEach", new Object[]{});
-        Assert.assertEquals(values[0], 135.0d);
+        Object values = JvmRunUtil.invoke(result, "testForEach", new Object[]{});
+        Assert.assertEquals(values, 135.0d);
     }
 
     @Test
     public void testIteratorFunc() {
-        Object[] values = JvmRunUtil.invoke(result, "testIterator", new Object[]{});
-        Assert.assertTrue((Boolean) values[0]);
+        Object values = JvmRunUtil.invoke(result, "testIterator", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testMapFuncWithRecordType() {
-        Object[] values = JvmRunUtil.invoke(result, "testMapFuncWithRecordType", new Object[]{});
-        Assert.assertTrue((Boolean) values[0]);
+        Object values = JvmRunUtil.invoke(result, "testMapFuncWithRecordType", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
 }

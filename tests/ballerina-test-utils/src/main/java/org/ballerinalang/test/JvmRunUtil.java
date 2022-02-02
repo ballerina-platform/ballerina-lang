@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
@@ -65,7 +66,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
 
 /**
  * Utility methods for run Ballerina functions with JVM arguments and return values.
@@ -82,7 +83,7 @@ public class JvmRunUtil {
      * @param args          Input parameters for the function
      * @return return values of the function
      */
-    public static Object[] invoke(CompileResult compileResult, String functionName, Object[] args) {
+    public static Object invoke(CompileResult compileResult, String functionName, Object[] args) {
         return invokeOnJBallerina(compileResult, functionName, args, getJvmParamTypes(args));
     }
 
@@ -90,8 +91,9 @@ public class JvmRunUtil {
         Class<?>[] paramTypes = new Class<?>[args.length];
         for (int i = 0; i < args.length; i++) {
             Object arg = args[i];
-
-            if (arg instanceof ObjectValue) {
+            if (arg == null) {
+                paramTypes[i] = null;
+            } else if (arg instanceof ObjectValue) {
                 paramTypes[i] = ObjectValue.class;
             } else if (arg instanceof XmlValue) {
                 paramTypes[i] = XmlValue.class;
@@ -117,6 +119,10 @@ public class JvmRunUtil {
                 paramTypes[i] = ErrorValue.class;
             } else if (arg instanceof DecimalValue) {
                 paramTypes[i] = DecimalValue.class;
+            } else if (arg instanceof HandleValue) {
+                paramTypes[i] = HandleValue.class;
+            } else if (arg instanceof Byte) {
+                paramTypes[i] = Integer.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -136,13 +142,12 @@ public class JvmRunUtil {
      * @param paramTypes    Types of the parameters of the function
      * @return return values of the function
      */
-    private static Object[] invokeOnJBallerina(CompileResult compileResult, String functionName, Object[] args,
-                                               Class<?>[] paramTypes) {
+    private static Object invokeOnJBallerina(CompileResult compileResult, String functionName, Object[] args,
+                                             Class<?>[] paramTypes) {
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
         args = addDefaultableBoolean(args);
         paramTypes = addDefaultableBooleanType(paramTypes);
-        Object jvmResult = invoke(compileResult, function, functionName, args, paramTypes);
-        return new Object[]{jvmResult};
+        return invoke(compileResult, function, functionName, args, paramTypes);
     }
 
     private static Object[] addDefaultableBoolean(Object[] args) {
@@ -215,8 +220,7 @@ public class JvmRunUtil {
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                     PredefinedTypes.TYPE_ANY, "test",
-                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
-                            functionName));
+                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value, functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new BLangRuntimeException(futureValue.panic.getMessage(),
@@ -280,7 +284,7 @@ public class JvmRunUtil {
      * @param functionName  Name of the function to invoke
      * @return return values of the function
      */
-    public static Object[] invoke(CompileResult compileResult, String functionName) {
+    public static Object invoke(CompileResult compileResult, String functionName) {
         Object[] args = {};
         return invoke(compileResult, functionName, args);
     }

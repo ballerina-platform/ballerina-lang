@@ -17,14 +17,13 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,13 +33,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
+
 /**
  * Basic worker related tests.
  */
 public class WorkerTest {
 
     private CompileResult result;
-    
+
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/workers.bal");
@@ -49,73 +50,73 @@ public class WorkerTest {
 
     @Test
     public void workerReturnTest() {
-        BValue[] returns = BRunUtil.invoke(result, "workerReturnTest", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 52);
+        Object returns = JvmRunUtil.invoke(result, "workerReturnTest", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 52);
     }
 
     @Test
     public void workerSendToWorkerTest() {
-        BValue[] returns = BRunUtil.invoke(result, "workerSendToWorker", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 41);
+        Object returns = JvmRunUtil.invoke(result, "workerSendToWorker", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 41);
     }
 
     @Test
     public void workerSendToDefault() {
-        BValue[] returns = BRunUtil.invoke(result, "workerSendToDefault", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 51);
+        Object returns = JvmRunUtil.invoke(result, "workerSendToDefault", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 51);
     }
 
     @Test
     public void workerSendFromDefault() {
-        BValue[] returns = BRunUtil.invoke(result, "workerSendFromDefault", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BInteger ret = (BInteger) returns[0];
-        Assert.assertEquals(ret.intValue(), 51);
+        Object returns = JvmRunUtil.invoke(result, "workerSendFromDefault", new Object[0]);
+
+        long ret = (long) returns;
+        Assert.assertEquals(ret, 51);
     }
 
-   @Test
+    @Test
     public void receiveWithTrap() {
-        BRunUtil.invoke(result, "receiveWithTrap", new BValue[0]);
+        JvmRunUtil.invoke(result, "receiveWithTrap", new Object[0]);
     }
 
     @Test()
     public void syncSendReceiveWithTrap() {
-        BRunUtil.invoke(result, "syncSendReceiveWithTrap");
+        JvmRunUtil.invoke(result, "syncSendReceiveWithTrap");
     }
 
     @Test
     public void receiveWithCheck() {
-        BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
+        JvmRunUtil.invoke(result, "receiveWithCheck", new Object[0]);
     }
 
     @Test
     public void syncSendReceiveWithCheck() {
-        BRunUtil.invoke(result, "syncSendReceiveWithCheck", new BValue[0]);
+        JvmRunUtil.invoke(result, "syncSendReceiveWithCheck", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"err msg.*")
     public void receiveWithCheckpanic() {
-        BRunUtil.invoke(result, "receiveWithCheckpanic");
+        JvmRunUtil.invoke(result, "receiveWithCheckpanic");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: err \\{\"message\":\"sync send err msg.*")
     public void syncSendReceiveWithCheckpanic() {
-        BRunUtil.invoke(result, "syncSendReceiveWithCheckpanic");
+        JvmRunUtil.invoke(result, "syncSendReceiveWithCheckpanic");
     }
 
     @Test
     public void sendToDefaultWithPanicBeforeSendInWorker() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "sendToDefaultWithPanicBeforeSendInWorker");
+            JvmRunUtil.invoke(result, "sendToDefaultWithPanicBeforeSendInWorker");
         } catch (Exception e) {
             actualException = e;
         }
@@ -128,13 +129,13 @@ public class WorkerTest {
     public void sendToDefaultWithPanicBeforeSendInDefault() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "sendToDefaultWithPanicBeforeSendInDefault");
+            JvmRunUtil.invoke(result, "sendToDefaultWithPanicBeforeSendInDefault");
         } catch (Exception e) {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
         String expected = "error: error: err from panic\n" + "\tat " +
-                                    "workers:sendToDefaultWithPanicBeforeSendInDefault(workers.bal:";
+                "workers:sendToDefaultWithPanicBeforeSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -142,7 +143,7 @@ public class WorkerTest {
     public void sendToDefaultWithPanicAfterSendInWorker() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "sendToDefaultWithPanicAfterSendInWorker");
+            JvmRunUtil.invoke(result, "sendToDefaultWithPanicAfterSendInWorker");
         } catch (Exception e) {
             actualException = e;
         }
@@ -155,13 +156,13 @@ public class WorkerTest {
     public void sendToDefaultWithPanicAfterSendInDefault() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "sendToDefaultWithPanicAfterSendInDefault");
+            JvmRunUtil.invoke(result, "sendToDefaultWithPanicAfterSendInDefault");
         } catch (Exception e) {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
         String expected = "error: error: err from panic\n" +
-                                "\tat workers:sendToDefaultWithPanicAfterSendInDefault(workers.bal:";
+                "\tat workers:sendToDefaultWithPanicAfterSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -169,7 +170,7 @@ public class WorkerTest {
     public void receiveFromDefaultWithPanicAfterSendInDefault() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "receiveFromDefaultWithPanicAfterSendInDefault");
+            JvmRunUtil.invoke(result, "receiveFromDefaultWithPanicAfterSendInDefault");
         } catch (Exception e) {
             actualException = e;
         }
@@ -184,7 +185,7 @@ public class WorkerTest {
     public void receiveFromDefaultWithPanicBeforeSendInDefault() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "receiveFromDefaultWithPanicBeforeSendInDefault");
+            JvmRunUtil.invoke(result, "receiveFromDefaultWithPanicBeforeSendInDefault");
         } catch (Exception e) {
             actualException = e;
         }
@@ -198,7 +199,7 @@ public class WorkerTest {
     public void receiveFromDefaultWithPanicBeforeReceiveInWorker() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "receiveFromDefaultWithPanicBeforeReceiveInWorker");
+            JvmRunUtil.invoke(result, "receiveFromDefaultWithPanicBeforeReceiveInWorker");
         } catch (Exception e) {
             actualException = e;
         }
@@ -211,7 +212,7 @@ public class WorkerTest {
     public void receiveFromDefaultWithPanicAfterReceiveInWorker() {
         Exception actualException = null;
         try {
-            BRunUtil.invoke(result, "receiveFromDefaultWithPanicAfterReceiveInWorker");
+            JvmRunUtil.invoke(result, "receiveFromDefaultWithPanicAfterReceiveInWorker");
         } catch (Exception e) {
             actualException = e;
         }
@@ -223,22 +224,22 @@ public class WorkerTest {
 
     @Test
     public void receiveWithCheckAndTrap() {
-        BRunUtil.invoke(result, "receiveWithCheckAndTrap");
+        JvmRunUtil.invoke(result, "receiveWithCheckAndTrap");
     }
 
     @Test()
     public void receiveWithTrapForDefault() {
-        BRunUtil.invoke(result, "receiveWithTrapForDefault");
+        JvmRunUtil.invoke(result, "receiveWithTrapForDefault");
     }
 
     @Test
     public void receiveWithCheckForDefault() {
-        BRunUtil.invoke(result, "receiveWithCheckForDefault");
+        JvmRunUtil.invoke(result, "receiveWithCheckForDefault");
     }
 
     @Test
     public void receiveDefaultWithCheckAndTrap() {
-        BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
+        JvmRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
     }
 
     @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30595
@@ -250,32 +251,32 @@ public class WorkerTest {
 
     @Test
     public void workerTestWithLambda() {
-        BValue[] returns = BRunUtil.invoke(result, "workerTestWithLambda");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
+        Object returns = JvmRunUtil.invoke(result, "workerTestWithLambda");
+
+        Assert.assertEquals(returns, 88L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*")
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.future\\}FutureAlreadyCancelled.*")
     public void workerWithFutureTest1() {
-        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Object returns = JvmRunUtil.invoke(result, "workerWithFutureTest1");
+
+        Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void workerWithFutureTest2() {
-        BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+        Object returns = JvmRunUtil.invoke(result, "workerWithFutureTest2");
+
+        Assert.assertEquals(returns, 12L);
     }
 
     @Test
     public void workerWithFutureTest3() {
         try {
-            BValue[] returns = BRunUtil.invoke(result, "workerWithFutureTest3");
-            Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
+            Object returns = JvmRunUtil.invoke(result, "workerWithFutureTest3");
+
+            Assert.assertEquals(returns, 18L);
         } catch (BLangRuntimeException e) {
             Assert.assertTrue(e.getMessage().contains("error: {ballerina/lang.future}FutureAlreadyCancelled"));
         }
@@ -286,11 +287,11 @@ public class WorkerTest {
         try {
             ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
             System.setOut(new PrintStream(tempOutStream));
-            BRunUtil.invoke(result, "sameStrandMultipleInvocation");
+            JvmRunUtil.invoke(result, "sameStrandMultipleInvocation");
             String result = new String(tempOutStream.toByteArray());
             // we cannot guarantee an ordering between message sends
             Assert.assertTrue((result.contains("11 - 11") && result.contains("12 - 12")) ||
-                            (result.contains("11 - 12") && result.contains("12 - 11")), result);
+                    (result.contains("11 - 12") && result.contains("12 - 11")), result);
         } finally {
             System.setOut(defaultOut);
         }
@@ -298,16 +299,16 @@ public class WorkerTest {
 
     @Test
     public void testComplexTypeSend() {
-        BValue[] returns = BRunUtil.invoke(result, "testComplexType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getType().getName(), "Rec");
-        Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
+        Object returns = JvmRunUtil.invoke(result, "testComplexType");
+
+        Assert.assertEquals(getType(returns).getName(), "Rec");
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("k")), 10L);
     }
 
     @Test
     public void innerWorkerPanicTest() {
         try {
-            BRunUtil.invoke(result, "panicFunc");
+            JvmRunUtil.invoke(result, "panicFunc");
             Assert.fail("Worker did not panic");
         } catch (BLangRuntimeException e) {
             Assert.assertTrue(e.getMessage().contains("worker w5 panic"));
@@ -316,42 +317,42 @@ public class WorkerTest {
 
     @Test
     public void waitInReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "waitInReturn");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap mapResult = (BMap) returns[0];
-        Assert.assertEquals(mapResult.get("w1").stringValue(), "w1");
-        Assert.assertEquals(mapResult.get("w2").stringValue(), "w2");
+        Object returns = JvmRunUtil.invoke(result, "waitInReturn");
+
+        Assert.assertTrue(returns instanceof BMap);
+        BMap mapResult = (BMap) returns;
+        Assert.assertEquals(mapResult.get(StringUtils.fromString("w1")).toString(), "w1");
+        Assert.assertEquals(mapResult.get(StringUtils.fromString("w2")).toString(), "w2");
     }
 
     @Test
     public void testLambdaWithWorkerMessagePassing() {
-        BRunUtil.invoke(result, "testLambdaWithWorkerMessagePassing");
+        JvmRunUtil.invoke(result, "testLambdaWithWorkerMessagePassing");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithWorkerInsideLock() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");
+        Object returns = JvmRunUtil.invoke(result, "testPanicWorkerInsideLock");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithWorkerInsideLockWithDepth3() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLockWithDepth3");
+        Object returns = JvmRunUtil.invoke(result, "testPanicWorkerInsideLockWithDepth3");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithStartInsideLock() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicStartInsideLock");
+        Object returns = JvmRunUtil.invoke(result, "testPanicStartInsideLock");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithStartInsideLockWithDepth3() {
-        BValue[] returns = BRunUtil.invoke(result, "testPanicStartInsideLockWithDepth3");
+        Object returns = JvmRunUtil.invoke(result, "testPanicStartInsideLockWithDepth3");
     }
 
     @Test
     public void testWorkerInteractionsAfterCheck() {
-        BRunUtil.invoke(result, "testWorkerInteractionsAfterCheck");
+        JvmRunUtil.invoke(result, "testWorkerInteractionsAfterCheck");
     }
 
     @Test

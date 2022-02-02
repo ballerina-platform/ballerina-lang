@@ -51,37 +51,32 @@ public class ForeachStringTypedBindingPatternsTests {
 
     @Test
     public void testStringWithSimpleVariableWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
+        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithoutType");
+        Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testStringWithSimpleVariableWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
+        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithType");
+        Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testStringWithSimpleVariableWithAnydataType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithAnydataType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
+        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithAnydataType");
+        Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testStringWithSimpleVariableWithAnyType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithAnyType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
+        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithAnyType");
+        Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testIterationOnEmptyString() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIterationOnEmptyString");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "");
+        Object returns = JvmRunUtil.invoke(program, "testIterationOnEmptyString");
+        Assert.assertEquals(returns.toString(), "");
     }
 
     @Test

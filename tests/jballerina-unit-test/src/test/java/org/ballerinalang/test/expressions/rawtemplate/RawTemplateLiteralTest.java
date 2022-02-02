@@ -18,8 +18,8 @@
 package org.ballerinalang.test.expressions.rawtemplate;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -124,7 +124,7 @@ public class RawTemplateLiteralTest {
 
     @Test(dataProvider = "FunctionNames")
     public void testRawTemplateLiteral(String func) {
-        BRunUtil.invoke(result, func);
+        JvmRunUtil.invoke(result, func);
     }
 
     @DataProvider(name = "FunctionNames")

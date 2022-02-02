@@ -51,47 +51,42 @@ public class ForeachComplexTests {
             }
             sb.append("\n");
         }
-        Object[] returns = JvmRunUtil.invoke(program, "testNestedForeach");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), sb.toString());
+        Object returns = JvmRunUtil.invoke(program, "testNestedForeach");
+        Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testIntRangeSimple() {
         Object[] args = new Object[]{(-5), (5)};
-        Object[] returns = JvmRunUtil.invoke(program, "testIntRangeSimple", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), getIntRangOutput(false, -5, 5));
+        Object returns = JvmRunUtil.invoke(program, "testIntRangeSimple", args);
+        Assert.assertEquals(returns.toString(), getIntRangOutput(false, -5, 5));
 
         args = new Object[]{(5), (-5)};
         returns = JvmRunUtil.invoke(program, "testIntRangeSimple", args);
-        Assert.assertEquals(returns[0].toString(), getIntRangOutput(false, 5, -5));
+        Assert.assertEquals(returns.toString(), getIntRangOutput(false, 5, -5));
     }
 
     @Test
     public void testIntRangeSimpleArity2() {
         Object[] args = new Object[]{(-5L), (5L)};
-        Object[] returns = JvmRunUtil.invoke(program, "testIntRangeSimpleArity2", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), getIntRangOutput(true, -5, 5));
+        Object returns = JvmRunUtil.invoke(program, "testIntRangeSimpleArity2", args);
+        Assert.assertEquals(returns.toString(), getIntRangOutput(true, -5, 5));
 
         args = new Object[]{(5L), (-5L)};
         returns = JvmRunUtil.invoke(program, "testIntRangeSimple", args);
-        Assert.assertEquals(returns[0].toString(), getIntRangOutput(true, 5, -5));
+        Assert.assertEquals(returns.toString(), getIntRangOutput(true, 5, -5));
     }
 
     @Test
     public void testIntRangeEmptySet() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIntRangeEmptySet");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), getIntRangOutput(false, 5, 0));
+        Object returns = JvmRunUtil.invoke(program, "testIntRangeEmptySet");
+        Assert.assertEquals(returns.toString(), getIntRangOutput(false, 5, 0));
     }
 
     @Test
     public void testIntRangeComplex() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIntRangeComplex");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), getIntRangOutput(false, 0, 10));
+        Object returns = JvmRunUtil.invoke(program, "testIntRangeComplex");
+        Assert.assertEquals(returns.toString(), getIntRangOutput(false, 0, 10));
     }
 
     private String getIntRangOutput(boolean includeIndex, int start, int end) {

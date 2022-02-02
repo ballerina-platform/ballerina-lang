@@ -17,10 +17,9 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,33 +40,33 @@ public class WorkerFlushTest {
 
     @Test
     public void simpleFlushTest() {
-        BValue[] returns = BRunUtil.invoke(result, "singleFlush");
-        Assert.assertEquals(returns[0].stringValue(), "w2w2w2w2w2w1w1w1w1w1");
+        Object returns = JvmRunUtil.invoke(result, "singleFlush");
+        Assert.assertEquals(returns.toString(), "w2w2w2w2w2w1w1w1w1w1");
     }
 
     @Test
     public void flushReturnNilTest() {
-        BValue[] returns = BRunUtil.invoke(result, "flushReturn");
-        Assert.assertNull(returns[0]);
+        Object returns = JvmRunUtil.invoke(result, "flushReturn");
+        Assert.assertNull(returns);
     }
 
     @Test
     public void flushAll() {
-        BValue[] returns = BRunUtil.invoke(result, "flushAll");
-        Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
-                "Returned wrong value:" + returns[0].stringValue());
+        Object returns = JvmRunUtil.invoke(result, "flushAll");
+        Assert.assertFalse(returns.toString().startsWith("w1"),
+                "Returned wrong value:" + returns.toString());
     }
 
     @Test
     public void errorBeforeFlush() {
-        BRunUtil.invoke(result, "errorTest");
+        JvmRunUtil.invoke(result, "errorTest");
     }
 
     @Test
     public void panicBeforeFlush() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(result, "panicTest");
+            JvmRunUtil.invoke(result, "panicTest");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -80,13 +79,13 @@ public class WorkerFlushTest {
 
     @Test
     public void flushInDefaultError() {
-        BRunUtil.invoke(result, "flushInDefaultError");
+        JvmRunUtil.invoke(result, "flushInDefaultError");
     }
 
     @Test
     public void flushInDefault() {
-        BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
-        Assert.assertEquals(returns[0].stringValue(), "25");
+        Object returns = JvmRunUtil.invoke(result, "flushInDefault");
+        Assert.assertEquals(returns.toString(), "25");
     }
 
     @AfterClass

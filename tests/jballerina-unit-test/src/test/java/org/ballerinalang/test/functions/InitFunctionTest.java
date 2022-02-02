@@ -20,13 +20,13 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.Test;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
@@ -41,14 +41,14 @@ public class InitFunctionTest {
     @SuppressWarnings("unchecked")
     public void testMainFunctionWithUserDefinedInit() {
         CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_main_with_init_function.bal");
-        Object value = BRunUtil.invokeAndGetJVMResult(compileResult, "main");
+        Object value = JvmRunUtil.invokeAndGetJVMResult(compileResult, "main");
 
-        assertEquals(((BValue) value).getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(getType(value).getTag(), TypeTags.ERROR_TAG);
 
         BError error = (BError) value;
         assertEquals(error.getErrorMessage().getValue(), "errorCode");
 
-        BMap<BString, BValue> details = (BMap<BString, BValue>) error.getDetails();
+        BMap<BString, Object> details = (BMap<BString, Object>) error.getDetails();
         assertEquals(details.get(fromString("i")), 24L);
     }
 
@@ -56,14 +56,14 @@ public class InitFunctionTest {
     @SuppressWarnings("unchecked")
     public void testMainFunctionWithImportsWithUserDefinedInit() {
         CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_proj_with_init_funcs");
-        Object value = BRunUtil.invokeAndGetJVMResult(compileResult, "main");
+        Object value = JvmRunUtil.invokeAndGetJVMResult(compileResult, "main");
 
-        assertEquals(((BValue) value).getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(getType(value).getTag(), TypeTags.ERROR_TAG);
 
         BError error = (BError) value;
         assertEquals(error.getErrorMessage().getValue(), "errorCode");
 
-        BMap<BString, BValue> details = (BMap<BString, BValue>) error.getDetails();
+        BMap<BString, Object> details = (BMap<BString, Object>) error.getDetails();
         assertEquals(details.get(fromString("i")), 110L);
         assertEquals(details.get(fromString("s")), fromString("hello world"));
     }

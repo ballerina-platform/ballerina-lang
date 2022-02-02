@@ -18,8 +18,8 @@
 package org.ballerinalang.test.error;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class PrintableStackTraceTest {
     public void testPrintableStackTrace() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(compileResult, "main");
+            JvmRunUtil.invoke(compileResult, "main");
         } catch (Exception e) {
             expectedException = e;
         }

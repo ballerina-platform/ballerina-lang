@@ -17,14 +17,13 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithDefaultConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithOneParamConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithTwoParamConstructor;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,37 +47,35 @@ public class ConstructorTest {
     @Test(description = "Test invoking a java constructor that accepts nothing", dataProvider =
             "AcceptNothingFunctionNamesProvider")
     public void testAcceptNothing(String funcName) {
-        BValue[] returns = BRunUtil.invoke(result, funcName);
+        Object returns = JvmRunUtil.invoke(result, funcName);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue().getClass(), ClassWithDefaultConstructor.class);
+        Assert.assertEquals(((HandleValue) returns).getValue().getClass(), ClassWithDefaultConstructor.class);
         ClassWithDefaultConstructor createdClass =
-                (ClassWithDefaultConstructor) ((BHandleValue) returns[0]).getValue();
-        Assert.assertEquals(createdClass.getValue().intValue(), 11);
+                (ClassWithDefaultConstructor) ((HandleValue) returns).getValue();
+        Assert.assertEquals((long) createdClass.getValue(), 11L);
     }
 
     @Test(description = "Test invoking a java constructor that accepts one parameter", dataProvider =
             "AcceptOneParamFunctionNamesProvider")
     public void testAcceptOneParam(String funcName) {
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue("Ballerina");
-        BValue[] returns = BRunUtil.invoke(result, funcName, args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = new Object[1];
+        args[0] = new HandleValue("Ballerina");
+        Object returns = JvmRunUtil.invoke(result, funcName, args);
         ClassWithOneParamConstructor createdClass =
-                (ClassWithOneParamConstructor) ((BHandleValue) returns[0]).getValue();
+                (ClassWithOneParamConstructor) ((HandleValue) returns).getValue();
         Assert.assertEquals(createdClass.getValue(), "Hello Ballerina");
     }
 
     @Test(description = "Test invoking a java constructor that accepts two parameters", dataProvider =
             "AcceptTwoParamsFunctionNamesProvider")
     public void testAcceptTowParam(String funcName) {
-        BValue[] args = new BValue[2];
-        args[0] = new BHandleValue("Bye ");
-        args[1] = new BHandleValue("Ballerina");
-        BValue[] returns = BRunUtil.invoke(result, funcName, args);
-        Assert.assertEquals(returns.length, 1);
+        Object[] args = new Object[2];
+        args[0] = new HandleValue("Bye ");
+        args[1] = new HandleValue("Ballerina");
+        Object returns = JvmRunUtil.invoke(result, funcName, args);
+        
         ClassWithTwoParamConstructor createdClass =
-                (ClassWithTwoParamConstructor) ((BHandleValue) returns[0]).getValue();
+                (ClassWithTwoParamConstructor) ((HandleValue) returns).getValue();
         Assert.assertEquals(createdClass.getValue(), "Bye Ballerina");
     }
 

@@ -47,56 +47,56 @@ public class LangLibTableTest {
 
     @Test
     public void testLength() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testTableLength");
-        assertEquals(returns[0], 4L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testTableLength");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testIterator() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIterator");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testIterator");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void getKey() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "getValueFromKey");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "getValueFromKey");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testMap() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testMap");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testForeach() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0].toString(), "Chiran Granier ");
+        Object returns = JvmRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns.toString(), "Chiran Granier ");
     }
 
     @Test
     public void testFilter() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFilter");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testFilter");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testReduce() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(returns[0], 35.5d);
+        Object returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 35.5d);
     }
 
     @Test
     public void testRemoveWithKey() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "removeWithKey");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "removeWithKey");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void removeIfHasKey() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "removeIfHasKey");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "removeIfHasKey");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -116,16 +116,16 @@ public class LangLibTableTest {
 
     @Test
     public void testGetKeyList() {
-        Object[] result = JvmRunUtil.invoke(compileResult, "testGetKeyList");
-        BArray returns = (BArray) result[0];
+        Object result = JvmRunUtil.invoke(compileResult, "testGetKeyList");
+        BArray returns = (BArray) result;
         assertEquals(returns.size(), 4);
         assertEquals(returns.getString(0), "Chiran");
         assertEquals(returns.getString(1), "Mohan");
         assertEquals(returns.getString(2), "Gima");
         assertEquals(returns.getString(3), "Granier");
 
-        Object[] unionReturns = JvmRunUtil.invoke(compileResult, "testGetKeysFromUnionConstrained");
-        BArray unionResult = (BArray) unionReturns[0];
+        Object unionReturns = JvmRunUtil.invoke(compileResult, "testGetKeysFromUnionConstrained");
+        BArray unionResult = (BArray) unionReturns;
         assertEquals(unionResult.size(), 2);
         assertEquals(unionResult.getString(0), "Adam");
         assertEquals(unionResult.getString(1), "Mark");
@@ -133,20 +133,20 @@ public class LangLibTableTest {
 
     @Test
     public void testRemoveAllFromTable() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "removeAllFromTable");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "removeAllFromTable");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTableToArray() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "tableToArray");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "tableToArray");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testNextKey() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testNextKey");
-        assertEquals(returns[0], 101L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testNextKey");
+        assertEquals(returns, 101L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -231,8 +231,8 @@ public class LangLibTableTest {
 
     @Test
     public void testAddData() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddData");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testAddData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -282,26 +282,26 @@ public class LangLibTableTest {
 
     @Test
     public void testAddValidData() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidData");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testAddValidData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAddValidData2() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidData2");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testAddValidData2");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAddValidDataWithMapConstrTbl() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidDataWithMapConstrTbl");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testAddValidDataWithMapConstrTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutData() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutData");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPutData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -342,32 +342,32 @@ public class LangLibTableTest {
 
     @Test
     public void testPutValidData() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidData");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPutValidData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutValidData2() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidData2");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPutValidData2");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutValidDataWithMapConstrTbl() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidDataWithMapConstrTbl");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPutValidDataWithMapConstrTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutWithKeyLessTbl() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAddWithKeyLessTbl() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -379,26 +379,26 @@ public class LangLibTableTest {
 
     @Test
     public void testRemoveAlreadyReturnedRecordFromIterator() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void removeIfHasKeyReturnedRecordFromIterator() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "removeIfHasKeyReturnedRecordFromIterator");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "removeIfHasKeyReturnedRecordFromIterator");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testChangeValueForAGivenKeyWhileIterating() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testRemoveThenIterate() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testRemoveThenIterate");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveThenIterate");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -460,14 +460,14 @@ public class LangLibTableTest {
 
     @Test
     public void testAddValidDataToKeylessTbl() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testAddValidDataToKeylessTbl");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testAddValidDataToKeylessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutValidDataToKeylessTbl() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test

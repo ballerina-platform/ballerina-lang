@@ -44,8 +44,8 @@ public class ForeachErrorBindingPatternsTests {
 
     @Test
     public void testArrayWithErrors() {
-        Object[] returns = JvmRunUtil.invoke(program, "testArrayWithErrors");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(program, "testArrayWithErrors");
+        BArray result = (BArray) returns;
         Assert.assertEquals(result.size(), 3);
         Assert.assertEquals(result.get(0).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
@@ -57,8 +57,8 @@ public class ForeachErrorBindingPatternsTests {
 
     @Test
     public void testMapWithErrors() {
-        Object[] returns = JvmRunUtil.invoke(program, "testMapWithErrors");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(program, "testMapWithErrors");
+        BArray result = (BArray) returns;
         Assert.assertEquals(result.size(), 3);
         Assert.assertEquals(result.get(0).toString(),
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");

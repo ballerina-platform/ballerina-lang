@@ -16,11 +16,9 @@
  */
 package org.ballerinalang.test.vm;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,16 +39,14 @@ public class DynamicControlStackTest {
 
     @Test
     public void controlStackTest1() {
-        BValue[] vals = BRunUtil.invoke(result, "f1", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 50025000);
+        Object vals = JvmRunUtil.invoke(result, "f1", new Object[0]);
+        Assert.assertEquals(vals, 50025000L);
     }
 
     @Test
     public void controlStackTest2() {
-        BValue[] vals = BRunUtil.invoke(result, "f5", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 50125000);
+        Object vals = JvmRunUtil.invoke(result, "f5", new Object[0]);
+        Assert.assertEquals(vals, 50125000L);
     }
 
     @AfterClass

@@ -16,14 +16,11 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -46,21 +43,20 @@ public class DivisionOperationTest {
 
     @Test(description = "Test two int divide expression")
     public void testIntDivideExpr() {
-        BValue[] args = { new BInteger(2000), new BInteger(50) };
-        BValue[] returns = BRunUtil.invoke(result, "intDivide", args);
+        Object[] args = { (2000), (50) };
+        Object returns = JvmRunUtil.invoke(result, "intDivide", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 40;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
-        BValue[] args = { new BInteger(2000), new BInteger(0) };
-        BRunUtil.invoke(result, "intDivide", args);
+        Object[] args = { (2000), (0) };
+        JvmRunUtil.invoke(result, "intDivide", args);
     }
 
     @Test(description = "Test two float divide expression")
@@ -70,23 +66,21 @@ public class DivisionOperationTest {
 
         double expectedResult = a / b;
 
-        BValue[] args = { new BFloat(a), new BFloat(b) };
-        BValue[] returns = BRunUtil.invoke(result, "floatDivide", args);
+        Object[] args = { (a), (b) };
+        Object returns = JvmRunUtil.invoke(result, "floatDivide", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
     @Test(description = "Test float by zero")
     public void testFloatDivideByZeroExpr() {
-        BValue[] args = { new BFloat(300.0f), new BFloat(0) };
-        BValue[] returns = BRunUtil.invoke(result, "floatDivide", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
-        Assert.assertTrue(Double.isInfinite(((BFloat) returns[0]).floatValue()),
+        Object[] args = { (300.0f), (0) };
+        Object returns = JvmRunUtil.invoke(result, "floatDivide", args);
+        Assert.assertSame(returns.getClass(), Double.class, "Return type of the division is invalid");
+        Assert.assertTrue(Double.isInfinite((Double) returns),
                 "Result of the division operation is incorrect");
     }
 
@@ -112,12 +106,12 @@ public class DivisionOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByDivision() {
-        BRunUtil.invoke(result, "overflowByDivision");
+        JvmRunUtil.invoke(result, "overflowByDivision");
     }
 
     @Test(dataProvider = "dataToTestDivisionWithTypes", description = "Test division with types")
     public void testDivisionWithTypes(String functionName) {
-        BRunUtil.invoke(result, functionName);
+        JvmRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
@@ -130,11 +124,11 @@ public class DivisionOperationTest {
 
     @Test(description = "Test contextually expected type of numeric literals in division")
     public void testContextuallyExpectedTypeOfNumericLiteralInDivision() {
-        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
+        JvmRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
     }
 
     @Test(description = "Test division of nullable values")
     public void testDivisionNullable() {
-        BRunUtil.invoke(result, "testDivisionNullable");
+        JvmRunUtil.invoke(result, "testDivisionNullable");
     }
 }

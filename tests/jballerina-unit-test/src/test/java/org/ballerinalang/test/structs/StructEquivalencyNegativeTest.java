@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.test.structs;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,35 +41,35 @@ public class StructEquivalencyNegativeTest {
             expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee01' " +
                     "value cannot be converted to 'equivalencynegative:person01'.*")
     public void testEqOfStructsInSamePackageFieldNameMismatch() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage01");
+        JvmRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage01");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee02' " +
                     "value cannot be converted to 'equivalencynegative:person02'.*")
     public void testEqOfStructsInSamePackageTypeNameMismatch() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage02");
+        JvmRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage02");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee03' " +
                     "value cannot be converted to 'equivalencynegative:person03'.*")
     public void testEqOfStructsInSamePackageFieldCountMismatch() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage03");
+        JvmRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage03");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee06' " +
                     "value cannot be converted to 'equivalencynegative:person06'.*")
     public void testEqOfStructsInSamePackageTypeMismatch() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage06");
+        JvmRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage06");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative.bar:userBar' " +
                     "value cannot be converted to 'equivalencynegative.foo:userFoo'.*")
     public void testEquivalenceOfStructsInSamePackageFromDifferentPackage() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testStructEqViewFromThirdPackage");
+        JvmRunUtil.invoke(compileResult, "testStructEqViewFromThirdPackage");
     }
 
     @AfterClass

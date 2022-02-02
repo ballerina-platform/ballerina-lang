@@ -17,12 +17,13 @@
 
 package org.ballerinalang.test.main.function;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
@@ -46,10 +47,11 @@ public class MainFunctionsTest {
     public void basicMainInvocationTest() {
         CompileResult result = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_basic_main_function.bal");
         assertEquals(result.getErrorCount(), 0);
-        BValueArray args = new BValueArray(BTypes.typeString);
+        BArray args =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
         args.add(0, "V1");
         args.add(1, "V2");
-        BRunUtil.invoke(result, "main", new BValue[] { args });
+        JvmRunUtil.invoke(result, "main", new Object[] { args });
     }
 
     @Test
@@ -65,7 +67,7 @@ public class MainFunctionsTest {
     public void testErrorOrNilReturningMainReturningError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        BRunUtil.ExitDetails result = BRunUtil.run(compileResult, new String[]{"error", "1"});
+        JvmRunUtil.ExitDetails result = JvmRunUtil.run(compileResult, new String[]{"error", "1"});
         assertTrue(result.consoleOutput.contains("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("generic error"), "invalid error reason");
@@ -85,7 +87,7 @@ public class MainFunctionsTest {
     public void testErrorOrNilReturningMainReturningCustomError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        BRunUtil.ExitDetails result = BRunUtil.run(compileResult, new String[]{"user_def_error", "1"});
+        JvmRunUtil.ExitDetails result = JvmRunUtil.run(compileResult, new String[]{"user_def_error", "1"});
         assertTrue(result.consoleOutput.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("const error reason"), "invalid error reason");
@@ -105,7 +107,7 @@ public class MainFunctionsTest {
     public void testMainWithStackOverflow() {
         CompileResult compileResult = BCompileUtil
                 .compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_stackoverflow.bal");
-        BRunUtil.ExitDetails details = BRunUtil.run(compileResult, new String[]{});
+        JvmRunUtil.ExitDetails details = JvmRunUtil.run(compileResult, new String[]{});
         assertTrue(details.errorOutput.contains("error: {ballerina}StackOverflow" + System.lineSeparator()
                 + "\tat Foo:init(test_main_with_stackoverflow.bal:19)" + System.lineSeparator()
                 + "\t   Foo:init(test_main_with_stackoverflow.bal:19)" + System.lineSeparator() +
@@ -122,7 +124,7 @@ public class MainFunctionsTest {
 
     private String runMain(CompileResult compileResult, String[] args) {
         try {
-            return BRunUtil.runMain(compileResult, args);
+            return JvmRunUtil.runMain(compileResult, args);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

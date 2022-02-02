@@ -17,13 +17,11 @@
  */
 package org.ballerinalang.test.endpoint;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,47 +42,44 @@ public class ClientObjectTest {
 
     @Test
     public void testRemoteFunctions() {
-        BValue[] returns = BRunUtil.invoke(remoteBasic, "test1", new BValue[] { new BInteger(4) });
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "false");
+        Object returns = JvmRunUtil.invoke(remoteBasic, "test1", new Object[] { (4) });
+        Assert.assertEquals(returns.toString(), "false");
 
-        returns = BRunUtil.invoke(remoteBasic, "test1", new BValue[] { new BInteger(10) });
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "true");
+        returns = JvmRunUtil.invoke(remoteBasic, "test1", new Object[] { (10) });
+        Assert.assertEquals(returns.toString(), "true");
     }
 
     @Test
     public void testFunctions() {
-        BValue[] returns = BRunUtil.invoke(remoteBasic, "test2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "5");
+        Object returns = JvmRunUtil.invoke(remoteBasic, "test2");
+        Assert.assertEquals(returns.toString(), "5");
     }
 
     @Test
     public void testEndPointDeclInALoop() {
-        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInLoop");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+        Object result = JvmRunUtil.invoke(remoteBasic, "clientObjectDeclaredInLoop");
+        Assert.assertEquals(result, 10L);
     }
 
     @Test
     public void testEndPointDeclInAIfStmtIfBlock() {
-        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatement");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+        Object result = JvmRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatement");
+        Assert.assertEquals(result, 10L);
     }
 
     @Test
     public void testEndPointDeclInAIfStmtElseBlock() {
-        BValue[] result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatementElseBlock");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+        Object result = JvmRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatementElseBlock");
+        Assert.assertEquals(result, 10L);
     }
 
     @Test
     public void testReferringEndpointInDifferentPkg() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestEndpointProject");
 
-        BRunUtil.invoke(compileResult, "testCheck");
+        JvmRunUtil.invoke(compileResult, "testCheck");
 
-        BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
+        JvmRunUtil.invoke(compileResult, "testNewEP", new Object[] { StringUtils.fromString("done") });
     }
 
     @Test

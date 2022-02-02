@@ -18,8 +18,8 @@
 package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class ObjectTest {
 
     @Test
     public void testInteropsInsideObject() {
-        BRunUtil.invoke(result, "testInteropsInsideObject");
+        JvmRunUtil.invoke(result, "testInteropsInsideObject");
     }
 
     @AfterClass

@@ -55,10 +55,9 @@ public class AnnotationRuntimeTest {
     public void testAnnotAccess(String testFunction) {
         CompileResult resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         Assert.assertEquals(resultOne.getErrorCount(), 0);
-        Object[] returns = JvmRunUtil.invoke(resultOne, testFunction);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), Boolean.class);
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(resultOne, testFunction);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "test accessing source only annots at runtime, the annots should not be available",
@@ -66,10 +65,9 @@ public class AnnotationRuntimeTest {
     public void testSourceOnlyAnnotAccess(String testFunction) {
         CompileResult resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
         Assert.assertEquals(resultTwo.getErrorCount(), 0);
-        Object[] returns = JvmRunUtil.invoke(resultTwo, testFunction);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), Boolean.class);
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(resultTwo, testFunction);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test if constants used in annotation are replaced on constant propagation phase")

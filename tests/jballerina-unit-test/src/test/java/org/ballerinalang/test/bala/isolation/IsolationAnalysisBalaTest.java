@@ -19,8 +19,8 @@
 package org.ballerinalang.test.bala.isolation;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -46,8 +46,8 @@ public class IsolationAnalysisBalaTest {
         assertEquals(result.getErrorCount(), 0);
         assertEquals(result.getWarnCount(), 0);
 
-        BRunUtil.invoke(result, "testIsolatedFunctionCallInIsolatedFunction");
-        BRunUtil.invoke(result, "testNewingIsolatedClassWithImportedIsolatedObjectFields");
+        JvmRunUtil.invoke(result, "testIsolatedFunctionCallInIsolatedFunction");
+        JvmRunUtil.invoke(result, "testNewingIsolatedClassWithImportedIsolatedObjectFields");
     }
 
     @Test

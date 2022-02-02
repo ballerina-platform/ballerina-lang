@@ -17,8 +17,8 @@
 package org.ballerinalang.test.identifiers;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -35,26 +35,26 @@ public class IdentifierTest {
     @Test(dataProvider = "errorAsIdentifierFunctions")
     public void testErrorAsIdentifier(String function) {
         CompileResult errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/error_as_identifier.bal");
-        BRunUtil.invoke(errorTestCompileResult, function);
+        JvmRunUtil.invoke(errorTestCompileResult, function);
     }
 
     @DataProvider(name = "errorAsIdentifierFunctions")
     public Object[][] errorAsIdentifierFunctions() {
-        return new Object[][] {
-                { "testErrorNamedDefaultArgument" },
-                { "testErrorAsObjectField" },
-                { "testErrorDataWithErrorField" },
-                { "testErrorConstructorWithErrorField" },
-                { "testErrorNamedIncludedParam" },
-                { "testErrorNamedRequiredParam" },
-                { "testErrorNamedRestParam" },
+        return new Object[][]{
+                {"testErrorNamedDefaultArgument"},
+                {"testErrorAsObjectField"},
+                {"testErrorDataWithErrorField"},
+                {"testErrorConstructorWithErrorField"},
+                {"testErrorNamedIncludedParam"},
+                {"testErrorNamedRequiredParam"},
+                {"testErrorNamedRestParam"},
         };
     }
 
     @Test(dataProvider = "errorAsIdentifierFunctions")
     public void testErrorAsIdentifierNegative(String function) {
         CompileResult errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/error_as_identifier.bal");
-        BRunUtil.invoke(errorTestCompileResult, function);
+        JvmRunUtil.invoke(errorTestCompileResult, function);
     }
 
     @Test(description = "Test error as a identifier negative cases")
@@ -76,12 +76,12 @@ public class IdentifierTest {
     @Test(dataProvider = "functionsWithSelfAsIdentifier")
     public void testSelfAsIdentifier(String function) {
         CompileResult result = BCompileUtil.compile("test-src/identifiers/self_as_identifier.bal");
-        BRunUtil.invoke(result, function);
+        JvmRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "functionsWithSelfAsIdentifier")
-    public  Object[] functionsWithSelfAsIdentifier() {
-        return new String[] {
+    public Object[] functionsWithSelfAsIdentifier() {
+        return new String[]{
                 "testFuncWithSelfAsParamName",
                 "testSelfAsIdentifier"
         };

@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.test.structs;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -113,31 +113,31 @@ public class StructNegativeTest {
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitField() {
-        BRunUtil.invoke(result2, "testGetNonInitAttribute");
+        JvmRunUtil.invoke(result2, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitArrayField() {
-        BRunUtil.invoke(result2, "testGetNonInitArrayAttribute");
+        JvmRunUtil.invoke(result2, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range.*")
     public void testGetNonInitLastField() {
-        BRunUtil.invoke(result2, "testGetNonInitLastAttribute");
+        JvmRunUtil.invoke(result2, "testGetNonInitLastAttribute");
     }
 
     @Test(description = "Test setting an field of a noninitialized child struct")
     public void testSetNonInitField() {
-        BRunUtil.invoke(result2, "testSetFieldOfNonInitChildStruct");
+        JvmRunUtil.invoke(result2, "testSetFieldOfNonInitChildStruct");
     }
 
     @Test(description = "Test setting the field of a noninitialized root struct")
     public void testSetNonInitLastField() {
-        BRunUtil.invoke(result2, "testSetFieldOfNonInitStruct");
+        JvmRunUtil.invoke(result2, "testSetFieldOfNonInitStruct");
     }
 
     @AfterClass

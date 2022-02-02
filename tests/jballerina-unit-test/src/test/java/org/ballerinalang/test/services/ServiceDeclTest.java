@@ -19,8 +19,8 @@
 package org.ballerinalang.test.services;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,45 +34,45 @@ public class ServiceDeclTest {
     @Test()
     public void testServiceDecl() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl.bal");
-        BRunUtil.invoke(compileResult, "testServiceDecl");
+        JvmRunUtil.invoke(compileResult, "testServiceDecl");
     }
 
     @Test()
     public void testServiceDeclDistinctListenerArg() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/services/service_decl_distinct_listener_arg.bal");
-        BRunUtil.invoke(compileResult, "testServiceDecl");
+        JvmRunUtil.invoke(compileResult, "testServiceDecl");
     }
 
     @Test()
     public void testServiceDeclWithTypeRefDistinctListenerArg() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/services/service_decl_with_type_ref_distinct_listener_arg.bal");
-        BRunUtil.invoke(compileResult, "testServiceDecl");
+        JvmRunUtil.invoke(compileResult, "testServiceDecl");
     }
 
     @Test()
     public void testServiceNameLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
-        BRunUtil.invoke(compileResult, "testServiceName");
+        JvmRunUtil.invoke(compileResult, "testServiceName");
     }
 
     @Test
     public void testAttachMethodParams() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_attach_test.bal");
-        BRunUtil.invoke(compileResult, "testAttachMethodParams");
+        JvmRunUtil.invoke(compileResult, "testAttachMethodParams");
     }
 
     @Test
     public void testServiceClassMethodAnnot() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_class_method_annot.bal");
-        BRunUtil.invoke(compileResult, "testAnnot");
+        JvmRunUtil.invoke(compileResult, "testAnnot");
     }
 
     @Test
     public void testServiceDeclAnnot() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_annot.bal");
-        BRunUtil.invoke(compileResult, "testServiceDeclAnnots");
+        JvmRunUtil.invoke(compileResult, "testServiceDeclAnnots");
     }
 
     @Test
