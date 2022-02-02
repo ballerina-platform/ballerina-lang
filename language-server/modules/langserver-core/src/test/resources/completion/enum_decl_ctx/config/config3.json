@@ -262,12 +262,26 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "super",
+      "kind": "Variable",
+      "detail": "\"SUPER\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "super",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "projectls.constants",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "constants1",
-      "insertText": "constants1",
+      "filterText": "",
+      "insertText": "constants",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -281,23 +295,9 @@
               "character": 0
             }
           },
-          "newText": "import projectls.constants as constants1 ;\n"
+          "newText": "import projectls.constants;\n"
         }
       ]
-    },
-    {
-      "label": "super",
-      "kind": "Variable",
-      "detail": "\"SUPER\"",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "B",
-      "insertText": "super",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

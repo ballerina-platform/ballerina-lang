@@ -68,7 +68,7 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.notExists(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertFalse(Files.exists(projectPath.resolve("main.bal")));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test init command with main template", enabled = false)
@@ -104,7 +104,7 @@ public class InitCommandTest extends BaseCommandTest {
         Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         Assert.assertFalse(Files.exists(resourcePath));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test init command with service template", enabled = false)
@@ -142,7 +142,7 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(resourcePath));
         Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test init command with lib template", enabled = false)
@@ -183,7 +183,7 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("lib.bal")));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test init command with invalid template", enabled = false)

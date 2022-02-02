@@ -3926,7 +3926,7 @@ public class largeClass {
             "499aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "499bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"};
     }
 
-    function largeMethod() returns boolean {
+    function largeMethod() returns boolean|error {
         future<string> fut = start self.foo();
 
         json j3 = {"part1": {
@@ -3942,9 +3942,9 @@ public class largeClass {
         "9aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "9bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "10aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": 10,
         "11aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "11bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "12aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "12bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "12aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": check f:getWordOrError(false),
         "13aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "13bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "14aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "14bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "14aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": check f:getWordOrError(false),
         "15aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "15bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "16aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "16bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "17aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "17bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -5449,9 +5449,9 @@ public class largeClass {
         "13",
         x,
         "15aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "16aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        check f:getWordOrError(false),
         "17aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "18aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        check f:getWordOrError(false),
         "19aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "20aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "21aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -7439,7 +7439,7 @@ public class largeClass {
     }
 
     public function validate() {
-        test:assertTrue(self.largeMethod());
+        test:assertTrue(checkpanic self.largeMethod());
         test:assertEquals(self.class_arr[0][0], "0");
         test:assertEquals(self.class_arr.length(), 2);
         int arr_0_length = self.class_arr[0].length();

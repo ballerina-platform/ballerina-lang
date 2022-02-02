@@ -238,27 +238,27 @@ function testFilterWithAllFloatOpenRecord(float a, float b, float c) returns map
 function testTerminalOpsOnAllIntOpenRecord(int m, int p, int c, int e) returns [int, int, int, int, float] {
     RestrictedGrades grades = {maths: m, physics: p, chemistry: c, "english": e};
 
-    int count = grades.reduce(function (int count, int v) returns int { return count + 1; }, 0);
-    int max = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
-    int min = grades.reduce(function (int min, int v) returns int { return v < min ? v : min; }, 1000000);
-    int sum = grades.reduce(function (int sum, int v) returns int { return sum + v; }, 0);
-    float avg = grades.reduce(function (float avg, int v) returns float {
+    int count1 = grades.reduce(function (int count, int v) returns int { return count + 1; }, 0);
+    int max1 = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
+    int min1 = grades.reduce(function (int min, int v) returns int { return v < min ? v : min; }, 1000000);
+    int sum1 = grades.reduce(function (int sum, int v) returns int { return sum + v; }, 0);
+    float avg1 = grades.reduce(function (float avg, int v) returns float {
         return avg + <float>v / <float>grades.length(); }, 0.0);
 
-    return [count, max, min, sum, avg];
+    return [count1, max1, min1, sum1, avg1];
 }
 
 function testTerminalOpsOnAllIntOpenRecord2(int m, int p, int e) returns [int, int, int, int, float] {
     RestrictedGrades grades = {maths: m, physics: p, "english": e};
 
-    int count = grades.reduce(function (int count, int v) returns int { return count + 1; }, 0);
-    int max = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
-    int min = grades.reduce(function (int min, int v) returns int { return v < min ? v : min; }, 1000000);
-    int sum = grades.reduce(function (int sum, int v) returns int { return sum + v; }, 0);
-    float avg = grades.reduce(function (float avg, int v) returns float {
+    int count1 = grades.reduce(function (int count, int v) returns int { return count + 1; }, 0);
+    int max1 = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
+    int min1 = grades.reduce(function (int min, int v) returns int { return v < min ? v : min; }, 1000000);
+    int sum1 = grades.reduce(function (int sum, int v) returns int { return sum + v; }, 0);
+    float avg1 = grades.reduce(function (float avg, int v) returns float {
         return avg + <float>v / <float>grades.length(); }, 0.0);
 
-    return [count, max, min, sum, avg];
+    return [count1, max1, min1, sum1, avg1];
 }
 
 function testChainedOpsWithOpenRecords2() returns map<float> {
@@ -323,15 +323,17 @@ function testChainedOpsWithOpenRecords3() returns map<float> {
 function testOpChainsWithTerminalOps(int m, int p, int c) returns [int, int, int, int, float] {
     RestrictedGrades f = {maths: m, physics: p, chemistry: c, "english": 78};
 
-    int count = f.'map(mapTo).filter(filter).reduce(function (int count, int v) returns int { return count + 1; }, 0);
-    int sum = f.'map(mapTo).filter(filter).reduce(function (int sum, int v) returns int { return sum + v; }, 0);
-    int max = f.'map(mapTo).filter(filter).reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
-    int min = f.'map(mapTo).filter(filter).reduce(function (int min, int v) returns int { return v < min ? v : min; }, 100000);
+    int count1 = f.'map(mapTo).filter(filter).reduce(function (int count, int v) returns int { return count + 1; }, 0);
+    int sum1 = f.'map(mapTo).filter(filter).reduce(function (int sum, int v) returns int { return sum + v; }, 0);
+    int max1 = f.'map(mapTo).filter(filter).reduce(function (int max, int v) returns int { return v > max ? v : max; },
+    0);
+    int min1 = f.'map(mapTo).filter(filter).reduce(function (int min, int v) returns int { return v < min ? v : min; },
+    100000);
     int length = f.'map(mapTo).filter(filter).length();
-    float avg = f.'map(mapTo).filter(filter).reduce(function (float avg, int v) returns float {
+    float avg1 = f.'map(mapTo).filter(filter).reduce(function (float avg, int v) returns float {
         return avg + <float>v / <float>length; }, 0.0);
 
-    return [count, sum, max, min, avg];
+    return [count1, sum1, max1, min1, avg1];
 }
 
 function mapTo(int grade) returns int {

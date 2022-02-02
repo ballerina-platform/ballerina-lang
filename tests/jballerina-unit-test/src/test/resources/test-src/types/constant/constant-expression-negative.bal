@@ -35,3 +35,12 @@ const int CONST1 =  ~~false; // operator '~' not defined for 'boolean'
 const int CONST2 =  -!false; // operator '-' not defined for 'boolean'
 
 const int CONST3 =  -~false; // operator '~' not defined for 'boolean'
+
+const int A = D + B;
+const int C = A;
+const int B = C;
+const int D = 1;
+
+const float E = F;
+const float F = E;
+

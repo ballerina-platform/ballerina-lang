@@ -1,0 +1,24 @@
+{
+  "line": 2,
+  "character": 4,
+  "expected": [
+    {
+      "title": "Create variable",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "byte[] listResult = "
+        }
+      ]
+    }
+  ]
+}

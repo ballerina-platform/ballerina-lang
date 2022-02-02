@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.parser.trials.EmptyExpressionTrial;
+import io.ballerina.shell.parser.trials.ExpressionListTrial;
 import io.ballerina.shell.parser.trials.ExpressionTrial;
 import io.ballerina.shell.parser.trials.GetErrorMessageTrial;
 import io.ballerina.shell.parser.trials.InvalidMethodException;
@@ -57,6 +58,7 @@ public class SerialTreeParser extends TrialTreeParser {
         this.nodeParserTrials = List.of(
                 new ModuleMemberTrial(this),
                 new ExpressionTrial(this),
+                new ExpressionListTrial(this),
                 new StatementTrial(this),
                 new EmptyExpressionTrial(this),
                 new GetErrorMessageTrial(this)

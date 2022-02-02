@@ -77,7 +77,7 @@ public class CodeGenerator {
     private CompiledJarFile generate(BPackageSymbol packageSymbol) {
 
         // Split large BIR functions into smaller methods
-        largeMethodOptimizer = new LargeMethodOptimizer();
+        largeMethodOptimizer = new LargeMethodOptimizer(symbolTable);
         largeMethodOptimizer.splitLargeBIRFunctions(packageSymbol.bir);
 
         // Desugar BIR to include the observations

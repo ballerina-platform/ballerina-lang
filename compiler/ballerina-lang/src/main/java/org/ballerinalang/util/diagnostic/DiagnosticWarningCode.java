@@ -72,6 +72,8 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     UNUSED_LOCAL_VARIABLE("BCE20403", "unused.local.variable"),
 
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE20404", "checked.expr.invalid.usage.no.error.type.rhs"),
+
+    INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER("BCE20405", "invalid.metadata.on.duplicate.enum.member")
     ;
 
     private String diagnosticId;

@@ -19,12 +19,12 @@ function testTypeReferenceNegative() {
         return 1;
     };
 
-    var func3 = function (Foo foo) returns int {
+    var func3 = function (Foo foo1) returns int {
         return 1;
     };
     var res1 = func3(10);
 
-    var func4 = function (Foo foo) returns Foo {
+    var func4 = function (Foo foo2) returns Foo {
         return 1;
     };
     var res2 = func4("foo");

@@ -15,14 +15,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "next",
-      "kind": "Field",
-      "detail": "LinkedList.next",
-      "sortText": "K",
-      "insertText": "next: ${1:{}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "value",
       "kind": "Field",
       "detail": "LinkedList.value",
@@ -31,12 +23,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "next",
+      "kind": "Field",
+      "detail": "LinkedList.next",
+      "sortText": "K",
+      "insertText": "next: ${1:{value: 0, next: }}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Fill LinkedList Required Fields",
       "kind": "Property",
       "detail": "LinkedList",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "next: {},\nvalue: 0",
+      "insertText": "next: {value: 0, next: },\nvalue: 0",
       "insertTextFormat": "Snippet"
     }
   ]

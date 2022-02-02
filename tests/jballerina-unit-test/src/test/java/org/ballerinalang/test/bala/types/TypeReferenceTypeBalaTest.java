@@ -36,11 +36,19 @@ public class TypeReferenceTypeBalaTest {
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_type_reference_types");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_type_reference_types_2");
     }
 
     @Test
     public void testTypeReferenceTypeViaBala() {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/types/type_reference_type_bala_test.bal");
+        BRunUtil.invoke(result, "testFn");
+    }
+
+    @Test
+    public void testTypeReferenceTypeViaBala2() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/bala/test_bala/types/type_reference_type_bala_test_2.bal");
         BRunUtil.invoke(result, "testFn");
     }
 

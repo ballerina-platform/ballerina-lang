@@ -33,14 +33,12 @@ under the License.
             <!--Remote Debugging Tests-->
             <class name="org.ballerinalang.debugger.test.remote.BallerinaRunRemoteDebugTest"/>
             <class name="org.ballerinalang.debugger.test.remote.BallerinaTestRemoteDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.remote.BallerinaBuildRemoteDebugTest"/>
 
             <!--Debug engaging tests for ballerina commands -->
             <class name="org.ballerinalang.debugger.test.adapter.run.SingleBalFileRunDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.build.MultiModuleBuildDebugTest"/>
 
             <!--Breakpoint tests-->
             <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
@@ -61,6 +59,7 @@ under the License.
             <!--Debugger Expression Evaluation Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationNegativeTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.DependencyEvaluationTest"/>
 
             <!--Debug Completions Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.completions.DebugCompletionTest"/>

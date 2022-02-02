@@ -82,7 +82,7 @@ public isolated function cloneReadOnly(CloneableType  v) returns CloneableType &
 #
 # + v - the value to be cloned
 # + t - the type for the cloned to be constructed
-# + return - a new value that belongs to type `t`, or an error if this cannot be done
+# + return - a new value that belongs to parameter `t`, or an error if this cannot be done
 public isolated function cloneWithType(anydata v, typedesc<anydata> t = <>) returns t|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.CloneWithType",
     name: "cloneWithType"
@@ -96,7 +96,7 @@ public isolated function cloneWithType(anydata v, typedesc<anydata> t = <>) retu
 #
 # + v - the value to be cast
 # + t - a typedesc for the type to which to cast it
-# return - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done
+# + return - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done
 public isolated function ensureType(any|error v, typedesc<any> t = <>) returns t|error =  @java:Method {
     'class: "org.ballerinalang.langlib.value.EnsureType",
     name: "ensureType"

@@ -389,7 +389,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
         Set<K> keys = super.keySet();
-        return (K[]) (keys.toArray(new BString[keys.size()]));
+        BString[] keyArr = new BString[keys.size()];
+        int i = 0;
+        for (K key : keys) {
+            keyArr[i] = (BString) key;
+            i++;
+        }
+        return (K[]) keyArr;
     }
 
     /**

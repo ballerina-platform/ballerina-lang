@@ -26,8 +26,11 @@ public distinct class InterfaceTestResource {
     # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.InterfaceTestResource`.
     #
     # + return - The `string[]` value returning from the Java mapping.
-    public function returnStringArray() returns string[]|error {
+    public function returnStringArray() returns string[]?|error {
         handle externalObj = org_ballerinalang_bindgen_InterfaceTestResource_returnStringArray(self.jObj);
+        if java:isNull(externalObj) {
+            return null;
+        }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
 

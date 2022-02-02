@@ -133,6 +133,10 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
             List<LSCompletionItem> completionItems = new ArrayList<>();
             completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getCompletionItemList(filtered, context));
+            completionItems.addAll(Arrays.asList(
+                    new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
+                    new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
+                    new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get())));
 
             return completionItems;
         }

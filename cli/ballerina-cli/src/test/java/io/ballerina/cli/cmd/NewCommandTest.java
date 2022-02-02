@@ -90,7 +90,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
         String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
@@ -128,7 +128,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         Assert.assertFalse(Files.exists(resourcePath));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command with service template")
@@ -163,7 +163,7 @@ public class NewCommandTest extends BaseCommandTest {
         Path resourcePath = packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         Assert.assertFalse(Files.exists(resourcePath));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command with lib template")
@@ -204,7 +204,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
@@ -254,12 +254,15 @@ public class NewCommandTest extends BaseCommandTest {
                 "export = [\"sample_pull_local\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"";
+                "language_spec_version = \"2021R1\"\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command by pulling a central template without specifying version")
@@ -284,10 +287,14 @@ public class NewCommandTest extends BaseCommandTest {
                 "export = [\"sample_pull_WO_Module_Version\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"";
+                "language_spec_version = \"2021R1\"\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEVCONTAINER)));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command by pulling a central template with specifying version")
@@ -312,16 +319,18 @@ public class NewCommandTest extends BaseCommandTest {
                 "export = [\"sample_pull\"]\n" +
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
-                "language_spec_version = \"2021R1\"";
+                "language_spec_version = \"2021R1\"\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test
     public void testMultiModuleTemplate() throws IOException {
         // Test if no arguments was passed in
-        String templateArg = "ballerina/protobuf";
+        String templateArg = "ballerina/protobuf:1.0.1";
         String[] args = {"sample-multi_module", "-t", templateArg};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
         new CommandLine(newCommand).parseArgs(args);
@@ -350,10 +359,12 @@ public class NewCommandTest extends BaseCommandTest {
                 "ballerina_version = \"slbeta4\"\n" +
                 "implementation_vendor = \"WSO2\"\n" +
                 "language_spec_version = \"2021R1\"\n" +
-                "[[platform.java11.dependency]]\n" +
+                "\n[build-options]\n" +
+                "observabilityIncluded = true\n" +
+                "\n[[platform.java11.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertTrue(tomlContent.contains(expectedTomlContent));
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command by pulling a central template without specifying version")
@@ -402,7 +413,7 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
-        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command without arguments")

@@ -43,4 +43,15 @@ function test() {
     record {|
         Age age;
     |} p;
+
+    Foo f;
+    Bar b;
+    Baz z;
 }
+
+// utils
+type Foo Person;
+
+type Bar Foo;
+
+type Baz decimal;

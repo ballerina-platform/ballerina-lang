@@ -33,7 +33,7 @@ function testTableConstructExprVar() {
         {...m}
     ];
 
-    table<record {|string name?; int...;|}> t1 = v1;
+    table<record {|(string|int) name?; int...;|}> t1 = v1;
 
     assertEquality("[{\"name\":\"Jo\"},{\"a\":1,\"b\":2}]", t1.toString());
 }

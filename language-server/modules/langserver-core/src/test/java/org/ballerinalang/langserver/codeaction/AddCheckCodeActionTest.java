@@ -47,6 +47,7 @@ public class AddCheckCodeActionTest extends AbstractCodeActionTest {
                 {"add_check_codeaction_config3.json", "add_check_codeaction_source3.bal"},
                 {"add_check_codeaction_config4.json", "add_check_codeaction_source4.bal"},
                 {"add_check_codeaction_config5.json", "add_check_codeaction_source4.bal"},
+                {"add_check_with_parantheses_config1.json", "add_check_with_parantheses_source1.bal"},
         };
     }
 
@@ -54,6 +55,7 @@ public class AddCheckCodeActionTest extends AbstractCodeActionTest {
     public Object[][] negativeDataProvider() {
         return new Object[][]{
                 {"negative_add_check_codeaction_config1.json", "negative_add_check_codeaction_source1.bal"},
+                {"negative_add_check_external_treenode_list.json", "negative_add_check_external_treenode_list.bal"},
         };
     }
 

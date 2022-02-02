@@ -85,6 +85,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.elements.Flag;
@@ -104,10 +105,8 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -159,6 +158,7 @@ public class CommonUtil {
     public static final String URI_SCHEME_EXPR = "expr";
     public static final String URI_SCHEME_FILE = "file";
     public static final String LANGUAGE_ID_BALLERINA = "ballerina";
+    public static final String LANGUAGE_ID_TOML = "toml";
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
@@ -182,7 +182,7 @@ public class CommonUtil {
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
-    private static final int MAX_DEPTH = 1;
+    private static final int MAX_DEPTH = 2;
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -380,16 +380,22 @@ public class CommonUtil {
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
-                if (errorType.typeKind() == TypeDescKind.RECORD) {
-                    errorString.append(", ");
-                    errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
-                            .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
-                                    .orElse(""))
-                            .collect(Collectors.joining(", ")));
+                if (errorType.typeKind() == TypeDescKind.RECORD && depth <= MAX_DEPTH) {
+                    List<RecordFieldSymbol> mandatoryFields = getMandatoryRecordFields((RecordTypeSymbol) errorType);
+                    if (!mandatoryFields.isEmpty()) {
+                        errorString.append(", ");
+                        errorString.append(mandatoryFields.stream()
+                                .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
+                                        + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
+                                        .orElse(""))
+                                .collect(Collectors.joining(", ")));
+                    }
                 }
                 errorString.append(")");
                 typeString = errorString.toString();
+                break;
+            case SINGLETON:
+                typeString = rawType.signature();
                 break;
             case MAP:
             case FLOAT:
@@ -1045,12 +1051,12 @@ public class CommonUtil {
         if (!moduleID.equals(currentModuleId)) {
             boolean preDeclaredLangLib = moduleID.orgName().equals(BALLERINA_ORG_NAME) &&
                     PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
-            String moduleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
-            String[] moduleParts = moduleName.split("/");
+            String escapeModuleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
+            String[] moduleParts = escapeModuleName.split("/");
             String orgName = moduleParts[0];
-            String alias = moduleParts[1];
+            String moduleName = moduleParts[1];
 
-            pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
+            pkgPrefix = moduleName.replaceAll(".*\\.", "");
             pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
@@ -1062,13 +1068,17 @@ public class CommonUtil {
             if (existingModuleImports.size() == 1) {
                 ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
                 if (importDeclarationNode.prefix().isPresent()) {
-                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
+            } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
+                pkgPrefix = getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
             }
-
+            CodeActionModuleId codeActionModuleId =
+                    CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());
             if (importsAcceptor != null && !preDeclaredLangLib) {
-                importsAcceptor.getAcceptor(context).accept(orgName, alias);
+                importsAcceptor.getAcceptor(context).accept(orgName, codeActionModuleId);
             }
+            return pkgPrefix + ":";
         }
         return pkgPrefix;
     }
@@ -1098,23 +1108,25 @@ public class CommonUtil {
     }
 
     /**
-     * Get the path from given string URI. Even if the given URI's scheme is expr, we convert it to file scheme and
-     * provide a valid Path
+     * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
+     * we convert it to file scheme and provide a valid Path.
      *
-     * @param uri file uri
+     * @param fileUri file uri
      * @return {@link Optional} Path from the URI
      */
-    public static Optional<Path> getPathFromURI(String uri) {
-        URI fileUri = URI.create(uri);
-        if (fileUri.getScheme().equals(EXPR_SCHEME)) {
-            String newUri = fileUri.toString().replace(EXPR_SCHEME + ":", "file:");
-            try {
-                return Optional.of(Paths.get(new URL(newUri).toURI()));
-            } catch (URISyntaxException | MalformedURLException e) {
-                return Optional.empty();
+    public static Optional<Path> getPathFromURI(String fileUri) {
+        URI uri = URI.create(fileUri);
+        String scheme = uri.getScheme();
+        try {
+            if (EXPR_SCHEME.equals(uri.getScheme()) || URI_SCHEME_BALA.equals(uri.getScheme())) {
+                scheme = URI_SCHEME_FILE;
             }
+            URI converted = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+            return Optional.of(Paths.get(converted));
+        } catch (URISyntaxException e) {
+            return Optional.empty();
         }
-        return Optional.of(Paths.get(fileUri));
     }
 
     /**
@@ -1139,7 +1151,7 @@ public class CommonUtil {
      * @throws URISyntaxException URI parsing errors
      */
     public static String convertUriSchemeFromBala(String fileUri) throws URISyntaxException {
-        URI uri = new URI(fileUri);
+        URI uri = URI.create(fileUri);
         if (URI_SCHEME_BALA.equals(uri.getScheme())) {
             URI converted = new URI(URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                     uri.getPath(), uri.getQuery(), uri.getFragment());
@@ -1160,7 +1172,7 @@ public class CommonUtil {
                                            Path filePath) throws URISyntaxException {
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
         if (clientCapabilities.getInitializationOptions().isBalaSchemeSupported()) {
-            return getBalaUriForPath(filePath);
+            return getUriForPath(filePath, URI_SCHEME_BALA);
         }
         return filePath.toUri().toString();
     }
@@ -1169,12 +1181,13 @@ public class CommonUtil {
      * Returns the URI with bala scheme for the provided file path.
      *
      * @param filePath File path
-     * @return URI with bala scheme
+     * @param scheme   URI Scheme
+     * @return URI with the given scheme
      * @throws URISyntaxException URI parsing errors
      */
-    private static String getBalaUriForPath(Path filePath) throws URISyntaxException {
+    public static String getUriForPath(Path filePath, String scheme) throws URISyntaxException {
         URI uri = filePath.toUri();
-        uri = new URI(URI_SCHEME_BALA, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+        uri = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                 uri.getPath(), uri.getQuery(), uri.getFragment());
         return uri.toString();
     }
@@ -1801,6 +1814,29 @@ public class CommonUtil {
         return qualifiers;
     }
 
+    /**
+     * Check whether the completion item type belongs to the types list passed.
+     *
+     * @param lsCItem   Completion item
+     * @param typesList List of types
+     * @return {@link Boolean}
+     */
+    public static boolean isCompletionItemOfType(LSCompletionItem lsCItem, List<TypeDescKind> typesList) {
+
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
+            return false;
+        }
+
+        Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().orElse(null);
+        Optional<TypeSymbol> typeDesc = SymbolUtil.getTypeDescriptor(symbol);
+
+        if (typeDesc.isPresent()) {
+            TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
+            return typesList.contains(rawType.typeKind());
+        }
+        return false;
+    }
+
     private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
         int cursorPosition = ctx.getCursorPositionInTree();
         return (!openParen.isMissing())
@@ -1847,7 +1883,7 @@ public class CommonUtil {
         }
         return true;
     }
-    
+
     public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
         URI original = URI.create(uri);
         try {
@@ -1858,4 +1894,5 @@ public class CommonUtil {
             return uri;
         }
     }
+
 }

@@ -578,6 +578,14 @@
       "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x2",
+      "kind": "Variable",
+      "detail": "float",
+      "sortText": "AB",
+      "insertText": "x2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

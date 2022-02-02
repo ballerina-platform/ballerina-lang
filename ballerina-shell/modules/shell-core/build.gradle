@@ -22,7 +22,6 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 description = 'Ballerina - Ballerina Shell'
 
 group = 'io.ballerina'
-version = '0.0.1-SNAPSHOT'
 
 dependencies {
     implementation project(":ballerina-shell:shell-rt")

@@ -86,6 +86,11 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar")));
 
+        // copying the executable to a different location before deleting
+        // to use for testCodeGeneratorForSingleFile test case
+        Files.copy(this.testResources.resolve("valid-bal-file").resolve("hello_world.jar"),
+                this.testResources.resolve("valid-bal-file").resolve("hello_world-for-codegen-test.jar"));
+
         Files.delete(this.testResources
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar"));
@@ -212,6 +217,23 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Build bal package containing syntax error")
+    public void testBalProjectWithSyntaxError() throws IOException {
+        // valid source root path
+        Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
+        BuildCommand buildCommand = new BuildCommand(balFilePath, printStream, printStream, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse(balFilePath.toString());
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-syntax-err-package.txt"));
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("compilation contains errors"));
+        }
+    }
+
+
     @Test(description = "Build a valid ballerina project")
     public void testBuildBalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
@@ -230,8 +252,20 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
+    @Test(dependsOnMethods = "testBuildBalFile")
+    public void testCodeGeneratorForSingleFile() throws IOException {
+        Path execPath = this.testResources.resolve("valid-bal-file").resolve("hello_world-for-codegen-test.jar");
+        String generatedSource = "dummyfunc-generated_1.class";
+        String generatedResource = "resources/$anon/./0/openapi-spec.yaml";
+
+        JarFile execJar = new JarFile(execPath.toString());
+        Assert.assertNull(execJar.getJarEntry(generatedSource));
+        Assert.assertNotNull(execJar.getJarEntry(generatedResource));
+
+    }
+
     @Test(dependsOnMethods = "testBuildBalProject")
-    public void testCodeGenerator() throws IOException {
+    public void testCodeGeneratorForBuildProject() throws IOException {
         Path projectPath = this.testResources.resolve("validApplicationProject");
         Path thinJarPath = projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")

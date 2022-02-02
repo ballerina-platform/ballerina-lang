@@ -171,7 +171,7 @@ public class BuildProject extends Project {
                 String moduleDirName;
                 // Check for the module name contains a dot and not being the default module
                 if (!this.currentPackage().getDefaultModule().moduleId().equals(moduleId)) {
-                    moduleDirName = moduleId.moduleName()
+                    moduleDirName = currentPackage().module(moduleId).moduleName().toString()
                             .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();

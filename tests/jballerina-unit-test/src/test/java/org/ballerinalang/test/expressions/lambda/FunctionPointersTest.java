@@ -21,6 +21,7 @@ import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -329,6 +330,20 @@ public class FunctionPointersTest {
     @Test(description = "Test function pointers defaultable params")
     public void testDefaultParams() {
         BRunUtil.invoke(fpProgram, "testDefaultParams");
+    }
+
+    @Test(description = "Test compile time errors for redeclared symbols")
+    public void testRedeclaredSymbolsNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/expressions/lambda/fps_hiding_block_scope_symbols.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 3, 26);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 11, 55);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'z'", 11, 58);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 34, 13);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 42, 32);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 47, 32);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @AfterClass

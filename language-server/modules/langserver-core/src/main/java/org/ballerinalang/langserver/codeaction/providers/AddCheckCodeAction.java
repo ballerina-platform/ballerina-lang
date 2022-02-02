@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -31,6 +32,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -67,7 +69,7 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
         //Check if there is a check expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
-        Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
+        Optional<ExpressionNode> expressionNode = expressionResolver.findExpression(positionDetails.matchedNode());
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.CHECK_EXPRESSION) {
             return Collections.emptyList();
         }
@@ -93,10 +95,18 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             return Collections.emptyList();
         }
 
+        Position pos = CommonUtil.toRange(diagnostic.location().lineRange()).getStart();
+        // The following code may sound odd. But as per the diagnostic, when the error is in the expr of a braced 
+        // expression, the diagnostic location points to the braced expression itself. To overcome that, here we
+        // treat braced expressions specially and add 'check' within the parentheses.
+        if (expressionNode.get().kind() == SyntaxKind.BRACED_EXPRESSION) {
+            BracedExpressionNode bracedExpressionNode = (BracedExpressionNode) expressionNode.get();
+            pos = CommonUtil.toRange(bracedExpressionNode.expression().location().lineRange()).getStart();
+        }
+
         List<TextEdit> edits = new ArrayList<>();
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
-                CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
-                positionDetails.matchedNode(), context));
+                pos, positionDetails.matchedNode(), context));
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }

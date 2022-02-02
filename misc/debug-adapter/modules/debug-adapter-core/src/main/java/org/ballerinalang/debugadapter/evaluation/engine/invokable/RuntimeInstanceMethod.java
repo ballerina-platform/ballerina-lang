@@ -51,7 +51,7 @@ public class RuntimeInstanceMethod extends RuntimeMethod {
             }
             List<Value> argValueList = getMethodArgs(this);
             return ((ObjectReference) objectValueRef).invokeMethod(context.getOwningThread().getThreadReference(),
-                    methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
+                    methodRef, argValueList, 0);
         } catch (ClassNotLoadedException e) {
             throw createEvaluationException(FUNCTION_NOT_FOUND, methodRef.name());
         } catch (EvaluationException e) {
