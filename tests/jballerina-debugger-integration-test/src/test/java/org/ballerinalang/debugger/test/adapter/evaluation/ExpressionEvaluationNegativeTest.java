@@ -40,19 +40,19 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void literalEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void listConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void mappingConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -67,7 +67,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void xmlTemplateEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -105,7 +105,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void fieldAccessEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -262,7 +262,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -347,7 +347,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void equalityEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -378,19 +378,19 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void conditionalExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void checkingExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void trapExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }

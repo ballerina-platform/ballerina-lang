@@ -61,13 +61,13 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void listConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void mappingConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -767,7 +767,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void checkingExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
