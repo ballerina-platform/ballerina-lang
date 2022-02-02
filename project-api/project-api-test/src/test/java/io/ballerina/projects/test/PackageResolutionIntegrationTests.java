@@ -31,12 +31,12 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.test.TestUtils.deleteDirectory;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -320,9 +320,13 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     }
 
     @AfterClass
-    public void afterClass() {
-        deleteDirectory(testBuildDirectory.resolve("user-home").resolve("repositories")
-                .resolve("central.ballerina.io").resolve("bala").resolve("adv_res").toFile());
+    public void afterClass() throws IOException {
+        Path advResBalaDir = testBuildDirectory.resolve("user-home").resolve("repositories")
+                .resolve("central.ballerina.io").resolve("bala").resolve("adv_res");
+        Files.walk(advResBalaDir)
+                .map(Path::toFile)
+                .sorted((o1, o2) -> -o1.compareTo(o2))
+                .forEach(File::delete);
     }
 
     private static void deleteDependenciesTomlAndBuildFile(Path packagePath) throws IOException {
