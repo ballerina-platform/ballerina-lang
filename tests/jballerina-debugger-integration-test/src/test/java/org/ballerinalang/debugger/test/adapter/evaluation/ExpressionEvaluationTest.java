@@ -169,10 +169,6 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
         debugTestRunner.assertExpression(context, "nameWithType", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "nameWithoutType", "\"Ballerina\"", "string");
-        // Todo - enable
-        // debugTestRunner.assertExpression(context, GLOBAL_VAR_03,
-        //     "(debug_test_resources/evaluation_tests:0:$anonType$_10 & readonly)",
-        //     "record");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -184,11 +180,6 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
         // with qualified literals (i.e. imported modules)
-
-        // Todo - enable
-        // debugTestRunner.assertExpression(context, "other:constMap",
-        //     "(debug_test_resources/evaluation_tests.other:0:$anonType$_3 & readonly)",
-        //     "record");
         debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
 
         // qualified name references with import alias
