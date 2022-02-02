@@ -308,7 +308,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.reachabilityAnalyzer = ReachabilityAnalyzer.getInstance(context);
     }
 
-    // We need this `analyze`
     public BLangPackage analyze(BLangPackage pkgNode) {
         final AnalyzerData data = new AnalyzerData();
         visitNode(pkgNode, data);
@@ -785,18 +784,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
-        for (int i = 0; i < matchClauses.size(); i++) {
-            BLangMatchClause matchClause = matchClauses.get(i);
-            for (int j = i; j > 0; j--) {
-                if (!checkSimilarMatchGuard(matchClause.matchGuard, matchClauses.get(j - 1).matchGuard)) {
-                    if (i > 0 && j == i && matchClauses.get(j - 1).matchGuard == null) {
-                        checkSimilarMatchPatternsBetweenClauses(matchClauses.get(j - 1), matchClause);
+        int clausesSize = matchClauses.size();
+        for (int i = 0; i < clausesSize; i++) {
+            BLangMatchClause firstClause = matchClauses.get(i);
+            for (int j = i + 1; j < clausesSize; j++) {
+                BLangMatchClause secondClause = matchClauses.get(j);
+                if (!checkSimilarMatchGuard(firstClause.matchGuard, secondClause.matchGuard)) {
+                    if (firstClause.matchGuard == null) {
+                        checkSimilarMatchPatternsBetweenClauses(firstClause, secondClause);
                     }
                     continue;
                 }
-                checkSimilarMatchPatternsBetweenClauses(matchClauses.get(j - 1), matchClause);
+                checkSimilarMatchPatternsBetweenClauses(firstClause, secondClause);
             }
-            analyzeNodex(matchClause, data);
+            analyzeNodex(firstClause, data);
         }
         data.failureHandled = failureHandled;
         analyzeOnFailClause(matchStatement.onFailClause, data);
@@ -818,8 +819,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             if (patternListContainsSameVars) {
                 patternListContainsSameVars = compareVariables(variablesInMatchPattern, matchPattern);
             }
-            for (int j = i; j > 0; j--) {
-                if (checkSimilarMatchPatterns(matchPatterns.get(j - 1), matchPattern)) {
+            for (int j = i - 1; j >= 0; j--) {
+                if (checkSimilarMatchPatterns(matchPatterns.get(j), matchPattern)) {
                     dlog.warning(matchPattern.pos, DiagnosticWarningCode.MATCH_STMT_PATTERN_UNREACHABLE);
                 }
             }
@@ -905,7 +906,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                                                                   BLangVarBindingPatternMatchPattern secondPattern) {
         if (firstPattern.getKind() == NodeKind.LIST_MATCH_PATTERN) {
             BLangBindingPattern bindingPattern = secondPattern.getBindingPattern();
-            if (!(bindingPattern.getKind() == NodeKind.LIST_BINDING_PATTERN)) {
+            if (bindingPattern.getKind() != NodeKind.LIST_BINDING_PATTERN) {
                 return false;
             }
             BLangListMatchPattern listMatchPattern = (BLangListMatchPattern) firstPattern;
@@ -915,7 +916,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         if (firstPattern.getKind() == NodeKind.MAPPING_MATCH_PATTERN) {
             BLangBindingPattern bindingPattern = secondPattern.getBindingPattern();
-            if (!(secondPattern.getBindingPattern().getKind() == NodeKind.MAPPING_BINDING_PATTERN)) {
+            if (secondPattern.getBindingPattern().getKind() != NodeKind.MAPPING_BINDING_PATTERN) {
                 return false;
             }
             BLangMappingMatchPattern mappingMatchPattern = (BLangMappingMatchPattern) firstPattern;
@@ -948,131 +949,87 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return false;
         }
 
-        if (!checkSimilarErrorFieldMatchPatterns(firstErrorMatchPattern.errorFieldMatchPatterns,
-                secondErrorMatchPattern.errorFieldMatchPatterns)) {
-            return false;
-        }
-
-        return true;
+        return checkSimilarErrorFieldMatchPatterns(firstErrorMatchPattern.errorFieldMatchPatterns,
+                secondErrorMatchPattern.errorFieldMatchPatterns);
     }
 
     private boolean checkSimilarErrorTypeReference(BLangUserDefinedType firstErrorTypeRef,
                                                    BLangUserDefinedType secondErrorTypeRef) {
-        if ((firstErrorTypeRef != null && secondErrorTypeRef == null)
-                || (firstErrorTypeRef == null && secondErrorTypeRef != null)) {
-            return false;
+        if (firstErrorTypeRef != null && secondErrorTypeRef != null) {
+            return firstErrorTypeRef.typeName.value.equals(secondErrorTypeRef.typeName.value);
         }
-        if (firstErrorTypeRef == null) {
-            return true;
-        }
-        return firstErrorTypeRef.typeName.value.equals(secondErrorTypeRef.typeName.value);
+        return firstErrorTypeRef == null && secondErrorTypeRef == null;
     }
 
     private boolean checkSimilarErrorMessagePattern(BLangErrorMessageMatchPattern firstErrorMsgMatchPattern,
                                                     BLangErrorMessageMatchPattern secondErrorMsgMatchPattern) {
-        if ((firstErrorMsgMatchPattern != null && secondErrorMsgMatchPattern == null)
-                || (firstErrorMsgMatchPattern == null && secondErrorMsgMatchPattern != null)) {
-            return false;
+        if (firstErrorMsgMatchPattern != null && secondErrorMsgMatchPattern != null) {
+            return checkSimilarSimpleMatchPattern(firstErrorMsgMatchPattern.simpleMatchPattern,
+                    secondErrorMsgMatchPattern.simpleMatchPattern);
         }
-        if (firstErrorMsgMatchPattern == null) {
-            return true;
-        }
-        return checkSimilarSimpleMatchPattern(firstErrorMsgMatchPattern.simpleMatchPattern,
-                secondErrorMsgMatchPattern.simpleMatchPattern);
+        return firstErrorMsgMatchPattern == null && secondErrorMsgMatchPattern == null;
     }
 
     private boolean checkSimilarSimpleMatchPattern(BLangSimpleMatchPattern firstSimpleMatchPattern,
                                                    BLangSimpleMatchPattern secondSimpleMatchPattern) {
-        if ((firstSimpleMatchPattern != null && secondSimpleMatchPattern == null)
-                || (firstSimpleMatchPattern == null && secondSimpleMatchPattern != null)) {
-            return false;
-        }
-        if (firstSimpleMatchPattern == null) {
-            return true;
-        }
-        if (firstSimpleMatchPattern.constPattern != null && secondSimpleMatchPattern.constPattern != null) {
-            if (!checkSimilarConstMatchPattern(firstSimpleMatchPattern.constPattern,
-                    secondSimpleMatchPattern.constPattern)) {
+        if (firstSimpleMatchPattern != null && secondSimpleMatchPattern != null) {
+            BLangWildCardMatchPattern firstWildCard = firstSimpleMatchPattern.wildCardMatchPattern;
+            BLangWildCardMatchPattern secondWildCard = secondSimpleMatchPattern.wildCardMatchPattern;
+            if (firstWildCard != null && secondWildCard != null) {
+                return true;
+            } else if (firstWildCard != null || secondWildCard != null) {
                 return false;
             }
-        } else if (!(firstSimpleMatchPattern.constPattern == null && secondSimpleMatchPattern.constPattern == null)) {
-            return false;
+            BLangConstPattern firstConstPattern = firstSimpleMatchPattern.constPattern;
+            BLangConstPattern secondConstPattern = secondSimpleMatchPattern.constPattern;
+            if (firstConstPattern != null && secondConstPattern != null) {
+                return checkSimilarConstMatchPattern(firstConstPattern, secondConstPattern);
+            } else if (firstConstPattern != null || secondConstPattern != null) {
+                return false;
+            }
+            // This case is for var variable-name
+            return true;
         }
-
-        if (firstSimpleMatchPattern.wildCardMatchPattern != null
-                && secondSimpleMatchPattern.wildCardMatchPattern == null) {
-            return false;
-        }
-        if (firstSimpleMatchPattern.wildCardMatchPattern == null
-                && secondSimpleMatchPattern.wildCardMatchPattern != null) {
-            return false;
-        }
-
-        if (firstSimpleMatchPattern.varVariableName != null
-                && secondSimpleMatchPattern.varVariableName == null) {
-            return false;
-        }
-        if (firstSimpleMatchPattern.varVariableName == null
-                && secondSimpleMatchPattern.varVariableName != null) {
-            return false;
-        }
-
-        return true;
+        return firstSimpleMatchPattern == null && secondSimpleMatchPattern == null;
     }
 
     private boolean checkSimilarErrorCauseMatchPattern(BLangErrorCauseMatchPattern firstErrorCauseMatchPattern,
                                                        BLangErrorCauseMatchPattern secondErrorCauseMatchPattern) {
-        if ((firstErrorCauseMatchPattern != null && secondErrorCauseMatchPattern == null)
-                || (firstErrorCauseMatchPattern == null && secondErrorCauseMatchPattern != null)) {
-            return false;
+        if (firstErrorCauseMatchPattern != null && secondErrorCauseMatchPattern != null) {
+            if (!checkSimilarSimpleMatchPattern(firstErrorCauseMatchPattern.simpleMatchPattern,
+                    secondErrorCauseMatchPattern.simpleMatchPattern)) {
+                return false;
+            }
+            return checkSimilarErrorMatchPattern(firstErrorCauseMatchPattern.errorMatchPattern,
+                    secondErrorCauseMatchPattern.errorMatchPattern);
         }
-        if (firstErrorCauseMatchPattern == null) {
-            return true;
-        }
-        if (!checkSimilarSimpleMatchPattern(firstErrorCauseMatchPattern.simpleMatchPattern,
-                secondErrorCauseMatchPattern.simpleMatchPattern)) {
-            return false;
-        }
-        return checkSimilarErrorMatchPattern(firstErrorCauseMatchPattern.errorMatchPattern,
-                secondErrorCauseMatchPattern.errorMatchPattern);
+        return firstErrorCauseMatchPattern == null && secondErrorCauseMatchPattern == null;
     }
 
     private boolean checkSimilarErrorFieldMatchPatterns(BLangErrorFieldMatchPatterns firstErrorFieldMatchPatterns,
                                                         BLangErrorFieldMatchPatterns secondErrorFieldMatchPatterns) {
-        if ((firstErrorFieldMatchPatterns != null && secondErrorFieldMatchPatterns == null)
-                || (firstErrorFieldMatchPatterns == null && secondErrorFieldMatchPatterns != null)) {
-            return false;
-        }
-        if (firstErrorFieldMatchPatterns == null) {
-            return true;
-        }
-        if (firstErrorFieldMatchPatterns.restMatchPattern != null) {
-            return true;
-        }
-        if (firstErrorFieldMatchPatterns.restMatchPattern == null
-                && secondErrorFieldMatchPatterns.restMatchPattern != null) {
-            return false;
-        }
-
-        List<BLangNamedArgMatchPattern> firstNamedArgMatchPatterns = firstErrorFieldMatchPatterns.namedArgMatchPatterns;
-        List<BLangNamedArgMatchPattern> secondNamedArgMatchPatterns =
-                secondErrorFieldMatchPatterns.namedArgMatchPatterns;
-        if (firstNamedArgMatchPatterns.size() != secondNamedArgMatchPatterns.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < firstNamedArgMatchPatterns.size(); i++) {
-            if (!checkSimilarNamedArgMatchPatterns(firstNamedArgMatchPatterns.get(i),
-                    secondNamedArgMatchPatterns.get(i))) {
-                return false;
+        if (firstErrorFieldMatchPatterns != null && secondErrorFieldMatchPatterns != null) {
+            List<BLangNamedArgMatchPattern> firstNamedArgPatterns = firstErrorFieldMatchPatterns.namedArgMatchPatterns;
+            List<BLangNamedArgMatchPattern> secondNamedArgPatterns =
+                    secondErrorFieldMatchPatterns.namedArgMatchPatterns;
+            int firstNamedArgPatternsSize = firstNamedArgPatterns.size();
+            if (firstNamedArgPatternsSize == secondNamedArgPatterns.size()) {
+                for (int i = 0; i < firstNamedArgPatternsSize; i++) {
+                    if (!checkSimilarNamedArgMatchPatterns(firstNamedArgPatterns.get(i),
+                            secondNamedArgPatterns.get(i))) {
+                        return false;
+                    }
+                }
+                BLangMatchPattern firstRestPattern = firstErrorFieldMatchPatterns.restMatchPattern;
+                BLangMatchPattern secondRestPattern = secondErrorFieldMatchPatterns.restMatchPattern;
+                if (firstRestPattern != null && secondRestPattern != null) {
+                    return checkSimilarMatchPatterns(firstRestPattern, secondRestPattern);
+                }
+                return firstRestPattern == null && secondRestPattern == null;
             }
+            return false;
         }
-
-        if (firstErrorFieldMatchPatterns.restMatchPattern == null) {
-            return true;
-        }
-        return checkSimilarMatchPatterns(firstErrorFieldMatchPatterns.restMatchPattern,
-                secondErrorFieldMatchPatterns.restMatchPattern);
+        return firstErrorFieldMatchPatterns == null && secondErrorFieldMatchPatterns == null;
     }
 
     private boolean checkSimilarNamedArgMatchPatterns(BLangNamedArgMatchPattern firstNamedArgMatchPattern,
@@ -1146,39 +1103,25 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private boolean checkSimilarListMatchPattern(BLangListMatchPattern firstListMatchPattern,
                                                  BLangListMatchPattern secondListMatchPattern) {
-        if (firstListMatchPattern.restMatchPattern != null && secondListMatchPattern.restMatchPattern == null) {
-            return false;
-        }
-        if (firstListMatchPattern.restMatchPattern == null && secondListMatchPattern.restMatchPattern != null) {
-            return false;
-        }
-
-        List<BLangMatchPattern> firstListMatchPatterns = firstListMatchPattern.matchPatterns;
-        List<BLangMatchPattern> secondListMatchPatterns = secondListMatchPattern.matchPatterns;
-        if (firstListMatchPattern.restMatchPattern == null) {
-            if (firstListMatchPatterns.size() != secondListMatchPatterns.size()) {
-                return false;
+        List<BLangMatchPattern> firstMatchPatterns = firstListMatchPattern.matchPatterns;
+        List<BLangMatchPattern> secondMatchPatterns = secondListMatchPattern.matchPatterns;
+        int firstPatternsSize = firstMatchPatterns.size();
+        int secondPatternsSize = secondMatchPatterns.size();
+        if (firstPatternsSize <= secondPatternsSize) {
+            for (int i = 0; i < firstPatternsSize; i++) {
+                if (!checkSimilarMatchPatterns(firstMatchPatterns.get(i), secondMatchPatterns.get(i))) {
+                    return false;
+                }
             }
-            return checkSimilarListMemberMatchPatterns(firstListMatchPatterns, secondListMatchPatterns);
-        }
-        if (firstListMatchPatterns.size() > secondListMatchPatterns.size()) {
-            return false;
-        }
-        if (firstListMatchPatterns.size() == secondListMatchPatterns.size()) {
-            return checkSimilarListMemberMatchPatterns(firstListMatchPatterns, secondListMatchPatterns);
-        }
-        return checkSimilarMatchPatterns(firstListMatchPattern.restMatchPattern,
-                secondListMatchPattern.restMatchPattern);
-    }
-
-    private boolean checkSimilarListMemberMatchPatterns(List<BLangMatchPattern> firstListMatchPatterns,
-                                                   List<BLangMatchPattern> secondListMatchPatterns) {
-        for (int i = 0; i < firstListMatchPatterns.size(); i++) {
-            if (!checkSimilarMatchPatterns(firstListMatchPatterns.get(i), secondListMatchPatterns.get(i))) {
-                return false;
+            if (firstPatternsSize == secondPatternsSize) {
+                if (firstListMatchPattern.restMatchPattern != null) {
+                    return true;
+                }
+                return secondListMatchPattern.restMatchPattern == null;
             }
+            return firstListMatchPattern.restMatchPattern != null;
         }
-        return true;
+        return false;
     }
 
     private boolean checkSimilarMappingMatchPattern(BLangMappingMatchPattern firstMappingMatchPattern,
@@ -1276,39 +1219,25 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private boolean checkSimilarListBindingPatterns(BLangListBindingPattern firstBindingPattern,
                                                     BLangListBindingPattern secondBindingPattern) {
-        if (firstBindingPattern.restBindingPattern != null && secondBindingPattern.restBindingPattern == null) {
-            return false;
-        }
-        if (firstBindingPattern.restBindingPattern == null && secondBindingPattern.restBindingPattern != null) {
-            return false;
-        }
-
-        List<BLangBindingPattern> firstListMatchPatterns = firstBindingPattern.bindingPatterns;
-        List<BLangBindingPattern> secondListMatchPatterns = secondBindingPattern.bindingPatterns;
-        if (firstBindingPattern.restBindingPattern == null) {
-            if (firstListMatchPatterns.size() != secondListMatchPatterns.size()) {
-                return false;
+        List<BLangBindingPattern> firstPatterns = firstBindingPattern.bindingPatterns;
+        List<BLangBindingPattern> secondPatterns = secondBindingPattern.bindingPatterns;
+        int firstPatternsSize = firstPatterns.size();
+        int secondPatternsSize = secondPatterns.size();
+        if (firstPatternsSize <= secondPatternsSize) {
+            for (int i = 0; i < firstPatternsSize; i++) {
+                if (!checkSimilarBindingPatterns(firstPatterns.get(i), secondPatterns.get(i))) {
+                    return firstPatterns.get(i).getKind() == NodeKind.CAPTURE_BINDING_PATTERN;
+                }
             }
-            return checkSimilarListMemberBindingPatterns(firstListMatchPatterns, secondListMatchPatterns);
-        }
-        if (firstListMatchPatterns.size() > secondListMatchPatterns.size()) {
-            return false;
-        }
-        if (firstListMatchPatterns.size() == secondListMatchPatterns.size()) {
-            return checkSimilarListMemberBindingPatterns(firstListMatchPatterns, secondListMatchPatterns);
-        }
-        return checkSimilarBindingPatterns(firstBindingPattern.restBindingPattern,
-                secondBindingPattern.restBindingPattern);
-    }
-
-    private boolean checkSimilarListMemberBindingPatterns(List<BLangBindingPattern> firstListBindingPatterns,
-                                                   List<BLangBindingPattern> secondListBindingPatterns) {
-        for (int i = 0; i < firstListBindingPatterns.size(); i++) {
-            if (!checkSimilarBindingPatterns(firstListBindingPatterns.get(i), secondListBindingPatterns.get(i))) {
-                return firstListBindingPatterns.get(i).getKind() == NodeKind.CAPTURE_BINDING_PATTERN;
+            if (firstPatternsSize == secondPatternsSize) {
+                if (firstBindingPattern.restBindingPattern != null) {
+                    return true;
+                }
+                return secondBindingPattern.restBindingPattern == null;
             }
+            return secondBindingPattern.restBindingPattern != null;
         }
-        return true;
+        return false;
     }
 
     private boolean checkSimilarErrorBindingPatterns(BLangErrorBindingPattern firstErrorBindingPattern,
@@ -1332,12 +1261,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return false;
         }
 
-        if (!checkSimilarErrorFieldBindingPatterns(firstErrorBindingPattern.errorFieldBindingPatterns,
-                secondErrorBindingPattern.errorFieldBindingPatterns)) {
-            return false;
-        }
-
-        return true;
+        return checkSimilarErrorFieldBindingPatterns(firstErrorBindingPattern.errorFieldBindingPatterns,
+                secondErrorBindingPattern.errorFieldBindingPatterns);
 
     }
 
@@ -1378,12 +1303,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 && secondSimpleBindingPattern.wildCardBindingPattern == null) {
             return false;
         }
-        if (firstSimpleBindingPattern.wildCardBindingPattern == null
-                && secondSimpleBindingPattern.wildCardBindingPattern != null) {
-            return false;
-        }
-
-        return true;
+        return firstSimpleBindingPattern.wildCardBindingPattern != null
+                || secondSimpleBindingPattern.wildCardBindingPattern == null;
     }
 
     private boolean checkSimilarErrorCauseBindingPattern(BLangErrorCauseBindingPattern firstErrorCauseBindingPattern,
@@ -1921,10 +1842,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return false;
             case TypeTags.ANY:
                 // preceding pattern is '_'. Hence will match all patterns except error that follow.
-                if (Types.getReferredType(pattern.getBType()).tag == TypeTags.ERROR) {
-                    return false;
-                }
-                return true;
+                return Types.getReferredType(pattern.getBType()).tag != TypeTags.ERROR;
             default:
                 return false;
         }
@@ -2458,7 +2376,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNodex(annotationAttachment, data));
     }
-    
+
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable, AnalyzerData data) {
 
@@ -2638,24 +2556,23 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
         BLangExpression expr = exprStmtNode.expr;
-
-        if (expr.getKind() == NodeKind.WORKER_SYNC_SEND) {
+        NodeKind kind = expr.getKind();
+        if (kind == NodeKind.WORKER_SYNC_SEND) {
             return;
         }
 
-        while (expr.getKind() == NodeKind.MATCH_EXPRESSION ||
-                expr.getKind() == NodeKind.CHECK_EXPR ||
-                expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
-            if (expr.getKind() == NodeKind.MATCH_EXPRESSION) {
+        while (kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
+            if (kind == NodeKind.MATCH_EXPRESSION) {
                 expr = ((BLangMatchExpression) expr).expr;
             } else if (expr.getKind() == NodeKind.CHECK_EXPR) {
                 expr = ((BLangCheckedExpr) expr).expr;
             } else if (expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
                 expr = ((BLangCheckPanickedExpr) expr).expr;
             }
+            kind = expr.getKind();
         }
         // Allowed expression kinds
-        if (expr.getKind() == NodeKind.INVOCATION || expr.getKind() == NodeKind.WAIT_EXPR) {
+        if (kind == NodeKind.INVOCATION || kind == NodeKind.WAIT_EXPR) {
             return;
         }
         // For other expressions, error is logged already.
@@ -2734,7 +2651,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private BType createAccumulatedErrorTypeForMatchingReceive(Location pos, BType exprType, AnalyzerData data) {
         Set<BType> returnTypesUpToNow = data.returnTypes.peek();
-        LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
+        LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>() {
             {
                 Comparator.comparing(BType::toString);
             }
@@ -3288,9 +3205,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
         was.addWorkerAction(awaitExpr, data.env);
-        if (!(validWaitFuture || validActionParent)) {
-            was.hasErrors = true;
-        }
+        was.hasErrors = !(validWaitFuture || validActionParent);
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr, AnalyzerData data) {
@@ -3305,9 +3220,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
         was.addWorkerAction(waitForAllExpr, data.env);
-        if (!(validWaitFuture || validActionParent)) {
-            was.hasErrors = true;
-        }
+        was.hasErrors = !(validWaitFuture || validActionParent);
     }
 
     // wait-future-expr := expression but not mapping-constructor-expr
