@@ -475,9 +475,9 @@ public class EvaluationUtils {
         }
 
         ModuleID moduleMeta = symbol.getModule().get().id();
-        // for ballerina single source files, the package name will be "." and  package org will be "$anon". Therefore,
+        // for ballerina single source files, the package name will be "." and therefore,
         // qualified class name ::= <file_name>
-        if (moduleMeta.orgName().equals("$anon") || moduleMeta.orgName().equals(".")) {
+        if (moduleMeta.packageName().equals(".")) {
             return className;
         }
 

@@ -24,6 +24,7 @@ import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation scenarios on Ballerina single file sources.
@@ -43,5 +44,15 @@ public class SingleFileEvaluationTest extends ExpressionEvaluationTest {
 
         // Enable to see all the assertion failures at once.
         // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
+    }
+
+    @Override
+    @Test
+    public void variableReferenceEvaluationTest() throws BallerinaTestException {
+        super.variableReferenceEvaluationTest();
+
+        // Todo - move to common evaluation test suite after fixing the value string
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "record {| readonly John name; |} & readonly",
+                "record");
     }
 }
