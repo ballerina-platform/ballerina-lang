@@ -17,13 +17,10 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,11 +49,10 @@ public class SimpleTypeCastExprTest {
     }
 
     private void testIntToFloatCast(int input, double expected) {
-        BValue[] args = { new BInteger(input) };
-        BValue[] returns = BRunUtil.invoke(result, "intToFloatExplicit", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected);
+        Object[] args = { (input) };
+        Object returns = JvmRunUtil.invoke(result, "intToFloatExplicit", args);
+        Assert.assertEquals(returns.getClass(), Double.class);
+        Assert.assertEquals(returns, expected);
     }
 
     @Test
@@ -68,11 +64,10 @@ public class SimpleTypeCastExprTest {
     }
 
     private void testFloatToIntCast(double input, long expected) {
-        BValue[] args = {new BFloat(input)};
-        BValue[] returns = BRunUtil.invoke(result, "floatToIntCast", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+        Object[] args = {(input)};
+        Object returns = JvmRunUtil.invoke(result, "floatToIntCast", args);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, expected);
     }
 
     @Test
@@ -84,11 +79,10 @@ public class SimpleTypeCastExprTest {
     }
 
     private void testDecimalToIntCast(BigDecimal input, long expected) {
-        BValue[] args = {new BDecimal(input)};
-        BValue[] returns = BRunUtil.invoke(result, "decimalToIntCast", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+        Object[] args = {ValueCreator.createDecimalValue(input)};
+        Object returns = JvmRunUtil.invoke(result, "decimalToIntCast", args);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, expected);
     }
 
     @AfterClass

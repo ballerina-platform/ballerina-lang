@@ -51,8 +51,8 @@ public class LangLibStringTest {
 
     @Test
     public void testToLower() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testToLower");
-        assertEquals(returns[0].toString(), "hello ballerina!");
+        Object returns = JvmRunUtil.invoke(compileResult, "testToLower");
+        assertEquals(returns.toString(), "hello ballerina!");
     }
 
     @Test
@@ -62,8 +62,8 @@ public class LangLibStringTest {
 
     @Test
     public void testSubString() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSubString");
-        assertEquals(returns[0].toString(), "[\"Bal\",\"Ballerina!\",\"Ballerina!\"]");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSubString");
+        assertEquals(returns.toString(), "[\"Bal\",\"Ballerina!\",\"Ballerina!\"]");
     }
 
     @Test
@@ -73,42 +73,42 @@ public class LangLibStringTest {
 
     @Test
     public void testConcat() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testConcat");
-        assertEquals(returns[0].toString(), "Hello from Ballerina");
+        Object returns = JvmRunUtil.invoke(compileResult, "testConcat");
+        assertEquals(returns.toString(), "Hello from Ballerina");
     }
 
     @Test
     public void testFromBytes() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromBytes");
-        assertEquals(returns[0].toString(), "Hello Ballerina!");
+        Object returns = JvmRunUtil.invoke(compileResult, "testFromBytes");
+        assertEquals(returns.toString(), "Hello Ballerina!");
     }
 
     @Test
     public void testJoin() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testJoin");
-        assertEquals(returns[0].toString(), "Sunday, Monday, Tuesday");
+        Object returns = JvmRunUtil.invoke(compileResult, "testJoin");
+        assertEquals(returns.toString(), "Sunday, Monday, Tuesday");
     }
 
     @Test
     public void testStartsWith() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testStartsWith");
-        assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testStartsWith");
+        assertTrue((Boolean) returns);
     }
 
     @Test(dataProvider = "SubStringsForEndsWith")
     public void testEndsWith(BString str, boolean expected) {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testEndsWith", new Object[]{str});
-        assertEquals(returns[0], expected);
+        Object returns = JvmRunUtil.invoke(compileResult, "testEndsWith", new Object[]{str});
+        assertEquals(returns, expected);
     }
 
     @Test(dataProvider = "SubStringsForIndexOf")
     public void testIndexOf(BString substr, Object expected) {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIndexOf", new Object[]{substr});
+        Object returns = JvmRunUtil.invoke(compileResult, "testIndexOf", new Object[]{substr});
 
         if (expected == null) {
-            assertNull(returns[0]);
+            assertNull(returns);
         } else {
-            assertEquals(returns[0], expected, "For substring: " + substr);
+            assertEquals(returns, expected, "For substring: " + substr);
         }
     }
 
@@ -120,15 +120,15 @@ public class LangLibStringTest {
     @Test(dataProvider = "codePointCompareProvider")
     public void testCodePointCompare(String st1, String st2, long expected) {
         Object[] args = {StringUtils.fromString(st1), StringUtils.fromString(st2)};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testCodePointCompare", args);
-        assertEquals(returns[0], expected);
+        Object returns = JvmRunUtil.invoke(compileResult, "testCodePointCompare", args);
+        assertEquals(returns, expected);
     }
 
     @Test(dataProvider = "codePointAtProvider")
     public void testGetCodepoint(String st1, long at, long expected) {
         Object[] args = {StringUtils.fromString(st1), at};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testGetCodepoint", args);
-        assertEquals(returns[0], expected);
+        Object returns = JvmRunUtil.invoke(compileResult, "testGetCodepoint", args);
+        assertEquals(returns, expected);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -141,24 +141,24 @@ public class LangLibStringTest {
     @Test(dataProvider = "stringToCodepointsProvider")
     public void testToCodepointInts(String st1, int[] expected) {
         Object[] args = {StringUtils.fromString(st1)};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testToCodepointInts", args);
-        assertEquals(((BArray) returns[0]).size(), expected.length);
-        int[] codePoints = toIntArray((BArray) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testToCodepointInts", args);
+        assertEquals(((BArray) returns).size(), expected.length);
+        int[] codePoints = toIntArray((BArray) returns);
         assertEquals(codePoints, expected);
     }
 
     @Test(dataProvider = "codePointsToString")
     public void testFromCodePointInts(long[] array, String expected) {
         Object[] args = {ValueCreator.createArrayValue(array)};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals(returns[0].toString(), expected);
+        Object returns = JvmRunUtil.invoke(compileResult, "testFromCodePointInts", args);
+        assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testFromCodePointIntsNegative() {
         Object[] args = {ValueCreator.createArrayValue(new long[]{0x10FFFF, 0x10FFFF + 1})};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals(returns[0].toString(), "error(\"Invalid codepoint: 1114112\")");
+        Object returns = JvmRunUtil.invoke(compileResult, "testFromCodePointInts", args);
+        assertEquals(returns.toString(), "error(\"Invalid codepoint: 1114112\")");
     }
 
     private int[] toIntArray(BArray array) {
@@ -234,8 +234,8 @@ public class LangLibStringTest {
     @Test(dataProvider = "testSubstringDataProvider")
     public void testSubstring(String str, long start, long end, String result) {
         Object[] args = {StringUtils.fromString(str), start, end};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSubstring", args);
-        Assert.assertEquals(returns[0].toString(),
+        Object returns = JvmRunUtil.invoke(compileResult, "testSubstring", args);
+        Assert.assertEquals(returns.toString(),
                 "error(\"{ballerina/lang.string}StringOperationError\",message=\"" + result + "\")");
     }
 
@@ -257,14 +257,14 @@ public class LangLibStringTest {
 
     @Test
     public void testIncludes() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIncludes");
-        assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testIncludes");
+        assertTrue((Boolean) returns);
     }
 
     @Test
     public void testChainedStringFunctions() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testChainedStringFunctions");
-        assertEquals(returns[0].toString(), "foo1foo2foo3foo4");
+        Object returns = JvmRunUtil.invoke(compileResult, "testChainedStringFunctions");
+        assertEquals(returns.toString(), "foo1foo2foo3foo4");
     }
 
     @Test

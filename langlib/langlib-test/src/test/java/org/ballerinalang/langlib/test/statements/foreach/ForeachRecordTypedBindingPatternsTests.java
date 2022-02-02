@@ -40,51 +40,44 @@ public class ForeachRecordTypedBindingPatternsTests {
 
     @Test
     public void testSimpleRecordWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testSimpleRecordWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:1 1:A 2:1.0 ");
+        Object returns = JvmRunUtil.invoke(program, "testSimpleRecordWithoutType");
+        Assert.assertEquals(returns.toString(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testSimpleRecordWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testSimpleRecordWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:1 1:A 2:1.0 ");
+        Object returns = JvmRunUtil.invoke(program, "testSimpleRecordWithType");
+        Assert.assertEquals(returns.toString(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testRecordInRecordWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testRecordInRecordWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
+        Object returns = JvmRunUtil.invoke(program, "testRecordInRecordWithoutType");
+        Assert.assertEquals(returns.toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test
     public void testRecordInRecordWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testRecordInRecordWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
+        Object returns = JvmRunUtil.invoke(program, "testRecordInRecordWithType");
+        Assert.assertEquals(returns.toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test
     public void testTupleInRecordWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTupleInRecordWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:1 1:[2,\"A\"] ");
+        Object returns = JvmRunUtil.invoke(program, "testTupleInRecordWithoutType");
+        Assert.assertEquals(returns.toString(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test
     public void testTupleInRecordWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTupleInRecordWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:1 1:[2,\"A\"] ");
+        Object returns = JvmRunUtil.invoke(program, "testTupleInRecordWithType");
+        Assert.assertEquals(returns.toString(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test
     public void testEmptyRecordIteration() {
-        Object[] returns = JvmRunUtil.invoke(program, "testEmptyRecordIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "");
+        Object returns = JvmRunUtil.invoke(program, "testEmptyRecordIteration");
+        Assert.assertEquals(returns.toString(), "");
     }
 
     @Test

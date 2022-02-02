@@ -19,9 +19,10 @@
 package org.ballerinalang.test.object;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.Test;
+
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -36,7 +37,7 @@ public class FinalObjectFieldTest {
     @Test
     public void testFinalObjectFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/final_object_fields.bal");
-        BRunUtil.invoke(result, "testFinalObjectFields");
+        JvmRunUtil.invoke(result, "testFinalObjectFields");
     }
 
     @Test

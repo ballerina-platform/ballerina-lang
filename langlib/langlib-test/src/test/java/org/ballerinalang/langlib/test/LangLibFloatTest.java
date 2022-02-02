@@ -46,16 +46,16 @@ public class LangLibFloatTest {
 
     @Test
     public void testIsFinite() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIsFinite");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testIsFinite");
+        BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertFalse(result.getBoolean(1));
     }
 
     @Test
     public void testIsInfinite() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIsInfinite");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testIsInfinite");
+        BArray result = (BArray) returns;
         assertFalse(result.getBoolean(0));
         assertTrue(result.getBoolean(1));
     }
@@ -63,15 +63,15 @@ public class LangLibFloatTest {
     @Test
     public void testSum() {
 
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSum");
-        assertEquals(returns[0], 70.35d);
+        Object returns = JvmRunUtil.invoke(compileResult, "testSum");
+        assertEquals(returns, 70.35d);
     }
 
     @Test
     public void testFloatConsts() {
 
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFloatConsts");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testFloatConsts");
+        BArray result = (BArray) returns;
         assertEquals(result.getFloat(0), Double.NaN);
         assertEquals(result.getFloat(1), Double.POSITIVE_INFINITY);
     }

@@ -20,8 +20,8 @@ package org.ballerinalang.test.typedefs;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class CyclicTypeDefinitionsTest {
 
     @Test(description = "Positive tests for tuple cyclic type definitions", dataProvider = "FunctionListTuple")
     public void testTupleCyclicTypeDef(String funcName) {
-        BRunUtil.invoke(tupleCompileResult, funcName);
+        JvmRunUtil.invoke(tupleCompileResult, funcName);
     }
 
     @DataProvider(name = "FunctionListTuple")
@@ -68,7 +68,7 @@ public class CyclicTypeDefinitionsTest {
 
     @Test(description = "Positive tests for union cyclic type definitions", dataProvider = "FunctionListUnion")
     public void testUnionCyclicTypeDef(String funcName) {
-        BRunUtil.invoke(unionCompileResult, funcName);
+        JvmRunUtil.invoke(unionCompileResult, funcName);
     }
 
     @DataProvider(name = "FunctionListUnion")

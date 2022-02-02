@@ -51,10 +51,10 @@ public class LangLibTupleTest {
 
     @Test
     public void testEnumerate() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testEnumerate");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.ARRAY_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testEnumerate");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BArray arr = (BArray) returns[0];
+        BArray arr = (BArray) returns;
         assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(arr.size(), 4);
         assertEquals(arr.getRefValue(0).toString(), "[0,1]");
@@ -65,16 +65,16 @@ public class LangLibTupleTest {
 
     @Test
     public void testLength() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testLength");
-        assertEquals(returns[0], 4L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testLength");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testMap() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testMap");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.ARRAY_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BArray arr = (BArray) returns[0];
+        BArray arr = (BArray) returns;
         assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.UNION_TAG);
         assertEquals(arr.getRefValue(0), 10L);
         assertEquals(arr.getRefValue(1).toString(), "mapped John Doe");
@@ -84,16 +84,16 @@ public class LangLibTupleTest {
 
     @Test
     public void testForeach() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0], 26L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns, 26L);
     }
 
     @Test
     public void testSlice() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSlice");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.ARRAY_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testSlice");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BArray arr = (BArray) returns[0];
+        BArray arr = (BArray) returns;
         assertEquals(arr.size(), 3);
         assertEquals(arr.getRefValue(0).toString(), "Foo");
         assertEquals(arr.getRefValue(1), 12.34d);
@@ -114,34 +114,34 @@ public class LangLibTupleTest {
 
     @Test
     public void testReduce() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(returns[0], 13.8d);
+        Object returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 13.8d);
     }
 
     @Test
     public void testIterableOpChain() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain");
-        assertEquals(returns[0], 3.25d);
+        Object returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain");
+        assertEquals(returns, 3.25d);
     }
 
     @Test
     public void testIndexOf() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIndexOf");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testIndexOf");
+        BArray result = (BArray) returns;
         assertEquals(result.get(0), 4L);
         assertNull(result.get(1));
     }
 
     @Test
     public void testPush1() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPush1");
-        assertEquals(returns[0], 4L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPush1");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testPush2() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPush2");
-        assertEquals(returns[0], 4L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testPush2");
+        assertEquals(returns, 4L);
     }
 
     @Test(dataProvider = "testToStreamFunctionList")

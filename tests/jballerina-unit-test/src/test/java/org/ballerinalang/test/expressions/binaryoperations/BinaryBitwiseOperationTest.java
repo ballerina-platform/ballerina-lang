@@ -18,8 +18,8 @@ package org.ballerinalang.test.expressions.binaryoperations;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -42,7 +42,7 @@ public class BinaryBitwiseOperationTest {
 
     @Test(dataProvider = "dataToTestBinaryBitwiseOperations", description = "Test binary bitwise operations")
     public void testBinaryBitwiseOperations(String functionName) {
-        BRunUtil.invoke(result, functionName);
+        JvmRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
@@ -56,7 +56,7 @@ public class BinaryBitwiseOperationTest {
 
     @Test(description = "Test binary bitwise operations for nullable values")
     public void testBinaryBitwiseOperationsForNullable() {
-        BRunUtil.invoke(result, "testBinaryBitwiseOperationsForNullable");
+        JvmRunUtil.invoke(result, "testBinaryBitwiseOperationsForNullable");
     }
 
     @Test(description = "Test binary bitwise operations negative scenarios")

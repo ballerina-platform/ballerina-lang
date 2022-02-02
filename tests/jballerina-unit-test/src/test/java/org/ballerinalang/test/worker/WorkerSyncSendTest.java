@@ -17,19 +17,19 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
 /**
  * Tests the sync send worker action.
@@ -48,41 +48,41 @@ public class WorkerSyncSendTest {
     @Test
     public void simpleSyncSendTest() {
 
-        BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend");
-        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
-                "Returned wrong value:" + returns[0].stringValue());
+        Object returns = JvmRunUtil.invoke(result, "simpleSyncSend");
+        Assert.assertTrue((Boolean) returns.toString().startsWith("w2w2w2w2w2"),
+                "Returned wrong value:" + returns.toString());
     }
 
     @Test
     public void multipleSyncSendTest() {
 
-        BValue[] returns = BRunUtil.invoke(result, "multipleSyncSend");
-        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
-                          "Returned wrong value:" + returns[0].stringValue());
-        Assert.assertFalse(returns[0].stringValue().startsWith("w11"),
-                           "Returned wrong value:" + returns[0].stringValue());
+        Object returns = JvmRunUtil.invoke(result, "multipleSyncSend");
+        Assert.assertTrue((Boolean) returns.toString().startsWith("w2w2w2w2w2"),
+                          "Returned wrong value:" + returns.toString());
+        Assert.assertFalse(returns.toString().startsWith("w11"),
+                           "Returned wrong value:" + returns.toString());
     }
 
     @Test
     public void nilReturnTest() {
 
-        BValue[] returns = BRunUtil.invoke(result, "process2");
-        Assert.assertNull(returns[0]);
+        Object returns = JvmRunUtil.invoke(result, "process2");
+        Assert.assertNull(returns);
     }
 
     @Test
     public void multiWorkerTest() {
 
-        BValue[] returns = BRunUtil.invoke(result, "multiWorkerSend");
-        Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
-                "Returned wrong value:" + returns[0].stringValue());
-        Assert.assertFalse(returns[0].stringValue().startsWith("w11"),
-                "Returned wrong value:" + returns[0].stringValue());
+        Object returns = JvmRunUtil.invoke(result, "multiWorkerSend");
+        Assert.assertFalse(returns.toString().startsWith("w1"),
+                "Returned wrong value:" + returns.toString());
+        Assert.assertFalse(returns.toString().startsWith("w11"),
+                "Returned wrong value:" + returns.toString());
     }
 
     @Test
     public void errorAfterSendTest() {
-        BRunUtil.invoke(result, "errorResult");
+        JvmRunUtil.invoke(result, "errorResult");
     }
 
     @Test
@@ -90,7 +90,7 @@ public class WorkerSyncSendTest {
 
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(result, "panicTest");
+            JvmRunUtil.invoke(result, "panicTest");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -102,15 +102,15 @@ public class WorkerSyncSendTest {
 
     @Test
     public void basicSyncSendTest() {
-        BValue[] returns = BRunUtil.invoke(result, "basicSyncSendTest");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+        Object returns = JvmRunUtil.invoke(result, "basicSyncSendTest");
+        Assert.assertEquals(returns, 60L);
     }
 
     @Test
     public void multipleSyncSendWithPanic() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(result, "multipleSyncSendWithPanic");
+            JvmRunUtil.invoke(result, "multipleSyncSendWithPanic");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -124,7 +124,7 @@ public class WorkerSyncSendTest {
     public void multipleSyncSendWithPanicInSend() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(result, "multipleSyncSendWithPanicInSend");
+            JvmRunUtil.invoke(result, "multipleSyncSendWithPanicInSend");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -138,7 +138,7 @@ public class WorkerSyncSendTest {
     public void syncSendWithPanicInReceive() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(result, "syncSendWithPanicInReceive");
+            JvmRunUtil.invoke(result, "syncSendWithPanicInReceive");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -152,7 +152,7 @@ public class WorkerSyncSendTest {
     public void panicWithMultipleSendStmtsTest() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(result, "panicWithMultipleSendStmtsTest");
+            JvmRunUtil.invoke(result, "panicWithMultipleSendStmtsTest");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -164,39 +164,36 @@ public class WorkerSyncSendTest {
 
     @Test()
     public void errorResultWithMultipleWorkers() {
-        BRunUtil.invoke(result, "errorResultWithMultipleWorkers");
+        JvmRunUtil.invoke(result, "errorResultWithMultipleWorkers");
     }
 
     @Test
     public void testComplexTypeSend() {
-        BValue[] returns = BRunUtil.invoke(result, "testComplexType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getType().getName(), "Rec");
-        Assert.assertEquals(((BMap) returns[0]).get("k"), new BInteger(10));
+        Object returns = JvmRunUtil.invoke(result, "testComplexType");
+        Assert.assertEquals(getType(returns).getName(), "Rec");
+        Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("k")), 10L);
     }
 
     @Test
     public void multipleSendsToErroredWorker() {
-        BRunUtil.invoke(result, "multipleSendsToErroredChannel");
+        JvmRunUtil.invoke(result, "multipleSendsToErroredChannel");
     }
 
     @Test
     public void testSyncSendAfterSend() {
-        BRunUtil.invoke(result, "testSyncSendAfterSend");
+        JvmRunUtil.invoke(result, "testSyncSendAfterSend");
     }
 
     @Test
     public void testNoFailureForReceiveWithError() {
-        BValue[] returns = BRunUtil.invoke(result, "testNoFailureForReceiveWithError");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, "testNoFailureForReceiveWithError");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFailureForReceiveWithError() {
-        BValue[] returns = BRunUtil.invoke(result, "testFailureForReceiveWithError");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, "testFailureForReceiveWithError");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @AfterClass

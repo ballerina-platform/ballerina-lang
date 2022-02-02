@@ -48,16 +48,14 @@ public class ForeachXMLTest {
 
     @Test
     public void testXMLWithArityOne() {
-        Object[] returns = JvmRunUtil.invoke(program, "testXMLWithArityOne");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), payload + " ");
+        Object returns = JvmRunUtil.invoke(program, "testXMLWithArityOne");
+        Assert.assertEquals(returns.toString(), payload + " ");
     }
 
     @Test
     public void testXMLWithArityTwo() {
-        Object[] returns = JvmRunUtil.invoke(program, "testXMLWithArityTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:" + payload + " ");
+        Object returns = JvmRunUtil.invoke(program, "testXMLWithArityTwo");
+        Assert.assertEquals(returns.toString(), "0:" + payload + " ");
     }
 
     @Test
@@ -66,8 +64,7 @@ public class ForeachXMLTest {
                 "            <p:city>NY</p:city>\n" +
                 "            <q:country xmlns:q=\"bar\">US</q:country>\n" +
                 "        </p:address> 2:<q:ID xmlns:q=\"bar\">1131313</q:ID> ";
-        Object[] returns = JvmRunUtil.invoke(program, "testXMLWithArityChildren");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), payload);
+        Object returns = JvmRunUtil.invoke(program, "testXMLWithArityChildren");
+        Assert.assertEquals(returns.toString(), payload);
     }
 }

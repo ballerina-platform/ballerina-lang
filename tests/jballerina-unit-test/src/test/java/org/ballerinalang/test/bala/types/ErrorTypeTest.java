@@ -18,12 +18,11 @@
 
 package org.ballerinalang.test.bala.types;
 
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,68 +45,62 @@ public class ErrorTypeTest {
 
     @Test
     public void errorFromAnotherPkg() {
-        BValue[] returns = BRunUtil.invoke(result, "getApplicationError");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(returns[0].stringValue(),
-                "{ballerina/sql}ApplicationError {message:\"Client has been stopped\"}");
+        Object returns = JvmRunUtil.invoke(result, "getApplicationError");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BError);
+        Assert.assertEquals(returns.toString(),
+                "error ApplicationError (\"{ballerina/sql}ApplicationError\",message=\"Client has been stopped\")");
     }
 
     @Test
     public void indirectErrorCtorFromAnotherPkg() {
-        BValue[] returns = BRunUtil.invoke(result, "getApplicationErrorIndirectCtor");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(returns[0].stringValue(),
-                "{ballerina/sql}ApplicationError {message:\"Client has been stopped\"}");
+        Object returns = JvmRunUtil.invoke(result, "getApplicationErrorIndirectCtor");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BError);
+        Assert.assertEquals(returns.toString(),
+                "error ApplicationError (\"{ballerina/sql}ApplicationError\",message=\"Client has been stopped\")");
     }
 
     @Test
     public void testUsageOfDistinctTypeFromAnotherPackage() {
-        BValue[] returns = BRunUtil.invoke(result, "getDistinctError");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(returns[0].stringValue(),
-                "OrderCreationError2-msg {message:\"Client has been stopped\"}");
+        Object returns = JvmRunUtil.invoke(result, "getDistinctError");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BError);
+        Assert.assertEquals(returns.toString(),
+                "error OrderCreationError2 (\"OrderCreationError2-msg\",message=\"Client has been stopped\")");
     }
 
     @Test
     public void testDistinctTypeFromAnotherPackageInATypeDef() {
-        BValue[] returns = BRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDef");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(returns[0].stringValue(),
-                "Our error message {message:\"Client has been stopped\"}");
+        Object returns = JvmRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDef");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BError);
+        Assert.assertEquals(returns.toString(),
+                "error OurError (\"Our error message\",message=\"Client has been stopped\")");
     }
 
     @Test
     public void testDistinctTypeFromAnotherPackageInATypeDefWithACast() {
-        BValue[] returns = BRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDefWithACast");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(returns[0].stringValue(),
-                "Our error message {message:\"Client has been stopped\"}");
+        Object returns = JvmRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDefWithACast");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BError);
+        Assert.assertEquals(returns.toString(),
+                "error OurProccessingError (\"Our error message\",message=\"Client has been stopped\")");
     }
 
     @Test
     public void testPerformInvalidCastWithDistinctErrorType() {
-        BValue[] returns = BRunUtil.invoke(result, "performInvalidCastWithDistinctErrorType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(returns[0].stringValue(),
-                "{ballerina}TypeCastError {\"message\":\"incompatible types: 'OurProccessingError' cannot be cast to " +
-                        "'errors:OrderProcessingError'\"}");
+        Object returns = JvmRunUtil.invoke(result, "performInvalidCastWithDistinctErrorType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BError);
+        Assert.assertEquals(returns.toString(),
+                "error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'OurProccessingError' cannot be " +
+                        "cast to 'errors:OrderProcessingError'\")");
     }
 
     @Test
     public void testErrorDetailDefinedAfterErrorDef() {
-        BRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
+        JvmRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
     }
     
     @Test

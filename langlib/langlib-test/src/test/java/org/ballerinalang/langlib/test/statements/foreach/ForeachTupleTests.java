@@ -46,16 +46,14 @@ public class ForeachTupleTests {
 
     @Test
     public void testTupleWithBasicTypes() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithBasicTypes");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("20stringtrue()15.520.2", returns[0].toString());
+        Object returns = JvmRunUtil.invoke(program, "testTupleWithBasicTypes");
+        Assert.assertEquals("20stringtrue()15.520.2", returns.toString());
     }
 
     @Test
     public void testTupleWithBasicTypesAddingInt() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithBasicTypesAddingInt");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0], 18L);
+        Object returns = JvmRunUtil.invoke(program, "testTupleWithBasicTypesAddingInt");
+        Assert.assertEquals(returns, 18L);
     }
 
     @Test
@@ -73,8 +71,8 @@ public class ForeachTupleTests {
                 sb.append(i).append(":").append(value).append(" ");
             }
         }
-        Object[] returns = JvmRunUtil.invoke(program, "testIntTupleComplex");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(program, "testIntTupleComplex");
+        BArray result = (BArray) returns;
         Assert.assertEquals(result.size(), 3);
         Assert.assertEquals(result.get(0), (long) sum);
         Assert.assertEquals(result.get(1), (long) negSum);
@@ -83,51 +81,44 @@ public class ForeachTupleTests {
 
     @Test
     public void testTupleWithTypeAny() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithTypeAny");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0], 8L);
+        Object returns = JvmRunUtil.invoke(program, "testTupleWithTypeAny");
+        Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testTupleWithTypeAnydata() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithTypeAnydata");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0], 8L);
+        Object returns = JvmRunUtil.invoke(program, "testTupleWithTypeAnydata");
+        Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testBreak() {
-        Object[] returns = JvmRunUtil.invoke(program, "testBreak");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:d0 break");
+        Object returns = JvmRunUtil.invoke(program, "testBreak");
+        Assert.assertEquals(returns.toString(), "0:d0 break");
     }
 
     @Test
     public void testContinue() {
-        Object[] returns = JvmRunUtil.invoke(program, "testContinue");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:d0 continue 2:d2 ");
+        Object returns = JvmRunUtil.invoke(program, "testContinue");
+        Assert.assertEquals(returns.toString(), "0:d0 continue 2:d2 ");
     }
 
     @Test
     public void testReturn() {
-        Object[] returns = JvmRunUtil.invoke(program, "testReturn");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:d0 ");
+        Object returns = JvmRunUtil.invoke(program, "testReturn");
+        Assert.assertEquals(returns.toString(), "0:d0 ");
     }
 
     @Test
     public void testNestedBreakContinue() {
-        Object[] returns = JvmRunUtil.invoke(program, "testNestedWithBreakContinue");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
+        Object returns = JvmRunUtil.invoke(program, "testNestedWithBreakContinue");
+        Assert.assertEquals(returns.toString(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
     }
 
     @Test
     public void testTupleWithNullElements() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTupleWithNullElements");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:d0 1: 2:d2 3: ");
+        Object returns = JvmRunUtil.invoke(program, "testTupleWithNullElements");
+        Assert.assertEquals(returns.toString(), "0:d0 1: 2:d2 3: ");
     }
 
     @Test(dataProvider = "dataToTestTupleWithRestDescriptorInForeach")

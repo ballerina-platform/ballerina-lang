@@ -16,13 +16,12 @@
  */
 package org.ballerinalang.test.bala.annotation;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -73,12 +72,11 @@ public class AnnotationTests {
 
     @Test
     public void testNonBallerinaAnnotations() {
-        BValue[] returns = BRunUtil.invoke(result, "testNonBallerinaAnnotations");
+        Object returns = JvmRunUtil.invoke(result, "testNonBallerinaAnnotations");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "{numVal:10, textVal:\"text\", conditionVal:false, " +
-                "recordVal:{nestNumVal:20, nextTextVal:\"nestText\"}}");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "{\"numVal\":10,\"textVal\":\"text\",\"conditionVal\":false," +
+                "\"recordVal\":{\"nestNumVal\":20,\"nextTextVal\":\"nestText\"}}");
     }
 
     @Test

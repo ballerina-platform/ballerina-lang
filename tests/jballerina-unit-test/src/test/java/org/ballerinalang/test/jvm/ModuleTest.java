@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,10 +41,10 @@ public class ModuleTest {
 
     @Test(description = "Test module")
     public void testModule() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testModule", new BValue[] { new BInteger(2) });
-        Assert.assertTrue(result[0] instanceof BInteger);
-        BInteger calculatedValue = (BInteger) result[0];
-        Assert.assertEquals(calculatedValue.intValue(), 12);
+        Object result = JvmRunUtil.invoke(compileResult, "testModule", new Object[]{2});
+        Assert.assertTrue(result instanceof Long);
+        long calculatedValue = (long) result;
+        Assert.assertEquals(calculatedValue, 12L);
     }
 
     @AfterClass

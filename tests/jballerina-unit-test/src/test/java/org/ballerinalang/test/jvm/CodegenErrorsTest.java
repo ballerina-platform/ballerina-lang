@@ -19,8 +19,8 @@ package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -65,12 +65,12 @@ public class CodegenErrorsTest {
     @Test
     public void testTooLargeProject() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/largePackage");
-        BRunUtil.invoke(result, "main");
+        JvmRunUtil.invoke(result, "main");
     }
 
     @Test
     public void testLargeMethods() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/largeMethods");
-        BRunUtil.invoke(result, "main");
+        JvmRunUtil.invoke(result, "main");
     }
 }

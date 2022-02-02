@@ -17,10 +17,10 @@
 
 package org.ballerinalang.test.javainterop;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -187,26 +187,26 @@ public class DependentlyTypedFunctionsTest {
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
                   " 'map' cannot be cast to 'map<anydata>'.*")
     public void testRuntimeCastError() {
-        BRunUtil.invoke(result, "testRuntimeCastError");
+        JvmRunUtil.invoke(result, "testRuntimeCastError");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
                   " 'Person' cannot be cast to 'int'.*")
     public void testCastingForInvalidValues() {
-        BRunUtil.invoke(result, "testCastingForInvalidValues");
+        JvmRunUtil.invoke(result, "testCastingForInvalidValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
                   " 'string' cannot be cast to 'int'.*")
     public void testFunctionAssignment() {
-        BRunUtil.invoke(result, "testFunctionAssignment");
+        JvmRunUtil.invoke(result, "testFunctionAssignment");
     }
 
     @Test(dataProvider = "FunctionNames")
     public void testVariableTypeAsReturnType(String funcName) {
-        BRunUtil.invoke(result, funcName);
+        JvmRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "FunctionNames")

@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
@@ -77,10 +78,10 @@ public class LangLibValueTest {
     @Test
     public void testToJsonString() {
 
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testToJsonString");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testToJsonString");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap<BString, BString> arr = (BMap<BString, BString>) returns[0];
+        BMap<BString, BString> arr = (BMap<BString, BString>) returns;
         assertEquals(arr.get(StringUtils.fromString("aNil")).toString(), "null");
         assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "\"aString\"");
         assertEquals(arr.get(StringUtils.fromString("aNumber")).toString(), "10");
@@ -117,10 +118,10 @@ public class LangLibValueTest {
     @Test
     public void testFromJsonString() {
 
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromJsonString");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testFromJsonString");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap<BString, Object> arr = (BMap<BString, Object>) returns[0];
+        BMap<BString, Object> arr = (BMap<BString, Object>) returns;
         assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
         assertNull(arr.get(StringUtils.fromString("aNull")));
         assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
@@ -145,10 +146,10 @@ public class LangLibValueTest {
     @Test
     public void testFromJsonFloatString() {
 
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromJsonFloatString");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testFromJsonFloatString");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap<BString, Object> arr = (BMap<BString, Object>) returns[0];
+        BMap<BString, Object> arr = (BMap<BString, Object>) returns;
         assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
         assertNull(arr.get(StringUtils.fromString("aNull")));
         assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
@@ -168,10 +169,10 @@ public class LangLibValueTest {
     @Test
     public void testFromJsonDecimalString() {
 
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromJsonDecimalString");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testFromJsonDecimalString");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap<BString, Object> arr = (BMap<BString, Object>) returns[0];
+        BMap<BString, Object> arr = (BMap<BString, Object>) returns;
         assertEquals(getType(arr.get(StringUtils.fromString("aNil"))).getTag(), TypeTags.ERROR_TAG);
         assertNull(arr.get(StringUtils.fromString("aNull")));
         assertEquals(arr.get(StringUtils.fromString("aString")).toString(), "aString");
@@ -192,8 +193,8 @@ public class LangLibValueTest {
     public void testToString() {
         JvmRunUtil.invoke(compileResult, "testToStringMethod");
 
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testToString");
-        BArray array = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testToString");
+        BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getString(i++), "6");
         Assert.assertEquals(array.getString(i++), "6.0");
@@ -260,14 +261,14 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "mergeJsonFunctions")
     public void testMergeJson(String function) {
-        Object[] returns = JvmRunUtil.invoke(compileResult, function);
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void xmlSequenceFragmentToString() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
-        Assert.assertEquals((returns[0]).toString(), "<def>DEF</def><ghi>1</ghi>");
+        Object returns = JvmRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
+        Assert.assertEquals((returns).toString(), "<def>DEF</def><ghi>1</ghi>");
     }
 
     @Test

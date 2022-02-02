@@ -49,38 +49,34 @@ public class ForeachOnFailTests {
 
     @Test
     public void testIntArrayWithArityOne() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIntArrayWithArityOne");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), " (Positive:1), (Negative:-3) within grace, "
+        Object returns = JvmRunUtil.invoke(program, "testIntArrayWithArityOne");
+        Assert.assertEquals(returns.toString(), " (Positive:1), (Negative:-3) within grace, "
                 + "(Positive:5), (Negative:-30) within grace, (Positive:4), (Positive:11), "
                 + "(Negative:-25) Throttle reached");
     }
 
     @Test(description = "Test foreach with check which evaluates to error")
     public void testWhileStmtWithCheck() {
-        Object[] returns = JvmRunUtil.invoke(program, "testForeachStmtWithCheck");
+        Object returns = JvmRunUtil.invoke(program, "testForeachStmtWithCheck");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].toString(), "Value: 1 Value: -3 -> error caught. " +
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Value: 1 Value: -3 -> error caught. " +
                 "Hence value returning", "mismatched output value");
     }
 
     @Test(description = "Test nested foreach with fail")
     public void testNestedWhileStmtWithFail() {
-        Object[] returns = JvmRunUtil.invoke(program, "testNestedWhileStmtWithFail");
+        Object returns = JvmRunUtil.invoke(program, "testNestedWhileStmtWithFail");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns instanceof BString);
 
-        String actual = returns[0].toString();
+        String actual = returns.toString();
         String expected = "level3-> error caught at level 3, level2-> error caught at level 2, " +
                 "level1-> error caught at level 1.";
         Assert.assertEquals(actual, expected);
 
-        Object[] result = JvmRunUtil.invoke(program, "testNestedForeachLoopBreak");
-        Assert.assertEquals(result.length, 1);
-        Assert.assertTrue(result[0] instanceof BString);
-        Assert.assertEquals(result[0].toString(), expected);
+        Object result = JvmRunUtil.invoke(program, "testNestedForeachLoopBreak");
+        Assert.assertTrue(result instanceof BString);
+        Assert.assertEquals(result.toString(), expected);
     }
 }

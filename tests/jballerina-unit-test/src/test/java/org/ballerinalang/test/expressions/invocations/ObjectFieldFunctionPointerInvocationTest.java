@@ -18,8 +18,8 @@
 package org.ballerinalang.test.expressions.invocations;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,12 +43,12 @@ public class ObjectFieldFunctionPointerInvocationTest {
 
     @Test
     public void testInvocationOfObjectField() {
-        BRunUtil.invoke(funcInvocationExpResult, "testInvocationOfObjectField");
+        JvmRunUtil.invoke(funcInvocationExpResult, "testInvocationOfObjectField");
     }
 
     @Test
     public void testInvocationOfObjectFieldWithMutableState() {
-        BRunUtil.invoke(funcInvocationExpResult, "testInvocationOfObjectFieldWithMutableState");
+        JvmRunUtil.invoke(funcInvocationExpResult, "testInvocationOfObjectFieldWithMutableState");
     }
 
     @Test

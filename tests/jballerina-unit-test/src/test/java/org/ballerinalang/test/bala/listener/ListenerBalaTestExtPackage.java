@@ -18,8 +18,8 @@
 package org.ballerinalang.test.bala.listener;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,7 +38,7 @@ public class ListenerBalaTestExtPackage {
 
     @Test(description = "Test access listener in different package")
     public void testListenerObjectDefinedInDifferentPackage() {
-        BRunUtil.invoke(compileResult, "getStartAndAttachCount");
+        JvmRunUtil.invoke(compileResult, "getStartAndAttachCount");
     }
 }
 

@@ -18,14 +18,11 @@
  */
 package org.ballerinalang.test.expressions.checkpanicexpr;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,47 +43,45 @@ public class CheckPanicExpressionOperatorTest {
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics1() {
-        BValue[] arg = {new BInteger(1)};
-        BValue[] returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
-        Assert.assertEquals(returns.length, 1);
+        Object[] arg = {(1)};
+        Object returns = JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error \\{\"fatal\":true," +
                     "\"message\":\"Something Went Wrong.*")
     public void testSafeAssignmentBasics2() {
-        BValue[] arg = {new BInteger(2)};
-        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Object[] arg = {(2)};
+        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics3() {
-        BValue[] arg = {new BInteger(3)};
-        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Object[] arg = {(3)};
+        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test
     public void testSafeAssignmentBasics4() {
-        BValue[] arg = {new BInteger(4)};
-        BValue[] returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.2);
+        Object[] arg = {(4)};
+        Object returns = JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Assert.assertEquals(returns, 2.2);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"array index out of range: index: 4, size: 2.*")
     public void testSafeAssignmentBasics5() {
-        BValue[] arg = {new BInteger(5)};
-        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Object[] arg = {(5)};
+        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: My Error \\{\"code\":12.*")
     public void testSafeAssignmentBasics6() {
-        BValue[] arg = {new BInteger(6)};
-        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Object[] arg = {(6)};
+        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test

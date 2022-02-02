@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -79,8 +77,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
     public void testRecordOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "recordOptionalFieldAccessFunctions")
@@ -100,7 +98,7 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions2")
     public void testRecordOptionalFieldAccess2(String function) {
-        BRunUtil.invoke(result, function);
+        JvmRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "recordOptionalFieldAccessFunctions2")
@@ -115,8 +113,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "laxOptionalFieldAccessFunctions")
     public void testLaxOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "laxOptionalFieldAccessFunctions")
@@ -142,8 +140,8 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "optionalFieldAccessOnInvocationFunctions")
     public void testOptionalFieldAccessOnInvocation(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "optionalFieldAccessOnInvocationFunctions")
@@ -158,16 +156,16 @@ public class OptionalFieldAccessTest {
 
     @Test
     public void testOptionalFieldAccessInUnionType() {
-        BRunUtil.invoke(result, "testOptionalFieldAccessInUnionType");
+        JvmRunUtil.invoke(result, "testOptionalFieldAccessInUnionType");
     }
 
     @Test
     public void testOptionalFieldAccessOnMethodCall() {
-        BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
+        JvmRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
     }
 
     @Test
     public void testNestedOptionalFieldAccessOnIntersectionTypes() {
-        BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
+        JvmRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
     }
 }

@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,6 +29,7 @@ import org.testng.annotations.Test;
  * Test cases for usages of worker in actions.
  */
 public class WorkerInActionTest {
+
     private CompileResult result;
 
     @BeforeClass()
@@ -39,23 +39,23 @@ public class WorkerInActionTest {
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        BValue[] returns = BRunUtil.invoke(result, "testAction1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "result from sampleWorker");
+        Object returns = JvmRunUtil.invoke(result, "testAction1");
+
+        Assert.assertEquals(returns.toString(), "result from sampleWorker");
     }
 
     @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
-        BValue[] returns = BRunUtil.invoke(result, "testAction2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "request");
+        Object returns = JvmRunUtil.invoke(result, "testAction2");
+
+        Assert.assertEquals(returns.toString(), "request");
     }
 
     @Test(description = "Test default strand error before send action")
     public void testDefaultErrorBeforeSend() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultError");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "REACHED");
+        Object returns = JvmRunUtil.invoke(result, "testDefaultError");
+
+        Assert.assertEquals(returns.toString(), "REACHED");
     }
 
     @AfterClass

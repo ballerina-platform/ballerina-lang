@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -49,57 +49,57 @@ public class MapToRecordAssignabilityTest {
         int indx = 0;
 
         validateError(result, indx++, "incompatible types: expected 'record {| string...; |}', found 'map<int>'",
-                      19, 36);
+                19, 36);
         validateError(result, indx++, "incompatible types: expected 'record {| anydata...; |}', found 'map'",
-                      22, 26);
+                22, 26);
         validateError(result, indx++,
-                      "incompatible types: expected 'record {| string a; string...; |}', found 'map<string>'", 29, 12);
+                "incompatible types: expected 'record {| string a; string...; |}', found 'map<string>'", 29, 12);
         validateError(result, indx++, "incompatible types: expected 'record {| Bar...; |}', found 'map<Foo>'", 52, 13);
         assertEquals(result.getErrorCount(), indx);
     }
 
     @Test(dataProvider = "FunctionList")
     public void testMapToRecordAssignability(String funcName) {
-        BRunUtil.invoke(compileResult, funcName);
+        JvmRunUtil.invoke(compileResult, funcName);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
-                  "expected value of type 'decimal', found 'float'.*")
+            expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
+                    "expected value of type 'decimal', found 'float'.*")
     public void testInherentTypeViolationInInclusiveRecords() {
-        BRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
+        JvmRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
-                  "expected value of type 'int', found 'string'.*")
+            expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
+                    "expected value of type 'int', found 'string'.*")
     public void testInherentTypeViolationInExclusiveRecords() {
-        BRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
+        JvmRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"invalid field access: field 'cc' " +
-                  "not found in record type 'Bar'.*")
+            expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"invalid field access: field 'cc' " +
+                    "not found in record type 'Bar'.*")
     public void testSubtyping() {
-        BRunUtil.invoke(compileResult, "testSubtyping");
+        JvmRunUtil.invoke(compileResult, "testSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: expected" +
-                                            " value of type 'Bar', found 'record \\{\\| int c; \\|\\}'.*")
+            expectedExceptionsMessageRegExp =
+                    ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: expected" +
+                            " value of type 'Bar', found 'record \\{\\| int c; \\|\\}'.*")
     public void testComplexSubtyping2() {
-        BRunUtil.invoke(compileResult, "testComplexSubtyping2");
+        JvmRunUtil.invoke(compileResult, "testComplexSubtyping2");
     }
 
     @Test
     public void testQuotedFieldNamesWithEscapeCharacters() {
-        BRunUtil.invoke(compileResult, "testQuotedFieldNamesWithEscapeCharacters");
+        JvmRunUtil.invoke(compileResult, "testQuotedFieldNamesWithEscapeCharacters");
     }
-
 
     @Test
     public void testQuotedSubFieldNamesWithEscapeCharacters() {
-        BRunUtil.invoke(compileResult, "testQuotedSubFieldNamesWithEscapeCharacters");
+        JvmRunUtil.invoke(compileResult, "testQuotedSubFieldNamesWithEscapeCharacters");
     }
 
     @DataProvider(name = "FunctionList")

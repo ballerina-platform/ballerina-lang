@@ -19,15 +19,16 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * This contains methods to test query actions with records.
- *\
+ * \
+ *
  * @since Swan Lake
  */
 public class RecordQueryTest {
@@ -41,7 +42,7 @@ public class RecordQueryTest {
 
     @Test
     public void testSimpleQueryAction() {
-        BRunUtil.invoke(result, "testRecordBasedQueryExpr");
+        JvmRunUtil.invoke(result, "testRecordBasedQueryExpr");
     }
 
     @AfterClass

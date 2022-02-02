@@ -19,8 +19,8 @@
 package org.ballerinalang.test.typechecker;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -42,7 +42,7 @@ public class NilOptimizationTest {
 
     @Test(dataProvider = "FunctionList")
     public void testNilOptimizations(String funcName) {
-        BRunUtil.invoke(compileResult, funcName);
+        JvmRunUtil.invoke(compileResult, funcName);
     }
 
     @DataProvider(name = "FunctionList")

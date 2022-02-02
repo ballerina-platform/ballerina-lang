@@ -44,9 +44,9 @@ public class ForeachIterableObjectTest {
 
     @Test
     public void testIterableObject() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIterableObject");
+        Object returns = JvmRunUtil.invoke(program, "testIterableObject");
 
-        BArray arr = (BArray) returns[0];
+        BArray arr = (BArray) returns;
         Assert.assertEquals(arr.size(), 7);
         int i = 0;
         Assert.assertEquals(arr.getInt(i++), 12);

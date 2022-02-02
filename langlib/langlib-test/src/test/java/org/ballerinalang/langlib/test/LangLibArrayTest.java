@@ -52,22 +52,22 @@ public class LangLibArrayTest {
 
     @Test
     public void testLength() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testLength");
-        assertEquals(returns[0], 4L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testLength");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testIterator() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIterator");
-        assertEquals(returns[0].toString(), "HelloWorld!FromBallerina");
+        Object returns = JvmRunUtil.invoke(compileResult, "testIterator");
+        assertEquals(returns.toString(), "HelloWorld!FromBallerina");
     }
 
     @Test
     public void testEnumerate() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testEnumerate");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.ARRAY_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testEnumerate");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BArray arr = (BArray) returns[0];
+        BArray arr = (BArray) returns;
         assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.TUPLE_TAG);
 
         BArray elem = (BArray) arr.getRefValue(0);
@@ -89,10 +89,10 @@ public class LangLibArrayTest {
 
     @Test
     public void testMap() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testMap");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.ARRAY_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BArray arr = (BArray) returns[0];
+        BArray arr = (BArray) returns;
         assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.INT_TAG);
         assertEquals(arr.getInt(0), 1);
         assertEquals(arr.getInt(1), 2);
@@ -102,14 +102,14 @@ public class LangLibArrayTest {
 
     @Test
     public void testForeach() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0].toString(), "HelloWorld!fromBallerina");
+        Object returns = JvmRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns.toString(), "HelloWorld!fromBallerina");
     }
 
     @Test
     public void testSlice() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSlice");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testSlice");
+        BArray result = (BArray) returns;
 
         BArray arr = (BArray) result.getRefValue(0);
         assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.FLOAT_TAG);
@@ -171,8 +171,8 @@ public class LangLibArrayTest {
 
     @Test
     public void testRemove() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testRemove");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testRemove");
+        BArray result = (BArray) returns;
 
         assertEquals(result.get(0).toString(), "FooFoo");
 
@@ -188,40 +188,40 @@ public class LangLibArrayTest {
 
     @Test
     public void testReduce() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(returns[0], 13.8);
+        Object returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 13.8);
     }
 
     @Test
     public void testIterableOpChain() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain");
-        assertEquals(returns[0], 3.25);
+        Object returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain");
+        assertEquals(returns, 3.25);
     }
 
     @Test
     public void testIterableOpChain2() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain2");
-        assertEquals(returns[0], 420L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain2");
+        assertEquals(returns, 420L);
     }
 
     @Test
     public void testIndexOf() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIndexOf");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testIndexOf");
+        BArray result = (BArray) returns;
         assertEquals(result.get(0), 4L);
         assertNull(result.get(1));
     }
 
     @Test
     public void testForEach() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testForEach");
-        assertEquals(returns[0].toString(), "SunMonTues");
+        Object returns = JvmRunUtil.invoke(compileResult, "testForEach");
+        assertEquals(returns.toString(), "SunMonTues");
     }
 
     @Test(dataProvider = "setLengthDataProvider")
     public void testSetLength(int setLengthTo, long lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});
+        BArray result = (BArray) returns;
         assertEquals(result.get(0), lenAfterSet);
         assertEquals(result.get(1).toString(), arrayAfterSet);
         assertEquals(result.get(2).toString(), arrayLenPlusOneAfterSet);
@@ -240,29 +240,29 @@ public class LangLibArrayTest {
 
     @Test
     public void testShift() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testShift");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testShift");
+        BArray result = (BArray) returns;
         assertEquals(result.get(0).toString(), "[2,3,4,5]");
         assertEquals(result.get(1).toString(), "1");
     }
 
     @Test
     public void testUnshift() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testUnshift");
-        assertEquals(returns[0].toString(), "[8,8,1,2,3,4,5]");
+        Object returns = JvmRunUtil.invoke(compileResult, "testUnshift");
+        assertEquals(returns.toString(), "[8,8,1,2,3,4,5]");
     }
 
     @Test
     public void testUnshiftTypeWithoutFillerValues() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
+        BArray result = (BArray) returns;
         assertEquals(result.size(), 2);
     }
 
     @Test
     public void testRemoveAll() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testRemoveAll");
-        assertEquals(returns[0].toString(), "[]");
+        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveAll");
+        assertEquals(returns.toString(), "[]");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -302,20 +302,20 @@ public class LangLibArrayTest {
 
     @Test
     public void testTupleRemoveAllForTupleWithJustRestMemberType() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthLegal() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testTupleSetLengthLegal");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testTupleSetLengthLegal");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthToSameAsOriginal() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testTupleSetLengthToSameAsOriginal");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testTupleSetLengthToSameAsOriginal");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -329,8 +329,8 @@ public class LangLibArrayTest {
 
     @Test
     public void testAsyncFpArgsWithArrays() {
-        Object[] results = JvmRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
-        BArray resultArray = (BArray) results[0];
+        Object results = JvmRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
+        BArray resultArray = (BArray) results;
         assertTrue(resultArray.get(0) instanceof Long);
         assertTrue(resultArray.get(1) instanceof  BArray);
         assertEquals(resultArray.get(0), 19L);
@@ -471,10 +471,10 @@ public class LangLibArrayTest {
 
     @Test
     public void testSort3() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSort3");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSort3");
 
-        assertEquals(getType(returns[0]).getTag(), TypeTags.ARRAY_TAG);
-        BArray arr = (BArray) returns[0];
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
+        BArray arr = (BArray) returns;
 
         assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.INT_TAG);
         assertEquals(arr.size(), 100);

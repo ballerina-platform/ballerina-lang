@@ -18,8 +18,8 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
  * @since Swan Lake
  */
 public class NestedQueriesWithEnclFuncParams {
+
     private CompileResult result;
 
     @BeforeClass
@@ -40,7 +41,7 @@ public class NestedQueriesWithEnclFuncParams {
 
     @Test(dataProvider = "methodsToTest", description = "test closures inside queries")
     public void testEnclFuncParamsInQueries(String functionName) {
-        BRunUtil.invoke(result, functionName);
+        JvmRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

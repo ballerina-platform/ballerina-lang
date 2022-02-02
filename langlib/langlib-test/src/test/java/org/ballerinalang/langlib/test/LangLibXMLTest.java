@@ -52,14 +52,14 @@ public class LangLibXMLTest {
 
     @Test(dataProvider = "XMLDataProvider")
     public void testLength(BXml val, long expectedLength) {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testLength", new Object[]{val});
-        assertEquals((returns[0]), expectedLength);
+        Object returns = JvmRunUtil.invoke(compileResult, "testLength", new Object[]{val});
+        assertEquals((returns), expectedLength);
     }
 
     @DataProvider(name = "XMLDataProvider")
     public Object[][] getXML() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "getXML");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "getXML");
+        BArray result = (BArray) returns;
         return new Object[][]{
                 {result.get(0), 1},
                 {result.get(1), 1},
@@ -74,24 +74,24 @@ public class LangLibXMLTest {
 
     @Test
     public void testFromXml() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFromString");
-        assertEquals(returns[0].toString(),
+        Object returns = JvmRunUtil.invoke(compileResult, "testFromString");
+        assertEquals(returns.toString(),
                 "<TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE><TITLE>Greatest Hits</TITLE>");
     }
 
     @Test
     public void testEmptyConcatCall() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "emptyConcatCall");
-        assertTrue(((BXml) returns[0]).getNodeType() == XmlNodeType.SEQUENCE);
-        assertEquals(((BXml) returns[0]).size(), 0);
+        Object returns = JvmRunUtil.invoke(compileResult, "emptyConcatCall");
+        assertTrue(((BXml) returns).getNodeType() == XmlNodeType.SEQUENCE);
+        assertEquals(((BXml) returns).size(), 0);
     }
 
     @Test
     public void testConcat() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testConcat");
-        assertTrue(((BXml) returns[0]).getNodeType() == XmlNodeType.SEQUENCE);
-        assertEquals(((BXml) returns[0]).size(), 5);
-        assertEquals(returns[0].toString(),
+        Object returns = JvmRunUtil.invoke(compileResult, "testConcat");
+        assertTrue(((BXml) returns).getNodeType() == XmlNodeType.SEQUENCE);
+        assertEquals(((BXml) returns).size(), 5);
+        assertEquals(returns.toString(),
                 "<hello>xml content</hello><TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE>" +
                         "<TITLE>Greatest Hits</TITLE>hello from String");
     }
@@ -103,8 +103,8 @@ public class LangLibXMLTest {
 
     @Test
     public void testIsElement() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testIsElement");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testIsElement");
+        BArray result = (BArray) returns;
         assertFalse(result.getBoolean(0));
         assertTrue(result.getBoolean(1));
         assertFalse(result.getBoolean(2));
@@ -112,70 +112,70 @@ public class LangLibXMLTest {
 
     @Test
     public void testXmlPI() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testXmlPI");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testXmlPI");
+        BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertFalse(result.getBoolean(1));
     }
 
     @Test
     public void testXmlIsComment() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testXmlIsComment");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testXmlIsComment");
+        BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertFalse(result.getBoolean(1));
     }
 
     @Test
     public void testXmlIsText() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testXmlIsText");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testXmlIsText");
+        BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertTrue(result.getBoolean(1));
     }
 
     @Test
     public void testGetNameOfElement() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "getNameOfElement");
-        assertEquals(returns[0].toString(), "elem");
+        Object returns = JvmRunUtil.invoke(compileResult, "getNameOfElement");
+        assertEquals(returns.toString(), "elem");
     }
 
     @Test
     public void testSetElementName() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSetElementName");
-        BArray results = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testSetElementName");
+        BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(), "<el2 attr=\"attr1\">content</el2>");
         assertEquals(results.get(1).toString(), "<Elem xmlns=\"http://www.ballerina-schema.io/schema\"/>");
     }
 
     @Test
     public void testGetChildren() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testGetChildren");
-        assertEquals(returns[0].toString(), "<TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST>");
+        Object returns = JvmRunUtil.invoke(compileResult, "testGetChildren");
+        assertEquals(returns.toString(), "<TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST>");
     }
 
     @Test
     public void testSetChildren() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSetChildren");
-        assertEquals(returns[0].toString(), "<CD><e>child</e></CD>");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSetChildren");
+        assertEquals(returns.toString(), "<CD><e>child</e></CD>");
     }
 
     @Test
     public void testGetAttributes() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testGetAttributes");
-        assertEquals(returns[0].toString(), "{\"attr\":\"attr1\",\"attr2\":\"attr2\"}");
+        Object returns = JvmRunUtil.invoke(compileResult, "testGetAttributes");
+        assertEquals(returns.toString(), "{\"attr\":\"attr1\",\"attr2\":\"attr2\"}");
     }
 
     @Test
     public void testGetTarget() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testGetTarget");
-        assertEquals(returns[0].toString(), "xml-stylesheet");
+        Object returns = JvmRunUtil.invoke(compileResult, "testGetTarget");
+        assertEquals(returns.toString(), "xml-stylesheet");
     }
 
     @Test
     public void testGetContent() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testGetContent");
-        BArray results = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testGetContent");
+        BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(), "type=\"cont\"");
         assertEquals(results.get(1).toString(), " this is a comment text ");
     }
@@ -197,14 +197,14 @@ public class LangLibXMLTest {
 
     @Test
     public void testCreateProcessingInstruction() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testCreateProcessingInstruction");
-        assertEquals(returns[0].toString(), "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>");
+        Object returns = JvmRunUtil.invoke(compileResult, "testCreateProcessingInstruction");
+        assertEquals(returns.toString(), "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>");
     }
 
     @Test
     public void testCreateComment() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testCreateComment");
-        assertEquals(returns[0].toString(), "<!--This text should be wraped in xml comment-->");
+        Object returns = JvmRunUtil.invoke(compileResult, "testCreateComment");
+        assertEquals(returns.toString(), "<!--This text should be wraped in xml comment-->");
     }
 
     @Test
@@ -219,8 +219,8 @@ public class LangLibXMLTest {
 
     @Test
     public void testSlice() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSlice");
-        BArray results = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testSlice");
+        BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(), "<elemL>content</elemL><elemN>content</elemN>");
         assertEquals(results.get(1).toString(), "<elemN>content</elemN><elemM>content</elemM>");
         assertEquals(results.get(2).toString(), "<elemN>content</elemN><elemM>content</elemM>");
@@ -228,8 +228,8 @@ public class LangLibXMLTest {
 
     @Test
     public void testXMLCycleError() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testXMLCycleError");
-        BArray results = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testXMLCycleError");
+        BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(),
                 "error(\"{ballerina/lang.xml}XMLOperationError\",message=\"Failed to set children to xml element: " +
                         "Cycle detected\")");
@@ -239,8 +239,8 @@ public class LangLibXMLTest {
 
     @Test
     public void testXMLCycleDueToChildrenOfChildren() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
-        assertEquals(returns[0].toString(), "error(\"{ballerina/lang.xml}XMLOperationError\",message=\"Failed to set " +
+        Object returns = JvmRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
+        assertEquals(returns.toString(), "error(\"{ballerina/lang.xml}XMLOperationError\",message=\"Failed to set " +
                 "children to xml element: Cycle detected\")");
     }
 
@@ -251,8 +251,8 @@ public class LangLibXMLTest {
 
     @Test
     public void testGet() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testGet");
-        assertEquals(returns[0].toString(),
+        Object returns = JvmRunUtil.invoke(compileResult, "testGet");
+        assertEquals(returns.toString(),
                 "[`<elem/>`,error(\"xml sequence index out of range. Length: '1' requested: '3'\"),`<!--Comment " +
                         "content-->`,`<?PITarget VAL-0?>`,error(\"xml sequence index out of range. Length: '3' " +
                         "requested: '-1'\")]");
@@ -260,8 +260,8 @@ public class LangLibXMLTest {
 
     @Test
     public void testAsyncFpArgsWithXmls() {
-        Object[] results = JvmRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
-        BArray arr = (BArray) results[0];
+        Object results = JvmRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
+        BArray arr = (BArray) results;
         assertTrue(arr.get(0) instanceof Long);
         assertTrue(arr.get(1) instanceof BXml);
         assertEquals(arr.get(0), 6021L);

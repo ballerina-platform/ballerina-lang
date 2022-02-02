@@ -19,8 +19,8 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,17 +41,17 @@ public class QueryExpressionTypeNarrowingTest {
 
     @Test(description = "Test query expression within a type guard")
     public void testQueryExprWithinTypeGuard() {
-        BRunUtil.invoke(result, "testQueryExprWithinTypeGuard");
+        JvmRunUtil.invoke(result, "testQueryExprWithinTypeGuard");
     }
 
     @Test(description = "Test query expression within a negated type guard")
     public void testQueryExprWithinNegatedTypeGuard() {
-        BRunUtil.invoke(result, "testQueryExprWithinNegatedTypeGuard");
+        JvmRunUtil.invoke(result, "testQueryExprWithinNegatedTypeGuard");
     }
 
     @Test(description = "Test query expression within a ternary operator")
     public void testTernaryWithinQueryExpression() {
-        BRunUtil.invoke(result, "testTernaryWithinQueryExpression");
+        JvmRunUtil.invoke(result, "testTernaryWithinQueryExpression");
     }
 
     @AfterClass

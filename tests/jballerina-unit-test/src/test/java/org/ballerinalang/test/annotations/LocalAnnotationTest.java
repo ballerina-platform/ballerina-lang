@@ -41,9 +41,8 @@ public class LocalAnnotationTest {
 
     @Test
     public void testLocalServiceAnnotEvaluation() {
-        Object[] returns = JvmRunUtil.invoke(result, "testAnnotEvaluation");
-        Assert.assertEquals(returns.length, 1);
-        BArray array = ((BArray) returns[0]);
+        Object returns = JvmRunUtil.invoke(result, "testAnnotEvaluation");
+        BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 6);
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals(array.getBoolean(i), true);

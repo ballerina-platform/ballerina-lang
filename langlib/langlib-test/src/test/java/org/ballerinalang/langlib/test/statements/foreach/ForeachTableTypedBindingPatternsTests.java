@@ -41,18 +41,16 @@ public class ForeachTableTypedBindingPatternsTests {
 
     @Test
     public void testTableWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTableWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(),
+        Object returns = JvmRunUtil.invoke(program, "testTableWithoutType");
+        Assert.assertEquals(returns.toString(),
                 "0:{\"id\":1,\"name\":\"Mary\",\"salary\":300.5} 1:{\"id\":2,\"name\":\"John\"," +
                         "\"salary\":200.5} 2:{\"id\":3,\"name\":\"Jim\",\"salary\":330.5} ");
     }
 
     @Test
     public void testTableWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testTableWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(),
+        Object returns = JvmRunUtil.invoke(program, "testTableWithType");
+        Assert.assertEquals(returns.toString(),
                 "0:{\"id\":1,\"name\":\"Mary\",\"salary\":300.5} " +
                         "1:{\"id\":2,\"name\":\"John\",\"salary\":200.5} " +
                         "2:{\"id\":3,\"name\":\"Jim\",\"salary\":330.5} ");
@@ -60,21 +58,19 @@ public class ForeachTableTypedBindingPatternsTests {
 
     @Test
     public void testRecordInTableWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testRecordInTableWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 ");
+        Object returns = JvmRunUtil.invoke(program, "testRecordInTableWithoutType");
+        Assert.assertEquals(returns.toString(), "0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 ");
     }
 
     @Test
     public void testEmptyTableIteration() {
-        Object[] returns = JvmRunUtil.invoke(program, "testEmptyTableIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "");
+        Object returns = JvmRunUtil.invoke(program, "testEmptyTableIteration");
+        Assert.assertEquals(returns.toString(), "");
     }
 
     @Test
     public void testIterationOverKeylessTable() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIterationOverKeylessTable");
-        Assert.assertTrue((Boolean) returns[0]);
+        Object returns = JvmRunUtil.invoke(program, "testIterationOverKeylessTable");
+        Assert.assertTrue((Boolean) returns);
     }
 }

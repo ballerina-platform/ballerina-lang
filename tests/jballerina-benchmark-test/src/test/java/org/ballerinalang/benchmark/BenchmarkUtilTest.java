@@ -208,8 +208,8 @@ public class BenchmarkUtilTest {
     public void testFormatBooleanTrue() {
         BArray fArgs = getAnyArrayValue(new Object[] {true});
         Object[] args = {StringUtils.fromString("%b"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "true");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "true");
     }
 
     private BArray getAnyArrayValue(Object[] values) {
@@ -220,24 +220,24 @@ public class BenchmarkUtilTest {
     public void testFormatBooleanFalse() {
         BArray fArgs = getAnyArrayValue(new Object[] {false});
         Object[] args = {StringUtils.fromString("%b"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "false");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "false");
     }
 
     @Test
     public void testFormatDecimal() {
         BArray fArgs = getAnyArrayValue(new Object[] {65L});
         Object[] args = {StringUtils.fromString("%d"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "65");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "65");
     }
 
     @Test
     public void testFormatFloat() {
         BArray fArgs = getAnyArrayValue(new Object[] {3.25d});
         Object[] args = {StringUtils.fromString("%f"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "3.250000");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "3.250000");
     }
 
     @Test
@@ -245,16 +245,16 @@ public class BenchmarkUtilTest {
         String name = "John";
         BArray fArgs = getAnyArrayValue(new Object[]{StringUtils.fromString(name)});
         Object[] args = {StringUtils.fromString("%s"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), name);
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), name);
     }
 
     @Test
     public void testFormatHex() {
         BArray fArgs = getAnyArrayValue(new Object[]{57005L});
         Object[] args = {StringUtils.fromString("%x"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "dead");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "dead");
     }
 
     @Test
@@ -263,54 +263,54 @@ public class BenchmarkUtilTest {
                 TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         BArray fArgs = getAnyArrayValue(new Object[]{arr});
         Object[] args = {StringUtils.fromString("%s"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "[111,222,333]");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "[111,222,333]");
     }
 
     @Test
     public void testFormatLiteralPercentChar() {
         BArray fArgs = getAnyArrayValue(new Object[]{StringUtils.fromString("test")});
         Object[] args = {StringUtils.fromString("%% %s"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "% test");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "% test");
     }
 
     @Test
     public void testFormatStringWithPadding() {
         BArray fArgs = getAnyArrayValue(new Object[]{StringUtils.fromString("Hello Ballerina")});
         Object[] args = {StringUtils.fromString("%9.2s"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "       He");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "       He");
     }
 
     @Test
     public void testFormatFloatWithPadding() {
         BArray fArgs = getAnyArrayValue(new Object[]{123456789.9876543d});
         Object[] args = {StringUtils.fromString("%5.4f"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "123456789.9877");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "123456789.9877");
     }
 
     @Test
     public void testFormatDecimalWithPadding() {
         BArray fArgs = getAnyArrayValue(new Object[]{12345L});
         Object[] args = {StringUtils.fromString("%15d"), fArgs};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].toString(), "          12345");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Assert.assertEquals(returns.toString(), "          12345");
     }
 
     @Test
     public void testSprintfMix() {
         Object[] args = {StringUtils.fromString("the %s jumped over the %s, %d times"),
                 StringUtils.fromString("cow"), StringUtils.fromString("moon"), 2L};
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintfMix", args);
-        Assert.assertEquals(returns[0].toString(), "the cow jumped over the moon, 2 times");
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintfMix", args);
+        Assert.assertEquals(returns.toString(), "the cow jumped over the moon, 2 times");
     }
 
     @Test
     public void testSprintfForNilInputString() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testSprintfNilString");
-        Assert.assertTrue(returns[0].toString().isEmpty());
+        Object returns = JvmRunUtil.invoke(compileResult, "testSprintfNilString");
+        Assert.assertTrue(returns.toString().isEmpty());
     }
 
 }

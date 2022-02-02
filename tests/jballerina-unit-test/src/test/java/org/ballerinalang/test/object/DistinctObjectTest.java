@@ -19,8 +19,8 @@ package org.ballerinalang.test.object;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,6 +43,6 @@ public class DistinctObjectTest {
     @Test
     public void testDistinctObjectSubtyping() {
         CompileResult result = BCompileUtil.compile("test-src/object/distinct_objects_type_inclusion_test.bal");
-        BRunUtil.invoke(result, "testDistinctObjectSubtyping");
+        JvmRunUtil.invoke(result, "testDistinctObjectSubtyping");
     }
 }

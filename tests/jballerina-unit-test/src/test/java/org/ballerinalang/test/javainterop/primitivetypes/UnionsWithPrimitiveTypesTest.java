@@ -17,15 +17,10 @@
  */
 package org.ballerinalang.test.javainterop.primitivetypes;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -67,32 +62,32 @@ public class UnionsWithPrimitiveTypesTest {
             throw new IllegalStateException("Failed create the DataInputStream instance.");
         }
 
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(dataIS);
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(dataIS);
 
-        BValue[] returns = BRunUtil.invoke(result, "readBoolean", args);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), aBoolean);
+        Object returns = JvmRunUtil.invoke(result, "readBoolean", args);
+        Assert.assertEquals(returns, aBoolean);
 
-        returns = BRunUtil.invoke(result, "readByte", args);
-        Assert.assertEquals(((BByte) returns[0]).byteValue(), aByte);
+        returns = JvmRunUtil.invoke(result, "readByte", args);
+        Assert.assertEquals(((Integer) returns).byteValue(), aByte);
 
-        returns = BRunUtil.invoke(result, "readShort", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), aShort);
+        returns = JvmRunUtil.invoke(result, "readShort", args);
+        Assert.assertEquals(((Long) returns).shortValue(), aShort);
 
-        returns = BRunUtil.invoke(result, "readChar", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), aChar);
+        returns = JvmRunUtil.invoke(result, "readChar", args);
+        Assert.assertEquals((char) ((Long) returns).intValue(), aChar);
 
-        returns = BRunUtil.invoke(result, "readInt", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), anInt);
+        returns = JvmRunUtil.invoke(result, "readInt", args);
+        Assert.assertEquals(((Long) returns).intValue(), anInt);
 
-        returns = BRunUtil.invoke(result, "readLong", args);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), aLong);
+        returns = JvmRunUtil.invoke(result, "readLong", args);
+        Assert.assertEquals(returns, aLong);
 
-        returns = BRunUtil.invoke(result, "readFloat", args);
-        Assert.assertEquals((float) ((BFloat) returns[0]).floatValue(), aFloat);
+        returns = JvmRunUtil.invoke(result, "readFloat", args);
+        Assert.assertEquals(((Double) returns).floatValue(), aFloat);
 
-        returns = BRunUtil.invoke(result, "readDouble", args);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), aDouble);
+        returns = JvmRunUtil.invoke(result, "readDouble", args);
+        Assert.assertEquals(returns, aDouble);
     }
 
     private DataInputStream getDataInputStream() throws IOException {

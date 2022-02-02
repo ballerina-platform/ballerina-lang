@@ -19,10 +19,11 @@
 package org.ballerinalang.test.object;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -37,7 +38,7 @@ public class ReadonlyObjectTest {
     @Test(dataProvider = "readOnlyObjectTests")
     public void testReadonlyObjects(String function) {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_objects.bal");
-        BRunUtil.invoke(result, function);
+        JvmRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "readOnlyObjectTests")

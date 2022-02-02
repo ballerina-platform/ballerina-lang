@@ -19,8 +19,8 @@
 package org.ballerinalang.test.worker;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +52,7 @@ public class WaitForAllWorkersTest {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(result, "testWaitForAllWorkers");
+            JvmRunUtil.invoke(result, "testWaitForAllWorkers");
             String loggedMsg = new String(outputStream.toByteArray());
             Assert.assertEquals(loggedMsg, expectedMsg);
         } finally {
