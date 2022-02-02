@@ -18,9 +18,9 @@
 package org.ballerinalang.test.execution;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
-import org.ballerinalang.test.BRunUtil.ExitDetails;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.JvmRunUtil.ExitDetails;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -175,7 +175,7 @@ public class ModuleExecutionFlowTests {
 
     private ExitDetails run(CompileResult compileResult, String[] args) {
         try {
-            return BRunUtil.run(compileResult, args);
+            return JvmRunUtil.run(compileResult, args);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

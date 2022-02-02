@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,20 +42,20 @@ public class StackOverflowTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StackOverflow \\{\"message\":\"stack " +
                     "overflow\"\\}.*")
     public void recursiveFunction() {
-        BRunUtil.invoke(result, "recursiveFunction");
+        JvmRunUtil.invoke(result, "recursiveFunction");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StackOverflow \\{\"message\":\"stack " +
                     "overflow\"\\}.*")
     public void testStackOverflowInFunction() {
-        BRunUtil.invoke(result, "testStackOverflowInFunction");
+        JvmRunUtil.invoke(result, "testStackOverflowInFunction");
     }
 
     // Worker errors are not thrown.
     @Test
     public void stackOverflowInWorker() {
-        BRunUtil.invoke(result, "stackOverflowInWorker");
+        JvmRunUtil.invoke(result, "stackOverflowInWorker");
     }
 
     @AfterClass

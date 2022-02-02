@@ -16,13 +16,10 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -45,54 +42,52 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(result, "testIntRanges", args);
+        Object[] args = {(0)};
+        Object returns = JvmRunUtil.invoke(result, "testIntRanges", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 1;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BInteger(50)};
-        returns = BRunUtil.invoke(result, "testIntRanges", args);
+        args = new Object[]{(50)};
+        returns = JvmRunUtil.invoke(result, "testIntRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 2;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BInteger(200)};
-        returns = BRunUtil.invoke(result, "testIntRanges", args);
+        args = new Object[]{(200)};
+        returns = JvmRunUtil.invoke(result, "testIntRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
-        BValue[] args = {new BFloat(-123.8f)};
-        BValue[] returns = BRunUtil.invoke(result, "testFloatRanges", args);
+        Object[] args = {(-123.8f)};
+        Object returns = JvmRunUtil.invoke(result, "testFloatRanges", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 1;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BFloat(75.4f)};
-        returns = BRunUtil.invoke(result, "testFloatRanges", args);
+        args = new Object[]{(75.4f)};
+        returns = JvmRunUtil.invoke(result, "testFloatRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 2;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BFloat(321.45f)};
-        returns = BRunUtil.invoke(result, "testFloatRanges", args);
+        args = new Object[]{(321.45f)};
+        returns = JvmRunUtil.invoke(result, "testFloatRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -276,17 +271,17 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test byte greater than, less than expression")
     public void testByteComparison() {
-        BRunUtil.invoke(result, "testByteComparison");
+        JvmRunUtil.invoke(result, "testByteComparison");
     }
 
     @Test(description = "Test decimal greater than, less than expression")
     public void testDecimalComparison() {
-        BRunUtil.invoke(result, "testDecimalComparison");
+        JvmRunUtil.invoke(result, "testDecimalComparison");
     }
 
     @Test(dataProvider = "FunctionList")
     public void testValueComparsion(String funcName) {
-        BRunUtil.invoke(result, funcName);
+        JvmRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "FunctionList")

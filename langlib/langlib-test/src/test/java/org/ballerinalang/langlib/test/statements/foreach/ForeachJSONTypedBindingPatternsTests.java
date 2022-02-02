@@ -41,51 +41,45 @@ public class ForeachJSONTypedBindingPatternsTests {
 
     @Test
     public void testJsonWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testJsonWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:\"bob\" 1:10 2:true " +
+        Object returns = JvmRunUtil.invoke(program, "testJsonWithoutType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true " +
                 "3:[{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
     public void testJsonWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testJsonWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:\"bob\" 1:10 2:true " +
+        Object returns = JvmRunUtil.invoke(program, "testJsonWithType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true " +
                 "3:[{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
     public void testDirectAccessJsonArrayWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testDirectAccessJsonArrayWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = JvmRunUtil.invoke(program, "testDirectAccessJsonArrayWithoutType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testDirectAccessJsonArrayWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testDirectAccessJsonArrayWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = JvmRunUtil.invoke(program, "testDirectAccessJsonArrayWithType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testJsonArrayWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testJsonArrayWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = JvmRunUtil.invoke(program, "testJsonArrayWithoutType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testJsonArrayWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testJsonArrayWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = JvmRunUtil.invoke(program, "testJsonArrayWithType");
+        Assert.assertEquals(returns.toString(), "0:{\"subject\":\"maths\", \"marks\":75} " +
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
@@ -112,24 +106,21 @@ public class ForeachJSONTypedBindingPatternsTests {
 
     @Test
     public void testIteratingCompleteJsonWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIteratingCompleteJsonWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = JvmRunUtil.invoke(program, "testIteratingCompleteJsonWithoutType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
                 "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testIteratingCompleteJsonWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testIteratingCompleteJsonWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+        Object returns = JvmRunUtil.invoke(program, "testIteratingCompleteJsonWithType");
+        Assert.assertEquals(returns.toString(), "0:\"bob\" 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
                 "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testEmptyJsonIteration() {
-        Object[] returns = JvmRunUtil.invoke(program, "testEmptyJsonIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "");
+        Object returns = JvmRunUtil.invoke(program, "testEmptyJsonIteration");
+        Assert.assertEquals(returns.toString(), "");
     }
 }

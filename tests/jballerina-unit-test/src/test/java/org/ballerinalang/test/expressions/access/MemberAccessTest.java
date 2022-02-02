@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -130,8 +128,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "listMemberAccessFunctions")
     public void testListMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "listMemberAccessFunctions")
@@ -156,62 +154,62 @@ public class MemberAccessTest {
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 4, size: 3\"\\}.*")
     public void testOpenArrayMemberAccessByLiteralIndexOutOfRange() {
-        BRunUtil.invoke(result, "testOpenArrayMemberAccessByLiteralIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testOpenArrayMemberAccessByLiteralIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 6, size: 2\"\\}.*")
     public void testOpenArrayMemberAccessByConstIndexOutOfRange() {
-        BRunUtil.invoke(result, "testOpenArrayMemberAccessByConstIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testOpenArrayMemberAccessByConstIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 5, size: 2\"\\}.*")
     public void testOpenArrayMemberAccessByVariableIndexOutOfRange() {
-        BRunUtil.invoke(result, "testOpenArrayMemberAccessByVariableIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testOpenArrayMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 9, size: 2\"\\}.*")
     public void testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
-        BRunUtil.invoke(result, "testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 5, size: 2\"\\}.*")
     public void testClosedArrayMemberAccessByVariableIndexOutOfRange() {
-        BRunUtil.invoke(result, "testClosedArrayMemberAccessByVariableIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testClosedArrayMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 9, size: 4\"\\}.*")
     public void testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
-        BRunUtil.invoke(result, "testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"tuple " +
                     "index out of range: index: 3, size: 2\"\\}.*")
     public void testTupleMemberAccessByVariableIndexOutOfRange() {
-        BRunUtil.invoke(result, "testTupleMemberAccessByVariableIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testTupleMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"tuple " +
                     "index out of range: index: 9, size: 3\"\\}.*")
     public void testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange() {
-        BRunUtil.invoke(result, "testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange");
+        JvmRunUtil.invoke(result, "testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(dataProvider = "recordMemberAccessFunctions")
     public void testRecordMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "recordMemberAccessFunctions")
@@ -230,8 +228,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "mapMemberAccessFunctions")
     public void testMapMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mapMemberAccessFunctions")
@@ -246,8 +244,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "optionalMappingMemberAccessFunctions")
     public void testOptionalMappingMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "optionalMappingMemberAccessFunctions")
@@ -266,7 +264,7 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "optionalMappingMemberAccessFunctions2")
     public void testOptionalMappingMemberAccess2(String function) {
-        BRunUtil.invoke(result, function);
+        JvmRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "optionalMappingMemberAccessFunctions2")
@@ -281,8 +279,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "mappingUnionMemberAccessFunctions")
     public void testMappingUnionMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mappingUnionMemberAccessFunctions")
@@ -295,8 +293,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "stringMemberAccessFunctions")
     public void testStringMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "stringMemberAccessFunctions")
@@ -313,66 +311,66 @@ public class MemberAccessTest {
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: -1, size: 5\"\\}.*")
     public void testOutOfRangeStringMemberAccess1() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess1");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, "testOutOfRangeStringMemberAccess1");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 11, size: 11\"\\}.*")
     public void testOutOfRangeStringMemberAccess2() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, "testOutOfRangeStringMemberAccess2");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 25, size: 12\"\\}.*")
     public void testOutOfRangeStringMemberAccess3() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 4, size: 3\"\\}.*")
     public void testOutOfRangeFiniteTypeStringMemberAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testMemberAccessInUnionType() {
-        BRunUtil.invoke(result, "testMemberAccessInUnionType");
+        JvmRunUtil.invoke(result, "testMemberAccessInUnionType");
     }
 
     @Test
     public void testMemberAccessOnStructuralConstructs() {
-        BRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
+        JvmRunUtil.invoke(result, "testMemberAccessOnStructuralConstructs");
     }
 
     @Test
     public void testMemberAccessOnStrings() {
-        BRunUtil.invoke(result, "testMemberAccessOnStrings");
+        JvmRunUtil.invoke(result, "testMemberAccessOnStrings");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 5, size: 3\"\\}.*")
     public void testInvalidMemberAccessOnStrings1() {
-        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings1");
+        JvmRunUtil.invoke(result, "testInvalidMemberAccessOnStrings1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 3, size: 1\"\\}.*")
     public void testInvalidMemberAccessOnStrings2() {
-        BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
+        JvmRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
     }
 
     @Test(dataProvider = "memberAccessWithBinaryExprAsIndex")
     public void testMemberAccessWithBinaryExprAsIndex(String functionName) {
-        BRunUtil.invoke(result, functionName);
+        JvmRunUtil.invoke(result, functionName);
     }
 
     @DataProvider(name = "memberAccessWithBinaryExprAsIndex")
@@ -389,11 +387,11 @@ public class MemberAccessTest {
 
     @Test
     public void testMemberAccessInInferTypeCtxWithTypeRef() {
-        BRunUtil.invoke(result, "testMemberAccessInInferTypeCtxWithTypeRef");
+        JvmRunUtil.invoke(result, "testMemberAccessInInferTypeCtxWithTypeRef");
     }
     
     @Test
     public void testNestedMemberAccessOnIntersectionTypes() {
-        BRunUtil.invoke(result, "testNestedMemberAccessOnIntersectionTypes");
+        JvmRunUtil.invoke(result, "testNestedMemberAccessOnIntersectionTypes");
     }
 }

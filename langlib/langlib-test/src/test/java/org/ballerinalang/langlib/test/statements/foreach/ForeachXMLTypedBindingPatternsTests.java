@@ -53,36 +53,31 @@ public class ForeachXMLTypedBindingPatternsTests {
 
     @Test
     public void testXmlWithRootWithSimpleVariableWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), expectedXml1);
+        Object returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithoutType");
+        Assert.assertEquals(returns.toString(), expectedXml1);
     }
 
     @Test
     public void testXmlWithRootWithSimpleVariableWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), expectedXml1);
+        Object returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithType");
+        Assert.assertEquals(returns.toString(), expectedXml1);
     }
 
     @Test
     public void testXmlInnerElementsWithSimpleVariableWithoutType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), expectedXml2);
+        Object returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithoutType");
+        Assert.assertEquals(returns.toString(), expectedXml2);
     }
 
     @Test
     public void testXmlInnerElementsWithSimpleVariableWithType() {
-        Object[] returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), expectedXml2);
+        Object returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithType");
+        Assert.assertEquals(returns.toString(), expectedXml2);
     }
 
     @Test
     public void testEmptyXmlIteration() {
-        Object[] returns = JvmRunUtil.invoke(program, "testEmptyXmlIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), "");
+        Object returns = JvmRunUtil.invoke(program, "testEmptyXmlIteration");
+        Assert.assertEquals(returns.toString(), "");
     }
 }

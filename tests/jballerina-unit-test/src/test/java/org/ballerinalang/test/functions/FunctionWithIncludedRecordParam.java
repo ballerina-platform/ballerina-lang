@@ -19,8 +19,8 @@ package org.ballerinalang.test.functions;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -85,117 +85,117 @@ public class FunctionWithIncludedRecordParam {
 
     @Test
     public void testFuctionWithIncludedRecordParameters() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters2() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters2");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters2");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters3() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters3");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters3");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters4() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters4");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters4");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters5() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters5");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters5");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters6() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters6");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters6");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters7() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters7");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters7");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters8() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters8");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters8");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters9() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters9");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters9");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters10() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters10");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters10");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters11() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters11");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters11");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters12() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters12");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters12");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters13() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters13");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters13");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters14() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters14");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters14");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters15() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters15");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters15");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters16() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters16");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters16");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters17() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters17");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters17");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters18() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters18");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters18");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters19() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters19");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters19");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters20() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters20");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters20");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters21() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters21");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters21");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters22() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters22");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters22");
     }
 
     @Test
     public void testFuctionWithIncludedRecordParameters23() {
-        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters23");
+        JvmRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters23");
     }
 
     @AfterClass

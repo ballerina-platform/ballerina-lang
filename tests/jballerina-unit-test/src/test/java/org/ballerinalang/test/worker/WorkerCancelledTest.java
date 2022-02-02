@@ -17,8 +17,8 @@
 package org.ballerinalang.test.worker;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class WorkerCancelledTest {
         try {
             ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
             System.setOut(new PrintStream(tempOutStream));
-            BRunUtil.invoke(result, "workerCancelledBeforeSend");
+            JvmRunUtil.invoke(result, "workerCancelledBeforeSend");
             String msg = new String(tempOutStream.toByteArray());
             Assert.assertTrue(msg.contains("{ballerina/lang.future}FutureAlreadyCancelled"));
         } catch (RuntimeException e) {

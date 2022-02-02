@@ -18,8 +18,8 @@
 package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,7 +41,7 @@ public class UnionTypeWithNullLiteralBalaTest {
     public void unionTypeWithNullLiteralValueAssignment() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/bala/test_bala/types/union_type_with_null_literal_test.bal");
-        BRunUtil.invoke(result, "testPositiveAssignment");
+        JvmRunUtil.invoke(result, "testPositiveAssignment");
     }
 
     @Test

@@ -18,11 +18,10 @@
 
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueType;
+import io.ballerina.runtime.api.types.ObjectType;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -60,7 +59,7 @@ public class FunctionNilReturnTest {
     public void testPrint1() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testPrint1", new BValueType[0]);
+            JvmRunUtil.invoke(compileResult, "testPrint1", new ObjectType[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
         } finally {
             System.setOut(original);
@@ -71,7 +70,7 @@ public class FunctionNilReturnTest {
     public void testPrint2() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testPrint2", new BValueType[0]);
+            JvmRunUtil.invoke(compileResult, "testPrint2", new ObjectType[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
         } finally {
             System.setOut(original);
@@ -82,7 +81,7 @@ public class FunctionNilReturnTest {
     public void testPrint3() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testPrint3", new BValueType[0]);
+            JvmRunUtil.invoke(compileResult, "testPrint3", new ObjectType[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
         } finally {
             System.setOut(original);
@@ -93,7 +92,7 @@ public class FunctionNilReturnTest {
     public void testPrint4() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testPrint4", new BValueType[0]);
+            JvmRunUtil.invoke(compileResult, "testPrint4", new ObjectType[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
         } finally {
             System.setOut(original);
@@ -104,7 +103,7 @@ public class FunctionNilReturnTest {
     public void testPrintInMatchBlock() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testPrintInMatchBlock", new BValueType[0]);
+            JvmRunUtil.invoke(compileResult, "testPrintInMatchBlock", new ObjectType[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
         } finally {
             System.setOut(original);
@@ -115,7 +114,7 @@ public class FunctionNilReturnTest {
     public void testPrintInWorkers() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testPrintInWorkers", new BValueType[0]);
+            JvmRunUtil.invoke(compileResult, "testPrintInWorkers", new ObjectType[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
         } finally {
             System.setOut(original);
@@ -126,7 +125,7 @@ public class FunctionNilReturnTest {
     public void testNoReturnFuncInvocnInNilReturnFuncRetStmt() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testNoReturnFuncInvocnInNilReturnFuncRetStmt", new BValue[0]);
+            JvmRunUtil.invoke(compileResult, "testNoReturnFuncInvocnInNilReturnFuncRetStmt", new Object[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), "nil returns here\nno returns here\n\n");
         } finally {
             System.setOut(original);
@@ -137,7 +136,7 @@ public class FunctionNilReturnTest {
     public void testNilReturnFuncInvocnInNilReturnFuncRetStmt() throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
-            BRunUtil.invoke(compileResult, "testNilReturnFuncInvocnInNilReturnFuncRetStmt", new BValue[0]);
+            JvmRunUtil.invoke(compileResult, "testNilReturnFuncInvocnInNilReturnFuncRetStmt", new Object[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), "nil returns here\nexplicit nil returns" +
                     " here\n\n");
         } finally {
@@ -147,69 +146,69 @@ public class FunctionNilReturnTest {
 
     @Test
     public void testReturnsDuringValidCheck() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReturnsDuringValidCheck");
-        Assert.assertNull(returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testReturnsDuringValidCheck");
+        Assert.assertNull(returns);
     }
 
     @Test
     public void testMissingReturnInIfElse() {
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testMissingReturnInIfElse")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testMissingReturnInIfElse"));
     }
 
     @Test
     public void testMissingReturnInNestedIfElse() {
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testMissingReturnInNestedIfElse")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testMissingReturnInNestedIfElse"));
     }
 
     @Test
     public void testReturningInMatch() {
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testReturningInMatch")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testReturningInMatch"));
     }
 
     @Test
     public void testValidCheckWithExplicitReturn() {
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testValidCheckWithExplicitReturn")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testValidCheckWithExplicitReturn"));
     }
 
     @Test
     public void testEmptyFunctionsWithNilableReturns() {
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableInt")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableFloat")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableDecimal")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableString")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableBoolean")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableByte")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableJSON")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableXML")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableMap")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableInt"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableFloat"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableDecimal"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableString"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableBoolean"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableByte"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableJSON"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableXML"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableMap"));
 
         // Arrays
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableIntArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableFloatArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableDecimalArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableStringArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableBooleanArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableByteArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableJSONArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableXMLArray")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableIntArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableFloatArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableDecimalArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableStringArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableBooleanArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableByteArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableJSONArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableXMLArray"));
     }
 
     @Test
     public void testEmptyFunctionsWithComplexNilableReturns() {
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableOpenRecord")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableClosedRecord")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableObject")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnion")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTuple")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedesc")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableOpenRecord"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableClosedRecord"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableObject"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableUnion"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableTuple"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableTypedesc"));
 
         // Arrays
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableOpenRecordArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableClosedRecordArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableObjectArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnionArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTupleArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedescArray")[0]);
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableOpenRecordArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableClosedRecordArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableObjectArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableUnionArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableTupleArray"));
+        Assert.assertNull(JvmRunUtil.invoke(compileResult, "testNilableTypedescArray"));
     }
 
     @Test

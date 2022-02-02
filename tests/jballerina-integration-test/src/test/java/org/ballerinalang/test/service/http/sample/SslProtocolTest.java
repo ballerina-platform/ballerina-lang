@@ -53,9 +53,8 @@ public class SslProtocolTest extends BaseTest {
         runtimeParams.put("truststore", trustStore);
         CompileResult result = BCompileUtil.compile(balFile);
 
-        Object[] responses = JvmRunUtil.invoke(result, "testSslProtocol", new Object[] {});
-        Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BString);
-        Assert.assertTrue(responses[0].toString().contains(clientLog));
+        Object responses = JvmRunUtil.invoke(result, "testSslProtocol", new Object[] {});
+        Assert.assertTrue(responses instanceof BString);
+        Assert.assertTrue(responses.toString().contains(clientLog));
     }
 }

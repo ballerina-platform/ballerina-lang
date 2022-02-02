@@ -19,8 +19,8 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,47 +41,47 @@ public class ErrorQueryTest {
 
     @Test
     public void queryAnErrorStream() {
-        BRunUtil.invoke(result, "queryAnErrorStream");
+        JvmRunUtil.invoke(result, "queryAnErrorStream");
     }
 
     @Test
     public void queryWithoutErrors() {
-        BRunUtil.invoke(result, "queryWithoutErrors");
+        JvmRunUtil.invoke(result, "queryWithoutErrors");
     }
 
     @Test
     public void queryWithAnError() {
-        BRunUtil.invoke(result, "queryWithAnError");
+        JvmRunUtil.invoke(result, "queryWithAnError");
     }
 
     @Test
     public void queryWithACheckFail() {
-        BRunUtil.invoke(result, "queryWithACheckFailEncl");
+        JvmRunUtil.invoke(result, "queryWithACheckFailEncl");
     }
 
     @Test
     public void queryWithAPanic() {
-        BRunUtil.invoke(result, "queryWithAPanicEncl");
+        JvmRunUtil.invoke(result, "queryWithAPanicEncl");
     }
 
     @Test
     public void streamFromQueryWithoutErrors() {
-        BRunUtil.invoke(result, "streamFromQueryWithoutErrors");
+        JvmRunUtil.invoke(result, "streamFromQueryWithoutErrors");
     }
 
     @Test
     public void streamFromQueryWithAnError() {
-        BRunUtil.invoke(result, "streamFromQueryWithAnError");
+        JvmRunUtil.invoke(result, "streamFromQueryWithAnError");
     }
 
     @Test
     public void streamFromQueryWithACheckFail() {
-        BRunUtil.invoke(result, "streamFromQueryWithACheckFail");
+        JvmRunUtil.invoke(result, "streamFromQueryWithACheckFail");
     }
 
     @Test
     public void streamFromQueryWithAPanic() {
-        BRunUtil.invoke(result, "streamFromQueryWithAPanicEncl");
+        JvmRunUtil.invoke(result, "streamFromQueryWithAPanicEncl");
     }
 
     @AfterClass

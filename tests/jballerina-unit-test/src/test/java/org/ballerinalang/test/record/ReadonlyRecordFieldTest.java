@@ -19,8 +19,8 @@
 package org.ballerinalang.test.record;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -37,7 +37,7 @@ public class ReadonlyRecordFieldTest {
     @Test(dataProvider = "readonlyRecordFieldTestFunctions")
     public void testReadonlyRecordFields(String testFunction) {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields.bal");
-        BRunUtil.invoke(result, testFunction);
+        JvmRunUtil.invoke(result, testFunction);
     }
 
     @DataProvider(name = "readonlyRecordFieldTestFunctions")
@@ -83,7 +83,7 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'Person', found 'Undergraduate'", 142, 17);
         validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 150, 17);
         validateError(result, index++, "incompatible types: expected 'OptionalId', found 'map<(map<int>|boolean)>'",
-                      159, 23);
+                159, 23);
         validateError(result, index++, "cannot update 'readonly' record field 'code' in 'Quux'", 169, 5);
         validateError(result, index++, "incompatible types: expected 'record {| readonly int i; string s; readonly " +
                 "boolean b; |}', found 'record {| int i; string s; boolean b; |}'", 183, 12);
@@ -112,7 +112,7 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'readonly', found 'record {| readonly int x; int" +
                 "...; |}'", 249, 20);
         validateError(result, index++, "incompatible types: expected 'readonly', found '(Unauthorized|Forbidden)?'",
-                      269, 19);
+                269, 19);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'Unauthorized?'", 272, 19);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'Unauthorized?'", 273, 18);
         validateError(result, index++, "missing non-defaultable required record field 'y'", 285, 42);

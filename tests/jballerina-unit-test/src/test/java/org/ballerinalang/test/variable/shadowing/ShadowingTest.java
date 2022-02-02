@@ -18,12 +18,11 @@
 
 package org.ballerinalang.test.variable.shadowing;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,105 +45,105 @@ public class ShadowingTest {
 
     @Test
     public void testLocalVarScope() {
-        BValue[] returns = BRunUtil.invoke(result, "testLocalVarScope");
-        assertEquals(returns[0].stringValue(), "John Doe");
+        Object returns = JvmRunUtil.invoke(result, "testLocalVarScope");
+        assertEquals(returns.toString(), "John Doe");
     }
 
     @Test
     public void testObjMethodScope() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjMethodScope");
-        assertEquals(returns[0].stringValue(), "Name in object");
+        Object returns = JvmRunUtil.invoke(result, "testObjMethodScope");
+        assertEquals(returns.toString(), "Name in object");
     }
 
     @Test
     public void testRecordScope() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordScope");
-        assertEquals(returns[0].stringValue(), "{name:\"Person\", age:20}");
+        Object returns = JvmRunUtil.invoke(result, "testRecordScope");
+        assertEquals(returns.toString(), "{\"name\":\"Person\",\"age\":20}");
     }
 
     @Test
     public void testBlockScope1() {
-        BValue[] returns = BRunUtil.invoke(result, "testBlockScope1");
-        assertEquals(returns[0].stringValue(), "Inside first if block");
-        assertEquals(returns[1].stringValue(), "Inside second if block");
+        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBlockScope1");
+        assertEquals(returns.get(0).toString(), "Inside first if block");
+        assertEquals(returns.get(1).toString(), "Inside second if block");
     }
 
     @Test
     public void testBlockScope2() {
-        BValue[] returns = BRunUtil.invoke(result, "testBlockScope2");
-        assertEquals(returns[0].stringValue(), "Inside else block");
+        Object returns = JvmRunUtil.invoke(result, "testBlockScope2");
+        assertEquals(returns.toString(), "Inside else block");
     }
 
     @Test
     public void testLambdaFunctions() {
-        BValue[] returns = BRunUtil.invoke(result, "testLambdaFunctions");
-        assertEquals(returns[0].stringValue(), "Inside a lambda function");
+        Object returns = JvmRunUtil.invoke(result, "testLambdaFunctions");
+        assertEquals(returns.toString(), "Inside a lambda function");
     }
 
     @Test
     public void testFunctionParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionParam",
-                                           new BValue[]{new BString("This is a function param")});
-        assertEquals(returns[0].stringValue(), "This is a function param");
+        Object returns = JvmRunUtil.invoke(result, "testFunctionParam",
+                                           new Object[]{StringUtils.fromString("This is a function param")});
+        assertEquals(returns.toString(), "This is a function param");
     }
 
     @Test
     public void testNestedBlocks() {
-        BValue[] returns = BRunUtil.invoke(result, "testNestedBlocks");
-        assertEquals(returns[0].stringValue(), "var after nested if-else");
+        Object returns = JvmRunUtil.invoke(result, "testNestedBlocks");
+        assertEquals(returns.toString(), "var after nested if-else");
     }
 
     @Test
     public void testNamespaces1() {
-        BValue[] returns = BRunUtil.invoke(result, "testNamespaces1");
-        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
+        Object returns = JvmRunUtil.invoke(result, "testNamespaces1");
+        assertEquals(returns.toString(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
                 "World!</ns:greeting>");
     }
 
     @Test
     public void testNamespaces2() {
-        BValue[] returns = BRunUtil.invoke(result, "testNamespaces2", new BValue[]{new BBoolean(true)});
-        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
+        Object returns = JvmRunUtil.invoke(result, "testNamespaces2", new Object[]{(true)});
+        assertEquals(returns.toString(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
                 "World!</ns:greeting>");
 
-        returns = BRunUtil.invoke(result, "testNamespaces2", new BValue[]{new BBoolean(false)});
-        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a3\">Hello " +
+        returns = JvmRunUtil.invoke(result, "testNamespaces2", new Object[]{(false)});
+        assertEquals(returns.toString(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a3\">Hello " +
                 "World!</ns:greeting>");
     }
 
     @Test(description = "Shadow the type name in side function.")
     public void testTypeNameAsVariable1() {
-        BRunUtil.invoke(result, "testTypeNameAsVariable1");
+        JvmRunUtil.invoke(result, "testTypeNameAsVariable1");
     }
 
     @Test(description = "Shadow the type name in side function.")
     public void testTypeNameAsVariable2() {
-        BRunUtil.invoke(result, "testTypeNameAsVariable2");
+        JvmRunUtil.invoke(result, "testTypeNameAsVariable2");
     }
 
     @Test(description = "Shadow the type name in side function.")
     public void testTypeNameAsVariable3() {
-        BRunUtil.invoke(result, "testTypeNameAsVariable3");
+        JvmRunUtil.invoke(result, "testTypeNameAsVariable3");
     }
 
     @Test(description = "Shadow the type name in side function.")
     public void testTypeNameAsVariable4() {
-        BRunUtil.invoke(result, "testTypeNameAsVariable4");
+        JvmRunUtil.invoke(result, "testTypeNameAsVariable4");
     }
 
     @Test(description = "Shadow the type name in side function.")
     public void testTypeNameAsVariable5() {
-        BRunUtil.invoke(result, "testTypeNameAsVariable5");
+        JvmRunUtil.invoke(result, "testTypeNameAsVariable5");
     }
 
     @Test(description = "test shadowing with ballerina generated names")
     public void testGeneratedNames() {
-        BRunUtil.invoke(result, "testGeneratedNames");
+        JvmRunUtil.invoke(result, "testGeneratedNames");
     }
 
     @Test(description = "test shadowing module level types with local variables")
     public void testBuiltInTypeShadowing() {
-        BRunUtil.invoke(result, "testBuiltInTypeShadowing");
+        JvmRunUtil.invoke(result, "testBuiltInTypeShadowing");
     }
 
     @AfterClass

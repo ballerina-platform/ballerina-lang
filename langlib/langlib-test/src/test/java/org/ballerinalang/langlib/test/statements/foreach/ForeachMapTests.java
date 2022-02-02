@@ -50,26 +50,23 @@ public class ForeachMapTests {
     public void testMapWithArityOne() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(value).append(" "));
-        Object[] returns = JvmRunUtil.invoke(program, "testMapWithArityOne");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), sb.toString());
+        Object returns = JvmRunUtil.invoke(program, "testMapWithArityOne");
+        Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testMapWithArityTwo() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(value).append(" "));
-        Object[] returns = JvmRunUtil.invoke(program, "testMapWithArityTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), sb.toString());
+        Object returns = JvmRunUtil.invoke(program, "testMapWithArityTwo");
+        Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testDeleteWhileIteration() {
         String result = "1A 2B ";
-        Object[] returns = JvmRunUtil.invoke(program, "testDeleteWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testDeleteWhileIteration");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
@@ -77,9 +74,8 @@ public class ForeachMapTests {
         String result = "1A 1A 2B 3C 1A1A \n" +
                         "2B 1A 2B 3C 1A1A 2B2B \n" +
                         "3C 1A 2B 3C 1A1A 2B2B 3C3C \n";
-        Object[] returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].toString(), result);
+        Object returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
+        Assert.assertEquals(returns.toString(), result);
     }
 
     @Test

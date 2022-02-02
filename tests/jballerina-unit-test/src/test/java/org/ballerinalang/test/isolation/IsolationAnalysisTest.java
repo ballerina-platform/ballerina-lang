@@ -19,8 +19,8 @@ package org.ballerinalang.test.isolation;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -67,7 +67,7 @@ public class IsolationAnalysisTest {
 
     @Test(dataProvider = "isolatedFunctionTests")
     public void testIsolatedFunctions(String function) {
-        BRunUtil.invoke(result, function);
+        JvmRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "isolatedFunctionTests")

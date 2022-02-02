@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,71 +41,71 @@ public class WaitForOneActionsTest {
 
     @Test
     public void waitTest1() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest1", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "7");
+        Object vals = JvmRunUtil.invoke(result, "waitTest1", new Object[0]);
+        
+        Assert.assertEquals(vals.toString(), "7");
     }
 
     @Test
     public void waitTest2() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest2", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "true");
+        Object vals = JvmRunUtil.invoke(result, "waitTest2", new Object[0]);
+        
+        Assert.assertEquals(vals.toString(), "true");
     }
 
     @Test
     public void waitTest3() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest3", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "hello foo");
+        Object vals = JvmRunUtil.invoke(result, "waitTest3", new Object[0]);
+        
+        Assert.assertEquals(vals.toString(), "hello foo");
     }
 
     @Test
     public void waitTest4() { // Need to check
-        BValue[] vals = BRunUtil.invoke(result, "waitTest4", new BValue[0]);
-        Assert.assertEquals(vals.length, 3);
-        Assert.assertEquals(vals[0].stringValue(), "22");
-        Assert.assertEquals(vals[1].stringValue(), "hello bar");
-        Assert.assertEquals(vals[2].stringValue(), "hello xyz");
+        BArray vals = (BArray) JvmRunUtil.invoke(result, "waitTest4", new Object[0]);
+        Assert.assertEquals(vals.size(), 3);
+        Assert.assertEquals(vals.get(0).toString(), "22");
+        Assert.assertEquals(vals.get(1).toString(), "hello bar");
+        Assert.assertEquals(vals.get(2).toString(), "hello xyz");
     }
 
     @Test
     public void waitTest5() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest5", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "{\"fname\":\"foo\", \"lname\":\"bar\"}");
+        Object vals = JvmRunUtil.invoke(result, "waitTest5", new Object[0]);
+        
+        Assert.assertEquals(vals.toString(), "{\"fname\":\"foo\",\"lname\":\"bar\"}");
     }
 
     @Test
     public void waitTest6() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest6", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "99");
+        Object vals = JvmRunUtil.invoke(result, "waitTest6", new Object[0]);
+        
+        Assert.assertEquals(vals.toString(), "99");
     }
 
     @Test
     public void waitTest7() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest7", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(vals[0].stringValue(), "66");
+        Object vals = JvmRunUtil.invoke(result, "waitTest7", new Object[0]);
+        
+        Assert.assertEquals(vals.toString(), "66");
     }
 
     @Test (expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest8() {
-        BRunUtil.invoke(result, "waitTest8");
+        JvmRunUtil.invoke(result, "waitTest8");
     }
 
     @Test
     public void waitTest9() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest9", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertNull(vals[0]);
+        Object vals = JvmRunUtil.invoke(result, "waitTest9", new Object[0]);
+        
+        Assert.assertNull(vals);
     }
 
     @Test
     public void asyncObjectCreationTest() {
-        BRunUtil.invoke(result, "asyncObjectCreationTest", new BValue[0]);
+        JvmRunUtil.invoke(result, "asyncObjectCreationTest", new Object[0]);
     }
 
     @AfterClass

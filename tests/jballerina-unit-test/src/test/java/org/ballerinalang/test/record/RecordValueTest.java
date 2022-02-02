@@ -21,8 +21,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class RecordValueTest {
 
     @Test
     public void testRecordOperations_1() {
-        Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
+        Object result = JvmRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);
         MapValue<BString, Object> person = (MapValue<BString, Object>) result;
 
@@ -107,7 +107,7 @@ public class RecordValueTest {
 
     @Test
     public void testRecordOperations_2() {
-        Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getNewPerson");
+        Object result = JvmRunUtil.invokeAndGetJVMResult(compileResult, "getNewPerson");
         Assert.assertTrue(result instanceof MapValue);
         MapValue<BString, Object> person = (MapValue<BString, Object>) result;
 
@@ -156,15 +156,15 @@ public class RecordValueTest {
 
     @Test(expectedExceptions = {UnsupportedOperationException.class})
     public void testRecordRemove() {
-        Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
+        Object result = JvmRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);
         MapValue<BString, Object> person = (MapValue<BString, Object>) result;
         person.remove(StringUtils.fromString("name"));
     }
 
-    @Test(expectedExceptions = { UnsupportedOperationException.class })
+    @Test(expectedExceptions = {UnsupportedOperationException.class})
     public void testRecordClear() {
-        Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
+        Object result = JvmRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);
         MapValue<String, Object> person = (MapValue<String, Object>) result;
         person.clear();

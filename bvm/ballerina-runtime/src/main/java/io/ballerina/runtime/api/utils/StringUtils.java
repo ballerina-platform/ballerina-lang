@@ -148,6 +148,14 @@ public class StringUtils {
         return new ArrayValueImpl(bStringArray, false);
     }
 
+    public static BString[] getBStringArray(String[] s) {
+        BString[] bStringArray = new BString[s.length];
+        for (int i = 0; i < s.length; i++) {
+            bStringArray[i] = StringUtils.fromString(s[i]);
+        }
+        return bStringArray;
+    }
+
     public static BArray fromStringSet(Set<String> set) {
         BString[] bStringArray = new BString[set.size()];
         int i = 0;

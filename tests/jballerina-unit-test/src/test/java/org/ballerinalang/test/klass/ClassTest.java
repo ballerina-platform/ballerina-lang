@@ -19,8 +19,8 @@ package org.ballerinalang.test.klass;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,32 +43,32 @@ public class ClassTest {
 
     @Test
     public void testBasicStructAsObject() {
-        BRunUtil.invoke(compileResult, "testSimpleObjectAsStruct");
+        JvmRunUtil.invoke(compileResult, "testSimpleObjectAsStruct");
     }
 
     @Test
     public void testBasicStructAsObjectObjectInitExprWithoutName() {
-        BRunUtil.invoke(compileResult, "testSimpleObjectAsStructWithNew");
+        JvmRunUtil.invoke(compileResult, "testSimpleObjectAsStructWithNew");
     }
 
     @Test
     public void testUsingClassValueAsRecordField() {
-        BRunUtil.invoke(compileResult, "testUsingClassValueAsRecordField");
+        JvmRunUtil.invoke(compileResult, "testUsingClassValueAsRecordField");
     }
 
     @Test
     public void testTypeRef() {
-        BRunUtil.invoke(compileResult, "testTypeRefInClass");
+        JvmRunUtil.invoke(compileResult, "testTypeRefInClass");
     }
 
     @Test
     public void testSimpleDistinctClass() {
-        BRunUtil.invoke(distinctCompUnit, "testDistinctAssignability");
+        JvmRunUtil.invoke(distinctCompUnit, "testDistinctAssignability");
     }
 
     @Test
     public void testRuntimeIsTypeCheckWithDistinctObjectTypes() {
-        BRunUtil.invoke(distinctCompUnit, "testDistinctTypeIsType");
+        JvmRunUtil.invoke(distinctCompUnit, "testDistinctTypeIsType");
     }
 
     @Test(description = "Class definition negative")

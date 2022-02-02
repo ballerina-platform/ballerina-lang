@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.test.expressions.varref;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,38 +41,38 @@ public class ArrayDestructureTest {
 
     @Test
     public void testSimpleArrayDestructureBinding() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPattern");
+        Object result = JvmRunUtil.invoke(compileResult, "testSimpleListBindingPattern");
     }
 
     @Test
     public void testSimpleArrayDestructureWithUndefinedSize() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPatternWithUndefinedSize");
+        Object result = JvmRunUtil.invoke(compileResult, "testSimpleListBindingPatternWithUndefinedSize");
     }
 
     @Test
     public void testReferenceArrayDestructure() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPattern");
+        Object result = JvmRunUtil.invoke(compileResult, "testReferenceListBindingPattern");
     }
 
     @Test
     public void testReferenceArrayDestructureWithUndefinedSize() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithUndefinedSize");
+        Object result = JvmRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithUndefinedSize");
     }
 
     @Test
     public void testReferenceArrayDestructureWithRecordDestructure() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithRecordDestructure");
+        Object result = JvmRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithRecordDestructure");
     }
 
     @Test
     public void testReferenceArrayDestructureWithUndefinedSizeAndDifferentType() {
-        BValue[] result = BRunUtil.invoke(compileResult
+        Object result = JvmRunUtil.invoke(compileResult
                 , "testReferenceListBindingPatternForUndefinedSizeWithDifferentType");
     }
 
     @Test
     public void testReferenceListBindingPatternWithTuples() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithTuples");
+        Object result = JvmRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithTuples");
     }
 
     @Test

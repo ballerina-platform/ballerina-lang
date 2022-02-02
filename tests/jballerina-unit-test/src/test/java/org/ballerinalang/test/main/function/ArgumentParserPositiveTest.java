@@ -19,8 +19,8 @@
 package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
@@ -167,7 +167,7 @@ public class ArgumentParserPositiveTest {
 
     private String runMain(CompileResult compileResult, String[] args) {
         try {
-            return BRunUtil.runMain(compileResult, args);
+            return JvmRunUtil.runMain(compileResult, args);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

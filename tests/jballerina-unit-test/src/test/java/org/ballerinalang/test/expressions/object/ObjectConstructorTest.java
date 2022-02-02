@@ -18,8 +18,8 @@
 package org.ballerinalang.test.expressions.object;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -77,18 +77,18 @@ public class ObjectConstructorTest {
 
     @Test(dataProvider = "ObjectCtorTestFunctionList")
     public void testCompiledConstructedObjects(String funcName) {
-        BRunUtil.invoke(compiledConstructedObjects, funcName);
+        JvmRunUtil.invoke(compiledConstructedObjects, funcName);
     }
 
     @Test(dataProvider = "ClosureTestFunctionList")
     public void testClosureSupportForObjectCtor(String funcName) {
-        BRunUtil.invoke(closures, funcName);
+        JvmRunUtil.invoke(closures, funcName);
     }
 
     @Test
     public void testClosureSupportForObjectCtorAnnotations() {
-        BRunUtil.invoke(annotations, "testAnnotations");
-        BRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
+        JvmRunUtil.invoke(annotations, "testAnnotations");
+        JvmRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ObjectConstructorTest {
 
     @Test
     public void testObjectConstructorWithReferredIntersectionType() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithReferredIntersectionType");
+        JvmRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithReferredIntersectionType");
     }
 
     @Test
@@ -185,7 +185,7 @@ public class ObjectConstructorTest {
 
     @Test(dataProvider = "MultiLevelClosureTestFunctionList")
     public void testMultiLevelClosures(String funcName) {
-        BRunUtil.invoke(multiLevelClosures, funcName);
+        JvmRunUtil.invoke(multiLevelClosures, funcName);
     }
 
     @AfterClass

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -77,19 +77,19 @@ public class ExprBodiedFunctionTest {
 
     @Test(dataProvider = "FunctionList")
     public void testExprBodiedFunctions(String funcName) {
-        BRunUtil.invoke(compileResult, funcName);
+        JvmRunUtil.invoke(compileResult, funcName);
     }
 
     @Test
     public void testClosures() {
-        BRunUtil.invoke(compileResult, "testClosures", new Object[]{10});
+        JvmRunUtil.invoke(compileResult, "testClosures", new Object[]{10});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*NumberParsingError \\{\"message\":\"'string' value " +
                   "'invalid' cannot be converted to 'int'.*")
     public void testCheckPanic() {
-        BRunUtil.invoke(compileResult, "testCheckPanic");
+        JvmRunUtil.invoke(compileResult, "testCheckPanic");
     }
 
     @DataProvider(name = "FunctionList")

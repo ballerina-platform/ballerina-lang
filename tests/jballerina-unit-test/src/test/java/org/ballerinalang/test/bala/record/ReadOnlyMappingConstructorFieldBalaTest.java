@@ -19,8 +19,8 @@
 package org.ballerinalang.test.bala.record;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,7 +42,7 @@ public class ReadOnlyMappingConstructorFieldBalaTest {
 
     @Test
     public void testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstructor() {
-        BRunUtil.invoke(result, "testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstructor");
+        JvmRunUtil.invoke(result, "testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstructor");
     }
 
     @AfterClass

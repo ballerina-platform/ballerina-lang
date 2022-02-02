@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,10 +40,10 @@ public class ForkReturnAnyTest {
 
     @Test(description = "Test Fork Join With workers returning any type")
     public void testForkReturnAnyType() {
-        BValue[] returns = BRunUtil.invoke(result, "testForkReturnAnyType");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BString);
+        BArray returns = (BArray) JvmRunUtil.invoke(result, "testForkReturnAnyType");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof BString);
     }
 
     @AfterClass

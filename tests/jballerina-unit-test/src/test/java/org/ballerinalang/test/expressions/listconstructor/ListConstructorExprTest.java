@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.test.expressions.listconstructor;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,9 +43,8 @@ public class ListConstructorExprTest {
 
     @Test
     public void testListConstructorExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testListConstructorExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(result, "testListConstructorExpr");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -90,30 +87,30 @@ public class ListConstructorExprTest {
 
     @Test
     public void testListConstructorAutoFillExpr() {
-        BRunUtil.invoke(result, "testListConstructorAutoFillExpr");
+        JvmRunUtil.invoke(result, "testListConstructorAutoFillExpr");
     }
 
     @Test
     public void testListConstructorWithBroadACET() {
-        BRunUtil.invoke(result, "testListConstructorWithAnyACET");
-        BRunUtil.invoke(result, "testListConstructorWithAnydataACET");
-        BRunUtil.invoke(result, "testListConstructorWithJsonACET");
+        JvmRunUtil.invoke(result, "testListConstructorWithAnyACET");
+        JvmRunUtil.invoke(result, "testListConstructorWithAnydataACET");
+        JvmRunUtil.invoke(result, "testListConstructorWithJsonACET");
     }
 
     @Test
     public void testTypeWithReadOnlyInUnionCET() {
-        BRunUtil.invoke(result, "testTypeWithReadOnlyInUnionCET");
+        JvmRunUtil.invoke(result, "testTypeWithReadOnlyInUnionCET");
     }
 
     @Test
     public void testListConstructorInferType() {
-        BRunUtil.invoke(resultInferType, "inferSimpleTuple");
-        BRunUtil.invoke(resultInferType, "inferStructuredTuple");
-        BRunUtil.invoke(resultInferType, "inferNestedTuple");
-        BRunUtil.invoke(resultInferType, "testInferSameRecordsInTuple");
-        BRunUtil.invoke(resultInferType, "testInferDifferentRecordsInTuple");
-        BRunUtil.invoke(resultInferType, "testInferringForReadOnly");
-        BRunUtil.invoke(resultInferType, "testInferringForReadOnlyInUnion");
+        JvmRunUtil.invoke(resultInferType, "inferSimpleTuple");
+        JvmRunUtil.invoke(resultInferType, "inferStructuredTuple");
+        JvmRunUtil.invoke(resultInferType, "inferNestedTuple");
+        JvmRunUtil.invoke(resultInferType, "testInferSameRecordsInTuple");
+        JvmRunUtil.invoke(resultInferType, "testInferDifferentRecordsInTuple");
+        JvmRunUtil.invoke(resultInferType, "testInferringForReadOnly");
+        JvmRunUtil.invoke(resultInferType, "testInferringForReadOnlyInUnion");
     }
 
     @AfterClass

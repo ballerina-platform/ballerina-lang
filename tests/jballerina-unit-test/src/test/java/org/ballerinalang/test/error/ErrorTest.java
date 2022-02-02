@@ -17,23 +17,23 @@
  */
 package org.ballerinalang.test.error;
 
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
 /**
  * Test cases for Error.
@@ -57,12 +57,12 @@ public class ErrorTest {
 
     @Test
     public void testDistinctFooError() {
-        BRunUtil.invoke(distinctErrorTestResult, "testFooError");
+        JvmRunUtil.invoke(distinctErrorTestResult, "testFooError");
     }
 
     @Test
     public void testFunctionCallInDetailArgExpr() {
-         BRunUtil.invoke(distinctErrorTestResult, "testFunctionCallInDetailArgExpr");
+        JvmRunUtil.invoke(distinctErrorTestResult, "testFunctionCallInDetailArgExpr");
     }
 
     @Test
@@ -79,36 +79,37 @@ public class ErrorTest {
 
     @Test
     public void testIndirectErrorCtor() {
-        BValue[] errors = BRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
-        Assert.assertEquals(errors.length, 4);
-        Assert.assertEquals(errors[0].stringValue(), "arg {message:\"\", data:{}}");
-        Assert.assertEquals(errors[1].stringValue(), "arg {message:\"\", data:{}}");
-        Assert.assertEquals(errors[2], errors[0]);
-        Assert.assertEquals(errors[3], errors[1]);
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
+        BArray errors = (BArray) returns;
+        Assert.assertEquals(errors.size(), 4);
+        Assert.assertEquals(errors.get(0).toString(), "error UserDefErrorTwoA (\"arg\",message=\"\",data={})");
+        Assert.assertEquals(errors.get(1).toString(), "error UserDefErrorTwoA (\"arg\",message=\"\",data={})");
+        Assert.assertEquals(errors.get(2), errors.get(0));
+        Assert.assertEquals(errors.get(3), errors.get(1));
     }
 
     @Test
     public void errorConstructReasonTest() {
-        BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
+        JvmRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
     }
 
     @Test
     public void errorConstructDetailTest() {
-        BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
+        JvmRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
     }
 
     @Test
     public void errorPanicTest() {
         // Case without panic
-        BValue[] args = new BValue[] { new BInteger(10) };
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
-        Assert.assertEquals(returns[0].stringValue(), "done");
+        Object[] args = new Object[]{(10)};
+        Object returns = JvmRunUtil.invoke(errorTestResult, "errorPanicTest", args);
+        Assert.assertEquals(returns.toString(), "done");
 
         // Now panic
-        args = new BValue[] { new BInteger(15) };
+        args = new Object[]{(15)};
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
+            JvmRunUtil.invoke(errorTestResult, "errorPanicTest", args);
         } catch (Exception e) {
             expectedException = e;
         }
@@ -124,46 +125,45 @@ public class ErrorTest {
     @Test
     public void errorTrapTest() {
         // Case without panic
-        BValue[] args = new BValue[] { new BInteger(10) };
-        BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
+        Object[] args = new Object[]{(10)};
+        JvmRunUtil.invoke(errorTestResult, "errorTrapTest", args);
 
         // Now panic
-        args = new BValue[] { new BInteger(15) };
-        BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
+        args = new Object[]{(15)};
+        JvmRunUtil.invoke(errorTestResult, "errorTrapTest", args);
     }
 
     @Test
     public void customErrorDetailsTest() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
-        Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", data:\"test\"}");
-        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "(TrxErrorData & readonly)");
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
+        Assert.assertEquals(returns.toString(), "error TrxError (\"trxErr\",message=\"\",data=\"test\")");
+        Assert.assertEquals(getType(((BError) returns).getDetails()).getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(getType(((BError) returns).getDetails()).getName(), "(TrxErrorData & readonly)");
     }
 
     @Test
     public void testCustomErrorDetails2() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails2");
-        Assert.assertEquals(returns[0].stringValue(), "test");
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testCustomErrorDetails2");
+        Assert.assertEquals(returns.toString(), "test");
     }
 
     @Test
     public void testErrorWithErrorConstructor() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
-        Assert.assertEquals(returns[0].stringValue(), "test");
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
+        Assert.assertEquals(returns.toString(), "test");
     }
 
     @Test
     public void testConsecutiveTraps() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testConsecutiveTraps");
-        Assert.assertEquals(returns[0].stringValue(), "Error");
-        Assert.assertEquals(returns[1].stringValue(), "Error");
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testConsecutiveTraps");
+        Assert.assertEquals(returns.toString(), "[\"Error\",\"Error\"]");
     }
 
     @Test
     public void testOneLinePanic() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testOneLinePanic");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        BValueArray array = (BValueArray) returns[0];
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testOneLinePanic");
+        Assert.assertTrue(returns instanceof BArray);
+        BArray array = (BArray) returns;
         Assert.assertEquals(array.getString(0), "Error1");
         Assert.assertEquals(array.getString(1), "Error2");
         Assert.assertEquals(array.getString(2), "Something Went Wrong");
@@ -174,54 +174,55 @@ public class ErrorTest {
 
     @Test
     public void testGenericErrorWithDetailRecord() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTrapSuccessScenario() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 1L);
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
-        BRunUtil.invoke(errorTestResult, testFunction);
+        JvmRunUtil.invoke(errorTestResult, testFunction);
     }
 
     @Test(dataProvider = "constAsReasonTests")
     public void testErrorWithConstantAsReason(String testFunction) {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, testFunction);
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), CONST_ERROR_REASON);
-        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "error detail message");
+        Object returns = JvmRunUtil.invoke(errorTestResult, testFunction);
+        Assert.assertTrue(returns instanceof BError);
+        Assert.assertEquals(((BError) returns).getMessage(), CONST_ERROR_REASON);
+        Assert.assertEquals(
+                ((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message")).toString(),
+                "error detail message");
     }
 
 //    @Test
 //    public void testCustomErrorWithMappingOfSelf() {
-//        BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorWithMappingOfSelf");
-//        Assert.assertTrue(returns[0] instanceof BBoolean);
-//        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+//        Object returns = JvmRunUtil.invoke(errorTestResult, "testCustomErrorWithMappingOfSelf");
+//        Assert.assertTrue(returns instanceof Boolean);
+//        Assert.assertTrue(returns);
 //    }
 
     @Test
     public void testUnspecifiedErrorDetailFrozenness() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnspecifiedErrorDetailFrozenness");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testUnspecifiedErrorDetailFrozenness");
+        Assert.assertTrue(returns instanceof Boolean);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testLocalErrorTypeWithClosure() {
-        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
+        JvmRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
     }
 
     @Test
     public void testLocalErrorTypeWithinLambda() {
-        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
+        JvmRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
     }
 
     @Test
@@ -275,59 +276,58 @@ public class ErrorTest {
 
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
-        return new Object[][] {
-                { "testErrorConstrWithConstForUserDefinedReasonType" },
-                { "testErrorConstrWithLiteralForUserDefinedReasonType" }
+        return new Object[][]{
+                {"testErrorConstrWithConstForUserDefinedReasonType"},
+                {"testErrorConstrWithLiteralForUserDefinedReasonType"}
         };
     }
 
     @DataProvider(name = "constAsReasonTests")
     public Object[][] constAsReasonTests() {
-        return new Object[][] {
-                { "testErrorConstrWithConstForConstReason" },
-                { "testErrorConstrWithConstLiteralForConstReason" }
+        return new Object[][]{
+                {"testErrorConstrWithConstForConstReason"},
+                {"testErrorConstrWithConstLiteralForConstReason"}
         };
     }
 
     @Test()
     public void errorReasonSubtypeTest() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorReasonSubType");
-        Assert.assertEquals(((BError) returns[0]).getReason(), "ErrNo-1");
-        Assert.assertEquals(((BError) returns[1]).getReason(), "ErrorNo-2");
-        Assert.assertEquals(((BError) returns[2]).getReason(), "ErrNo-1");
-        Assert.assertEquals(((BError) returns[3]).getReason(), "ErrorNo-2");
+        Object arr = JvmRunUtil.invoke(errorTestResult, "errorReasonSubType");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(((BError) returns.get(0)).getMessage(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns.get(1)).getMessage(), "ErrorNo-2");
+        Assert.assertEquals(((BError) returns.get(2)).getMessage(), "ErrNo-1");
+        Assert.assertEquals(((BError) returns.get(3)).getMessage(), "ErrorNo-2");
     }
 
     @Test()
     public void indirectErrorCtorTest() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "indirectErrorCtor");
-        Assert.assertEquals(returns[0].stringValue(), "foo");
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertEquals(returns[2].stringValue(), "foo {code:3456}");
+        Object returns = JvmRunUtil.invoke(errorTestResult, "indirectErrorCtor");
+        Assert.assertEquals(returns.toString(), "[\"foo\",true,error FooError (\"foo\",code=3456)]");
     }
 
     @Test()
     public void testUnionLhsWithIndirectErrorRhs() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
-        Assert.assertEquals(((BError) returns[0]).getReason(), "Foo");
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
+        Assert.assertEquals(((BError) returns).getMessage(), "Foo");
     }
 
     @Test()
     public void testOptionalErrorReturn() {
-        BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
+        JvmRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
     }
 
     @Test()
     public void testIndirectErrorReturn() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
-        Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
+        Object returns = JvmRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
+        Assert.assertEquals(returns.toString(), "error E1 (\"Foo\",message=\"error msg\")");
     }
 
     @Test
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(errorTestResult, "testStackTraceInNative");
+            JvmRunUtil.invoke(errorTestResult, "testStackTraceInNative");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -341,56 +341,57 @@ public class ErrorTest {
 
     @Test
     public void testPanicOnErrorUnion() {
-        BValue[] args = new BValue[] { new BInteger(0) };
-        BValue[] result = BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
-        Assert.assertEquals(result[0].stringValue(), "str");
+        Object[] args = new Object[]{(0)};
+        Object result = JvmRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        Assert.assertEquals(result.toString(), "str");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: x.*")
     public void testPanicOnErrorUnionCustomError() {
-        BValue[] args = new BValue[] { new BInteger(1) };
-        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        Object[] args = new Object[]{(1)};
+        JvmRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: y " +
             "\\{\"code\":4\\}.*")
     public void testPanicOnErrorUnionCustomError2() {
-        BValue[] args = new BValue[] { new BInteger(2) };
-        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        Object[] args = new Object[]{(2)};
+        JvmRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 
     @Test
     public void testErrorUnionPassedToErrorParam() {
-        BValue[] result = BRunUtil.invoke(errorTestResult, "testErrorUnionPassedToErrorParam");
-        Assert.assertEquals(result[0].stringValue(), "a1");
+        Object result = JvmRunUtil.invoke(errorTestResult, "testErrorUnionPassedToErrorParam");
+        Assert.assertEquals(result.toString(), "a1");
     }
 
     @Test
     public void testStackOverFlow() {
-        BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
-        String expected1 = "{callableName:\"bar\", moduleName:(), fileName:\"error_test.bal\", lineNumber:408}";
-        String expected2 = "{callableName:\"bar2\", moduleName:(), fileName:\"error_test.bal\", lineNumber:412}";
-        String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
+        Object result = JvmRunUtil.invoke(errorTestResult, "testStackOverFlow");
+        BArray arr = (BArray) result;
+        String expected1 = "{callableName:bar, moduleName:null, fileName:error_test.bal, lineNumber:408}";
+        String expected2 = "{callableName:bar2, moduleName:null, fileName:error_test.bal, lineNumber:412}";
+        String resultStack = ((BArray) arr.get(0)).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
-        Assert.assertEquals(result[1].stringValue(), "{ballerina}StackOverflow");
+        Assert.assertEquals(arr.get(1).toString(), "{ballerina}StackOverflow");
     }
 
     @Test
     public void testErrorTrapVarReuse() {
-        BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
+        JvmRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
     }
 
     @Test
     public void testErrorBindingPattern() {
-        BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
+        JvmRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 
     @Test
     public void testStackTraceWithErrorCauseLocation() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(errorTestResult, "testStackTraceWithErrorCauseLocation");
+            JvmRunUtil.invoke(errorTestResult, "testStackTraceWithErrorCauseLocation");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -413,7 +414,7 @@ public class ErrorTest {
     public void testStacktraceWithPanicInsideInitMethod() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideInitMethod");
+            JvmRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideInitMethod");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -429,7 +430,7 @@ public class ErrorTest {
     public void testStacktraceWithPanicInsideAnonymousFunction() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideAnonymousFunction");
+            JvmRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideAnonymousFunction");
         } catch (Exception e) {
             expectedException = e;
         }

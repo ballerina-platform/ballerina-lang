@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,18 +42,17 @@ public class AsyncTest {
 
     @Test
     public void testAcceptNothing() {
-        BValue[] returns = BRunUtil.invoke(result, "asyncTest");
+        Object returns = JvmRunUtil.invoke(result, "asyncTest");
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 42);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, 42L);
     }
 
     @Test
     public void testAsyncComplete() {
         CompileResult compileResult =
                 BCompileUtil.compileWithoutInitInvocation("test-src/javainterop/basic/async_test.bal");
-        BRunUtil.ExitDetails output = BRunUtil.run(compileResult, new String[]{});
+        JvmRunUtil.ExitDetails output = JvmRunUtil.run(compileResult, new String[]{});
         Assert.assertTrue(output.errorOutput.contains("cannot complete the same future twice."));
     }
 

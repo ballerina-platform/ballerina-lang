@@ -19,8 +19,8 @@
 package org.ballerinalang.test.cli;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.Test;
 
 /**
@@ -33,7 +33,7 @@ public class OptionTest {
         String[] args =
                 {"--name", "Riyafa=Riyafa", "--good", "--score", "100", "--height", "5.5", "--energy", "10e99",
                         "--ratings", "5", "--ratings", "3", "--friends", "--friends"};
-        BRunUtil.runMain(compileResult, args);
+        JvmRunUtil.runMain(compileResult, args);
     }
 
     @Test
@@ -42,19 +42,19 @@ public class OptionTest {
         String[] args =
                 {"--name=Riyafa=Riyafa", "--good", "--score=100", "--height=5.5", "--energy=10e99",
                         "--ratings=5", "--ratings=3", "--friends", "--friends"};
-        BRunUtil.runMain(compileResult, args);
+        JvmRunUtil.runMain(compileResult, args);
     }
 
     @Test
     public void testCliDefaultableOptional() {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_defaultable_optional.bal");
-        BRunUtil.runMain(compileResult, new String[0]);
+        JvmRunUtil.runMain(compileResult, new String[0]);
     }
 
     @Test
     public void testCliDefaultableOptionalWithArg() {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_defaultable_optional_with_arg.bal");
         String[] args = {"--name=Riyafa", "--score=100", "--height=5.6"};
-        BRunUtil.runMain(compileResult, args);
+        JvmRunUtil.runMain(compileResult, args);
     }
 }

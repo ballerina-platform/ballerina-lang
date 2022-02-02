@@ -56,17 +56,17 @@ public class LangLibRecordTest {
 
     @Test
     public void testLength() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testLength");
-        assertEquals(returns[0], 2L);
+        Object returns = JvmRunUtil.invoke(compileResult, "testLength");
+        assertEquals(returns, 2L);
     }
 
     @Test
     public void testGet() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("name")});
-        assertEquals(returns[0].toString(), "John Doe");
+        Object returns = JvmRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("name")});
+        assertEquals(returns.toString(), "John Doe");
 
         returns = JvmRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("age")});
-        assertEquals(returns[0], 25L);
+        assertEquals(returns, 25L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -78,10 +78,10 @@ public class LangLibRecordTest {
 
     @Test
     public void testEntries() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testEntries");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testEntries");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("name")).toString(), "[\"name\",\"John Doe\"]");
@@ -104,25 +104,25 @@ public class LangLibRecordTest {
 
     @Test(dataProvider = "mapKeyProvider")
     public void testHasKey(BString key, boolean expected) {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testHasKey", new Object[]{key});
-        assertEquals(returns[0], expected);
+        Object returns = JvmRunUtil.invoke(compileResult, "testHasKey", new Object[]{key});
+        assertEquals(returns, expected);
     }
 
     @Test
     public void testHasKey2() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testHasKey2");
-        BArray arr = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testHasKey2");
+        BArray arr = (BArray) returns;
         assertFalse(arr.getBoolean(0));
         assertTrue(arr.getBoolean(1));
     }
 
     @Test
     public void testKeys() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testKeys");
-        Type arrType = getType(returns[0]);
+        Object returns = JvmRunUtil.invoke(compileResult, "testKeys");
+        Type arrType = getType(returns);
         assertEquals(arrType.getTag(), TypeTags.ARRAY_TAG);
 
-        BArray arr = (BArray) returns[0];
+        BArray arr = (BArray) returns;
         assertEquals(((BArrayType) arrType).getElementType().getTag(), TypeTags.STRING_TAG);
         assertEquals(arr.size(), 2);
 
@@ -133,10 +133,10 @@ public class LangLibRecordTest {
 
     @Test
     public void testMap() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testMap");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("name")), 8L);
@@ -145,16 +145,16 @@ public class LangLibRecordTest {
 
     @Test
     public void testForEach() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testForEach");
-        assertEquals(returns[0].toString(), "John Doe25");
+        Object returns = JvmRunUtil.invoke(compileResult, "testForEach");
+        assertEquals(returns.toString(), "John Doe25");
     }
 
     @Test
     public void testFilter() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testFilter");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.MAP_TAG);
+        Object returns = JvmRunUtil.invoke(compileResult, "testFilter");
+        assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
-        BMap map = (BMap) returns[0];
+        BMap map = (BMap) returns;
         assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get(StringUtils.fromString("physics")), 75L);
@@ -163,8 +163,8 @@ public class LangLibRecordTest {
 
     @Test
     public void testReduce() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(returns[0], 61.25d);
+        Object returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 61.25d);
     }
 
     @DataProvider(name = "mapKeyProvider")

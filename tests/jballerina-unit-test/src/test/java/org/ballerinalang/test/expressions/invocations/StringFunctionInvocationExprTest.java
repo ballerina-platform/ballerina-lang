@@ -18,12 +18,11 @@
 
 package org.ballerinalang.test.expressions.invocations;
 
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,18 +47,16 @@ public class StringFunctionInvocationExprTest {
 
     @Test
     public void testStringFunctionInvocation() {
-        BValue[] values = BRunUtil.invoke(compileResult, "testStringFunctionInvocation");
-        Assert.assertEquals(values.length, 1);
-        Assert.assertTrue(values[0] instanceof BString);
-        Assert.assertEquals(values[0].stringValue(), "BALLERINA");
+        Object values = JvmRunUtil.invoke(compileResult, "testStringFunctionInvocation");
+        Assert.assertTrue(values instanceof BString);
+        Assert.assertEquals(values.toString(), "BALLERINA");
     }
 
     @Test
     public void testStringFunctionInvocationInArgument() {
-        BValue[] values = BRunUtil.invoke(compileResult, "testStringFunctionInvocationInArgument");
-        Assert.assertEquals(values.length, 1);
-        Assert.assertTrue(values[0] instanceof BString);
-        Assert.assertEquals(values[0].stringValue(), "Hello BALLERINA");
+        Object values = JvmRunUtil.invoke(compileResult, "testStringFunctionInvocationInArgument");
+        Assert.assertTrue(values instanceof BString);
+        Assert.assertEquals(values.toString(), "Hello BALLERINA");
     }
 
     @Test

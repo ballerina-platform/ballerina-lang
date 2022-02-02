@@ -45,8 +45,8 @@ public class LangLibErrorTest {
 
     @Test
     public void testTypeTestingErrorUnion() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testTypeTestingErrorUnion");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testTypeTestingErrorUnion");
+        BArray result = (BArray) returns;
         assertEquals(result.get(0).toString(), "GenericError");
         assertEquals(getType(result.get(1)).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(result.get(1).toString(), "{\"message\":\"Test union of errors with type test\"}");
@@ -66,16 +66,16 @@ public class LangLibErrorTest {
 
     @Test
     public void testPassingErrorUnionToFunction() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testPassingErrorUnionToFunction");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[0].toString(), "{\"message\":\"Test passing error union to a function\"}");
+        Object returns = JvmRunUtil.invoke(compileResult, "testPassingErrorUnionToFunction");
+        assertEquals(getType(returns).getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(returns.toString(), "{\"message\":\"Test passing error union to a function\"}");
     }
 
     @Test
     public void testGetErrorStackTrace() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "getErrorStackTrace");
-        assertEquals(getType(returns[0]).getTag(), TypeTags.ARRAY_TAG);
-        String[] callStacks = ((BArray) returns[0]).getStringArray();
+        Object returns = JvmRunUtil.invoke(compileResult, "getErrorStackTrace");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
+        String[] callStacks = ((BArray) returns).getStringArray();
         assertEquals(callStacks[0], "callableName: getError  fileName: errorlib_test.bal lineNumber: 45");
         assertEquals(callStacks[1], "callableName: stack2  fileName: errorlib_test.bal lineNumber: 88");
         assertEquals(callStacks[2], "callableName: stack1  fileName: errorlib_test.bal lineNumber: 84");
@@ -85,8 +85,8 @@ public class LangLibErrorTest {
 
     @Test
     public void testErrorStackTrace() {
-        Object[] returns = JvmRunUtil.invoke(compileResult, "testErrorStackTrace");
-        BArray result = (BArray) returns[0];
+        Object returns = JvmRunUtil.invoke(compileResult, "testErrorStackTrace");
+        BArray result = (BArray) returns;
         assertEquals(result.get(0).toString(), "5");
         assertEquals(result.get(1).toString(),
                 "[\"callableName: getError  fileName: errorlib_test.bal lineNumber: 45\"," +

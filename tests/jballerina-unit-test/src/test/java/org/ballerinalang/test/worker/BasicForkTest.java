@@ -16,10 +16,9 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -48,13 +47,13 @@ public class BasicForkTest {
 
     @Test
     public void sendToFork() {
-        BRunUtil.invoke(result, "sendToFork", new BValue[0]);
+        JvmRunUtil.invoke(result, "sendToFork", new Object[0]);
         Assert.assertEquals(lastNum(getSysOut()), 24);
     }
 
     @Test
     public void forkInWorker() {
-        BRunUtil.invoke(result, "forkInWorker", new BValue[0]);
+        JvmRunUtil.invoke(result, "forkInWorker", new Object[0]);
         Assert.assertEquals(lastNum(getSysOut()), 87);
     }
 

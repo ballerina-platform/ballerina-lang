@@ -19,8 +19,8 @@ package org.ballerinalang.test.expressions.let;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class LetExpressionTest {
 
     @Test(description = "Positive tests for let expression", dataProvider = "FunctionList")
     public void testLetExpression(String funcName) {
-        BRunUtil.invoke(compileResult, funcName);
+        JvmRunUtil.invoke(compileResult, funcName);
     }
 
     @Test(description = "Negative test cases for let expression")

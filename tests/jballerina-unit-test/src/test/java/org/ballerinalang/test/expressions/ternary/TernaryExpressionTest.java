@@ -17,14 +17,12 @@
 */
 package org.ballerinalang.test.expressions.ternary;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,141 +44,142 @@ public class TernaryExpressionTest {
 
     @Test
     public void testInAssignment() {
-        BValue[] args = {new BInteger(20)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test1", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 15);
+        Object[] args = {(20)};
+        Object results = JvmRunUtil.invoke(compileResult, "test1", args);
+        Assert.assertEquals(results, 15L);
 
-        args = new BValue[]{new BInteger(4)};
-        results = BRunUtil.invoke(compileResult, "test1", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 5);
+        args = new Object[]{(4)};
+        results = JvmRunUtil.invoke(compileResult, "test1", args);
+        Assert.assertEquals(results, 5L);
     }
 
     @Test
     public void testInVar() {
-        BValue[] args = {new BInteger(100)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test2", args);
-        Assert.assertEquals(results[0].stringValue(), "large");
+        Object[] args = {(100)};
+        Object results = JvmRunUtil.invoke(compileResult, "test2", args);
+        Assert.assertEquals(results.toString(), "large");
 
-        args = new BValue[]{new BInteger(2)};
-        results = BRunUtil.invoke(compileResult, "test2", args);
-        Assert.assertEquals(results[0].stringValue(), "small");
+        args = new Object[]{(2)};
+        results = JvmRunUtil.invoke(compileResult, "test2", args);
+        Assert.assertEquals(results.toString(), "small");
     }
 
     @Test
     public void testInVariableDef() {
-        BValue[] args = {new BInteger(10)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test3", args);
-        Assert.assertEquals(((BFloat) results[0]).floatValue(), 10.5);
+        Object[] args = {(10)};
+        Object results = JvmRunUtil.invoke(compileResult, "test3", args);
+        Assert.assertEquals(results, 10.5);
 
-        args = new BValue[]{new BInteger(20)};
-        results = BRunUtil.invoke(compileResult, "test3", args);
-        Assert.assertEquals(((BFloat) results[0]).floatValue(), 9.5);
+        args = new Object[]{(20)};
+        results = JvmRunUtil.invoke(compileResult, "test3", args);
+        Assert.assertEquals(results, 9.5);
     }
 
     @Test
     public void testInIfThen() {
-        BValue[] args = {new BInteger(20)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test4", args);
-        Assert.assertEquals(results[0].stringValue(), "if");
+        Object[] args = {(20)};
+        Object results = JvmRunUtil.invoke(compileResult, "test4", args);
+        Assert.assertEquals(results.toString(), "if");
 
-        args = new BValue[]{new BInteger(100)};
-        results = BRunUtil.invoke(compileResult, "test4", args);
-        Assert.assertEquals(results[0].stringValue(), "else");
+        args = new Object[]{(100)};
+        results = JvmRunUtil.invoke(compileResult, "test4", args);
+        Assert.assertEquals(results.toString(), "else");
     }
 
     @Test
     public void testInFunctionParamThen() {
-        BValue[] args = {new BInteger(10)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test5", args);
-        Assert.assertEquals(results[0].stringValue(), "10tenfalse");
+        Object[] args = {(10)};
+        Object results = JvmRunUtil.invoke(compileResult, "test5", args);
+        Assert.assertEquals(results.toString(), "10tenfalse");
 
-        args = new BValue[]{new BInteger(100)};
-        results = BRunUtil.invoke(compileResult, "test5", args);
-        Assert.assertEquals(results[0].stringValue(), "10othertrue");
+        args = new Object[]{(100)};
+        results = JvmRunUtil.invoke(compileResult, "test5", args);
+        Assert.assertEquals(results.toString(), "10othertrue");
     }
 
     @Test
     public void testInStructLiteral() {
-        BValue[] args = {new BString("admin")};
-        BValue[] results = BRunUtil.invoke(compileResult, "test6", args);
-        Assert.assertEquals(results[0].stringValue(), "super");
+        Object[] args = {StringUtils.fromString("admin")};
+        Object results = JvmRunUtil.invoke(compileResult, "test6", args);
+        Assert.assertEquals(results.toString(), "super");
 
-        args = new BValue[]{new BString("no user")};
-        results = BRunUtil.invoke(compileResult, "test6", args);
-        Assert.assertEquals(results[0].stringValue(), "tom");
+        args = new Object[]{StringUtils.fromString("no user")};
+        results = JvmRunUtil.invoke(compileResult, "test6", args);
+        Assert.assertEquals(results.toString(), "tom");
     }
 
     @Test
     public void testInMapLiteral() {
-        BValue[] args = {new BString("one")};
-        BValue[] results = BRunUtil.invoke(compileResult, "test7", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
+        Object[] args = {StringUtils.fromString("one")};
+        Object results = JvmRunUtil.invoke(compileResult, "test7", args);
+        Assert.assertEquals(results, 1L);
 
-        args = new BValue[]{new BString("two")};
-        results = BRunUtil.invoke(compileResult, "test7", args);
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 2);
+        args = new Object[]{StringUtils.fromString("two")};
+        results = JvmRunUtil.invoke(compileResult, "test7", args);
+        Assert.assertEquals(results, 2L);
     }
 
     @Test
     public void testInStringTemplateLiteral() {
-        BValue[] args = {new BString("world")};
-        BValue[] results = BRunUtil.invoke(compileResult, "test8", args);
-        Assert.assertEquals(results[0].stringValue(), "hello world...!!");
+        Object[] args = {StringUtils.fromString("world")};
+        Object results = JvmRunUtil.invoke(compileResult, "test8", args);
+        Assert.assertEquals(results.toString(), "hello world...!!");
 
-        args = new BValue[]{new BString("foo")};
-        results = BRunUtil.invoke(compileResult, "test8", args);
-        Assert.assertEquals(results[0].stringValue(), "hello everyone..!");
+        args = new Object[]{StringUtils.fromString("foo")};
+        results = JvmRunUtil.invoke(compileResult, "test8", args);
+        Assert.assertEquals(results.toString(), "hello everyone..!");
     }
 
     @Test
     public void testInInvocationExpressions() {
-        BValue[] args = {new BString("a")};
-        BValue[] results = BRunUtil.invoke(compileResult, "test9", args);
-        Assert.assertEquals(results[0].stringValue(), "bax");
+        Object[] args = {StringUtils.fromString("a")};
+        Object results = JvmRunUtil.invoke(compileResult, "test9", args);
+        Assert.assertEquals(results.toString(), "bax");
 
-        args = new BValue[]{new BString("b")};
-        results = BRunUtil.invoke(compileResult, "test9", args);
-        Assert.assertEquals(results[0].stringValue(), "bar");
+        args = new Object[]{StringUtils.fromString("b")};
+        results = JvmRunUtil.invoke(compileResult, "test9", args);
+        Assert.assertEquals(results.toString(), "bar");
     }
 
     @Test
     public void testInReferenceType() {
-        BValue[] args = {new BString("tom")};
-        BValue[] results = BRunUtil.invoke(compileResult, "test10", args);
-        Assert.assertEquals(results[0].stringValue(), "{name:\"tom\", location:\"US\"}");
+        Object[] args = {StringUtils.fromString("tom")};
+        Object results = JvmRunUtil.invoke(compileResult, "test10", args);
+        Assert.assertEquals(results.toString(), "{\"name\":\"tom\",\"location\":\"US\"}");
 
-        args = new BValue[]{new BString("bob")};
-        results = BRunUtil.invoke(compileResult, "test10", args);
-        Assert.assertEquals(results[0].stringValue(), "{name:\"bob\", location:\"UK\"}");
+        args = new Object[]{StringUtils.fromString("bob")};
+        results = JvmRunUtil.invoke(compileResult, "test10", args);
+        Assert.assertEquals(results.toString(), "{\"name\":\"bob\",\"location\":\"UK\"}");
     }
 
     /*  Test cases for Nested ternary   */
 
     @Test
     public void testNestedTernary1() {
-        BInteger[] args = {new BInteger(80)};
-        BValue[] results = BRunUtil.invoke(compileResult, "testNestedTernary1", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary1Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary1Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        Long[] args = {80L};
+        Object arr = JvmRunUtil.invoke(compileResult, "testNestedTernary1", args);
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary1Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary1Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(50)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary1", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary1Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary1Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{50L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary1", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary1Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary1Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(30)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary1", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary1Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary1Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{30L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary1", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary1Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary1Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(15)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary1", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary1Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary1Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{15L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary1", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary1Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary1Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
     }
 
     private String getNestedTernary1Value1(long value) {
@@ -193,29 +192,30 @@ public class TernaryExpressionTest {
 
     @Test
     public void testNestedTernary2() {
-        BInteger[] args = {new BInteger(80)};
-        BValue[] results = BRunUtil.invoke(compileResult, "testNestedTernary2", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary2Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary2Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        Long[] args = {80L};
+        Object arr = JvmRunUtil.invoke(compileResult, "testNestedTernary2", args);
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary2Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary2Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(50)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary2", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary2Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary2Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{50L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary2", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary2Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary2Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(30)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary2", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary2Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary2Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{30L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary2", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary2Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary2Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(15)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary2", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary2Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary2Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{15L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary2", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary2Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary2Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
     }
 
     private String getNestedTernary2Value1(long value) {
@@ -228,23 +228,24 @@ public class TernaryExpressionTest {
 
     @Test
     public void testNestedTernary3() {
-        BInteger[] args = {new BInteger(80)};
-        BValue[] results = BRunUtil.invoke(compileResult, "testNestedTernary3", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary3Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary3Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        Long[] args = {80L};
+        Object arr = JvmRunUtil.invoke(compileResult, "testNestedTernary3", args);
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary3Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary3Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(35)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary3", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary3Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary3Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{35L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary3", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary3Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary3Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(25)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary3", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary3Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary3Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{25L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary3", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary3Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary3Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
     }
 
@@ -260,29 +261,30 @@ public class TernaryExpressionTest {
 
     @Test
     public void testNestedTernary4() {
-        BInteger[] args = {new BInteger(80)};
-        BValue[] results = BRunUtil.invoke(compileResult, "testNestedTernary4", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary4Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary4Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        Long[] args = {80L};
+        Object arr = JvmRunUtil.invoke(compileResult, "testNestedTernary4", args);
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary4Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary4Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(55)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary4", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary4Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary4Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{55L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary4", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary4Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary4Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(45)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary4", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary4Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary4Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{45L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary4", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary4Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary4Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(15)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary4", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary4Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary4Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{15L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary4", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary4Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary4Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
     }
 
     private String getNestedTernary4Value1(long value) {
@@ -297,29 +299,30 @@ public class TernaryExpressionTest {
 
     @Test
     public void testNestedTernary5() {
-        BInteger[] args = {new BInteger(80)};
-        BValue[] results = BRunUtil.invoke(compileResult, "testNestedTernary5", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary5Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary5Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        Long[] args = {80L};
+        Object arr = JvmRunUtil.invoke(compileResult, "testNestedTernary5", args);
+        BArray results = (BArray) arr;
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary5Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary5Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(45)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary5", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary5Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary5Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{45L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary5", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary5Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary5Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(35)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary5", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary5Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary5Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{35L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary5", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary5Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary5Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
 
-        args = new BInteger[]{new BInteger(25)};
-        results = BRunUtil.invoke(compileResult, "testNestedTernary5", args);
-        Assert.assertEquals(results[0].stringValue(), getNestedTernary5Value1(args[0].value()));
-        Assert.assertEquals(results[1].stringValue(), getNestedTernary5Value2(args[0].value()));
-        Assert.assertEquals(results[0].stringValue(), results[1].stringValue());
+        args = new Long[]{25L};
+        results = (BArray) JvmRunUtil.invoke(compileResult, "testNestedTernary5", args);
+        Assert.assertEquals(results.get(0).toString(), getNestedTernary5Value1(args[0]));
+        Assert.assertEquals(results.get(1).toString(), getNestedTernary5Value2(args[0]));
+        Assert.assertEquals(results.get(0).toString(), results.get(1).toString());
     }
 
     private String getNestedTernary5Value1(long value) {
@@ -335,7 +338,7 @@ public class TernaryExpressionTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary-expr-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 5L);
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'int'", 6, 29);
         BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'boolean', found 'int'", 7, 13);
         BAssertUtil.validateError(compileResult, 2, "incompatible types: expected 'string', found 'boolean'", 13, 30);
@@ -345,49 +348,49 @@ public class TernaryExpressionTest {
 
     @Test
     public void testErrorInTernary() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testErrorInTernary");
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 7);
+        Object results = JvmRunUtil.invoke(compileResult, "testErrorInTernary");
+        Assert.assertEquals(results, 7L);
     }
 
     @Test
     public void testPredeclPrefixInTernary() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testPredeclPrefixInTernary");
-        Assert.assertEquals(((BInteger) results[0]).intValue(), 11);
+        Object results = JvmRunUtil.invoke(compileResult, "testPredeclPrefixInTernary");
+        Assert.assertEquals(results, 11L);
     }
 
     @Test
     public void testTernaryAsArgument() {
-        BRunUtil.invoke(compileResult, "testTernaryAsArgument");
+        JvmRunUtil.invoke(compileResult, "testTernaryAsArgument");
     }
 
     @Test
     public void testIfAndThenExprBeingFieldAccess() {
-        BRunUtil.invoke(compileResult, "testIfAndThenExprBeingFieldAccess");
+        JvmRunUtil.invoke(compileResult, "testIfAndThenExprBeingFieldAccess");
     }
 
     @Test
     public void testTernaryWithConfigurableVar() {
-        BRunUtil.invoke(compileResult, "testTernaryWithConfigurableVar");
+        JvmRunUtil.invoke(compileResult, "testTernaryWithConfigurableVar");
     }
 
     @Test
     public void testTernaryWithLangValueMethodCallsModuleLevel() {
-        BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCallsModuleLevel");
+        JvmRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCallsModuleLevel");
     }
 
     @Test
     public void testTernaryWithLangValueMethodCalls() {
-        BRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCalls");
+        JvmRunUtil.invoke(compileResult, "testTernaryWithLangValueMethodCalls");
     }
 
     @Test
     public void testTernaryWithOtherOperators() {
-        BRunUtil.invoke(compileResult, "testTernaryWithOtherOperators");
+        JvmRunUtil.invoke(compileResult, "testTernaryWithOtherOperators");
     }
 
     @Test
     public void testTernaryInModuleLevel() {
-        BRunUtil.invoke(compileResult, "testTernaryInModuleLevel");
+        JvmRunUtil.invoke(compileResult, "testTernaryInModuleLevel");
     }
 
     @AfterClass

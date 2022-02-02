@@ -18,8 +18,8 @@
 package org.ballerinalang.test.expressions.object;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class ServiceConstructorTest {
 
     @Test
     public void testObjectCreationViaObjectConstructor() {
-        BRunUtil.invoke(compiledConstructedObjects, "testServiceCtor");
+        JvmRunUtil.invoke(compiledConstructedObjects, "testServiceCtor");
     }
 
     @AfterClass
