@@ -72,7 +72,18 @@ public class ObjectConstructorTest {
                 {"testClosureButAsArgument"},
                 {"testAttachedMethodClosuresMapFromFunctionBlock"},
                 {"testFunctionPointerAsFieldValue"},
-                {"testClosuresWithObjectConstrExpr"}
+                {"testClosuresWithObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprAsFunctionDefaultParam"},
+                {"testClosuresWithObjectConstrExprInAnonFunc"},
+                {"testClosuresWithObjectConstrExprInObjectFunc"},
+                {"testClosuresWithObjectConstrExprInVarAssignment"},
+                {"testClosuresWithObjectConstrExprInReturnStmt"},
+                {"testClosuresWithClientObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprInClientObjectConstrExpr"},
+                {"testClosuresWithServiceObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprsInObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprAsArrayMember"},
+                {"testClosuresWithObjectConstrExprInEqaulityExpr"}
         };
     }
 
@@ -86,12 +97,29 @@ public class ObjectConstructorTest {
         BRunUtil.invoke(closures, funcName);
     }
 
-    @Test
-    public void testClosureSupportForObjectCtorAnnotations() {
-        BRunUtil.invoke(annotations, "testAnnotations");
-        BRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
-        BRunUtil.invoke(annotations, "testAnnotsOfServiceObjectConstructorInReturnStmt");
-        BRunUtil.invoke(annotations, "testClosuresWithObjectConstrExprWithAnnots");
+    @Test(dataProvider = "ClosuresWithAnnotsTestFunctionList")
+    public void testClosureSupportForObjectCtorAnnotations(String funcName) {
+        BRunUtil.invoke(annotations, funcName);
+    }
+
+    @DataProvider
+    public Object[] ClosuresWithAnnotsTestFunctionList() {
+        return new Object[]{
+                "testAnnotations",
+                "testObjectConstructorAnnotationAttachment",
+                "testAnnotsOfServiceObjectConstructorInReturnStmt",
+                "testClosuresWithObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsAsFunctionDefaultParam",
+                "testClosuresWithObjectConstrExprWithAnnotsInAnonFunc",
+                "testClosuresWithObjectConstrExprWithAnnotsInObjectFunc",
+                "testClosuresWithObjectConstrExprWithAnnotsInVarAssignment",
+                "testClosuresWithObjectConstrExprWithAnnotsInReturnStmt",
+                "testClosuresWithClientObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsInClientObjectConstrExpr",
+                "testClosuresWithServiceObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsInObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsAsArrayMember"
+        };
     }
 
     @Test

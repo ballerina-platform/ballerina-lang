@@ -132,7 +132,7 @@ type AnnotRecord record {|
 
 annotation record {|int x;|} Config on service;
 
-function testClosuresWithObjectConstrExprWithAnnots1(int a1) returns int {
+function closuresWithObjectConstrExprWithAnnots(int a1) returns int {
     final int b = 30;
     object {
         int x;
@@ -153,7 +153,7 @@ function testClosuresWithObjectConstrExprWithAnnots1(int a1) returns int {
 
 annotation AnnotRecord Config2 on class;
 
-function testClosuresWithObjectConstrExprWithAnnots2(int b,
+function closuresWithObjectConstrExprWithAnnotsAsFunctionDefaultParam(int b,
                                        object {
                                            int y;
                                            function foo(int c) returns int;
@@ -170,7 +170,7 @@ function testClosuresWithObjectConstrExprWithAnnots2(int b,
 
 annotation record {|int x;|} Config3 on class;
 
-function testClosuresWithObjectConstrExprWithAnnots3() returns (function () returns int) {
+function closuresWithObjectConstrExprWithAnnotsInAnonFunc() returns (function () returns int) {
     return function() returns int {
         int a1 = 20;
         var obj1 = @Config3 {
@@ -186,7 +186,7 @@ function testClosuresWithObjectConstrExprWithAnnots3() returns (function () retu
     };
 }
 
-function testClosuresWithObjectConstrExprWithAnnots4(int b1) returns int {
+function closuresWithObjectConstrExprWithAnnotsInObjectFunc(int b1) returns int {
     int a1 = 10;
     var obj1 = @Config3 {
         x: a1 + intVal + b1
@@ -222,7 +222,7 @@ function testClosuresWithObjectConstrExprWithAnnots4(int b1) returns int {
     return 0;
 }
 
-function testClosuresWithObjectConstrExprWithAnnots5(int b1) returns int {
+function closuresWithObjectConstrExprWithAnnotsInVarAssignment(int b1) returns int {
     final int a1 = 10;
     object {
         int a2;
@@ -250,7 +250,7 @@ function testClosuresWithObjectConstrExprWithAnnots5(int b1) returns int {
     return obj1.foo(50) + annot.x;
 }
 
-function testClosuresWithObjectConstrExprWithAnnots6(int b1) returns
+function closuresWithObjectConstrExprWithAnnotsInReturnStmt(int b1) returns
                                         object {
                                             int a2;
                                             function foo(int b2) returns int;
@@ -274,7 +274,7 @@ function testClosuresWithObjectConstrExprWithAnnots6(int b1) returns
     };
 }
 
-function testClosuresWithObjectConstrExprWithAnnots7(int b1) returns int {
+function closuresWithClientObjectConstrExprWithAnnots(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = @Config3 {
@@ -291,7 +291,7 @@ function testClosuresWithObjectConstrExprWithAnnots7(int b1) returns int {
     return res + annot.x;
 }
 
-function testClosuresWithObjectConstrExprWithAnnots8(int b1) returns int {
+function closuresWithObjectConstrExprWithAnnotsInClientObjectConstrExpr(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = @Config3 {
@@ -334,7 +334,7 @@ function testClosuresWithObjectConstrExprWithAnnots8(int b1) returns int {
     return  res + annot.x;
 }
 
-function testClosuresWithObjectConstrExprWithAnnots9(int b1) returns int {
+function closuresWithServiceObjectConstrExprWithAnnots(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = @Config {
@@ -404,7 +404,7 @@ type Bar object {
     function bar(int b3) returns object {};
 };
 
-function testClosuresWithObjectConstrExprWithAnnots10(int b1) returns int {
+function closuresWithObjectConstrExprWithAnnotsInObjectConstrExprWithAnnots(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = @Config2 {
@@ -442,7 +442,7 @@ function testClosuresWithObjectConstrExprWithAnnots10(int b1) returns int {
     return obj1.foo(20) + annot.x;
 }
 
-function testClosuresWithObjectConstrExprWithAnnots11(int b1, string str) returns int {
+function closuresWithObjectConstrExprWithAnnotsAsArrayMember(int b1, string str) returns int {
     final int a1 = 10;
 
     var obj1 = object {string j = str; boolean k = false;};
@@ -477,41 +477,60 @@ function testClosuresWithObjectConstrExprWithAnnots11(int b1, string str) return
     return arr[0].foo(10);
 }
 
-
 function testClosuresWithObjectConstrExprWithAnnots() {
-    assertValueEquality(290, testClosuresWithObjectConstrExprWithAnnots1(10));
+    assertValueEquality(290, closuresWithObjectConstrExprWithAnnots(10));
+}
 
-    assertValueEquality(60, testClosuresWithObjectConstrExprWithAnnots2(10));
-    assertValueEquality(120, testClosuresWithObjectConstrExprWithAnnots2(10, object {
+function testClosuresWithObjectConstrExprWithAnnotsAsFunctionDefaultParam() {
+    assertValueEquality(60, closuresWithObjectConstrExprWithAnnotsAsFunctionDefaultParam(10));
+    assertValueEquality(120, closuresWithObjectConstrExprWithAnnotsAsFunctionDefaultParam(10, object {
         int y = 10;
         function foo(int c) returns int {
             return self.y + c + intVal;
         }
     }));
+}
 
-    function () returns int func1 = testClosuresWithObjectConstrExprWithAnnots3();
+function testClosuresWithObjectConstrExprWithAnnotsInAnonFunc() {
+    function () returns int func1 = closuresWithObjectConstrExprWithAnnotsInAnonFunc();
     assertValueEquality(240, func1());
+}
 
-    assertValueEquality(323, testClosuresWithObjectConstrExprWithAnnots4(10));
+function testClosuresWithObjectConstrExprWithAnnotsInObjectFunc() {
+    assertValueEquality(323, closuresWithObjectConstrExprWithAnnotsInObjectFunc(10));
+}
 
-    assertValueEquality(343, testClosuresWithObjectConstrExprWithAnnots5(10));
+function testClosuresWithObjectConstrExprWithAnnotsInVarAssignment() {
+    assertValueEquality(343, closuresWithObjectConstrExprWithAnnotsInVarAssignment(10));
+}
 
+function testClosuresWithObjectConstrExprWithAnnotsInReturnStmt() {
     object {
         int a2;
         function foo(int b2) returns int;
-    } obj1 = testClosuresWithObjectConstrExprWithAnnots6(10);
+    } obj1 = closuresWithObjectConstrExprWithAnnotsInReturnStmt(10);
     AnnotRecord annot = <AnnotRecord>(typeof obj1).@Config3;
     assertValueEquality(363, obj1.foo(10) + obj1.a2 + annot.x);
+}
 
-    assertValueEquality(180, testClosuresWithObjectConstrExprWithAnnots7(10));
+function testClosuresWithClientObjectConstrExprWithAnnots() {
+    assertValueEquality(180, closuresWithClientObjectConstrExprWithAnnots(10));
+}
 
-    assertValueEquality(270, testClosuresWithObjectConstrExprWithAnnots8(10));
+function testClosuresWithObjectConstrExprWithAnnotsInClientObjectConstrExpr() {
+   assertValueEquality(270, closuresWithObjectConstrExprWithAnnotsInClientObjectConstrExpr(10));
+}
 
-    assertValueEquality(80, testClosuresWithObjectConstrExprWithAnnots9(10));
+function testClosuresWithServiceObjectConstrExprWithAnnots() {
+    assertValueEquality(80, closuresWithServiceObjectConstrExprWithAnnots(10));
+}
 
-    assertValueEquality(290, testClosuresWithObjectConstrExprWithAnnots10(10));
+function testClosuresWithObjectConstrExprWithAnnotsInObjectConstrExprWithAnnots() {
+    assertValueEquality(290, closuresWithObjectConstrExprWithAnnotsInObjectConstrExprWithAnnots(10));
+}
 
-    assertValueEquality(350, testClosuresWithObjectConstrExprWithAnnots11(10, "A"));
+function testClosuresWithObjectConstrExprWithAnnotsAsArrayMember() {
+    assertValueEquality(350, closuresWithObjectConstrExprWithAnnotsAsArrayMember(10, "A"));
 }
 
 type AssertionError distinct error;

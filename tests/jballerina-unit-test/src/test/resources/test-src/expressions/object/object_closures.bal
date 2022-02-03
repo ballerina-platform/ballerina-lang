@@ -355,7 +355,7 @@ function testFunctionPointerAsFieldValue() {
     testFunctionPointerAsFieldHelper(3);
 }
 
-function testClosuresWithObjectConstrExpr1(string a) returns string {
+function closuresWithObjectConstrExpr(string a) returns string {
     string b = "A";
     object {
         string x;
@@ -373,21 +373,21 @@ function testClosuresWithObjectConstrExpr1(string a) returns string {
 final string A = "A";
 const B = "B";
 
-function testClosuresWithObjectConstrExpr2(object {
-                       string x;
-                       function foo(string c) returns string;
-                   } obj = object {
-        string x = A;
-        function foo(string c) returns string {
-            return A + B + self.x + c;
-        }
-    }) returns string {
-        return A + B + obj.x + obj.foo("C");
+function closuresWithObjectConstrExprAsFunctionDefaultParam(object {
+                                               string x;
+                                               function foo(string c) returns string;
+                                           } obj = object {
+                                               string x = A;
+                                               function foo(string c) returns string {
+                                                   return A + B + self.x + c;
+                                               }
+                                           }) returns string {
+    return A + B + obj.x + obj.foo("C");
 }
 
 int intVal = 60;
 
-function testClosuresWithObjectConstrExpr3() returns (function () returns int) {
+function closuresWithObjectConstrExprInAnonFunc() returns (function () returns int) {
     return function() returns int {
         int a1 = 20;
         var obj1 = object {
@@ -400,7 +400,7 @@ function testClosuresWithObjectConstrExpr3() returns (function () returns int) {
     };
 }
 
-function testClosuresWithObjectConstrExpr4(int b1) returns int|error? {
+function closuresWithObjectConstrExprInObjectFunc(int b1) returns int|error? {
     int a1 = 10;
     var obj1 = object {
         int a2 = 20;
@@ -425,7 +425,7 @@ function testClosuresWithObjectConstrExpr4(int b1) returns int|error? {
     return obj1.foo(50);
 }
 
-function testClosuresWithObjectConstrExpr5(int b1) returns int {
+function closuresWithObjectConstrExprInVarAssignment(int b1) returns int {
     final int a1 = 10;
     object {
         int a2;
@@ -450,7 +450,10 @@ function testClosuresWithObjectConstrExpr5(int b1) returns int {
     return obj1.foo(50);
 }
 
-function testClosuresWithObjectConstrExpr6(int b1) returns object {int a2; function foo(int b2) returns int;} {
+function closuresWithObjectConstrExprInReturnStmt(int b1) returns object {
+    int a2;
+    function foo(int b2) returns int;
+} {
     final int a1 = 10;
 
     return object {
@@ -468,7 +471,7 @@ function testClosuresWithObjectConstrExpr6(int b1) returns object {int a2; funct
     };
 }
 
-function testClosuresWithObjectConstrExpr7(int b1) returns int {
+function closuresWithClientObjectConstrExpr(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = client object {
@@ -480,7 +483,7 @@ function testClosuresWithObjectConstrExpr7(int b1) returns int {
     return obj1->bar(10);
 }
 
-function testClosuresWithObjectConstrExpr8(int b1) returns int {
+function closuresWithObjectConstrExprInClientObjectConstrExpr(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = client object {
@@ -515,7 +518,7 @@ function testClosuresWithObjectConstrExpr8(int b1) returns int {
     return obj1->bar(10);
 }
 
-function testClosuresWithObjectConstrExpr9(int b1) returns int {
+function closuresWithServiceObjectConstrExpr(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = isolated service object {
@@ -583,7 +586,7 @@ type Bar object {
     function bar(int b3) returns object {};
 };
 
-function testClosuresWithObjectConstrExpr10(int b1) returns int {
+function closuresWithObjectConstrExprsInObjectConstrExpr(int b1) returns int {
     final int a1 = 10;
 
     var obj1 = object Foo {
@@ -615,7 +618,7 @@ function testClosuresWithObjectConstrExpr10(int b1) returns int {
     return obj1.foo(20);
 }
 
-function testClosuresWithObjectConstrExpr11(int b1, string str) returns int {
+function closuresWithObjectConstrExprAsArrayMember(int b1, string str) returns int {
     final int a1 = 10;
 
     var obj1 = object {string j = str; boolean k = false;};
@@ -647,7 +650,7 @@ function testClosuresWithObjectConstrExpr11(int b1, string str) returns int {
 
 const number = 10;
 
-function testClosuresWithObjectConstrExpr12(int b1) returns int {
+function closuresWithObjectConstrExprInEqaulityExpr(int b1) returns int {
     final int a1 = 100;
 
     var obj1 = object {
@@ -673,44 +676,66 @@ function testClosuresWithObjectConstrExpr12(int b1) returns int {
 }
 
 function testClosuresWithObjectConstrExpr() {
-    assertValueEquality("CACBC", testClosuresWithObjectConstrExpr1("C"));
+    assertValueEquality("CACBC", closuresWithObjectConstrExpr("C"));
+}
 
-    assertValueEquality("ABAABAC", testClosuresWithObjectConstrExpr2());
-    assertValueEquality("ABBBCAB", testClosuresWithObjectConstrExpr2(object {
+function testClosuresWithObjectConstrExprAsFunctionDefaultParam() {
+    assertValueEquality("ABAABAC", closuresWithObjectConstrExprAsFunctionDefaultParam());
+    assertValueEquality("ABBBCAB", closuresWithObjectConstrExprAsFunctionDefaultParam(object {
         string x = B;
         function foo(string c) returns string {
             return self.x + c + A + B;
         }
     }));
+}
 
-    function () returns int func1 = testClosuresWithObjectConstrExpr3();
+function testClosuresWithObjectConstrExprInAnonFunc() {
+    function () returns int func1 = closuresWithObjectConstrExprInAnonFunc();
     assertValueEquality(160, func1());
+}
 
-    var res = testClosuresWithObjectConstrExpr4(10);
+function testClosuresWithObjectConstrExprInObjectFunc() {
+    var res = closuresWithObjectConstrExprInObjectFunc(10);
     assertValueEquality(true, res is int);
     if res is int {
         assertValueEquality(183, res);
     }
+}
 
-    assertValueEquality(273, testClosuresWithObjectConstrExpr5(20));
+function testClosuresWithObjectConstrExprInVarAssignment() {
+    assertValueEquality(273, closuresWithObjectConstrExprInVarAssignment(20));
+}
 
+function testClosuresWithObjectConstrExprInReturnStmt() {
     object {
         int a2;
         function foo(int b2) returns int;
-    } obj1 = testClosuresWithObjectConstrExpr6(10);
+    } obj1 = closuresWithObjectConstrExprInReturnStmt(10);
     assertValueEquality(283, obj1.foo(10) + obj1.a2);
+}
 
-    assertValueEquality(100, testClosuresWithObjectConstrExpr7(10));
+function testClosuresWithClientObjectConstrExpr() {
+    assertValueEquality(100, closuresWithClientObjectConstrExpr(10));
+}
 
-    assertValueEquality(130, testClosuresWithObjectConstrExpr8(10));
+function testClosuresWithObjectConstrExprInClientObjectConstrExpr() {
+    assertValueEquality(130, closuresWithObjectConstrExprInClientObjectConstrExpr(10));
+}
 
-    assertValueEquality(240, testClosuresWithObjectConstrExpr9(10));
+function testClosuresWithServiceObjectConstrExpr() {
+    assertValueEquality(240, closuresWithServiceObjectConstrExpr(10));
+}
 
-    assertValueEquality(150, testClosuresWithObjectConstrExpr10(10));
+function testClosuresWithObjectConstrExprsInObjectConstrExpr() {
+    assertValueEquality(150, closuresWithObjectConstrExprsInObjectConstrExpr(10));
+}
 
-    assertValueEquality(290, testClosuresWithObjectConstrExpr11(10, "A"));
+function testClosuresWithObjectConstrExprAsArrayMember() {
+    assertValueEquality(290, closuresWithObjectConstrExprAsArrayMember(10, "A"));
+}
 
-    assertValueEquality(120, testClosuresWithObjectConstrExpr12(10));
+function testClosuresWithObjectConstrExprInEqaulityExpr() {
+    assertValueEquality(120, closuresWithObjectConstrExprInEqaulityExpr(10));
 }
 
 public function callMethod(service object {} s, string name) returns future<any|error>  = @java:Method {
