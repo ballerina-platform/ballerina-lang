@@ -585,33 +585,33 @@
     {
       "label": "testFunc",
       "kind": "Variable",
-      "detail": "function ($CompilationError$ i) returns function (int i, $CompilationError$ s) returns int",
+      "detail": "function (int i) returns function (int i, string s) returns int",
       "sortText": "F",
       "insertText": "testFunc",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "s",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "F",
-      "insertText": "s",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunc2",
       "kind": "Variable",
-      "detail": "function ($CompilationError$ i, $CompilationError$ s) returns int",
-      "sortText": "F",
+      "detail": "function (int i, string s) returns int",
+      "sortText": "AB",
       "insertText": "testFunc2",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "i",
+      "label": "x",
       "kind": "Variable",
       "detail": "int",
       "sortText": "F",
-      "insertText": "i",
+      "insertText": "x",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "y",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "F",
+      "insertText": "y",
       "insertTextFormat": "Snippet"
     },
     {
@@ -620,7 +620,7 @@
       "detail": "Snippet",
       "sortText": "CP",
       "filterText": "function",
-      "insertText": "function (int i1, any c) returns int {\n    return 0;\n}",
+      "insertText": "function (int i, string s) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"
     }
   ]
