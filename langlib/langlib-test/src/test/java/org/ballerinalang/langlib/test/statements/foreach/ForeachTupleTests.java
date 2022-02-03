@@ -161,8 +161,8 @@ public class ForeachTupleTests {
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '([int,int...]|[int,int,int...]" +
                 "|int[2])', found '[int,int,int...]'", 45, 13);
         BAssertUtil.validateError(negative, i++, "invalid list binding pattern: attempted to infer a list type, " +
-                "but found '([int,int...]|[int,int,int...]|int)'", 52, 17);
+                "but found '([int,int...]|[int,int,int...]|int)'", 52, 13);
         BAssertUtil.validateError(negative, i, "invalid list binding pattern; member variable " +
-                "count mismatch with member type count", 58, 17);
+                "count mismatch with member type count", 58, 13);
     }
 }

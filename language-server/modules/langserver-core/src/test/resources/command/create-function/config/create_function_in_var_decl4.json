@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 4,
+        "character": 17
+      },
+      "end": {
+        "line": 4,
+        "character": 33
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction getTenOrEleven() returns 10|11 {\n    return 10;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

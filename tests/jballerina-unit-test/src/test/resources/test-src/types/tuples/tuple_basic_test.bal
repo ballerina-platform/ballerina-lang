@@ -423,7 +423,7 @@ Bar bar = {id: 34, flag: true};
 FooObj fooObj = new ("Fooo", 3.7, 23);
 BarObj barObj = new (true, 56);
 
-function getComplexTuple1() returns [[int], map<int>, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
+function getComplexTuple1() returns [[int], record {int a;}, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
 
 function getComplexTuple2() returns [string, [Foo, [BarObj, FooObj]], [Bar, int]] =>
                                        [foo.name, [foo, [barObj, fooObj]], [bar, barObj.i]];

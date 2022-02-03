@@ -327,7 +327,7 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == PARAMETERIZED || tSymbol.kind == SymbolKind.TYPE_DEF
+        return kind == PARAMETERIZED
                 || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
     }
 

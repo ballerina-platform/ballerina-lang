@@ -339,7 +339,7 @@ public function testByteReturnAsIntInLambda3() {
     byte a = 255;
     byte b = 255;
 
-    var fn = function (byte a, byte b) returns int { return a - b; };
+    var fn = function (byte a1, byte b1) returns int { return a1 - b1; };
     assert(a - b, fn(a, b));
 }
 

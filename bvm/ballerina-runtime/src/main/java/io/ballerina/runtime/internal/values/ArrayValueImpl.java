@@ -656,32 +656,36 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
                 break;
             default:
-                for (int i = 0; i < size; i++) {
-                    if (refValues[i] == null) {
-                        sj.add("null");
-                    } else {
-                        Type type = TypeChecker.getType(refValues[i]);
-                        switch (type.getTag()) {
-                            case TypeTags.STRING_TAG:
-                            case TypeTags.XML_TAG:
-                            case TypeTags.XML_ELEMENT_TAG:
-                            case TypeTags.XML_ATTRIBUTES_TAG:
-                            case TypeTags.XML_COMMENT_TAG:
-                            case TypeTags.XML_PI_TAG:
-                            case TypeTags.XMLNS_TAG:
-                            case TypeTags.XML_TEXT_TAG:
-                                sj.add(((BValue) (refValues[i])).informalStringValue(new CycleUtils
-                                        .Node(this, parent)));
-                                break;
-                            default:
-                                sj.add(StringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
-                                break;
-                        }
-                    }
-                }
+                getRefValuesString(parent, sj);
                 break;
         }
         return "[" + sj + "]";
+    }
+
+    private void getRefValuesString(BLink parent, StringJoiner sj) {
+        for (int i = 0; i < size; i++) {
+            if (refValues[i] == null) {
+                sj.add("null");
+            } else {
+                Type type = TypeChecker.getType(refValues[i]);
+                switch (type.getTag()) {
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XMLNS_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        sj.add(((BValue) (refValues[i])).informalStringValue(new CycleUtils
+                                .Node(this, parent)));
+                        break;
+                    default:
+                        sj.add(StringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
+                        break;
+                }
+            }
+        }
     }
 
     @Override
@@ -1206,15 +1210,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void unshiftArray(long index, int unshiftByN, int arrLength) {
         int lastIndex = size() + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
-        Object arr = getArrayFromType(elementType.getTag());
-
         if (index > lastIndex) {
             throw BLangExceptionHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
-
         int i = (int) index;
+        ensureCapacity(this.size + unshiftByN, this.size);
+        Object arr = getArrayFromType(elementType.getTag());
         System.arraycopy(arr, i, arr, i + unshiftByN, this.size - i);
     }
 

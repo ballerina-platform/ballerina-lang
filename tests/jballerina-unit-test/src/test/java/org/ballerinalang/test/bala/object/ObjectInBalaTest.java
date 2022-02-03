@@ -526,9 +526,8 @@ public class ObjectInBalaTest {
                 "mismatched visibility qualifiers for field 'dpt' with object type inclusion",
                 36, 5);
         BAssertUtil.validateError(result, i++,
-                "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
-                        "non-public fields or methods",
-                42, 6);
+                "incompatible type reference 'foo:NormalPerson': a referenced type across modules cannot " +
+                        "have non-public fields or methods", 42, 6);
         BAssertUtil.validateError(result, i++,
                 "no implementation found for the method 'getSalary' of class 'Emp'", 45, 1);
         BAssertUtil.validateError(result, i,

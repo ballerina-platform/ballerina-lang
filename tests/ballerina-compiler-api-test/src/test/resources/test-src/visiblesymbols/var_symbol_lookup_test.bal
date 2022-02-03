@@ -57,3 +57,14 @@ function testLetExp1(float x) returns float {
 
 function testLetExp2(float y) returns float =>
     let float x3 = y+y, float x4 = y*y in ;
+
+function testVarFollowingIf() {
+    int? a = 10;
+    string b = "ABC";
+    if a is () {
+        return;
+    }
+    string c = b;
+    int d = a;
+    // cursor pos
+}
