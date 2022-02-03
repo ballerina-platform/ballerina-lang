@@ -586,6 +586,22 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "value2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

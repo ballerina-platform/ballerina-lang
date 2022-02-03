@@ -157,6 +157,11 @@ public class QueryActionTest {
     }
 
     @Test
+    public void testQueryActionWithAsyncCalls() {
+        BRunUtil.invoke(result, "testQueryActionWithAsyncCalls");
+    }
+
+    @Test
     public void testQueryExpWithinQueryAction() {
         BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
     }

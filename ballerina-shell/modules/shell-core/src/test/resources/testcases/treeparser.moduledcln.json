@@ -57,13 +57,27 @@
   },
   {
     "name": "Variable Declaration I",
-    "input": "final int i = 100;",
+    "input": "int t = 4;",
     "expected": [
       "ModuleVariableDeclarationNode"
     ]
   },
   {
     "name": "Variable Declaration II",
+    "input": "string t;",
+    "expected": [
+      "ModuleVariableDeclarationNode"
+    ]
+  },
+  {
+    "name": "Variable Declaration III",
+    "input": "final int i = 100;",
+    "expected": [
+      "ModuleVariableDeclarationNode"
+    ]
+  },
+  {
+    "name": "Variable Declaration IV",
     "input": "final int i;",
     "expected": [
       "ModuleVariableDeclarationNode"

@@ -87,19 +87,29 @@
                           ]
                         },
                         {
-                          "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                          "kind": "NUMERIC_LITERAL",
+                          "kind": "LIST",
                           "children": [
                             {
-                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                              "value": "2"
+                              "kind": "ARRAY_DIMENSION",
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                  "kind": "NUMERIC_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                      "value": "2"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
                             }
                           ]
-                        },
-                        {
-                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     }
@@ -222,14 +232,24 @@
                               ]
                             },
                             {
-                              "kind": "OPEN_BRACKET_TOKEN"
-                            },
-                            {
-                              "kind": "CLOSE_BRACKET_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -285,10 +305,20 @@
                               ]
                             },
                             {
-                              "kind": "OPEN_BRACKET_TOKEN"
-                            },
-                            {
-                              "kind": "CLOSE_BRACKET_TOKEN"
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -498,14 +528,24 @@
                                   ]
                                 },
                                 {
-                                  "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                  "kind": "CLOSE_BRACKET_TOKEN",
-                                  "trailingMinutiae": [
+                                  "kind": "LIST",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -533,30 +573,40 @@
                                   ]
                                 },
                                 {
-                                  "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                  "kind": "QUALIFIED_NAME_REFERENCE",
+                                  "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a"
-                                    },
-                                    {
-                                      "kind": "COLON_TOKEN"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "CLOSE_BRACKET_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "ARRAY_DIMENSION",
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                          "kind": "QUALIFIED_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN"
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "b"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -711,18 +761,28 @@
                               ]
                             },
                             {
-                              "kind": "OPEN_BRACKET_TOKEN"
-                            },
-                            {
-                              "kind": "ASTERISK_LITERAL",
+                              "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "ASTERISK_TOKEN"
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "ASTERISK_LITERAL",
+                                      "children": [
+                                        {
+                                          "kind": "ASTERISK_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                    }
+                                  ]
                                 }
                               ]
-                            },
-                            {
-                              "kind": "CLOSE_BRACKET_TOKEN"
                             }
                           ]
                         }
@@ -769,14 +829,24 @@
                               ]
                             },
                             {
-                              "kind": "OPEN_BRACKET_TOKEN"
-                            },
-                            {
-                              "kind": "CLOSE_BRACKET_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "ARRAY_DIMENSION",
+                                  "children": [
+                                    {
+                                      "kind": "OPEN_BRACKET_TOKEN"
+                                    },
+                                    {
+                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -904,14 +974,24 @@
                                           ]
                                         },
                                         {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN",
-                                          "trailingMinutiae": [
+                                          "kind": "LIST",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -968,14 +1048,24 @@
                                           ]
                                         },
                                         {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN",
-                                          "trailingMinutiae": [
+                                          "kind": "LIST",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -1091,10 +1181,20 @@
                                           ]
                                         },
                                         {
-                                          "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACKET_TOKEN"
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1156,14 +1256,24 @@
                                               ]
                                             },
                                             {
-                                              "kind": "OPEN_BRACKET_TOKEN"
-                                            },
-                                            {
-                                              "kind": "CLOSE_BRACKET_TOKEN",
-                                              "trailingMinutiae": [
+                                              "kind": "LIST",
+                                              "children": [
                                                 {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
+                                                  "kind": "ARRAY_DIMENSION",
+                                                  "children": [
+                                                    {
+                                                      "kind": "OPEN_BRACKET_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACKET_TOKEN",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }

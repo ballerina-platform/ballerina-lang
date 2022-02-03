@@ -101,11 +101,19 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "other:constant", String.format(CUSTOM_ERROR.getString(),
-                "undefined/non-public constant 'constant' in module 'other'"));
-        debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(CUSTOM_ERROR.getString(),
-                "undefined/non-public constant 'MAX' in module 'int'"));
+        // package-private constant evaluation
+        debugTestRunner.assertEvaluationError(context, "other:constant", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
+                .getString(), "other", "constant"));
+
+        // package-private module variable evaluation
+        debugTestRunner.assertEvaluationError(context, "other:privateModuleVariable",
+                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other", "privateModuleVariable"));
+
+        // undefined constant evaluation
+        debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
+                .getString(), "int", "MAX"));
+
+        // undefined module evaluation
         debugTestRunner.assertEvaluationError(context, "foo:constant", String.format(IMPORT_RESOLVING_ERROR.getString(),
                 "foo"));
     }
@@ -275,7 +283,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
 
         // qualified literals (i.e. imported modules)
         debugTestRunner.assertEvaluationError(context, "<other:Location> location",
-                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other:Location"));
+                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other", "Location"));
     }
 
     @Override
@@ -296,8 +304,8 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, String.format("!%s", STRING_VAR),
                 "operator '!' not defined for 'string'");
         // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "-other:constant", EvaluationExceptionKind.PREFIX +
-                "undefined/non-public constant 'constant' in module 'other'");
+        debugTestRunner.assertEvaluationError(context, "-other:constant", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
+                .getString(), "other", "constant"));
     }
 
     @Override
