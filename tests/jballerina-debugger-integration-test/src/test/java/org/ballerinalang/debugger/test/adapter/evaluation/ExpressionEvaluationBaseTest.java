@@ -101,7 +101,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     }
 
     protected void prepareForEvaluation() throws BallerinaTestException {
-        String testProjectName = "evaluation-tests";
+        String testProjectName = "evaluation-tests-1";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 

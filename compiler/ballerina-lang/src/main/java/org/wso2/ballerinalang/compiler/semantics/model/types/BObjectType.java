@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -44,11 +45,13 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String RIGHT_CURL = "}";
     private static final String SEMI_COLON = ";";
     private static final String READONLY = "readonly";
+    public boolean markedIsolatedness;
 
     private BIntersectionType intersectionType = null;
 
     public BIntersectionType immutableType;
     public BObjectType mutableType = null;
+    public BLangClassDefinition classDef = null;
 
     public BTypeIdSet typeIdSet = new BTypeIdSet();
 

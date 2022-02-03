@@ -183,7 +183,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)",
+      "label": "'map(function () func)",
       "kind": "Function",
       "detail": "stream<stream:Type1, stream:CompletionType>",
       "documentation": {
@@ -193,8 +193,8 @@
         }
       },
       "sortText": "CD",
-      "filterText": "map",
-      "insertText": "map(${1})",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

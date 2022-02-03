@@ -20,12 +20,14 @@ package org.ballerinalang.test.enums;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -34,6 +36,9 @@ import static org.testng.Assert.assertEquals;
  * @since 2.0
  */
 public class EnumTest {
+    private static final String DUPLICATE_METADATA_WARNING =
+            "cannot specify metadata on more than one duplicate enum member";
+
     private CompileResult compileResult, negativeTest, accessTest, accessTestNegative;
 
     @BeforeClass
@@ -106,6 +111,32 @@ public class EnumTest {
         validateError(accessTestNegative, i++, "attempt to refer to non-accessible symbol 'PF'", 23, 4);
         validateError(accessTestNegative, i++, "unknown type 'PF'", 23, 4);
         assertEquals(accessTestNegative.getErrorCount(), i);
+    }
+
+    @Test
+    public void testMetadataOnEnumMembers() {
+        CompileResult result = BCompileUtil.compile("test-src/enums/enum_metadata_test.bal");
+        int index = 0;
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 20, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 22, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 27, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 29, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 34, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 41, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 47, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 49, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 54, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 56, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 61, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 69, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 74, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 80, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 86, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 91, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 100, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 105, 5);
+        validateWarning(result, index++, DUPLICATE_METADATA_WARNING, 113, 5);
+        Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
     @AfterClass

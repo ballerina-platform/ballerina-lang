@@ -41,20 +41,27 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.ProjectLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ServiceTemplateCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.WorkDoneProgressBegin;
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressEnd;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -81,6 +89,7 @@ public class ServiceTemplateGenerator {
     private final Map<Pair<String, String>, List<ListenerMetaData>> moduleListenerMetaDataMap;
 
     private boolean isInitialized;
+    private static final String TITLE_INITIALIZE = "Service Template Generator";
 
     public boolean initialized() {
         return isInitialized;
@@ -89,7 +98,34 @@ public class ServiceTemplateGenerator {
     private ServiceTemplateGenerator(LanguageServerContext context) {
         context.put(SERVICE_TEMPLATE_GENERATOR_KEY, this);
         this.moduleListenerMetaDataMap = new ConcurrentHashMap<>();
-        CompletableFuture.runAsync(() -> initialize(context));
+        LSClientLogger clientLogger = LSClientLogger.getInstance(context);
+        String taskId = UUID.randomUUID().toString();
+        ExtendedLanguageClient languageClient = context.get(ExtendedLanguageClient.class);
+        CompletableFuture.runAsync(() -> {
+            clientLogger.logTrace("Loading listener symbols from the distribution");
+            if (languageClient != null) {
+                // Initialize progress notification
+                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+                workDoneProgressCreateParams.setToken(taskId);
+                languageClient.createProgress(workDoneProgressCreateParams);
+
+                // Start progress
+                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
+                beginNotification.setTitle(TITLE_INITIALIZE);
+                beginNotification.setCancellable(false);
+                beginNotification.setMessage("Initializing...");
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(beginNotification)));
+            }
+
+        }).thenRunAsync(() -> initialize(context)).thenRunAsync(() -> {
+            clientLogger
+                    .logTrace("Finished loading listener symbols from the distribution");
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.setMessage("Initialized Successfully!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
+        });
     }
 
     /**
@@ -124,7 +160,6 @@ public class ServiceTemplateGenerator {
      * Used to dynamically add new entries to the cache.
      *
      * @param moduleSymbol Module symbol.
-     * @param shouldImport Whether import text should be added.
      * @param ctx          BallerinaCompletion context.
      * @return {@link List<LSCompletionItem>} Set of completion items corresponding to the listeners
      * in the given module.
@@ -138,13 +173,12 @@ public class ServiceTemplateGenerator {
         Pair<String, String> moduleKey = Pair.of(moduleName, orgName);
         List<ListenerMetaData> items = new ArrayList<>();
         moduleSymbol.allSymbols().stream().filter(listenerPredicate())
-                .forEach(listener -> generateServiceSnippetMetaData(listener,
-                        orgName, moduleName, moduleId.modulePrefix()).ifPresent(items::add));
+                .forEach(listener -> generateServiceSnippetMetaData(listener, moduleId).ifPresent(items::add));
         if (!moduleListenerMetaDataMap.containsKey(moduleKey) && !items.isEmpty()) {
             moduleListenerMetaDataMap.put(moduleKey, items);
         }
         return items.stream().map(item ->
-                generateServiceSnippet(item, shouldImport, ctx)).collect(Collectors.toList());
+                generateServiceSnippet(item, shouldImport, moduleId, ctx)).collect(Collectors.toList());
     }
 
     /**
@@ -157,20 +191,22 @@ public class ServiceTemplateGenerator {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Set<String> processedModuleList = new HashSet<>();
 
+        Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
+        if (currentModule.isEmpty()) {
+            return completionItems;
+        }
+        String currentOrg = currentModule.get().packageInstance().descriptor().org().value();
+        String currentModuleName = currentModule.get().descriptor().name().toString();
+        String currentVersion = currentModule.get().packageInstance().descriptor().version().value().toString();
+        ModuleID currentModuleID = CodeActionModuleId.from(currentOrg, currentModuleName, currentVersion);
+
         //Find listeners from current imports and generate completion items.
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = ctx.currentDocImportsMap();
         currentDocImports.forEach((importNode, moduleSymbol) -> {
-            String orgName = importNode.orgName().isEmpty() ? "" : importNode.orgName().get().orgName().text();
+            String orgName = importNode.orgName().isEmpty() ? currentOrg : importNode.orgName().get().orgName().text();
             String moduleName = importNode.moduleName().stream()
                     .map(Token::text)
                     .collect(Collectors.joining("."));
-            String modulePrefix;
-            if (importNode.prefix().isEmpty()) {
-                modulePrefix = CommonUtil.escapeReservedKeyword(
-                        importNode.moduleName().get(importNode.moduleName().size() - 1).text());
-            } else {
-                modulePrefix = CommonUtil.escapeReservedKeyword(importNode.prefix().get().prefix().text());
-            }
             String moduleHash = generateModuleHash(orgName, moduleName);
             if (processedModuleList.contains(moduleHash)) {
                 return;
@@ -180,22 +216,23 @@ public class ServiceTemplateGenerator {
             //check if the module has already been processed to the cache.
             if (this.moduleListenerMetaDataMap.containsKey(key)) {
                 moduleListenerMetaDataMap.get(key).forEach(item ->
-                        completionItems.add(generateServiceSnippet(item, false, ctx)));
+                        completionItems.add(generateServiceSnippet(item, false, currentModuleID, ctx)));
                 processedModuleList.add(moduleHash);
                 return;
             }
 
             //Check if the module belongs to the current project. 
             //If it is not from the current project populate to the cache.
-            if (!getModuleNamesOfCurrentProject(ctx).contains(moduleHash)) {
+            if (!getModuleNamesOfCurrentProject(ctx, currentOrg).contains(moduleHash)) {
                 completionItems.addAll(generateAndPopulate(moduleSymbol, false, ctx));
                 processedModuleList.add(moduleHash);
                 return;
             }
 
             moduleSymbol.allSymbols().stream().filter(listenerPredicate())
-                    .forEach(listener -> generateServiceSnippetMetaData(listener, orgName, moduleName, modulePrefix)
-                            .ifPresent(item -> completionItems.add(generateServiceSnippet(item, false, ctx))));
+                    .forEach(listener -> generateServiceSnippetMetaData(listener, moduleSymbol.id())
+                            .ifPresent(item ->
+                                    completionItems.add(generateServiceSnippet(item, false, currentModuleID, ctx))));
             processedModuleList.add(moduleHash);
         });
 
@@ -204,25 +241,20 @@ public class ServiceTemplateGenerator {
             this.moduleListenerMetaDataMap.forEach((key, items) -> {
                 String moduleName = key.getLeft();
                 String orgName = key.getRight();
-                String modulePrefix = getModulePrefix(moduleName, ctx);
                 String moduleHash = generateModuleHash(orgName, moduleName);
                 if (processedModuleList.contains(moduleHash)) {
                     return;
                 }
-                items.forEach(item -> {
-                    if (!item.modulePrefix.equals(modulePrefix)) {
-                        item.modulePrefix = modulePrefix;
-                    }
-                    completionItems.add(generateServiceSnippet(item, true, ctx));
-                });
+                for (ListenerMetaData item : items) {
+                    completionItems.add(generateServiceSnippet(item, true, currentModuleID, ctx));
+                }
                 processedModuleList.add(moduleHash);
             });
         }
 
         //Generate completion items for the listeners in the current project.
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
-        if (project.isEmpty() || currentModule.isEmpty()) {
+        if (project.isEmpty()) {
             return completionItems;
         }
         boolean isDefaultModule = currentModule.get().isDefaultModule();
@@ -232,19 +264,24 @@ public class ServiceTemplateGenerator {
             if (module.isDefaultModule() && !isDefaultModule) {
                 return;
             }
-            String orgName = "";
+
+            boolean isCurrentModule = (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
+                    || currentModule.get().equals(module));
+
             String moduleName = module.moduleName().toString();
-            String moduleHash = generateModuleHash(orgName, moduleName);
+            String moduleHash = generateModuleHash(currentOrg, moduleName);
+            String version = currentModule.get().packageInstance().descriptor().version().value().toString();
+            ModuleID moduleID = isCurrentModule ? currentModuleID :
+                    CodeActionModuleId.from(currentOrg, moduleName, version);
+
             if (processedModuleList.contains(moduleHash)) {
                 return;
             }
-            boolean shouldImport = !(project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
-                    || currentModule.get().equals(module));
-            String modulePrefix = shouldImport ? getModulePrefix(moduleName) : "";
             SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
-            semanticModel.moduleSymbols().stream().filter(listenerPredicate())
-                    .forEach(listener -> generateServiceSnippetMetaData(listener, orgName, moduleName, modulePrefix)
-                            .ifPresent(item -> completionItems.add(generateServiceSnippet(item, shouldImport, ctx))));
+            semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
+                    generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
+                            completionItems.add(generateServiceSnippet(item,
+                                    !isCurrentModule, currentModuleID, ctx))));
         });
         return completionItems;
     }
@@ -261,14 +298,17 @@ public class ServiceTemplateGenerator {
             Project project = ProjectLoader.loadProject(distPackage.project().sourceRoot());
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             project.currentPackage().modules().forEach(module -> {
-                Pair<String, String> moduleKey = Pair.of(module.moduleName().toString(), orgName);
-                String modulePrefix = getModulePrefix(module.moduleName().toString());
+
+                String moduleName = module.descriptor().name().toString();
+                String version = module.packageInstance().descriptor().version().value().toString();
+                ModuleID moduleID = CodeActionModuleId.from(orgName, moduleName, version);
+
+                Pair<String, String> moduleKey = Pair.of(moduleName, orgName);
                 SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
                 List<ListenerMetaData> items = new ArrayList<>();
                 semanticModel.moduleSymbols().stream().filter(listenerPredicate())
                         .forEach(listener ->
-                                generateServiceSnippetMetaData(listener, orgName, module.moduleName().toString(),
-                                        modulePrefix).ifPresent(items::add));
+                                generateServiceSnippetMetaData(listener, moduleID).ifPresent(items::add));
                 if (!items.isEmpty() && !this.moduleListenerMetaDataMap.containsKey(moduleKey)) {
                     this.moduleListenerMetaDataMap.put(moduleKey, items);
                 }
@@ -284,35 +324,12 @@ public class ServiceTemplateGenerator {
         return orgName.isEmpty() ? moduleName : orgName + CommonKeys.SLASH_KEYWORD_KEY + moduleName;
     }
 
-    private String getModulePrefix(String moduleName, CompletionContext context) {
-        List<String> moduleNameComponents = Arrays.stream(moduleName.split("\\."))
-                .map(CommonUtil::escapeModuleName)
-                .collect(Collectors.toList());
-        if (moduleNameComponents.isEmpty()) {
-            return "";
-        }
-        String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
-        String validatedName = CommonUtil.getValidatedSymbolName(context, aliasComponent);
-        return !validatedName.equals(aliasComponent) ? validatedName : aliasComponent;
-    }
-
-    private String getModulePrefix(String moduleName) {
-        List<String> moduleNameComponents = Arrays.stream(moduleName.split("\\."))
-                .map(CommonUtil::escapeModuleName)
-                .collect(Collectors.toList());
-        if (moduleNameComponents.isEmpty()) {
-            return "";
-        }
-        return moduleNameComponents.get(moduleNameComponents.size() - 1);
-    }
-
-    private Set<String> getModuleNamesOfCurrentProject(BallerinaCompletionContext ctx) {
+    private Set<String> getModuleNamesOfCurrentProject(BallerinaCompletionContext ctx, String orgName) {
         Set<String> modulesHashSet = new HashSet<>();
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
             return modulesHashSet;
         }
-        String orgName = "";
         project.get().currentPackage().modules().forEach(module -> {
             String hash = generateModuleHash(orgName, module.moduleName().toString());
             modulesHashSet.add(hash);
@@ -323,16 +340,12 @@ public class ServiceTemplateGenerator {
     /**
      * Given a Symbol of a listener, process and pre-generate listener meta data.
      *
-     * @param symbol       Listener symbol.
-     * @param orgName      Organization name of the symbol.
-     * @param moduleName   Module name of the symbol.
-     * @param modulePrefix Module prefix of the symbol.
+     * @param symbol   Listener symbol.
+     * @param moduleID ModuleID of the module of symbol.
      * @return {@link ListenerMetaData} Pre processed metadata of the symbol.
      */
     private Optional<ListenerMetaData> generateServiceSnippetMetaData(Symbol symbol,
-                                                                      String orgName,
-                                                                      String moduleName,
-                                                                      String modulePrefix) {
+                                                                      ModuleID moduleID) {
 
         //Check if the provided symbol is a listener.
         Optional<? extends TypeSymbol> symbolTypeDesc = SymbolUtil.getTypeDescriptor(symbol);
@@ -392,18 +405,23 @@ public class ServiceTemplateGenerator {
         String symbolName = classSymbol.getName().get();
         return Optional.of(new ListenerMetaData(listenerInitArgs,
                 new ArrayList<>(serviceTypeSymbol.methods().values()),
-                symbolName, snippetIndex, orgName, moduleName, modulePrefix));
+                symbolName, snippetIndex, moduleID));
     }
 
-    private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet,
-                                                    Boolean shouldImport,
+    private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet, Boolean shouldImport,
+                                                    ModuleID currentModuleID,
                                                     BallerinaCompletionContext context) {
 
         String symbolReference;
-        String modulePrefix = shouldImport ? getModulePrefix(serviceSnippet.moduleName, context) :
-                serviceSnippet.modulePrefix;
-        if (!modulePrefix.isEmpty()) {
-            symbolReference = modulePrefix + ":" + serviceSnippet.symbolName;
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        String modulePrefix = CommonUtil.getModulePrefix(importsAcceptor, currentModuleID,
+                serviceSnippet.moduleID, context);
+        String moduleAlias = modulePrefix.replace(":", "");
+        String escapedName = CommonUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
+        String moduleName = escapedName.replaceAll(".*\\.", "");
+
+        if (!moduleAlias.isEmpty()) {
+            symbolReference = modulePrefix + serviceSnippet.symbolName;
         } else {
             symbolReference = serviceSnippet.symbolName;
         }
@@ -411,13 +429,12 @@ public class ServiceTemplateGenerator {
         String listenerInitialization = "new " + symbolReference + "(" + serviceSnippet.listenerInitArgs + ")";
         int snippetIndex = serviceSnippet.currentSnippetIndex;
         List<String> methodSnippets = new ArrayList<>();
-        List<TextEdit> additionalTextEdits = new ArrayList<>();
+
         if (!serviceSnippet.unimplementedMethods.isEmpty()) {
             for (MethodSymbol methodSymbol : serviceSnippet.unimplementedMethods) {
-                Pair<String, List<TextEdit>> functionSnippet =
-                        generateMethodSnippet(methodSymbol, snippetIndex, context);
-                additionalTextEdits.addAll(functionSnippet.getRight());
-                methodSnippets.add(functionSnippet.getLeft());
+                String functionSnippet =
+                        generateMethodSnippet(importsAcceptor, methodSymbol, snippetIndex, context);
+                methodSnippets.add(functionSnippet);
                 snippetIndex += 1;
             }
         }
@@ -431,38 +448,25 @@ public class ServiceTemplateGenerator {
         String label;
         String filterText;
         String detail = ItemResolverConstants.SNIPPET_TYPE;
-        if (shouldImport) {
-            label = "service on " + serviceSnippet.modulePrefix + ":" + serviceSnippet.symbolName;
-            filterText = String.join("_", Arrays.asList(ItemResolverConstants.SERVICE, serviceSnippet.modulePrefix,
-                    serviceSnippet.symbolName));
-            if (serviceSnippet.modulePrefix.equals(modulePrefix)) {
-                modulePrefix = "";
-            }
-            additionalTextEdits.addAll(CommonUtil.getAutoImportTextEdits(serviceSnippet.orgName,
-                    serviceSnippet.moduleName, modulePrefix, context));
-        } else {
-            label = "service on " + symbolReference;
-            if (!serviceSnippet.modulePrefix.equals(modulePrefix)) {
-                filterText = String.join("_", Arrays.asList(ItemResolverConstants.SERVICE, serviceSnippet.modulePrefix,
-                        symbolReference.replace(":", "_")));
-            } else {
-                filterText = String.join("_", Arrays.asList(ItemResolverConstants.SERVICE,
-                        symbolReference.replace(":", "_")));
-            }
-        }
 
+        label = shouldImport ? "service on " + moduleName + ":" +
+                serviceSnippet.symbolName : "service on " + symbolReference;
+        filterText = moduleAlias.isEmpty() ? ItemResolverConstants.SERVICE :
+                String.join("_", Arrays.asList(ItemResolverConstants.SERVICE, moduleName));
+        if (!shouldImport && !moduleAlias.equals(moduleName) && !moduleAlias.isEmpty()) {
+            filterText += "_" + moduleAlias;
+        }
+        filterText += "_" + serviceSnippet.symbolName;
+        List<TextEdit> additionalTextEdits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
         return new StaticCompletionItem(context, ServiceTemplateCompletionItemBuilder.build(snippet, label, detail,
                 filterText, additionalTextEdits), StaticCompletionItem.Kind.OTHER);
 
     }
 
-    private Pair<String, List<TextEdit>> generateMethodSnippet(MethodSymbol methodSymbol, int snippetIndex,
-                                                               BallerinaCompletionContext context) {
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+    private String generateMethodSnippet(ImportsAcceptor importsAcceptor, MethodSymbol methodSymbol, int snippetIndex,
+                                         BallerinaCompletionContext context) {
         String functionTypeDesc =
                 FunctionGenerator.processModuleIDsInText(importsAcceptor, methodSymbol.signature(), context);
-        List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
-
         String returnStmt = "";
         if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = methodSymbol.typeDescriptor().returnTypeDescriptor().get();
@@ -495,7 +499,7 @@ public class ServiceTemplateGenerator {
                 .append(paddingStr)
                 .append(CommonKeys.CLOSE_BRACE_KEY)
                 .append(CommonUtil.LINE_SEPARATOR);
-        return Pair.of(functionSnippet.toString(), edits);
+        return functionSnippet.toString();
     }
 
     /**
@@ -503,28 +507,22 @@ public class ServiceTemplateGenerator {
      */
     private static class ListenerMetaData {
 
-        private String listenerInitArgs;
-        private List<MethodSymbol> unimplementedMethods;
-        private String symbolName;
-        private int currentSnippetIndex;
-        private String moduleName;
-        private String orgName;
-        private String modulePrefix;
+        private final String listenerInitArgs;
+        private final List<MethodSymbol> unimplementedMethods;
+        private final String symbolName;
+        private final int currentSnippetIndex;
+        private final ModuleID moduleID;
 
         ListenerMetaData(String listenerInitialization,
                          List<MethodSymbol> unimplementedMethods,
                          String symbolReference,
                          int currentSnippetIndex,
-                         String orgName,
-                         String moduleName,
-                         String modulePrefix) {
+                         ModuleID moduleID) {
             this.listenerInitArgs = listenerInitialization;
             this.unimplementedMethods = unimplementedMethods;
             this.symbolName = symbolReference;
             this.currentSnippetIndex = currentSnippetIndex;
-            this.orgName = orgName;
-            this.moduleName = moduleName;
-            this.modulePrefix = modulePrefix;
+            this.moduleID = moduleID;
         }
     }
 }

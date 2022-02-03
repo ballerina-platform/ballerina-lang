@@ -23,7 +23,7 @@ type Person record {|
     string name;
     boolean married;
     Age age;
-    [string, int] extra?;
+    [string, int] extra;
 |};
 
 function testVariableAssignment() returns [string, boolean, int, string] {
@@ -38,7 +38,7 @@ function testVariableAssignment() returns [string, boolean, int, string] {
 }
 
 function getPerson() returns Person {
-    return {name: "Peter", married: true, age: {age:12, format: "Y"}};
+    return {name: "Peter", married: true, age: {age:12, format: "Y"}, extra:  ["ds", 4]};
 }
 
 type Foo record {

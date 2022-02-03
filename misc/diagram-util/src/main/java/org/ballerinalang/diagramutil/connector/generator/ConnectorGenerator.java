@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -71,10 +72,12 @@ public class ConnectorGenerator {
      *
      * @param project  Balerina Project
      * @param detailed Get connectors with metadata
+     * @param query    Filter connector list
      * @return
      * @throws IOException
      */
-    public static List<Connector> getProjectConnectors(Project project, boolean detailed) throws IOException {
+    public static List<Connector> getProjectConnectors(Project project, boolean detailed, String query)
+            throws IOException {
         List<Connector> connectorsList = new ArrayList<>();
         Package currentPackage = project.currentPackage();
         String packageName = currentPackage.packageName().toString();
@@ -110,10 +113,19 @@ public class ConnectorGenerator {
                             List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
                             connectorsList.add(new Connector(orgName, moduleName, packageName, version,
                                     connectorName, description, connectorAnnotation, functions));
-                        } else {
-                            connectorsList.add(new Connector(orgName, moduleName, packageName, version,
-                                    connectorName, description, connectorAnnotation));
+                            continue;
                         }
+                        // Filter connectors with search query
+                        if (!query.isEmpty() && !(orgName.toLowerCase(Locale.ROOT).contains(query)
+                                || moduleName.toLowerCase(Locale.ROOT).contains(query)
+                                || connectorName.toLowerCase(Locale.ROOT).contains(query)
+                                || (connectorAnnotation.get("label") != null
+                                && connectorAnnotation.get("label").toLowerCase(Locale.ROOT).contains(query)))) {
+                            continue;
+                        }
+
+                        connectorsList.add(new Connector(orgName, moduleName, packageName, version,
+                                connectorName, description, connectorAnnotation));
                     }
                 }
 

@@ -110,7 +110,7 @@ isolated function getStringValue(int v) returns string = @Method {
 #
 # + value - A value describing a `JObject` which is to be casted
 # + t - A type describing a `JObject` to which the `value` is to be casted
-# + return - A value belonging to type `t` or an error if this cast cannot be done
+# + return - A value belonging to parameter `t` or an error if this cast cannot be done
 public isolated function cast(JObject value, typedesc<JObject> t = <>) returns t|error = @Method {
     'class: "org.ballerinalang.langlib.java.Cast",
     name: "cast"

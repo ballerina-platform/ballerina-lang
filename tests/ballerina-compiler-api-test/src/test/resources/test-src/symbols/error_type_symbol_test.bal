@@ -28,3 +28,7 @@ public type EmailError SendError|ReadClientInitError|ReadError;
 
 # Represents the operation canceled(typically by the caller) error.
 public type CancelledError distinct error;
+
+function test() {
+    SendError err;
+}

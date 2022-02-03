@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -97,8 +96,15 @@ public class QueryExpressionTest {
 
     @Test(dataProvider = "TypeSymbolPosProvider")
     public void testType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        Optional<TypeSymbol> typeSymbol = model.type(LineRange.from(srcFile.name(),
-                from(sLine, sCol), from(eLine, eCol)));
+        Optional<TypeSymbol> typeSymbol =
+                model.typeOf(LineRange.from(srcFile.name(), from(sLine, sCol), from(eLine, eCol)));
+
+        if (kind == null) {
+            assertTrue(typeSymbol.isEmpty());
+            return;
+        }
+
+        assertTrue(typeSymbol.isPresent());
         assertEquals(typeSymbol.get().typeKind(), kind);
     }
 
@@ -119,12 +125,12 @@ public class QueryExpressionTest {
     public Object[][] getTypeSymbolPos() {
         return new Object[][]{
                 {28, 30, 28, 32, TYPE_REFERENCE},
-                {30, 21, 30, 23, TYPE_REFERENCE},
-                {24, 24, 24, 29, STRING},
+                {30, 21, 30, 23, null},
+                {24, 25, 24, 30, STRING},
                 {26, 54, 26, 56, INT},
                 {35, 43, 35, 48, STRING},
                 {42, 39, 42, 41, TYPE_REFERENCE},
-                {44, 14, 44, 18, ARRAY}
+                {44, 14, 44, 18, null}
         };
     }
 

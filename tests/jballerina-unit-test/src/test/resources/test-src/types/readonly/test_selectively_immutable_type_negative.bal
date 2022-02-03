@@ -177,7 +177,7 @@ type Config object {
     function getName() returns string;
 };
 
-class MyConfig {
+readonly class MyConfig {
     final string name;
 
     public function init(string name) {
@@ -344,4 +344,23 @@ type R4 record {
 function testReadOnlyIntersectionWithRecordThatHasARequiredNeverReadOnlyFieldNegative() {
     (R3 & readonly)? _ = ();
     R4 & readonly _ = {};
+}
+
+type ImmutableXmlElement xml:Element & readonly;
+
+function testTypeDefinitionForReadOnlyIntersectionWithBuiltinTypeNegative() {
+    ImmutableXmlElement _ = xml `text`; // error incompatible types: expected 'ImmutableXmlElement', found 'xml:Text'
+
+    xml:Element a = xml `<foo/>`;
+    ImmutableXmlElement _ = a; // incompatible types: expected 'ImmutableXmlElement', found 'xml:Element'
+
+    ImmutableXmlElement b = xml `<bar/>`;
+    xml:Element & readonly c = xml `<baz/>`;
+
+    map<xml:Text|ImmutableXmlElement> _ = {
+        w: c, // OK
+        x: xml ``, // OK
+        y: a, // error incompatible types: expected '(xml:Text|ImmutableXmlElement)', found 'xml:Element'
+        z: b // OK
+    };
 }

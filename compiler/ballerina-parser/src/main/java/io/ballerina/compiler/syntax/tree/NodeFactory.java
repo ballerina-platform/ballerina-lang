@@ -2564,19 +2564,28 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
             TypeDescriptorNode memberTypeDesc,
-            Token openBracket,
-            Node arrayLength,
-            Token closeBracket) {
+            NodeList<ArrayDimensionNode> dimensions) {
         Objects.requireNonNull(memberTypeDesc, "memberTypeDesc must not be null");
-        Objects.requireNonNull(openBracket, "openBracket must not be null");
-        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+        Objects.requireNonNull(dimensions, "dimensions must not be null");
 
         STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
                 memberTypeDesc.internalNode(),
+                dimensions.underlyingListNode().internalNode());
+        return stArrayTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static ArrayDimensionNode createArrayDimensionNode(
+            Token openBracket,
+            Node arrayLength,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stArrayDimensionNode = STNodeFactory.createArrayDimensionNode(
                 openBracket.internalNode(),
                 getOptionalSTNode(arrayLength),
                 closeBracket.internalNode());
-        return stArrayTypeDescriptorNode.createUnlinkedFacade();
+        return stArrayDimensionNode.createUnlinkedFacade();
     }
 
     public static TransactionStatementNode createTransactionStatementNode(

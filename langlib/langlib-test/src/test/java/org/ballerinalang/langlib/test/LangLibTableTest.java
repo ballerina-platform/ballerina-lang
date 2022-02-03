@@ -109,6 +109,11 @@ public class LangLibTableTest {
     }
 
     @Test
+    public void testGetValue() {
+        BRunUtil.invoke(compileResult, "testGetValue");
+    }
+
+    @Test
     public void testHashCollisionHandlingScenarios() {
         BRunUtil.invoke(compileResult, "testHashCollisionHandlingScenarios");
     }
@@ -472,5 +477,25 @@ public class LangLibTableTest {
     @Test
     public void testReadOnlyTableFilter() {
         BRunUtil.invoke(compileResult, "testReadOnlyTableFilter");
+    }
+
+    @Test
+    public void testKeylessTableForeach() {
+        BRunUtil.invoke(compileResult, "testKeylessTableForeach");
+    }
+
+    @Test
+    public void testKeylessReadOnlyTableForeach() {
+        BRunUtil.invoke(compileResult, "testKeylessReadOnlyTableForeach");
+    }
+    
+    @Test
+    public void testReduceForKeylessTables() {
+        BRunUtil.invoke(compileResult, "testReduceForKeylessTables");
+    }
+
+    @Test
+    public void testReduceForKeylessReadOnlyTables() {
+        BRunUtil.invoke(compileResult, "testReduceForKeylessReadOnlyTables");
     }
 }
