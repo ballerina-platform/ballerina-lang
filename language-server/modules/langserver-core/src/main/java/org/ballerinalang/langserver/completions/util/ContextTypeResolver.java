@@ -34,7 +34,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -294,17 +293,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (typeRefSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (typeRefSymbol.get().typeKind() == TypeDescKind.ERROR) {
-            return Optional.ofNullable(((ErrorTypeSymbol) typeRefSymbol.get()).detailTypeDescriptor());
+        
+        TypeSymbol typeSymbol = CommonUtil.getRawType(typeRefSymbol.get());
+        if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
+            return Optional.empty();
         }
-        if (typeRefSymbol.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-            TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) typeRefSymbol.get()).typeDescriptor();
-            if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
-                return Optional.empty();
-            }
-            return Optional.ofNullable(CommonUtil.getRawType(((ErrorTypeSymbol) typeSymbol).detailTypeDescriptor()));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(CommonUtil.getRawType(((ErrorTypeSymbol) typeSymbol).detailTypeDescriptor()));
     }
 
     @Override
