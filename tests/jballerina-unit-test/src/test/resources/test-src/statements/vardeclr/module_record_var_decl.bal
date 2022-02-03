@@ -81,7 +81,7 @@ var {fieldA: [fieldAVar], fieldB: {a: fieldBMapVar}, fieldC: error(message), ...
 
 type complexRecord record {|
     [int] fieldA;
-    map<string> fieldB;
+    record {string a;} fieldB;
     error fieldC;
     int...;
 |};
@@ -100,11 +100,19 @@ function testVariableDeclaredWithVar2() {
 // Test record variable with rest binding pattern
 Student {name: studentName, age: studentAge, grade: studentGrade, ...marks} = getStudentDetails();
 var {name: studentName2, age: studentAge2, grade: studentGrade2, ...marks2} = getStudentDetails2();
+Employee {name: eName1, id: eId1} = getEmployee1();
+var  {name: eName2, id: eId2} = getEmployee2();
 function getStudentDetails() returns Student {
-    return {name: "Flash", age: 15, grade: 10, "mark1": 50, "mark2": 85, "mark3": 90};
+    return {name: "Flash", age: 15, format: "Y", grade: 10, "mark1": 50, "mark2": 85, "mark3": 90};
 }
 function getStudentDetails2() returns Student {
-    return {name: "Arrow", age: 25, grade: 20, "mark1": 60, "mark2": 95, "mark3": 95};
+    return {name: "Arrow", age: 25, format: "Y", grade: 20, "mark1": 60, "mark2": 95, "mark3": 95};
+}
+function getEmployee1() returns Employee {
+    return {name: "Jo", id: 1234};
+}
+function getEmployee2() returns Employee {
+    return {name: "Ray", id: 4321};
 }
 public function testRecordVariableWithRestBP() {
     assertEquality("Flash", studentName);
@@ -120,6 +128,11 @@ public function testRecordVariableWithRestBP() {
     assertEquality(60, marks2["mark1"]);
     assertEquality(95, marks2["mark2"]);
     assertEquality(95, marks2["mark3"]);
+
+    assertEquality("Jo", eName1);
+    assertEquality("Ray", eName2);
+    assertEquality(1234, eId1);
+    assertEquality(4321, eId2);
 }
 
 annotation record {int i;} x on function;
@@ -135,7 +148,7 @@ public function testVariableDeclaredInRecordAsAnnotationValue() {
 // Support codes
 type Age record {
     int age;
-    string format?;
+    string format;
 };
 
 type Person record {|
@@ -161,6 +174,12 @@ type Student record {|
     *Age;
     int...;
 |};
+
+type Employee record {
+    string name;
+    int id;
+    Employee lead?;
+};
 
 function assertTrue(any|error actual) {
     assertEquality(true, actual);

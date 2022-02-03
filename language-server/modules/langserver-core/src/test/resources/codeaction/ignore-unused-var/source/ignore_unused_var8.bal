@@ -1,0 +1,3 @@
+function demo() {
+    int a;
+}
