@@ -302,6 +302,57 @@ function testTypeTestInWhereClause() {
     assertEquality(120, result[5]);
 }
 
+type BddPath record {|
+    int[] pos = [1];
+|};
+
+public type MappingAlternative record {|
+    int[] pos;
+|};
+
+function testQueryExpWithinSelectClause1() {
+    BddPath[] paths = [{}, {}, {}];
+
+    MappingAlternative[] alts = from var {pos} in paths
+        select {
+            pos: (from var atom in pos
+                select atom)
+        };
+
+    MappingAlternative[] expected = [{"pos": [1]}, {"pos": [1]}, {"pos": [1]}];
+    assertEquality(expected, alts);
+}
+
+function testQueryExpWithinSelectClause2() {
+    int[][] data = [[1, 2, 3, 4, 5]];
+
+    (function () returns int[])[] res = from int[] arr in data
+         select function() returns int[] {
+        int[] evenNumbers = from int i in arr
+                 where i % 2 == 0
+                 select i;
+        return evenNumbers;
+    };
+    function () returns int[] func = res[0];
+    int[] expected = [2, 4];
+    assertEquality(expected, func());
+}
+
+function testQueryExpWithinQueryAction() returns error? {
+    int[][] data = [[2, 3, 4]];
+    check from int[] arr in data
+        do {
+            function () returns int[] func = function() returns int[] {
+                int[] evenNumbers = from int i in arr
+                    where i % 2 == 0
+                    select i;
+                return evenNumbers;
+            };
+            int[] expected = [2, 4];
+            assertEquality(expected, func());
+        };
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -95,6 +95,17 @@ public class InnerQueryTest {
         BRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
+    @Test(description = "Test type test in where clause")
+    public void testQueryExpWithinSelectClause() {
+        BRunUtil.invoke(result, "testQueryExpWithinSelectClause1");
+        BRunUtil.invoke(result, "testQueryExpWithinSelectClause2");
+    }
+
+    @Test(description = "Test type test in where clause")
+    public void testQueryExpWithinQueryAction() {
+        BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
