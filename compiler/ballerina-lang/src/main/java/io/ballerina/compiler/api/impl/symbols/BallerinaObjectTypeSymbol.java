@@ -57,6 +57,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
 
     private List<Qualifier> qualifiers;
     private Map<String, ObjectFieldSymbol> objectFields;
+    private Map<String, ObjectFieldSymbol> originalObjectFields;
     private Map<String, MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
@@ -99,6 +100,22 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
 
         this.objectFields = Collections.unmodifiableMap(fields);
         return this.objectFields;
+    }
+
+    public Map<String, ObjectFieldSymbol> originalFieldDescriptors() {
+        if (this.originalObjectFields != null) {
+            return this.originalObjectFields;
+        }
+
+        Map<String, ObjectFieldSymbol> fields = new LinkedHashMap<>();
+        BObjectType type = (BObjectType) this.getBType();
+
+        for (BField field : type.originalFields.values()) {
+            fields.put(field.name.value, new BallerinaObjectFieldSymbol(this.context, field));
+        }
+
+        this.originalObjectFields = Collections.unmodifiableMap(fields);
+        return this.originalObjectFields;
     }
 
     @Override
@@ -166,8 +183,16 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
 
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
-        for (ObjectFieldSymbol objectFieldDescriptor : this.fieldDescriptors().values()) {
-            fieldJoiner.add(objectFieldDescriptor.signature() + ";");
+//        for (ObjectFieldSymbol objectFieldDescriptor : this.fieldDescriptors().values()) {
+//            fieldJoiner.add(objectFieldDescriptor.signature() + ";");
+//        }
+
+        for (TypeSymbol typeInclusion : this.typeInclusions()) {
+            fieldJoiner.add("*" + typeInclusion.signature() + ";");
+        }
+
+        for (ObjectFieldSymbol objectFieldSymbol : this.originalFieldDescriptors().values()) {
+            fieldJoiner.add(objectFieldSymbol.signature() + ";");
         }
 
         if (!this.methods().isEmpty() && !this.fieldDescriptors().isEmpty()) {
