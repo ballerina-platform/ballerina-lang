@@ -1501,8 +1501,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
-            if (!identifiers.containsKey(identifier) && (withinLambdaFunc ||
-                    queryEnv == null
+            if (!identifiers.containsKey(identifier) && (withinLambdaFunc || queryEnv == null
                     || !queryEnv.scope.entries.containsKey(symbol.name))) {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
