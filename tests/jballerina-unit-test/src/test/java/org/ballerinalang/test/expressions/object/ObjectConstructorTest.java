@@ -97,13 +97,13 @@ public class ObjectConstructorTest {
         BRunUtil.invoke(closures, funcName);
     }
 
-    @Test(dataProvider = "ClosuresWithAnnotsTestFunctionList")
+    @Test(dataProvider = "dataToTestClosuresWithObjectConstrExprWithAnnots")
     public void testClosureSupportForObjectCtorAnnotations(String funcName) {
         BRunUtil.invoke(annotations, funcName);
     }
 
     @DataProvider
-    public Object[] ClosuresWithAnnotsTestFunctionList() {
+    public Object[] dataToTestClosuresWithObjectConstrExprWithAnnots() {
         return new Object[]{
                 "testAnnotations",
                 "testObjectConstructorAnnotationAttachment",
