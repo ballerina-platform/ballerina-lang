@@ -27,9 +27,4 @@ public class CheckNaN {
     public static boolean checkNaN(double x) {
         return Double.isNaN(x);
     }
-
-    public static void print(Object value) {
-        System.out.println("############################");
-        System.out.println(value);
-    }
 }
