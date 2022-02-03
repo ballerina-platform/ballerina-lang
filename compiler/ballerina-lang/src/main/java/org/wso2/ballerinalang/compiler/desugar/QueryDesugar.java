@@ -218,6 +218,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private SymbolEnv env;
+    private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
     private boolean withinLambdaFunc = false;
 
@@ -1500,7 +1501,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
-            if (!identifiers.containsKey(identifier)) {
+            if (!identifiers.containsKey(identifier) && (withinLambdaFunc ||
+                    queryEnv == null
+                    || !queryEnv.scope.entries.containsKey(symbol.name))) {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
                         symTable.anyOrErrorType, currentFrameSymbol);
@@ -1969,7 +1972,9 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        SymbolEnv prevQueryEnv = this.queryEnv;
         queryAction.getQueryClauses().forEach(clause -> this.acceptNode(clause));
+        this.queryEnv = prevQueryEnv;
     }
 
     @Override
@@ -1987,7 +1992,9 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        queryExpr.getQueryClauses().forEach(clause ->this.acceptNode(clause));
+        SymbolEnv prevQueryEnv = this.queryEnv;
+        queryExpr.getQueryClauses().forEach(clause -> this.acceptNode(clause));
+        this.queryEnv = prevQueryEnv;
     }
 
     @Override
@@ -1997,6 +2004,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        this.queryEnv = fromClause.env;
         this.acceptNode(fromClause.collection);
     }
 
