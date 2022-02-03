@@ -1,5 +1,0 @@
-[package]
-org = "adv_res"
-name = "package_i"
-version = "1.0.1"
-export = ["package_i"]
