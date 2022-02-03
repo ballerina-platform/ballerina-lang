@@ -465,10 +465,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         boolean inIsolatedFunction = funcNode.flagSet.contains(Flag.ISOLATED);
         SymbolEnv clonedEnv =  funcNode.clonedEnv;
-        if (funcNode.flagSet.contains(Flag.LAMBDA)) {
-            // env is already a captured closure environment
-            clonedEnv.scope.entries.putAll(env.scope.entries);
-        }
 
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, clonedEnv);
