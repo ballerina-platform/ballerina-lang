@@ -855,7 +855,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangMatchGuard matchGuard, AnalyzerData data) {
-        analyzeExpr(matchGuard.expr, data.env, data);
+        analyzeExpr(matchGuard.expr, data);
     }
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
@@ -2328,8 +2328,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             data.newEnv = letExpression.env;
             analyzeNode((BLangNode) letVariable.definitionNode, data);
         }
-
-        analyzeExpr(letExpression.expr, letExpression.env, data);
+        data.newEnv = letExpression.env;
+        analyzeExpr(letExpression.expr, data);
     }
 
     @Override
@@ -3914,32 +3914,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     // private methods
 
-    // TODO: Refactor these methods
     private <E extends BLangExpression> void analyzeExpr(E node, AnalyzerData data) {
         if (node == null) {
             return;
+        }
+        SymbolEnv prevEnv = data.env;
+        if (data.newEnv != null) {
+            data.env = data.newEnv;
+            data.newEnv = null;
         }
         BLangNode parent = data.parent;
         node.parent = data.parent;
         data.parent = node;
         node.accept(this, data);
         data.parent = parent;
-        checkAccess(node, data);
-        checkExpressionValidity(node, data);
-    }
-
-    // TODO: Refactor these methods
-    private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env, AnalyzerData data) {
-        if (node == null) {
-            return;
-        }
-        SymbolEnv prevEnv = data.env;
-        data.env = env;
-        BLangNode myParent = data.parent;
-        node.parent = data.parent;
-        data.parent = node;
-        node.accept(this, data);
-        data.parent = myParent;
         checkAccess(node, data);
         checkExpressionValidity(node, data);
         data.env = prevEnv;
