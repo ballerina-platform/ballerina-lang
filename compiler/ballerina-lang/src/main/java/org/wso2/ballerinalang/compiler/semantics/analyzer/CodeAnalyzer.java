@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -322,9 +323,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         data.parent = pkgNode;
         data.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        data.newEnv = null;
         analyzeTopLevelNodes(pkgNode, data);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visitNode(testablePackage, data));
+    }
+
+    @Override
+    public void visit(BLangTestablePackage node, AnalyzerData data) {
+        visit((BLangPackage) node, data);
     }
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, AnalyzerData data) {
@@ -342,16 +347,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             data.env = data.newEnv;
             data.newEnv = null;
         }
-        analyzeNodeWithParent(node, data);
-        data.env = prevEnv;
-    }
-
-    private void analyzeNodeWithParent(BLangNode node, AnalyzerData data) {
         BLangNode parent = data.parent;
         node.parent = parent;
         data.parent = node;
         visitNode(node, data);
         data.parent = parent;
+        data.env = prevEnv;
     }
 
     private void analyzeTypeNode(BLangType node, AnalyzerData data) {
@@ -367,6 +368,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         compUnitNode.topLevelNodes.forEach(e -> analyzeNode((BLangNode) e, data));
     }
 
+    @Override
     public void visit(BLangTypeDefinition typeDefinition, AnalyzerData data) {
 
         analyzeTypeNode(typeDefinition.typeNode, data);
@@ -977,22 +979,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean checkSimilarSimpleMatchPattern(BLangSimpleMatchPattern firstSimpleMatchPattern,
                                                    BLangSimpleMatchPattern secondSimpleMatchPattern) {
         if (firstSimpleMatchPattern != null && secondSimpleMatchPattern != null) {
-            BLangWildCardMatchPattern firstWildCard = firstSimpleMatchPattern.wildCardMatchPattern;
-            BLangWildCardMatchPattern secondWildCard = secondSimpleMatchPattern.wildCardMatchPattern;
-            if (firstWildCard != null && secondWildCard != null) {
+            if (firstSimpleMatchPattern.varVariableName != null) {
                 return true;
-            } else if (firstWildCard != null || secondWildCard != null) {
-                return false;
             }
             BLangConstPattern firstConstPattern = firstSimpleMatchPattern.constPattern;
             BLangConstPattern secondConstPattern = secondSimpleMatchPattern.constPattern;
-            if (firstConstPattern != null && secondConstPattern != null) {
-                return checkSimilarConstMatchPattern(firstConstPattern, secondConstPattern);
-            } else if (firstConstPattern != null || secondConstPattern != null) {
+            if (firstConstPattern != null) {
+                if (secondConstPattern != null) {
+                    return checkSimilarConstMatchPattern(firstConstPattern, secondConstPattern);
+                }
                 return false;
             }
-            // This case is for var variable-name
-            return true;
+            return secondSimpleMatchPattern.varVariableName == null;
         }
         return firstSimpleMatchPattern == null && secondSimpleMatchPattern == null;
     }
@@ -1017,19 +1015,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             List<BLangNamedArgMatchPattern> secondNamedArgPatterns =
                     secondErrorFieldMatchPatterns.namedArgMatchPatterns;
             int firstNamedArgPatternsSize = firstNamedArgPatterns.size();
-            if (firstNamedArgPatternsSize == secondNamedArgPatterns.size()) {
+            int secondNamedArgPatternsSize = secondNamedArgPatterns.size();
+            if (firstNamedArgPatternsSize <= secondNamedArgPatterns.size()) {
                 for (int i = 0; i < firstNamedArgPatternsSize; i++) {
                     if (!checkSimilarNamedArgMatchPatterns(firstNamedArgPatterns.get(i),
                             secondNamedArgPatterns.get(i))) {
                         return false;
                     }
                 }
-                BLangMatchPattern firstRestPattern = firstErrorFieldMatchPatterns.restMatchPattern;
-                BLangMatchPattern secondRestPattern = secondErrorFieldMatchPatterns.restMatchPattern;
-                if (firstRestPattern != null && secondRestPattern != null) {
-                    return checkSimilarMatchPatterns(firstRestPattern, secondRestPattern);
+                if (firstNamedArgPatternsSize == secondNamedArgPatternsSize) {
+                    if (firstErrorFieldMatchPatterns.restMatchPattern != null) {
+                        return true;
+                    }
+                    return secondErrorFieldMatchPatterns.restMatchPattern == null;
                 }
-                return firstRestPattern == null && secondRestPattern == null;
+                return firstErrorFieldMatchPatterns.restMatchPattern != null;
             }
             return false;
         }
@@ -1272,98 +1272,67 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private boolean checkSimilarErrorMessageBindingPattern(BLangErrorMessageBindingPattern firstErrorMsgBindingPattern,
                                                       BLangErrorMessageBindingPattern secondErrorMsgBindingPattern) {
-        if ((firstErrorMsgBindingPattern != null && secondErrorMsgBindingPattern == null)
-                || (firstErrorMsgBindingPattern == null && secondErrorMsgBindingPattern != null)) {
-            return false;
+        if (firstErrorMsgBindingPattern != null && secondErrorMsgBindingPattern != null) {
+            return checkSimilarSimpleBindingPattern(firstErrorMsgBindingPattern.simpleBindingPattern,
+                    secondErrorMsgBindingPattern.simpleBindingPattern);
         }
-        if (firstErrorMsgBindingPattern == null) {
-            return true;
-        }
-        return checkSimilarSimpleBindingPattern(firstErrorMsgBindingPattern.simpleBindingPattern,
-                secondErrorMsgBindingPattern.simpleBindingPattern);
+        return firstErrorMsgBindingPattern == null && secondErrorMsgBindingPattern == null;
     }
 
     private boolean checkSimilarSimpleBindingPattern(BLangSimpleBindingPattern firstSimpleBindingPattern,
                                                      BLangSimpleBindingPattern secondSimpleBindingPattern) {
-        if ((firstSimpleBindingPattern != null && secondSimpleBindingPattern == null)
-                || (firstSimpleBindingPattern == null && secondSimpleBindingPattern != null)) {
-            return false;
-        }
-        if (firstSimpleBindingPattern == null) {
-            return true;
-        }
-        if (firstSimpleBindingPattern.captureBindingPattern != null &&
-                secondSimpleBindingPattern.captureBindingPattern != null) {
-            if (!checkSimilarBindingPatterns(firstSimpleBindingPattern.captureBindingPattern,
-                    secondSimpleBindingPattern.captureBindingPattern)) {
-                return false;
+        if (firstSimpleBindingPattern != null && secondSimpleBindingPattern != null) {
+            BLangBindingPattern firstCaptureBindingPattern = firstSimpleBindingPattern.captureBindingPattern;
+            BLangBindingPattern secondCaptureBindingPattern = secondSimpleBindingPattern.captureBindingPattern;
+            if (firstCaptureBindingPattern != null && secondCaptureBindingPattern != null) {
+                return checkSimilarBindingPatterns(firstCaptureBindingPattern, secondCaptureBindingPattern);
             }
-        } else if (!(firstSimpleBindingPattern.captureBindingPattern == null &&
-                secondSimpleBindingPattern.captureBindingPattern == null)) {
-            return false;
+            return firstSimpleBindingPattern.wildCardBindingPattern != null;
         }
-
-        if (firstSimpleBindingPattern.wildCardBindingPattern != null
-                && secondSimpleBindingPattern.wildCardBindingPattern == null) {
-            return false;
-        }
-        return firstSimpleBindingPattern.wildCardBindingPattern != null
-                || secondSimpleBindingPattern.wildCardBindingPattern == null;
+        return firstSimpleBindingPattern == null && secondSimpleBindingPattern == null;
     }
 
     private boolean checkSimilarErrorCauseBindingPattern(BLangErrorCauseBindingPattern firstErrorCauseBindingPattern,
                                                      BLangErrorCauseBindingPattern secondErrorCauseBindingPattern) {
-        if ((firstErrorCauseBindingPattern != null && secondErrorCauseBindingPattern == null)
-                || (firstErrorCauseBindingPattern == null && secondErrorCauseBindingPattern != null)) {
-            return false;
+        if (firstErrorCauseBindingPattern != null && secondErrorCauseBindingPattern != null) {
+            if (!checkSimilarSimpleBindingPattern(firstErrorCauseBindingPattern.simpleBindingPattern,
+                    secondErrorCauseBindingPattern.simpleBindingPattern)) {
+                return false;
+            }
+            return checkSimilarErrorBindingPatterns(firstErrorCauseBindingPattern.errorBindingPattern,
+                    secondErrorCauseBindingPattern.errorBindingPattern);
         }
-        if (firstErrorCauseBindingPattern == null) {
-            return true;
-        }
-        if (!checkSimilarSimpleBindingPattern(firstErrorCauseBindingPattern.simpleBindingPattern,
-                secondErrorCauseBindingPattern.simpleBindingPattern)) {
-            return false;
-        }
-        return checkSimilarErrorBindingPatterns(firstErrorCauseBindingPattern.errorBindingPattern,
-                secondErrorCauseBindingPattern.errorBindingPattern);
+        return firstErrorCauseBindingPattern == null && secondErrorCauseBindingPattern == null;
     }
 
     private boolean checkSimilarErrorFieldBindingPatterns(
                                           BLangErrorFieldBindingPatterns firstErrorFieldBindingPatterns,
                                           BLangErrorFieldBindingPatterns secondErrorFieldBindingPatterns) {
-        if (firstErrorFieldBindingPatterns != null && secondErrorFieldBindingPatterns == null) {
-            return firstErrorFieldBindingPatterns.restBindingPattern != null;
-        }
-        if (firstErrorFieldBindingPatterns == null && secondErrorFieldBindingPatterns != null) {
-            return secondErrorFieldBindingPatterns.restBindingPattern != null;
-        }
-        if (firstErrorFieldBindingPatterns == null) {
-            return true;
-        }
-        if (firstErrorFieldBindingPatterns.restBindingPattern != null) {
-            return true;
-        }
-
-        List<BLangNamedArgBindingPattern> firstNamedArgBindingPatterns =
-                firstErrorFieldBindingPatterns.namedArgBindingPatterns;
-        List<BLangNamedArgBindingPattern> secondNamedArgBindingPatterns =
-                secondErrorFieldBindingPatterns.namedArgBindingPatterns;
-        if (firstNamedArgBindingPatterns.size() != secondNamedArgBindingPatterns.size()) {
+        if (firstErrorFieldBindingPatterns != null && secondErrorFieldBindingPatterns != null) {
+            List<BLangNamedArgBindingPattern> firstNamedArgPatterns =
+                    firstErrorFieldBindingPatterns.namedArgBindingPatterns;
+            List<BLangNamedArgBindingPattern> secondNamedArgPatterns =
+                    secondErrorFieldBindingPatterns.namedArgBindingPatterns;
+            int firstNamedArgPatternsSize = firstNamedArgPatterns.size();
+            int secondNamedArgPatternsSize = secondNamedArgPatterns.size();
+            if (firstNamedArgPatternsSize <= secondNamedArgPatternsSize) {
+                for (int i = 0; i < firstNamedArgPatternsSize; i++) {
+                    if (!checkSimilarNamedArgBindingPatterns(firstNamedArgPatterns.get(i),
+                            secondNamedArgPatterns.get(i))) {
+                        return false;
+                    }
+                }
+                if (firstNamedArgPatternsSize == secondNamedArgPatternsSize) {
+                    if (firstErrorFieldBindingPatterns.restBindingPattern != null) {
+                        return true;
+                    }
+                    return secondErrorFieldBindingPatterns.restBindingPattern == null;
+                }
+                return firstErrorFieldBindingPatterns.restBindingPattern != null;
+            }
             return false;
         }
-
-        for (int i = 0; i < firstNamedArgBindingPatterns.size(); i++) {
-            if (!checkSimilarNamedArgBindingPatterns(firstNamedArgBindingPatterns.get(i),
-                    secondNamedArgBindingPatterns.get(i))) {
-                return false;
-            }
-        }
-
-        if (firstErrorFieldBindingPatterns.restBindingPattern == null) {
-            return true;
-        }
-        return checkSimilarBindingPatterns(firstErrorFieldBindingPatterns.restBindingPattern,
-                secondErrorFieldBindingPatterns.restBindingPattern);
+        return firstErrorFieldBindingPatterns == null && secondErrorFieldBindingPatterns == null;
     }
 
     private boolean checkSimilarNamedArgBindingPatterns(BLangNamedArgBindingPattern firstNamedArgBindingPattern,
@@ -2236,6 +2205,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangImportPackage importPkgNode, AnalyzerData data) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
@@ -2246,10 +2216,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeNode(pkgEnv.node, data);
     }
 
+    @Override
     public void visit(BLangXMLNS xmlnsNode, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangService serviceNode, AnalyzerData data) {
     }
 
@@ -2343,6 +2315,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         int ownerSymTag = data.env.scope.owner.tag;
         if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
@@ -2359,6 +2332,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(letExpression.expr, letExpression.env, data);
     }
 
+    @Override
     public void visit(BLangSimpleVariable varNode, AnalyzerData data) {
 
         analyzeTypeNode(varNode.typeNode, data);
@@ -2410,15 +2384,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         analyzeExpr(bLangErrorVariable.expr, data);
     }
-    
+
+    @Override
     public void visit(BLangIdentifier identifierNode, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangAnnotation annotationNode, AnalyzerData data) {
         annotationNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data));
     }
 
+    @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode, AnalyzerData data) {
         analyzeExpr(annAttachmentNode.expr, data);
         BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
@@ -2427,22 +2404,26 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangSimpleVariableDef varDefNode, AnalyzerData data) {
         analyzeNode(varDefNode.var, data);
     }
 
+    @Override
     public void visit(BLangCompoundAssignment compoundAssignment, AnalyzerData data) {
         BLangValueExpression varRef = compoundAssignment.varRef;
         analyzeExpr(varRef, data);
         analyzeExpr(compoundAssignment.expr, data);
     }
 
+    @Override
     public void visit(BLangAssignment assignNode, AnalyzerData data) {
         BLangExpression varRef = assignNode.varRef;
         analyzeExpr(varRef, data);
         analyzeExpr(assignNode.expr, data);
     }
 
+    @Override
     public void visit(BLangRecordDestructure stmt, AnalyzerData data) {
         List<BLangExpression> varRefs = getVarRefs(stmt.varRef);
         this.checkDuplicateVarRefs(varRefs);
@@ -2450,6 +2431,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(stmt.expr, data);
     }
 
+    @Override
     public void visit(BLangErrorDestructure stmt, AnalyzerData data) {
         List<BLangExpression> varRefs = getVarRefs(stmt.varRef);
         this.checkDuplicateVarRefs(varRefs);
@@ -2529,6 +2511,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return varRefs;
     }
 
+    @Override
     public void visit(BLangBreak breakNode, AnalyzerData data) {
         if (data.loopCount == 0) {
             this.dlog.error(breakNode.pos, DiagnosticErrorCode.BREAK_CANNOT_BE_OUTSIDE_LOOP);
@@ -2543,13 +2526,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangPanic panicNode, AnalyzerData data) {
         analyzeExpr(panicNode.expr, data);
     }
 
+    @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode, AnalyzerData data) {
     }
 
+    @Override
     public void visit(BLangExpressionStmt exprStmtNode, AnalyzerData data) {
         BLangExpression expr = exprStmtNode.expr;
         analyzeExpr(expr, data);
@@ -2612,6 +2598,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
 
     // Asynchronous Send Statement
+    @Override
     public void visit(BLangWorkerSend workerSendNode, AnalyzerData data) {
         BSymbol receiver =
                 symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerSendNode.workerIdentifier));
@@ -2806,12 +2793,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return false;
     }
 
+    @Override
     public void visit(BLangLiteral literalExpr, AnalyzerData data) {
     }
 
+    @Override
     public void visit(BLangConstRef constRef, AnalyzerData data) {
     }
 
+    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr, AnalyzerData data) {
         analyzeExprs(listConstructorExpr.exprs, data);
     }
@@ -2821,6 +2811,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExprs(tableConstructorExpr.recordLiteralList, data);
     }
 
+    @Override
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
 
@@ -2996,6 +2987,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return newMap;
     }
 
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr, AnalyzerData data) {
         switch (varRefExpr.parent.getKind()) {
             // Referring workers for worker interactions are allowed, hence skip the check.
@@ -3022,18 +3014,22 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.workerReferences.get(varRefExpr.symbol).add(varRefExpr);
     }
 
+    @Override
     public void visit(BLangRecordVarRef varRefExpr, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangErrorVarRef varRefExpr, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangTupleVarRef varRefExpr, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr, AnalyzerData data) {
         analyzeFieldBasedAccessExpr(fieldAccessExpr, data);
     }
@@ -3052,15 +3048,18 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr, AnalyzerData data) {
         analyzeExpr(indexAccessExpr.indexExpr, data);
         analyzeExpr(indexAccessExpr.expr, data);
     }
 
+    @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr, AnalyzerData data) {
         analyzeExprs(tableMultiKeyExpr.multiKeyIndexExprs, data);
     }
 
+    @Override
     public void visit(BLangInvocation invocationExpr, AnalyzerData data) {
         analyzeExpr(invocationExpr.expr, data);
         analyzeExprs(invocationExpr.requiredArgs, data);
@@ -3081,6 +3080,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr, AnalyzerData data) {
         analyzeExprs(errorConstructorExpr.positionalArgs, data);
         if (!errorConstructorExpr.namedArgs.isEmpty()) {
@@ -3088,6 +3088,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation, AnalyzerData data) {
         validateInvocationInMatchGuard(actionInvocation);
 
@@ -3189,6 +3190,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return false;
     }
 
+    @Override
     public void visit(BLangTypeInit cIExpr, AnalyzerData data) {
         analyzeExprs(cIExpr.argsExpr, data);
         analyzeExpr(cIExpr.initInvocation, data);
@@ -3198,12 +3200,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangTernaryExpr ternaryExpr, AnalyzerData data) {
         analyzeExpr(ternaryExpr.expr, data);
         analyzeExpr(ternaryExpr.thenExpr, data);
         analyzeExpr(ternaryExpr.elseExpr, data);
     }
 
+    @Override
     public void visit(BLangWaitExpr awaitExpr, AnalyzerData data) {
         BLangExpression expr = awaitExpr.getExpression();
         boolean validWaitFuture = validateWaitFutureExpr(expr);
@@ -3215,6 +3219,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         was.hasErrors = !(validWaitFuture || validActionParent);
     }
 
+    @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr, AnalyzerData data) {
         boolean validWaitFuture = true;
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitForAllExpr.keyValuePairs) {
@@ -3320,6 +3325,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(trapExpr.expr, data);
     }
 
+    @Override
     public void visit(BLangBinaryExpr binaryExpr, AnalyzerData data) {
         if (validateBinaryExpr(binaryExpr)) {
             analyzeExpr(binaryExpr.lhsExpr, data);
@@ -3363,6 +3369,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         return true;
     }
 
+    @Override
     public void visit(BLangElvisExpr elvisExpr, AnalyzerData data) {
         analyzeExpr(elvisExpr.lhsExpr, data);
         analyzeExpr(elvisExpr.rhsExpr, data);
@@ -3373,28 +3380,34 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(groupExpr.expression, data);
     }
 
+    @Override
     public void visit(BLangUnaryExpr unaryExpr, AnalyzerData data) {
         analyzeExpr(unaryExpr.expr, data);
     }
 
+    @Override
     public void visit(BLangTypedescExpr accessExpr, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangTypeConversionExpr conversionExpr, AnalyzerData data) {
         analyzeExpr(conversionExpr.expr, data);
         conversionExpr.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data));
     }
 
+    @Override
     public void visit(BLangXMLQName xmlQName, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangXMLAttribute xmlAttribute, AnalyzerData data) {
         analyzeExpr(xmlAttribute.name, data);
         analyzeExpr(xmlAttribute.value, data);
     }
 
+    @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral, AnalyzerData data) {
         analyzeExpr(xmlElementLiteral.startTagName, data);
         analyzeExpr(xmlElementLiteral.endTagName, data);
@@ -3402,36 +3415,44 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExprs(xmlElementLiteral.children, data);
     }
 
+    @Override
     public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral, AnalyzerData data) {
         analyzeExprs(xmlSequenceLiteral.xmlItems, data);
     }
 
+    @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral, AnalyzerData data) {
         analyzeExprs(xmlTextLiteral.textFragments, data);
     }
 
+    @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral, AnalyzerData data) {
         analyzeExprs(xmlCommentLiteral.textFragments, data);
     }
 
+    @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral, AnalyzerData data) {
         analyzeExprs(xmlProcInsLiteral.dataFragments, data);
         analyzeExpr(xmlProcInsLiteral.target, data);
     }
 
+    @Override
     public void visit(BLangXMLQuotedString xmlQuotedString, AnalyzerData data) {
         analyzeExprs(xmlQuotedString.textFragments, data);
     }
 
+    @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral, AnalyzerData data) {
         analyzeExprs(stringTemplateLiteral.exprs, data);
     }
 
+    @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral, AnalyzerData data) {
         analyzeExprs(rawTemplateLiteral.strings, data);
         analyzeExprs(rawTemplateLiteral.insertions, data);
     }
 
+    @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction, AnalyzerData data) {
         boolean isWorker = false;
 
@@ -3473,6 +3494,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangArrowFunction bLangArrowFunction, AnalyzerData data) {
 
         DefaultValueState prevDefaultValueState = data.defaultValueState;
@@ -3532,21 +3554,25 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeTypeNode(arrayType.elemtype, data);
     }
 
+    @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType, AnalyzerData data) {
         /* ignore */
     }
 
+    @Override
     public void visit(BLangConstrainedType constrainedType, AnalyzerData data) {
 
         analyzeTypeNode(constrainedType.constraint, data);
     }
 
+    @Override
     public void visit(BLangStreamType streamType, AnalyzerData data) {
 
         analyzeTypeNode(streamType.constraint, data);
         analyzeTypeNode(streamType.error, data);
     }
 
+    @Override
     public void visit(BLangTableTypeNode tableType, AnalyzerData data) {
 
         analyzeTypeNode(tableType.constraint, data);
@@ -3556,6 +3582,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangErrorType errorType, AnalyzerData data) {
         BLangType detailType = errorType.detailType;
         if (detailType != null && detailType.getKind() == NodeKind.CONSTRAINED_TYPE) {
@@ -3573,6 +3600,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeTypeNode(errorType.detailType, data);
     }
 
+    @Override
     public void visit(BLangUserDefinedType userDefinedType, AnalyzerData data) {
         BTypeSymbol typeSymbol = userDefinedType.getBType().tsymbol;
         if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
@@ -3580,17 +3608,20 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
 
         tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data));
         analyzeTypeNode(tupleTypeNode.restParamType, data);
     }
 
+    @Override
     public void visit(BLangUnionTypeNode unionTypeNode, AnalyzerData data) {
 
         unionTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data));
     }
 
+    @Override
     public void visit(BLangIntersectionTypeNode intersectionTypeNode, AnalyzerData data) {
 
         for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
@@ -3598,6 +3629,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    @Override
     public void visit(BLangFunctionTypeNode functionTypeNode, AnalyzerData data) {
         if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
             return;

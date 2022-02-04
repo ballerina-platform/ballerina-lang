@@ -190,7 +190,6 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 44, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 48, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 48, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 49, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 49, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 49, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 49, 9);
@@ -203,12 +202,10 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 60, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 64, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 64, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 65, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 65, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 79, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 79, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 79, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'extra'", 80, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 80, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 84, 9);
