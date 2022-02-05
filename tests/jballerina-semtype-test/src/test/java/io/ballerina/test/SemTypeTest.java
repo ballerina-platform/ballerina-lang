@@ -56,13 +56,15 @@ import static io.ballerina.test.utils.Constants.SUBTYPE_SYMBOL;
  */
 public class SemTypeTest {
 
+    private final Types types = Types.getInstance(new CompilerContext());
+
     @DataProvider(name = "filePathProvider")
     public Object[] filePathProvider() {
         File dir = resolvePath("test-src").toFile();
         List<String> files = new ArrayList<>();
         for (File file : Objects.requireNonNull(dir.listFiles())) {
             String fileName = file.getName();
-            if (fileName.contains(FAILING_FILE) || fileName.contains(DISABLED_FILE)) {
+            if (fileName.endsWith(FAILING_FILE) || fileName.endsWith(DISABLED_FILE)) {
                 continue;
             }
             files.add(file.getAbsolutePath());
@@ -90,27 +92,26 @@ public class SemTypeTest {
             }
         }
 
-        Types types = Types.getInstance(new CompilerContext());
         Set<String> relations = new HashSet<>();
         int len = bTypeDefinitionSymbols.size();
         for (int i = 0; i < len; i++) {
+            BTypeDefinitionSymbol td1 = bTypeDefinitionSymbols.get(i);
+            BType t1 = td1.type;
+            String n1 = td1.name.getValue();
             for (int j = i + 1; j < len; j++) {
-                BTypeDefinitionSymbol td1 = bTypeDefinitionSymbols.get(i);
                 BTypeDefinitionSymbol td2 = bTypeDefinitionSymbols.get(j);
-                BType t1 = td1.type;
                 BType t2 = td2.type;
-                String n1 = td1.name.getValue();
                 String n2 = td2.name.getValue();
 
-                computeSubTypeRelation(t1, t2, n1, n2, types, relations);
-                computeSubTypeRelation(t2, t1, n2, n1, types, relations);
+                computeSubTypeRelation(t1, t2, n1, n2, relations);
+                computeSubTypeRelation(t2, t1, n2, n1, relations);
             }
         }
         return relations;
     }
 
     private void computeSubTypeRelation(BType sourceType, BType targetType, String sourceTypeName,
-                                        String targetTypeName, Types types, Set<String> relations) {
+                                        String targetTypeName, Set<String> relations) {
         if (types.isAssignable(sourceType, targetType)) {
             relations.add(relation(sourceTypeName, targetTypeName));
         }
