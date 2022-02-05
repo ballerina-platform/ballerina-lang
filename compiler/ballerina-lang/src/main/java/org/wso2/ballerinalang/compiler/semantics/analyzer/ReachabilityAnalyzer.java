@@ -141,18 +141,16 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     void analyzeReachability(BLangNode node, SymbolEnv env) {
         final AnalyzerData data = new AnalyzerData();
-        analyzeReachability(node, env, data);
-    }
-
-    private void analyzeReachability(BLangNode node, SymbolEnv env, AnalyzerData data) {
-        SymbolEnv prevEnv = data.env;
-        data.env = env;
-        visitNode(node, data);
-        data.env = prevEnv;
+        data.applicableEnv = env;
+        analyzeReachability(node, data);
     }
 
     private void analyzeReachability(BLangNode node, AnalyzerData data) {
         SymbolEnv prevEnv = data.env;
+        if (data.applicableEnv != null) {
+            data.env = data.applicableEnv;
+            data.applicableEnv = null;
+        }
         visitNode(node, data);
         data.env = prevEnv;
     }
@@ -198,7 +196,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, data.env);
         BType prevBoolConst = data.booleanConstCondition;
         for (BLangStatement stmt : blockNode.stmts) {
-            analyzeReachability(stmt, blockEnv, data);
+            data.applicableEnv = blockEnv;
+            analyzeReachability(stmt, data);
         }
         data.booleanConstCondition = prevBoolConst;
         resetUnreachableBlock(data);
@@ -386,7 +385,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
         data.breakStmtFound = false;
         incrementLoopCount(data);
-        analyzeReachability(foreach.body, foreachEnv, data);
+        data.applicableEnv = foreachEnv;
+        analyzeReachability(foreach.body, data);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                 data.breakAsLastStatement || data.statementReturnsPanicsOrFails, true,
@@ -576,8 +576,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         if (bLangLambdaFunction.parent.getKind() == NodeKind.VARIABLE &&
               (((BLangSimpleVariable) bLangLambdaFunction.parent).name.value).startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
             BLangFunction function = bLangLambdaFunction.function;
-            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, data.env);
-            analyzeReachability(function, invokableEnv, data);
+            data.applicableEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, data.env);
+            analyzeReachability(function, data);
         }
         data.continueAsLastStatement = prevContinueAsLastStatement;
         data.breakAsLastStatement = prevBreakAsLastStatement;
@@ -626,7 +626,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         incrementLoopCount(data);
         data.breakStmtFound = false;
         data.unreachableBlock = data.unreachableBlock || data.booleanConstCondition == symTable.falseType;
-        analyzeReachability(whileNode.body, whileEnv, data);
+        data.applicableEnv = whileEnv;
+        analyzeReachability(whileNode.body, data);
         resetUnreachableBlock(data);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
@@ -653,7 +654,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     public void visit(BLangBlockFunctionBody body, AnalyzerData data) {
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, data.env);
         for (BLangStatement stmt : body.stmts) {
-            analyzeReachability(stmt, blockEnv, data);
+            data.applicableEnv = blockEnv;
+            analyzeReachability(stmt, data);
         }
     }
 
@@ -688,7 +690,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                 data.env.enclInvokable));
 
         BLangBlockStmt body = doClause.body;
-        analyzeReachability(body, doEnv, data);
+        data.applicableEnv = doEnv;
+        analyzeReachability(body, data);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                 data.statementReturnsPanicsOrFails, true,
@@ -947,6 +950,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
      */
     public static class AnalyzerData {
         SymbolEnv env;
+        SymbolEnv applicableEnv;
         boolean statementReturnsPanicsOrFails;
         boolean breakAsLastStatement;
         boolean continueAsLastStatement;
