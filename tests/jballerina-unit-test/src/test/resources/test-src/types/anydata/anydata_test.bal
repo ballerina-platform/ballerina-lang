@@ -870,6 +870,8 @@ function testRuntimeIsAnydata() {
     any g = <record {anydata a; error e;}> {a: 1, e: error("error!")};
     any h = <record {|anydata a; error...;|}> {a: 1};
     any i = <record {anydata a; error e?;}> {a: 1};
+    any j = table [{"e": error("Message")}];
+    any k = table [{"a": {"x": error("Message")}}];
 
     assertFalse(a is anydata);
     assertFalse(b is anydata);
@@ -880,6 +882,8 @@ function testRuntimeIsAnydata() {
     assertFalse(g is anydata);
     assertFalse(h is anydata);
     assertFalse(i is anydata);
+    assertFalse(j is anydata);
+    assertFalse(k is anydata);
 
     any a2 = <(anydata|error)[] & readonly> [1, 2];
     any b2 = <anydata[]> [1];
