@@ -46,10 +46,12 @@ public class ReachabilityAnalysisTest {
             "expression of type 'never' or equivalent to type 'never' not allowed here";
 
     private CompileResult result;
+    private CompileResult result2;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/reachability-analysis/reachability_analysis.bal");
+        result2 = BCompileUtil.compile("test-src/reachability-analysis/reachability_analysis2.bal");
     }
 
     @Test(dataProvider = "reachabilityTests")
@@ -88,28 +90,77 @@ public class ReachabilityAnalysisTest {
 
     @Test(dataProvider = "reachabilityTests2")
     public void testReachability2(String function) {
-        result = BCompileUtil.compile("test-src/reachability-analysis/reachability_analysis2.bal");
-        BRunUtil.invoke(result, function);
+        BRunUtil.invoke(result2, function);
     }
 
     @DataProvider(name = "reachabilityTests2")
     public Object[] reachabilityTests2() {
         return new Object[]{
-                "executeTestReachabilityWithIfContainingReturn",
-                "executeTestReachabilityWithIfUsingConstInExpr",
-                "executeTestReachabilityWithNestedIfContainingReturn",
-                "executeTestReachabilityWithIsExprNotConstantTrue",
-                "executeTestReachabilityWithFailExpr",
-                "executeTestReachabilityWithResetTypeNarrowing",
-                "executeTestReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr",
-                "executeTestReachabilityWithIfStmtWithAConditionUsingEnum",
-                "executeTestReachabilityWithWhile",
-                "executeTestReachabilityWhereTheIsExprInsideWhile",
-                "executeTestReachabilityWithWhileStmtWithEqualityExpr",
-                "executeTestReachabilityWithWhileStmtWithAConditionUsingEnum",
-                "executeTestReachabilityWithQueryAction",
-                "executeTestReachabilityAfterCheck",
-                "executeTestReachabilityAfterCheckPanic"
+                "testReachabilityWithIfContainingReturn",
+                "testReachabilityWithIfContainingReturn2",
+                "testReachabilityWithIfContainingReturn3",
+                "testReachabilityWithIfContainingReturn4",
+                "testReachabilityWithIfContainingReturn5",
+                "testReachabilityWithIfContainingReturn6",
+                "testReachabilityWithIfContainingReturn7",
+                "testReachabilityWithIfUsingConstInExpr1",
+                "testReachabilityWithIfUsingConstInExpr2",
+                "testReachabilityWithIfUsingConstInExpr3",
+                "testReachabilityWithIfUsingConstInExpr4",
+                "testReachabilityWithIfUsingConstInExpr5",
+                "testReachabilityWithNestedIfContainingReturn",
+                "testReachabilityWithIsExprNotConstantTrue",
+                "testReachabilityWithIsExprNotConstantTrue2",
+                "testReachabilityWithIsExprNotConstantTrue3",
+                "testReachabilityWithIsExprNotConstantTrue4",
+                "testReachabilityWithIsExprNotConstantTrue5",
+                "testReachabilityWithIsExprNotConstantTrue6",
+                "testReachabilityWithFailExpr",
+                "testReachabilityWithFailExpr2",
+                "testReachabilityWithFailExpr3",
+                "testReachabilityWithFailExpr4",
+                "testReachabilityWithFailExpr5",
+                "testReachabilityWithFailExpr6",
+                "testReachabilityWithFailExpr7",
+                "testReachabilityWithResetTypeNarrowing",
+                "testReachabilityWithResetTypeNarrowing2",
+                "testReachabilityWithResetTypeNarrowing3",
+                "testReachabilityWithResetTypeNarrowing4",
+                "testReachabilityWithResetTypeNarrowing5",
+                "testReachabilityWithResetTypeNarrowing6",
+                "testReachabilityWithResetTypeNarrowing7",
+                "testReachabilityWithResetTypeNarrowing8",
+                "testReachabilityWithResetTypeNarrowing9",
+                "testReachabilityWithResetTypeNarrowing10",
+                "testReachabilityWithResetTypeNarrowing11",
+                "testReachabilityWithResetTypeNarrowing12",
+                "testReachabilityWithResetTypeNarrowing13",
+                "testReachabilityWithResetTypeNarrowing14",
+                "testReachabilityWithResetTypeNarrowing15",
+                "testReachabilityWithResetTypeNarrowing16",
+                "testReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr",
+                "testReachabilityWithIfStmtWithAConditionUsingEnum",
+                "testReachabilityWithIfStmtWithAConditionUsingEnum2",
+                "testReachabilityWithIfStmtWithAConditionUsingEnum3",
+                "testReachabilityWithIfStmtWithAConditionUsingEnum4",
+                "testReachabilityWithIfStmtWithAConditionUsingEnum5",
+                "testReachabilityWithWhile",
+                "testReachabilityWithWhile2",
+                "testReachabilityWithWhile3",
+                "testReachabilityWithWhile4",
+                "testReachabilityWithWhile5",
+                "testReachabilityWithWhile6",
+                "testReachabilityWithNestedWhile",
+                "testReachabilityWhereTheIsExprInsideWhile",
+                "testReachabilityWhereTheIsExprInsideWhile2",
+                "testReachabilityWithWhileStmtWithEqualityExpr",
+                "testReachabilityWithWhileStmtWithEqualityExpr2",
+                "testReachabilityWithWhileStmtWithEqualityExpr3",
+                "testReachabilityWithWhileStmtWithEqualityExpr4",
+                "testReachabilityWithWhileStmtWithAConditionUsingEnum",
+                "testReachabilityWithWhileStmtWithAConditionUsingEnum2",
+                "testReachabilityAfterCheck",
+                "testReachabilityAfterCheckPanic"
         };
     }
     

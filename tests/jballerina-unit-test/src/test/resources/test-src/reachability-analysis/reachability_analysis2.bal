@@ -14,17 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function executeTestReachabilityWithIfContainingReturn() {
-    assertEqual(testReachabilityWithIfContainingReturn(), "Ballerina");
-    assertEqual(testReachabilityWithIfContainingReturn2(), "Ballerina");
-    assertEqual(testReachabilityWithIfContainingReturn3(), "Hello");
-    assertEqual(testReachabilityWithIfContainingReturn4(), "Hello");
-    assertEqual(testReachabilityWithIfContainingReturn5(), "Ballerina");
-    assertEqual(testReachabilityWithIfContainingReturn6(), "Ballerina");
-    assertEqual(testReachabilityWithIfContainingReturn7(), "Ballerina");
-}
-
-function testReachabilityWithIfContainingReturn() returns string {
+function checkReachabilityWithIfContainingReturn() returns string {
     boolean flag = false;
     if flag {
         return "Hello";
@@ -33,7 +23,7 @@ function testReachabilityWithIfContainingReturn() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfContainingReturn2() returns string {
+function checkReachabilityWithIfContainingReturn2() returns string {
     boolean flag = false;
     if flag {
         return "Hello";
@@ -44,7 +34,7 @@ function testReachabilityWithIfContainingReturn2() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfContainingReturn3() returns string {
+function checkReachabilityWithIfContainingReturn3() returns string {
     boolean flag = true;
     if true == flag {
         return "Hello";
@@ -55,7 +45,7 @@ function testReachabilityWithIfContainingReturn3() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfContainingReturn4() returns string {
+function checkReachabilityWithIfContainingReturn4() returns string {
     boolean flag = true;
     if flag == true {
         return "Hello";
@@ -66,7 +56,7 @@ function testReachabilityWithIfContainingReturn4() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfContainingReturn5() returns string {
+function checkReachabilityWithIfContainingReturn5() returns string {
     boolean flag = true;
     if true != flag {
         return "Hello";
@@ -77,7 +67,7 @@ function testReachabilityWithIfContainingReturn5() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfContainingReturn6() returns string {
+function checkReachabilityWithIfContainingReturn6() returns string {
     boolean flag = true;
     if flag != true {
         return "Hello";
@@ -88,7 +78,7 @@ function testReachabilityWithIfContainingReturn6() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfContainingReturn7() returns string {
+function checkReachabilityWithIfContainingReturn7() returns string {
     boolean flag = false;
     if true {
         if true {
@@ -101,17 +91,9 @@ function testReachabilityWithIfContainingReturn7() returns string {
     return "Ballerina";
 }
 
-function executeTestReachabilityWithIfUsingConstInExpr() {
-    assertEqual(testReachabilityWithIfUsingConstInExpr1(), "Hello");
-    assertEqual(testReachabilityWithIfUsingConstInExpr2(), "Hello");
-    assertEqual(testReachabilityWithIfUsingConstInExpr3(), "Ballerina");
-    assertEqual(testReachabilityWithIfUsingConstInExpr4(), "Ballerina");
-    assertEqual(testReachabilityWithIfUsingConstInExpr5(), "Ballerina");
-}
-
 const TRUE = true;
 
-function testReachabilityWithIfUsingConstInExpr1() returns string {
+function checkReachabilityWithIfUsingConstInExpr1() returns string {
     boolean flag = true;
     if TRUE == flag {
         return "Hello";
@@ -122,7 +104,7 @@ function testReachabilityWithIfUsingConstInExpr1() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfUsingConstInExpr2() returns string {
+function checkReachabilityWithIfUsingConstInExpr2() returns string {
     boolean flag = true;
     if flag == TRUE {
         return "Hello";
@@ -133,7 +115,7 @@ function testReachabilityWithIfUsingConstInExpr2() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfUsingConstInExpr3() returns string {
+function checkReachabilityWithIfUsingConstInExpr3() returns string {
     boolean flag = true;
     if TRUE != flag {
         return "Hello";
@@ -144,7 +126,7 @@ function testReachabilityWithIfUsingConstInExpr3() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfUsingConstInExpr4() returns string {
+function checkReachabilityWithIfUsingConstInExpr4() returns string {
     boolean flag = true;
     if flag != TRUE {
         return "Hello";
@@ -155,7 +137,7 @@ function testReachabilityWithIfUsingConstInExpr4() returns string {
     return "Ballerina";
 }
 
-function testReachabilityWithIfUsingConstInExpr5() returns string {
+function checkReachabilityWithIfUsingConstInExpr5() returns string {
     if true {
         if true {
             if true {
@@ -176,13 +158,9 @@ function testReachabilityWithIfUsingConstInExpr5() returns string {
 //     }
 // }
 
-function executeTestReachabilityWithNestedIfContainingReturn() {
-    assertEqual(testReachabilityWithNestedIfContainingReturn(), "car");
-}
-
-function testReachabilityWithNestedIfContainingReturn() returns string {
+function checkReachabilityWithNestedIfContainingReturn() returns string {
     boolean flag = true;
-    
+
     if true {
         if flag {
             if !flag {
@@ -207,19 +185,7 @@ function testReachabilityWithNestedIfContainingReturn() returns string {
     return "bar";
 }
 
-function executeTestReachabilityWithIsExprNotConstantTrue() {
-    assertEqual(testReachabilityWithIsExprNotConstantTrue(), "ballerina");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue(), "ballerina");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue(), "ballerina");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue(), "ballerina");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue2(), "java");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue3(), "java");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue4(), "python");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue5(), "other");
-    assertEqual(testReachabilityWithIsExprNotConstantTrue6(), "C#");
-}
-
-function testReachabilityWithIsExprNotConstantTrue() returns string {
+function checkReachabilityWithIsExprNotConstantTrue() returns string {
     string myString = "ballerina";
     if myString is "ballerina" {
         return "ballerina";
@@ -228,7 +194,7 @@ function testReachabilityWithIsExprNotConstantTrue() returns string {
     }
 }
 
-function testReachabilityWithIsExprNotConstantTrue2() returns string {
+function checkReachabilityWithIsExprNotConstantTrue2() returns string {
     string myString = "other";
     if myString is "ballerina" {
         return "ballerina";
@@ -237,7 +203,7 @@ function testReachabilityWithIsExprNotConstantTrue2() returns string {
     }
 }
 
-function testReachabilityWithIsExprNotConstantTrue3() returns string {
+function checkReachabilityWithIsExprNotConstantTrue3() returns string {
     string myString = "java";
     if myString is "ballerina" {
         return "ballerina";
@@ -248,7 +214,7 @@ function testReachabilityWithIsExprNotConstantTrue3() returns string {
     return "python";
 }
 
-function testReachabilityWithIsExprNotConstantTrue4() returns string {
+function checkReachabilityWithIsExprNotConstantTrue4() returns string {
     string myString = "other";
     if myString is "ballerina" {
         return "ballerina";
@@ -259,7 +225,7 @@ function testReachabilityWithIsExprNotConstantTrue4() returns string {
     return "python";
 }
 
-function testReachabilityWithIsExprNotConstantTrue5() returns string {
+function checkReachabilityWithIsExprNotConstantTrue5() returns string {
     string myString = "other";
     if myString is "ballerina" {
         return "ballerina";
@@ -274,7 +240,7 @@ function testReachabilityWithIsExprNotConstantTrue5() returns string {
     return myString;
 }
 
-function testReachabilityWithIsExprNotConstantTrue6() returns string {
+function checkReachabilityWithIsExprNotConstantTrue6() returns string {
     string myString = "other";
     if myString is "ballerina" {
         return "ballerina";
@@ -289,17 +255,7 @@ function testReachabilityWithIsExprNotConstantTrue6() returns string {
     return myString;
 }
 
-function executeTestReachabilityWithFailExpr() {
-    assertEqual((<error>testReachabilityWithFailExpr()).message(), "errormsg");
-    assertEqual((<error>testReachabilityWithFailExpr2()).message(), "errormsg");
-    assertEqual((<error>testReachabilityWithFailExpr3()).message(), "errormsg2");
-    assertEqual(testReachabilityWithFailExpr4(), "python");
-    assertEqual((<error>testReachabilityWithFailExpr5()).message(), "errormsg");
-    assertEqual(testReachabilityWithFailExpr6(), "C#");
-    assertEqual((<error>testReachabilityWithFailExpr7()).message(), "msg");
-}
-
-function testReachabilityWithFailExpr() returns string|error {
+function checkReachabilityWithFailExpr() returns string|error {
     string myString = "ballerina";
     if myString is "ballerina" {
         fail error("errormsg");
@@ -308,7 +264,7 @@ function testReachabilityWithFailExpr() returns string|error {
     }
 }
 
-function testReachabilityWithFailExpr2() returns string|error {
+function checkReachabilityWithFailExpr2() returns string|error {
     string myString = "other";
     if myString is "ballerina" {
         return "ballerina";
@@ -317,7 +273,7 @@ function testReachabilityWithFailExpr2() returns string|error {
     }
 }
 
-function testReachabilityWithFailExpr3() returns string|error {
+function checkReachabilityWithFailExpr3() returns string|error {
     string myString = "java";
     if myString is "ballerina" {
         fail error("errormsg1");
@@ -328,7 +284,7 @@ function testReachabilityWithFailExpr3() returns string|error {
     return "python";
 }
 
-function testReachabilityWithFailExpr4() returns string|error {
+function checkReachabilityWithFailExpr4() returns string|error {
     string myString = "other";
     if myString is "ballerina" {
         fail error("errormsg1");
@@ -339,7 +295,7 @@ function testReachabilityWithFailExpr4() returns string|error {
     return "python";
 }
 
-function testReachabilityWithFailExpr5() returns string|error {
+function checkReachabilityWithFailExpr5() returns string|error {
     string myString = "other";
     if myString is "ballerina" {
         fail error("ballerina");
@@ -354,7 +310,7 @@ function testReachabilityWithFailExpr5() returns string|error {
     return myString;
 }
 
-function testReachabilityWithFailExpr6() returns string|error {
+function checkReachabilityWithFailExpr6() returns string|error {
     string myString = "other";
     if myString is "ballerina" {
         fail error("ballerina");
@@ -369,7 +325,7 @@ function testReachabilityWithFailExpr6() returns string|error {
     return myString;
 }
 
-function testReachabilityWithFailExpr7() returns string|error {
+function checkReachabilityWithFailExpr7() returns string|error {
     string stringVar = "boo";
 
     if stringVar == "boo" {
@@ -379,26 +335,7 @@ function testReachabilityWithFailExpr7() returns string|error {
     return stringVar;
 }
 
-function executeTestReachabilityWithResetTypeNarrowing() {
-    assertEqual(testReachabilityWithResetTypeNarrowing(), "car");
-    assertEqual(testReachabilityWithResetTypeNarrowing2(), "car");
-    assertEqual(testReachabilityWithResetTypeNarrowing3(), "jeep");
-    assertEqual(testReachabilityWithResetTypeNarrowing4(), "jeep");
-    assertEqual(testReachabilityWithResetTypeNarrowing5(), "van");
-    assertEqual(testReachabilityWithResetTypeNarrowing6(), "van");
-    assertEqual(testReachabilityWithResetTypeNarrowing7(), "jeep");
-    assertEqual(testReachabilityWithResetTypeNarrowing8(), "jeep");
-    assertEqual(testReachabilityWithResetTypeNarrowing9(), "jeep");
-    assertEqual(testReachabilityWithResetTypeNarrowing10(), "van");
-    assertEqual(testReachabilityWithResetTypeNarrowing11(), "jeep");
-    assertEqual(testReachabilityWithResetTypeNarrowing12(), "jeep");
-    assertEqual(testReachabilityWithResetTypeNarrowing13(), "car");
-    assertEqual(testReachabilityWithResetTypeNarrowing14(), "car");
-    assertEqual(testReachabilityWithResetTypeNarrowing15(), "car");
-    assertEqual(testReachabilityWithResetTypeNarrowing16(), "car");
-}
-
-function testReachabilityWithResetTypeNarrowing() returns string {
+function checkReachabilityWithResetTypeNarrowing() returns string {
     int|string myString = "other";
     if myString is string {
         myString = "restTypeNarrowing";
@@ -413,7 +350,7 @@ function testReachabilityWithResetTypeNarrowing() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing2() returns string {
+function checkReachabilityWithResetTypeNarrowing2() returns string {
     int|string myString = "other";
     if myString is string {
         myString = "restTypeNarrowing";
@@ -428,7 +365,7 @@ function testReachabilityWithResetTypeNarrowing2() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing3() returns string {
+function checkReachabilityWithResetTypeNarrowing3() returns string {
     int|string myString = 23;
     if myString is string {
         myString = "restTypeNarrowing";
@@ -443,7 +380,7 @@ function testReachabilityWithResetTypeNarrowing3() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing4() returns string {
+function checkReachabilityWithResetTypeNarrowing4() returns string {
     int|string myString = 23;
     if myString is string {
         myString = "restTypeNarrowing";
@@ -458,7 +395,7 @@ function testReachabilityWithResetTypeNarrowing4() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing5() returns string {
+function checkReachabilityWithResetTypeNarrowing5() returns string {
     int|string myString = "other";
     if myString is string {
         myString = 1;
@@ -473,7 +410,7 @@ function testReachabilityWithResetTypeNarrowing5() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing6() returns string {
+function checkReachabilityWithResetTypeNarrowing6() returns string {
     int|string myString = "other";
     if myString is string {
         myString = 2;
@@ -488,7 +425,7 @@ function testReachabilityWithResetTypeNarrowing6() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing7() returns string {
+function checkReachabilityWithResetTypeNarrowing7() returns string {
     int|string myString = 23;
     if myString is string {
         myString = 3;
@@ -503,7 +440,7 @@ function testReachabilityWithResetTypeNarrowing7() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing8() returns string {
+function checkReachabilityWithResetTypeNarrowing8() returns string {
     int|string myString = 23;
     if myString is string {
         myString = 4;
@@ -518,7 +455,7 @@ function testReachabilityWithResetTypeNarrowing8() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing9() returns string {
+function checkReachabilityWithResetTypeNarrowing9() returns string {
     int|string myString = "other";
     if myString !is string {
         myString = "restTypeNarrowing";
@@ -533,7 +470,7 @@ function testReachabilityWithResetTypeNarrowing9() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing10() returns string {
+function checkReachabilityWithResetTypeNarrowing10() returns string {
     int|string myString = "other";
     if myString is string {
         myString = "restTypeNarrowing";
@@ -548,7 +485,7 @@ function testReachabilityWithResetTypeNarrowing10() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing11() returns string {
+function checkReachabilityWithResetTypeNarrowing11() returns string {
     int|string myString = 23;
     if myString is string {
         myString = "restTypeNarrowing";
@@ -563,7 +500,7 @@ function testReachabilityWithResetTypeNarrowing11() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing12() returns string {
+function checkReachabilityWithResetTypeNarrowing12() returns string {
     int|string myString = 23;
     if myString is string {
         myString = "restTypeNarrowing";
@@ -578,7 +515,7 @@ function testReachabilityWithResetTypeNarrowing12() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing13() returns string {
+function checkReachabilityWithResetTypeNarrowing13() returns string {
     int|string myString = "other";
     if myString is string {
         myString = 1;
@@ -593,7 +530,7 @@ function testReachabilityWithResetTypeNarrowing13() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing14() returns string {
+function checkReachabilityWithResetTypeNarrowing14() returns string {
     int|string myString = "other";
     if myString is string {
         myString = 2;
@@ -608,7 +545,7 @@ function testReachabilityWithResetTypeNarrowing14() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing15() returns string {
+function checkReachabilityWithResetTypeNarrowing15() returns string {
     int|string myString = "other";
     if myString is string {
         myString = 3;
@@ -623,7 +560,7 @@ function testReachabilityWithResetTypeNarrowing15() returns string {
     }
 }
 
-function testReachabilityWithResetTypeNarrowing16() returns string {
+function checkReachabilityWithResetTypeNarrowing16() returns string {
     int|string myString = "other";
     if myString is string {
         myString = 4;
@@ -638,11 +575,7 @@ function testReachabilityWithResetTypeNarrowing16() returns string {
     }
 }
 
-function executeTestReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr() {
-    assertEqual(testReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr(), "bar");
-}
-
-function testReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr() returns string {
+function checkReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr() returns string {
     1|2 result = 2;
 
     if result == 1 || false {
@@ -652,21 +585,13 @@ function testReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr() retur
     }
 }
 
-function executeTestReachabilityWithIfStmtWithAConditionUsingEnum() {
-    assertEqual(testReachabilityWithIfStmtWithAConditionUsingEnum(), "red");
-    assertEqual(testReachabilityWithIfStmtWithAConditionUsingEnum2(), "blue");
-    assertEqual(testReachabilityWithIfStmtWithAConditionUsingEnum3(), "blue");
-    assertEqual(testReachabilityWithIfStmtWithAConditionUsingEnum4(), "green");
-    assertEqual(testReachabilityWithIfStmtWithAConditionUsingEnum5(), "blue");
-}
-
 enum COLOR {
     RED,
     GREEN,
     BLUE = "blue"
 }
 
-function testReachabilityWithIfStmtWithAConditionUsingEnum() returns string {
+function checkReachabilityWithIfStmtWithAConditionUsingEnum() returns string {
     COLOR color = "RED";
 
     if color is RED {
@@ -678,7 +603,7 @@ function testReachabilityWithIfStmtWithAConditionUsingEnum() returns string {
     }
 }
 
-function testReachabilityWithIfStmtWithAConditionUsingEnum2() returns string {
+function checkReachabilityWithIfStmtWithAConditionUsingEnum2() returns string {
     COLOR color = "blue";
 
     if color is RED {
@@ -690,7 +615,7 @@ function testReachabilityWithIfStmtWithAConditionUsingEnum2() returns string {
     }
 }
 
-function testReachabilityWithIfStmtWithAConditionUsingEnum3() returns string {
+function checkReachabilityWithIfStmtWithAConditionUsingEnum3() returns string {
     COLOR color = "blue";
 
     if color is RED {
@@ -702,7 +627,7 @@ function testReachabilityWithIfStmtWithAConditionUsingEnum3() returns string {
     return "blue";
 }
 
-function testReachabilityWithIfStmtWithAConditionUsingEnum4() returns string {
+function checkReachabilityWithIfStmtWithAConditionUsingEnum4() returns string {
     COLOR color = "GREEN";
 
     if color is RED {
@@ -718,7 +643,7 @@ function testReachabilityWithIfStmtWithAConditionUsingEnum4() returns string {
     }
 }
 
-function testReachabilityWithIfStmtWithAConditionUsingEnum5() returns string {
+function checkReachabilityWithIfStmtWithAConditionUsingEnum5() returns string {
     COLOR color = "blue";
 
     if color is RED {
@@ -733,17 +658,7 @@ function testReachabilityWithIfStmtWithAConditionUsingEnum5() returns string {
 
 }
 
-function executeTestReachabilityWithWhile() {
-    assertEqual(testReachabilityWithWhile(), "pc");
-    assertEqual(testReachabilityWithWhile2(), "pc");
-    assertEqual(testReachabilityWithWhile3(), "pc");
-    assertEqual(testReachabilityWithWhile4(), 1);
-    assertEqual(testReachabilityWithWhile5(), 2);
-    assertEqual(testReachabilityWithWhile6(), 1);
-    assertEqual(testReachabilityWithNestedWhile(), "pc");
-}
-
-function testReachabilityWithWhile() returns string {
+function checkReachabilityWithWhile() returns string {
     while true {
         break;
     }
@@ -751,7 +666,7 @@ function testReachabilityWithWhile() returns string {
     return "pc";
 }
 
-function testReachabilityWithWhile2() returns string {
+function checkReachabilityWithWhile2() returns string {
     while true {
         if true {
             break;
@@ -761,7 +676,7 @@ function testReachabilityWithWhile2() returns string {
     return "pc";
 }
 
-function testReachabilityWithWhile3() returns string {
+function checkReachabilityWithWhile3() returns string {
     while true {
         if true {
             break;
@@ -771,7 +686,7 @@ function testReachabilityWithWhile3() returns string {
     return "pc";
 }
 
-function testReachabilityWithWhile4() returns int {
+function checkReachabilityWithWhile4() returns int {
     int i = 0;
     while true {
         if i == 1 {
@@ -784,7 +699,7 @@ function testReachabilityWithWhile4() returns int {
     return i;
 }
 
-function testReachabilityWithWhile5() returns int {
+function checkReachabilityWithWhile5() returns int {
     2 i = 2;
     while true {
         if i == 2 {
@@ -795,7 +710,7 @@ function testReachabilityWithWhile5() returns int {
     return i;
 }
 
-function testReachabilityWithWhile6() returns int {
+function checkReachabilityWithWhile6() returns int {
     1 i = 1;
     while true {
         if i != 2 {
@@ -806,7 +721,7 @@ function testReachabilityWithWhile6() returns int {
     return i;
 }
 
-function testReachabilityWithNestedWhile() returns string {
+function checkReachabilityWithNestedWhile() returns string {
     int i = 4;
     TRUE t = true;
     while true {
@@ -821,12 +736,7 @@ function testReachabilityWithNestedWhile() returns string {
     return "pc";
 }
 
-function executeTestReachabilityWhereTheIsExprInsideWhile() {
-    assertEqual(testReachabilityWhereTheIsExprInsideWhile(), "ballerina");
-    assertEqual(testReachabilityWhereTheIsExprInsideWhile2(), "VSCode");
-}
-
-function testReachabilityWhereTheIsExprInsideWhile() returns string {
+function checkReachabilityWhereTheIsExprInsideWhile() returns string {
     string? myString = ();
 
     while myString is string {
@@ -836,7 +746,7 @@ function testReachabilityWhereTheIsExprInsideWhile() returns string {
     return "ballerina";
 }
 
-function testReachabilityWhereTheIsExprInsideWhile2() returns string {
+function checkReachabilityWhereTheIsExprInsideWhile2() returns string {
     string? myString = "VSCode";
 
     while myString is string {
@@ -846,14 +756,7 @@ function testReachabilityWhereTheIsExprInsideWhile2() returns string {
     return "ballerina";
 }
 
-function executeTestReachabilityWithWhileStmtWithEqualityExpr() {
-    assertEqual(testReachabilityWithWhileStmtWithEqualityExpr(), "lap");
-    assertEqual(testReachabilityWithWhileStmtWithEqualityExpr2(), "phone2");
-    assertEqual(testReachabilityWithWhileStmtWithEqualityExpr3(), "phone3");
-    assertEqual(testReachabilityWithWhileStmtWithEqualityExpr4(), 1);
-}
-
-function testReachabilityWithWhileStmtWithEqualityExpr() returns string {
+function checkReachabilityWithWhileStmtWithEqualityExpr() returns string {
     1|2 result = 2;
 
     while result == 1 {
@@ -868,7 +771,7 @@ function testReachabilityWithWhileStmtWithEqualityExpr() returns string {
     return "lap";
 }
 
-function testReachabilityWithWhileStmtWithEqualityExpr2() returns string {
+function checkReachabilityWithWhileStmtWithEqualityExpr2() returns string {
     1|2 result = 2;
 
     while result != 1 {
@@ -882,7 +785,7 @@ function testReachabilityWithWhileStmtWithEqualityExpr2() returns string {
     return "lap2";
 }
 
-function testReachabilityWithWhileStmtWithEqualityExpr3() returns string {
+function checkReachabilityWithWhileStmtWithEqualityExpr3() returns string {
     1|2 result = 2;
 
     while result != 1 {
@@ -898,7 +801,7 @@ function testReachabilityWithWhileStmtWithEqualityExpr3() returns string {
     return "lap3";
 }
 
-function testReachabilityWithWhileStmtWithEqualityExpr4() returns int {
+function checkReachabilityWithWhileStmtWithEqualityExpr4() returns int {
     1|2 result = 2;
 
     while result != 1 {
@@ -913,12 +816,7 @@ function testReachabilityWithWhileStmtWithEqualityExpr4() returns int {
     return result;
 }
 
-function executeTestReachabilityWithWhileStmtWithAConditionUsingEnum() {
-    assertEqual(testReachabilityWithWhileStmtWithAConditionUsingEnum(), "blue");
-    assertEqual(testReachabilityWithWhileStmtWithAConditionUsingEnum2(), "blue");
-}
-
-function testReachabilityWithWhileStmtWithAConditionUsingEnum() returns string {
+function checkReachabilityWithWhileStmtWithAConditionUsingEnum() returns string {
     COLOR color = "RED";
 
     while color is RED|GREEN {
@@ -938,7 +836,7 @@ function testReachabilityWithWhileStmtWithAConditionUsingEnum() returns string {
     return "blue";
 }
 
-function testReachabilityWithWhileStmtWithAConditionUsingEnum2() returns string {
+function checkReachabilityWithWhileStmtWithAConditionUsingEnum2() returns string {
     COLOR color = "GREEN";
 
     while color is RED|GREEN {
@@ -956,13 +854,8 @@ function testReachabilityWithWhileStmtWithAConditionUsingEnum2() returns string 
     return "blue";
 }
 
-function executeTestReachabilityWithQueryAction() {
-    //assertEqual(testReachabilityWithQueryAction(), "Hello");
-    //assertEqual(testReachabilityWithQueryAction2(), "Hello");
-}
-
 // TODO: fix issue #34916
-//function testReachabilityWithQueryAction() returns string {
+//function checkReachabilityWithQueryAction() returns string {
 //    string[] stringArray = ["Hello", " ", "World"];
 //
 //    error? unionResult = from var item in stringArray
@@ -981,7 +874,7 @@ function executeTestReachabilityWithQueryAction() {
 //}
 
 // TODO: fix issue #34914
-//function testReachabilityWithQueryAction2() returns string {
+//function checkReachabilityWithQueryAction2() returns string {
 //    string[] stringArray = ["Hello", " ", "World"];
 //
 //    error? unionResult = from var item in stringArray
@@ -997,22 +890,274 @@ function executeTestReachabilityWithQueryAction() {
 //    }
 //}
 
-function executeTestReachabilityAfterCheck() {
-    assertEqual(testReachabilityAfterCheck(), "string");
-}
-
-function testReachabilityAfterCheck() returns string|error {
+function checkReachabilityAfterCheck() returns string|error {
     string stringResult = check funtionReturnsStringOrError();
     return stringResult;
 }
 
-function executeTestReachabilityAfterCheckPanic() {
-    assertEqual(testReachabilityAfterCheckpanic(), "string");
-}
-
-function testReachabilityAfterCheckpanic() returns string|error {
+function checkReachabilityAfterCheckpanic() returns string|error {
     string stringResult = checkpanic funtionReturnsStringOrError();
     return stringResult;
+}
+
+function testReachabilityWithIfContainingReturn() {
+    assertEqual(checkReachabilityWithIfContainingReturn(), "Ballerina");
+}
+
+function testReachabilityWithIfContainingReturn2() {
+    assertEqual(checkReachabilityWithIfContainingReturn2(), "Ballerina");
+}
+
+function testReachabilityWithIfContainingReturn3() {
+    assertEqual(checkReachabilityWithIfContainingReturn3(), "Hello");
+}
+
+function testReachabilityWithIfContainingReturn4() {
+    assertEqual(checkReachabilityWithIfContainingReturn4(), "Hello");
+}
+
+function testReachabilityWithIfContainingReturn5() {
+    assertEqual(checkReachabilityWithIfContainingReturn5(), "Ballerina");
+}
+
+function testReachabilityWithIfContainingReturn6() {
+    assertEqual(checkReachabilityWithIfContainingReturn6(), "Ballerina");
+}
+
+function testReachabilityWithIfContainingReturn7() {
+    assertEqual(checkReachabilityWithIfContainingReturn7(), "Ballerina");
+}
+
+function testReachabilityWithIfUsingConstInExpr1() {
+    assertEqual(checkReachabilityWithIfUsingConstInExpr1(), "Hello");
+}
+
+function testReachabilityWithIfUsingConstInExpr2() {
+    assertEqual(checkReachabilityWithIfUsingConstInExpr2(), "Hello");
+}
+
+function testReachabilityWithIfUsingConstInExpr3() {
+    assertEqual(checkReachabilityWithIfUsingConstInExpr3(), "Ballerina");
+}
+
+function testReachabilityWithIfUsingConstInExpr4() {
+    assertEqual(checkReachabilityWithIfUsingConstInExpr4(), "Ballerina");
+}
+
+function testReachabilityWithIfUsingConstInExpr5() {
+    assertEqual(checkReachabilityWithIfUsingConstInExpr5(), "Ballerina");
+}
+
+function testReachabilityWithNestedIfContainingReturn() {
+    assertEqual(checkReachabilityWithNestedIfContainingReturn(), "car");
+}
+
+function testReachabilityWithIsExprNotConstantTrue() {
+    assertEqual(checkReachabilityWithIsExprNotConstantTrue(), "ballerina");
+}
+
+function testReachabilityWithIsExprNotConstantTrue2() {
+    assertEqual(checkReachabilityWithIsExprNotConstantTrue2(), "java");
+}
+
+function testReachabilityWithIsExprNotConstantTrue3() {
+    assertEqual(checkReachabilityWithIsExprNotConstantTrue3(), "java");
+}
+
+function testReachabilityWithIsExprNotConstantTrue4() {
+    assertEqual(checkReachabilityWithIsExprNotConstantTrue4(), "python");
+}
+
+function testReachabilityWithIsExprNotConstantTrue5() {
+    assertEqual(checkReachabilityWithIsExprNotConstantTrue5(), "other");
+}
+
+function testReachabilityWithIsExprNotConstantTrue6() {
+    assertEqual(checkReachabilityWithIsExprNotConstantTrue6(), "C#");
+}
+
+function testReachabilityWithFailExpr() {
+    assertEqual((<error>checkReachabilityWithFailExpr()).message(), "errormsg");
+}
+
+function testReachabilityWithFailExpr2() {
+    assertEqual((<error>checkReachabilityWithFailExpr2()).message(), "errormsg");
+}
+
+function testReachabilityWithFailExpr3() {
+    assertEqual((<error>checkReachabilityWithFailExpr3()).message(), "errormsg2");
+}
+
+function testReachabilityWithFailExpr4() {
+    assertEqual(checkReachabilityWithFailExpr4(), "python");
+}
+
+function testReachabilityWithFailExpr5() {
+    assertEqual((<error>checkReachabilityWithFailExpr5()).message(), "errormsg");
+}
+
+function testReachabilityWithFailExpr6() {
+    assertEqual(checkReachabilityWithFailExpr6(), "C#");
+}
+
+function testReachabilityWithFailExpr7() {
+    assertEqual((<error>checkReachabilityWithFailExpr7()).message(), "msg");
+}
+
+function testReachabilityWithResetTypeNarrowing() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing(), "car");
+}
+
+function testReachabilityWithResetTypeNarrowing2() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing2(), "car");
+}
+
+function testReachabilityWithResetTypeNarrowing3() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing3(), "jeep");
+}
+
+function testReachabilityWithResetTypeNarrowing4() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing4(), "jeep");
+}
+
+function testReachabilityWithResetTypeNarrowing5() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing5(), "van");
+}
+
+function testReachabilityWithResetTypeNarrowing6() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing6(), "van");
+}
+
+function testReachabilityWithResetTypeNarrowing7() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing7(), "jeep");
+}
+
+function testReachabilityWithResetTypeNarrowing8() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing8(), "jeep");
+}
+
+function testReachabilityWithResetTypeNarrowing9() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing9(), "jeep");
+}
+
+function testReachabilityWithResetTypeNarrowing10() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing10(), "van");
+}
+
+function testReachabilityWithResetTypeNarrowing11() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing11(), "jeep");
+}
+
+function testReachabilityWithResetTypeNarrowing12() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing12(), "jeep");
+}
+
+function testReachabilityWithResetTypeNarrowing13() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing13(), "car");
+}
+
+function testReachabilityWithResetTypeNarrowing14() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing14(), "car");
+}
+
+function testReachabilityWithResetTypeNarrowing15() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing15(), "car");
+}
+
+function testReachabilityWithResetTypeNarrowing16() {
+    assertEqual(checkReachabilityWithResetTypeNarrowing16(), "car");
+}
+
+function testReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr() {
+    assertEqual(checkReachabilityWithIfStmtWithLogicalExprContainingEqualityExpr(), "bar");
+}
+
+function testReachabilityWithIfStmtWithAConditionUsingEnum() {
+    assertEqual(checkReachabilityWithIfStmtWithAConditionUsingEnum(), "red");
+}
+
+function testReachabilityWithIfStmtWithAConditionUsingEnum2() {
+    assertEqual(checkReachabilityWithIfStmtWithAConditionUsingEnum2(), "blue");
+}
+
+function testReachabilityWithIfStmtWithAConditionUsingEnum3() {
+    assertEqual(checkReachabilityWithIfStmtWithAConditionUsingEnum3(), "blue");
+}
+
+function testReachabilityWithIfStmtWithAConditionUsingEnum4() {
+    assertEqual(checkReachabilityWithIfStmtWithAConditionUsingEnum4(), "green");
+}
+
+function testReachabilityWithIfStmtWithAConditionUsingEnum5() {
+    assertEqual(checkReachabilityWithIfStmtWithAConditionUsingEnum5(), "blue");
+}
+
+function testReachabilityWithWhile() {
+    assertEqual(checkReachabilityWithWhile(), "pc");
+}
+
+function testReachabilityWithWhile2() {
+    assertEqual(checkReachabilityWithWhile2(), "pc");
+}
+
+function testReachabilityWithWhile3() {
+    assertEqual(checkReachabilityWithWhile3(), "pc");
+}
+
+function testReachabilityWithWhile4() {
+    assertEqual(checkReachabilityWithWhile4(), 1);
+}
+
+function testReachabilityWithWhile5() {
+    assertEqual(checkReachabilityWithWhile5(), 2);
+}
+
+function testReachabilityWithWhile6() {
+    assertEqual(checkReachabilityWithWhile6(), 1);
+}
+
+function testReachabilityWithNestedWhile() {
+    assertEqual(checkReachabilityWithNestedWhile(), "pc");
+}
+
+function testReachabilityWhereTheIsExprInsideWhile() {
+    assertEqual(checkReachabilityWhereTheIsExprInsideWhile(), "ballerina");
+}
+
+function testReachabilityWhereTheIsExprInsideWhile2() {
+    assertEqual(checkReachabilityWhereTheIsExprInsideWhile2(), "VSCode");
+}
+
+function testReachabilityWithWhileStmtWithEqualityExpr() {
+    assertEqual(checkReachabilityWithWhileStmtWithEqualityExpr(), "lap");
+}
+
+function testReachabilityWithWhileStmtWithEqualityExpr2() {
+    assertEqual(checkReachabilityWithWhileStmtWithEqualityExpr2(), "phone2");
+}
+
+function testReachabilityWithWhileStmtWithEqualityExpr3() {
+    assertEqual(checkReachabilityWithWhileStmtWithEqualityExpr3(), "phone3");
+}
+
+function testReachabilityWithWhileStmtWithEqualityExpr4() {
+    assertEqual(checkReachabilityWithWhileStmtWithEqualityExpr4(), 1);
+}
+
+function testReachabilityWithWhileStmtWithAConditionUsingEnum() {
+    assertEqual(checkReachabilityWithWhileStmtWithAConditionUsingEnum(), "blue");
+}
+
+function testReachabilityWithWhileStmtWithAConditionUsingEnum2() {
+    assertEqual(checkReachabilityWithWhileStmtWithAConditionUsingEnum2(), "blue");
+}
+
+function testReachabilityAfterCheck() {
+    assertEqual(checkReachabilityAfterCheck(), "string");
+}
+
+function testReachabilityAfterCheckPanic() {
+    assertEqual(checkReachabilityAfterCheckpanic(), "string");
 }
 
 function funtionReturnsStringOrError() returns string|error {
