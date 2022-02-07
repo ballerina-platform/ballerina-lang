@@ -34,7 +34,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -291,10 +290,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
         Optional<TypeSymbol> typeRefSymbol = semanticModel.get().typeOf(errorConstructorExpressionNode);
-        if (typeRefSymbol.isEmpty() || typeRefSymbol.get().typeKind() != TypeDescKind.TYPE_REFERENCE) {
+        if (typeRefSymbol.isEmpty()) {
             return Optional.empty();
         }
-        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) typeRefSymbol.get()).typeDescriptor();
+        
+        TypeSymbol typeSymbol = CommonUtil.getRawType(typeRefSymbol.get());
         if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
             return Optional.empty();
         }
@@ -614,11 +614,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(node))
                 .or(() -> node.parent().apply(this));
-        
+
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.FUNCTION) {
             return Optional.empty();
         }
-        
+
         FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol.get();
         if (!node.rightDoubleArrow().isMissing() &&
                 context.getCursorPositionInTree() >= node.rightDoubleArrow().textRange().endOffset()) {
