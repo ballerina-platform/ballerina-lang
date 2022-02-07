@@ -299,18 +299,34 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // 2. Publish new patch version of package_e which has dependency on package_d to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_e_2_0_2"), projectEnvironmentBuilder);
         // Remove package_d import from package_f
-        projectDirPath = RESOURCE_DIRECTORY.resolve("package_f_1_0_0_remove_import_d");
+        Path projectDirPath2 = RESOURCE_DIRECTORY.resolve("package_f_1_0_0_remove_import_d");
+        // Add Dependencies.toml
+        // package_e ---> 2.0.0
+        Files.copy(projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML),
+                projectDirPath2.resolve(DEPENDENCIES_TOML));
         // Build package_f w/o deleting Dependencies.toml and build file
         // package_f       ---> package_e 2.0.0, 2.0.2
         // package_e 2.0.2 ---> package_d 1.0.0
-        deleteBuildFile(projectDirPath);
-        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath2);
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
         // Compare Dependencies.toml file
-        // package_e ---> 2.0.2 TODO: need to check (2.0.0)
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-2.toml")));
+        // package_e ---> 2.0.0
+        Assert.assertEquals(readFileAsString(projectDirPath2.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-2.toml")));
+
+        // 3. Build package_f after deleting build file and Dependencies.toml
+        deleteDependenciesTomlAndBuildFile(projectDirPath2);
+        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath2);
+        buildProject3.save();
+        failIfDiagnosticsExists(buildProject3);
+        // Compare Dependencies.toml file
+        // package_e ---> 2.0.2
+        Assert.assertEquals(readFileAsString(projectDirPath2.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-3.toml")));
+
+        // clean up project
+        deleteDependenciesTomlAndBuildFile(projectDirPath2);
     }
 
     @AfterMethod
