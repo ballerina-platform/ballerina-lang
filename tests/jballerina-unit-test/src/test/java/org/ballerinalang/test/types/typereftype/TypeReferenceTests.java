@@ -29,15 +29,9 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class TypeReferenceTests {
 
-    private CompileResult positiveCompileResult;
-
-    @BeforeClass
-    public void setup() {
-        positiveCompileResult = BCompileUtil.compile("test-src/types/typereftype/type_reference.bal");
-    }
-
     @Test
     public void testTypeRef() {
+        CompileResult positiveCompileResult = BCompileUtil.compile("test-src/types/typereftype/type_reference.bal");
         BRunUtil.invoke(positiveCompileResult, "testTypeRef");
     }
 

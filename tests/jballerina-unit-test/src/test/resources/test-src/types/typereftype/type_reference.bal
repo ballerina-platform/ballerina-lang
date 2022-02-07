@@ -15,17 +15,25 @@
 // under the License.
 
 type Nil ();
+
 type Integer int;
+
 type Decimal decimal;
+
 type Strings string;
+
 type IntArray int[2];
-type FloatBooleeanTuple [float, boolean];
+
+type FloatBooleanTuple [float, boolean];
+
 type Record record {|
-    FloatBooleeanTuple a;
+    FloatBooleanTuple a;
     Nil b;
 |};
+
 type FunctionType1 function (Integer i) returns Decimal;
-type FunctionType2 function (FloatBooleeanTuple i) returns Record;
+
+type FunctionType2 function (FloatBooleanTuple i) returns Record;
 
 type Object1 object {
     public int a;
@@ -43,29 +51,40 @@ type Object3 object {
 
 
 type One 1;
+
 type ImmutableIntArray int[] & readonly;
-type ImmutableIntOrStringArray string[]|ImmutableIntArray;
+
+type ImmutableIntArrayOrStringArray string[]|ImmutableIntArray;
+
 type IntOrBoolean int|boolean;
+
 type FooBar "foo"|One;
+
 type OptionalInt int?;
 
 record {|
-    ImmutableIntOrStringArray a;
+    ImmutableIntArrayOrStringArray a;
     FooBar b;
-|} X = {a : ["a"], b : 1};
+|} X = {a: ["a"], b: 1};
 
-map<FooBar> fooBar = {"1" : 1, "foo" : "foo"};
+map<FooBar> fooBar = {"1": 1, "foo": "foo"};
+
 type MapFooBar map<FooBar>;
 
 const int ConstInt = 5;
+
 type TypeConstInt ConstInt;
 
 function testTypeRef() {
     Nil nil = ();
     assertEqual(nil, ());
 
+    Integer c1 = int:MAX_VALUE;
+    assertEqual(c1, int:MAX_VALUE);
     anydata a1 = int:MAX_VALUE;
-    assertEqual(a1 is Integer, true);
+    assertEqual(c1 is Integer, true);
+    Integer c2 = int:MIN_VALUE;
+    assertEqual(c2, int:MIN_VALUE);
     a1 = int:MIN_VALUE;
     assertEqual(a1 is Integer, true);
     a1 = 1.0;
@@ -73,22 +92,28 @@ function testTypeRef() {
     a1 = "a";
     assertEqual(a1 is Integer, false);
 
+    Strings c3 = "abc_/<>";
+    assertEqual(c3, "abc_/<>");
     a1 = "abc";
     assertEqual(a1 is Strings, true);
     a1 = 1;
     assertEqual(a1 is Strings, false);
 
+    IntArray c4 = [1, 2];
+    assertEqual(c4, [1, 2]);
     a1 = [1, 2];
-    assertEqual(a1.cloneReadOnly() is int[2], true);
+    assertEqual(a1.cloneReadOnly() is IntArray, true);
     a1 = [1, 2, 3];
-//  assertEqual(a1.cloneReadOnly() is IntArray, false);
+//  assertEqual(a1.cloneReadOnly() is IntArray, false); // Need to fix ballerina-lang/#34879
     a1 = [1];
-    assertEqual(a1 is IntArray, false); // true
+    assertEqual(a1.cloneReadOnly() is IntArray, false);
 
+    FloatBooleanTuple c5 = [1.2, true];
+    assertEqual(c5, [1.2, true]);
     a1 = [1.2, true];
-    assertEqual(a1 is FloatBooleeanTuple, false); // true
+//   assertEqual(a1.cloneReadOnly() is FloatBooleanTuple, true); // Need to fix ballerina-lang/#34954
     a1 = [1.2d, true];
-    assertEqual(a1 is FloatBooleeanTuple, false);
+//   assertEqual(a1.cloneReadOnly() is FloatBooleanTuple, false); // Need to fix ballerina-lang/#34954
 
     FunctionType1 func1 = function (int x) returns decimal {
             return <Decimal> x;
@@ -97,16 +122,20 @@ function testTypeRef() {
     assertEqual(a2, 3d);
 
     var func2 = function ([float, boolean] x) returns Record {
-            return {a : x, b : ()};
+            return {a: x, b: ()};
         };
-    FloatBooleeanTuple a3 = [1.2, true];
+    FloatBooleanTuple a3 = [1.2, true];
     Record a4 = func2(a3);
-    assertEqual(a4, {a : [1.2, true], b : ()});
-    assertEqual(func2 is function (FloatBooleeanTuple i) returns Record, true);
+    assertEqual(a4, {a: [1.2, true], b: ()});
+    assertEqual(func2 is function (FloatBooleanTuple i) returns Record, true);
 
+    One c6 = 1;
+    assertEqual(c6, 1);
     a1 = 1;
     assertEqual(a1 is One, true);
     assertEqual(a1 is Decimal, false);
+    Decimal c7 = 1d;
+    assertEqual(c7, 1d);
     a1 = 1.0;
     assertEqual(a1 is One, false);
     assertEqual(a1 is Decimal, false);
@@ -119,9 +148,15 @@ function testTypeRef() {
     assertEqual(a5 is int[], true);
     assertEqual(a5 is int[] & readonly, true);
     assertEqual(a1 is ImmutableIntArray, false);
-    assertEqual(a5 is ImmutableIntOrStringArray, true);
-    assertEqual(a1 is ImmutableIntOrStringArray, false);
+    assertEqual(a5 is ImmutableIntArrayOrStringArray, true);
+    assertEqual(a1 is ImmutableIntArrayOrStringArray, false);
 
+    IntOrBoolean c8 = 1;
+    assertEqual(c8, 1);
+    IntOrBoolean c9 = true;
+    assertEqual(c9, true);
+    IntOrBoolean c10 = !true;
+    assertEqual(c10, false);
     a1 = 1;
     assertEqual(a1 is IntOrBoolean, true);
     a1 = true;
@@ -142,9 +177,9 @@ function testTypeRef() {
     OptionalInt a7 = ();
     assertEqual(a7 is int|(), true);
 
-    assertEqual(X is record {|ImmutableIntOrStringArray a; FooBar b;|}, true);
+    assertEqual(X is record {|ImmutableIntArrayOrStringArray a; FooBar b;|}, true);
 
-    MapFooBar a8 = {a : 1};
+    MapFooBar a8 = {a: 1};
     assertEqual(a8 is map<FooBar>, true);
 
     boolean b1 = true;
@@ -184,7 +219,7 @@ function testTypeRef() {
     assertEqual(obj.c, 3);
 }
 
-function getImmutable(ImmutableIntOrStringArray x) returns ImmutableIntArray {
+function getImmutable(ImmutableIntArrayOrStringArray x) returns ImmutableIntArray {
     if x is ImmutableIntArray {
         return <ImmutableIntArray> x;
     }
