@@ -83,11 +83,14 @@ public class InnerQueryTest {
 
     @Test(description = "Test negative scenarios for inner queries")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
         int i = 0;
         validateError(negativeResult, i++, "undefined symbol 'deptName'", 71, 29);
         validateError(negativeResult, i++, "undefined symbol 'psn'", 88, 16);
-        validateError(negativeResult, i, "undefined symbol 'emp'", 88, 30);
+        validateError(negativeResult, i++, "undefined symbol 'emp'", 88, 30);
+        validateError(negativeResult, i++, "redeclared symbol 'item'", 105, 28);
+        validateError(negativeResult, i++, "redeclared symbol 'item'", 117, 27);
+        validateError(negativeResult, i, "redeclared symbol 'item'", 130, 26);
     }
 
     @Test(description = "Test type test in where clause")

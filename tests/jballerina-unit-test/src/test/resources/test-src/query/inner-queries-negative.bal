@@ -98,3 +98,38 @@ function testScopeVisibilityOfJoinOnClose() {
         };
 
 }
+
+function testRedeclaredSymInAction1() returns error? {
+    check from var item in 1 ... 5
+        do {
+            check from var item in 1...3
+            do {
+                int _ = 10;
+            };
+        };
+}
+
+function testRedeclaredSymbol2() returns error? {
+    error? a = ();
+    check from var item in 1 ... 5
+        where item < 2
+        do {
+            a = (from var item in 1 ... 5
+                where item < 2
+                do {
+                    int _ = 10;
+                });
+        };
+
+    return a;
+}
+
+function testRedeclaredSymInExp() returns error? {
+    check from var item in 1 ... 5
+        do {
+            _ = from var item in 1...3
+            select item;
+        };
+}
+
+

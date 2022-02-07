@@ -1020,9 +1020,9 @@ function testReachableStatementInQueryAction9() returns error? {
     check from var item in 1 ... 5
         where item < 2
         do {
-            a = (from var item in 1 ... 5
-                where item is int
-                where item < 2
+            a = (from var item2 in 1 ... 5
+                where item2 is int
+                where item2 < 2
                 do {
                     int _ = 10;
                 });
