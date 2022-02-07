@@ -262,7 +262,7 @@ public class CommonUtil {
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName);
         if (!alias.isEmpty()) {
-            builder.append(" as ").append(alias).append(" ");
+            builder.append(" as ").append(alias);
         }
         builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
 
