@@ -171,7 +171,7 @@ public class CommonUtil {
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
-    public static final List<String> BALLERINA_KEYWORDS;
+    public static final List<String> BALLERINA_KEYWORDS = SyntaxInfo.keywords();
 
     public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
@@ -189,7 +189,6 @@ public class CommonUtil {
         COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
-        BALLERINA_KEYWORDS = getBallerinaKeywords();
     }
 
     private CommonUtil() {
@@ -1423,10 +1422,6 @@ public class CommonUtil {
             return module.moduleName().packageName().value();
         }
         return module.moduleName().packageName().value() + Names.DOT.getValue() + module.moduleName().moduleNamePart();
-    }
-
-    private static List<String> getBallerinaKeywords() {
-        return SyntaxInfo.keywords();
     }
 
     /**
