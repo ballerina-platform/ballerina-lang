@@ -96,15 +96,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "init function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "init_function",
-      "insertText": "function init(${1:any arg}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -506,6 +497,15 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "init function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "init_function",
+      "insertText": "function init() {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

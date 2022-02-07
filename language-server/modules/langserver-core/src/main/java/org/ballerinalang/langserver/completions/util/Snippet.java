@@ -125,8 +125,6 @@ public enum Snippet {
     DEF_IMMEDIATE_STOP_FUNCTION(SnippetGenerator.getImmediateStopFunctionSnippet()),
 
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
-
-    DEF_SERVICE_INIT_FUNCTION(SnippetGenerator.getServiceInitFunctionSnippet()),
     
     // Expressions Snippets
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),

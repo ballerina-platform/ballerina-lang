@@ -59,6 +59,7 @@ public class ItemResolverConstants {
     public static final String DESCENDING = "descending";
     public static final String DEFAULT = "default";
     public static final String ROLLBACK = "rollback";
+    public static final String INIT = "init";
 
     public static final String ANON_FUNCTION = "function (..) {..}";
     public static final String FUNCTION = "function";
@@ -122,7 +123,6 @@ public class ItemResolverConstants {
     public static final String START_FUNCTION_TYPE = "start function";
     public static final String GRACEFUL_STOP_FUNCTION_TYPE = "graceful stop function";
     public static final String IMMEDIATE_STOP_FUNCTION_TYPE = "immediate stop function";
-    public static final String SERVICE_INITIALIZER_TYPE = "init function";
     // End Symbol Types Constants
     
     // Keyword constants

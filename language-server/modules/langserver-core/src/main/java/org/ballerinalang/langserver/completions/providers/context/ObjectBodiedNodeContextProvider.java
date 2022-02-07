@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
             if (this.onSuggestInitFunction(node)) {
-                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE_INIT_FUNCTION.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
             }
         } else if (this.isClientObject(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
@@ -103,10 +104,9 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
             return false;
         }
 
-        ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
-        return serviceDeclarationNode.members().stream()
+        return ((ServiceDeclarationNode) node).members().stream()
                 .filter(member-> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
                 .map(member->(FunctionDefinitionNode) member)
-                .noneMatch(funcDef -> "init".equals(funcDef.functionName().text()));
+                .noneMatch(funcDef -> ItemResolverConstants.INIT.equals(funcDef.functionName().text()));
     }
 }
