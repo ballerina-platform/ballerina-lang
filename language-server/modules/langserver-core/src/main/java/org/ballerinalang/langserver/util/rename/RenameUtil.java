@@ -108,6 +108,16 @@ public class RenameUtil {
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Optional.empty();
         }
+        
+        // If the node at cursor is qualified name reference with no matching import, we don't allow it to be renamed
+        if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
+            Optional<ImportDeclarationNode> importDeclaration =
+                    getImportDeclarationNodeForQNameReference(document.get(), qNameRefNode);
+            if (importDeclaration.isEmpty()) {
+                return Optional.empty();
+            }
+        }
 
         return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
     }
@@ -234,10 +244,30 @@ public class RenameUtil {
                                                                           Document document,
                                                                           NonTerminalNode nodeAtCursor) {
         QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
+        Optional<ImportDeclarationNode> importDeclarationNode =
+                getImportDeclarationNodeForQNameReference(document, qNameRefNode);
+
+        if (importDeclarationNode.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        return handleImportDeclarationRename(context, document, importDeclarationNode.get());
+    }
+
+    /**
+     * Given the document and a qualified name reference node, this method returns the matching import declaration
+     * node.
+     *
+     * @param document     Document
+     * @param qNameRefNode Qualified name reference node
+     * @return Optional import declaration node
+     */
+    private static Optional<ImportDeclarationNode> getImportDeclarationNodeForQNameReference(
+            Document document, QualifiedNameReferenceNode qNameRefNode) {
         String moduleOrAlias = qNameRefNode.modulePrefix().text();
 
         ModulePartNode modulePartNode = document.syntaxTree().rootNode();
-        Optional<ImportDeclarationNode> importDeclarationNode = modulePartNode.imports().stream()
+        return modulePartNode.imports().stream()
                 .filter(importDeclaration -> {
                     CodeActionModuleId moduleId = CodeActionModuleId.from(importDeclaration);
                     if (!StringUtils.isEmpty(moduleId.modulePrefix())) {
@@ -248,12 +278,6 @@ public class RenameUtil {
                     return moduleId.moduleName().endsWith(moduleOrAlias);
                 })
                 .findFirst();
-
-        if (importDeclarationNode.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        return handleImportDeclarationRename(context, document, importDeclarationNode.get());
     }
 
     private static Map<String, List<TextEdit>> handleImportDeclarationRename(RenameContext context,
