@@ -128,8 +128,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     }
 
     @Test(description = "Adding of a new import which is already there as a transitive in the graph " +
-            "with " +
-            "an old version", dependsOnMethods = "testCase0001")
+            "with an old version", dependsOnMethods = "testCase0001")
     public void testCase0002(ITestContext ctx) throws IOException {
         // package_c --> package_b 1.0.0
         // package_b --> package_a 1.0.0, 1.0.2, 1.1.0
@@ -283,8 +282,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     }
 
     @Test(description = "Remove existing import which also is a dependency of a newer patch version " +
-            "of another " +
-            "import",
+            "of another import",
             dependsOnMethods = "testCase0005")
     public void testCase0006(ITestContext ctx) throws IOException {
         // package_f --> package_d 1.0.0, package_e 2.0.0
@@ -334,9 +332,12 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     }
 
     @Test(description = "A newer pre-release version of a dependency has been released to central")
-    public void testCase0007(ITestContext ctx) throws IOException {
+    public void testCase0010(ITestContext ctx) throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_o");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        // package_n:2.0.0 ---> package_m:1.0.1
+        // project_o ---> package_n
 
         // User has imported package_n:2.0.0 which depends on package_m:1.0.1
         // Cache package_m to central
@@ -355,14 +356,17 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
-        // User caches package_n:1_3_0-beta.1
+
+        // User caches package_m:1_3_0-beta.1
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
+        // User caches package_m:1_3_0-beta.1 to local repository
+        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
         // Cache package_n
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_n_2_0_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
 
 
-        //2. Build project_o
+        //2. Build project_o with sticky == true
         deleteBuildFile(projectDirPath);
         BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject2.save();
@@ -372,7 +376,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
 
-        //3. Build project_o
+        //3. Build project_o with sticky == false
         deleteBuildFile(projectDirPath);
         BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
@@ -382,7 +386,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
+        //4. Directly import package_m
         projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_with_import");
+        deleteBuildFile(projectDirPath);
         BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject4.save();
@@ -390,12 +396,35 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
-
     }
 
-    @Test(description = "A newer pre-release version of a dependency is being used from the local " +
-            "repo")
-    public void testCase0008(ITestContext ctx) throws IOException {
+    @Test(description = "A newer pre-release version of a dependency is being used from the local repo")
+    public void testCase0011(ITestContext ctx) throws IOException {
+
+        // 1. Specify pre-release version in Ballerina.toml
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_local_dependency");
+
+        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject1.save();
+        failIfDiagnosticsExists(buildProject1);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+        // 2. Directly import package while specifying in Ballerina.toml
+        projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_with_import_local_dependency");
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+    }
+
+    @Test(description = "A dependency has only pre-release versions released to central")
+    public void testCase0012(ITestContext ctx) throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_q_pre_release_only");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
