@@ -105,8 +105,8 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
 
         ServiceDeclarationNode serviceDeclarationNode = (ServiceDeclarationNode) node;
         return serviceDeclarationNode.members().stream()
-                .filter(member-> member.kind()== SyntaxKind.OBJECT_METHOD_DEFINITION)
-                .map(member->(FunctionDefinitionNode)member)
+                .filter(member-> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
+                .map(member->(FunctionDefinitionNode) member)
                 .noneMatch(funcDef -> "init".equals(funcDef.functionName().text()));
     }
 }
