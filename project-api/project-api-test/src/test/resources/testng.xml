@@ -21,11 +21,8 @@ under the License.
 
 <suite name="ballerina-projects-test-suite">
     <test name="ballerina-projects-test" preserve-order="true" parallel="false">
-<!--        <packages>-->
-<!--            <package name="io.ballerina.projects.test.*" />-->
-<!--        </packages>-->
-        <classes>
-            <class name="io.ballerina.projects.test.PackageResolutionIntegrationTests"></class>
-        </classes>
+        <packages>
+            <package name="io.ballerina.projects.test.*" />
+        </packages>
     </test>
 </suite>

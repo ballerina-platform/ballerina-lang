@@ -152,8 +152,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     }
 
     @Test(description = "Remove existing import which is also a transitive dependency from another " +
-            "import",
-            dependsOnMethods = "testCase0002")
+            "import", dependsOnMethods = "testCase0002")
     public void testCase0003(ITestContext ctx) throws IOException {
         // package_c --> package_b 1.0.0
         // package_b --> package_a 1.0.0, 1.0.2, 1.1.0
@@ -331,7 +330,78 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         deleteDependenciesTomlAndBuildFile(projectDirPath2);
     }
 
-    @Test(description = "A newer pre-release version of a dependency has been released to central")
+    @Test(description = "An imported module has a new version with a submodule")
+    public void testCase0007(ITestContext ctx) throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_s");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        // project --> package_protobuf:0.6.0
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject1.save();
+        failIfDiagnosticsExists(buildProject1);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+
+        // project --> package_protobuf:0.7.0
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_1",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+        // Sticky
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+        // No Sticky
+        deleteBuildFile(projectDirPath);
+        BuildProject buildProject3 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
+                BuildOptions.builder().setSticky(false).build());
+        buildProject3.save();
+        failIfDiagnosticsExists(buildProject3);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml")));
+    }
+
+    @Test(description = "Test package with similar name to module of another package")
+    public void testCase0008(ITestContext ctx) throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_t");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        // project --> package_protobuf:0.6.0
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+        BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject1.save();
+        failIfDiagnosticsExists(buildProject1);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+
+
+        // project --> package_protobuf.types.timestamp
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r.types.timestamp_0_6_0",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+
+        Path projectDirPath2 = RESOURCE_DIRECTORY.resolve("project_t_with_import");
+        BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath2);
+        buildProject2.save();
+        failIfDiagnosticsExists(buildProject2);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+    }
+
+    @Test(enabled = false, description = "A newer pre-release version of a dependency has been released to central")
     public void testCase0010(ITestContext ctx) throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_o");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
@@ -398,7 +468,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(description = "A newer pre-release version of a dependency is being used from the local repo")
+    @Test(enabled = false, description = "A newer pre-release version of a dependency is being used from the local " +
+            "repo")
     public void testCase0011(ITestContext ctx) throws IOException {
 
         // 1. Specify pre-release version in Ballerina.toml
@@ -423,7 +494,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(description = "A dependency has only pre-release versions released to central")
+    @Test(enabled = false, description = "A dependency has only pre-release versions released to central")
     public void testCase0012(ITestContext ctx) throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_q_pre_release_only");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
