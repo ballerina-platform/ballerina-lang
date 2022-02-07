@@ -98,13 +98,13 @@ public class InnerQueryTest {
         BRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
-    @Test(description = "Test type test in where clause")
+    @Test(description = "Test query expression within select clause")
     public void testQueryExpWithinSelectClause() {
         BRunUtil.invoke(result, "testQueryExpWithinSelectClause1");
         BRunUtil.invoke(result, "testQueryExpWithinSelectClause2");
     }
 
-    @Test(description = "Test type test in where clause")
+    @Test(description = "Test query expression within query action")
     public void testQueryExpWithinQueryAction() {
         BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
     }
