@@ -175,33 +175,6 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         return this.methods;
     }
 
-    public List<TypeSymbol> originalTypeInclusions() {
-        if (this.typeInclusions == null) {
-            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            List<BType> inclusions = ((BObjectType) this.getBType()).typeInclusions;
-
-            List<TypeSymbol> typeRefs = new ArrayList<>();
-            for (BType inclusion : inclusions) {
-                if (inclusion.tag != TypeTags.NONE && !(inclusion.tsymbol.pkgID.getOrgName().getValue().equals(
-                        "ballerina")
-                        && inclusion.tsymbol.pkgID.getNameComps().size() > 0
-                        && inclusion.tsymbol.pkgID.getNameComps().get(0).getValue().equals("lang"))) {
-                    TypeSymbol type = typesFactory.getTypeDescriptor(inclusion);
-
-                    // If the inclusion was not a type ref, the type would be semantic error and the type factory will
-                    // return null. Therefore, skipping them.
-                    if (type != null) {
-                        typeRefs.add(type);
-                    }
-                }
-            }
-
-            this.typeInclusions = Collections.unmodifiableList(typeRefs);
-        }
-
-        return this.typeInclusions;
-    }
-
     @Override
     public List<TypeSymbol> typeInclusions() {
         if (this.typeInclusions == null) {
@@ -223,6 +196,33 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         }
 
         return this.typeInclusions;
+    }
+
+    public List<TypeSymbol> originalTypeInclusions() {
+        if (this.originalTypeInclusions == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            List<BType> inclusions = ((BObjectType) this.getBType()).typeInclusions;
+
+            List<TypeSymbol> typeRefs = new ArrayList<>();
+            for (BType inclusion : inclusions) {
+                if (inclusion.tag != TypeTags.NONE
+                        && !(inclusion.tsymbol.pkgID.getOrgName().getValue().equals("ballerina")
+                        && inclusion.tsymbol.pkgID.getNameComps().size() > 0
+                        && inclusion.tsymbol.pkgID.getNameComps().get(0).getValue().equals("lang"))) {
+                    TypeSymbol type = typesFactory.getTypeDescriptor(inclusion);
+
+                    // If the inclusion was not a type ref, the type would be semantic error and the type factory will
+                    // return null. Therefore, skipping them.
+                    if (type != null) {
+                        typeRefs.add(type);
+                    }
+                }
+            }
+
+            this.originalTypeInclusions = Collections.unmodifiableList(typeRefs);
+        }
+
+        return this.originalTypeInclusions;
     }
 
     @Override

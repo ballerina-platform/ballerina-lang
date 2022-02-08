@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -44,8 +45,10 @@ import java.util.StringJoiner;
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
 
     private Map<String, RecordFieldSymbol> fieldSymbols;
+    private Map<String, RecordFieldSymbol> originalFieldSymbols;
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
+    private List<TypeSymbol> originalTypeInclusions;
 
     public BallerinaRecordTypeSymbol(CompilerContext context, BRecordType recordType) {
         super(context, TypeDescKind.RECORD, recordType);
@@ -66,6 +69,22 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
 
         this.fieldSymbols = Collections.unmodifiableMap(fields);
         return this.fieldSymbols;
+    }
+
+    public Map<String, RecordFieldSymbol> originalFieldDescriptors() {
+        if (this.originalFieldSymbols != null) {
+            return this.originalFieldSymbols;
+        }
+
+        Map<String, RecordFieldSymbol> fields = new LinkedHashMap<>();
+        BRecordType type = (BRecordType) this.getBType();
+
+        for (BField field : type.originalFields.values()) {
+            fields.put(field.name.value, new BallerinaRecordFieldSymbol(this.context, field));
+        }
+
+        this.originalFieldSymbols = Collections.unmodifiableMap(fields);
+        return this.originalFieldSymbols;
     }
 
     @Override
@@ -104,11 +123,44 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         return this.typeInclusions;
     }
 
+    public List<TypeSymbol> originalTypeInclusions() {
+        if (this.originalTypeInclusions == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            List<BType> inclusions = ((BRecordType) this.getBType()).typeInclusions;
+
+            List<TypeSymbol> typeRefs = new ArrayList<>();
+            for (BType inclusion : inclusions) {
+                if (inclusion.tag != TypeTags.NONE
+                        && !(inclusion.tsymbol.pkgID.getOrgName().getValue().equals("ballerina")
+                        && inclusion.tsymbol.pkgID.getNameComps().size() > 0
+                        && inclusion.tsymbol.pkgID.getNameComps().get(0).getValue().equals("lang"))) {
+
+                    TypeSymbol type = typesFactory.getTypeDescriptor(inclusion);
+
+                    // If the inclusion was not a type ref, the type would be semantic error and the type factory will
+                    // return null. Therefore, skipping them.
+                    if (type != null) {
+                        typeRefs.add(type);
+                    }
+                }
+            }
+
+            this.originalTypeInclusions = Collections.unmodifiableList(typeRefs);
+        }
+
+        return this.originalTypeInclusions;
+    }
+
     @Override
     public String signature() {
         // Treating every record typedesc as exclusive record typedescs.
         StringJoiner joiner = new StringJoiner(" ", "{|", "|}");
-        for (RecordFieldSymbol fieldSymbol : this.fieldDescriptors().values()) {
+        for (TypeSymbol typeInclusion : this.originalTypeInclusions()) {
+            String ballerinaTypeSignature = "*" + typeInclusion.signature() + ";";
+            joiner.add(ballerinaTypeSignature);
+        }
+
+        for (RecordFieldSymbol fieldSymbol : this.originalFieldDescriptors().values()) {
             String ballerinaFieldSignature = fieldSymbol.signature() + ";";
             joiner.add(ballerinaFieldSignature);
         }
