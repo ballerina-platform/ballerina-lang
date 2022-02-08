@@ -72,100 +72,82 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "kind": "INVALID_EXPRESSION_STATEMENT",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
               "children": [
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "hasDiagnostics": true,
+                  "kind": "FIELD_ACCESS",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "leadingMinutiae": [
+                      "kind": "FUNCTION_CALL",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "foo",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
+                            }
+                          ]
                         },
                         {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
-                            "children": [
-                              {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS"
-                                ],
-                                "value": "foo"
-                              }
-                            ]
-                          }
+                          "kind": "OPEN_PAREN_TOKEN"
                         },
                         {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "OPEN_PAREN_TOKEN"
-                              }
-                            ]
-                          }
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "CLOSE_PAREN_TOKEN"
-                              }
-                            ]
-                          }
-                        },
+                          "kind": "CLOSE_PAREN_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "DOT_TOKEN"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "bar"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "EQUAL_TOKEN",
+                  "kind": "SEMICOLON_TOKEN",
                   "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_MISSING_EQUAL_TOKEN"
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "kind": "INVALID_EXPRESSION_STATEMENT",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
+              "children": [
                 {
                   "kind": "BINARY_EXPRESSION",
                   "children": [
@@ -216,8 +198,11 @@
               ]
             },
             {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "kind": "INVALID_EXPRESSION_STATEMENT",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
               "children": [
                 {
                   "kind": "FIELD_ACCESS",
@@ -258,13 +243,22 @@
                   ]
                 },
                 {
-                  "kind": "EQUAL_TOKEN",
+                  "kind": "SEMICOLON_TOKEN",
                   "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_MISSING_EQUAL_TOKEN"
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "kind": "INVALID_EXPRESSION_STATEMENT",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
+              "children": [
                 {
                   "kind": "BINARY_EXPRESSION",
                   "children": [
@@ -315,8 +309,11 @@
               ]
             },
             {
-              "kind": "ASSIGNMENT_STATEMENT",
+              "kind": "INVALID_EXPRESSION_STATEMENT",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
               "children": [
                 {
                   "kind": "FIELD_ACCESS",
@@ -382,13 +379,22 @@
                   ]
                 },
                 {
-                  "kind": "EQUAL_TOKEN",
+                  "kind": "SEMICOLON_TOKEN",
                   "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_MISSING_EQUAL_TOKEN"
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "kind": "INVALID_EXPRESSION_STATEMENT",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
+              "children": [
                 {
                   "kind": "BINARY_EXPRESSION",
                   "children": [

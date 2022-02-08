@@ -34,7 +34,7 @@ public interface Constants {
     String BCE_MISSING_DIGIT_AFTER_DOT = "BCE0416";
     String BCE_INTERVENING_WS = "BCE0676";
     String BCE_INVALID_WS = "BCE0651";
-    String BCE_INVALID_CHECK = "BCE3030";
+    String BCE_INVALID_CHECK = "BCE20404";
 
     // Code Actions
     String REMOVE_S_KEYWORD = "Remove '%s' keyword";

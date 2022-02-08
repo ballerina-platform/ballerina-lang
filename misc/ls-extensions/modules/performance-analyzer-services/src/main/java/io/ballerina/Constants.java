@@ -23,4 +23,11 @@ package io.ballerina;
 public class Constants {
 
     public static final String CAPABILITY_NAME = "performanceAnalyzer";
+    static final String ERROR = "error";
+    static final String SUCCESS = "Success";
+    static final String ENDPOINT_RESOLVE_ERROR = "ENDPOINT_RESOLVE_ERROR";
+    static final String TYPE = "type";
+    static final String MESSAGE = "message";
+    static final String NO_DATA = "NO_DATA";
+
 }

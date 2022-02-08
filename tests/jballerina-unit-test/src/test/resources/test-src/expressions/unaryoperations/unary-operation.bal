@@ -324,6 +324,39 @@ function testNullableUnaryExpressions() {
     assertEquality(a19, 10);
 }
 
+function testResultingTypeOfUnaryPlus() {
+    int:Unsigned8 a = 10;
+    int:Unsigned8 a1 = +a;
+    assertEquality(a1, 10);
+    int:Unsigned16 b = 255;
+    int:Unsigned16 b1 = +b;
+    assertEquality(b1, 255);
+    int:Unsigned32 c = 100;
+    int:Unsigned32 c1 = +c;
+    assertEquality(c1, 100);
+    byte d = 127;
+    byte d1 = +d;
+    assertEquality(d1, 127);
+    int:Signed8 e = 12;
+    int:Signed8 e1 = +e;
+    assertEquality(e1, 12);
+    int:Signed16 f = 43;
+    int:Signed16 f1 = +f;
+    assertEquality(f1, 43);
+    int:Signed32 g = 32;
+    int:Signed32 g1 = +g;
+    assertEquality(g1, 32);
+    IntType4 i = -1;
+    IntType4 i1 = +i;
+    assertEquality(i1, -1);
+    IntType1 j = 2;
+    IntType1 j1 = +j;
+    assertEquality(j1, 2);
+    IntType1|int k = 32;
+    IntType1|int k1 = +k;
+    assertEquality(k1, 32);
+}
+
 function assertEquality(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

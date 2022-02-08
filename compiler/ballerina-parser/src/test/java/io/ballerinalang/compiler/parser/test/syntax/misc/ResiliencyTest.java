@@ -42,4 +42,9 @@ public class ResiliencyTest extends AbstractMiscTest {
     public void testInvalidTokensInModuleLevel() {
         testFile("resiliency/resiliency_source_03.bal", "resiliency/resiliency_assert_03.json");
     }
+
+    @Test
+    public void testResiliencyForTokenBufferOverflow() {
+        testFile("resiliency/resiliency_source_04.bal", "resiliency/resiliency_assert_04.json");
+    }
 }

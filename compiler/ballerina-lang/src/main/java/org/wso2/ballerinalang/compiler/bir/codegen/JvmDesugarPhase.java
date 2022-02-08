@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -266,17 +265,11 @@ public class JvmDesugarPhase {
     private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs,
                                                  HashMap<String, String> encodedVsInitialIds) {
         for (BIRTypeDefinition typeDefinition : typeDefs) {
-            if (typeDefinition.referenceType != null) {
-                typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
-                        ((BTypeReferenceType) typeDefinition.referenceType).definitionName, encodedVsInitialIds));
-            } else {
-                typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
-                        typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
-            }
-
+            typeDefinition.type.tsymbol.name = Names.fromString(encodeNonFunctionIdentifier(
+                    typeDefinition.type.tsymbol.name.value, encodedVsInitialIds));
             typeDefinition.internalName =
                     Names.fromString(encodeNonFunctionIdentifier(typeDefinition.internalName.value,
-                                                                 encodedVsInitialIds));
+                            encodedVsInitialIds));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, encodedVsInitialIds);
             BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);
@@ -436,7 +429,7 @@ public class JvmDesugarPhase {
         if (encodedVsInitialIds.containsKey(identifier)) {
             return identifier;
         }
-        String encodedString = IdentifierUtils.encodeFunctionIdentifier(identifier);
+        String encodedString = Utils.encodeFunctionIdentifier(identifier);
         encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }
@@ -445,7 +438,7 @@ public class JvmDesugarPhase {
         if (encodedVsInitialIds.containsKey(identifier)) {
             return identifier;
         }
-        String encodedString = IdentifierUtils.encodeNonFunctionIdentifier(identifier);
+        String encodedString = Utils.encodeNonFunctionIdentifier(identifier);
         encodedVsInitialIds.putIfAbsent(encodedString, identifier);
         return encodedString;
     }

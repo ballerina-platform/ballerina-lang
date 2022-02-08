@@ -126,4 +126,9 @@ public class BalaProject extends Project {
         }
         return true;
     }
+
+    @Override
+    public Path targetDir() {
+        throw new UnsupportedOperationException("target directory is not supported for BalaProject");
+    }
 }

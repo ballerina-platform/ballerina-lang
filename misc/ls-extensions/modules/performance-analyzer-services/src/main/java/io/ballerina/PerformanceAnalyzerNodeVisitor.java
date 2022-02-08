@@ -31,7 +31,6 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -64,7 +63,6 @@ import org.eclipse.lsp4j.Range;
 
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Visitor to discover the program structure.
@@ -73,10 +71,9 @@ import java.util.UUID;
  */
 public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
-    private static final long DEFAULT_LOOP_SIZE = 2;
     static final String ENDPOINTS_KEY = "endpoints";
     static final String ACTION_INVOCATION_KEY = "actionInvocations";
-
+    private static final long DEFAULT_LOOP_SIZE = 2;
     private final HashMap<LineRange, Object> variableMap;
     private final HashMap<LineRange, String> referenceMap;
     private final HashMap<String, EndPointNode> endPointDeclarationMap;
@@ -88,6 +85,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     private Node currentNode;
     private Document document;
     private boolean withinRange = false;
+    private int uuid;
 
     public PerformanceAnalyzerNodeVisitor(SemanticModel model, String file, Range range) {
 
@@ -237,19 +235,15 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         io.ballerina.compiler.syntax.tree.Node node = forEachStatementNode.actionOrExpressionNode();
         long iterationsCount = DEFAULT_LOOP_SIZE;
 
-        if (node.kind() == SyntaxKind.BRACED_EXPRESSION) {
-            BracedExpressionNode bracedExpressionNode = (BracedExpressionNode) node;
-            node = bracedExpressionNode.expression();
-
-            if (node.kind() == SyntaxKind.BINARY_EXPRESSION) {
-                BinaryExpressionNode binaryExpressionNode = (BinaryExpressionNode) node;
-                io.ballerina.compiler.syntax.tree.Node rhsExpr = binaryExpressionNode.rhsExpr();
-                io.ballerina.compiler.syntax.tree.Node lhsExpr = binaryExpressionNode.lhsExpr();
-                if (rhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL && lhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
-                    long rhsValue = Long.parseLong(rhsExpr.toSourceCode().trim());
-                    long lhsValue = Long.parseLong(lhsExpr.toSourceCode().trim());
-                    iterationsCount = rhsValue - lhsValue + 1;
-                }
+        if (node.kind() == SyntaxKind.BINARY_EXPRESSION) {
+            BinaryExpressionNode binaryExpressionNode = (BinaryExpressionNode) node;
+            io.ballerina.compiler.syntax.tree.Node rhsExpr = binaryExpressionNode.rhsExpr();
+            io.ballerina.compiler.syntax.tree.Node lhsExpr = binaryExpressionNode.lhsExpr();
+            if (rhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL && lhsExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                long rhsValue = Long.parseLong(rhsExpr.toSourceCode().trim());
+                long lhsValue = Long.parseLong(lhsExpr.toSourceCode().trim());
+                iterationsCount = rhsValue - lhsValue +
+                        (binaryExpressionNode.operator().kind() == SyntaxKind.ELLIPSIS_TOKEN ? 1 : 0);
             }
         }
 
@@ -435,7 +429,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             return referenceMap.get(lineRange);
         }
 
-        String uuid = UUID.randomUUID().toString();
+        String uuid = String.valueOf(this.uuid++);
         referenceMap.put(lineRange, uuid);
         return uuid;
     }

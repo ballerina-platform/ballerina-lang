@@ -74,6 +74,22 @@ public class TestSingleFileProject {
 
     }
 
+    @Test (description = "tests if the target directory for single files is resolved properly")
+    public void testSingleFileTargetDirectory() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
+        SingleFileProject project = null;
+        try {
+            project = TestUtils.loadSingleFileProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        Path targetDirPath = project.targetDir();
+        Assert.assertNotNull(targetDirPath);
+        Assert.assertTrue(targetDirPath.toFile().exists());
+        Assert.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), targetDirPath.getParent());
+    }
+
     @Test (description = "tests loading a valid standalone Ballerina file")
     public void testLoadSingleFileInProject() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("util").resolve("file-util.bal");

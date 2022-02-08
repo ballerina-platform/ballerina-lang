@@ -112,7 +112,7 @@ processResources {
     include 'builtin-types-descriptions/'
     include 'keywords-descriptions/'
     include 'release-description.md'
-    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
+    filter { String line -> line.replace('${short.version}', "${project.version}")}
 }
 
 shadowJar {

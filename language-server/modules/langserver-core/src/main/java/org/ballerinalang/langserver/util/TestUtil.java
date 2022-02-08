@@ -238,32 +238,32 @@ public class TestUtil {
     /**
      * Get the textDocument/definition response.
      *
-     * @param filePath        Path of the Bal file
+     * @param fileUri        Path of the Bal file
      * @param position        Cursor Position
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static String getDefinitionResponse(String filePath, Position position, Endpoint serviceEndpoint) {
-        CompletableFuture<?> result = serviceEndpoint.request(DEFINITION, getDefinitionParams(filePath, position));
+    public static String getDefinitionResponse(String fileUri, Position position, Endpoint serviceEndpoint) {
+        CompletableFuture<?> result = serviceEndpoint.request(DEFINITION, getDefinitionParams(fileUri, position));
         return getResponseString(result);
     }
 
     /**
      * Get the textDocument/reference response.
      *
-     * @param filePath        Path of the Bal file
+     * @param fileUri        URI of the Bal file
      * @param position        Cursor Position
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static String getReferencesResponse(String filePath, Position position, Endpoint serviceEndpoint) {
+    public static String getReferencesResponse(String fileUri, Position position, Endpoint serviceEndpoint) {
         ReferenceParams referenceParams = new ReferenceParams();
 
         ReferenceContext referenceContext = new ReferenceContext();
         referenceContext.setIncludeDeclaration(true);
 
         referenceParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-        referenceParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        referenceParams.setTextDocument(getTextDocumentIdentifier(URI.create(fileUri)));
         referenceParams.setContext(referenceContext);
 
         CompletableFuture<?> result = serviceEndpoint.request(REFERENCES, referenceParams);
@@ -502,6 +502,7 @@ public class TestUtil {
      *
      * @param serviceEndpoint Language Server Service Endpoint
      * @param fileUri         uri of the document to open
+     * @param content         File content
      * @throws IOException Exception while reading the file content
      */
     public static void openDocument(Endpoint serviceEndpoint, String fileUri, String content) throws IOException {
@@ -537,8 +538,19 @@ public class TestUtil {
      * @param filePath        File path of the file to be closed
      */
     public static void closeDocument(Endpoint serviceEndpoint, Path filePath) {
+        closeDocument(serviceEndpoint, filePath.toUri().toString());
+    }
+    
+    /**
+     * Close an already opened document. File URI should be provided separately. Used to simulate scenarios where
+     * different URI schemes are used.
+     *
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param fileUri File URI
+     */
+    public static void closeDocument(Endpoint serviceEndpoint, String fileUri) {
         TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
-        documentIdentifier.setUri(filePath.toUri().toString());
+        documentIdentifier.setUri(fileUri);
         serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(documentIdentifier));
     }
 
@@ -660,9 +672,9 @@ public class TestUtil {
         return hoverParams;
     }
 
-    private static DefinitionParams getDefinitionParams(String filePath, Position position) {
+    private static DefinitionParams getDefinitionParams(String fileUri, Position position) {
         DefinitionParams definitionParams = new DefinitionParams();
-        definitionParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        definitionParams.setTextDocument(getTextDocumentIdentifier(URI.create(fileUri)));
         definitionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
 
         return definitionParams;

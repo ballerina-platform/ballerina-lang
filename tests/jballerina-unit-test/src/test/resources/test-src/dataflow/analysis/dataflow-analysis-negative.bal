@@ -712,7 +712,7 @@ function testUninitializedVarWithContinueAndBreakInWhile() {
         }
         int _ = a; // OK
     }
-    int _ = a; // variable 'a' may not have been initialized
+    int _ = a; // variable 'a' is not initialized
 
     int b;
     while false {
@@ -723,7 +723,7 @@ function testUninitializedVarWithContinueAndBreakInWhile() {
         }
         int _ = b; // OK
     }
-    int k = b; // variable 'b' may not have been initialized
+    int k = b; // variable 'b' is not initialized
 }
 
 function testUninitializedVarWithWhile1() {
@@ -784,7 +784,7 @@ function testUninitializedVariablesWithFunctionCalls() {
     boolean[] k;
     f2(i, j, ...k); // uninitialized `f2`, `i`, `j`, `k`
 
-    function (int i, string j = "", boolean... k) f3 = function (int i, string j = "", boolean... k) {};
+    function (int i, string j = "", boolean... k) f3 = function (int i1, string j1 = "", boolean... k1) {};
     int i2 = 0;
     string j2 = "";
     boolean[] k2 = [true];
@@ -797,7 +797,7 @@ function testUninitializedVariablesWithFunctionCalls() {
     b.method(); // uninitialized `b`
 
     i = 1;
-    b = new(function (int i) {});
+    b = new(function (int i1) {});
     b.fn(i); // OK
     b.method(); // OK
 }
@@ -874,4 +874,224 @@ function testUninitializedVariablesTernaryExpr() {
     b = "";
 
     string _ = condition ? a : b; // OK
+}
+
+function testPotentiallyUninitVarWithWhile1(boolean b = false) {
+    int i;
+
+    while b {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVarWithWhile2() {
+    int? a = 10;
+    int i;
+
+    while a is () {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVarWithWhile3() {
+    int a = 10;
+    int i;
+
+    while a == 20 {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVarWithWhile4() {
+    int a = 10;
+    int i;
+
+    while a < 20 {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVarWithWhile5() {
+    int i;
+
+    while true {
+        i = 1;
+    }
+
+    int _ = i; // unreachable code
+}
+
+function testUninitVarWithWhile6() {
+    int i;
+
+    while false {
+        i = 1; // unreachable code
+    }
+
+    int _ = i; // variable 'i' is not initialized
+}
+
+function testPotentiallyUninitVarWithWhile7() {
+    boolean b = true;
+    final int i;
+
+    while b {
+        i = 1;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVarWithWhile8() {
+    int i;
+    boolean b = false;
+
+    while true {
+        while b {
+            i = 1;
+        }
+        break;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testUninitVarWithWhile9() {
+    int i;
+    boolean b = false;
+
+    while false {
+        while b {
+            i = 1;
+        }
+        break;
+    }
+
+    int _ = i; // variable 'i' is not initialized
+}
+
+function testPotentiallyUninitVarWithWhile10() {
+    int i;
+    boolean b = false;
+
+    while b {
+        while true {
+            i = 1;
+            break;
+        }
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testUninitVarWithWhile11() {
+    int i;
+    boolean b = false;
+
+    while b {
+        while false {
+            i = 1;
+        }
+        break;
+    }
+
+    int _ = i; // variable 'i' is not initialized
+}
+
+function testPotentiallyUninitVarWithWhile12() {
+    int i;
+    boolean b = false;
+
+    while true {
+        if true {
+            while b {
+                i = 1;
+            }
+        }
+        break;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testPotentiallyUninitVarWithWhile13() {
+    int i;
+    boolean b = false;
+
+    while true {
+        if true {
+            while b {
+                i = 1;
+            }
+        }
+
+        int _ = i; // variable 'i' may not have been initialized
+        break;
+    }
+}
+
+function testPotentiallyUninitVarWithWhile14(boolean c = true) {
+    int i;
+    boolean b = false;
+
+    while b {
+        if true {
+            if c {
+                while true {
+                    i = 1;
+                }
+            }
+        }
+        break;
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
+}
+
+function testUninitVarWithWhile15(boolean c = true) {
+    int i;
+    boolean b = false;
+
+    while b {
+        if true {
+            if c {
+                while false {
+                    i = 1;
+                }
+            }
+        }
+        break;
+    }
+
+    int _ = i; // variable 'i' is not initialized
+}
+
+function testUninitVarWithWhile16(boolean c = true) {
+    int i;
+    boolean b = true;
+
+    if b {
+        while c {
+            int? d = 10;
+            while true {
+                if d is int {
+                    i = 1;
+                } else {
+                    i = 2;
+                }
+                break;
+            }
+            break;
+        }
+    }
+
+    int _ = i; // variable 'i' may not have been initialized
 }

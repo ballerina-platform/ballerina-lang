@@ -18,7 +18,6 @@
 package io.ballerina.cli.launcher.util;
 
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -28,8 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-
-import static io.ballerina.runtime.api.utils.IdentifierUtils.encodeNonFunctionIdentifier;
 
 /**
  * Utility methods for doing file operations.
@@ -115,27 +112,4 @@ public class BFileUtil {
         }
     }
 
-    /**
-     * Provides Qualified Class Name.
-     *
-     * @param orgName     Org name
-     * @param packageName Package name
-     * @param version Package version
-     * @param className   Class name
-     * @return Qualified class name
-     */
-    public static String getQualifiedClassName(String orgName, String packageName, String version,
-                                               String className) {
-
-
-        if (!Names.DEFAULT_PACKAGE.value.equals(packageName)) {
-            className = encodeNonFunctionIdentifier(packageName)  + "." + version.replace('.', '_') + "." + className;
-        }
-
-        if (!Names.ANON_ORG.value.equals(orgName)) {
-            className = encodeNonFunctionIdentifier(orgName) + "." +  className;
-        }
-
-        return className;
-    }
 }

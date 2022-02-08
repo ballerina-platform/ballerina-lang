@@ -23,8 +23,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.javacrumbs.jsonunit.core.Option;
 import org.ballerinalang.langserver.util.TestUtil;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
@@ -35,9 +33,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import static io.ballerina.Constants.MESSAGE;
+import static io.ballerina.Constants.SUCCESS;
+import static io.ballerina.Constants.TYPE;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
+import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 /**
@@ -45,63 +49,75 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
  */
 public class PerformanceAnalyzerTest {
 
-    private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getEndpoints";
+    private static final String BALLERINA = "ballerina";
+    private static final String RESULT = "result";
+    private static final String PERFORMANCE_ANALYZE = "performanceAnalyzer/getResourcesWithEndpoints";
     private static final Path RES_DIR = Paths.get("src", "test", "resources").toAbsolutePath();
 
     @Test(description = "Test performance analyzer")
     public void testFunction() throws IOException, ExecutionException, InterruptedException {
 
-        Path project = RES_DIR.resolve("ballerina").resolve("main.bal");
-        Path resultJson = RES_DIR.resolve("result").resolve("main.json");
-
-        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
-        TestUtil.openDocument(serviceEndpoint, project);
-
-        PerformanceAnalyzerGraphRequest request = new PerformanceAnalyzerGraphRequest();
-        request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
-        request.setRange(new Range(new Position(21, 4), new Position(28, 5)));
-
-        CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
-        JsonObject json = (JsonObject) result.get();
-        JsonObject actionInvocations = json.getAsJsonObject("actionInvocations");
-
-        BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
-        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
-        JsonObject expectedActionInvocations = expected.getAsJsonObject("actionInvocations");
-
-        assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
-        validateEndpoints(json, expected);
+        compare("main.bal", "main.json");
     }
 
     @Test(description = "Test performance analyzer")
     public void testIfElse() throws IOException, ExecutionException, InterruptedException {
 
-        Path project = RES_DIR.resolve("ballerina").resolve("ifElse.bal");
-        Path resultJson = RES_DIR.resolve("result").resolve("ifElse.json");
+        compare("ifElse.bal", "ifElse.json");
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testNoData() throws IOException, ExecutionException, InterruptedException {
+
+        compare("noData.bal", "noData.json");
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testForEach() throws IOException, ExecutionException, InterruptedException {
+
+        compare("forEach.bal", "forEach.json");
+    }
+
+    @Test(description = "Test performance analyzer")
+    public void testWhile() throws IOException, ExecutionException, InterruptedException {
+
+        compare("while.bal", "while.json");
+    }
+
+    private void compare(String balFile, String jsonFile) throws IOException, InterruptedException,
+                                                                 ExecutionException {
+
+        Path project = RES_DIR.resolve(BALLERINA).resolve(balFile);
+        Path resultJson = RES_DIR.resolve(RESULT).resolve(jsonFile);
 
         Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, project);
 
-        PerformanceAnalyzerGraphRequest request = new PerformanceAnalyzerGraphRequest();
+        PerformanceAnalyzerRequest request = new PerformanceAnalyzerRequest();
         request.setDocumentIdentifier(new TextDocumentIdentifier(project.toString()));
-        request.setRange(new Range(new Position(20, 4), new Position(30, 5)));
 
         CompletableFuture<?> result = serviceEndpoint.request(PERFORMANCE_ANALYZE, request);
-        JsonObject json = (JsonObject) result.get();
-        JsonObject actionInvocations = json.getAsJsonObject("actionInvocations");
+        List<PerformanceAnalyzerResponse> endpoints = (List<PerformanceAnalyzerResponse>) result.get();
+        PerformanceAnalyzerResponse endpoint = endpoints.get(0);
 
         BufferedReader br = new BufferedReader(new FileReader(resultJson.toAbsolutePath().toString()));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
-        JsonObject expectedActionInvocations = expected.getAsJsonObject("actionInvocations");
 
-        assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
-        validateEndpoints(json, expected);
+        Assert.assertEquals(endpoint.getType(), expected.get(TYPE).getAsString());
+        Assert.assertEquals(endpoint.getMessage(), expected.get(MESSAGE).getAsString());
+
+        if (endpoint.getType().equals(SUCCESS)) {
+            JsonObject actionInvocations = endpoint.getActionInvocations();
+            JsonObject expectedActionInvocations = expected.getAsJsonObject(ACTION_INVOCATION_KEY);
+
+            assertThatJson(actionInvocations.toString()).isEqualTo(expectedActionInvocations.toString());
+            validateEndpoints(endpoint.getEndpoints(), expected);
+        }
     }
 
-    private void validateEndpoints(JsonObject json, JsonObject expected) {
+    private void validateEndpoints(JsonObject endpoints, JsonObject expected) {
 
-        JsonObject endpoints = json.getAsJsonObject("endpoints");
-        JsonObject expectedEndpoints = expected.getAsJsonObject("endpoints");
+        JsonObject expectedEndpoints = expected.getAsJsonObject(ENDPOINTS_KEY);
 
         Assert.assertEquals(endpoints.size(), expectedEndpoints.size());
         String[] endpointsKeys = endpoints.keySet().toArray(new String[endpoints.size()]);

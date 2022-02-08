@@ -140,7 +140,8 @@ public class LangLibIntTest {
     @DataProvider
     public Object[] functionProvider() {
         return new String[] {"testToHexStringNonPositives", "testLangLibCallOnIntSubTypes",
-                "testLangLibCallOnFiniteType", "testIntOverflow"};
+                "testLangLibCallOnFiniteType", "testIntOverflow", "testIntOverflowWithSum",
+                "testIntNonOverflowWithSum"};
     }
 
 }

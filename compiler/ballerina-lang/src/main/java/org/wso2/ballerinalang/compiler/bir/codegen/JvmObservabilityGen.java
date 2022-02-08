@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
@@ -110,7 +110,7 @@ class JvmObservabilityGen {
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
     private static final Location COMPILE_TIME_CONST_POS =
-            new BLangDiagnosticLocation(null, -1, -1, -1, -1, 0, 0);
+            new BLangDiagnosticLocation(null, -1, -1, -1, -1);
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;
@@ -248,7 +248,7 @@ class JvmObservabilityGen {
 
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
-                swapBasicBlockContent(func, currentBB, newBB);
+                swapBasicBlockContent(currentBB, newBB);
                 injectCheckpointCall(func, currentBB, pkg, desugaredPos);
                 currentBB.terminator.thenBB = newBB;
                 // Fix error entries in the error entry table
@@ -291,8 +291,8 @@ class JvmObservabilityGen {
      */
     private void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
         PackageID packageID = pkg.packageID;
-        Name org = new Name(IdentifierUtils.decodeIdentifier(packageID.orgName.getValue()));
-        Name module = new Name(IdentifierUtils.decodeIdentifier(packageID.name.getValue()));
+        Name org = new Name(Utils.decodeIdentifier(packageID.orgName.getValue()));
+        Name module = new Name(Utils.decodeIdentifier(packageID.name.getValue()));
         PackageID currentPkgId = new PackageID(org, module, packageID.version);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
@@ -426,7 +426,7 @@ class JvmObservabilityGen {
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);    // Every non-abstract function should have function body
             BIRBasicBlock newStartBB = insertBasicBlock(func, 1);
-            swapBasicBlockContent(func, startBB, newStartBB);
+            swapBasicBlockContent(startBB, newStartBB);
 
             if (isResource || isRemote) {
                 String resourcePathOrFunction = functionName;
@@ -467,7 +467,7 @@ class JvmObservabilityGen {
                     BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 1);
                     BIRBasicBlock observeEndBB = insertBasicBlock(func, i + 2);
                     BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 3);
-                    swapBasicBlockTerminator(func, currentBB, newCurrentBB);
+                    swapBasicBlockTerminator(currentBB, newCurrentBB);
 
                     injectCheckErrorCalls(func, currentBB, errorReportBB, observeEndBB, null,
                             returnValOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
@@ -481,7 +481,7 @@ class JvmObservabilityGen {
                     i += 3; // Number of inserted BBs
                 } else {
                     BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 1);
-                    swapBasicBlockTerminator(func, currentBB, newCurrentBB);
+                    swapBasicBlockTerminator(currentBB, newCurrentBB);
 
                     injectStopObservationCall(currentBB, null);
 
@@ -492,7 +492,7 @@ class JvmObservabilityGen {
             } else if (currentBB.terminator.kind == InstructionKind.PANIC) {
                 Panic panicCall = (Panic) currentBB.terminator;
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 1);
-                swapBasicBlockTerminator(func, currentBB, newCurrentBB);
+                swapBasicBlockTerminator(currentBB, newCurrentBB);
 
                 injectStopObservationWithErrorCall(func, currentBB, newCurrentBB.terminator.pos,
                         panicCall.errorOp, FUNC_BODY_INSTRUMENTATION_TYPE);
@@ -542,7 +542,7 @@ class JvmObservabilityGen {
                 BIRBasicBlock observeStartBB = insertBasicBlock(func, i + 1);
                 int newCurrentIndex = i + 2;
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, newCurrentIndex);
-                swapBasicBlockTerminator(func, currentBB, newCurrentBB);
+                swapBasicBlockTerminator(currentBB, newCurrentBB);
                 {   // Injecting the instrumentation points for invocations
                     BIROperand objectTypeOperand;
                     String action;
@@ -624,7 +624,7 @@ class JvmObservabilityGen {
 
                         BIRBasicBlock observeEndBB = insertBasicBlock(func, eeTargetIndex + 1);
                         BIRBasicBlock newTargetBB = insertBasicBlock(func, eeTargetIndex + 2);
-                        swapBasicBlockContent(func, errorEntry.targetBB, newTargetBB);
+                        swapBasicBlockContent(errorEntry.targetBB, newTargetBB);
 
                         String uniqueId = INVOCATION_INSTRUMENTATION_TYPE + "$" +
                                 newCurrentBB.id.value; // Unique ID to work with EEs covering multiple BBs
@@ -866,51 +866,26 @@ class JvmObservabilityGen {
     /**
      * Swap the effective content of two basic blocks.
      *
-     * @param func The BIR function
      * @param firstBB The first BB of which content should end up in second BB
      * @param secondBB The second BB of which content should end up in first BB
      */
-    private void swapBasicBlockContent(BIRFunction func, BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
+    private void swapBasicBlockContent(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
         List<BIRNonTerminator> firstBBInstructions = firstBB.instructions;
         firstBB.instructions = secondBB.instructions;
         secondBB.instructions = firstBBInstructions;
-        int firstBBIndex = func.basicBlocks.indexOf(firstBB);
-        for (BIRNonTerminator ins : firstBBInstructions) {
-            resetEndBasicBlock(func, ins.lhsOp, secondBB, firstBBIndex);
-        }
-        swapBasicBlockTerminator(func, firstBB, secondBB);
+        swapBasicBlockTerminator(firstBB, secondBB);
     }
 
     /**
      * Swap the terminators of two basic blocks.
      *
-     * @param func The BIR function
      * @param firstBB The first BB of which terminator should end up in second BB
      * @param secondBB The second BB of which terminator should end up in first BB
      */
-    private void swapBasicBlockTerminator(BIRFunction func, BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
+    private void swapBasicBlockTerminator(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
         BIRTerminator firstBBTerminator = firstBB.terminator;
         firstBB.terminator = secondBB.terminator;
         secondBB.terminator = firstBBTerminator;
-        int firstBBIndex = func.basicBlocks.indexOf(firstBB);
-        if (firstBBTerminator.lhsOp != null) {
-            resetEndBasicBlock(func, firstBBTerminator.lhsOp, secondBB, firstBBIndex);
-        }
-    }
-
-    /**
-     * Reset endBBs of local variables after swapping basic blocks content.
-     *
-     * @param func The BIR function
-     * @param lhsOp The lhs operand which holds the local variable
-     * @param newEndBB The new endBB of the local variable
-     * @param index The index of the old endBB
-     */
-    private void resetEndBasicBlock(BIRFunction func, BIROperand lhsOp, BIRBasicBlock newEndBB, int index) {
-        BIRBasicBlock endBB = lhsOp.variableDcl.endBB;
-        if (endBB != null && func.basicBlocks.indexOf(endBB) <= index) {
-            lhsOp.variableDcl.endBB = newEndBB;
-        }
     }
 
     /**

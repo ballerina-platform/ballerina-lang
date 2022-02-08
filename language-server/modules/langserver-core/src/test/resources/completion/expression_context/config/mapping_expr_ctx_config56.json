@@ -17,7 +17,7 @@
       "label": "rec2",
       "kind": "Variable",
       "detail": "TestRecord2",
-      "sortText": "AB",
+      "sortText": "BB",
       "insertText": "rec2",
       "insertTextFormat": "Snippet"
     },

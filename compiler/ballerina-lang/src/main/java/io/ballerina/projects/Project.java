@@ -18,13 +18,11 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ProjectEnvironment;
-import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -81,13 +79,7 @@ public abstract class Project {
         return this.sourceRoot;
     }
 
-    public Path targetDir() {
-        if (this.buildOptions.getTargetPath() == null) {
-            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
-        } else {
-            return Paths.get(this.buildOptions().getTargetPath());
-        }
-    }
+    public abstract Path targetDir();
 
     protected void setCurrentPackage(Package currentPackage) {
         // TODO Handle concurrent read/write to the currentPackage variable

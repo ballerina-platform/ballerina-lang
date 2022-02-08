@@ -98,4 +98,9 @@ public class ProjectPackageCache implements WritablePackageCache {
         return descriptor.org().equals(packageOrg) && descriptor.name().equals(packageName) &&
                 descriptor.version().equals(version);
     }
+
+    @Override
+    public void removePackage(PackageId packageId) {
+        throw new UnsupportedOperationException("Removing Package from ProjectPackageCache is not supported");
+    }
 }

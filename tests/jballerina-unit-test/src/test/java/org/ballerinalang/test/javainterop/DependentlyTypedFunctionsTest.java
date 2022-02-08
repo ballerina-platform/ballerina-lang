@@ -234,6 +234,8 @@ public class DependentlyTypedFunctionsTest {
                 {"testArgsForDependentlyTypedFunctionViaArrayRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaRecordRestArg"},
                 {"testDependentlyTypedFunctionWithIncludedRecordParam"},
+                {"testDependentlyTypedMethodCallOnObjectType"},
+                {"testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument"},
                 {"testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType"}
         };
     }

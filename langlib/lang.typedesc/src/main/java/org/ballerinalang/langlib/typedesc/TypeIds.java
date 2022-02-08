@@ -87,6 +87,7 @@ public class TypeIds {
                 typeIdSet = errorType.typeIdSet;
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 BObjectType objectType = (BObjectType) describingType;
                 typeIdSet = objectType.typeIdSet;
                 break;

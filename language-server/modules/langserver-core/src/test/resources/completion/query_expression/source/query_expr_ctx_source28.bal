@@ -17,3 +17,15 @@ function getPersonList() returns Person[]|error {
     Person[] personList = [p1, p2];
     return personList; 
 }
+
+type Customer record {
+    int id;
+    string name;
+    int noOfItems;
+};
+
+type Person record {
+    string firstName;
+    string lastName;
+    int age;
+};

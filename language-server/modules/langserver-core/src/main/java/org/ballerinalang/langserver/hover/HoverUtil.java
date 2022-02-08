@@ -34,19 +34,25 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +78,7 @@ public class HoverUtil {
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
-
+        
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
         // Check for the cancellation before the time consuming operation
@@ -81,6 +87,16 @@ public class HoverUtil {
         // Check for the cancellation after the time consuming operation
         context.checkCancelled();
         if (symbolAtCursor.isEmpty()) {
+            Range nodeRange = new Range(context.getCursorPosition(), context.getCursorPosition());
+            NonTerminalNode nodeAtCursor = CommonUtil.findNode(nodeRange, srcFile.get().syntaxTree());
+            if (nodeAtCursor != null) {
+                MatchedExpressionNodeResolver expressionResolver = new MatchedExpressionNodeResolver(nodeAtCursor);
+                Optional<ExpressionNode> expr = expressionResolver.findExpression(nodeAtCursor);
+                if (expr.isPresent()) {
+                    return getHoverForExpression(context, expr.get());
+                }
+            }
+            
             return HoverUtil.getDefaultHoverObject();
         }
 
@@ -120,6 +136,52 @@ public class HoverUtil {
         }
     }
 
+    /**
+     * Get hover for expression nodes. Note that we are supplying hover for a selected set of expressions.
+     *
+     * @param context  Context
+     * @param exprNode Expression node
+     * @return Hover
+     */
+    private static Hover getHoverForExpression(HoverContext context, Node exprNode) {
+        switch (exprNode.kind()) {
+            case IMPLICIT_NEW_EXPRESSION:
+            case EXPLICIT_NEW_EXPRESSION:
+                Optional<TypeSymbol> optionalTypeSymbol = context.currentSemanticModel()
+                        .flatMap(semanticModel -> semanticModel.typeOf(exprNode))
+                        .map(CommonUtil::getRawType);
+                if (optionalTypeSymbol.isEmpty()) {
+                    break;
+                }
+
+                TypeSymbol typeSymbol = optionalTypeSymbol.get();
+                // If the type we got is a union, init() function should have an error? return type.
+                // Need to filter that here.
+                if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+                    UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
+                    Optional<TypeSymbol> classTypeSymbol = unionTypeSymbol.memberTypeDescriptors().stream()
+                            .map(CommonUtil::getRawType)
+                            .filter(member -> member.typeKind() != TypeDescKind.ERROR)
+                            .findFirst();
+                    if (classTypeSymbol.isEmpty()) {
+                        break;
+                    }
+                    typeSymbol = classTypeSymbol.get();
+                }
+
+                if (typeSymbol instanceof ClassSymbol) {
+                    ClassSymbol classSymbol = (ClassSymbol) typeSymbol;
+                    if (classSymbol.initMethod().isEmpty()) {
+                        break;
+                    }
+
+                    MethodSymbol initMethodSymbol = classSymbol.initMethod().get();
+                    return getFunctionHoverMarkupContent(initMethodSymbol, context);
+                }
+        }
+        return getDefaultHoverObject();
+    }
+
     private static Hover getObjectHoverMarkupContent(Documentation documentation, ObjectTypeSymbol classSymbol,
                                                      HoverContext context) {
         List<String> hoverContent = new ArrayList<>();
@@ -156,16 +218,17 @@ public class HoverUtil {
             classSymbol.methods().entrySet().stream()
                     .filter(methodSymbol -> withValidAccessModifiers(methodSymbol.getValue(),
                             currentPackage.get(), currentModule.get().moduleId(), context))
-                    .collect(Collectors.toList()).forEach(methodEntry -> {
-                StringBuilder methodInfo = new StringBuilder();
-                Optional<Documentation> methodDoc = methodEntry.getValue().documentation();
-                methodInfo.append(quotedString(CommonUtil.getModifiedTypeName(context,
-                        methodEntry.getValue().typeDescriptor())));
-                if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
-                    methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
-                }
-                methods.add(bulletItem(methodInfo.toString()));
-            });
+                    .forEach(methodEntry -> {
+                        MethodSymbol methodSymbol = methodEntry.getValue();
+                        StringBuilder methodInfo = new StringBuilder();
+                        Optional<Documentation> methodDoc = methodSymbol.documentation();
+                        String signature = CommonUtil.getModifiedSignature(context, methodSymbol.signature());
+                        methodInfo.append(quotedString(signature));
+                        if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
+                            methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
+                        }
+                        methods.add(bulletItem(methodInfo.toString()));
+                    });
 
             if (!methods.isEmpty()) {
                 methods.add(0, header(3, ContextConstants.METHOD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);

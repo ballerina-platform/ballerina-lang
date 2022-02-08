@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.parser.trials;
 
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -42,23 +43,24 @@ public class StatementTrial extends TreeParserTrial {
 
     @Override
     public Collection<Node> parse(String source) throws ParserTrialFailedException {
-        NodeList<StatementNode> statementNodes;
         Collection<Node> finalNodes = new ArrayList<>();
+        BlockStatementNode blockStatementNode;
+
         try {
-            statementNodes = NodeParser.parseStatements(source);
-            for (StatementNode nodeInst : statementNodes) {
-                if (nodeInst.hasDiagnostics()) {
-                    throw new ParserTrialFailedException("Error occurred during parsing as a statement");
-                }
+            blockStatementNode = NodeParser.parseBlockStatement("{" + source + "}");
+
+            if (blockStatementNode.hasDiagnostics()) {
+                throw new ParserTrialFailedException("Error occurred during parsing as a statement");
             }
         } catch (ParserTrialFailedException e) {
-            statementNodes = NodeParser.parseStatements(source + ';');
-            for (StatementNode nodeInst:statementNodes) {
-                if (nodeInst.hasDiagnostics()) {
-                    throw new ParserTrialFailedException("Error occurred during parsing as a statement");
-                }
+            blockStatementNode = NodeParser.parseBlockStatement("{" + source + ";}");
+
+            if (blockStatementNode.hasDiagnostics()) {
+                throw new ParserTrialFailedException("Error occurred during parsing as a statement");
             }
         }
+
+        NodeList<StatementNode> statementNodes = blockStatementNode.statements();
         for (Node node : statementNodes) {
             if (node.kind() == SyntaxKind.CALL_STATEMENT) {
                 node = ((ExpressionStatementNode) node).expression();

@@ -65,3 +65,22 @@ function fbar() returns int|error {
 function fFoo() returns LhsErrTwo|int {
     return error("");
 }
+
+function testCheckedExprWithNoErrorType1() {
+    int|error i = 10;
+    int _ = check i;
+}
+
+function testCheckedExprWithNoErrorType2() {
+    int|error i = 10;
+    int _ = getInt(check i) + check i;
+}
+
+function getInt(int x) returns int {
+    return x + 1;
+}
+
+function testCheckedExprWithNoErrorType3() {
+    int|error i = error("Error");
+    int _ = check i;
+}

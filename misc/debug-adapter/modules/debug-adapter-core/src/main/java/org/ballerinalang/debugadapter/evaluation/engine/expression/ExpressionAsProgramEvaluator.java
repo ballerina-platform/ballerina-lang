@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeAndEscapeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -144,25 +145,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             BuildProject project = createProject(evaluationSnippet);
             Path executablePath = createExecutables(project);
             String mainClassName = constructMainClassName(project);
-
-            List<String> argTypes = new ArrayList<>();
-            argTypes.add(JAVA_STRING_CLASS);
-            argTypes.add(JAVA_STRING_CLASS);
-            argTypes.add(JAVA_STRING_CLASS);
-            argTypes.add(JAVA_OBJECT_ARRAY_CLASS);
-            RuntimeStaticMethod classLoadAndInvokeMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
-                    CLASSLOAD_AND_INVOKE_METHOD, argTypes);
-
-            List<Value> argList = new ArrayList<>();
-            argList.add(getAsJString(context, executablePath.toAbsolutePath().toString()));
-            argList.add(getAsJString(context, mainClassName));
-            argList.add(getAsJString(context, EVALUATION_FUNCTION_NAME));
-
-            // adds all the captured variable values as rest arguments.
-            argList.addAll(externalVariableValues);
-            classLoadAndInvokeMethod.setArgValues(argList);
-            Value expressionResult = classLoadAndInvokeMethod.invokeSafely();
-            return new BExpressionValue(context, expressionResult);
+            return classAndInvokeExecutable(executablePath, mainClassName);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
@@ -188,7 +171,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
 
         // Generates required import declarations based on the expression.
         String functionSnippet = String.format(EVALUATION_FUNCTION_TEMPLATE, EVALUATION_FUNCTION_NAME,
-                parameters, syntaxNode.toSourceCode().trim());
+                parameters, evaluationContext.getExpression());
         String importDeclarations = generateImportDeclarations(functionSnippet);
 
         return String.format(EVALUATION_SNIPPET_TEMPLATE, importDeclarations, moduleDeclarations, functionSnippet);
@@ -284,6 +267,29 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         classNameJoiner.add(getFileNameWithoutExtension(document.name()));
 
         return classNameJoiner.toString();
+    }
+
+    private BExpressionValue classAndInvokeExecutable(Path executablePath, String mainClassName)
+            throws EvaluationException {
+
+        List<String> argTypes = new ArrayList<>();
+        argTypes.add(JAVA_STRING_CLASS);
+        argTypes.add(JAVA_STRING_CLASS);
+        argTypes.add(JAVA_STRING_CLASS);
+        argTypes.add(JAVA_OBJECT_ARRAY_CLASS);
+        RuntimeStaticMethod classLoadAndInvokeMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
+                CLASSLOAD_AND_INVOKE_METHOD, argTypes);
+
+        List<Value> argList = new ArrayList<>();
+        argList.add(getAsJString(context, executablePath.toAbsolutePath().toString()));
+        argList.add(getAsJString(context, mainClassName));
+        argList.add(getAsJString(context, EVALUATION_FUNCTION_NAME));
+
+        // adds all the captured variable values as rest arguments.
+        argList.addAll(externalVariableValues);
+        classLoadAndInvokeMethod.setArgValues(argList);
+        Value expressionResult = classLoadAndInvokeMethod.invokeSafely();
+        return new BExpressionValue(context, expressionResult);
     }
 
     /**
@@ -545,7 +551,6 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             case DECIMAL:
             case STRING:
             case XML:
-            case MAP:
             case TABLE:
             case ERROR:
             case FUNCTION:
@@ -558,9 +563,12 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             case ANYDATA:
             case NEVER:
             case BYTE:
-            case JSON:
             case SERVICE:
                 return bVar.getBType().getString();
+            case JSON:
+                return "map<json>";
+            case MAP:
+                return VariableUtils.getMapType(context, bVar.getJvmValue());
             case NIL:
                 return "()";
             case ARRAY:
@@ -586,10 +594,13 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             BImport bImport = entry.getValue();
             if (bImport.orgName().equals(packageOrgAndName.getKey()) &&
                     bImport.moduleName().equals(packageOrgAndName.getValue())) {
-                return alias + ":" + bVar.computeValue();
+                return alias + ":" + decodeAndEscapeIdentifier(bVar.computeValue());
             }
         }
-        return bVar.computeValue();
+
+        // since the variable.computeValue returns the encoded type name, need to decode it before injecting to the
+        // source code snippet.
+        return decodeAndEscapeIdentifier(bVar.computeValue());
     }
 
     private void dispose() {

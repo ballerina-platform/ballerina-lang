@@ -25,7 +25,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test as test1 ;\n"
+          "newText": "import ballerina/lang.test as test1;\n"
         }
       ]
     },
@@ -557,6 +557,14 @@
       "detail": "string",
       "sortText": "F",
       "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x1",
+      "kind": "Variable",
+      "detail": "float",
+      "sortText": "AB",
+      "insertText": "x1",
       "insertTextFormat": "Snippet"
     }
   ]

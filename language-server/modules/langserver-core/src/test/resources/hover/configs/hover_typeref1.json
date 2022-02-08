@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs.  \n  \n---  \n  \n### Fields  \n  \n`string` ***url*** : Target service url  \n  \n---  \n  \n### Methods  \n  \n+ `function (string path, module1:RequestMessage message, string targetType) returns module1:Response`  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.  \n"
+        "value": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs.  \n  \n---  \n  \n### Fields  \n  \n`string` ***url*** : Target service url  \n  \n---  \n  \n### Methods  \n  \n+ `remote function post(string path, module1:RequestMessage message, string targetType) returns module1:Response`  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.  \n"
       }
     },
     "id": {

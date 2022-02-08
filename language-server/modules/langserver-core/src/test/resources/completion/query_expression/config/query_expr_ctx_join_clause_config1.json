@@ -247,84 +247,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "service",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "new",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "new",
-      "insertText": "new ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isolated",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "isolated",
-      "insertText": "isolated ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transactional",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "transactional",
-      "insertText": "transactional",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
       "filterText": "function",
       "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "let",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "let",
-      "insertText": "let",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typeof",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "typeof",
-      "insertText": "typeof ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "trap",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "trap",
-      "insertText": "trap",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "client",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "client",
-      "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -346,91 +274,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "check",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "check",
-      "insertText": "check ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "checkpanic",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "checkpanic",
-      "insertText": "checkpanic ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "is",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "is",
-      "insertText": "is",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error constructor",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "error",
-      "insertText": "error(\"${1}\")",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object constructor",
+      "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "object",
       "insertText": "object {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "base16",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "base16",
-      "insertText": "base16 `${1}`",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "base64",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "base64",
-      "insertText": "base64 `${1}`",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "from",
-      "insertText": "from ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "outputNameString",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "outputNameString",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "customerList",
-      "kind": "Variable",
-      "detail": "Customer[]",
-      "sortText": "B",
-      "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -450,53 +299,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "onConflictError",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "B",
-      "insertText": "onConflictError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "person",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testIterableOperation()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testIterableOperation",
-      "insertText": "testIterableOperation()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "personList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c3",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c3",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -513,38 +315,6 @@
       "detail": "Record",
       "sortText": "M",
       "insertText": "Person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p1",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p2",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c1",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c2",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -604,12 +374,56 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "null",
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "null",
-      "insertText": "null",
+      "filterText": "record",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "record",
+      "insertText": "record {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "record",
+      "insertText": "record {|${1}|}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "distinct",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "var",
+      "insertText": "var ",
       "insertTextFormat": "Snippet"
     }
   ]

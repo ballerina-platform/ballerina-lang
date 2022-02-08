@@ -156,22 +156,4 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         }
         dlog.error(expr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
     }
-
-    /**
-     * Checks whether the given expression type is allowed as an expression in a constant.
-     *
-     * @param expression the expression which needs to be checked
-     * @return {@code true} if the given expression is allowed, {@code false} otherwise.
-     */
-    static boolean isValidConstantExpressionNode(BLangExpression expression) {
-        switch (expression.getKind()) {
-            case LITERAL:
-            case NUMERIC_LITERAL:
-            case RECORD_LITERAL_EXPR:
-            case BINARY_EXPR:
-            case GROUP_EXPR:
-                return true;
-        }
-        return false;
-    }
 }

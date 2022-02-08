@@ -90,7 +90,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
         }
         tupleType.resolvingToString = false;
         if (restTypeDescriptor().isPresent()) {
-            joiner.add("..." + restTypeDescriptor().get().signature());
+            joiner.add(restTypeDescriptor().get().signature() + "...");
         }
         return "[" + joiner.toString() + "]";
     }

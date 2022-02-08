@@ -89,13 +89,14 @@ public class UnionTypeSymbolTest {
                         List.of(TypeDescKind.SINGLETON, TypeDescKind.SINGLETON, TypeDescKind.SINGLETON,
                                 TypeDescKind.SINGLETON)},
                 {26, 5, "T6",
-                        List.of(TypeDescKind.TYPE_REFERENCE, TypeDescKind.TYPE_REFERENCE)},
+                        List.of(TypeDescKind.INT, TypeDescKind.STRING, TypeDescKind.BOOLEAN,
+                                TypeDescKind.TYPE_REFERENCE)},
                 {28, 5, "T7",
                         List.of(TypeDescKind.TUPLE, TypeDescKind.OBJECT)},
                 {35, 5, "T8",
                         List.of(TypeDescKind.MAP, TypeDescKind.TYPE_REFERENCE)},
                 {37, 5, "T9",
-                        List.of(TypeDescKind.ARRAY, TypeDescKind.TYPE_REFERENCE)},
+                        List.of(TypeDescKind.ARRAY, TypeDescKind.MAP, TypeDescKind.TYPE_REFERENCE)},
         };
     }
 

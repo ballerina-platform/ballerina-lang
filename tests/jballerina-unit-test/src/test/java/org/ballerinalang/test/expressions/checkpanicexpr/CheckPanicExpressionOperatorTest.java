@@ -91,11 +91,19 @@ public class CheckPanicExpressionOperatorTest {
 
     @Test
     public void testSemanticErrors() {
-        Assert.assertEquals(negative.getErrorCount(), 2, negative.toString());
-        BAssertUtil.validateError(negative, 0, "invalid usage of the 'checkpanic' expression " +
+        int i = 0;
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
                 "operator: no expression type is equivalent to error type", 6, 30);
-        BAssertUtil.validateError(negative, 1, "incompatible types: expected '(string|error)'" +
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|error)'" +
                 ", found '(string|int)'", 19, 30);
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 34, 24);
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 39, 31);
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 39, 48);
+        Assert.assertEquals(negative.getErrorCount(), 1);
+        Assert.assertEquals(negative.getWarnCount(), i - 1);
     }
 
     @Test

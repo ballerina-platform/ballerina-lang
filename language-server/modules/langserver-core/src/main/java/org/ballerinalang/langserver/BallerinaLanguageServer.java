@@ -211,11 +211,15 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
         DocumentFilter balaFilter = new DocumentFilter();
         balaFilter.setScheme(CommonUtil.URI_SCHEME_BALA);
-        
+
         DocumentFilter fileFilter = new DocumentFilter();
         fileFilter.setScheme(CommonUtil.URI_SCHEME_FILE);
         fileFilter.setLanguage(CommonUtil.LANGUAGE_ID_BALLERINA);
-        
+
+        DocumentFilter fileFilterToml = new DocumentFilter();
+        fileFilterToml.setScheme(CommonUtil.URI_SCHEME_FILE);
+        fileFilterToml.setLanguage(CommonUtil.LANGUAGE_ID_TOML);
+
         DocumentFilter exprFilter = new DocumentFilter();
         exprFilter.setScheme(CommonUtil.URI_SCHEME_EXPR);
         exprFilter.setLanguage(CommonUtil.LANGUAGE_ID_BALLERINA);
@@ -225,7 +229,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         registerDynamicHoverSupport(documentSelectors);
         registerDynamicDefinitionSupport(documentSelectors);
         registerDynamicReferencesSupport(documentSelectors);
-        registerDynamicCompletionSupport(List.of(fileFilter, exprFilter));
+        registerDynamicCompletionSupport(List.of(fileFilter, exprFilter, fileFilterToml));
 
         registerDynamicCommandsSupport();
         registerDynamicSemanticTokenSupport();
@@ -300,7 +304,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         Registration completionRegistration = new Registration(UUID.randomUUID().toString(),
                 "textDocument/completion", completionRegistrationOptions);
         client.registerCapability(new RegistrationParams(List.of(completionRegistration)));
-        
+
     }
 
     private void registerDynamicReferencesSupport(List<DocumentFilter> documentSelectors) {
@@ -434,7 +438,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
         return initOptions.get(LS_ENABLE_SEMANTIC_HIGHLIGHTING).getAsBoolean();
     }
-    
+
     private List<String> getCompletionTriggerCharacters() {
         return Arrays.asList(":", ".", ">", "@");
     }

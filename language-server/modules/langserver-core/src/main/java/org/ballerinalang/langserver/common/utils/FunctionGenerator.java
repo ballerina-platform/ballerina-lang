@@ -41,15 +41,15 @@ public class FunctionGenerator {
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");
 
     /**
-     * Returns signature of the return type.
+     * Returns signature of the provided type.
      *
      * @param importsAcceptor imports acceptor
      * @param typeDescriptor  {@link BLangNode}
      * @param context         {@link DocumentServiceContext}
      * @return return type signature
      */
-    public static String generateTypeDefinition(ImportsAcceptor importsAcceptor,
-                                                TypeSymbol typeDescriptor, DocumentServiceContext context) {
+    public static String generateTypeSignature(ImportsAcceptor importsAcceptor,
+                                               TypeSymbol typeDescriptor, DocumentServiceContext context) {
         return processModuleIDsInText(importsAcceptor, typeDescriptor.signature(), context);
     }
 

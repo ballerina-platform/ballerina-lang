@@ -76,7 +76,10 @@ public class MappingConstructorExpressionNodeContext extends
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, MappingConstructorExpressionNode node) {
-        return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
+        int cursor = context.getCursorPositionInTree();
+        return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
+                && cursor > node.openBrace().textRange().startOffset()
+                && cursor < node.closeBrace().textRange().endOffset();
     }
 
     private boolean withinComputedNameContext(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {

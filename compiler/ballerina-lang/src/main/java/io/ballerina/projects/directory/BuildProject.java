@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -170,7 +171,7 @@ public class BuildProject extends Project {
                 String moduleDirName;
                 // Check for the module name contains a dot and not being the default module
                 if (!this.currentPackage().getDefaultModule().moduleId().equals(moduleId)) {
-                    moduleDirName = moduleId.moduleName()
+                    moduleDirName = currentPackage().module(moduleId).moduleName().toString()
                             .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
@@ -432,4 +433,12 @@ public class BuildProject extends Project {
         }
     }
 
+    @Override
+    public Path targetDir() {
+        if (this.buildOptions().getTargetPath() == null) {
+            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        } else {
+            return Paths.get(this.buildOptions().getTargetPath());
+        }
+    }
 }

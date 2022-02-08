@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.runtime.util;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.test.runtime.entity.NormalizedCoverageClass;
 import org.ballerinalang.test.runtime.entity.PartialCoverageModifiedLine;
 import org.ballerinalang.test.runtime.entity.PartialCoverageModifiedSourceFile;
@@ -289,11 +289,11 @@ public class CodeCoverageUtils {
      * @return
      */
     private static String normalizeFileName(String fileName, Package packageInstance) {
-        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(
+        String orgName = Utils.encodeNonFunctionIdentifier(
                 packageInstance.packageOrg().toString());
         //Get package instance and traverse through all the modules
         for (Module module : packageInstance.modules()) {
-            String packageName = IdentifierUtils.encodeNonFunctionIdentifier(
+            String packageName = Utils.encodeNonFunctionIdentifier(
                     module.moduleName().toString());
             String sourceRoot = module.project().sourceRoot().getFileName().toString();
             if (!module.isDefaultModule()) {

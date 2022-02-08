@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -382,7 +382,7 @@ public class LambdaGen {
     }
 
     private void populateLambdaFunctionDetails(LambdaDetails lambdaDetails) {
-        lambdaDetails.encodedFuncName = IdentifierUtils.encodeFunctionIdentifier(lambdaDetails.funcName);
+        lambdaDetails.encodedFuncName = Utils.encodeFunctionIdentifier(lambdaDetails.funcName);
         lambdaDetails.lookupKey = JvmCodeGenUtil.getPackageName(lambdaDetails.packageID) +
                 lambdaDetails.encodedFuncName;
         lambdaDetails.functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lambdaDetails.lookupKey);

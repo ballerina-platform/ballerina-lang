@@ -327,7 +327,7 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == PARAMETERIZED || tSymbol.kind == SymbolKind.TYPE_DEF
+        return kind == PARAMETERIZED
                 || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
     }
 
@@ -381,6 +381,9 @@ public class TypesFactory {
                 return TypeDescKind.INTERSECTION;
             case ERROR:
                 return TypeDescKind.ERROR;
+            case NONE:
+            case OTHER:
+                return TypeDescKind.NONE;
             case PARAMETERIZED:
             case ANNOTATION:
             case BLOB:
@@ -388,8 +391,6 @@ public class TypesFactory {
             case CONNECTOR:
             case ENDPOINT:
             case FINITE:
-            case NONE:
-            case OTHER:
             case PACKAGE:
             case READONLY:
             case SERVICE:

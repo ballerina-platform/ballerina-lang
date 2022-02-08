@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
@@ -63,6 +62,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
@@ -558,15 +558,14 @@ public class TomlProvider implements ConfigProvider {
                 if (convertibleTypes.size() > 1) {
                     invalidTomlLines.add(tomlValue.location().lineRange());
                     throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                                              variableName, IdentifierUtils.decodeIdentifier(unionType.toString()));
+                                              variableName, decodeIdentifier(unionType.toString()));
                 }
             }
         }
         if (convertibleTypes.isEmpty()) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                                      IdentifierUtils.decodeIdentifier(unionType.toString()),
-                    getTomlTypeString(tomlValue));
+                    decodeIdentifier(unionType.toString()), getTomlTypeString(tomlValue));
         }
         Type type = convertibleTypes.get(0);
         if (isSimpleType(type.getTag()) || isXMLType(type)) {
@@ -578,7 +577,7 @@ public class TomlProvider implements ConfigProvider {
                 return;
             } else {
                 throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                        IdentifierUtils.decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
+                        decodeIdentifier(type.toString()), getTomlTypeString(tomlValue));
             }
         }
         validateStructuredValue(tomlValue, variableName, type);

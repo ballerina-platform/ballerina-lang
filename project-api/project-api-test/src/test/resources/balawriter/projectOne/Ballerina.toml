@@ -8,7 +8,7 @@ repository = "https://github.com/ballerinalang/ballerina"
 keywords = ["ballerina", "security", "crypto"]
 export = ["winery", "winery.services"]
 visibility = "private"
-icon = "./resources/sample.svg"
+icon = "./resources/samplePng01.png"
 
 [[platform.java11.dependency]]
 artifactId = "ldap"

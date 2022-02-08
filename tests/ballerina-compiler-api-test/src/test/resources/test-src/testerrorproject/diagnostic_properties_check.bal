@@ -27,3 +27,14 @@ function mapTypes() {
     map<string> a = {a: "dul", b: "grg"}.
     map<string> b = {d: "dul", e: "fg"};
 }
+
+function getIntVal() {
+    worker w1 {
+        int x = 12;
+        x -> w2;
+    }
+
+    worker w2 {
+        <-
+    }
+}

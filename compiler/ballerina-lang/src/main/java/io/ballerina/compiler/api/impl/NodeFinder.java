@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -233,16 +232,13 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)
+            if (!PositionUtil.isRangeWithinNode(this.range, node.getPosition()) || isLambdaFunction(node)
                     || isClassForService(node)) {
                 continue;
             }
 
             ((BLangNode) node).accept(this);
-
-            if (this.enclosingNode != null) {
-                break;
-            }
+            break;
         }
 
         return this.enclosingNode;
@@ -250,13 +246,14 @@ class NodeFinder extends BaseVisitor {
 
     private void lookupNodes(List<? extends BLangNode> nodes) {
         for (BLangNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.pos)) {
+            if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
                 continue;
             }
 
             node.accept(this);
 
-            if (this.enclosingNode == null && !node.internal) {
+            if (this.enclosingNode == null && !node.internal
+                    && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
                 this.enclosingNode = node;
                 return;
             }
@@ -268,13 +265,14 @@ class NodeFinder extends BaseVisitor {
             return;
         }
 
-        if (!PositionUtil.withinRange(this.range, node.pos)) {
+        if (!PositionUtil.isRangeWithinNode(this.range, node.pos)) {
             return;
         }
 
         node.accept(this);
 
-        if (this.enclosingNode == null && !node.internal) {
+        if (this.enclosingNode == null && !node.internal
+                && PositionUtil.withinRange(node.pos.lineRange(), this.range)) {
             this.enclosingNode = node;
         }
     }
@@ -598,7 +596,7 @@ class NodeFinder extends BaseVisitor {
             lookupNode(recordRefField.getBindingPattern());
         }
 
-        lookupNode((BLangExpression) varRefExpr.restParam);
+        lookupNode(varRefExpr.restParam);
     }
 
     @Override
@@ -1092,6 +1090,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
+        lookupNodes(bLangTupleVariable.annAttachments);
+        lookupNode(bLangTupleVariable.typeNode);
         lookupNodes(bLangTupleVariable.memberVariables);
         lookupNode(bLangTupleVariable.restVariable);
         lookupNode(bLangTupleVariable.expr);
@@ -1108,6 +1108,7 @@ class NodeFinder extends BaseVisitor {
             lookupNode(var.valueBindingPattern);
         }
         lookupNode(bLangRecordVariable.restParam);
+        lookupNode(bLangRecordVariable.expr);
         lookupNodes(bLangRecordVariable.annAttachments);
     }
 
@@ -1118,6 +1119,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
+        lookupNodes(bLangErrorVariable.annAttachments);
+        lookupNode(bLangErrorVariable.typeNode);
         lookupNode(bLangErrorVariable.message);
 
         for (BLangErrorVariable.BLangErrorDetailEntry detail : bLangErrorVariable.detail) {
@@ -1128,6 +1131,7 @@ class NodeFinder extends BaseVisitor {
         lookupNode(bLangErrorVariable.cause);
         lookupNode(bLangErrorVariable.reasonMatchConst);
         lookupNode(bLangErrorVariable.restDetail);
+        lookupNode(bLangErrorVariable.expr);
     }
 
     @Override
@@ -1361,8 +1365,9 @@ class NodeFinder extends BaseVisitor {
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
-        if (PositionUtil.withinRange(this.range, pos)
-                && (this.enclosingNode == null || PositionUtil.withinRange(pos.lineRange(), this.enclosingNode.pos))) {
+        if (PositionUtil.isRangeWithinNode(this.range, pos)
+                && (this.enclosingNode == null
+                || PositionUtil.isRangeWithinNode(pos.lineRange(), this.enclosingNode.pos))) {
             this.enclosingNode = node;
             return true;
         }

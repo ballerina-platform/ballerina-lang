@@ -32,7 +32,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     UNDEFINED_MODULE("BCE2000", "undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("BCE2001", "cyclic.module.imports.detected"),
-    UNUSED_IMPORT_MODULE("BCE2002", "unused.import.module"),
+    UNUSED_MODULE_PREFIX("BCE2002", "unused.module.prefix"),
     MODULE_NOT_FOUND("BCE2003", "module.not.found"),
     REDECLARED_IMPORT_MODULE("BCE2004", "redeclared.import.module"),
     INVALID_MODULE_DECLARATION("BCE2005", "invalid.module.declaration"),
@@ -172,6 +172,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER("BCE2128", "already.initialized.symbol.with.another"),
     FLOAT_TOO_LARGE("BCE2129", "float.too.large"),
     FLOAT_TOO_SMALL("BCE2130", "float.too.small"),
+    CONSTANT_CYCLIC_REFERENCE("BCE2131", "constant.cyclic.reference"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -298,6 +299,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("BCE2551", "cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("BCE2552", "cannot.update.readonly.record.field"),
     CANNOT_UPDATE_FINAL_OBJECT_FIELD("BCE2553", "cannot.update.final.object.field"),
+    UNSUPPORTED_MULTILEVEL_CLOSURES("BCE2554", "unsupported.multilevel.closures"),
 
     OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2555", "operation.does.not.support.member.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2556", "operation.does.not.support.field.access"),
@@ -412,6 +414,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
           "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
+    INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
+            "invalid.field.binding.pattern.with.non.required.field"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -449,8 +453,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SAFE_NAVIGATION_NOT_REQUIRED("BCE3000", "safe.navigation.not.required"),
     OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS("BCE3001", "optional.field.access.not.required.on.lhs"),
 
-    // Checked expression related errors
-    CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE3030", "checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
 
@@ -561,6 +563,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_TYPE_REFERENCE("BCE3712", "invalid.error.type.reference"),
     INVALID_REST_DETAIL_ARG("BCE3713",
             "invalid.error.constructor.rest.detail.arg.on.detail.type.with.individual.fields"),
+    CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD("BCE3714", "cannot.bind.undefined.error.detail.field"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("BCE3800", "incompatible.stamp.type"),
@@ -753,8 +756,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NON_ISOLATED_CALL_IN_MATCH_GUARD("BCE4018", "invalid.non.isolated.call.in.match.guard"),
     INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD("BCE4019", "invalid.call.with.mutable.args.in.match.guard"),
     ERROR_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("BCE4020", "error.constructor.compatible.type.not.found"),
-    CANNOT_INFER_SERVICE_TYPES_FROM_LISTENERS("BCE4021", "cannot.infer.service.type.from.listeners"),
-    SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs")
+    SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs"),
+    INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION("BCE4023", "invalid.assignment.to.narrowed.var.in.query.action"),
+    COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS("BCE4024",
+            "compound.assignment.not.allowed.with.nullable.operands")
     ;
 
     private String diagnosticId;

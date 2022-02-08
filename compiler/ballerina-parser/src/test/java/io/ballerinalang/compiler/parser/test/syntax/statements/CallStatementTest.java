@@ -72,4 +72,9 @@ public class CallStatementTest extends AbstractStatementTest {
     public void testCallStmtRecoveryWithNameRef() {
         testFile("call-stmt/call_stmt_source_09.bal", "call-stmt/call_stmt_assert_09.json");
     }
+
+    @Test
+    public void testCallStmtRecoveryWithFieldAccess() {
+        testFile("call-stmt/call_stmt_source_10.bal", "call-stmt/call_stmt_assert_10.json");
+    }
 }

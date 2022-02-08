@@ -85,9 +85,10 @@ public class RecordConstraintTableTest {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
     }
 
-    @Test(description = "Test Table with var type")
+    @Test(description = "Test table with var type")
     public void testTableWithVarType() {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
+        BRunUtil.invoke(result, "testTableTypeInferenceWithVarType");
     }
 
     @Test(description = "Test invalid member access in table")

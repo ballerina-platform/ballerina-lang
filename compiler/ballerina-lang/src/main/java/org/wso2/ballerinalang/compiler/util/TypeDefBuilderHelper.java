@@ -23,10 +23,12 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
@@ -40,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -52,14 +55,18 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdentifier;
 
@@ -258,7 +265,7 @@ public class TypeDefBuilderHelper {
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
-        BType detailType = type.detailType;
+        BType detailType = Types.getReferredType(type.detailType);
 
         if (detailType.tag == TypeTags.MAP) {
             BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
@@ -298,5 +305,67 @@ public class TypeDefBuilderHelper {
         }
 
         return ""; // current module
+    }
+
+    public static void populateStructureFields(Types types, SymbolTable symTable,
+                                               BLangAnonymousModelHelper anonymousModelHelper, Names names,
+                                               BLangStructureTypeNode structureTypeNode, BStructureType structureType,
+                                               BStructureType origStructureType, Location pos, SymbolEnv env,
+                                               PackageID pkgID, Set<BType> unresolvedTypes,
+                                               long flag, boolean isImmutable) {
+        BTypeSymbol structureSymbol = structureType.tsymbol;
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        for (BField origField : origStructureType.fields.values()) {
+            BType fieldType;
+            if (isImmutable) {
+                fieldType = ImmutableTypeCloner.getImmutableType(pos, types, origField.type, env,
+                        env.enclPkg.packageID, env.scope.owner, symTable, anonymousModelHelper, names, unresolvedTypes);
+            } else {
+                fieldType = origField.type;
+            }
+
+            Name origFieldName = origField.name;
+            BVarSymbol fieldSymbol;
+            BType referredType = Types.getReferredType(fieldType);
+            if (referredType.tag == TypeTags.INVOKABLE && referredType.tsymbol != null) {
+                fieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
+                        origFieldName, pkgID, fieldType,
+                        structureSymbol, origField.symbol.pos, SOURCE);
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) referredType.tsymbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) fieldSymbol;
+                invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
+                invokableSymbol.restParam = tsymbol.restParam;
+                invokableSymbol.retType = tsymbol.returnType;
+                invokableSymbol.flags = tsymbol.flags;
+            } else if (fieldType == symTable.semanticError) {
+                // Can only happen for records.
+                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag | Flags.OPTIONAL,
+                        origFieldName, pkgID, symTable.neverType,
+                        structureSymbol, origField.symbol.pos, SOURCE);
+            } else {
+                fieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
+                        fieldType, structureSymbol,
+                        origField.symbol.pos, SOURCE);
+            }
+            String nameString = origFieldName.value;
+            fields.put(nameString, new BField(origFieldName, null, fieldSymbol));
+            structureSymbol.scope.define(origFieldName, fieldSymbol);
+        }
+        structureType.fields = fields;
+
+        if (origStructureType.tag == TypeTags.OBJECT) {
+            return;
+        }
+        BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
+                ASTBuilderUtil.createIdentifier(pos,
+                        TypeDefBuilderHelper.getPackageAlias(env, pos.lineRange().filePath(),
+                                origStructureType.tsymbol.pkgID)),
+                ASTBuilderUtil.createIdentifier(pos, origStructureType.tsymbol.name.value));
+        origTypeRef.pos = pos;
+        origTypeRef.setBType(origStructureType);
+
+        if (isImmutable) {
+            structureTypeNode.typeRefs.add(origTypeRef);
+        }
     }
 }

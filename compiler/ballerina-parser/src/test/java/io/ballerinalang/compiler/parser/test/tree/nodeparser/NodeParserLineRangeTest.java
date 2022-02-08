@@ -18,11 +18,11 @@
 package io.ballerinalang.compiler.parser.test.tree.nodeparser;
 
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -78,6 +78,32 @@ public class NodeParserLineRangeTest {
         LinePosition expectedEndPos = LinePosition.from(8, 1);
         LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
         Assert.assertEquals(bindingPatternNode.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseBlockStatement() {
+        String blockStmt = "{\n" +
+                "int[] nums = [1, 2, 3, 4];\n" +
+                "int[] evenNums = from var i in nums\n" +
+                "                 where i % 2 == 0\n" +
+                "                 select i;\n" +
+                "int[] evenNums = from var i in nums\n" +
+                "                 select i * 10;\n" +
+                "}";
+
+        BlockStatementNode blockStmtNode = NodeParser.parseBlockStatement(blockStmt);
+        Assert.assertEquals(blockStmtNode.kind(), SyntaxKind.BLOCK_STATEMENT);
+        Assert.assertFalse(blockStmtNode.hasDiagnostics());
+
+        LinePosition expectedStartPos1 = LinePosition.from(0, 0);
+        LinePosition expectedEndPos1 = LinePosition.from(7, 1);
+        LineRange expectedLineRange1 = LineRange.from(null, expectedStartPos1, expectedEndPos1);
+        Assert.assertEquals(blockStmtNode.lineRange(), expectedLineRange1);
+
+        LinePosition expectedStartPos2 = LinePosition.from(5, 0);
+        LinePosition expectedEndPos2 = LinePosition.from(6, 31);
+        LineRange expectedLineRange2 = LineRange.from(null, expectedStartPos2, expectedEndPos2);
+        Assert.assertEquals(blockStmtNode.statements().get(2).lineRange(), expectedLineRange2);
     }
 
     @Test
@@ -155,38 +181,6 @@ public class NodeParserLineRangeTest {
         LinePosition expectedEndPos = LinePosition.from(3, 1);
         LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
         Assert.assertEquals(funcBodyBlockNode.lineRange(), expectedLineRange);
-    }
-
-    @Test(enabled = false) // TODO: issue #33323
-    public void testParseStatements() {
-        String stmts = "int[] nums = [1, 2, 3, 4];\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 where i % 2 == 0\n" +
-                "                 select i;\n" +
-                "int[] evenNums = from var i in nums\n" +
-                "                 select i * 10;\n";
-
-        NodeList<StatementNode> stmtNodes = NodeParser.parseStatements(stmts);
-
-        for (StatementNode stmt : stmtNodes) {
-            Assert.assertFalse(stmt.hasDiagnostics());
-        }
-
-        LinePosition expectedStartPos1 = LinePosition.from(0, 0);
-        LinePosition expectedEndPos1 = LinePosition.from(0, 26);
-        LineRange expectedLineRange1 = LineRange.from(null, expectedStartPos1, expectedEndPos1);
-
-        LinePosition expectedStartPos2 = LinePosition.from(1, 0);
-        LinePosition expectedEndPos2 = LinePosition.from(3, 26);
-        LineRange expectedLineRange2 = LineRange.from(null, expectedStartPos2, expectedEndPos2);
-
-        LinePosition expectedStartPos3 = LinePosition.from(4, 0);
-        LinePosition expectedEndPos3 = LinePosition.from(5, 31);
-        LineRange expectedLineRange3 = LineRange.from(null, expectedStartPos3, expectedEndPos3);
-
-        Assert.assertEquals(stmtNodes.get(0).lineRange(), expectedLineRange1);
-        Assert.assertEquals(stmtNodes.get(1).lineRange(), expectedLineRange2);
-        Assert.assertEquals(stmtNodes.get(2).lineRange(), expectedLineRange3);
     }
 
     @Test

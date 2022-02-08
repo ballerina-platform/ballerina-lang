@@ -19,6 +19,7 @@
 package io.ballerina.projects.test;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -34,6 +35,7 @@ import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
+import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -50,7 +52,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,6 +66,8 @@ import static org.mockito.Mockito.when;
  */
 public class TestBalaWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+    private static final Path BALA_WRITER_RESOURCES = RESOURCE_DIRECTORY.resolve("balawriter");
+    private static final String PACKAGE_PATH = "packagePath";
     private Path tmpDir;
     private Path balaExportPath;
 
@@ -72,9 +79,10 @@ public class TestBalaWriter {
     }
 
     @Test
-    public void testBalaWriter() throws IOException {
+    public void testBalaWriter(ITestContext ctx) throws IOException {
         Gson gson = new Gson();
-        Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectOne");
+        Path projectPath = BALA_WRITER_RESOURCES.resolve("projectOne");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(projectPath));
         Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -141,7 +149,7 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getImplementationVendor(), "WSO2");
             Assert.assertEquals(packageJson.getLanguageSpecVersion(), RepoUtils.getBallerinaSpecVersion());
 
-            Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/sample.svg"));
+            Assert.assertEquals(Paths.get(packageJson.getIcon()), Paths.get("docs/samplePng01.png"));
             Assert.assertTrue(balaExportPath.resolve(packageJson.getIcon()).toFile().exists());
         }
 
@@ -172,7 +180,7 @@ public class TestBalaWriter {
                 .resolve("Module.md");
         Assert.assertTrue(storageModuleMdPath.toFile().exists());
         // check icon
-        Path iconPath = balaExportPath.resolve("docs").resolve("sample.svg");
+        Path iconPath = balaExportPath.resolve("docs").resolve("samplePng01.png");
         Assert.assertTrue(iconPath.toFile().exists());
 
         // module sources
@@ -254,9 +262,10 @@ public class TestBalaWriter {
     }
 
     @Test
-    public void testBalaWriterWithMinimalBalProject() throws IOException {
+    public void testBalaWriterWithMinimalBalProject(ITestContext ctx) throws IOException {
         Gson gson = new Gson();
-        Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectTwo");
+        Path projectPath = BALA_WRITER_RESOURCES.resolve("projectTwo");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(projectPath));
         Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -304,11 +313,12 @@ public class TestBalaWriter {
     }
 
     @Test
-    public void testBalaWriterWithTwoDirectDependencies() throws IOException {
+    public void testBalaWriterWithTwoDirectDependencies(ITestContext ctx) throws IOException {
         Gson gson = new Gson();
         // package_d --> package_b --> package_c
         // package_d --> package_e
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_d");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(projectDirPath));
         BuildProject project = TestUtils.loadBuildProject(projectDirPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -376,7 +386,7 @@ public class TestBalaWriter {
 
     @Test(enabled = false, expectedExceptions = AccessDeniedException.class,
             expectedExceptionsMessageRegExp = "No write access to create bala:.*")
-    public void testBalaWriterAccessDenied() {
+    public void testBalaWriterAccessDenied(ITestContext ctx) {
 
         Path balaPath = mock(Path.class);
         File file = mock(File.class);
@@ -384,7 +394,8 @@ public class TestBalaWriter {
         when(file.isDirectory()).thenReturn(true);
         when(balaPath.toFile()).thenReturn(file);
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectTwo");
+        Path projectPath = BALA_WRITER_RESOURCES.resolve("projectTwo");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(projectPath));
         Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
@@ -395,8 +406,50 @@ public class TestBalaWriter {
 //        BalaWriter.write(project.currentPackage(), balaPath);
     }
 
+    @Test(description = "tests build project with a valid icon in Ballerina.toml")
+    public void testBuildProjectWithValidIcon(ITestContext ctx) throws IOException {
+        Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithValidIcon");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
+
+        BuildProject buildProject = BuildProject.load(packagePath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        Target target = new Target(buildProject.sourceRoot());
+        // invoke write bala method
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+
+        // unzip bala
+        TestUtils.unzip(String.valueOf(target.getBalaPath().resolve("sameera-myproject-any-0.1.0.bala")),
+                String.valueOf(balaExportPath));
+        // Check icon is added to `bala/docs` directory
+        Assert.assertTrue(balaExportPath.resolve(BALA_DOCS_DIR).resolve("samplePng01.png").toFile().exists());
+    }
+
+    @Test(description = "tests build project with a invalid svg icon renamed as png")
+    public void testBuildProjectWithInvalidIcon(ITestContext ctx) {
+        Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithInvalidIcon");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
+
+        BuildProject buildProject = BuildProject.load(packagePath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
+                "invalid 'icon' under [package]: 'icon' can only have 'png' images");
+    }
+
     @AfterMethod(alwaysRun = true)
-    public void cleanup() {
+    public void cleanup(ITestContext ctx) {
         ProjectUtils.deleteDirectory(this.tmpDir);
+        Path packagePath = Path.of(ctx.getCurrentXmlTest().getParameter(PACKAGE_PATH));
+        ProjectUtils.deleteDirectory(packagePath.resolve(TARGET_DIR_NAME));
+        ProjectUtils.deleteDirectory(packagePath.resolve(BALA_DIR_NAME));
     }
 }
