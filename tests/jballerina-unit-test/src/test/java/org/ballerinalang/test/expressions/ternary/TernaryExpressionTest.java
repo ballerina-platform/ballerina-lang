@@ -390,6 +390,23 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryInModuleLevel");
     }
 
+    @Test
+    public void testTernaryTypeNarrow() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
+                35, 41);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
+                36, 41);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'true', found 'boolean'",
+                37, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '()', found 'boolean?'",
+                40, 66);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found '(A|B)'",
+                93, 31);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
