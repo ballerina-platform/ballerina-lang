@@ -37,7 +37,7 @@ We appreciate your help!
 
 ## Build the source code 
 
-For instructions, see <a href="https://ballerina.io/learn/installing-ballerina/building-from-source/">Building from source</a>.
+For instructions, see <a href="https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/building-from-source.md/">Building from source</a>.
 
 ## Set up the development environment
 
