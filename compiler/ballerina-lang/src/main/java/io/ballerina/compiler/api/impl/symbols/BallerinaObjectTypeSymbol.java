@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     private Map<String, MethodSymbol> methods;
     private Map<String, MethodSymbol> originalMethods;
     private List<TypeSymbol> typeInclusions;
+    private List<TypeSymbol> originalTypeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, objectType);
@@ -173,6 +175,33 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         return this.methods;
     }
 
+    public List<TypeSymbol> originalTypeInclusions() {
+        if (this.typeInclusions == null) {
+            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+            List<BType> inclusions = ((BObjectType) this.getBType()).typeInclusions;
+
+            List<TypeSymbol> typeRefs = new ArrayList<>();
+            for (BType inclusion : inclusions) {
+                if (inclusion.tag != TypeTags.NONE && !(inclusion.tsymbol.pkgID.getOrgName().getValue().equals(
+                        "ballerina")
+                        && inclusion.tsymbol.pkgID.getNameComps().size() > 0
+                        && inclusion.tsymbol.pkgID.getNameComps().get(0).getValue().equals("lang"))) {
+                    TypeSymbol type = typesFactory.getTypeDescriptor(inclusion);
+
+                    // If the inclusion was not a type ref, the type would be semantic error and the type factory will
+                    // return null. Therefore, skipping them.
+                    if (type != null) {
+                        typeRefs.add(type);
+                    }
+                }
+            }
+
+            this.typeInclusions = Collections.unmodifiableList(typeRefs);
+        }
+
+        return this.typeInclusions;
+    }
+
     @Override
     public List<TypeSymbol> typeInclusions() {
         if (this.typeInclusions == null) {
@@ -210,7 +239,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         qualifierJoiner.add("object {");
         signature.append(qualifierJoiner);
 
-        for (TypeSymbol typeInclusion : this.typeInclusions()) {
+        for (TypeSymbol typeInclusion : this.originalTypeInclusions()) {
             fieldJoiner.add("*" + typeInclusion.signature() + ";");
         }
 
