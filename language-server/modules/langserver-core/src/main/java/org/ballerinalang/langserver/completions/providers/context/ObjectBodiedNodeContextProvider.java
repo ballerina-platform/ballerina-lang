@@ -70,7 +70,7 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
-            if (this.onSuggestInitFunction(node)) {
+            if (this.onSuggestInitMethod(node)) {
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
             }
         } else if (this.isClientObject(node)) {
@@ -99,7 +99,7 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
                 .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD));
     }
 
-    public static boolean onSuggestInitFunction(Node node) {
+    public static boolean onSuggestInitMethod(Node node) {
         if (node.kind() != SyntaxKind.SERVICE_DECLARATION) {
             return false;
         }
