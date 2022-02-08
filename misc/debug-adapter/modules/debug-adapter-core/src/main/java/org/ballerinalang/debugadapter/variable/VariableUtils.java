@@ -18,7 +18,6 @@ package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
-import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
@@ -208,7 +207,7 @@ public class VariableUtils {
                 try {
                     return ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
                             .getThreadReference(), method, arguments, ObjectReference.INVOKE_SINGLE_THREADED);
-                } catch (IncompatibleThreadStateException e) {
+                } catch (Exception e) {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException ignored) {
