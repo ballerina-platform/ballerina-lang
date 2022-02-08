@@ -1052,8 +1052,7 @@ public class TypedescriptorTest {
     public void testObjectTypeSignature() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(255, 6));
         assertEquals(((VariableSymbol) symbol.get()).typeDescriptor().signature(),
-                     "client object {int a; int b; function testFunc(); remote function testRFunc(); " +
-                             "function getA() returns int;}");
+                     "client object {*FooObj; int a; int b; function testFunc(); remote function testRFunc();}");
     }
 
     public Object[][] getSymbolModuleInfo() {
