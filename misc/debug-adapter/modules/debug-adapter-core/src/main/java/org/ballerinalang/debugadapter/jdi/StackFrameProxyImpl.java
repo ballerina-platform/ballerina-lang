@@ -58,6 +58,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
     private ClassLoaderReference myClassLoader;
     private ThreeState myIsObsolete = ThreeState.UNSURE;
     private Map<LocalVariable, Value> myAllValues;
+    private static final int RETRY_COUNT = 20;
 
     public StackFrameProxyImpl(ThreadReferenceProxyImpl threadProxy, StackFrame frame, int fromBottomIndex) {
         super(threadProxy.getVirtualMachine());
@@ -72,7 +73,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
             return myIsObsolete.toBoolean();
         }
         InvalidStackFrameException error = null;
-        for (int attempt = 0; attempt < 2; attempt++) {
+        for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
                 Method method = getMethod(location());
                 boolean isObsolete =
@@ -128,17 +129,31 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
     @Override
     public StackFrame getStackFrame() throws JdiProxyException {
         checkValid();
-        if (myStackFrame == null) {
+        if (myStackFrame != null) {
+            return myStackFrame;
+        }
+        IncompatibleThreadStateException error = null;
+        for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
                 final ThreadReference threadRef = myThreadProxy.getThreadReference();
                 myStackFrame = threadRef.frame(getFrameIndex());
-            } catch (IndexOutOfBoundsException | IncompatibleThreadStateException e) {
+                return myStackFrame;
+            } catch (IncompatibleThreadStateException e) {
+                error = e;
+                clearCaches();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {
+                }
+            } catch (IndexOutOfBoundsException e) {
                 throw new JdiProxyException(e.getMessage(), e);
             } catch (ObjectCollectedException ignored) {
                 throw new JdiProxyException("Thread has been collected");
+            } catch (Exception e) {
+                throw new JdiProxyException("Unknown error when trying to access thread reference", e);
             }
         }
-        return myStackFrame;
+        throw new JdiProxyException("Thread has become invalid", error);
     }
 
     @Override
@@ -162,7 +177,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
     @Override
     public Location location() throws JdiProxyException {
         InvalidStackFrameException error = null;
-        for (int attempt = 0; attempt < 2; attempt++) {
+        for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
                 return getStackFrame().location();
             } catch (InvalidStackFrameException e) {
@@ -190,7 +205,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
     public ObjectReference thisObject() throws JdiProxyException {
         checkValid();
         try {
-            for (int attempt = 0; attempt < 2; attempt++) {
+            for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
                 try {
                     if (myThisReference == null) {
                         myThisReference = getStackFrame().thisObject();
@@ -221,7 +236,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
 
     public List<LocalVariableProxyImpl> visibleVariables() throws JdiProxyException {
         RuntimeException error = null;
-        for (int attempt = 0; attempt < 2; attempt++) {
+        for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
                 final List<LocalVariable> list = getStackFrame().visibleVariables();
                 final List<LocalVariableProxyImpl> locals = new ArrayList<>(list.size());
@@ -252,7 +267,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
 
     protected LocalVariable visibleVariableByNameInt(String name) throws JdiProxyException {
         InvalidStackFrameException error = null;
-        for (int attempt = 0; attempt < 2; attempt++) {
+        for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
                 try {
                     return getStackFrame().visibleVariableByName(name);
@@ -269,7 +284,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
 
     public Value getValue(LocalVariableProxyImpl localVariable) throws JdiProxyException {
         Exception error = null;
-        for (int attempt = 0; attempt < 2; attempt++) {
+        for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
                 Map<LocalVariable, Value> values = getAllValues();
                 LocalVariable variable = localVariable.getVariable();
@@ -333,7 +348,7 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
     public void setValue(LocalVariableProxyImpl localVariable, Value value)
             throws JdiProxyException, ClassNotLoadedException, InvalidTypeException {
         InvalidStackFrameException error = null;
-        for (int attempt = 0; attempt < 2; attempt++) {
+        for (int attempt = 0; attempt < RETRY_COUNT; attempt++) {
             try {
                 final LocalVariable variable = localVariable.getVariable();
                 final StackFrame stackFrame = getStackFrame();
