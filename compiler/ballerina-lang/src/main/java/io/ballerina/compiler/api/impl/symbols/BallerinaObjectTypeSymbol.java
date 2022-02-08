@@ -59,6 +59,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     private Map<String, ObjectFieldSymbol> objectFields;
     private Map<String, ObjectFieldSymbol> originalObjectFields;
     private Map<String, MethodSymbol> methods;
+    private Map<String, MethodSymbol> originalMethods;
     private List<TypeSymbol> typeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, BObjectType objectType) {
@@ -116,6 +117,34 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
 
         this.originalObjectFields = Collections.unmodifiableMap(fields);
         return this.originalObjectFields;
+    }
+
+    public Map<String, MethodSymbol> originalMethods() {
+        if (this.originalMethods != null) {
+            return this.originalMethods;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        Map<String, MethodSymbol> methods = new LinkedHashMap<>();
+
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) this.getBType().tsymbol;
+        for (BAttachedFunction attachedFunc : objectTypeSymbol.attachedFuncs) {
+            if (!objectTypeSymbol.referencedFunctions.contains(attachedFunc)) {
+                if (attachedFunc instanceof BResourceFunction) {
+                    BResourceFunction resFn = (BResourceFunction) attachedFunc;
+                    String resPath = resFn.resourcePath.stream().map(p -> p.value).collect(Collectors.joining("/"));
+                    methods.put(resFn.accessor.value + " " + resPath,
+                            symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
+                } else {
+                    methods.put(attachedFunc.funcName.value,
+                            symbolFactory.createMethodSymbol(attachedFunc.symbol,
+                                    attachedFunc.symbol.getOriginalName().getValue()));
+                }
+            }
+        }
+
+        this.originalMethods = Collections.unmodifiableMap(methods);
+        return this.originalMethods;
     }
 
     @Override
@@ -181,12 +210,6 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         qualifierJoiner.add("object {");
         signature.append(qualifierJoiner);
 
-        // this.getObjectTypeReference()
-        //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
-//        for (ObjectFieldSymbol objectFieldDescriptor : this.fieldDescriptors().values()) {
-//            fieldJoiner.add(objectFieldDescriptor.signature() + ";");
-//        }
-
         for (TypeSymbol typeInclusion : this.typeInclusions()) {
             fieldJoiner.add("*" + typeInclusion.signature() + ";");
         }
@@ -195,13 +218,13 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
             fieldJoiner.add(objectFieldSymbol.signature() + ";");
         }
 
-        if (!this.methods().isEmpty() && !this.fieldDescriptors().isEmpty()) {
+        if (!this.originalMethods().isEmpty() && !this.originalFieldDescriptors().isEmpty()) {
             signature.append(fieldJoiner).append(' ');
         } else {
             signature.append(fieldJoiner);
         }
 
-        for (MethodSymbol method : this.methods().values()) {
+        for (MethodSymbol method : this.originalMethods().values()) {
             methodJoiner.add(method.signature() + ";");
         }
 
