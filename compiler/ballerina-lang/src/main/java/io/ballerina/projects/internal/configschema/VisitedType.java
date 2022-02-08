@@ -19,7 +19,13 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonObject;
 
+/**
+ * Stores visited types while converting Ballerina types to JSON data types.
+ *
+ * @since 2.0.0
+ */
 class VisitedType {
+
     boolean isCompleted;
     JsonObject typeNode = null;
 
