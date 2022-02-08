@@ -353,6 +353,21 @@ function testQueryExpWithinQueryAction() returns error? {
         };
 }
 
+// todo Should be enabled after fixing https://github.com/ballerina-platform/ballerina-lang/issues/32710
+//type A record {|
+//    int[] pos;
+//|};
+//
+//function testInnerQuerySymbolVisibility() {
+//   A[] res = from var a in 2...4
+//        select {
+//            pos: (from var b in (from var c in 1...2 where c == a select c)
+//                select b)
+//        };
+//   A[] expected = [{pos: [2]}, {pos: [2]}, {pos: [2]}];
+//   assertEquality(expected, res);
+//}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -5238,16 +5238,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        boolean cleanPrevEnvs = false;
-        if (prevEnvs.empty()) {
-            prevEnvs.push(env);
-            cleanPrevEnvs = true;
-        }
-
         if (breakToParallelQueryEnv) {
             queryEnvs.push(prevEnvs.peek());
         } else {
             queryEnvs.push(env);
+            prevEnvs.push(env);
         }
         queryFinalClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
@@ -5259,7 +5254,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 types.checkType(queryExpr.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         queryFinalClauses.pop();
         queryEnvs.pop();
-        if (cleanPrevEnvs) {
+        if (!breakToParallelQueryEnv) {
             prevEnvs.pop();
         }
 
@@ -5468,16 +5463,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        boolean cleanPrevEnvs = false;
-        if (prevEnvs.empty()) {
-            prevEnvs.push(env);
-            cleanPrevEnvs = true;
-        }
-
         if (breakToParallelQueryEnv) {
             queryEnvs.push(prevEnvs.peek());
         } else {
             queryEnvs.push(env);
+            prevEnvs.push(env);
         }
         BLangDoClause doClause = queryAction.getDoClause();
         queryFinalClauses.push(doClause);
@@ -5489,7 +5479,7 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(doClause.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         queryFinalClauses.pop();
         queryEnvs.pop();
-        if (cleanPrevEnvs) {
+        if (!breakToParallelQueryEnv) {
             prevEnvs.pop();
         }
     }
@@ -5497,7 +5487,11 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangFromClause fromClause) {
         boolean prevBreakToParallelEnv = this.breakToParallelQueryEnv;
-        this.breakToParallelQueryEnv = true;
+        if (fromClause.collection.getKind() == NodeKind.QUERY_EXPR ||
+                (fromClause.collection.getKind() == NodeKind.GROUP_EXPR
+                        && ((BLangGroupExpr) fromClause.collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
+            this.breakToParallelQueryEnv = true;
+        }
         SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, queryEnvs.pop());
         fromClause.env = fromEnv;
         queryEnvs.push(fromEnv);
@@ -5511,7 +5505,11 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         boolean prevBreakEnv = this.breakToParallelQueryEnv;
-        this.breakToParallelQueryEnv = true;
+        if (joinClause.collection.getKind() == NodeKind.QUERY_EXPR ||
+                (joinClause.collection.getKind() == NodeKind.GROUP_EXPR
+                        && ((BLangGroupExpr) joinClause.collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
+            this.breakToParallelQueryEnv = true;
+        }
         SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, queryEnvs.pop());
         joinClause.env = joinEnv;
         queryEnvs.push(joinEnv);

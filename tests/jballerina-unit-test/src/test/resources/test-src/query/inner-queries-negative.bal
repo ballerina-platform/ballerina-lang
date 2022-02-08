@@ -132,4 +132,14 @@ function testRedeclaredSymInExp() returns error? {
         };
 }
 
+type A record {|
+    int[] pos;
+|};
 
+function testInnerQuerySymbolVisibility() {
+   A[] res = from var a in 2...5
+        select {
+            pos: (from var b in (from var c in 1...2 where c == a select c)
+                select b)
+        };
+}
