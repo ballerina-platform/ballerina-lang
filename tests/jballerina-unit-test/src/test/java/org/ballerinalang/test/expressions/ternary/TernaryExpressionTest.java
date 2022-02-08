@@ -395,13 +395,13 @@ public class TernaryExpressionTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
-                35, 41);
+                35, 41); // issue #30598, #33217
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
-                36, 41);
+                36, 41); // issue #30598, #33217
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'true', found 'boolean'",
-                37, 29);
+                37, 29); // issue #30598, #33217
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '()', found 'boolean?'",
-                40, 66);
+                40, 66); // issue #30598, #33217
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found '(A|B)'",
                 93, 31);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);

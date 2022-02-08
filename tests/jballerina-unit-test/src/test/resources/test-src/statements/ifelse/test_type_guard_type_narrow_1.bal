@@ -529,3 +529,29 @@ function test33() {
         string _ = x; // No error. issue #30567
     }
 }
+
+function test34() {
+    int|string x = "x";
+
+    do {
+        if x is int {
+            return;
+        }
+
+        string _ = x; // OK
+    }
+
+    string _ = x; // Type not narrowed. issue #34307
+
+    int|string y = "y";
+
+    {
+        if y is int {
+            return;
+        }
+
+        string _ = y; // OK
+    }
+
+    string _ = y; // Type not narrowed. issue #34307
+}
