@@ -78,40 +78,51 @@ failLockWithinLock function() -> (int, string) {
         lockWithinLockInt = ConstLoad 100;
         lockWithinLockString = ConstLoad Error caught;
         %18 = ConstLoad 0;
-        GOTO bb15;
+        GOTO bb18;
     }
     bb14 {
         %4 = ConstLoad 0;
-        GOTO bb15;
+        GOTO bb18;
     }
     bb15 {
-        %1 = ConstLoad 0;
-        GOTO bb16;
+        unlock -> bb16;
     }
     bb16 {
-        unlock -> bb17;
+        %10 = %4 is error;
+        %10? bb17 : bb18;
     }
     bb17 {
-        %10 = %1 is error;
-        %10? bb18 : bb19;
+        %12 = <error> %4;
+        panic %12;
     }
     bb18 {
+        %1 = ConstLoad 0;
+        GOTO bb19;
+    }
+    bb19 {
+        unlock -> bb20;
+    }
+    bb20 {
+        %10 = %1 is error;
+        %10? bb21 : bb22;
+    }
+    bb21 {
         %12 = <error> %1;
         panic %12;
     }
-    bb19 {
+    bb22 {
         %41 = ConstLoad 2;
         %0 = newArray (int, string)[%41];
-        GOTO bb20;
+        GOTO bb23;
     }
-    bb20 {
+    bb23 {
         return;
     }
 
     ---------------------------------------------
     | trapBB       | endBB        | errorOp      |
     ---------------------------------------------
-    | bb2          | bb15         | %1           |
+    | bb2          | bb18         | %1           |
     | bb4          | bb14         | %4           |
     | bb5          | bb5          | %7           |
     ---------------------------------------------

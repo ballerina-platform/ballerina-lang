@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
@@ -80,24 +79,6 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
         // Get basic blocks vs predecessors map
         populatePredecessorMap(birFunction.basicBlocks);
 
-        // Get trap end basic blocks into a list
-        List<BIRBasicBlock> trapEndBasicBlocks = new ArrayList<>();
-        birFunction.errorTable.forEach(errorEntry -> trapEndBasicBlocks.add(errorEntry.endBB));
-
-        // Remove unreachable basic blocks
-        Set<BIRBasicBlock> unreachableBasicBlocks = new HashSet<>();
-        for (int i = 1; i < birFunction.basicBlocks.size(); i++) {
-            BIRBasicBlock basicBlock = birFunction.basicBlocks.get(i);
-            if (this.predecessorMap.get(basicBlock).isEmpty()) {
-                unreachableBasicBlocks.addAll(getUnreachableBasicBlocks(basicBlock, trapEndBasicBlocks));
-            }
-        }
-        resetEndBasicBlock(birFunction, unreachableBasicBlocks);
-        birFunction.basicBlocks.removeAll(unreachableBasicBlocks);
-
-        // Update the basic blocks vs predecessors map after removed the unreachable basic blocks
-        unreachableBasicBlocks.forEach(this::updatePredecessorMap);
-
         // Remove unnecessary goto basic blocks
         Set<BIRBasicBlock> removableGOTOBasicBlocks = getRemovableBasicBlocks(birFunction, funcEnv);
         resetEndBasicBlock(birFunction, removableGOTOBasicBlocks);
@@ -135,21 +116,6 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
                 this.predecessorMap.get(key).remove(removable);
             }
         }
-    }
-
-    private List<BIRBasicBlock> getUnreachableBasicBlocks(BIRBasicBlock basicBlock,
-                                                          List<BIRBasicBlock> trapEndBasicBlocks) {
-        List<BIRBasicBlock> unreachableBasicBlocks = new ArrayList<>();
-        if (trapEndBasicBlocks.contains(basicBlock) || basicBlock.terminator.kind == InstructionKind.RETURN) {
-            return unreachableBasicBlocks;
-        }
-        unreachableBasicBlocks.add(basicBlock);
-        for (BIRBasicBlock nextBB : basicBlock.terminator.getNextBasicBlocks()) {
-            if (this.predecessorMap.get(nextBB).size() == 1) {
-                unreachableBasicBlocks.addAll(getUnreachableBasicBlocks(nextBB, trapEndBasicBlocks));
-            }
-        }
-        return unreachableBasicBlocks;
     }
 
     private Set<BIRBasicBlock> getRemovableBasicBlocks(BIRNode.BIRFunction birFunction,
