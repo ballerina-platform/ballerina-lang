@@ -141,6 +141,10 @@ public class StackFrameProxyImpl extends JdiProxy implements StackFrameProxy {
             } catch (IncompatibleThreadStateException e) {
                 error = e;
                 clearCaches();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {
+                }
             } catch (IndexOutOfBoundsException e) {
                 throw new JdiProxyException(e.getMessage(), e);
             } catch (ObjectCollectedException ignored) {
