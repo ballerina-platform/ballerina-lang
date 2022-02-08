@@ -625,18 +625,6 @@ public class EnvironmentResolver extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangArrowFunction arrowFunctionNode) {
-        SymbolEnv arrowFunctionSymbolEnv = SymbolEnv.createArrowFunctionSymbolEnv(arrowFunctionNode, this.symbolEnv);
-        if ((arrowFunctionNode.getBody() != null && arrowFunctionNode.getBody().getKind() == NodeKind.EXPR_FUNCTION_BODY
-                && PositionUtil.withinRightInclusive(this.linePosition, arrowFunctionNode.getBody().getPosition()))
-                || (PositionUtil.withinBlock(this.linePosition, arrowFunctionNode.getBody().getPosition())
-                && isNarrowerEnclosure(arrowFunctionNode.getBody().getPosition()))) {
-            this.scope = arrowFunctionSymbolEnv;
-        }
-        this.acceptNode(arrowFunctionNode.getBody(), arrowFunctionSymbolEnv);
-    }
-
-    @Override
     public void visit(BLangMatchClause matchClause) {
         if (PositionUtil.withinBlock(this.linePosition, matchClause.getPosition())
                 && isNarrowerEnclosure(matchClause.getPosition())) {
