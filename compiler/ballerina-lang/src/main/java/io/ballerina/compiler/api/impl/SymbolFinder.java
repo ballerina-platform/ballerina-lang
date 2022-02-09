@@ -1176,7 +1176,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
 
-        if (this.symbolAtCursor == null) {
+        if (this.symbolAtCursor == null && tableType.tableType != null) {
             this.symbolAtCursor = tableType.tableType.tsymbol;
         }
     }
