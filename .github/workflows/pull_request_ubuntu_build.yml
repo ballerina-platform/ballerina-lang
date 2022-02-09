@@ -9,6 +9,7 @@ on:
       - stage
       - ballerina-1.2.x
       - stage-swan-lake
+      - 2201.[0-9]+.x
 
 jobs:
   ubuntu_build:
