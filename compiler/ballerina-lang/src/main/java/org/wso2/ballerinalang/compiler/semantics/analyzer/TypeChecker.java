@@ -1417,6 +1417,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BRecordType recordType = new BRecordType(recordSymbol);
         recordType.fields = inferredFields.stream().collect(getFieldCollector());
+        recordType.originalFields = recordType.fields;
 
         recordSymbol.type = recordType;
         recordType.tsymbol = recordSymbol;
@@ -2403,6 +2404,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         recordType.fields = newFields;
+        recordType.originalFields = newFields;
         recordSymbol.type = recordType;
         recordType.tsymbol = recordSymbol;
 
@@ -2958,6 +2960,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
+        bRecordType.originalFields = fields;
         recordSymbol.type = bRecordType;
         varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name, recordSymbol.getOriginalName(),
                 data.env.enclPkg.symbol.pkgID, bRecordType, data.env.scope.owner, varRefExpr.pos,
@@ -7644,6 +7647,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             mappingTypeRestArg.sealed = true;
             mappingTypeRestArg.restFieldType = symTable.noType;
             mappingTypeRestArg.fields = fields;
+            mappingTypeRestArg.originalFields = fields;
             recordSymbol.type = mappingTypeRestArg;
             mappingTypeRestArg.tsymbol = recordSymbol;
         }
@@ -9648,6 +9652,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BRecordType recordType = new BRecordType(recordSymbol);
         recordType.fields = fields;
+        recordType.originalFields = fields;
 
         if (restFieldTypes.contains(symTable.semanticError)) {
             return symTable.semanticError;

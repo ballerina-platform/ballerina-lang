@@ -919,6 +919,7 @@ public class TypeParamAnalyzer {
 
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
+        bRecordType.originalFields = fields;
         recordSymbol.type = bRecordType;
         bRecordType.flags = expType.flags;
 

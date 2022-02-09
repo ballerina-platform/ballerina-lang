@@ -2849,6 +2849,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         recordVarType.tsymbol = recordSymbol;
         recordVarType.fields = fields;
+        recordVarType.originalFields = fields;
         recordSymbol.type = recordVarType;
         return recordVarType;
     }
@@ -2893,6 +2894,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             BRecordType restRecord = new BRecordType(null);
             restRecord.fields = unmappedMembers;
+            restRecord.originalFields = unmappedMembers;
             restRecord.restFieldType = restFieldType;
             restFieldType = restRecord;
         }
@@ -2992,6 +2994,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;
         recordVarType.fields = fields;
+        recordVarType.originalFields = fields;
         recordSymbol.type = recordVarType;
         recordVarType.tsymbol = recordSymbol;
 

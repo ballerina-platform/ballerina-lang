@@ -351,6 +351,7 @@ public class TypeDefBuilderHelper {
             structureSymbol.scope.define(origFieldName, fieldSymbol);
         }
         structureType.fields = fields;
+        structureType.originalFields = fields;
 
         if (origStructureType.tag == TypeTags.OBJECT) {
             return;
