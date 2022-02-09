@@ -32,6 +32,8 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.breakpoint.LogMessage;
 import org.ballerinalang.debugadapter.breakpoint.TemplateLogMessage;
@@ -63,6 +65,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
+import static org.ballerinalang.debugadapter.completion.CompletionUtil.getNonTerminalNode;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
@@ -269,13 +272,27 @@ public class JDIEventProcessor {
             if (!validFrames.isEmpty()) {
                 configureBreakpointsForMethod(validFrames.get(0));
             }
+
+            Location currentLocation = validFrames.get(0).getJStackFrame().location();
+            List<Location> allLocations = currentLocation.method().allLineLocations();
+            Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
+
+            SuspendedContext suspendedContext = new SuspendedContext(context, threadReference, jStackFrames.get(0));
+            String source = suspendedContext.getDocument().textDocument().toString();
+            String sourcePath = currentLocation.sourcePath();
+            int lineNumber = suspendedContext.getLineNumber();
+            NonTerminalNode nonTerminalNode = getNonTerminalNode(source, sourcePath, lineNumber);
+
             // If the current function is invoked within another ballerina function, we need to explicitly set another
-            // temporary breakpoint on the location of its invocation. This is supposed to handle the situations where
-            // the user wants to step over on an exit point of the current function.
-            if (validFrames.size() > 1) {
+            // temporary breakpoint on the location of its invocation, only if the current break point is at the
+            // last line of the current function or at the return statement. This is supposed to handle the situations
+            // where the user wants to step over on an exit point of the current function.
+            if (validFrames.size() > 1 &&
+                    ((lastLocation.isPresent() && currentLocation.lineNumber() == lastLocation.get().lineNumber())
+                            || nonTerminalNode.kind() == SyntaxKind.RETURN_STATEMENT)) {
                 configureBreakpointsForMethod(validFrames.get(1));
             }
-        } catch (JdiProxyException e) {
+        } catch (JdiProxyException | AbsentInformationException e) {
             LOGGER.error(e.getMessage());
             int stepType = ((StepRequest) this.stepEventRequests.get(0)).depth();
             sendStepRequest(threadId, stepType);
@@ -291,7 +308,9 @@ public class JDIEventProcessor {
             Location currentLocation = balStackFrame.getJStackFrame().location();
             ReferenceType referenceType = currentLocation.declaringType();
             List<Location> allLocations = currentLocation.method().allLineLocations();
-            Optional<Location> firstLocation = allLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
+            Optional<Location> firstLocation = allLocations.stream()
+                    .filter(location -> location.lineNumber() != 0)
+                    .min(Comparator.comparingInt(Location::lineNumber));
             Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
             if (firstLocation.isEmpty()) {
                 return;

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+int num = 10;
+
 public class Person {
     public string name;
 
@@ -32,6 +34,8 @@ public function main() {
 
     Person p1 = new Person("John");
     string name = p1.getName();
+
+    int x = recursion1(num);
 }
 
 function earlyReturnFunc(int a, int b) {
@@ -44,4 +48,22 @@ function earlyReturnFunc(int a, int b) {
 
 function sum(int a, int b) returns int {
     return a + b;
+}
+
+function recursion1(int num) returns int {
+    if (num < 0) {
+        return 0;
+    }
+
+    int y = recursion2(num - 1);
+    return y;
+}
+
+function recursion2(int num) returns int {
+    if (num < 0) {
+        return 0;
+    }
+
+    int z = recursion1(num - 1);
+    return z;
 }
