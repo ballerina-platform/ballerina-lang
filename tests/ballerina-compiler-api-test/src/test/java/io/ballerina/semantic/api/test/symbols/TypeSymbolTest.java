@@ -19,10 +19,12 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -48,6 +50,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
@@ -190,6 +193,31 @@ public class TypeSymbolTest {
         assertEquals(constant.typeDescriptor().typeKind(), SINGLETON);
         assertEquals(constant.broaderTypeDescriptor().typeKind(), STRING);
         assertEquals(constant.signature(), "FOO");
+    }
+
+    @Test(dataProvider = "TypeSignatureProvider")
+    public void typeSignatures(int line, int col, TypeDescKind typeDescKind,  String signature) {
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.VARIABLE);
+        BallerinaVariableSymbol variableSymbol = (BallerinaVariableSymbol) symbol.get();
+        TypeSymbol typeSymbol = variableSymbol.typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), typeDescKind);
+
+        if (typeSymbol.typeKind() == TYPE_REFERENCE) {
+            typeSymbol = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
+        }
+
+        assertEquals(typeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "TypeSignatureProvider")
+    public Object[][] getTypeSignatures() {
+        return new Object[][] {
+                {88, 2, OBJECT, "object {*Obj1; int z;}"},
+                {100, 3, TYPE_REFERENCE, "record {| *R1; int c; anydata...; |}"},
+        };
     }
 
     // private utils

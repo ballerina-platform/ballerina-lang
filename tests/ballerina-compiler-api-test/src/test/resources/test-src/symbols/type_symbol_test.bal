@@ -78,3 +78,24 @@ type ErrorData record {|
     string message;
     error cause?;
 |};
+
+type Obj1 object {
+    string name;
+};
+
+object {
+    *Obj1;
+    int z;
+} Obj2;
+
+type R1 record {
+    int a;
+    string b;
+};
+
+type R2 record {
+    *R1;
+    int c;
+};
+
+R2 r2;
