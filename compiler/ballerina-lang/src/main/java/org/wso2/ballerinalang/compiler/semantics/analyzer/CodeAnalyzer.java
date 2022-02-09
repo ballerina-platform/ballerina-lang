@@ -1010,30 +1010,27 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private boolean checkSimilarErrorFieldMatchPatterns(BLangErrorFieldMatchPatterns firstErrorFieldMatchPatterns,
                                                         BLangErrorFieldMatchPatterns secondErrorFieldMatchPatterns) {
-        if (firstErrorFieldMatchPatterns != null && secondErrorFieldMatchPatterns != null) {
-            List<BLangNamedArgMatchPattern> firstNamedArgPatterns = firstErrorFieldMatchPatterns.namedArgMatchPatterns;
-            List<BLangNamedArgMatchPattern> secondNamedArgPatterns =
-                    secondErrorFieldMatchPatterns.namedArgMatchPatterns;
-            int firstNamedArgPatternsSize = firstNamedArgPatterns.size();
-            int secondNamedArgPatternsSize = secondNamedArgPatterns.size();
-            if (firstNamedArgPatternsSize <= secondNamedArgPatterns.size()) {
-                for (int i = 0; i < firstNamedArgPatternsSize; i++) {
-                    if (!checkSimilarNamedArgMatchPatterns(firstNamedArgPatterns.get(i),
-                            secondNamedArgPatterns.get(i))) {
-                        return false;
-                    }
-                }
-                if (firstNamedArgPatternsSize == secondNamedArgPatternsSize) {
-                    if (firstErrorFieldMatchPatterns.restMatchPattern != null) {
-                        return true;
-                    }
-                    return secondErrorFieldMatchPatterns.restMatchPattern == null;
-                }
-                return firstErrorFieldMatchPatterns.restMatchPattern != null;
-            }
+        if (firstErrorFieldMatchPatterns == null) {
+            return true;
+        }
+        List<BLangNamedArgMatchPattern> firstNamedArgPatterns = firstErrorFieldMatchPatterns.namedArgMatchPatterns;
+        int firstNamedArgPatternsSize = firstNamedArgPatterns.size();
+        if (firstNamedArgPatternsSize == 0) {
+            return true;
+        }
+        if (secondErrorFieldMatchPatterns == null) {
             return false;
         }
-        return firstErrorFieldMatchPatterns == null && secondErrorFieldMatchPatterns == null;
+        List<BLangNamedArgMatchPattern> secondNamedArgPatterns = secondErrorFieldMatchPatterns.namedArgMatchPatterns;
+        if (firstNamedArgPatternsSize > secondNamedArgPatterns.size()) {
+            return false;
+        }
+        for (int i = 0; i < firstNamedArgPatternsSize; i++) {
+            if (!checkSimilarNamedArgMatchPatterns(firstNamedArgPatterns.get(i), secondNamedArgPatterns.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean checkSimilarNamedArgMatchPatterns(BLangNamedArgMatchPattern firstNamedArgMatchPattern,
@@ -1308,31 +1305,29 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private boolean checkSimilarErrorFieldBindingPatterns(
                                           BLangErrorFieldBindingPatterns firstErrorFieldBindingPatterns,
                                           BLangErrorFieldBindingPatterns secondErrorFieldBindingPatterns) {
-        if (firstErrorFieldBindingPatterns != null && secondErrorFieldBindingPatterns != null) {
-            List<BLangNamedArgBindingPattern> firstNamedArgPatterns =
-                    firstErrorFieldBindingPatterns.namedArgBindingPatterns;
-            List<BLangNamedArgBindingPattern> secondNamedArgPatterns =
-                    secondErrorFieldBindingPatterns.namedArgBindingPatterns;
-            int firstNamedArgPatternsSize = firstNamedArgPatterns.size();
-            int secondNamedArgPatternsSize = secondNamedArgPatterns.size();
-            if (firstNamedArgPatternsSize <= secondNamedArgPatternsSize) {
-                for (int i = 0; i < firstNamedArgPatternsSize; i++) {
-                    if (!checkSimilarNamedArgBindingPatterns(firstNamedArgPatterns.get(i),
-                            secondNamedArgPatterns.get(i))) {
-                        return false;
-                    }
-                }
-                if (firstNamedArgPatternsSize == secondNamedArgPatternsSize) {
-                    if (firstErrorFieldBindingPatterns.restBindingPattern != null) {
-                        return true;
-                    }
-                    return secondErrorFieldBindingPatterns.restBindingPattern == null;
-                }
-                return firstErrorFieldBindingPatterns.restBindingPattern != null;
-            }
+        if (firstErrorFieldBindingPatterns == null) {
+            return true;
+        }
+        List<BLangNamedArgBindingPattern> firstNamedArgPatterns =
+                firstErrorFieldBindingPatterns.namedArgBindingPatterns;
+        int firstNamedArgPatternsSize = firstNamedArgPatterns.size();
+        if (firstNamedArgPatternsSize == 0) { // only rest-binding-pattern
+            return true;
+        }
+        if (secondErrorFieldBindingPatterns == null) {
             return false;
         }
-        return firstErrorFieldBindingPatterns == null && secondErrorFieldBindingPatterns == null;
+        List<BLangNamedArgBindingPattern> secondNamedArgPatterns =
+                secondErrorFieldBindingPatterns.namedArgBindingPatterns;
+        if (firstNamedArgPatternsSize > secondNamedArgPatterns.size()) {
+            return false;
+        }
+        for (int i = 0; i < firstNamedArgPatternsSize; i++) {
+            if (!checkSimilarNamedArgBindingPatterns(firstNamedArgPatterns.get(i), secondNamedArgPatterns.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean checkSimilarNamedArgBindingPatterns(BLangNamedArgBindingPattern firstNamedArgBindingPattern,
@@ -4638,27 +4633,32 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         SymbolEnv env;
         SymbolEnv newEnv;
         BLangNode parent;
+        // Fields related to looping
         int loopCount;
         boolean loopAlterNotAllowed;
+        // Fields related to worker system
         boolean inInternallyDefinedBlockStmt;
+        int workerSystemMovementSequence;
+        Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
+        Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
+        // Field related to transactions
         int transactionCount;
-        boolean failureHandled;
-        boolean failVisited;
-        boolean withinLockBlock;
+        boolean withinTransactionScope;
         int commitCount;
         int rollbackCount;
-        int workerSystemMovementSequence;
-        boolean queryToTableWithKey;
-        boolean withinTransactionScope;
         boolean commitRollbackAllowed;
         int commitCountWithinBlock;
         int rollbackCountWithinBlock;
-        Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
         Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
         Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
         Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
+        // Fields related to lock
+        boolean withinLockBlock;
+        // Common fields
+        boolean failureHandled;
+        boolean failVisited;
+        boolean queryToTableWithKey;
         Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
-        Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
         Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
     }
