@@ -47,7 +47,7 @@ import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 /**
  * Contains integrations test cases to test package resolution logic.
  *
- * @since 2.0.0
+ * @since 2201.0.1
  */
 public class PackageResolutionIntegrationTests extends BaseTest {
 
