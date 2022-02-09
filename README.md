@@ -35,7 +35,7 @@ For instructions on downloading and installing, see [Installing Ballerina](https
 
 ## Building from source
 
-For prerequisites and instructions on building from source, see [Installing from source](https://ballerina.io/learn/getting-started/installing-ballerina/#building-from-source).
+For prerequisites and instructions on building from source, see [Installing from source](https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/building-from-source.md/).
 
 ## Reporting issues and security flaws
 
