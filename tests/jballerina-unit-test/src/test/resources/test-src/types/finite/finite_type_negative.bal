@@ -118,3 +118,12 @@ function testFiniteTypeWithNumericValues() {
     Foo4 f5 = 3;
     "chiran" x = 5;
 }
+
+type UnaryType1 -2;
+type UnaryType2 string|-3;
+type UnaryType3 UnaryType1|-3;
+
+function testFiniteTypeWithUnaryMinus() {
+    UnaryType2 x1 = -2;
+    UnaryType3 x2 = -5;
+}

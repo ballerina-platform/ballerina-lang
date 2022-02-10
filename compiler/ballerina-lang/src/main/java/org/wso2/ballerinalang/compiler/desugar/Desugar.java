@@ -6803,8 +6803,8 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
-        int rhsExprTypeTag = Types.getReferredType(binaryExpr.rhsExpr.getBType()).tag;
-        int lhsExprTypeTag = Types.getReferredType(binaryExpr.lhsExpr.getBType()).tag;
+        int rhsExprTypeTag = types.getReferredType(binaryExpr.rhsExpr.getBType()).tag;
+        int lhsExprTypeTag = types.getReferredType(binaryExpr.lhsExpr.getBType()).tag;
 
         // Check for int and byte ==, != or === comparison and add type conversion to int for byte
         if (rhsExprTypeTag != lhsExprTypeTag && (binaryExpr.opKind == OperatorKind.EQUAL ||
@@ -7177,7 +7177,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Replacing unary expression with numeric literal
-        if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+        if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && unaryExpr.expectedType.tag == TypeTags.FINITE) {
             BLangExpression exprInUnary = unaryExpr.expr;
             BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
             Object objectValueInUnary = numericLiteralInUnary.value;
@@ -7199,7 +7199,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
                     TreeBuilder.createNumericLiteralExpression();
-            newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
+            newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
             newNumericLiteral.pos = unaryExpr.pos;
             newNumericLiteral.value = objectValueInUnary;
             newNumericLiteral.originalValue = strValueInUnary;

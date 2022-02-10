@@ -35,11 +35,7 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -61,7 +57,7 @@ public class TypeByMiscExprTest extends TypeByNodeTest {
         return new NodeVisitor() {
             @Override
             public void visit(UnaryExpressionNode unaryExpressionNode) {
-                assertType(unaryExpressionNode, model, INT);
+                assertType(unaryExpressionNode, model, SINGLETON);
             }
 
             @Override

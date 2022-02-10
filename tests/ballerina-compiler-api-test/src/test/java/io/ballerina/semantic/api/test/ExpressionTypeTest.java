@@ -54,6 +54,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -254,7 +255,7 @@ public class ExpressionTypeTest {
     @DataProvider(name = "MiscExprPosProvider")
     public Object[][] getExprPos() {
         return new Object[][]{
-                {72, 12, 72, 15, INT},
+                {72, 12, 72, 15, SINGLETON},
                 {73, 12, 73, 23, INT},
                 {73, 12, 73, 19, INT},
                 {73, 17, 73, 23, null},

@@ -570,6 +570,7 @@ function testFiniteTypeWithUnaryMinus() {
     UnaryType1 x1 = -3;
     UnaryType2 x2 = -2;
     UnaryType3 x3 = -3;
+    UnaryType3 x7 = -5;
     UnaryType4 x4 = -2;
     UnaryType4 x5 = -3;
     UnaryType5 x6 = -3;
@@ -580,6 +581,7 @@ function testFiniteTypeWithUnaryMinus() {
     assertEquality(x4, -2);
     assertEquality(x5, -3);
     assertEquality(x6, -3);
+    assertEquality(x7, -5);
 }
 
 const ASSERTION_ERROR_REASON = "TypeAssertionError";

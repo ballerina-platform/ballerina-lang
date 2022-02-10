@@ -36,30 +36,7 @@ import org.testng.annotations.Test;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -265,7 +242,7 @@ public class ExpressionTypeTestNew {
     @DataProvider(name = "MiscExprPosProvider")
     public Object[][] getExprPos() {
         return new Object[][]{
-                {72, 12, 15, INT},
+                {72, 12, 15, SINGLETON},
                 {73, 12, 23, INT},
                 {73, 12, 19, INT},
                 {73, 17, 23, null},

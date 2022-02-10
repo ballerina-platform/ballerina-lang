@@ -722,7 +722,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
                 TreeBuilder.createNumericLiteralExpression();
-        newNumericLiteral.kind = NodeKind.NUMERIC_LITERAL;
+        newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
         newNumericLiteral.pos = unaryExpr.pos;
         newNumericLiteral.setBType(exprInUnary.getBType());
         newNumericLiteral.value = objectValueInUnary;
