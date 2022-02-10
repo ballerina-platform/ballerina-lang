@@ -594,7 +594,8 @@ public class TomlProviderTest {
 
     @Test(dataProvider = "union-data-provider")
     public void testTomlProviderUnions(String variableName, Type type, Object expectedValues) {
-        IntersectionType unionType = getIntersectionType(ROOT_MODULE, type);
+        IntersectionType unionType = new BIntersectionType(ROOT_MODULE, new Type[]{type, PredefinedTypes.TYPE_READONLY}
+                , type, 1, true);
         VariableKey unionVar = new VariableKey(ROOT_MODULE, variableName, unionType, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{unionVar}));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
@@ -649,6 +650,7 @@ public class TomlProviderTest {
         };
     }
 
+
     @Test(dataProvider = "finite-data-provider")
     public void testTomlProviderFiniteType(String variableName, Type type, Object expectedValues) {
         VariableKey finiteVar = new VariableKey(ROOT_MODULE, variableName, type, true);
@@ -693,5 +695,34 @@ public class TomlProviderTest {
                 {"unionVar5", getIntersectionType(ROOT_MODULE, unionFinite2), decimalVal},
                 {"unionVar6", getIntersectionType(ROOT_MODULE, unionFinite3), strVal},
         };
+    }
+
+    @Test
+    public void testAmbiguityWithOrgAndModuleStartWithSameName() {
+        Module root = new Module("user", "userPortal", "1");
+        Module usersModule = new Module("user", "userPortal.users", "1");
+
+        VariableKey[] rootVariableKeys = getSimpleVariableKeys(root);
+        VariableKey[] usersVariableKeys = getSimpleVariableKeys(usersModule);
+
+        Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(root, rootVariableKeys),
+                Map.entry(usersModule, usersVariableKeys));
+        Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(rootVariableKeys[0], 12L),
+                Map.entry(rootVariableKeys[1], fromString("Tom")),
+                Map.entry(usersVariableKeys[0], 21L),
+                Map.entry(usersVariableKeys[1], fromString("Paul")));
+        List<ConfigProvider> providers =
+                List.of(new TomlFileProvider(root, getConfigPath("ConfigClashingModule11.toml"),
+                        Set.of(root, usersModule)));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+
+        for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
+            VariableKey key = keyEntry.getKey();
+            Object value = configValueMap.get(key).getValue();
+            Assert.assertNotNull(value, "value not found for variable : " + key.variable);
+            Assert.assertEquals(value, keyEntry.getValue());
+        }
     }
 }
