@@ -74,7 +74,7 @@ public class MavenSupportTest extends CommandTest {
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina package detected at:"));
         Assert.assertTrue(output.contains("Resolving maven dependencies..."));
-        Assert.assertTrue(output.contains("Following jars were added to the classpath"));
+        Assert.assertTrue(output.contains("The following JARs were added to the classpath"));
         Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
         Assert.assertTrue(isJarAvailable(mavenRepoPath, jarName));
     }

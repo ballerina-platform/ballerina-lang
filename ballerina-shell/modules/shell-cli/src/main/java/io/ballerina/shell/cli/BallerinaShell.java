@@ -70,7 +70,6 @@ public class BallerinaShell {
     protected final Evaluator evaluator;
     protected final CommandHandler commandHandler;
     protected boolean isRunning;
-    private boolean isRequiredModules;
 
     public BallerinaShell(BShellConfiguration configuration, TerminalAdapter terminal) {
         this.configuration = configuration;
@@ -78,7 +77,6 @@ public class BallerinaShell {
         this.isRunning = true;
         this.evaluator = configuration.getEvaluator();
         this.commandHandler = createCommandHandler();
-        this.isRequiredModules = false;
     }
 
     /**
@@ -103,13 +101,15 @@ public class BallerinaShell {
             terminal.println("\nShell Initialization Failed!!!");
             return;
         } finally {
-            evaluator.diagnostics().forEach(this::outputDiagnostic);
+            evaluator.diagnostics().forEach(this::outputDebugDiagnostic);
+            outputDistinctErrorDiagnostics(evaluator.diagnostics());
             evaluator.resetDiagnostics();
         }
 
         Instant end = Instant.now();
 
         while (isRunning) {
+            Collection<Diagnostic> currentStateDiagnostics;
             Duration previousDuration = Duration.between(start, end);
             String rightPrompt = String.format("took %s ms", previousDuration.toMillis());
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
@@ -129,12 +129,16 @@ public class BallerinaShell {
                         } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
                                 ExceptionStatus.INVOKER_FAILED) {
                             if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                                executeChanges(source);
+                                currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
+                                evaluator.resetDiagnostics();
+                                executeChanges(source, currentStateDiagnostics);
                             }
                         }
-                    } else if (ExceptionStatus.INVOKER_FAILED == shellCompilation.getExceptionStatus()) {
+                    } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
                         if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                            executeChanges(source);
+                            currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
+                            evaluator.resetDiagnostics();
+                            executeChanges(source, currentStateDiagnostics);
                         }
                     }
                 }
@@ -148,9 +152,8 @@ public class BallerinaShell {
                 }
             } finally {
                 end = Instant.now();
-                if (!isRequiredModules) {
-                    evaluator.diagnostics().forEach(this::outputDiagnostic);
-                }
+                evaluator.diagnostics().forEach(this::outputDebugDiagnostic);
+                outputDistinctErrorDiagnostics(evaluator.diagnostics());
                 evaluator.resetDiagnostics();
                 terminal.println("");
             }
@@ -185,24 +188,37 @@ public class BallerinaShell {
     }
 
     /**
-     * Output a diagnostic to the terminal.
+     * Output a debug diagnostic to the terminal.
      *
      * @param diagnostic Diagnostic to output.
      */
-    protected void outputDiagnostic(Diagnostic diagnostic) {
+    protected void outputDebugDiagnostic(Diagnostic diagnostic) {
         DiagnosticKind diagnosticKind = diagnostic.getKind();
         if (diagnosticKind == DiagnosticKind.DEBUG) {
             if (configuration.isDebug()) {
                 terminal.debug(diagnostic.toString());
             }
-            return;
+        }
+    }
+
+    /**
+     * Output error diagnostics to the terminal.
+     *
+     * @param diagnostics list of available diagnostics.
+     */
+    protected void outputDistinctErrorDiagnostics(Collection<Diagnostic> diagnostics) {
+        List<String> warnDiagnostics = new ArrayList<>();
+        List<String> errorDiagnostics  = new ArrayList<>();
+        for (Diagnostic diagnostic: diagnostics) {
+            if (diagnostic.getKind() == DiagnosticKind.ERROR) {
+                errorDiagnostics.add(diagnostic.toString());
+            } else if (diagnostic.getKind() == DiagnosticKind.WARN) {
+                warnDiagnostics.add(diagnostic.toString());
+            }
         }
 
-        if (diagnosticKind == DiagnosticKind.ERROR) {
-            terminal.error(diagnostic.toString());
-        } else {
-            terminal.warn(diagnostic.toString());
-        }
+        warnDiagnostics.stream().distinct().forEach(terminal::warn);
+        errorDiagnostics.stream().distinct().forEach(terminal::error);
     }
 
     /**
@@ -272,7 +288,7 @@ public class BallerinaShell {
     public void importModules(ModuleImporter moduleImporter, List<String> modules) {
         List<String> missingModules = new ArrayList<>();
         List<String> requiredModules = new ArrayList<>();
-        terminal.info("Found following undefined module(s).");
+        terminal.info("\nFound following undefined module(s).");
         for (String module : modules) {
             module = module.replace("'", "");
             if (moduleImporter.isModuleInDistRepo(module)) {
@@ -359,17 +375,17 @@ public class BallerinaShell {
      *
      * @param source source.
      */
-    private void executeChanges(String source) {
+    private void executeChanges(String source, Collection<Diagnostic> diagnostics) {
         ModuleImporter moduleImporter = new ModuleImporter();
-        List<String> modules = moduleImporter.undefinedModules(evaluator.diagnostics());
+        List<String> modules = moduleImporter.undefinedModules(diagnostics);
         if (modules.size() > 0) {
-            isRequiredModules = true;
             importModules(moduleImporter, modules);
             try {
                 terminal.println("");
                 ShellCompilation shellCompilation = evaluator.getCompilation(source);
                 Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                String result = evaluator.getValue(compilation).get().getResult();
+                ShellReturnValue shellReturnValue = evaluator.getValue(compilation).get();
+                String result = shellReturnValue.getResult();
                 terminal.result(result);
             } catch (BallerinaShellException error) {
                 terminal.error("\nCompilation aborted due to errors.");

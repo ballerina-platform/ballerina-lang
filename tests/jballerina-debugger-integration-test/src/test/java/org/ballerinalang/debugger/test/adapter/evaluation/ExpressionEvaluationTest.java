@@ -191,6 +191,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                                          "(debug_test_resources/evaluation_tests.other:0:$anonType$_3 & readonly)",
                                          "record");
         debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
+        debugTestRunner.assertExpression(context, "other:publicModuleVariable", "\"public\"", "string");
+
         // qualified name references with import alias
         debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
     }

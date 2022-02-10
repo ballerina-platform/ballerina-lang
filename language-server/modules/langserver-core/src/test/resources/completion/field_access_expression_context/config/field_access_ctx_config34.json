@@ -297,25 +297,6 @@
       }
     },
     {
-      "label": "map(function () func)",
-      "kind": "Function",
-      "detail": "array:Type1[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `array:Type1[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "map",
-      "insertText": "map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "toBalString()",
       "kind": "Function",
       "detail": "string",
@@ -533,6 +514,25 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'map(function () func)",
+      "kind": "Function",
+      "detail": "array:Type1[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nApplies a function to each member of an array and returns an array of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `array:Type1[]`   \n- new array containing result of applying parameter `func` to each member of parameter `arr` in order  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

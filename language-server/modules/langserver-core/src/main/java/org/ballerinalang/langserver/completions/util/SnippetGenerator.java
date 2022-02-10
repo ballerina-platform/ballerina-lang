@@ -745,7 +745,9 @@ public class SnippetGenerator {
     public static SnippetBlock getTableWithKeyTypeDescSnippet() {
         String snippet = "type ${1:TypeName} table<${2}> key${3}";
 
-        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, ItemResolverConstants.TABLE,
+        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE,
+                generateFilterText(Arrays.asList(ItemResolverConstants.TYPE_TYPE,
+                        ItemResolverConstants.TABLE, ItemResolverConstants.KEY)),
                 snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
@@ -1069,7 +1071,7 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.RETURN_SC, ItemResolverConstants.RETURN_SC, "return;",
                 ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
     }
-    
+
     /**
      * Get Service Variable Snippet Block.
      *
@@ -1491,7 +1493,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getJoinClauseSnippet() {
-        String snippet = "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}";
+        String snippet = "join ${1:var} ${2:varName} in ${3:expr} on ${4:onExpr} equals ${5:equalsExpr}";
 
         return new SnippetBlock(ItemResolverConstants.JOIN_CLAUSE, ItemResolverConstants.JOIN_KEYWORD, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);

@@ -583,7 +583,7 @@ public class SymbolFactory {
                 if (mthd instanceof BResourceFunction) {
                     return ((BResourceFunction) mthd).accessor.value;
                 }
-                return mthd.funcName.value;
+                return mthd.symbol.getOriginalName().getValue();
             }
         }
 

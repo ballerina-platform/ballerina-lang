@@ -258,13 +258,21 @@ public class MapConstantInBalaTest {
         Assert.assertNull(returns[0]);
     }
 
-    // Annotation tests
-
     @Test
     public void testConstInAnnotations() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{s:\"Ballerina\", i:100, m:{mKey:\"mValue\"}}");
+    }
+
+    @Test
+    public void testConstTypesInline() {
+        BRunUtil.invoke(compileResult, "testConstTypesInline");
+    }
+
+    @Test
+    public void testInvalidRuntimeUpdateOfConstMaps() {
+        BRunUtil.invoke(compileResult, "testInvalidRuntimeUpdateOfConstMaps");
     }
 
     @AfterClass

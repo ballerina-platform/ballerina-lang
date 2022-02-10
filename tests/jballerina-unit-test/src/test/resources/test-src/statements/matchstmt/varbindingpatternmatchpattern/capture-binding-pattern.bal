@@ -16,7 +16,7 @@
 
 function captureBindingPattern1(any v) returns string {
     match v {
-        var a => {
+        var _ => {
             return "Matched";
         }
     }
@@ -75,20 +75,20 @@ function testCaptureBindingPattern3() {
 }
 
 function captureBindingPattern4(int v) returns string {
-    string s;
+    string s = "";
 
     match v {
         1 => {
-            s = "ONE";
+            s += "ONE";
         }
         2 => {
-            s = "TWO";
+            s += "TWO";
         }
         3 => {
-            s = "THREE";
+            s += "THREE";
         }
-        var a => {
-            s = "OTHER";
+        var _ => {
+            s += "OTHER";
         }
     }
     return s;
