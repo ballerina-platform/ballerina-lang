@@ -101,6 +101,32 @@ function testCaptureBindingPattern4() {
     assertEquals("OTHER", captureBindingPattern4(4));
 }
 
+type A [int, string] & readonly;
+type B map<int> & readonly;
+type T A | B;
+
+function captureBindingPattern5(T v) returns string {
+    string s = "No match";
+
+    match v {
+        var [a, b] => {
+            A c = [a, b];
+            s = c.toString();
+        }
+        var {a: x, b: y} => {
+            B c = {a: x, b: y};
+            s = c.toString();
+        }
+    }
+    return s;
+}
+
+function testCaptureBindingPattern5() {
+    assertEquals("[1,\"a\"]", captureBindingPattern5([1, "a"]));
+    assertEquals("{\"a\":1,\"b\":2}", captureBindingPattern5({a: 1, b: 2}));
+    assertEquals("No match", captureBindingPattern5({b: 3}));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

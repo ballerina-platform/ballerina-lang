@@ -174,6 +174,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPattern28() {
+        BRunUtil.invoke(result, "testMappingMatchPattern28");
+    }
+
+    @Test
     public void testMappingBindingToRecordWithDefaultValue() {
         BRunUtil.invoke(result, "testMappingBindingToRecordWithDefaultValue");
     }
