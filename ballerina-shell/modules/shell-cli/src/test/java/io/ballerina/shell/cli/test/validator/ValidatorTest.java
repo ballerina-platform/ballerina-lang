@@ -45,9 +45,11 @@ public class ValidatorTest {
         // If-else statements
         Assert.assertTrue(inputValidator.isComplete("if (x == y) { }"));
         Assert.assertTrue(inputValidator.isComplete("if (x < y) { x = x + 1 }"));
+        Assert.assertTrue(inputValidator.isComplete("if ret is error { }"));
 
         Assert.assertFalse(inputValidator.isComplete("if (x == y) { x = x + 1; x = x + 1;"));
         Assert.assertFalse(inputValidator.isComplete("if (x == y)"));
+        Assert.assertFalse(inputValidator.isComplete("if ret is error"));
 
         // While statements
         Assert.assertTrue(inputValidator.isComplete("while (x < 10) { x = x + 1; }"));
@@ -82,6 +84,7 @@ public class ValidatorTest {
                 "\n" +
                 "function foo() {\n" +
                 "}"));
+        Assert.assertTrue(inputValidator.isComplete("var f = function () { x = 12; }"));
 
         Assert.assertFalse(inputValidator.isComplete("function parse(string s) returns int|error {"));
         Assert.assertFalse(inputValidator.isComplete("function parse(string s)"));
@@ -127,6 +130,11 @@ public class ValidatorTest {
                         "                      select"));
         Assert.assertFalse(inputValidator.isComplete("int[] evenNums = from var i in nums\n" +
                 "                     where i % 2 == 0"));
+
+        // Class definition
+        Assert.assertTrue(inputValidator.isComplete("public class Counter { }"));
+
+        Assert.assertFalse(inputValidator.isComplete("public class Counter {"));
 
         // Expressions
         Assert.assertTrue(inputValidator.isComplete("from var e in employees\n" +
