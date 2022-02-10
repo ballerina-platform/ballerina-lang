@@ -91,6 +91,7 @@ public class TypeDefSymbolTest {
                 {37, 16, "mapType", TypeDescKind.MAP},
                 {39, 16, "recType", TypeDescKind.RECORD},
                 {44, 16, "tableType", TypeDescKind.TABLE},
+                {90, 16, "TypeName", TypeDescKind.NONE},   // Does not have type-param
                 {47, 16, "errorType", TypeDescKind.ERROR},
 
                 // Behavioural
