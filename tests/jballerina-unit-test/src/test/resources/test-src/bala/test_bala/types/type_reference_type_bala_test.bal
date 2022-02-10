@@ -17,9 +17,11 @@
 import testorg/typereftypes as tr;
 
 type ImmutableIntOrStringArray tr:Strings[]|tr:ImmutableIntArray;
+
 type FunctionType1 function (tr:Integer i) returns tr:Decimal;
 
 type TypeConstInt tr:ConstInt;
+
 type MapFooBar map<tr:FooBar>;
 
 record {|
@@ -62,14 +64,14 @@ function testFn() {
     assertEquality(false, a1 is tr:FloatBooleanTuple);
 
     FunctionType1 func1 = function (int x) returns decimal {
-            return <tr:Decimal> x;
-        };
+        return <tr:Decimal> x;
+    };
     tr:Decimal a2 = func1(3);
     assertEquality(3d, a2);
 
     var func2 = function ([float, boolean] x) returns tr:Record {
-            return {a : x, b : ()};
-        };
+        return {a : x, b : ()};
+    };
     tr:FloatBooleanTuple a3 = [1.2, true];
     tr:Record a4 = func2(a3);
     assertEquality({a : [1.2, true], b : ()}, a4);
@@ -125,7 +127,7 @@ function testFn() {
 
 function getImmutable(ImmutableIntOrStringArray x) returns tr:ImmutableIntArray {
     if x is tr:ImmutableIntArray {
-        return <tr:ImmutableIntArray> x;
+        return x;
     }
     return [];
 }
