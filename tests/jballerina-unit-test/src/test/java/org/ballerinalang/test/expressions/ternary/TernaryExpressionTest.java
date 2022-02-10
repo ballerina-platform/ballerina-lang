@@ -403,7 +403,7 @@ public class TernaryExpressionTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '()', found 'boolean?'",
                 40, 66); // issue #30598, #33217
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found '(A|B)'",
-                93, 31);
+                90, 31);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 

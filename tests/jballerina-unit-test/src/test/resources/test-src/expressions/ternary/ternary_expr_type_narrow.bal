@@ -58,21 +58,18 @@ function test3() {
     } else {
         while y !is decimal {
             _ = y is int ? intFn(y) : booleanFn(y); // OK
-
         }
     }
 
     while y !is string {
         if !(y is decimal) {
             _ = y is int ? intFn(y) : booleanFn(y); // OK
-
         }
     }
 
     while y !is string {
         while y !is decimal {
             _ = y is int ? intFn(y) : booleanFn(y); // OK
-
         }
     }
 }
