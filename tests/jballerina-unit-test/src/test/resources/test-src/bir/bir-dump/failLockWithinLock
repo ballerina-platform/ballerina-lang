@@ -18,41 +18,35 @@ failLockWithinLock function() -> (int, string) {
     %41(TEMP) int;
 
     bb0 {
-        GOTO bb1;
+        lock -> bb1;
     }
     bb1 {
+        lockWithinLockInt = ConstLoad 50;
+        lockWithinLockString = ConstLoad sample value;
         lock -> bb2;
     }
     bb2 {
-        GOTO bb3;
-    }
-    bb3 {
-        lockWithinLockInt = ConstLoad 50;
-        lockWithinLockString = ConstLoad sample value;
-        lock -> bb4;
-    }
-    bb4 {
         lockWithinLockString = ConstLoad second sample value;
         lockWithinLockInt = ConstLoad 99;
-        lock -> bb5;
+        lock -> bb3;
     }
-    bb5 {
+    bb3 {
         lockWithinLockInt = ConstLoad 90;
         %7 = ConstLoad 0;
-        GOTO bb6;
+        GOTO bb4;
+    }
+    bb4 {
+        unlock -> bb5;
+    }
+    bb5 {
+        %10 = %7 is error;
+        %10? bb6 : bb7;
     }
     bb6 {
-        unlock -> bb7;
-    }
-    bb7 {
-        %10 = %7 is error;
-        %10? bb8 : bb9;
-    }
-    bb8 {
         %12 = <error> %7;
         panic %12;
     }
-    bb9 {
+    bb7 {
         %16 = ConstLoad custom error;
         %18 = ConstLoad 0;
         %12 = <error> %18;
@@ -61,69 +55,66 @@ failLockWithinLock function() -> (int, string) {
         %23 = ConstLoad error value;
         %22 = <Cloneable> %23;
         %20 = NewMap %19;
-        %24 = cloneReadOnly(%20) -> bb10;
+        %24 = cloneReadOnly(%20) -> bb8;
+    }
+    bb8 {
+        %14 = error error(%16, %12, %24);
+        GOTO bb9;
+    }
+    bb9 {
+        unlock -> bb10;
     }
     bb10 {
-        %14 = error error(%16, %12, %24);
-        GOTO bb11;
-    }
-    bb11 {
-        unlock -> bb12;
-    }
-    bb12 {
-        GOTO bb13;
-    }
-    bb13 {
         %25 = %14;
         lockWithinLockInt = ConstLoad 100;
         lockWithinLockString = ConstLoad Error caught;
         %18 = ConstLoad 0;
-        GOTO bb18;
+        GOTO bb15;
+    }
+    bb11 {
+        %4 = ConstLoad 0;
+        GOTO bb15;
+    }
+    bb12 {
+        unlock -> bb13;
+    }
+    bb13 {
+        %10 = %4 is error;
+        %10? bb14 : bb15;
     }
     bb14 {
-        %4 = ConstLoad 0;
-        GOTO bb18;
-    }
-    bb15 {
-        unlock -> bb16;
-    }
-    bb16 {
-        %10 = %4 is error;
-        %10? bb17 : bb18;
-    }
-    bb17 {
         %12 = <error> %4;
         panic %12;
     }
-    bb18 {
+    bb15 {
         %1 = ConstLoad 0;
-        GOTO bb19;
+        GOTO bb16;
     }
-    bb19 {
-        unlock -> bb20;
+    bb16 {
+        unlock -> bb17;
     }
-    bb20 {
+    bb17 {
         %10 = %1 is error;
-        %10? bb21 : bb22;
+        %10? bb18 : bb19;
     }
-    bb21 {
+    bb18 {
         %12 = <error> %1;
         panic %12;
     }
-    bb22 {
+    bb19 {
         %41 = ConstLoad 2;
         %0 = newArray (int, string)[%41];
-        GOTO bb23;
+        GOTO bb20;
     }
-    bb23 {
+    bb20 {
         return;
     }
 
     ---------------------------------------------
     | trapBB       | endBB        | errorOp      |
     ---------------------------------------------
-    | bb2          | bb18         | %1           |
-    | bb4          | bb14         | %4           |
-    | bb5          | bb5          | %7           |
+    | bb1          | bb15         | %1           |
+    | bb2          | bb11         | %4           |
+    | bb3          | bb3          | %7           |
     ---------------------------------------------
 }
