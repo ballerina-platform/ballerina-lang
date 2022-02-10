@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.Method;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -112,12 +113,12 @@ public class BMap extends IndexedCompoundVariable {
 
     private Value getValueFor(Value key) {
         try {
-            Optional<Method> getValueMethod = VariableUtils.getMethod(jvmValue, METHOD_GET);
-            if (getValueMethod.isEmpty()) {
+            Optional<Method> getMethod = VariableUtils.getMethod(jvmValue, METHOD_GET);
+            if (getMethod.isEmpty()) {
                 return null;
             }
-            return VariableUtils.invokeRemoteVMMethod(context, jvmValue, getValueMethod.get(),
-                    Collections.singletonList(key));
+            return ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
+                    getMethod.get(), Collections.singletonList(key), ObjectReference.INVOKE_SINGLE_THREADED);
         } catch (Exception ignored) {
             return null;
         }
@@ -129,7 +130,9 @@ public class BMap extends IndexedCompoundVariable {
             if (entrySetMethod.isEmpty()) {
                 return;
             }
-            Value keyArray = VariableUtils.invokeRemoteVMMethod(context, jvmValue, entrySetMethod.get(), null);
+            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
+                    entrySetMethod.get(), Collections.emptyList(), ObjectReference.INVOKE_SINGLE_THREADED);
+
             loadedKeys = (ArrayReference) keyArray;
             loadedValues = new Value[getChildrenCount()];
         } catch (Exception ignored) {

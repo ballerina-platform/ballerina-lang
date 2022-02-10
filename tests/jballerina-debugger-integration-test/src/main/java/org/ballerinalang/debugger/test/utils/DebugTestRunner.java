@@ -471,27 +471,27 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when fetching debug hit variables.
      */
     public Map<String, Variable> fetchVariables(StoppedEventArguments args, VariableScope scope)
-            throws BallerinaTestException {
+        throws BallerinaTestException {
+        Map<String, Variable> variables = new HashMap<>();
         if (!hitListener.getConnector().isConnected()) {
-            throw new BallerinaTestException("Debug server is not connected.");
+            return variables;
         }
-        StackTraceArguments traceArgs = new StackTraceArguments();
+        StackTraceArguments stackTraceArgs = new StackTraceArguments();
         VariablesArguments variableArgs = new VariablesArguments();
         ScopesArguments scopeArgs = new ScopesArguments();
-        traceArgs.setThreadId(args.getThreadId());
+        stackTraceArgs.setThreadId(args.getThreadId());
 
         try {
-            StackTraceResponse stackTraceResp = hitListener.getConnector().getRequestManager().stackTrace(traceArgs);
+            StackTraceResponse stackTraceResp = hitListener.getConnector().getRequestManager()
+                .stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackTraceResp.getStackFrames();
             if (stackFrames.length == 0) {
-                throw new BallerinaTestException("Stack frame response does not contain any frames");
+                return variables;
             }
             scopeArgs.setFrameId(scope == VariableScope.LOCAL ? stackFrames[0].getId() : -stackFrames[0].getId());
             ScopesResponse scopesResp = hitListener.getConnector().getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
             VariablesResponse variableResp = hitListener.getConnector().getRequestManager().variables(variableArgs);
-
-            Map<String, Variable> variables = new HashMap<>();
             Arrays.stream(variableResp.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {
