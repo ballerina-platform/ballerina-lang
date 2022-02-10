@@ -16,7 +16,7 @@
 
 import testorg/typereftypes as tr;
 
-type ImmutableIntOrStringArray tr:Strings[]|tr:ImmutableIntArray;
+type ImmutableIntArrayOrStringArray tr:Strings[]|tr:ImmutableIntArray;
 
 type FunctionType1 function (tr:Integer i) returns tr:Decimal;
 
@@ -82,8 +82,8 @@ function testFn() {
     assertEquality(true, a5 is int[]);
     assertEquality(true, a5 is int[] & readonly);
     assertEquality(false, a1 is tr:ImmutableIntArray);
-    assertEquality(true, a5 is ImmutableIntOrStringArray);
-    assertEquality(false, a1 is ImmutableIntOrStringArray);
+    assertEquality(true, a5 is ImmutableIntArrayOrStringArray);
+    assertEquality(false, a1 is ImmutableIntArrayOrStringArray);
 
     tr:FooBar a6 = "foo";
     assertEquality(true, "foo" is tr:FooBar);
@@ -91,7 +91,7 @@ function testFn() {
     assertEquality(false, "1" is tr:FooBar);
     assertEquality(true, a6 is 1|"foo");
 
-    assertEquality(true, X is record {|ImmutableIntOrStringArray a; tr:FooBar b;|});
+    assertEquality(true, X is record {|ImmutableIntArrayOrStringArray a; tr:FooBar b;|});
 
     MapFooBar a8 = {a : 1};
     assertEquality(true, a8 is map<tr:FooBar>);
@@ -125,7 +125,7 @@ function testFn() {
     assertEquality({b : {}}, Y);
 }
 
-function getImmutable(ImmutableIntOrStringArray x) returns tr:ImmutableIntArray {
+function getImmutable(ImmutableIntArrayOrStringArray x) returns tr:ImmutableIntArray {
     if x is tr:ImmutableIntArray {
         return x;
     }
