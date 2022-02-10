@@ -10,11 +10,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * This class contains static util methods commonly used to desugar class closure access desugaring.
@@ -23,7 +24,7 @@ import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
  */
 public class ClassClosureDesugarUtils {
 
-    public static void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvironmentData oceEnvData,
+    public static void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvData oceEnvData,
                                                BLangClassDefinition origClassDef) {
         SymbolEnv localEnv = envArg;
         while (localEnv != null) {
@@ -36,7 +37,7 @@ public class ClassClosureDesugarUtils {
                 BLangClassDefinition classDef = (BLangClassDefinition) node;
                 if (classDef != origClassDef) {
                     classDef.hasClosureVars = true;
-                    OCEDynamicEnvironmentData parentOceData = classDef.oceEnvData;
+                    OCEDynamicEnvData parentOceData = classDef.oceEnvData;
                     oceEnvData.parents.push(classDef);
                     parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
                     parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
@@ -46,7 +47,7 @@ public class ClassClosureDesugarUtils {
         }
     }
 
-    public static void updateObjectCtorClosureSymbols(Location pos, BLangFunction enclosedFunc,
+    public static void updateObjectCtorClosureSymbols(Location pos, BLangFunction enclosedF,
                                                       BSymbol resolvedSymbol,
                                                       BLangClassDefinition classDef, SymbolEnv env) {
         classDef.hasClosureVars = true;
@@ -62,7 +63,7 @@ public class ClassClosureDesugarUtils {
         } else {
             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
         }
-        ClassClosureDesugarUtils.updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
+        updateProceedingClasses(env.enclEnv, oceEnvData, classDef);
     }
 
     /**
