@@ -33,12 +33,12 @@ public class ValidatorTest {
     public void testValidator() {
         InputValidator inputValidator = new InputValidator();
 
-        Assert.assertFalse(inputValidator.isComplete("if (x == y) { x = x + 1; x = x + 1;"));
-
         // Variable declarations
         Assert.assertTrue(inputValidator.isComplete("int i = 12"));
         Assert.assertTrue(inputValidator.isComplete("int i = 12;"));
         Assert.assertTrue(inputValidator.isComplete("int[] x = [1,2];"));
+        Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2;"));
+        Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2"));
 
         Assert.assertFalse(inputValidator.isComplete("int[] x = [1,2,3,"));
 
