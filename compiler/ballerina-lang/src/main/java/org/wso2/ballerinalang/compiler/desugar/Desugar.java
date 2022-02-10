@@ -106,7 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
@@ -6457,7 +6457,7 @@ public class Desugar extends BLangNodeVisitor {
             BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
             BLangClassDefinition classDef = initializingObject.classDef;
             if (classDef.hasClosureVars) {
-                OCEDynamicEnvironmentData oceEnvData = initializingObject.classDef.oceEnvData;
+                OCEDynamicEnvData oceEnvData = initializingObject.classDef.oceEnvData;
                 if (oceEnvData.attachedFunctionInvocation == null) {
                     oceEnvData.attachedFunctionInvocation = (BLangAttachedFunctionInvocation) result;
                 }

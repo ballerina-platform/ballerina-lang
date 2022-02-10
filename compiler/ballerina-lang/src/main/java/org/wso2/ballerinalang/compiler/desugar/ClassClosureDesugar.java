@@ -48,7 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -215,7 +215,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
                                                   BVarSymbol blockMap,
                                                   BVarSymbol classMapSymbol) {
 
-        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
+        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
         BVarSymbol oceMap = oceEnvData.mapBlockMapSymbol;
 
         BLangFunction function = classDef.generatedInitFunction;
@@ -281,7 +281,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
         rewriteStmts(body.stmts, blockEnv);
 
-
         if (body.mapSymbol != null) {
             body.stmts.add(0, getClosureMap(body.mapSymbol, blockEnv));
 
@@ -315,7 +314,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private BLangSimpleVariableDef getClosureMap(BVarSymbol mapSymbol, SymbolEnv blockEnv) {
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(symTable.builtinPos, mapSymbol.type);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
-                                                                   mapSymbol.type, emptyRecord, mapSymbol);
+                mapSymbol.type, emptyRecord, mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(symTable.builtinPos, mapVar);
         return desugar.rewrite(mapVarDef, blockEnv);
@@ -774,9 +773,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             if (dirtyOceClass.hasClosureVars && classDef.oceEnvData.closureDesugaringInProgress) {
                 // below lines are probably not needed after proper handling
                 dirtyOceClass.hasClosureVars = false;
-                OCEDynamicEnvironmentData dirtyOceEnvData = dirtyOceClass.oceEnvData;
+                OCEDynamicEnvData dirtyOceEnvData = dirtyOceClass.oceEnvData;
                 dirtyOceEnvData.isDirty = true;
-                OCEDynamicEnvironmentData currentClassOceData = classDef.oceEnvData;
+                OCEDynamicEnvData currentClassOceData = classDef.oceEnvData;
                 currentClassOceData.closureBlockSymbols.removeAll(dirtyOceEnvData.closureBlockSymbols);
                 currentClassOceData.closureFuncSymbols.removeAll(dirtyOceEnvData.closureFuncSymbols);
                 dirtyOceEnvData.parents.remove(classDef);
@@ -964,8 +963,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         result = dynamicParamExpr;
     }
 
-
-
     /**
      * Create the map symbol required for the function node and block statements.
      *
@@ -1074,7 +1071,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         result = xmlIndexAccessExpr;
     }
 
-
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         xmlElementAccess.expr = rewriteExpr(xmlElementAccess.expr);
@@ -1087,7 +1083,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
         result = xmlNavigation;
     }
-
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
@@ -1419,7 +1414,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     }
 
     private void addBlockLevelClosureMapToClassDefinition(BLangClassDefinition classDef) {
-        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+        OCEDynamicEnvData oceData = classDef.oceEnvData;
         if (oceData.blockMapUpdatedInInitMethod || oceData.mapBlockMapSymbol == null) {
             return;
         }
@@ -1446,7 +1441,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     }
 
     private void addFunctionLevelClosureMapToClassDefinition(BLangClassDefinition classDef) {
-        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+        OCEDynamicEnvData oceData = classDef.oceEnvData;
         if (oceData.functionMapUpdatedInInitMethod || oceData.mapFunctionMapSymbol == null) {
             return;
         }
@@ -1468,9 +1463,8 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         oceData.functionMapUpdatedInInitMethod = true;
     }
 
-
     private void createMapSymbolsIfAbsent(BLangClassDefinition classDef) {
-        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+        OCEDynamicEnvData oceData = classDef.oceEnvData;
         if (!oceData.closureBlockSymbols.isEmpty() && classDef.oceEnvData.mapBlockMapSymbol == null) {
             classDef.oceEnvData.mapBlockMapSymbol =
                     createMapSymbol(OBJECT_CTOR_BLOCK_MAP_SYM_NAME, classDef.oceEnvData.capturedClosureEnv);

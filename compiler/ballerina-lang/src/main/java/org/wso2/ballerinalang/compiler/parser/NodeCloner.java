@@ -54,7 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
@@ -2249,11 +2249,11 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.oceEnvData = cloneOceEnvData(source.oceEnvData);
     }
 
-    private OCEDynamicEnvironmentData cloneOceEnvData(OCEDynamicEnvironmentData source) {
+    private OCEDynamicEnvData cloneOceEnvData(OCEDynamicEnvData source) {
         if (source.cloneRef != null) {
             return source.cloneRef;
         }
-        OCEDynamicEnvironmentData clone = new OCEDynamicEnvironmentData();
+        OCEDynamicEnvData clone = new OCEDynamicEnvData(source.functionEnvs.size());
         source.cloneAttempt = this.currentCloneAttempt;
         clone.originalClass = source.originalClass; // dont copy me
         clone.typeInit = clone(source.typeInit);

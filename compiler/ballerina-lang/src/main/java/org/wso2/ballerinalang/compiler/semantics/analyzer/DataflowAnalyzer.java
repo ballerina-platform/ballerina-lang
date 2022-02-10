@@ -75,7 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -592,7 +592,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
         BLangClassDefinition classDef = objectConstructorExpression.classNode;
         if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
-            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            OCEDynamicEnvData oceData = classDef.oceEnvData;
             for (BSymbol symbol : oceData.closureFuncSymbols) {
                 this.unusedLocalVariables.remove(symbol);
             }
