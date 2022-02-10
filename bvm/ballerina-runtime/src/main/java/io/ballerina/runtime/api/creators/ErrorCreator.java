@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BErrorType;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
@@ -59,6 +60,7 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(BString message, BMap<BString, Object> details) {
+        RuntimeUtils.validateObjectAssignabilityToBType(details);
         return new ErrorValue(message, details);
     }
 
@@ -104,6 +106,7 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Type type, BString message, BError cause, BMap<BString, Object> details) {
+        RuntimeUtils.validateObjectAssignabilityToBType(details);
         return new ErrorValue(type, message, cause, details);
     }
 
@@ -154,6 +157,7 @@ public class ErrorCreator {
     public static BError createError(Module module, String errorTypeName,
                                      BString message, BError cause, BMap<BString, Object> details) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
+        RuntimeUtils.validateObjectAssignabilityToBType(details);
         return valueCreator.createErrorValue(errorTypeName, message, cause, details);
     }
 
@@ -185,6 +189,7 @@ public class ErrorCreator {
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
                                              BMap<BString, Object> details) {
+        RuntimeUtils.validateObjectAssignabilityToBType(details);
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker
                 .getType(details)), message, null, details, typeIdName, typeIdPkg);
     }
