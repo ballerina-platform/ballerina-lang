@@ -321,6 +321,15 @@ public class ExpressionTypeTestNew {
         assertType(101, 10, 101, 21, NIL);
     }
 
+    @Test
+    public void testFutureResultType() {
+        TypeSymbol type = getExprType(350, 31, 350, 38);
+        assertEquals(type.typeKind(), FUTURE);
+        Optional<TypeSymbol> typeParameter = ((FutureTypeSymbol) type).typeParameter();
+        assertTrue(typeParameter.isPresent());
+        assertEquals(typeParameter.get().typeKind(), INT);
+    }
+
     @Test(dataProvider = "CallExprPosProvider")
     public void testFunctionCall(int sLine, int sCol, int eCol, TypeDescKind kind) {
         assertType(sLine, sCol, eCol, kind);
