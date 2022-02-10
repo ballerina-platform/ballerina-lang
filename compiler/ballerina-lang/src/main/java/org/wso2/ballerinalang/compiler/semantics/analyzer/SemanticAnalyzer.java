@@ -27,6 +27,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -40,6 +41,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -255,6 +257,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private ConstantAnalyzer constantAnalyzer;
     private ConstantValueResolver constantValueResolver;
     private BLangAnonymousModelHelper anonModelHelper;
+    private BLangMissingNodesHelper missingNodesHelper;
 
     private SymbolEnv env;
     private BType expType;
@@ -295,6 +298,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
+        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.unifier = new Unifier();
     }
 
@@ -571,6 +575,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 || typeDefinition.typeNode.getKind() == NodeKind.TABLE_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
             analyzeDef(typeDefinition.typeNode, env);
+        }
+
+        if (typeDefinition.symbol == null) {
+            typeDefinition.symbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
+                    names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, symTable.noType, env.scope.owner,
+                    typeDefinition.name.pos, getOrigin(typeDefinition.name.value));
         }
 
         final List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
@@ -4723,5 +4733,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         symbolEnter.setRestRecordFields(recordType.tsymbol.pos, env,
                 unMappedFields, boundedFieldNames, restConstraintType, restVarSymbolRecordType);
         restPatternRecordType.restFieldType = restVarSymbolRecordType.restFieldType;
+    }
+
+    private SymbolOrigin getOrigin(String name) {
+        if (missingNodesHelper.isMissingNode(name)) {
+            return VIRTUAL;
+        }
+        return SOURCE;
     }
 }
