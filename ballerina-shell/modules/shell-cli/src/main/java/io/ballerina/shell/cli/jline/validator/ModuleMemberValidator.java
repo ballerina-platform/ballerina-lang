@@ -18,9 +18,8 @@
 
 package io.ballerina.shell.cli.jline.validator;
 
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
@@ -51,25 +50,21 @@ public class ModuleMemberValidator implements Validator {
         TextDocument document = TextDocuments.from(source);
         SyntaxTree tree = SyntaxTree.from(document);
         ModulePartNode node = tree.rootNode();
-        NodeList<ModuleMemberDeclarationNode> members = node.members();
-        if (members.size() > 1) {
-            return false;
-        }
-
-        boolean isIncomplete = NodeParser.parseModuleMemberDeclaration(source).apply(incompleteInputFinder);
-        if (!NodeParser.parseModuleMemberDeclaration(source).hasDiagnostics()) {
-            return false;
-        } else {
-            if (!source.endsWith(";") && !NodeParser.parseModuleMemberDeclaration(source + ";").hasDiagnostics()) {
-                return false;
-            }
-        }
-
-        if (!isIncomplete) {
-            return  nextInValidator.evaluate(source);
-        } else {
+        // Ignore code segments including imports
+        if (node.imports().size() > 0) {
             return true;
         }
 
+        Node parsedNode = NodeParser.parseModuleMemberDeclaration(source);
+        if (parsedNode.hasDiagnostics()) {
+            boolean isComplete = !(NodeParser.parseModuleMemberDeclaration(source).apply(incompleteInputFinder));
+            if (isComplete) {
+                return true;
+            }
+
+            return nextInValidator.evaluate(source);
+        }
+
+        return true;
     }
 }

@@ -25,7 +25,7 @@ package io.ballerina.shell.cli.jline.validator;
  */
 public class InputValidator {
 
-    public boolean isIncomplete(String source) {
+    public boolean isComplete(String source) {
         if (source.length() == 0) {
             return false;
         } else {
