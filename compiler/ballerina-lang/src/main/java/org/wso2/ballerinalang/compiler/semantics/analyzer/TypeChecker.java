@@ -95,7 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
@@ -6010,7 +6010,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = bLangNode;
         if (isObjectCtorClass(node))  {
             BLangClassDefinition classDef = (BLangClassDefinition) node;
-            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            OCEDynamicEnvData oceData = classDef.oceEnvData;
             BLangFunction currentFunc = (BLangFunction) encInvokable;
             if ((currentFunc != null) && !currentFunc.attachedFunction &&
                     !(currentFunc.symbol.receiverSymbol == symbol)) {

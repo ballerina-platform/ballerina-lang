@@ -66,7 +66,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public int precedence;
 
     public boolean definitionCompleted;
-    public OCEDynamicEnvironmentData oceEnvData;
+    public OCEDynamicEnvData oceEnvData;
     public boolean isObjectContructorDecl = false;
     public BObjectType objectType = null;
     public boolean hasClosureVars;
@@ -79,7 +79,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.flagSet.add(Flag.CLASS);
         this.annAttachments = new ArrayList<>();
         this.referencedFields = new ArrayList<>();
-        this.oceEnvData = new OCEDynamicEnvironmentData();
+        this.oceEnvData = new OCEDynamicEnvData(this.functions.size());
     }
 
     @Override
