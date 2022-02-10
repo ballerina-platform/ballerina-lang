@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
@@ -257,6 +258,11 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
     @Override
     public Boolean transform(ServiceDeclarationNode node) {
         return node.serviceKeyword().isMissing();
+    }
+
+    @Override
+    public Boolean transform(ConditionalExpressionNode node) {
+        return node.colonToken().isMissing() || node.questionMarkToken().isMissing();
     }
 
     @Override
