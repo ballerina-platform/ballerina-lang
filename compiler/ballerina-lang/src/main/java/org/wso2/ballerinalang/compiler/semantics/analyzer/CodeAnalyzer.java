@@ -370,6 +370,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env) {
+        logErrorsForInferredArrays(node);
         SymbolEnv prevEnv = this.env;
         this.env = env;
         BLangNode myParent = parent;
@@ -452,13 +453,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        validateParams(funcNode);
+
         boolean isLambda = funcNode.flagSet.contains(Flag.LAMBDA);
         if (isLambda) {
             return;
         }
-
-        validateParams(funcNode);
-        logErrorsForInferredArrays(funcNode.returnTypeNode);
 
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
@@ -490,7 +490,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         validateNamedWorkerUniqueReferences();
     }
 
-    private void logErrorsForInferredArrays(BLangType node) {
+    private void logErrorsForInferredArrays(BLangNode bLangNode) {
+        BLangNode node;
+        switch (bLangNode.getKind()) {
+            case FUNCTION:
+                node = ((BLangFunction) bLangNode).returnTypeNode;
+                break;
+            case FUNCTION_TYPE:
+                node = ((BLangFunctionTypeNode) bLangNode).returnTypeNode;
+                break;
+            default:
+                return;
+        }
+        if (node == null) {
+            return;
+        }
         List<Location> posArray = new ArrayList<>();
         getPositionsOfInferredArrays(node, posArray);
         for (Location pos : posArray) {
@@ -2449,10 +2463,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-        if (varNode.typeNode != null && validateContext(varNode.parent)) {
-            validateInferredArrays(varNode.typeNode, varNode.expr);
-        }
-
         analyzeTypeNode(varNode.typeNode, this.env);
 
         analyzeExpr(varNode.expr);
@@ -2476,6 +2486,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
+    private boolean isValidInferredArray(BLangNode node, List<BLangExpression> indexSizes) {
+        switch (node.getKind()) {
+            case INTERSECTION_TYPE_NODE:
+            case UNION_TYPE_NODE:
+                return isValidInferredArray(node.parent, indexSizes);
+            case VARIABLE:
+                BLangSimpleVariable varNode = (BLangSimpleVariable) node;
+                BLangExpression expr = varNode.expr;
+                return validateContext(node.parent) && expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR
+                        && validateInitializer(indexSizes, indexSizes.size() - 2, (BLangListConstructorExpr) expr);
+            default:
+                return false;
+        }
+    }
+
     private boolean validateContext(BLangNode node) {
         switch (node.getKind()) {
             case PACKAGE:
@@ -2487,35 +2512,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return validateContext(node.parent);
             default:
                 return false;
-        }
-    }
-
-    private void validateInferredArrays(BLangNode node, BLangExpression expr) {
-        switch (node.getKind()) {
-            case ARRAY_TYPE:
-                BLangArrayType arrayType = (BLangArrayType) node;
-                if (isInferredArray(arrayType.sizes)) {
-                    if (expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
-                            validateInitializer(arrayType.sizes, arrayType.sizes.size() - 2,
-                                    (BLangListConstructorExpr) expr)) {
-                        arrayType.isValidInferredArray = true;
-                    }
-                }
-                return;
-            case INTERSECTION_TYPE_NODE:
-                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) node;
-                for (BLangType member : intersectionTypeNode.constituentTypeNodes) {
-                    validateInferredArrays(member, expr);
-                }
-                return;
-            case UNION_TYPE_NODE:
-                BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) node;
-                for (BLangType member : unionTypeNode.memberTypeNodes) {
-                    validateInferredArrays(member, expr);
-                }
-                return;
-            default:
-                return;
         }
     }
 
@@ -3661,6 +3657,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         boolean isWorker = false;
 
+        analyzeNode(bLangLambdaFunction.function, env);
+
         if (bLangLambdaFunction.function.flagSet.contains(Flag.TRANSACTIONAL) &&
                 bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !withinTransactionScope) {
             dlog.error(bLangLambdaFunction.pos, DiagnosticErrorCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
@@ -3751,12 +3749,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        if (!arrayType.isValidInferredArray && isInferredArray(arrayType.sizes)) {
+        if (isInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent, arrayType.sizes)) {
             dlog.error(arrayType.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
         }
 
         analyzeTypeNode(arrayType.elemtype, env);
     }
+
+
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
         /* ignore */
@@ -3830,7 +3830,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         functionTypeNode.params.forEach(node -> analyzeNode(node, env));
         analyzeTypeNode(functionTypeNode.returnTypeNode, env);
-        logErrorsForInferredArrays(functionTypeNode.returnTypeNode);
     }
 
     @Override
