@@ -758,18 +758,18 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentBlock = prevBlock;
     }
 
-    private BIRBasicBlock beginBreakableBlock(Location pos, BLangBlockStmt.FailureBreakMode mode) {
+    private BIRBasicBlock beginBreakableBlock(BLangBlockStmt.FailureBreakMode mode) {
         BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(blockBB);
         this.env.enclBasicBlocks.add(blockBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, blockBB, this.currentScope);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockBB, this.currentScope);
 
         BIRBasicBlock blockEndBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(blockEndBB);
 
-        blockBB.terminator = new BIRTerminator.GOTO(pos, blockEndBB, this.currentScope);
+        blockBB.terminator = new BIRTerminator.GOTO(null, blockEndBB, this.currentScope);
 
         this.env.enclBB = blockBB;
         if (mode == BLangBlockStmt.FailureBreakMode.BREAK_WITHIN_BLOCK) {
@@ -1108,7 +1108,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentBlock = astBlockStmt;
         this.env.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
-            blockEndBB = beginBreakableBlock(astBlockStmt.pos, astBlockStmt.failureBreakMode);
+            blockEndBB = beginBreakableBlock(astBlockStmt.failureBreakMode);
         }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
@@ -1128,7 +1128,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangFail failNode) {
         if (failNode.expr == null) {
             if (this.env.enclInnerOnFailEndBB != null) {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclInnerOnFailEndBB,
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclInnerOnFailEndBB,
                         this.currentScope);
             }
             return;
@@ -1138,7 +1138,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (!toUnlock.isEmpty()) {
             BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(goToBB);
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, goToBB, this.currentScope);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, goToBB, this.currentScope);
             this.env.enclBB = goToBB;
         }
 
@@ -1159,20 +1159,20 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBasicBlocks.add(onFailBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, onFailBB, this.currentScope);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, onFailBB, this.currentScope);
 
         // Visit condition expression
         this.env.enclBB = onFailBB;
         failNode.exprStmt.accept(this);
         if (this.env.enclBB.terminator == null) {
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB,
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB,
                     this.currentScope);
         }
 
         // Statements after fail expression are unreachable, hence ignored
         BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(ignoreBlock);
-        ignoreBlock.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB, this.currentScope);
+        ignoreBlock.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB, this.currentScope);
         this.env.enclBasicBlocks.add(ignoreBlock);
         this.env.enclBB = ignoreBlock;
     }
