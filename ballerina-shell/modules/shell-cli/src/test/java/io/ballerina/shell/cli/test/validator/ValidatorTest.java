@@ -34,13 +34,13 @@ public class ValidatorTest {
         InputValidator inputValidator = new InputValidator();
 
         // Variable declarations
-        Assert.assertTrue(inputValidator.isComplete("int i = 12"));
         Assert.assertTrue(inputValidator.isComplete("int i = 12;"));
         Assert.assertTrue(inputValidator.isComplete("int[] x = [1,2];"));
         Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2;"));
         Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2"));
 
         Assert.assertFalse(inputValidator.isComplete("int[] x = [1,2,3,"));
+        Assert.assertFalse(inputValidator.isComplete("map<int> m = {"));
 
         // If-else statements
         Assert.assertTrue(inputValidator.isComplete("if (x == y) { }"));
@@ -147,6 +147,14 @@ public class ValidatorTest {
         Assert.assertFalse(inputValidator.isComplete("x + "));
         Assert.assertFalse(inputValidator.isComplete("from var i in nums\n" +
                 "                     where i % 2 == 0"));
+
+        // Transaction statement
+        Assert.assertFalse(inputValidator.isComplete("transaction {"));
+
+        // Worker Declaration
+        Assert.assertTrue(inputValidator.isComplete("worker { }"));
+
+        Assert.assertFalse(inputValidator.isComplete("worker A {"));
 
         // Complete code examples
         Assert.assertTrue(inputValidator.isComplete("import ballerina/io;\n" +

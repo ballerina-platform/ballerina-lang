@@ -39,15 +39,20 @@ import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -275,6 +280,31 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
     @Override
     public Boolean transform(ClassDefinitionNode node) {
         return node.classKeyword().isMissing() || node.openBrace().isMissing() || node.closeBrace().isMissing();
+    }
+
+    @Override
+    public Boolean transform(TypeCastExpressionNode node) {
+        return node.gtToken().isMissing() || node.ltToken().isMissing();
+    }
+
+    @Override
+    public Boolean transform(TransactionStatementNode node) {
+        return node.transactionKeyword().isMissing() || node.blockStatement().apply(this);
+    }
+
+    @Override
+    public Boolean transform(QualifiedNameReferenceNode node) {
+        return node.colon().isMissing();
+    }
+
+    @Override
+    public Boolean transform(NamedWorkerDeclarationNode node) {
+        return node.workerKeyword().isMissing() || node.workerBody().apply(this);
+    }
+
+    @Override
+    public Boolean transform(NamedWorkerDeclarator node) {
+        return node.namedWorkerDeclarations().get(0).workerBody().apply(this);
     }
 
     @Override

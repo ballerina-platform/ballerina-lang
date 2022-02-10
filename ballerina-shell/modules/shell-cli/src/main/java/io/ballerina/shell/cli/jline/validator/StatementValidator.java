@@ -29,8 +29,15 @@ import io.ballerina.shell.cli.utils.IncompleteInputFinder;
  */
 public class StatementValidator implements Validator {
 
+    private Validator nextInValidator;
+
+    public StatementValidator() {
+        nextInValidator = null;
+    }
+
     @Override
     public void setNextValidator(Validator nextValidator) {
+        this.nextInValidator = nextValidator;
     }
 
     @Override
@@ -38,7 +45,12 @@ public class StatementValidator implements Validator {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
         Node parsedNode = NodeParser.parseBlockStatement("{" + source + "}");
         if (parsedNode.hasDiagnostics()) {
-            return !(parsedNode.apply(incompleteInputFinder));
+            boolean isComplete = !(parsedNode.apply(incompleteInputFinder));
+            if (isComplete) {
+                return true;
+            }
+
+            return nextInValidator.evaluate(source);
         }
 
         return true;

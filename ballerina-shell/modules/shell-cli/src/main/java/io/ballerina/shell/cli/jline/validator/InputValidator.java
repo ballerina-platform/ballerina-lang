@@ -32,9 +32,11 @@ public class InputValidator {
             Validator moduleMemberValidator = new ModuleMemberValidator();
             Validator expressionValidator = new ExpressionValidator();
             Validator statementValidator = new StatementValidator();
+            Validator workerValidator = new WorkerValidator();
 
             moduleMemberValidator.setNextValidator(expressionValidator);
             expressionValidator.setNextValidator(statementValidator);
+            statementValidator.setNextValidator(workerValidator);
 
             return moduleMemberValidator.evaluate(source);
         }
