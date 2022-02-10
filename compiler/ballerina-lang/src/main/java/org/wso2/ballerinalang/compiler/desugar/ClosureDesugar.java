@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -60,7 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -279,7 +280,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                                                   BVarSymbol blockMap,
                                                   BVarSymbol classMapSymbol) {
 
-        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
+        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
         BVarSymbol oceMap = oceEnvData.mapBlockMapSymbol;
 
         BLangFunction function = classDef.generatedInitFunction;
@@ -321,7 +322,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     // TODO: filter out only the needed variables, otherwise OCE has indrect access to all block level
     private void addClosureMapToInit(BLangClassDefinition classDef, BVarSymbol mapSymbol) {
 
-        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+        OCEDynamicEnvData oceData = classDef.oceEnvData;
 
         // eg : $map$block$_<num2>
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, mapSymbol);
@@ -373,7 +374,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         addMapToCalleeExpression(mapSymbol, oceData);
     }
 
-    private void addMapToCalleeExpression(BVarSymbol mapSymbol, OCEDynamicEnvironmentData oceData) {
+    private void addMapToCalleeExpression(BVarSymbol mapSymbol, OCEDynamicEnvData oceData) {
         BLangSimpleVarRef.BLangLocalVarRef blockLevelMapLocalVarRef = new BLangSimpleVarRef.BLangLocalVarRef(mapSymbol);
         oceData.attachedFunctionInvocation.requiredArgs.add(blockLevelMapLocalVarRef);
     }
@@ -434,7 +435,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         if (!classDef.hasClosureVars) {
             return;
         }
-        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+        OCEDynamicEnvData oceData = classDef.oceEnvData;
         SymbolEnv env = oceData.capturedClosureEnv;
         if (env.enclEnv.node == null) {
             return;
@@ -825,12 +826,24 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private static BVarSymbol getMapSymbol(BLangNode node) {
         switch (node.getKind()) {
             case BLOCK_FUNCTION_BODY:
+//                BLangFunction blockFunction = (BLangFunction) node.parent;
+//                if (blockFunction != null && blockFunction.mapSymbol == null &&
+//                        blockFunction.attachedFunction && blockFunction.flagSet.contains(Flag.OBJECT_CTOR)) {
+//                    BLangClassDefinition classDefinition = (BLangClassDefinition) blockFunction.parent;
+//                    return classDefinition.oceEnvData.mapBlockMapSymbol;
+//                }
                 return ((BLangBlockFunctionBody) node).mapSymbol;
             case BLOCK:
                 return ((BLangBlockStmt) node).mapSymbol;
             case FUNCTION:
             case RESOURCE_FUNC:
-                return ((BLangFunction) node).mapSymbol;
+                BLangFunction function = (BLangFunction) node;
+//                if (function.mapSymbol == null &&
+//                        function.attachedFunction && function.flagSet.contains(Flag.OBJECT_CTOR)) {
+//                    BLangClassDefinition classDefinition = (BLangClassDefinition) function.parent;
+//                    return classDefinition.oceEnvData.mapBlockMapSymbol;
+//                }
+                return function.mapSymbol;
             case CLASS_DEFN:
                 BLangClassDefinition classNode = (BLangClassDefinition) node;
                 if (!classNode.isObjectContructorDecl) {
@@ -882,7 +895,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        OCEDynamicEnvironmentData oceData = classDefinition.oceEnvData;
+        OCEDynamicEnvData oceData = classDefinition.oceEnvData;
         BVarSymbol mapSymbol = oceData.mapBlockMapSymbol;
         if (mapSymbol == null) {
             // This cannot happen.
@@ -1596,7 +1609,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private void updateClosureVarsForAttachedObjects(BLangClassDefinition classDef,
                                                      BVarSymbol classSelfSymbol,
                                                      BLangSimpleVarRef varRefExpr) {
-        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
+        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
         SymbolEnv enclEnv = oceEnvData.capturedClosureEnv.enclEnv;
         BLangNode nodeKeepingClosureMap = enclEnv.node;
         if (!enclEnv.scope.entries.containsKey(varRefExpr.symbol.name)) {
@@ -1612,7 +1625,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         if (!oceEnvData.parents.isEmpty()) {
             BLangClassDefinition parentClass = oceEnvData.parents.get(0);
             BVarSymbol symbol = (BVarSymbol) varRefExpr.symbol;
-            OCEDynamicEnvironmentData parentData = parentClass.oceEnvData;
+            OCEDynamicEnvData parentData = parentClass.oceEnvData;
             if (parentData.closureBlockSymbols.contains(symbol)) {
                 // symbol should come from previous class block map
                 updateClassClosureMap(parentClass);

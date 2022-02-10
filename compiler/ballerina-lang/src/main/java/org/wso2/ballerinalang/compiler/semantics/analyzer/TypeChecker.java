@@ -6287,7 +6287,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BLangNode node = bLangNode;
         if (isObjectCtorClass(node))  {
             BLangClassDefinition classDef = (BLangClassDefinition) node;
-            OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+            OCEDynamicEnvData oceData = classDef.oceEnvData;
             BLangFunction currentFunc = (BLangFunction) encInvokable;
             if ((currentFunc != null) && !currentFunc.attachedFunction &&
                     !(currentFunc.symbol.receiverSymbol == symbol)) {

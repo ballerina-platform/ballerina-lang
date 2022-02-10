@@ -28,9 +28,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /***
@@ -38,7 +40,7 @@ import java.util.Set;
  * provide env data other
  * @since 2.0
  */
-public class OCEDynamicEnvironmentData {
+public class OCEDynamicEnvData {
 
     public SymbolEnv capturedClosureEnv;
 
@@ -55,14 +57,14 @@ public class OCEDynamicEnvironmentData {
     public BVarSymbol mapBlockMapSymbol;
     public BVarSymbol mapFunctionMapSymbol;
 
-    public List<BLangLambdaFunction> lambdaFunctionsList;
     public Set<BSymbol> closureBlockSymbols;
     public Set<BSymbol> closureFuncSymbols;
+    public Map<BLangFunction, SymbolEnv> functionEnvs;
 
     /*
      * Following fields will be used for AST Cloning.
      */
-    public OCEDynamicEnvironmentData cloneRef;
+    public OCEDynamicEnvData cloneRef;
     public int cloneAttempt;
     public BLangClassDefinition originalClass;
 
@@ -72,21 +74,21 @@ public class OCEDynamicEnvironmentData {
     public boolean isDirty;
     public List<BLangSimpleVarRef> desugaredClosureVars;
 
-    public OCEDynamicEnvironmentData() {
-        lambdaFunctionsList = new ArrayList<>(1);
+    public OCEDynamicEnvData(int functions) {
         closureBlockSymbols = new HashSet<>();
         closureFuncSymbols = new HashSet<>();
         parents = new LinkedList<>();
         desugaredClosureVars = new ArrayList<>();
+        functionEnvs = new HashMap<>(functions);
         cloneAttempt = 0;
     }
 
     public void cleanUp() {
         parents.clear();
         closureFuncSymbols.clear();
-        lambdaFunctionsList.clear();
         closureBlockSymbols.clear();
         desugaredClosureVars.clear();
+        functionEnvs.clear();
         mapFunctionMapSymbol = null;
         mapBlockMapSymbol = null;
     }
