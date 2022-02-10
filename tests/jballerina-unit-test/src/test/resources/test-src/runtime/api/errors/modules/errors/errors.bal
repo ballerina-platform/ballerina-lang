@@ -34,6 +34,10 @@ public function getDistinctErrorNegative(string msg) returns IOError = @java:Met
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
 } external;
 
+public function getErrorNegative1(string msg) returns error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;
+
 public function getErrorNegative2(string msg) returns error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
 } external;

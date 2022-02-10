@@ -73,7 +73,7 @@ public class Errors {
                 null, errorDetails);
     }
 
-    public static BError getErrorNegative2(BString msg) {
+    public static BError getErrorNegative1(BString msg) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
         errorDetails.put(StringUtils.fromString("detail"), "detail error message");
         return ErrorCreator.createError(msg, errorDetails);
@@ -84,5 +84,12 @@ public class Errors {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
         errorDetails.put(StringUtils.fromString("detail"), "detail error message");
         return ErrorCreator.createError(bErrorType, msg, null, errorDetails);
+    }
+
+    public static BError getErrorNegative2(BString msg) {
+        String typeIdName = "RuntimeError";
+        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+        errorDetails.put(StringUtils.fromString("detail"), "this is runtime failure");
+        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, errorDetails);
     }
 }
