@@ -30,7 +30,7 @@
     "jest-config": "^24.5.0",
     "jest-css-modules-transform": "^2.1.1",
     "less": "^3.8.1",
-    "node-sass": "^4.9.4",
+    "node-sass": "^7.0.0",
     "react": "^16.8.4",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "react-dom": "^16.8.4",
