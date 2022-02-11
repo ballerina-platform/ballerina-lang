@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -27,6 +28,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +64,23 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
         this.sort(context, node, completionItems);
         
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, SelectClauseNode node, 
+                     List<LSCompletionItem> completionItems) {
+        QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent();
+        List<String> filteredSymbolNames = SortingUtil.getVisibleSymbolNamesWithinNodeAndCursor(context, queryExprNode);
+
+        for (LSCompletionItem lsCItem : completionItems) {
+            if (SortingUtil.isCompletionItemNameInList(lsCItem, filteredSymbolNames)) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            } else {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            }
+        }
     }
 
     @Override

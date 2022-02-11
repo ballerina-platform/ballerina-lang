@@ -51,6 +51,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.CompletionItemType.SNIPPET;
 import static org.ballerinalang.langserver.commons.completion.LSCompletionItem.CompletionItemType.SYMBOL;
@@ -535,5 +536,41 @@ public class SortingUtil {
         }
 
         return rank;
+    }
+
+    /**
+     * Finds visible symbol's names between given node's text range start offset and cursor.
+     * 
+     * @param context   Completion Context
+     * @param startNode Node to start filtering visible symbols from
+     * @return  Visible symbol names List
+     */
+    public static List<String> getVisibleSymbolNamesWithinNodeAndCursor(BallerinaCompletionContext context,
+                                                                        Node startNode) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        return  visibleSymbols.stream()
+                .filter(symbol -> (symbol.getLocation().isPresent() && symbol.getName().isPresent())
+                        && (startNode.textRange().startOffset() < symbol.getLocation().get().textRange().startOffset())
+                        && (symbol.getLocation().get().textRange().endOffset() < context.getCursorPositionInTree()))
+                .map(symbol -> symbol.getName().get()).collect(Collectors.toList());
+    }
+
+    /**
+     * Checks whether completion item matches with any symbolNames passed.
+     * 
+     * @param lsCItem       Completion Item
+     * @param symbolNames   List of symbols
+     * @return  {@link Boolean}
+     */
+    public static boolean isCompletionItemNameInList(LSCompletionItem lsCItem, List<String> symbolNames) {
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
+            return false;
+        }
+
+        Optional<Symbol> symbol = ((SymbolCompletionItem) lsCItem).getSymbol();
+        if (symbol.isEmpty()) {
+            return false;
+        }
+        return symbolNames.stream().anyMatch(s -> symbol.get().nameEquals(s));
     }
 }

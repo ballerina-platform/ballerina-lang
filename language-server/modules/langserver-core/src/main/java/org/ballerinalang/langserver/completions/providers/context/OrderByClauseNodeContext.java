@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -93,18 +94,22 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
                 TypeDescKind.BOOLEAN, TypeDescKind.FLOAT,
                 TypeDescKind.DECIMAL);
 
+        QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent().parent();
+        List<String> filteredSymbolNames = SortingUtil.getVisibleSymbolNamesWithinNodeAndCursor(context, queryExprNode);
+
         completionItems.forEach(lsCItem -> {
-            if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
+            if (SortingUtil.isCompletionItemNameInList(lsCItem, filteredSymbolNames)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            } else if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
             } else {
-                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2) +
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(3) +
                         SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
             }
         });
     }
-
-    
     
     private boolean onSuggestDirectionKeywords(BallerinaCompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();

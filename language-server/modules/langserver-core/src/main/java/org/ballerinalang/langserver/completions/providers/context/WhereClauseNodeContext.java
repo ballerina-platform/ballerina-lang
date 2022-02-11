@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -27,6 +28,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +73,22 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, WhereClauseNode node) {
         return !node.whereKeyword().isMissing();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, WhereClauseNode node, List<LSCompletionItem> completionItems) {
+        QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent().parent();
+        List<String> filteredSymbolNames = SortingUtil.getVisibleSymbolNamesWithinNodeAndCursor(context, queryExprNode);
+        
+        for (LSCompletionItem lsCItem : completionItems) {
+            if (SortingUtil.isCompletionItemNameInList(lsCItem, filteredSymbolNames)) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            } else {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            }
+        }
     }
 
     @Override
