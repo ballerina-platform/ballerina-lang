@@ -60,6 +60,11 @@ public class FunctionTest {
         BRunUtil.invoke(result, "test3", args);
     }
 
+    @Test
+    public void testRecursiveFunctionWhichYields() {
+        BRunUtil.invoke(result, "testRecursiveFunctionWhichYields");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
