@@ -166,6 +166,31 @@ public class UnionTypeTest {
         };
     }
 
+    @Test
+    public void testRecursiveUnionTypeWithArray() {
+        BRunUtil.invoke(result, "testRecursiveUnionTypeWithArray");
+    }
+
+    @Test
+    public void testRecuriveUnionTypeWithMap() {
+        BRunUtil.invoke(result, "testRecuriveUnionTypeWithMap");
+    }
+
+    @Test
+    public void testRecursiveUnionTypeWithArrayAndMap() {
+        BRunUtil.invoke(result, "testRecursiveUnionTypeWithArrayAndMap");
+    }
+
+    @Test
+    public void testRecursiveUnionTypeWithRecord() {
+        BRunUtil.invoke(result, "testRecursiveUnionTypeWithRecord");
+    }
+
+    @Test
+    public void testRecursiveUnionTypeWithTuple() {
+        BRunUtil.invoke(result, "testRecursiveUnionTypeWithRecord");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
