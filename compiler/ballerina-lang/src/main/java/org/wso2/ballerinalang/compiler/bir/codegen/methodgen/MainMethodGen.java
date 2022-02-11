@@ -81,6 +81,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -102,6 +103,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_MAIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -396,10 +398,10 @@ public class MainMethodGen {
         storeFuture(indexMap, mv, futureVar);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND,
                          GET_STRAND);
-        mv.visitTypeInsn(NEW, "java/util/Stack");
+        mv.visitTypeInsn(NEW, STACK);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, "java/util/Stack", "<init>", "()V", false);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "Ljava/util/Stack;");
+        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, "()V", false);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
 
         startScheduler(indexMap.get(SCHEDULER_VAR), mv);
         handleErrorFromFutureValue(mv, futureVar);

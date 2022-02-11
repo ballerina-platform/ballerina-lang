@@ -107,6 +107,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -127,6 +128,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.UPDATE_CHANNEL_DETAILS;
 
 /**
@@ -540,8 +544,8 @@ public class MethodGen {
         mv.visitInsn(ISUB);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, RESUME_INDEX, "I");
         mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "Ljava/util/Stack;");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Stack", "pop", "()Ljava/lang/Object;", false);
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STACK, "pop", RETURN_OBJECT, false);
         mv.visitTypeInsn(CHECKCAST, frameName);
     }
 
@@ -890,9 +894,9 @@ public class MethodGen {
         int frameVarIndex = indexMap.addIfNotExists("frame", symbolTable.stringType);
         mv.visitVarInsn(ASTORE, frameVarIndex);
         mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "Ljava/util/Stack;");
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
         mv.visitVarInsn(ALOAD, frameVarIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Stack", "push", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STACK, "push", PASS_OBJECT_RETURN_OBJECT, false);
         mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitInsn(DUP);
