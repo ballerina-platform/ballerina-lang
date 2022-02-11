@@ -48,6 +48,7 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
                 {"undefinedFunctionCodeAction3.json", "createUndefinedFunction2.bal"},
+                {"undefinedFunctionCodeAction4.json", "createUndefinedFunction3.bal"},
                 {"undefinedFunctionCodeActionInRecord.json", "createUndefinedFunctionInRecord.bal"},
                 {"undefinedFunctionCodeActionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
                 {"undefinedFunctionCodeActionInLet.json", "createUndefinedFunctionInLet.bal"},
