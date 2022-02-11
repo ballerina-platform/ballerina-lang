@@ -160,6 +160,11 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    void clearStacks() {
+        this.loopAndDoClauseEnvs.clear();
+        this.potentiallyInvalidAssignmentInLoopsInfo.clear();
+    }
+
     private void analyzeReachabilityInExpressionIfApplicable(BLangExpression expr, SymbolEnv env) {
         if (expr == null) {
             return;
@@ -684,6 +689,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                 this.statementReturnsPanicsOrFails, true,
                 DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION);
         this.loopAndDoClauseCount--;
+        this.loopAndDoClauseEnvs.pop();
     }
 
     @Override

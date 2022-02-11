@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/test;
 
-http:Client testClient = check new ("http://localhost:9090/hello");
+http:Client testClient = check new ("http://localhost:9090");
 
 // Before Suite Function
 
@@ -15,7 +15,7 @@ function beforeSuiteFunc() {
 
 @test:Config {}
 function testServiceWithProperName() {
-    string|error response = testClient->get("/sayHello/?name=John");
+    string|error response = testClient->get("/greeting/?name=John");
     test:assertEquals(response, "Hello, John");
 }
 
@@ -23,7 +23,7 @@ function testServiceWithProperName() {
 
 @test:Config {}
 function testServiceWithEmptyName() returns error? {
-    http:Response response = check testClient->get("/sayHello/?name=");
+    http:Response response = check testClient->get("/greeting/?name=");
     test:assertEquals(response.getTextPayload(), "name should not be empty!");
 }
 
