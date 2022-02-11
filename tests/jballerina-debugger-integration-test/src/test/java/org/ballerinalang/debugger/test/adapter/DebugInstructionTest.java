@@ -124,7 +124,7 @@ public class DebugInstructionTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
     }
 
-    @Test(description = "Tests whether the debugger honors pause requests")
+    @Test(enabled = false, description = "Tests whether the debugger honors pause requests")
     public void debugPauseTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-2";
         String testModuleFileName = "main.bal";
