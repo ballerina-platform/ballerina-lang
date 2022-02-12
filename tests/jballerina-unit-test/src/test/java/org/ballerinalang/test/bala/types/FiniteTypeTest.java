@@ -21,6 +21,7 @@ package org.ballerinalang.test.bala.types;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -36,13 +37,11 @@ import org.testng.annotations.Test;
 public class FiniteTypeTest {
 
     private CompileResult result;
-    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/finite_type_project");
         result = BCompileUtil.compile("test-src/bala/test_bala/types/finite_type_test.bal");
-        negativeResult = BCompileUtil.compile("test-src/bala/test_bala/types/finite_type_negative_test.bal");
     }
 
     @Test()
@@ -294,9 +293,38 @@ public class FiniteTypeTest {
 
     @Test
     public void testTypeDefinitionsWithNullNegative() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/types/finite_type_negative_test.bal");
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'finitetypetest/finite_type_project:0.0.0:Bar', found 'string'", 4, 33);
+                "'finitetypetest/finite_type_project:0.0.0:Bar', found 'string'", 20, 33);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found 'string'", 32, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr'", 34, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found '(int|\"null\")'", 36, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found '\"null\"'", 38, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found '()'", 40, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found '()'", 41, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found 'finitetypetest/finite_type_project:0.0.0:IntOrNull'", 43, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found '(int|null)'", 45, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found 'null'", 47, 42);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

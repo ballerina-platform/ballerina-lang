@@ -74,3 +74,6 @@ public type Y string|int|boolean|2.0;
 public type Z string|int|float|boolean;
 
 public type Bar boolean|null;
+
+public type IntOrNull int|null;
+public type IntOrNullStr int|"null";
