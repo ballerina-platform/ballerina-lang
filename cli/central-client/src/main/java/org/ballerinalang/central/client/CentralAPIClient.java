@@ -164,6 +164,11 @@ public class CentralAPIClient {
                         }
                     }
 
+                    // Unauthorized access token
+                    if (getPackageResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(orgNamePath, body);
+                    }
+
                     // If request sent is wrong or error occurred at remote repository
                     if (getPackageResponse.code() == HTTP_BAD_REQUEST ||
                         getPackageResponse.code() == HTTP_INTERNAL_ERROR ||
@@ -319,20 +324,9 @@ public class CentralAPIClient {
             body = Optional.ofNullable(packagePushResponse.body());
             // Invalid access token to push
             if (packagePushResponse.code() == HTTP_UNAUTHORIZED) {
-                if (body.isPresent()) {
-                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                    if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
-                        Error error = new Gson().fromJson(body.get().string(), Error.class);
-                        throw new CentralClientException("unauthorized access token for organization: '" + org +
-                                                         "'. reason: " + error.getMessage() +
-                                                         ". check access token set in 'Settings.toml' file.");
-                    } else {
-                        throw new CentralClientException("unauthorized access token for organization: '" + org +
-                                                         "'. check access token set in 'Settings.toml' file.");
-                    }
-                }
+                handleUnauthorizedResponse(org, body);
             }
-    
+
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -448,6 +442,11 @@ public class CentralAPIClient {
                             "' from the remote repository '" + url + "'. reason: bala file location is missing.");
                     throw new CentralClientException(errorMsg);
                 }
+            }
+
+            // Unauthorized access token
+            if (packagePullResponse.code() == HTTP_UNAUTHORIZED) {
+                handleUnauthorizedResponse(org, body);
             }
 
             body = Optional.ofNullable(packagePullResponse.body());
@@ -1019,6 +1018,30 @@ public class CentralAPIClient {
                 this.closeClient(client);
             } catch (IOException e) {
                 // ignore
+            }
+        }
+    }
+
+    /**
+     * Handle unauthorized response.
+     *
+     * @param org  org name
+     * @param body response body
+     * @throws IOException            when accessing response body
+     * @throws CentralClientException with unauthorized error message
+     */
+    private void handleUnauthorizedResponse(String org, Optional<ResponseBody> body)
+            throws IOException, CentralClientException {
+        if (body.isPresent()) {
+            Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+            if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                Error error = new Gson().fromJson(body.get().string(), Error.class);
+                throw new CentralClientException("unauthorized access token for organization: '" + org +
+                        "'. reason: " + error.getMessage() +
+                        ". check access token set in 'Settings.toml' file.");
+            } else {
+                throw new CentralClientException("unauthorized access token for organization: '" + org +
+                        "'. check access token set in 'Settings.toml' file.");
             }
         }
     }
