@@ -167,7 +167,7 @@ public class InitCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        errStream.println("Created new Ballerina package '" + guessPkgName(packageName) + "'.");
+        errStream.println("Created new package '" + guessPkgName(packageName) + "'.");
     }
 
     @Override

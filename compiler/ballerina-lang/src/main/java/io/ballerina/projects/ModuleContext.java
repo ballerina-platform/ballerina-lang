@@ -457,28 +457,43 @@ class ModuleContext {
             }
         }
 
+        // Note: The BIR and JAR caching should be atomic and so either both should be created or none.
+        ByteArrayOutputStream birContent;
+
+        // Skip caching BIR and JAR if there are diagnostics
+        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+            return;
+        }
+
         // Serialize the BIR  model
-        cacheBIR(moduleContext, compilerContext);
+        birContent = generateBIR(moduleContext, compilerContext);
 
         // Skip the code generation phase if there are diagnostics
         if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
             return;
         }
-        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
-    }
 
-    private static void cacheBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        // Skip caching BIR if there are diagnostics
-        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+        // Generate and write the thin JAR to the file system
+        compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
+
+        // Skip writing the bir for BuildProject
+        if (birContent == null) {
             return;
         }
 
-        // Skip caching BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
+        // Write the bir to the file system
+        // This code will execute only if JAR caching is successful
+        // TODO: check the filesystem cache and delete if the cache is incomplete (if BIR or JAR is missing)
+        moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+    }
+
+    private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
+        // Skip caching the BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
         if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
                 moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
             CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
             if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
-                return;
+                return null;
             }
         }
 
@@ -494,6 +509,7 @@ class ModuleContext {
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);
             moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
+            return birContent;
         } catch (IOException e) {
             // This path may never be executed
             throw new RuntimeException("Failed to convert BIR model to a byte array", e);

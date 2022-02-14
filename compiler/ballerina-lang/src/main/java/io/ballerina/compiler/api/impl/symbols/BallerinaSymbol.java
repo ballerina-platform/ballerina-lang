@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaKeywordsProvider;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
@@ -50,7 +49,6 @@ public class BallerinaSymbol implements Symbol {
     private final BSymbol internalSymbol;
     private ModuleSymbol module;
     private boolean moduleEvaluated;
-    private String unEscapedName;
 
     protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
         this.name = name;
@@ -75,23 +73,6 @@ public class BallerinaSymbol implements Symbol {
 
     @Override
     public Optional<String> getName() {
-        // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
-        // escaped.
-        if (this.unEscapedName != null) {
-            return Optional.of(this.unEscapedName);
-        }
-        if (getModule().isPresent()) {
-            ModuleID moduleID = getModule().get().id();
-            if (moduleID.moduleName().startsWith("lang.")
-                    && moduleID.orgName().startsWith("ballerina") && this.name.startsWith("'")) {
-                if (!(moduleID.moduleName().equals("lang.string") && this.name.equals("'join"))) {
-                    // Related discussion: https://github.com/ballerina-platform/ballerina-lang/discussions/31830
-                    this.unEscapedName = Utils.unescapeUnicodeCodepoints(this.name.substring(1));
-                    return Optional.ofNullable(this.unEscapedName);
-                }
-            }
-        }
-        this.unEscapedName = this.name;
         return Optional.ofNullable(this.name);
     }
 

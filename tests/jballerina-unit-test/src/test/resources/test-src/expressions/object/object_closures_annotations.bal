@@ -65,8 +65,53 @@ function testObjectConstructorAnnotationAttachment() {
     assertValueEquality("ConstructedObject", obj.state);
 }
 
+type Record record {|
+    int[] x;
+|};
+
+annotation Record A on service;
+annotation B on service;
+annotation C on service;
+
+function fn(int[] arr) returns object {} {
+    return
+    @A {
+        x: arr
+    }
+    @B
+    service object {
+
+    };
+}
+
+function testAnnotsOfServiceObjectConstructorInReturnStmt() {
+    int[] arr = [1, 2, 3];
+
+    object {} ob = fn(arr);
+    typedesc<object {}> td = typeof ob;
+
+    Record? a = td.@A;
+    assertTrue(a !is ());
+    int[] annotArr = (<Record> a).x;
+    assertTrue(annotArr == arr);
+    assertValueEquality(annotArr, [1, 2, 3]);
+    arr.push(4);
+    assertValueEquality(arr, [1, 2, 3, 4]);
+    assertValueEquality(annotArr, [1, 2, 3]);
+
+    true? b = td.@B;
+    assertTrue(b);
+
+    true? c = td.@C;
+    assertTrue(c is ());
+}
+
 type AssertionError distinct error;
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(anydata actual) {
+    assertValueEquality(actual, true);
+}
 
 function assertValueEquality(anydata expected, anydata actual) {
     if expected == actual {

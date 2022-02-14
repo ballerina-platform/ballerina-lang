@@ -86,6 +86,7 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
@@ -256,6 +257,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(CaptureBindingPatternNode captureBindingPatternNode) {
         return captureBindingPatternNode.variableName().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        return wildcardBindingPatternNode.underscoreToken().apply(this);
     }
 
     @Override

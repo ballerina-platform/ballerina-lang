@@ -884,6 +884,14 @@ function testMemberAccessOutOfRangeWithBinaryExpr4() {
     assertEquality("tuple index out of range: index: 2, size: 2", e.detail()["message"]);
 }
 
+type MyMap map<int>?;
+
+public function testMemberAccessInInferTypeCtxWithTypeRef() {
+    MyMap x = {"w": 33};
+    var s = x["w"];
+    assertEquality(33, s);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

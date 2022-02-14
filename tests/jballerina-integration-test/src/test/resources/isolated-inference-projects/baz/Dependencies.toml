@@ -11,19 +11,28 @@ org = "ballerina"
 name = "jballerina.java"
 version = "0.0.0"
 scope = "testOnly"
-transitive = true
 
 [[package]]
 org = "ballerina"
 name = "test"
 version = "0.0.0"
 scope = "testOnly"
-transitive = false
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
 modules = [
 	{org = "ballerina", packageName = "test", moduleName = "test"}
+]
+
+[[package]]
+org = "isolatedorg"
+name = "baz"
+version = "1.0.0"
+dependencies = [
+	{org = "ballerina", name = "test"}
+]
+modules = [
+	{org = "isolatedorg", packageName = "baz", moduleName = "baz"}
 ]
 
 
