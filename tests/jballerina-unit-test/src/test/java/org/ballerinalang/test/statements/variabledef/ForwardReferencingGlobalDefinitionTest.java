@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,8 +53,8 @@ public class ForwardReferencingGlobalDefinitionTest {
         Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
         Assert.assertEquals(diagnostics.length, 0);
 
-        BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
-        String employeeName = ((BMap) employee[0]).get("name").stringValue();
+        Object employee = JvmRunUtil.invoke(resultReOrdered, "getEmployee");
+        String employeeName = ((BMap) employee).get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(employeeName, "Sumedha");
     }
 
@@ -65,7 +65,7 @@ public class ForwardReferencingGlobalDefinitionTest {
         Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
         Assert.assertEquals(diagnostics.length, 0);
 
-        BRunUtil.invoke(resultReOrdered, "testModuleVariables");
+        JvmRunUtil.invoke(resultReOrdered, "testModuleVariables");
     }
 
     @Test(description = "Test global variable reference in function")
@@ -74,12 +74,12 @@ public class ForwardReferencingGlobalDefinitionTest {
         CompileResult resultReOrdered = BCompileUtil.
                 compile("test-src/statements/variabledef/inFunctionGlobalRefProject");
 
-        BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
-        String employeeName = ((BMap) employee[0]).get("name").stringValue();
+        Object employee = JvmRunUtil.invoke(resultReOrdered, "getEmployee");
+        String employeeName = ((BMap) employee).get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(employeeName, "Sumedha");
 
-        BValue[] employee2 = BRunUtil.invoke(resultReOrdered, "getfromFuncA");
-        String employee2Name = ((BMap) employee2[0]).get("name").stringValue();
+        Object employee2 = JvmRunUtil.invoke(resultReOrdered, "getfromFuncA");
+        String employee2Name = ((BMap) employee2).get(StringUtils.fromString("name")).toString();
         Assert.assertEquals(employee2Name, "Sumedha");
     }
 
@@ -88,10 +88,10 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void doNotPerformUnwantedReOrderings() {
         CompileResult resultReOrdered = BCompileUtil.compile("test-src/statements/variabledef/global-var-order.bal");
 
-        BValue[] valI = BRunUtil.invoke(resultReOrdered, "getIJK");
-        Assert.assertEquals(((BInteger) valI[0]).intValue(), 2); // i = 2
-        Assert.assertEquals(((BInteger) valI[1]).intValue(), 1); // j = 1
-        Assert.assertEquals(((BInteger) valI[2]).intValue(), 2); // k = 2
+        BArray valI = (BArray) JvmRunUtil.invoke(resultReOrdered, "getIJK");
+        Assert.assertEquals(valI.get(0), 2L); // i = 2
+        Assert.assertEquals(valI.get(1), 1L); // j = 1
+        Assert.assertEquals(valI.get(2), 2L); // k = 2
     }
 
     @Test(description = "Test global variable reference cycle via function")

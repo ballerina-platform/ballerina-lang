@@ -19,8 +19,8 @@ package org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpatter
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,22 +44,22 @@ public class CaptureBindingPatternTest {
 
     @Test
     public void testCaptureBindingPattern1() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern1");
+        JvmRunUtil.invoke(result, "testCaptureBindingPattern1");
     }
 
     @Test
     public void testCaptureBindingPattern2() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern2");
+        JvmRunUtil.invoke(result, "testCaptureBindingPattern2");
     }
 
     @Test
     public void testCaptureBindingPattern3() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern3");
+        JvmRunUtil.invoke(result, "testCaptureBindingPattern3");
     }
 
     @Test
     public void testCaptureBindingPattern4() {
-        BRunUtil.invoke(result, "testCaptureBindingPattern4");
+        JvmRunUtil.invoke(result, "testCaptureBindingPattern4");
     }
 
     @Test
