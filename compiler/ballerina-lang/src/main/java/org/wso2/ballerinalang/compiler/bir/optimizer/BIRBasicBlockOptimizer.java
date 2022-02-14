@@ -41,7 +41,6 @@ import java.util.Set;
 public class BIRBasicBlockOptimizer extends BIRVisitor {
 
     private BIROptimizer.OptimizerEnv env;
-    private final Set<BIRBasicBlock> predecessors = new HashSet<>();
     private final Map<BIRBasicBlock, List<BIRBasicBlock>> predecessorMap = new HashMap<>();
 
     private int currentBBId = -1;
@@ -87,13 +86,10 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
         // Re-arrange basic blocks
         birFunction.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(this::rearrangeBasicBlocks));
         birFunction.basicBlocks.forEach(this::rearrangeBasicBlocks);
-
         // Re-arrange error entries
         birFunction.errorTable.sort(Comparator.comparingInt(o ->
                 Integer.parseInt(o.trapBB.id.value.replace(BIR_BASIC_BLOCK_PREFIX, ""))));
-
         currentBBId = -1;
-        this.predecessors.clear();
     }
 
     // Basic block vs it's predecessors map
@@ -153,20 +149,16 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
     }
 
     private BIRBasicBlock getLocalVarEndBB(BIRNode.BIRFunction birFunc, Set<BIRBasicBlock> removableBBs, int index) {
-        BIRBasicBlock endBB;
         index++;
-        if (removableBBs.contains(birFunc.basicBlocks.get(index))) {
-            endBB = getLocalVarEndBB(birFunc, removableBBs, index);
-        } else {
-            endBB = birFunc.basicBlocks.get(index);
+        if (!removableBBs.contains(birFunc.basicBlocks.get(index))) {
+            return birFunc.basicBlocks.get(index);
         }
-        return endBB;
+        return getLocalVarEndBB(birFunc, removableBBs, index);
     }
 
     @Override
     public void visit(BIRBasicBlock basicBlock) {
-        this.predecessors.addAll(this.predecessorMap.get(basicBlock));
-        this.predecessors.forEach(bb -> this.optimizeTerm(bb.terminator, this.env));
+        this.predecessorMap.get(basicBlock).forEach(bb -> this.optimizeTerm(bb.terminator, this.env));
     }
 
     @Override
