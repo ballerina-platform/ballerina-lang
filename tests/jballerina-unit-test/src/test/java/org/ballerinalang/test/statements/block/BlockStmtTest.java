@@ -16,12 +16,10 @@
  */
 package org.ballerinalang.test.statements.block;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,35 +47,35 @@ public class BlockStmtTest {
 
     @Test
     public void testVariableShadowingBasic() {
-        BValue[] returns = BRunUtil.invoke(result, "test1");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
+        Object returns = JvmRunUtil.invoke(result, "test1");
+        Assert.assertEquals(returns, 9L);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope1() {
-        BValue[] returns = BRunUtil.invoke(result, "test2");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Object returns = JvmRunUtil.invoke(result, "test2");
+        Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope2() {
-        BValue[] returns = BRunUtil.invoke(result, "test3");
-        Assert.assertEquals(returns[0].stringValue(), "K25");
+        Object returns = JvmRunUtil.invoke(result, "test3");
+        Assert.assertEquals(returns.toString(), "K25");
     }
 
     @Test
     public void testScopeOfBlock() {
-        BRunUtil.invoke(result, "testScopeOfBlock");
+        JvmRunUtil.invoke(result, "testScopeOfBlock");
     }
 
     @Test
     public void testStmtInBlock() {
-        BRunUtil.invoke(result, "testStmtInBlock");
+        JvmRunUtil.invoke(result, "testStmtInBlock");
     }
 
     @Test
     public void testReturnStmtLocationInBlock() {
-        BRunUtil.invoke(result, "testReturnStmtLocationInBlock");
+        JvmRunUtil.invoke(result, "testReturnStmtLocationInBlock");
     }
 
     @Test(description = "Test block statement with errors")

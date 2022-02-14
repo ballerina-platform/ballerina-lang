@@ -18,8 +18,8 @@ package org.ballerinalang.test.statements.matchstmt;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,208 +50,208 @@ public class MatchStmtListMatchPatternTest {
 
     @Test
     public void testListMatchPattern1() {
-        BRunUtil.invoke(result, "testListMatchPattern1");
+        JvmRunUtil.invoke(result, "testListMatchPattern1");
     }
 
     @Test
     public void testListMatchPattern2() {
-        BRunUtil.invoke(result, "testListMatchPattern2");
+        JvmRunUtil.invoke(result, "testListMatchPattern2");
     }
 
     @Test
     public void testListMatchPattern3() {
-        BRunUtil.invoke(result, "testListMatchPattern3");
+        JvmRunUtil.invoke(result, "testListMatchPattern3");
     }
 
     @Test
     public void testListMatchPattern4() {
-        BRunUtil.invoke(result, "testListMatchPattern4");
+        JvmRunUtil.invoke(result, "testListMatchPattern4");
     }
 
     @Test
     public void testListMatchPattern5() {
-        BRunUtil.invoke(result, "testListMatchPattern5");
+        JvmRunUtil.invoke(result, "testListMatchPattern5");
     }
 
     @Test
     public void testListMatchPattern6() {
-        BRunUtil.invoke(result, "testListMatchPattern6");
+        JvmRunUtil.invoke(result, "testListMatchPattern6");
     }
 
     @Test
     public void testListMatchPattern7() {
-        BRunUtil.invoke(result, "testListMatchPattern7");
+        JvmRunUtil.invoke(result, "testListMatchPattern7");
     }
 
     @Test
     public void testListMatchPattern8() {
-        BRunUtil.invoke(result, "testListMatchPattern8");
+        JvmRunUtil.invoke(result, "testListMatchPattern8");
     }
 
     @Test
     public void testListMatchPattern9() {
-        BRunUtil.invoke(result, "testListMatchPattern9");
+        JvmRunUtil.invoke(result, "testListMatchPattern9");
     }
 
     @Test
     public void testListMatchPattern10() {
-        BRunUtil.invoke(result, "testListMatchPattern10");
+        JvmRunUtil.invoke(result, "testListMatchPattern10");
     }
 
     @Test
     public void testListMatchPattern11() {
-        BRunUtil.invoke(result, "testListMatchPattern11");
+        JvmRunUtil.invoke(result, "testListMatchPattern11");
     }
 
     @Test
     public void testListMatchPattern12() {
-        BRunUtil.invoke(result, "testListMatchPattern12");
+        JvmRunUtil.invoke(result, "testListMatchPattern12");
     }
 
     @Test
     public void testListMatchPattern13() {
-        BRunUtil.invoke(result, "testListMatchPattern13");
+        JvmRunUtil.invoke(result, "testListMatchPattern13");
     }
 
     @Test
     public void testListMatchPattern14() {
-        BRunUtil.invoke(result, "testListMatchPattern14");
+        JvmRunUtil.invoke(result, "testListMatchPattern14");
     }
 
     @Test
     public void testListMatchPattern15() {
-        BRunUtil.invoke(result, "testListMatchPattern15");
+        JvmRunUtil.invoke(result, "testListMatchPattern15");
     }
 
     @Test
     public void testListMatchPattern16() {
-        BRunUtil.invoke(result, "testListMatchPattern16");
+        JvmRunUtil.invoke(result, "testListMatchPattern16");
     }
 
     @Test
     public void testListMatchPattern17() {
-        BRunUtil.invoke(result, "testListMatchPattern17");
+        JvmRunUtil.invoke(result, "testListMatchPattern17");
     }
 
     @Test
     public void testListMatchPattern18() {
-        BRunUtil.invoke(result, "testListMatchPattern18");
+        JvmRunUtil.invoke(result, "testListMatchPattern18");
     }
 
     @Test
     public void testListMatchPattern19() {
-        BRunUtil.invoke(result, "testListMatchPattern19");
+        JvmRunUtil.invoke(result, "testListMatchPattern19");
     }
 
     @Test
     public void testListMatchPattern20() {
-        BRunUtil.invoke(result, "testListMatchPattern20");
+        JvmRunUtil.invoke(result, "testListMatchPattern20");
     }
 
     @Test
     public void testListMatchPattern21() {
-        BRunUtil.invoke(result, "testListMatchPattern21");
+        JvmRunUtil.invoke(result, "testListMatchPattern21");
     }
 
     @Test
     public void testListMatchPattern22() {
-        BRunUtil.invoke(result, "testListMatchPattern22");
+        JvmRunUtil.invoke(result, "testListMatchPattern22");
     }
 
     @Test
     public void testListMatchPattern23() {
-        BRunUtil.invoke(result, "testListMatchPattern23");
+        JvmRunUtil.invoke(result, "testListMatchPattern23");
     }
 
     @Test
     public void testListMatchPattern24() {
-        BRunUtil.invoke(result, "testListMatchPattern24");
+        JvmRunUtil.invoke(result, "testListMatchPattern24");
     }
 
     @Test
     public void testListMatchPattern25() {
-        BRunUtil.invoke(result, "testListMatchPattern25");
+        JvmRunUtil.invoke(result, "testListMatchPattern25");
     }
 
     @Test
     public void testListMatchPattern26() {
-        BRunUtil.invoke(result, "testListMatchPattern26");
+        JvmRunUtil.invoke(result, "testListMatchPattern26");
     }
 
     @Test
     public void testListMatchPattern27() {
-        BRunUtil.invoke(result, "testListMatchPattern27");
+        JvmRunUtil.invoke(result, "testListMatchPattern27");
     }
 
     @Test
     public void testListMatchPatternWithWildCard() {
-        BRunUtil.invoke(result, "testListMatchPatternWithWildCard");
+        JvmRunUtil.invoke(result, "testListMatchPatternWithWildCard");
     }
 
     @Test
     public void testListMatchPatternWithArrayAndAnydataIntersection() {
-        BRunUtil.invoke(result, "testListMatchPatternWithArrayAndAnydataIntersection");
+        JvmRunUtil.invoke(result, "testListMatchPatternWithArrayAndAnydataIntersection");
     }
 
     @Test
     public void testListMatchPattern29() {
-        BRunUtil.invoke(result, "testListMatchPattern29");
+        JvmRunUtil.invoke(result, "testListMatchPattern29");
     }
 
     @Test
     public void testListMatchPattern30() {
-        BRunUtil.invoke(result, "testListMatchPattern30");
+        JvmRunUtil.invoke(result, "testListMatchPattern30");
     }
 
     @Test
     public void testListMatchPattern31() {
-        BRunUtil.invoke(result, "testListMatchPattern31");
+        JvmRunUtil.invoke(result, "testListMatchPattern31");
     }
 
     @Test
     public void testRestMatchPattern1() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
 
     @Test
     public void testRestMatchPattern2() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest2");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest2");
     }
 
     @Test
     public void testRestMatchPattern3() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest3");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest3");
     }
 
     @Test
     public void testRestMatchPattern4() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest4");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest4");
     }
 
     @Test
     public void testRestMatchPattern5() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest5");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest5");
     }
 
     @Test
     public void testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection");
     }
 
     @Test
     public void testListMatchPatternWithClosedArray() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithClosedArray");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithClosedArray");
     }
 
     @Test
     public void testListMatchPatternWithRestPattern11() {
-        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPattern11");
+        JvmRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPattern11");
     }
 
     @Test(dataProvider = "dataToTestListMatchPatternWithRestPattern", description = "Test list match pattern with " +
             "rest match pattern")
     public void testListMatchPatternWithRestPattern(String functionName) {
-        BRunUtil.invoke(restMatchPatternResult, functionName);
+        JvmRunUtil.invoke(restMatchPatternResult, functionName);
     }
 
     @DataProvider

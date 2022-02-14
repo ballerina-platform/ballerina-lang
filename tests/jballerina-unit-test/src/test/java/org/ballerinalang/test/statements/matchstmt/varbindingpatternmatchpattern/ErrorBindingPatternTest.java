@@ -17,8 +17,8 @@ package org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpatter
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -62,67 +62,67 @@ public class ErrorBindingPatternTest {
 
     @Test
     public void testErrorBindingPattern1() {
-        BRunUtil.invoke(result, "testErrorBindingPattern1");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern1");
     }
 
     @Test
     public void testErrorBindingPattern2() {
-        BRunUtil.invoke(result, "testErrorBindingPattern2");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern2");
     }
 
     @Test
     public void testErrorBindingPattern3() {
-        BRunUtil.invoke(result, "testErrorBindingPattern3");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern3");
     }
 
     @Test
     public void testErrorBindingPattern4() {
-        BRunUtil.invoke(result, "testErrorBindingPattern4");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern4");
     }
 
     @Test
     public void testErrorBindingPattern5() {
-        BRunUtil.invoke(result, "testErrorBindingPattern5");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern5");
     }
 
     @Test
     public void testErrorBindingPattern6() {
-        BRunUtil.invoke(result, "testErrorBindingPattern6");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern6");
     }
 
     @Test
     public void testErrorBindingPattern7() {
-        BRunUtil.invoke(result, "testErrorBindingPattern7");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern7");
     }
 
     @Test
     public void testErrorBindingPattern8() {
-        BRunUtil.invoke(result, "testErrorBindingPattern8");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern8");
     }
 
     @Test
     public void testErrorBindingPattern9() {
-        BRunUtil.invoke(result, "testErrorBindingPattern9");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern9");
     }
 
     @Test
     public void testErrorBindingPattern10() {
-        BRunUtil.invoke(result, "testErrorBindingPattern10");
+        JvmRunUtil.invoke(result, "testErrorBindingPattern10");
     }
 
     @Test
     public void testErrorBindingPatternWithRestBindingPattern1() {
-        BRunUtil.invoke(restPatternResult, "testErrorBindingPattern1");
+        JvmRunUtil.invoke(restPatternResult, "testErrorBindingPattern1");
     }
 
     @Test
     public void testErrorBindingPatternWithRestBindingPattern2() {
-        BRunUtil.invoke(restPatternResult, "testErrorBindingPattern2");
+        JvmRunUtil.invoke(restPatternResult, "testErrorBindingPattern2");
     }
 
     @Test
     public void testErrorBindingPatternWithRestBindingPattern3() {
-        BRunUtil.invoke(restPatternResult, "testErrorBindingPattern3");
+        JvmRunUtil.invoke(restPatternResult, "testErrorBindingPattern3");
     }
 
     @Test

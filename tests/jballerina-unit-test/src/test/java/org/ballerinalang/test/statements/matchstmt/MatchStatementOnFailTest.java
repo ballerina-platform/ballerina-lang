@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,11 +44,11 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Test basics of static pattern match statement with fail statement")
     public void testStaticMatchPatternsWithFailStmt() {
-        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = JvmRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Value is ";
@@ -65,11 +64,11 @@ public class MatchStatementOnFailTest {
     @Test(description = "Test basics of static pattern match statement with check expression")
     public void testStaticMatchPatternsWithCheckExpr() {
 
-        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = JvmRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr", new Object[]{});
+        
+        Assert.assertTrue(returns instanceof BArray);
 
-        BValueArray results = (BValueArray) returns[0];
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Value is ";
@@ -85,11 +84,11 @@ public class MatchStatementOnFailTest {
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithFail() {
 
-        BValue[] returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithFail", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = JvmRunUtil.invoke(result, "testNestedMatchPatternsWithFail", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Value is ";
@@ -104,11 +103,11 @@ public class MatchStatementOnFailTest {
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithCheck() {
 
-        BValue[] returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithCheck", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Object returns = JvmRunUtil.invoke(result, "testNestedMatchPatternsWithCheck", new Object[]{});
 
-        BValueArray results = (BValueArray) returns[0];
+        Assert.assertTrue(returns instanceof BArray);
+
+        BArray results = (BArray) returns;
 
         int i = -1;
         String msg = "Value is ";
@@ -122,7 +121,7 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Test using var defined in match clause within on-fail")
     public void testVarInMatchPatternWithinOnfail() {
-        BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new BValue[]{});
+        JvmRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
     }
 
     @Test(description = "Check not incompatible types and reachable statements.")

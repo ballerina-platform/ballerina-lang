@@ -18,8 +18,8 @@ package org.ballerinalang.test.statements.matchstmt;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,97 +45,97 @@ public class MatchStmtErrorMatchPatternTest {
 
     @Test
     public void testErrorMatchPattern1() {
-        BRunUtil.invoke(result, "testErrorMatchPattern1");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern1");
     }
 
     @Test
     public void testErrorMatchPattern2() {
-        BRunUtil.invoke(result, "testErrorMatchPattern2");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern2");
     }
 
     @Test
     public void testErrorMatchPattern3() {
-        BRunUtil.invoke(result, "testErrorMatchPattern3");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern3");
     }
 
     @Test
     public void testErrorMatchPattern4() {
-        BRunUtil.invoke(result, "testErrorMatchPattern4");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern4");
     }
 
     @Test
     public void testErrorMatchPattern5() {
-        BRunUtil.invoke(result, "testErrorMatchPattern5");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern5");
     }
 
     @Test
     public void testErrorMatchPattern6() {
-        BRunUtil.invoke(result, "testErrorMatchPattern6");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern6");
     }
 
     @Test
     public void testErrorMatchPattern7() {
-        BRunUtil.invoke(result, "testErrorMatchPattern7");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern7");
     }
 
     @Test
     public void testErrorMatchPattern8() {
-        BRunUtil.invoke(result, "testErrorMatchPattern8");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern8");
     }
 
     @Test
     public void testErrorMatchPattern9() {
-        BRunUtil.invoke(result, "testErrorMatchPattern9");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern9");
     }
 
     @Test
     public void testErrorMatchPatter10() {
-        BRunUtil.invoke(result, "testErrorMatchPattern10");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern10");
     }
 
     @Test
     public void testErrorMatchPatter11() {
-        BRunUtil.invoke(result, "testErrorMatchPattern11");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern11");
     }
 
     @Test
     public void testErrorMatchPatter12() {
-        BRunUtil.invoke(result, "testErrorMatchPattern12");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern12");
     }
 
     @Test
     public void testErrorMatchPatter13() {
-        BRunUtil.invoke(result, "testErrorMatchPattern13");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern13");
     }
 
     @Test
     public void testErrorMatchPatter14() {
-        BRunUtil.invoke(result, "testErrorMatchPattern14");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern14");
     }
 
     @Test
     public void testErrorMatchPattern15() {
-        BRunUtil.invoke(result, "testErrorMatchPattern15");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern15");
     }
 
     @Test
     public void testErrorMatchPattern16() {
-        BRunUtil.invoke(result, "testErrorMatchPattern16");
+        JvmRunUtil.invoke(result, "testErrorMatchPattern16");
     }
 
     @Test
     public void testErrorMatchPatternWithRestPattern1() {
-        BRunUtil.invoke(restPatternResult, "testErrorMatchPattern1");
+        JvmRunUtil.invoke(restPatternResult, "testErrorMatchPattern1");
     }
 
     @Test
     public void testErrorMatchPatternWithRestPattern2() {
-        BRunUtil.invoke(restPatternResult, "testErrorMatchPattern2");
+        JvmRunUtil.invoke(restPatternResult, "testErrorMatchPattern2");
     }
 
     @Test
     public void testErrorMatchPatternWithRestPattern3() {
-        BRunUtil.invoke(restPatternResult, "testErrorMatchPattern3");
+        JvmRunUtil.invoke(restPatternResult, "testErrorMatchPattern3");
     }
 
     @Test

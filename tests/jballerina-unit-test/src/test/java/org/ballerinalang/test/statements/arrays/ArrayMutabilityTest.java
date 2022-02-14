@@ -18,14 +18,12 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,9 +45,9 @@ public class ArrayMutabilityTest {
 
     @Test
     public void testValidArrayAssignment() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testValidArrayAssignment");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue(), "Expected value of true but found false");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 100, "Expected value of 100");
+        BArray returnValues = (BArray) JvmRunUtil.invoke(compileResult, "testValidArrayAssignment");
+        Assert.assertTrue((Boolean) returnValues.get(0), "Expected value of true but found false");
+        Assert.assertEquals(returnValues.get(1), 100L, "Expected value of 100");
     }
 
     @Test(description = "Check if correct type is saved in covariant array with record type",
@@ -57,7 +55,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: 'Employee' cannot be cast to 'Intern'.*")
     public void testInvalidCast() {
-        BRunUtil.invoke(compileResult, "testInvalidCast");
+        JvmRunUtil.invoke(compileResult, "testInvalidCast");
     }
 
     @Test(description = "Test mutation of record type using covariant array",
@@ -66,7 +64,7 @@ public class ArrayMutabilityTest {
                     ".*error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                             "\\{\"message\":\"incompatible types: expected 'Employee', found 'Person'.*")
     public void testAssignmentOfSuperTypeMember() {
-        BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
+        JvmRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
 
     @Test(description = "Test mutation of record type by assigning invalid record type",
@@ -74,7 +72,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'Employee', found 'Student'.*")
     public void testInvalidAssignment() {
-        BRunUtil.invoke(compileResult, "testInvalidAssignment");
+        JvmRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
 
     @Test(description = "Test mutation of int array by inserting nil value to int? covariant array",
@@ -82,7 +80,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'int', found '\\(\\)'.*")
     public void testCovarianceIntOrNilArray() {
-        BRunUtil.invoke(compileResult, "testCovarianceIntOrNilArray");
+        JvmRunUtil.invoke(compileResult, "testCovarianceIntOrNilArray");
     }
 
     @Test(description = "Test mutation of arrays which include structural and simple values",
@@ -92,7 +90,7 @@ public class ArrayMutabilityTest {
                             "\\{\"message\":\"incompatible types: expected " +
                             "'\\(boolean\\|float\\)\\?', found 'Person'.*?")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
-        BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
+        JvmRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }
 
     @Test(description = "Test mutation of sealed arrays",
@@ -100,7 +98,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrays() {
-        BRunUtil.invoke(compileResult, "testSealedArrays");
+        JvmRunUtil.invoke(compileResult, "testSealedArrays");
     }
 
     @Test(description = "Test mutation of multidimensional sealed arrays",
@@ -108,7 +106,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testMultiDimensionalSealedArrays() {
-        BRunUtil.invoke(compileResult, "testMultiDimensionalSealedArrays");
+        JvmRunUtil.invoke(compileResult, "testMultiDimensionalSealedArrays");
     }
 
     @Test(description = "Test mutation of openly sealed arrays",
@@ -116,7 +114,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*array index out of range: index: 4, size: 4.*")
     public void testOpenSealedArrays() {
-        BRunUtil.invoke(compileResult, "testOpenSealedArrays");
+        JvmRunUtil.invoke(compileResult, "testOpenSealedArrays");
     }
 
     @Test(description = "Test mutation of object type",
@@ -124,13 +122,13 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'Dog', found 'Animal'.*")
     public void testObjectTypes() {
-        BRunUtil.invoke(compileResult, "testObjectTypes");
+        JvmRunUtil.invoke(compileResult, "testObjectTypes");
     }
 
     @Test
     public void testUnionOfArrays() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testUnionOfArrays");
-        Assert.assertEquals((returnValues[0]).stringValue(), "BOOL");
+        Object returnValues = JvmRunUtil.invoke(compileResult, "testUnionOfArrays");
+        Assert.assertEquals((returnValues).toString(), "BOOL");
     }
 
     @Test(description = "Test mutation of boolean array assigned to a union",
@@ -138,7 +136,7 @@ public class ArrayMutabilityTest {
             expectedExceptionsMessageRegExp =
                     ".*error:.*incompatible types: expected 'boolean', found 'int'.*")
     public void testUnionOfArrays2() {
-        BRunUtil.invoke(compileResult, "testUnionOfArrays2");
+        JvmRunUtil.invoke(compileResult, "testUnionOfArrays2");
     }
 
     @Test(description = "Test mutation of int array assigned to a json array",
@@ -148,7 +146,7 @@ public class ArrayMutabilityTest {
                             "\\{\"message\":\"incompatible types: expected 'int', " +
                             "found 'string'.*")
     public void testJsonArrayMutability() {
-        BRunUtil.invoke(compileResult, "testJsonArrayMutability");
+        JvmRunUtil.invoke(compileResult, "testJsonArrayMutability");
     }
 
     @Test(description = "Test mutation of boolean array assigned to a json array",
@@ -158,7 +156,7 @@ public class ArrayMutabilityTest {
                             "\\{\"message\":\"incompatible types: expected " +
                             "'boolean', found 'string'.*")
     public void testJsonArrayMutability2() {
-        BRunUtil.invoke(compileResult, "testJsonArrayMutability2");
+        JvmRunUtil.invoke(compileResult, "testJsonArrayMutability2");
     }
 
     @Test(description = "Test mutation of arrays through chained assignments",
@@ -168,7 +166,7 @@ public class ArrayMutabilityTest {
                             "\\{\"message\":\"incompatible types: expected " +
                             "\\'\\(int\\|string\\)\\?\\', found \\'boolean\\'.*")
     public void testChainingAssignment() {
-        BRunUtil.invoke(compileResult, "testChainingAssignment");
+        JvmRunUtil.invoke(compileResult, "testChainingAssignment");
     }
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
