@@ -20,8 +20,8 @@ package org.ballerinalang.test.statements.onfail;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class OnFailClauseTest {
 
     @Test(description = "Test on-fail clause edge cases")
     public void testOnFailClause() {
-        BRunUtil.invoke(result, "testOnFailEdgeTestcases");
+        JvmRunUtil.invoke(result, "testOnFailEdgeTestcases");
     }
 
     @Test(description = "Test on-fail clause negative cases - v1")

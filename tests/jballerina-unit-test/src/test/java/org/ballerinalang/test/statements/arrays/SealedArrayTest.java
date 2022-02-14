@@ -18,15 +18,15 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,145 +50,139 @@ public class SealedArrayTest {
 
     @Test
     public void testCreateIntegerSealedArray() {
-        BRunUtil.invoke(compileResult, "createIntSealedArray");
-        BRunUtil.invoke(compileResult, "createIntAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createIntSealedArrayWithLabel");
-        BRunUtil.invoke(compileResult, "createIntDefaultSealedArray");
-        BRunUtil.invoke(compileResult, "createSealedArraysOfIntSubtypes");
+        JvmRunUtil.invoke(compileResult, "createIntSealedArray");
+        JvmRunUtil.invoke(compileResult, "createIntAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createIntSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createIntDefaultSealedArray");
+        JvmRunUtil.invoke(compileResult, "createSealedArraysOfIntSubtypes");
     }
 
     @Test
     public void testCreateBooleanSealedArray() {
-        BRunUtil.invoke(compileResult, "createBoolSealedArray");
-        BRunUtil.invoke(compileResult, "createBoolAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createBoolSealedArrayWithLabel");
-        BRunUtil.invoke(compileResult, "createBoolDefaultSealedArray");
+        JvmRunUtil.invoke(compileResult, "createBoolSealedArray");
+        JvmRunUtil.invoke(compileResult, "createBoolAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createBoolSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createBoolDefaultSealedArray");
     }
 
     @Test
     public void testCreateFloatSealedArray() {
-        BRunUtil.invoke(compileResult, "createFloatSealedArray");
-        BRunUtil.invoke(compileResult, "createFloatAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createFloatSealedArrayWithLabel");
-        BRunUtil.invoke(compileResult, "createFloatDefaultSealedArray");
+        JvmRunUtil.invoke(compileResult, "createFloatSealedArray");
+        JvmRunUtil.invoke(compileResult, "createFloatAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createFloatSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createFloatDefaultSealedArray");
     }
 
     @Test
     public void testCreateStringSealedArray() {
-        BRunUtil.invoke(compileResult, "createStringSealedArray");
-        BRunUtil.invoke(compileResult, "createStringAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createStringSealedArrayWithLabel");
-        BRunUtil.invoke(compileResult, "createStringDefaultSealedArray");
+        JvmRunUtil.invoke(compileResult, "createStringSealedArray");
+        JvmRunUtil.invoke(compileResult, "createStringAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createStringSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createStringDefaultSealedArray");
     }
 
     @Test
     public void testCreateJSONSealedArray() {
-        BRunUtil.invoke(compileResult, "createJSONSealedArray");
-        BRunUtil.invoke(compileResult, "createJSONSealedArrayWithLabel");
-        BRunUtil.invoke(compileResult, "createJSONDefaultSealedArray");
-        BRunUtil.invoke(compileResult, "createJSONAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createJSONSealedArray");
+        JvmRunUtil.invoke(compileResult, "createJSONSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createJSONDefaultSealedArray");
+        JvmRunUtil.invoke(compileResult, "createJSONAutoFilledSealedArray");
     }
 
     @Test
     public void testCreateAnySealedArray() {
-        BRunUtil.invoke(compileResult, "createAnySealedArray");
-        BRunUtil.invoke(compileResult, "createAnyAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createAnySealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createAnySealedArray");
+        JvmRunUtil.invoke(compileResult, "createAnyAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createAnySealedArrayWithLabel");
     }
 
     @Test
     public void testCreateRecordSealedArray() {
-        BRunUtil.invoke(compileResult, "createRecordSealedArray");
-        BRunUtil.invoke(compileResult, "createRecordAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createRecordSealedArrayWithLabel");
-        BRunUtil.invoke(compileResult, "createRecordSealedArrayAutoFill");
+        JvmRunUtil.invoke(compileResult, "createRecordSealedArray");
+        JvmRunUtil.invoke(compileResult, "createRecordAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createRecordSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createRecordSealedArrayAutoFill");
     }
 
     @Test
     public void testCreateByteSealedArray() {
-        BRunUtil.invoke(compileResult, "createByteSealedArray");
-        BRunUtil.invoke(compileResult, "createByteAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createByteSealedArrayWithLabel");
-        BRunUtil.invoke(compileResult, "createByteDefaultSealedArray");
+        JvmRunUtil.invoke(compileResult, "createByteSealedArray");
+        JvmRunUtil.invoke(compileResult, "createByteAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createByteSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createByteDefaultSealedArray");
     }
 
     @Test
     public void testCreateTupleSealedArray() {
-        BRunUtil.invoke(compileResult, "createTupleSealedArray");
-        BRunUtil.invoke(compileResult, "createTupleAutoFilledSealedArray");
-        BRunUtil.invoke(compileResult, "createTupleSealedArrayWithLabel");
+        JvmRunUtil.invoke(compileResult, "createTupleSealedArray");
+        JvmRunUtil.invoke(compileResult, "createTupleAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createTupleSealedArrayWithLabel");
     }
 
     @Test
     public void testFunctionParametersAndReturnValues() {
-        BRunUtil.invoke(compileResult, "functionParametersAndReturns");
-        BRunUtil.invoke(compileResult, "functionParametersAndReturnsAutoFilling");
+        JvmRunUtil.invoke(compileResult, "functionParametersAndReturns");
+        JvmRunUtil.invoke(compileResult, "functionParametersAndReturnsAutoFilling");
     }
 
     @Test
     public void testUnionAndMatchSealedArrayStatement() {
-        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args = {bFloatArray};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
-                "matched sealed float array size 4", "Couldn't match sealed array type");
+        Object[] args = {bFloatArray};
+        Object returnValues = JvmRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(), "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat, 5);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 5);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
         bFloatArray.add(0, 45.5);
-        BValue[] args2 = {bFloatArray};
-        returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args2);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Object[] args2 = {bFloatArray};
+        returnValues = JvmRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args2);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args3 = {bFloatArray};
-        returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args3);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Object[] args3 = {bFloatArray};
+        returnValues = JvmRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args3);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match unsealed array type");
     }
 
     @Test
     public void testUnionAndMatchNoSealedArrayStatement() {
-        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args = {bFloatArray};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Object[] args = {bFloatArray};
+        Object returnValues = JvmRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args2 = {bFloatArray};
-        returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args2);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Object[] args2 = {bFloatArray};
+        returnValues = JvmRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args2);
+        Assert.assertFalse(returnValues == null , "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match unsealed array type");
     }
 
@@ -299,54 +293,54 @@ public class SealedArrayTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void invalidIndexAccess() {
-        BValue[] args = {new BInteger(5)};
-        BRunUtil.invoke(compileResult, "invalidIndexAccess", args);
+        Object[] args = {5};
+        JvmRunUtil.invoke(compileResult, "invalidIndexAccess", args);
     }
 
     @Test(description = "Test accessing invalid index of sealed array when assigned to unsealed array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 4, size: 3.*")
     public void assignedArrayInvalidIndexAccess() {
-        BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
+        JvmRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
     }
 
     @Test(description = "Test accessing invalid index of sealed auto filled array when assigned to unsealed array",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 4, size: 3.*")
     public void assignedAutoFilledArrayInvalidIndexAccess() {
-        BRunUtil.invoke(compileResult, "assignedAutoFilledArrayInvalidIndexAccess");
+        JvmRunUtil.invoke(compileResult, "assignedAutoFilledArrayInvalidIndexAccess");
     }
 
     @Test(description = "Union array fill with an union which has default fill value as a member value.")
     public void createUnionAutoFillArray() {
-        BRunUtil.invoke(compileResult, "createUnionAutoFillArray");
+        JvmRunUtil.invoke(compileResult, "createUnionAutoFillArray");
     }
 
     @Test(description = "Float Union array fill with an union which has default fill value as a member value.")
     public void createUnionFloatAutoFillArray() {
-        BRunUtil.invoke(compileResult, "createUnionFloatAutoFillArray");
+        JvmRunUtil.invoke(compileResult, "createUnionFloatAutoFillArray");
     }
 
     @Test(description = "Test union array fill with list-expr with an union with nil")
     public void createNullableUnionAutoFillArray() {
-        BRunUtil.invoke(compileResult, "createNullableUnionAutoFillArray");
+        JvmRunUtil.invoke(compileResult, "createNullableUnionAutoFillArray");
     }
 
     @Test(description = "Test non homogeneous union array fill with list-expr with an union with nil")
     public void createNullableNonHomogeneousUnionAutoFillArray() {
-        BRunUtil.invoke(compileResult, "createNullableNonHomogeneousUnionAutoFillArray");
+        JvmRunUtil.invoke(compileResult, "createNullableNonHomogeneousUnionAutoFillArray");
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
-        BValue[] args = {bIntArray, new BInteger(5)};
-        BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
+        Object[] args = {bIntArray, (5)};
+        JvmRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
@@ -355,72 +349,72 @@ public class SealedArrayTest {
                     "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                             "\\{\"message\":\"array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
-        BInteger bInteger = new BInteger(1);
-        BInteger bInteger2 = new BInteger(4);
-        BValue[] args = {bInteger};
-        BValue[] args2 = {bInteger2};
-        BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args);
-        BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args2);
+        long bInteger = (1);
+        long bInteger2 = (4);
+        Object[] args = {bInteger};
+        Object[] args2 = {bInteger2};
+        JvmRunUtil.invoke(compileResult, "invalidIndexJSONArray", args);
+        JvmRunUtil.invoke(compileResult, "invalidIndexJSONArray", args2);
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*\\{\"message\":\"array index out of range: index: 3, size: 3.*")
     public void invalidIndexReferenceJSONArray() {
-        BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
+        JvmRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
     }
 
     @Test
     public void accessValidIndexOfMatchedUnsealedArray() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
-        BValue[] args = {bIntArray, new BInteger(5)};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 10, "Invalid match for sealed array");
+        Object[] args = {bIntArray, (5)};
+        Object returnValues = JvmRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
+        Assert.assertEquals(returnValues, 10L, "Invalid match for sealed array");
     }
 
     @Test
     public void testSealedArrayConstrainedMap() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BValueArray bIntArray2 = new BValueArray(BTypes.typeInt);
+        BArray bIntArray2 = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         bIntArray2.add(0, 1);
         bIntArray2.add(1, 3);
         bIntArray2.add(2, 5);
-        BValue[] args = {bIntArray, bIntArray2};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMap", args);
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Invalid match for sealed array");
+        Object[] args = {bIntArray, bIntArray2};
+        Object returnValues = JvmRunUtil.invoke(compileResult, "testSealedArrayConstrainedMap", args);
+        Assert.assertEquals(returnValues, 5L, "Invalid match for sealed array");
     }
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BValue[] args = {bIntArray, new BInteger(3)};
-        BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
+        Object[] args = {bIntArray, (3)};
+        JvmRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
     }
 
     @Test(groups = { "disableOnOldParser" })
     public void testArrayWithConstantSizeReferenceFill() {
-        BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill");
+        JvmRunUtil.invoke(compileResult, "testArrayWithConstantSizeReferenceFill");
     }
 
     @Test
     public void testCreateXMLSealedArray() {
-        BRunUtil.invoke(compileResult, "createXMLAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createXMLAutoFilledSealedArray");
     }
 
     @Test
     public void createConstLiteralAutoFilledSealedArray() {
-        BRunUtil.invoke(compileResult, "createConstLiteralAutoFilledSealedArray");
+        JvmRunUtil.invoke(compileResult, "createConstLiteralAutoFilledSealedArray");
     }
 
     @AfterClass

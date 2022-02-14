@@ -19,8 +19,8 @@ package org.ballerinalang.test.statements.dostatement;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class DoStmtsTest {
 
     @Test
     public void testOnFailStatement() {
-        BRunUtil.invoke(programFile, "testOnFailStatement");
+        JvmRunUtil.invoke(programFile, "testOnFailStatement");
     }
 
     @Test(description = "Check not incompatible types and reachable statements.")

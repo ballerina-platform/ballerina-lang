@@ -20,6 +20,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -94,7 +95,7 @@ public class MatchStmtListMatchPatternTest {
     @Test(dataProvider = "dataToTestListMatchPatternWithRestPattern", description = "Test list match pattern with " +
             "rest match pattern")
     public void testListMatchPatternWithRestPattern(String functionName) {
-        BRunUtil.invoke(restMatchPatternResult, functionName);
+        JvmRunUtil.invoke(restMatchPatternResult, functionName);
     }
 
     @DataProvider
