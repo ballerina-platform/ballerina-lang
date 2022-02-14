@@ -78,7 +78,7 @@ public class HoverUtil {
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
-        
+
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
         // Check for the cancellation before the time consuming operation
@@ -96,7 +96,7 @@ public class HoverUtil {
                     return getHoverForExpression(context, expr.get());
                 }
             }
-            
+
             return HoverUtil.getDefaultHoverObject();
         }
 
@@ -125,6 +125,8 @@ public class HoverUtil {
                 return getDescriptionOnlyHoverObject(symbol);
             case VARIABLE:
                 return getVariableHoverMarkupContent((VariableSymbol) symbol);
+            case PARAMETER:
+                return getParameterHoverObject((ParameterSymbol) symbol);
             case TYPE:
                 if (symbol instanceof TypeReferenceTypeSymbol) {
                     return getHoverForSymbol(((TypeReferenceTypeSymbol) symbol).definition(), context);
@@ -419,10 +421,12 @@ public class HoverUtil {
         }
 
         TypeSymbol varTypeSymbol = symbol.typeDescriptor();
-        String type = varTypeSymbol.signature();
-        String varName = symbol.getName().isPresent() ? " " + symbol.getName().get() : "";
-        String modifiedVariable = quotedString(type) + CommonUtil.escapeEscapeCharsInIdentifier(varName);
-        hoverContent.add(modifiedVariable);
+        if (varTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            String type = varTypeSymbol.signature();
+            String varName = symbol.getName().isPresent() ? " " + symbol.getName().get() : "";
+            String modifiedVariable = quotedString(type) + CommonUtil.escapeEscapeCharsInIdentifier(varName);
+            hoverContent.add(modifiedVariable);
+        }
 
         Hover hover = new Hover();
         MarkupContent hoverMarkupContent = new MarkupContent();
@@ -430,6 +434,23 @@ public class HoverUtil {
         hoverMarkupContent.setValue(hoverContent.stream().collect(Collectors.joining(getHorizontalSeparator())));
         hover.setContents(hoverMarkupContent);
 
+        return hover;
+    }
+
+    private static Hover getParameterHoverObject(ParameterSymbol symbol) {
+        String hoverContent = "";
+        TypeSymbol typeSymbol = symbol.typeDescriptor();
+        if (typeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+            String type = typeSymbol.signature();
+            String parameterName = symbol.getName().isPresent() ? " " + symbol.getName().get() : "";
+            hoverContent = quotedString(type) + CommonUtil.escapeEscapeCharsInIdentifier(parameterName);
+        }
+
+        Hover hover = new Hover();
+        MarkupContent hoverMarkupContent = new MarkupContent();
+        hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
+        hoverMarkupContent.setValue(hoverContent);
+        hover.setContents(hoverMarkupContent);
         return hover;
     }
 
