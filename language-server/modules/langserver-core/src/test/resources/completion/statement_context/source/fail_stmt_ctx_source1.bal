@@ -5,3 +5,11 @@ function testFunction() {
         fail ;
     }
 }
+
+function getIntOrError() returns error|int {
+    return error("");
+}
+
+function getError() returns error {
+    return error("");
+}

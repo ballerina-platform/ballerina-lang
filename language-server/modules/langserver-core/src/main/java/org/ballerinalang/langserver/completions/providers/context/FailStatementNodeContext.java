@@ -19,7 +19,6 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FailStatementNode;
@@ -75,54 +74,58 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
         for (LSCompletionItem lsCItem : completionItems) {
             if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) lsCItem;
-                if (isCompletionItemSubTypeError(symbolCompletionItem)) {
+                if (isCompletionItemSubTypeOfError(symbolCompletionItem)) {
                     lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
                 } else {
-                    int rank = SortingUtil.toRank(context, lsCItem);
-                    lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+                    lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(3));
                 }
             } else if (SortingUtil.isModuleCompletionItem(lsCItem)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2));
             } else {
-                int rank = SortingUtil.toRank(context, lsCItem);
-                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(3));
             }
-
         }
     }
 
-    private boolean isUnionSymbolSubtypeError(UnionTypeSymbol unionTypeSymbol) {
+    private boolean isUnionOfErrors(UnionTypeSymbol unionTypeSymbol) {
         List<TypeSymbol> typeSymbols = unionTypeSymbol.memberTypeDescriptors();
-        for (TypeSymbol typeSymbol :typeSymbols) {
-            if (typeSymbol.typeKind() != TypeDescKind.TYPE_REFERENCE) {
-                return false;
-            }
-            TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
-            if (typeReferenceTypeSymbol.typeDescriptor().typeKind() != TypeDescKind.ERROR) {
-                return false;
-            }
-        }
-        return true;
+        return typeSymbols.stream()
+                .allMatch(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
     }
 
-    private boolean isCompletionItemSubTypeError(SymbolCompletionItem symbolCompletionItem) {
-        if (symbolCompletionItem.getSymbol().isPresent()) {
-            if (symbolCompletionItem.getSymbol().get().kind() == SymbolKind.TYPE_DEFINITION) {
-                return false;
-            }
-            Optional<TypeSymbol> tSymbol = SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol().get());
-            if (tSymbol.isPresent()) {
-                TypeSymbol typeSymbol = CommonUtil.getRawType(tSymbol.get());
-                if (typeSymbol.typeKind() == TypeDescKind.ERROR) {
-                    return true;
-                } else if (typeSymbol.typeKind() == TypeDescKind.UNION) {
-                    UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
-                    return isUnionSymbolSubtypeError(unionTypeSymbol);
-                } else if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
-                    FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol;
-                    Optional<TypeSymbol> retTypeDec = functionTypeSymbol.returnTypeDescriptor();
-                    return retTypeDec.isPresent() && retTypeDec.get().typeKind() == TypeDescKind.ERROR;
-                }
+    private boolean isFunctionReturnsUnionOfErrors(FunctionTypeSymbol functionTypeSymbol) {
+        Optional<TypeSymbol> retTypeDec = functionTypeSymbol.returnTypeDescriptor();
+        if (retTypeDec.isEmpty()) {
+            return false;
+        }
+        TypeSymbol rawType = CommonUtil.getRawType(retTypeDec.get());
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
+            return isUnionOfErrors(unionTypeSymbol);
+        }
+        return rawType.typeKind() == TypeDescKind.ERROR;
+    }
+    
+    private boolean isCompletionItemSubTypeOfError(SymbolCompletionItem symbolCompletionItem) {
+        Optional<Symbol> symbol = symbolCompletionItem.getSymbol();
+        if (symbol.isEmpty()) {
+            return false;
+        }
+        Optional<TypeSymbol> tSymbol = SymbolUtil.getTypeDescriptor(symbol.get());
+        if (symbol.get().kind() == SymbolKind.TYPE_DEFINITION) {
+            return false;
+        }
+
+        if (tSymbol.isPresent()) {
+            TypeSymbol typeSymbol = CommonUtil.getRawType(tSymbol.get());
+            if (typeSymbol.typeKind() == TypeDescKind.ERROR) {
+                return true;
+            } else if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+                UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
+                return isUnionOfErrors(unionTypeSymbol);
+            } else if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+                FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol;
+                return isFunctionReturnsUnionOfErrors(functionTypeSymbol);
             }
         }
         return false;
