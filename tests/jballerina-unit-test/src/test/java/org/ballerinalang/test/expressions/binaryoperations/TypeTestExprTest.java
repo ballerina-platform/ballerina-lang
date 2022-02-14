@@ -747,7 +747,8 @@ public class TypeTestExprTest {
                 "testRecordIntersectionWithFunctionFields",
                 "testBuiltInSubTypeTypeTestAgainstFiniteType",
                 "testIntSubtypes",
-                "testRecordsWithOptionalFields"
+                "testRecordsWithOptionalFields",
+                "testReadOnlyArrays"
         };
     }
 }
