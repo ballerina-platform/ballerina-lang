@@ -2511,7 +2511,12 @@ public class TypeChecker {
             }
         }
 
-        for (int i = 0; i < source.size(); i++) {
+        int targetTypeSize = targetType.getSize();
+        int sourceSize = source.size();
+        if ((targetTypeSize != -1) && (sourceSize != targetTypeSize)) {
+            return false;
+        }
+        for (int i = 0; i < sourceSize; i++) {
             if (!checkIsLikeType(null, source.get(i), targetTypeElementType, unresolvedValues,
                     allowNumericConversion, null)) {
                 return false;
