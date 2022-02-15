@@ -186,7 +186,7 @@ public abstract class BIRNode {
     public static class BIRParameter extends BIRNode {
         public Name name;
         public long flags;
-        public List<BIRAnnotation> annotAttachmentSymbols;
+        public List<BIRAnnotationAttachment> annotAttachmentSymbols;
 
         public BIRParameter(Location pos, Name name, long flags) {
             super(pos);

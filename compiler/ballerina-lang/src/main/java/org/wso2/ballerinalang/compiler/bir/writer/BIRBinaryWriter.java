@@ -226,7 +226,7 @@ public class BIRBinaryWriter {
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
             buf.writeLong(parameter.flags);
-            writeAnnotations(buf, typeWriter, parameter.annotAttachmentSymbols);
+            writeAnnotAttachments(buf, parameter.annotAttachmentSymbols);
         }
 
         // TODO find a better way
@@ -235,7 +235,7 @@ public class BIRBinaryWriter {
         buf.writeBoolean(restParamExist);
         if (restParamExist) {
             buf.writeInt(addStringCPEntry(restParam.name.value));
-            writeAnnotations(buf, typeWriter, restParam.annotAttachmentSymbols);
+            writeAnnotAttachments(buf, restParam.annotAttachmentSymbols);
         }
 
         boolean hasReceiverType = birFunction.receiver != null;

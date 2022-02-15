@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -504,10 +505,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             funcNode.symbol.enclForkName = funcNode.anonForkName;
         }
 
-        funcNode.symbol.annAttachments.addAll(funcNode.annAttachments);
-        ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol)
-                .returnTypeAnnots.addAll(funcNode.returnTypeAnnAttachments);
+        List<BLangAnnotationAttachment> annAttachments = funcNode.annAttachments;
 
+        List<BAnnotationAttachmentSymbol> annotationAttachmentSymbols = new ArrayList<>(annAttachments.size());
+        for (BLangAnnotationAttachment annAttachment : annAttachments) {
+            annotationAttachmentSymbols.add(getAnnotationAttachmentSymbol(annAttachment));
+        }
+
+        funcNode.symbol.annAttachments.addAll(annotationAttachmentSymbols);
+        List<BAnnotationAttachmentSymbol> returnTypeAnnots =
+                ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol).returnTypeAnnots;
+
+        for (BLangAnnotationAttachment returnTypeAnnAttachment : funcNode.returnTypeAnnAttachments) {
+            returnTypeAnnots.add(getAnnotationAttachmentSymbol(returnTypeAnnAttachment));
+        }
     }
 
     @Override
@@ -573,7 +584,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeDef(typeDefinition.typeNode, env);
         }
 
-        final List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
+        final List<BAnnotationAttachmentSymbol> annotSymbols = new ArrayList<>();
 
         typeDefinition.annAttachments.forEach(annotationAttachment -> {
             if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
@@ -582,12 +593,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
 
             annotationAttachment.accept(this);
-            annotSymbols.add(annotationAttachment.annotationSymbol);
+            annotSymbols.add(getAnnotationAttachmentSymbol(annotationAttachment));
         });
 
         BSymbol typeDefSym = typeDefinition.symbol;
         if (typeDefSym != null && typeDefSym.kind == SymbolKind.TYPE_DEF) {
-            ((BTypeDefinitionSymbol) typeDefSym).annAttachments.addAll(typeDefinition.annAttachments);
+            List<BAnnotationAttachmentSymbol> annAttachments = ((BTypeDefinitionSymbol) typeDefSym).annAttachments;
+
+            for (BLangAnnotationAttachment annAttachment : typeDefinition.annAttachments) {
+                annAttachments.add(getAnnotationAttachmentSymbol(annAttachment));
+            }
         }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
@@ -625,7 +640,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         classDefinition.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(attachedPoint);
             annotationAttachment.accept(this);
-            symbol.addAnnotation(annotationAttachment.annotationSymbol);
+            symbol.addAnnotation(getAnnotationAttachmentSymbol(annotationAttachment));
         });
         validateAnnotationAttachmentCount(classDefinition.annAttachments);
 
@@ -923,7 +938,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.ANNOTATION);
             annotationAttachment.accept(this);
-            symbol.addAnnotation(annotationAttachment.annotationSymbol);
+            symbol.addAnnotation(getAnnotationAttachmentSymbol(annotationAttachment));
         });
         validateAnnotationAttachmentCount(annotationNode.annAttachments);
     }
@@ -991,7 +1006,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
                 }
                 annotationAttachment.accept(this);
-                varNode.symbol.addAnnotation(annotationAttachment.annotationSymbol);
+                varNode.symbol.addAnnotation(getAnnotationAttachmentSymbol(annotationAttachment));
             });
         }
         validateAnnotationAttachmentCount(varNode.annAttachments);
@@ -1232,7 +1247,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
             annotationAttachment.attachPoints.addAll(attachPointsList);
             annotationAttachment.accept(this);
-            varNode.symbol.addAnnotation(annotationAttachment.annotationSymbol);
+            varNode.symbol.addAnnotation(getAnnotationAttachmentSymbol(annotationAttachment));
         }
     }
 
@@ -1616,7 +1631,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 variable.annAttachments.forEach(annotationAttachment -> {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
                     annotationAttachment.accept(this);
-                    variable.symbol.addAnnotation(annotationAttachment.annotationSymbol);
+                    variable.symbol.addAnnotation(getAnnotationAttachmentSymbol(annotationAttachment));
                 });
 
                 validateAnnotationAttachmentCount(variable.annAttachments);
@@ -4079,7 +4094,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         constant.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.CONST);
             annotationAttachment.accept(this);
-            constant.symbol.addAnnotation(annotationAttachment.annotationSymbol);
+            constant.symbol.addAnnotation(getAnnotationAttachmentSymbol(annotationAttachment));
         });
 
         BLangExpression expression = constant.expr;
@@ -4723,5 +4738,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         symbolEnter.setRestRecordFields(recordType.tsymbol.pos, env,
                 unMappedFields, boundedFieldNames, restConstraintType, restVarSymbolRecordType);
         restPatternRecordType.restFieldType = restVarSymbolRecordType.restFieldType;
+    }
+
+    private BAnnotationAttachmentSymbol getAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment) {
+        BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol =
+                new BAnnotationAttachmentSymbol(annotationSymbol, this.env.enclPkg.packageID, this.env.scope.owner,
+                                                annotationAttachment.pos, SOURCE);
+        return annotationAttachmentSymbol;
     }
 }

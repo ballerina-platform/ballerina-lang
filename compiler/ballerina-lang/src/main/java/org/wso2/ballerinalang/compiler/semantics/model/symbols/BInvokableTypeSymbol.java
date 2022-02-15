@@ -23,7 +23,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
     public List<BVarSymbol> params;
     public BVarSymbol restParam;
     public BType returnType;
-    public List<BLangAnnotationAttachment> returnTypeAnnots;
+    public List<BAnnotationAttachmentSymbol> returnTypeAnnots;
     public Map<String, BType> paramDefaultValTypes;
 
     public BInvokableTypeSymbol(int symTag, long flags, PackageID pkgID, BType type, BSymbol owner,

@@ -22,7 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -1030,7 +1031,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
-                          Location pos, List<? extends AnnotationSymbol> annots) {
+                          Location pos, List<? extends AnnotationAttachmentSymbol> annots) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
                 paramSymbol.name.value, defaultValExpr != null);
@@ -1078,11 +1079,14 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void populateParamAnnotationAttachmentSymbols(BIRParameter parameter,
-                                                          List<? extends AnnotationSymbol> annotations) {
-        List<BIRAnnotation> annotAttachmentSymbols = parameter.annotAttachmentSymbols;
-        for (AnnotationSymbol annot : annotations) {
-            BAnnotationSymbol annotSymbol = (BAnnotationSymbol) annot;
-            BIRAnnotation birAnnotation = getBirAnnotation(annotSymbol, annotSymbol.pos);
+                                                          List<? extends AnnotationAttachmentSymbol> annotations) {
+        List<BIRAnnotationAttachment> annotAttachmentSymbols = parameter.annotAttachmentSymbols;
+        for (AnnotationAttachmentSymbol annot : annotations) {
+            BAnnotationAttachmentSymbol annotSymbol = (BAnnotationAttachmentSymbol) annot;
+            // TODO: 2022-02-14, add value
+            BIRAnnotationAttachment birAnnotation = new BIRAnnotationAttachment(annotSymbol.pos,
+                                                                                annotSymbol.annotationSymbol.name);
+            birAnnotation.packageID = annotSymbol.pkgID;
             annotAttachmentSymbols.add(birAnnotation);
         }
     }
@@ -1485,7 +1489,9 @@ public class BIRGen extends BLangNodeVisitor {
             List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
                     this.env);
 
-            List<BIRAnnotationAttachment> annots = getStatementAnnotations(invocationExpr.annAttachments, this.env);
+            // TODO: 2022-02-14 replace?
+            List<BIRAnnotationAttachment> annots =
+                    getStatementAnnotationsForAttachmentNodes(invocationExpr.annAttachments, this.env);
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
                     args, lhsOp, thenBB, annots, calleeAnnots, bInvokableSymbol.getFlags(), this.currentScope);
@@ -2846,16 +2852,16 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.trapBlocks.peek().add(birBasicBlock);
     }
 
-    private List<BIRAnnotationAttachment> getStatementAnnotations(List<BLangAnnotationAttachment> astAnnotAttachments,
-                                                                  BIRGenEnv currentEnv) {
-        //preserve function annotations
-        List<BIRAnnotationAttachment> functionAnnotAttachments = currentEnv.enclAnnotAttachments;
-        currentEnv.enclAnnotAttachments = new ArrayList<>();
-        astAnnotAttachments.forEach(annotAttach -> annotAttach.accept(this));
-        List<BIRAnnotationAttachment> statementAnnots = currentEnv.enclAnnotAttachments;
-        //reset function annotations
-        currentEnv.enclAnnotAttachments = functionAnnotAttachments;
-        return statementAnnots;
+    private List<BIRAnnotationAttachment> getStatementAnnotationsForAttachmentNodes(
+            List<BLangAnnotationAttachment> astAnnotAttachments, BIRGenEnv currentEnv) {
+        // TODO: 2022-02-14 remove
+        return new ArrayList<>();
+    }
+
+    private List<BIRAnnotationAttachment> getStatementAnnotations(
+            List<? extends AnnotationAttachmentSymbol> astAnnotAttachments, BIRGenEnv currentEnv) {
+        // TODO: 2022-02-14         
+        return new ArrayList<>();
     }
 
     private List<BIRNode.BIRMappingConstructorEntry> generateMappingConstructorEntries(
