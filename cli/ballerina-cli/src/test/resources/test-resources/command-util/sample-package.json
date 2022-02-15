@@ -1,0 +1,19 @@
+{
+  "organization": "choreo",
+  "name": "gsheet_new_row_to_github_new_issue",
+  "version": "1.0.1",
+  "keywords": [
+    "Type/Webhook",
+    "Category/Integration",
+    "Internal/http"
+  ],
+  "export": [
+    "gsheet_new_row_to_github_new_issue"
+  ],
+  "icon": "docs/icon.png",
+  "ballerina_version": "slbeta6",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2021R1",
+  "platform": "any",
+  "template": true
+}

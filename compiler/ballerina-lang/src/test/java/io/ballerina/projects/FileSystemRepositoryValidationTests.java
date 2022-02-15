@@ -40,10 +40,10 @@ public class FileSystemRepositoryValidationTests {
         Collection<PackageVersion> versions = fileSystemRepository.getPackageVersions(resolutionRequest,
                 ResolutionOptions.builder().setOffline(true).build());
         Assert.assertEquals(versions.size(), 3);
-        Assert.assertFalse(versions.contains(PackageVersion.from("0.1.0"))); // slalpha2
-        Assert.assertTrue(versions.contains(PackageVersion.from("0.1.2")));  // slbeta3
-        Assert.assertTrue(versions.contains(PackageVersion.from("0.1.3")));  // slbeta2
-        Assert.assertTrue(versions.contains(PackageVersion.from("0.2.0")));  // 2201.0.0
+        Assert.assertFalse(versions.contains(PackageVersion.from("0.1.0")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.1.2")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.1.3")));
+        Assert.assertTrue(versions.contains(PackageVersion.from("0.2.0")));
     }
 
 }
