@@ -270,23 +270,33 @@
                                       ]
                                     },
                                     {
-                                      "kind": "OPEN_BRACKET_TOKEN"
-                                    },
-                                    {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "k"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACKET_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "ARRAY_DIMENSION",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "k"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -537,23 +547,33 @@
                                       ]
                                     },
                                     {
-                                      "kind": "OPEN_BRACKET_TOKEN"
-                                    },
-                                    {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "k"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_BRACKET_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "ARRAY_DIMENSION",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "k"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     }

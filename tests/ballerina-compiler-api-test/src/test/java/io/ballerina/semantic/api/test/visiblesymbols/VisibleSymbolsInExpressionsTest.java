@@ -55,20 +55,28 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                 );
         return new Object[][]{
                 // TODO: Will fail once closure support is added
-                {22, 22, expModuleSymbols},
-                {24, 4, expModuleSymbols},
+                {22, 22, concat(expModuleSymbols,
+                                from("y", VARIABLE),
+                                from("obj", VARIABLE))},
+                {24, 4, concat(expModuleSymbols,
+                                from("y", VARIABLE),
+                                from("obj", VARIABLE))},
                 {25, 22, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("name", CLASS_FIELD),
                                 from("age", CLASS_FIELD),
-                                from("init", METHOD)
+                                from("init", METHOD),
+                                from("y", VARIABLE),
+                                from("obj", VARIABLE)
 //                                from("getName", METHOD)
                 )},
                 {26, 25, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("name", CLASS_FIELD),
                                 from("age", CLASS_FIELD),
-                                from("init", METHOD)
+                                from("init", METHOD),
+                                from("y", VARIABLE),
+                                from("obj", VARIABLE)
 //                                from("getName", METHOD)
                 )},
                 {29, 43, concat(expModuleSymbols,
@@ -76,30 +84,32 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                 from("name", CLASS_FIELD),
                                 from("age", CLASS_FIELD),
                                 from("init", METHOD),
-                                from("getName", METHOD)
+                                from("getName", METHOD),
+                                from("y", VARIABLE),
+                                from("obj", VARIABLE)
                 )},
                 {32, 6, concat(expModuleSymbols,
                                from("y", VARIABLE),
                                from("obj", VARIABLE)
                 )},
-//                {38, 24, concat(expModuleSymbols, from("y", VARIABLE))},
+                {38, 24, concat(expModuleSymbols, from("y", VARIABLE))},
                 {38, 35, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
+                                from("y", VARIABLE),
                                 from("s", PARAMETER)
                 )},
                 {39, 22, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
+                                from("y", VARIABLE),
                                 from("s", PARAMETER),
                                 from("z", VARIABLE)
                 )},
                 {42, 32, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
-//                                from("y", VARIABLE),
+                                from("y", VARIABLE),
+                                from("y", VARIABLE),
                                 from("s", PARAMETER) // TODO: Check if this is correct
                 )},
                 {42, 53, concat(expModuleSymbols,
-//                                from("y", VARIABLE),
-//                                from("fn2", VARIABLE),
+                                from("y", VARIABLE),
+                                from("fn1", VARIABLE),
                                 from("s", PARAMETER)
                 )},
                 {44, 39, concat(expModuleSymbols,
@@ -112,8 +122,8 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                 from("y", VARIABLE),
                                 from("fn1", VARIABLE),
                                 from("fn2", VARIABLE),
+                                from("param", PARAMETER),
                                 from("fn3", VARIABLE) // TODO: This shouldn't be visible
-//                                from("p", PARAMETER) // TODO: Should be visible
                 )},
                 {48, 12, concat(expModuleSymbols, from("b", VARIABLE))},
                 {48, 16, concat(expModuleSymbols, from("b", VARIABLE))},

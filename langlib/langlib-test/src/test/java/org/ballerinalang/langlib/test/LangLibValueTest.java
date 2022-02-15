@@ -484,6 +484,12 @@ public class LangLibValueTest {
         };
     }
 
+    @Test
+    public void testDecimalToString() {
+        BRunUtil.invokeFunction(compileResult, "testDecimalZeroToString");
+        BRunUtil.invokeFunction(compileResult, "testDecimalNonZeroToString");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

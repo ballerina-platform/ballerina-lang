@@ -24,9 +24,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test implementation for debug expression evaluation scenarios.
+ * Common expression evaluation test scenarios for Ballerina packages and single file projects.
  */
-public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
+public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws BallerinaTestException {
@@ -61,13 +61,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void listConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void mappingConstructorEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -103,9 +103,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertExpression(context, "new Location(\"New York\",\"USA\")", "Location", "object");
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "new other:Place(\"New York\",\"USA\")", "Place", "object");
     }
 
     @Override
@@ -172,7 +169,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         debugTestRunner.assertExpression(context, "nameWithType", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "nameWithoutType", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -184,9 +180,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
         // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
-        debugTestRunner.assertExpression(context, "other:constMap", "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, "int:MAX_VALUE", "9223372036854775807", "int");
+
         // qualified name references with import alias
         debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
     }
@@ -334,7 +329,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
 
         // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "other:sum(2,6)", "8", "int");
         debugTestRunner.assertExpression(context, "int:abs(-6)", "6", "int");
     }
 
@@ -448,10 +442,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("<float>%s", ANYDATA_VAR), "619.0", "float");
         // casting into a union type
         debugTestRunner.assertExpression(context, String.format("<float|boolean>%s", ANYDATA_VAR), "619.0", "float");
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "<other:Place> location", "Place", "object");
-        debugTestRunner.assertExpression(context, "<other:Place> stringVar", "{ballerina}TypeCastError", "error");
     }
 
     @Override
@@ -494,9 +484,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // unary negation operator
         // boolean
         debugTestRunner.assertExpression(context, String.format("!%s", BOOLEAN_VAR), "false", "boolean");
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "-other:publicInt", "-10", "int");
     }
 
     @Override
@@ -714,9 +701,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                 "boolean");
         debugTestRunner.assertExpression(context, String.format("%s is (string & readonly) | int", STRING_VAR), "true",
                 "boolean");
-
-        // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertExpression(context, "location is other:Place", "true", "boolean");
     }
 
     @Override
@@ -774,7 +758,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void checkingExpressionEvaluationTest() throws BallerinaTestException {
         // Todo
     }
@@ -867,12 +851,6 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                         "    where student.score.toBalString() != int:MAX_VALUE.toBalString()" +
                         "    select student.firstName + \" \" + student.lastName",
                 "string[3]", "array");
-
-        // Queries with other module imports
-        debugTestRunner.assertExpression(context, "from var student in studentList" +
-                        "    where student is other:Kid" +
-                        "    select student.firstName + \" \" + student.lastName",
-                "string[0]", "array");
     }
 
     @Override

@@ -210,6 +210,11 @@ public class CommandUtil {
             Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
         }
 
+        // Create default .gitignore
+        createDefaultGitignore(projectPath);
+        // Create default devcontainer.json
+        createDefaultDevContainer(projectPath);
+
         // Create modules
         String templatePkgName = packageJson.getName();
         Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
@@ -342,14 +347,17 @@ public class CommandUtil {
             stringJoiner.add("\"" + newModuleName + "\"");
         }
 
-        Files.writeString(balTomlPath, "\nexport = [" + stringJoiner.toString() + "]"
+        Files.writeString(balTomlPath, "\nexport = [" + stringJoiner + "]"
                 .replaceFirst(packageJson.getName(), packageName), StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nballerina_version = \"" + packageJson.getBallerinaVersion()
+        Files.writeString(balTomlPath, "\ndistribution = \"" + packageJson.getBallerinaVersion()
                 + "\"", StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nimplementation_vendor = \"" + packageJson.getImplementationVendor()
-                + "\"", StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nlanguage_spec_version = \"" + packageJson.getLanguageSpecVersion()
-                + "\"", StandardOpenOption.APPEND);
+
+        writePackageAttributeArray(balTomlPath, packageJson.getLicenses(), "license");
+        writePackageAttributeArray(balTomlPath, packageJson.getAuthors(), "authors");
+        writePackageAttributeArray(balTomlPath, packageJson.getKeywords(), "keywords");
+        writePackageAttributeValue(balTomlPath, packageJson.getSourceRepository(), "repository");
+        writePackageAttributeValue(balTomlPath, packageJson.getVisibility(), "visibility");
+        writePackageAttributeValue(balTomlPath, packageJson.getIcon(), "icon");
 
         Files.writeString(balTomlPath, "\n\n[build-options]", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nobservabilityIncluded = true\n", StandardOpenOption.APPEND);
@@ -360,26 +368,62 @@ public class CommandUtil {
         }
         Files.writeString(balTomlPath, "\n[[platform." + platform + ".dependency]]", StandardOpenOption.APPEND);
         for (Object dependencies : platformLibraries) {
-            JsonObject dependeciesObj = (JsonObject) dependencies;
-            String libPath = dependeciesObj.get("path").getAsString();
+            JsonObject dependenciesObj = (JsonObject) dependencies;
+            String libPath = dependenciesObj.get("path").getAsString();
             Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
             Path libRelPath = Paths.get("libs", libName.toString());
             Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
 
-            if (dependeciesObj.get("artifactId") != null) {
-                String artifactId = dependeciesObj.get("artifactId").getAsString();
+            if (dependenciesObj.get("artifactId") != null) {
+                String artifactId = dependenciesObj.get("artifactId").getAsString();
                 Files.writeString(balTomlPath, "\nartifactId = \"" + artifactId + "\"",
                         StandardOpenOption.APPEND);
             }
-            if (dependeciesObj.get("groupId") != null) {
-                String groupId = dependeciesObj.get("groupId").getAsString();
+            if (dependenciesObj.get("groupId") != null) {
+                String groupId = dependenciesObj.get("groupId").getAsString();
                 Files.writeString(balTomlPath, "\ngroupId = \"" + groupId + "\"", StandardOpenOption.APPEND);
             }
-            if (dependeciesObj.get("version") != null) {
-                String dependencyVersion = dependeciesObj.get("version").getAsString();
+            if (dependenciesObj.get("version") != null) {
+                String dependencyVersion = dependenciesObj.get("version").getAsString();
                 Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
                         StandardOpenOption.APPEND);
             }
+        }
+    }
+
+    /**
+     * Write Ballerina.toml package attribute array from template package.json to new project Ballerina.toml.
+     *
+     * @param balTomlPath    Ballerina.toml path of the new project
+     * @param attributeArray package attribute values array
+     * @param attributeName  package attribute name
+     * @throws IOException when error occurs writing to the Ballerina.toml
+     */
+    private static void writePackageAttributeArray(Path balTomlPath, List<String> attributeArray, String attributeName)
+            throws IOException {
+        if (attributeArray != null && !attributeArray.isEmpty()) {
+            StringJoiner stringJoiner = new StringJoiner(",");
+            for (String attributeElement : attributeArray) {
+                stringJoiner.add("\"" + attributeElement + "\"");
+            }
+            Files.writeString(balTomlPath, "\n" + attributeName + " = [" + stringJoiner + "]",
+                    StandardOpenOption.APPEND);
+        }
+    }
+
+    /**
+     * Write Ballerina.toml package attribute from template package.json to new project Ballerina.toml.
+     *
+     * @param balTomlPath    Ballerina.toml path of the new project
+     * @param attributeValue package attribute value
+     * @param attributeName  package attribute name
+     * @throws IOException when error occurs writing to the Ballerina.toml
+     */
+    private static void writePackageAttributeValue(Path balTomlPath, String attributeValue, String attributeName)
+            throws IOException {
+        if (attributeValue != null && !attributeValue.isEmpty()) {
+            Files.writeString(balTomlPath, "\n" + attributeName + " = \"" + attributeValue + "\"",
+                    StandardOpenOption.APPEND);
         }
     }
 
@@ -471,22 +515,27 @@ public class CommandUtil {
         } else {
             initPackage(path);
         }
+        createDefaultGitignore(path);
+        createDefaultDevContainer(path);
+    }
+
+    private static void createDefaultGitignore(Path path) throws IOException {
         Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
         if (Files.notExists(gitignore)) {
             Files.createFile(gitignore);
         }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
         Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
-        // Create dev container
-        Path devcontainer = path.resolve(ProjectConstants.DEVCONTAINER);
-        if (Files.notExists(devcontainer)) {
-            Files.createFile(devcontainer);
+    }
+
+    private static void createDefaultDevContainer(Path path) throws IOException {
+        Path devContainer = path.resolve(ProjectConstants.DEVCONTAINER);
+        if (Files.notExists(devContainer)) {
+            Files.createFile(devContainer);
         }
-
-
-        String defaultDevcontainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
-        defaultDevcontainer = defaultDevcontainer.replace("latest", RepoUtils.getBallerinaVersion());
-        Files.write(devcontainer, defaultDevcontainer.getBytes(StandardCharsets.UTF_8));
+        String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+        defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
+        Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

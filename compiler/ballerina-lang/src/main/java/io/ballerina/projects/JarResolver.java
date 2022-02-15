@@ -131,8 +131,14 @@ public class JarResolver {
         // Add all the jar library dependencies of current package (packageId)
         Collection<PlatformLibrary> otherJarDependencies = jBalBackend.platformLibraryDependencies(
                 packageContext.packageId(), scope);
+
+        List<String> fileNames = new ArrayList();
+        libraryPaths.stream().forEach(e -> fileNames.add(e.path().toFile().getName()));
+
         for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-            libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
+            if (!fileNames.contains(otherJarDependency.path().toFile().getName())) {
+                libraryPaths.add(new JarLibrary(otherJarDependency.path(), scope, getPackageName(packageContext)));
+            }
         }
     }
 

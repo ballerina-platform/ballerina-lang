@@ -73,6 +73,10 @@ function test() {
     T1 t1 = 2;
 
     T2 t2 = "a";
+
+    'xml:ProcessingInstruction pi = xml `<?target data?>`;
+    'xml:Comment cmnt;
+    'xml:Text txt;
 }
 
 type T1 1|2|3;

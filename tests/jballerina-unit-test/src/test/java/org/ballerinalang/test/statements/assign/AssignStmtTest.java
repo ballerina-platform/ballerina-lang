@@ -198,7 +198,7 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'map<string>', found 'record {| string a; anydata...; |}'", 78, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid record binding pattern with type 'error'", 79, 9);
+                "invalid record binding pattern with type 'error'", 79, 5);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid record variable; expecting a record type but found 'error' in type definition", 79, 20);
         BAssertUtil.validateError(resultNegative, i++,

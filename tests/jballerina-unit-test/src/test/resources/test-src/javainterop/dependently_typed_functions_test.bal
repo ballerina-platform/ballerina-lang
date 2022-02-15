@@ -194,7 +194,7 @@ function testComplexTypes() {
     stream<int> newSt = echo(st, IntStream);
     int tot = 0;
 
-    error? err = newSt.forEach(function (int x) { tot+= x; });
+    error? err = newSt.forEach(function (int x1) { tot+= x1; });
     assert(150, tot);
 
     table<Person> key(name) tab = table [
