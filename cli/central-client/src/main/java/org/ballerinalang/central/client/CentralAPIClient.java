@@ -230,6 +230,11 @@ public class CentralAPIClient {
                         return getAsList(body.get().string());
                     }
 
+                    // Unauthorized access token
+                    if (getVersionsResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(orgNamePath, body);
+                    }
+
                     // Package is not found
                     if (getVersionsResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
@@ -496,12 +501,11 @@ public class CentralAPIClient {
     /**
      * Resolve Package Names of modules.
      *
-     * @throws CentralClientException   Central Client exception.
-     * @return
+     * @return Package name resolution response
+     * @throws CentralClientException Central Client exception.
      */
     public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request,
-                                                             String supportedPlatform, String ballerinaVersion,
-                                                             boolean isBuild)
+                                                             String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
 
         String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_MODULES;
@@ -523,10 +527,15 @@ public class CentralAPIClient {
             body = Optional.ofNullable(packageResolutionResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
                     if (packageResolutionResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), PackageNameResolutionResponse.class);
+                    }
+
+                    // Unauthorized access token
+                    if (packageResolutionResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(body);
                     }
 
                     // If search request was sent wrongly
@@ -567,7 +576,7 @@ public class CentralAPIClient {
      * @throws CentralClientException   Central Client exception.
      */
     public PackageResolutionResponse resolveDependencies(PackageResolutionRequest request, String supportedPlatform,
-                                                         String ballerinaVersion, boolean isBuild)
+                                                         String ballerinaVersion)
             throws CentralClientException {
 
         String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_DEPENDENCIES;
@@ -593,6 +602,11 @@ public class CentralAPIClient {
                     // If searching was successful
                     if (packageResolutionResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), PackageResolutionResponse.class);
+                    }
+
+                    // Unauthorized access token
+                    if (packageResolutionResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(body);
                     }
 
                     // If search request was sent wrongly
@@ -650,6 +664,11 @@ public class CentralAPIClient {
                     // If searching was successful
                     if (searchResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
+                    }
+
+                    // Unauthorized access token
+                    if (searchResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(body);
                     }
 
                     // If search request was sent wrongly
@@ -852,13 +871,13 @@ public class CentralAPIClient {
      * @param response The response.
      * @param msg      Custom error message.
      * @throws CentralClientException Central Client exception.
-     * @throws IOException
+     * @throws IOException            throws when handling http response.
      */
     protected void handleResponseErrors(Response response, String msg) throws CentralClientException, IOException {
         Optional<ResponseBody> body = Optional.ofNullable(response.body());
         if (body.isPresent()) {
             // If search request was sent wrongly
-            if (response.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
+            if (response.code() == HTTP_BAD_REQUEST ||
                     response.code() == HTTP_NOT_FOUND) {
                 Error error = new Gson().fromJson(body.get().string(), Error.class);
                 if (error.getMessage() != null && !"".equals(error.getMessage())) {
@@ -866,8 +885,13 @@ public class CentralAPIClient {
                 }
             }
 
+            // Unauthorized access token
+            if (response.code() == HTTP_UNAUTHORIZED) {
+                handleUnauthorizedResponse(body);
+            }
+
             // If error occurred at remote repository
-            if (response.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR ||
+            if (response.code() == HTTP_INTERNAL_ERROR ||
                     response.code() == HTTP_UNAVAILABLE) {
                 Error error = new Gson().fromJson(body.get().string(), Error.class);
                 if (error.getMessage() != null && !"".equals(error.getMessage())) {
@@ -1042,6 +1066,28 @@ public class CentralAPIClient {
             } else {
                 throw new CentralClientException("unauthorized access token for organization: '" + org +
                         "'. check access token set in 'Settings.toml' file.");
+            }
+        }
+    }
+
+    /**
+     * Handle unauthorized response.
+     *
+     * @param body response body
+     * @throws IOException            when accessing response body
+     * @throws CentralClientException with unauthorized error message
+     */
+    private void handleUnauthorizedResponse(Optional<ResponseBody> body)
+            throws IOException, CentralClientException {
+        if (body.isPresent()) {
+            Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+            if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                Error error = new Gson().fromJson(body.get().string(), Error.class);
+                throw new CentralClientException("unauthorized access token. reason: " + error.getMessage() +
+                        ". check access token set in 'Settings.toml' file.");
+            } else {
+                throw new CentralClientException("unauthorized access token. " +
+                        "check access token set in 'Settings.toml' file.");
             }
         }
     }
