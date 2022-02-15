@@ -138,7 +138,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
         this.resolvingConstants.add(this.currentConstSymbol);
-        this.currentConstSymbol.value = visitExpr(constant.expr);
+        this.currentConstSymbol.value = constructBLangConstantValue(constant.expr);
         this.resolvingConstants.remove(this.currentConstSymbol);
         updateConstantType(constant);
         checkUniqueness(constant);
@@ -225,15 +225,15 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     continue;
                 }
 
-                value = visitExpr(keyValuePair.valueExpr);
+                value = constructBLangConstantValue(keyValuePair.valueExpr);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =
                         (BLangRecordLiteral.BLangRecordVarNameField) field;
                 key = varNameField.variableName.value;
-                value = visitExpr(varNameField);
+                value = constructBLangConstantValue(varNameField);
             } else {
                 BLangConstantValue spreadOpConstValue =
-                        visitExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr);
+                        constructBLangConstantValue(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr);
 
                 if (spreadOpConstValue != null) {
                     mapConstVal.putAll((Map<String, BLangConstantValue>) spreadOpConstValue.value);
@@ -249,17 +249,17 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        BLangConstantValue lhs = visitExpr(binaryExpr.lhsExpr);
-        BLangConstantValue rhs = visitExpr(binaryExpr.rhsExpr);
+        BLangConstantValue lhs = constructBLangConstantValue(binaryExpr.lhsExpr);
+        BLangConstantValue rhs = constructBLangConstantValue(binaryExpr.rhsExpr);
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
     }
 
     public void visit(BLangGroupExpr groupExpr) {
-        this.result = visitExpr(groupExpr.expression);
+        this.result = constructBLangConstantValue(groupExpr.expression);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
-        BLangConstantValue value = visitExpr(unaryExpr.expr);
+        BLangConstantValue value = constructBLangConstantValue(unaryExpr.expr);
         this.result = evaluateUnaryOperator(value, unaryExpr.operator);
     }
 
@@ -490,7 +490,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
-    private BLangConstantValue visitExpr(BLangExpression node) {
+    BLangConstantValue constructBLangConstantValue(BLangExpression node) {
         if (!node.typeChecked) {
             return null;
         }
