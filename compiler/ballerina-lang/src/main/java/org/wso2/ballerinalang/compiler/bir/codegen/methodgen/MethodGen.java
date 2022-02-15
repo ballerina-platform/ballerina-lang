@@ -510,6 +510,8 @@ public class MethodGen {
                 ((BIRTerminator.GOTO) terminator).targetBB.terminator.kind == InstructionKind.RETURN &&
                 !JvmCodeGenUtil.isExternFunc(func) && func.pos != null &&
                 func.pos.lineRange().endLine().line() != 0x80000000) {
+            // The ending line number of the function is added to the line number table to prevent wrong code
+            // coverage for generated return statements.
             Label label = new Label();
             mv.visitLabel(label);
             mv.visitLineNumber(func.pos.lineRange().endLine().line() + 1, label);
