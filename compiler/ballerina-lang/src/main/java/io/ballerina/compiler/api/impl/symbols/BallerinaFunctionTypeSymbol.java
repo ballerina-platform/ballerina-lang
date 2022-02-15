@@ -25,12 +25,13 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -156,8 +157,8 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationSymbol> annots = new ArrayList<>();
 
-        for (BLangAnnotationAttachment annot : this.typeSymbol.returnTypeAnnots) {
-            annots.add(symbolFactory.createAnnotationSymbol(annot.annotationSymbol));
+        for (AnnotationAttachmentSymbol annot : this.typeSymbol.returnTypeAnnots) {
+            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
         AnnotatableReturnType annotatableReturnType = new AnnotatableReturnType();
