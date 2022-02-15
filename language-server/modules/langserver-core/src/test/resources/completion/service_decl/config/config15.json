@@ -505,7 +505,7 @@
       "detail": "Snippet",
       "sortText": "A",
       "filterText": "init_function",
-      "insertText": "function init() {\n\t${2}\n}",
+      "insertText": "function init(${1}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

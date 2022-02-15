@@ -483,21 +483,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "init function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "filterText": "init_function",
-      "insertText": "function init() {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
       "filterText": "function",
       "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "init function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "init_function",
+      "insertText": "function init(${1}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]
