@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttach
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -78,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -4742,9 +4744,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private BAnnotationAttachmentSymbol getAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment) {
         BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
-        BAnnotationAttachmentSymbol annotationAttachmentSymbol =
-                new BAnnotationAttachmentSymbol(annotationSymbol, this.env.enclPkg.packageID, this.env.scope.owner,
-                                                annotationAttachment.pos, SOURCE);
-        return annotationAttachmentSymbol;
+
+        if (!Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
+            return new BAnnotationAttachmentSymbol(annotationSymbol, this.env.enclPkg.packageID, this.env.scope.owner,
+                                                   annotationAttachment.pos, SOURCE);
+        }
+
+        BLangExpression expr = annotationAttachment.expr;
+        BLangConstantValue constAnnotationValue = expr == null ? new BLangConstantValue(true, symTable.trueType) :
+                constantValueResolver.constructBLangConstantValue(expr);
+        BType type = constAnnotationValue.type;
+        BConstantSymbol constantSymbol = new BConstantSymbol(0, Names.EMPTY, Names.EMPTY, this.env.enclPkg.packageID,
+                                                             type, type, this.env.scope.owner, annotationAttachment.pos,
+                                                             SOURCE);
+        constantSymbol.value = constAnnotationValue;
+        return new BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol(annotationSymbol,
+                                                                                this.env.enclPkg.packageID,
+                                                                                this.env.scope.owner,
+                                                                                annotationAttachment.pos,
+                                                                                SOURCE, constantSymbol);
     }
 }

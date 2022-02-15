@@ -840,6 +840,7 @@ public class ASTBuilderUtil {
         dupFuncSymbol.tag = invokableSymbol.tag;
         dupFuncSymbol.schedulerPolicy = invokableSymbol.schedulerPolicy;
         dupFuncSymbol.strandName = invokableSymbol.strandName;
+        dupFuncSymbol.annAttachments = new ArrayList<>(invokableSymbol.annAttachments);
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         BInvokableType dupInvokableType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),

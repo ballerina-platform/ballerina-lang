@@ -2837,6 +2837,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
     }
 
+    // TODO: 2022-02-15 remove using symbols
     private void populateBIRAnnotAttachments(List<BLangAnnotationAttachment> astAnnotAttachments,
                                              List<BIRAnnotationAttachment> birAnnotAttachments,
                                              BIRGenEnv currentEnv) {
