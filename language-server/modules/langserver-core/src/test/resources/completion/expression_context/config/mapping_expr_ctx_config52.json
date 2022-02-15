@@ -15,14 +15,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "CONST1",
       "kind": "Variable",
       "detail": "\"Test\"",
