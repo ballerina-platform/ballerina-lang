@@ -72,3 +72,18 @@ function testWhileOnFail(){
 
     }
 }
+
+function testForEachOnFail() {
+    int[] arr = [1,2,3];
+    foreach int item in arr {
+        fail getError();
+    } on fail error ee {
+    }
+}
+
+function testLockOnFail(){
+    lock {
+        fail getError();
+    } on fail error ee {
+    }
+}
