@@ -59,10 +59,12 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_enum.json", "Color"},
                 {"rename_enum_member.json", "DARK_RED"},
                 {"rename_to_keyword1.json", "int"},
+                {"rename_identifier_with_escaped_char1.json", "first\\ name"},
 
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},
                 {"rename_self.json", "this"},
+                {"rename_invalid_qname_ref.json", "io"},
         };
     }
 }
