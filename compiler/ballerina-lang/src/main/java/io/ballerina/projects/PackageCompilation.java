@@ -71,7 +71,7 @@ public class PackageCompilation {
 
     private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
-        this.packageResolution = rootPackageContext.getResolution(compilationOptions);
+        this.packageResolution = rootPackageContext.getResolution();
         this.compilationOptions = compilationOptions;
         setupCompilation(compilationOptions);
     }
