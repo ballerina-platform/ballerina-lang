@@ -190,5 +190,16 @@ public class ValidatorTest {
                 "    }\n" +
                 "\n" +
                 "}"));
+
+        // Test case related to annotation not attached to construct error message
+        Assert.assertTrue(inputValidator.isComplete("@http:ServiceConfig {\n" +
+                "    cors: {\n" +
+                "        allowOrigins: [\"http://www.m3.com\", \"http://www.hello.com\"],\n" +
+                "        allowCredentials: false,\n" +
+                "        allowHeaders: [\"CORELATION_ID\"],\n" +
+                "        exposeHeaders: [\"X-CUSTOM-HEADER\"],\n" +
+                "        maxAge: 84900\n" +
+                "    }\n" +
+                "}"));
     }
 }

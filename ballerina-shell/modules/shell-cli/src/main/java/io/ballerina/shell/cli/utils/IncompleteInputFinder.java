@@ -57,6 +57,10 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
+
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Validates whether the user inputs are completed.
@@ -172,6 +176,14 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(ModuleVariableDeclarationNode node) {
+        // Diagnostic check to avoid case : annotation not attached to construct
+        for (Diagnostic diagnostic : StreamSupport.stream(node.diagnostics().spliterator(), false)
+                .collect(Collectors.toList())) {
+            if (diagnostic.diagnosticInfo().code().equals("BCE0524")) {
+                return false;
+            }
+        }
+
         if (node.initializer().isPresent()) {
             return node.equalsToken().get().isMissing() || node.initializer().get().apply(this)
                     || node.typedBindingPattern().typeDescriptor().apply(this);
