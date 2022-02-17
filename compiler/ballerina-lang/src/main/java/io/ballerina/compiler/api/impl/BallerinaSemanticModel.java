@@ -512,7 +512,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
-                && !isServiceDeclSymbol(symbol)
+                && !isServiceDeclSymbol(symbol) && !isResourceFunction(symbol)
                 && (symbol.getKind() != SymbolKind.PACKAGE || isPackageImportedOnTheCompUnit(symbol, compUnitName))) {
             Symbol compiledSymbol;
             // TODO: Fix #31808 and remove this if-check
@@ -564,6 +564,10 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {
         return symbol.kind == SymbolKind.SERVICE;
+    }
+
+    private boolean isResourceFunction(BSymbol symbol) {
+        return Symbols.isFlagOn(symbol.flags, Flags.RESOURCE);
     }
 
     private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {
