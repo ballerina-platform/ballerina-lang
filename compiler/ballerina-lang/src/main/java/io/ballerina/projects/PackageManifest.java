@@ -19,8 +19,6 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
-import io.ballerina.projects.internal.model.Dependency;
-import org.ballerinalang.toml.model.Platform;
 
 import java.util.Collections;
 import java.util.List;
