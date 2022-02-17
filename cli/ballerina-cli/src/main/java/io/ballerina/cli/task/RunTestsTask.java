@@ -614,7 +614,10 @@ public class RunTestsTask implements Task {
             if (!module.testDocumentIds().isEmpty() || module.project().kind()
                     .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
                 for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
-                    dependencies.add(jarLibs.path());
+                    if (jarLibs.path().toFile().getName().contains("testerina-runtime")
+                            || jarLibs.path().toFile().getName().contains("ballerina-rt")) {
+                        dependencies.add(jarLibs.path());
+                    }
                 }
             }
         }
