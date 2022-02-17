@@ -505,9 +505,12 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbolEnvScopeOwner = symbolEnv.scope.owner;
         BSymbol symbol = scopeEntry.symbol;
 
-        // Checks if the enclosed node is within a worker declaration body and the encountered symbol is the same
+        // Checks
+        // 1. if the enclosed node is within a worker declaration body and the encountered symbol is the same
         // worker that is being declared.
-        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol)) {
+        // 2. if the cursor within a class-field declaration and the particular symbol is a class-method.
+        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol) ||
+                isCursorWithinClassFieldDecl(symbolEnvScopeOwner.flags) && isClassMemberMethod(symbol))  {
             return;
         }
 
@@ -556,6 +559,15 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         return false;
+    }
+
+    private boolean isCursorWithinClassFieldDecl(long symbolEnvScopeOwnerFlags) {
+        return Symbols.isFlagOn(symbolEnvScopeOwnerFlags, Flags.CLASS);
+    }
+
+    private boolean isClassMemberMethod(BSymbol symbol) {
+        return symbol.getKind() == SymbolKind.FUNCTION && Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)
+                && Symbols.isFlagOn(symbol.owner.flags, Flags.CLASS);
     }
 
     private boolean isFieldSymbol(Symbol symbol) {
