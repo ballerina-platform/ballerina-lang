@@ -61,15 +61,15 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                 from("self", VARIABLE),
                                 from("name", CLASS_FIELD),
                                 from("age", CLASS_FIELD),
-                                from("init", METHOD)
-//                                from("getName", METHOD)
+                                from("init", METHOD),
+                                from("getName", METHOD)
                 )},
                 {26, 25, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("name", CLASS_FIELD),
                                 from("age", CLASS_FIELD),
-                                from("init", METHOD)
-//                                from("getName", METHOD)
+                                from("init", METHOD),
+                                from("getName", METHOD)
                 )},
                 {29, 43, concat(expModuleSymbols,
                                 from("self", VARIABLE),

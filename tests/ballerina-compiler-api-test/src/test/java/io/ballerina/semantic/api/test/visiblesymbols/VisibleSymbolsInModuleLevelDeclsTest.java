@@ -111,8 +111,7 @@ public class VisibleSymbolsInModuleLevelDeclsTest extends BaseVisibleSymbolsTest
                 {58, 32, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("greet", CLASS_FIELD),
-                                from("x", CLASS_FIELD),
-                                from("get", RESOURCE_METHOD)
+                                from("x", CLASS_FIELD)
                 )},
                 {61, 56, concat(expModuleSymbols, from("myStr", PARAMETER))},
         };
