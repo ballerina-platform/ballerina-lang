@@ -32,7 +32,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
-import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
