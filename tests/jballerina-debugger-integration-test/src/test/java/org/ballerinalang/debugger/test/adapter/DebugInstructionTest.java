@@ -44,7 +44,8 @@ public class DebugInstructionTest extends BaseTestCase {
     public void setup() {
     }
 
-    @Test(description = "Tests the behaviour when stepping over on a return statement")
+    // Need to be enabled after fixing #35084
+    @Test(description = "Tests the behaviour when stepping over on a return statement", enabled = false)
     public void stepOverOnReturnStatementTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-1";
         String testModuleFileName = "main.bal";
@@ -57,11 +58,11 @@ public class DebugInstructionTest extends BaseTestCase {
         // in the caller function.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Should be fixed to skip method last line
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 43));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 33));
     }
 
-    @Test(description = "Tests whether the debugger honors the breakpoints in-between step overs")
+    // Need to be enabled after fixing #35084
+    @Test(description = "Tests whether the debugger honors the breakpoints in-between step overs", enabled = false)
     public void breakpointInBetweenStepOverTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-1";
         String testModuleFileName = "main.bal";
@@ -79,19 +80,17 @@ public class DebugInstructionTest extends BaseTestCase {
         // Should go back to the caller function when stepping over again.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Should be fixed to skip method last line
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 47));
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
     }
 
-    @Test(description = "Object related debug instruction test")
+    // Need to be enabled after fixing #35084
+    @Test(description = "Object related debug instruction test", enabled = false)
     public void objectDebugInstructionTest() throws BallerinaTestException {
         String testProjectName = "debug-instruction-tests-1";
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 33));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 21));
-        // Should be fixed to stop at step over without breakpoint at line 34
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 34));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 35));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
