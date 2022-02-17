@@ -33,3 +33,41 @@ public type Quux Qux;
 public type Int int;
 
 public type Corge Int;
+
+public type Integer int;
+
+public type Decimal decimal;
+
+public type Strings string;
+
+public type IntArray int[2];
+
+public type FloatBooleanTuple [float, boolean];
+
+public type Record record {|
+    FloatBooleanTuple a;
+    () b;
+|};
+
+public type FunctionType2 function (FloatBooleanTuple i) returns Record;
+
+public type ImmutableIntArray int[] & readonly;
+
+public type FooBar "foo"|1;
+
+public const int ConstInt = 5;
+
+type Integer2 int;
+
+type Decimal2 decimal;
+
+type Strings2 string;
+
+type IntArray2 int[2];
+
+type FloatBooleanTuple2 [float, boolean];
+
+type Record2 record {|
+    FloatBooleanTuple2 a;
+    () b;
+|};
