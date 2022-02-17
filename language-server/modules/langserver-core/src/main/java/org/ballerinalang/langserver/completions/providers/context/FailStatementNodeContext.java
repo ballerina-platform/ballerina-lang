@@ -64,7 +64,6 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
         return completionItems;
     }
 
@@ -72,13 +71,9 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
     public void sort(BallerinaCompletionContext context, FailStatementNode node,
                      List<LSCompletionItem> completionItems) {
         for (LSCompletionItem lsCItem : completionItems) {
-            if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
-                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) lsCItem;
-                if (isCompletionItemSubTypeOfError(symbolCompletionItem)) {
-                    lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
-                } else {
-                    lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(3));
-                }
+            if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL 
+                    && isCompletionItemSubTypeOfError((SymbolCompletionItem) lsCItem)) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
             } else if (SortingUtil.isModuleCompletionItem(lsCItem)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2));
             } else {
@@ -108,26 +103,24 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
     
     private boolean isCompletionItemSubTypeOfError(SymbolCompletionItem symbolCompletionItem) {
         Optional<Symbol> symbol = symbolCompletionItem.getSymbol();
-        if (symbol.isEmpty()) {
+        if (symbol.isEmpty() || symbol.get().kind() == SymbolKind.TYPE_DEFINITION) {
             return false;
         }
+        
         Optional<TypeSymbol> tSymbol = SymbolUtil.getTypeDescriptor(symbol.get());
-        if (symbol.get().kind() == SymbolKind.TYPE_DEFINITION) {
+        if (tSymbol.isEmpty()) {
             return false;
         }
-
-        if (tSymbol.isPresent()) {
-            TypeSymbol typeSymbol = CommonUtil.getRawType(tSymbol.get());
-            if (typeSymbol.typeKind() == TypeDescKind.ERROR) {
-                return true;
-            } else if (typeSymbol.typeKind() == TypeDescKind.UNION) {
-                UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
-                return isUnionOfErrors(unionTypeSymbol);
-            } else if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
-                FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol;
-                return isFunctionReturnsUnionOfErrors(functionTypeSymbol);
-            }
+        
+        TypeSymbol typeSymbol = CommonUtil.getRawType(tSymbol.get());
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
+            return isUnionOfErrors(unionTypeSymbol);
+        } else if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typeSymbol;
+            return isFunctionReturnsUnionOfErrors(functionTypeSymbol);
+        } else {
+            return typeSymbol.typeKind() == TypeDescKind.ERROR;
         }
-        return false;
     }
 }
