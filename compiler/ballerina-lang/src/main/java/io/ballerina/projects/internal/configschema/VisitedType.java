@@ -25,7 +25,6 @@ import com.google.gson.JsonObject;
  * @since 2201.0.1
  */
 class VisitedType {
-
     boolean isCompleted;
     JsonObject typeNode = null;
 

@@ -141,8 +141,8 @@ public class VariableUtils {
      * @param nameReference name of the variable to be retrieved
      * @return the JDI value instance of the global variable
      */
-    public static Optional<BExpressionValue> getModuleVariable(SuspendedContext context,
-                                                                     ModuleSymbol moduleSymbol, String nameReference) {
+    public static Optional<BExpressionValue> getModuleVariable(SuspendedContext context, ModuleSymbol moduleSymbol,
+                                                               String nameReference) {
         String classQName = getInitClassName(moduleSymbol);
         return getFieldValue(context, classQName, nameReference);
     }
@@ -183,7 +183,6 @@ public class VariableUtils {
 
     private static Optional<BExpressionValue> getFieldValue(SuspendedContext context, String qualifiedClassName,
                                                             String fieldName) {
-
         List<ReferenceType> classesRef = context.getAttachedVm().classesByName(qualifiedClassName);
         // Tries to load the required class instance using "java.lang.Class.forName()" method.
         if (classesRef == null || classesRef.isEmpty()) {

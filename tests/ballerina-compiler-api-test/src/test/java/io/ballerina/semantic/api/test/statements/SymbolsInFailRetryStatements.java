@@ -66,6 +66,9 @@ public class SymbolsInFailRetryStatements {
                 {42, 12, "value", SymbolKind.VARIABLE},
                 {44, 20, "e", SymbolKind.VARIABLE},
                 {45, 13, "func2", SymbolKind.FUNCTION},
+                {70, 21, "ee", SymbolKind.VARIABLE},
+                {79, 21, "ee", SymbolKind.VARIABLE},
+                {86, 21, "ee", SymbolKind.VARIABLE},
         };
     }
 }

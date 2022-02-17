@@ -986,8 +986,8 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        // TODO: create issue. Missing symbol info.
         find(bLangNamedArgsExpression.expr);
+        addIfSameSymbol(bLangNamedArgsExpression.varSymbol, bLangNamedArgsExpression.name.pos);
     }
 
     @Override
