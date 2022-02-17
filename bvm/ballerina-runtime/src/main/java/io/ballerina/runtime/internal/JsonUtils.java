@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
@@ -318,6 +319,7 @@ public class JsonUtils {
     }
 
     public static Object convertJSON(Object jsonValue, Type targetType) {
+        Type inputValueType;
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonNodeToInt(jsonValue);
@@ -342,7 +344,7 @@ public class JsonUtils {
                 return jsonValue;
             case TypeTags.UNION_TAG:
                 Set<Type> matchingTypes = new LinkedHashSet<>();
-                Type inputValueType = TypeChecker.getType(jsonValue);
+                inputValueType = TypeChecker.getType(jsonValue);
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     if (inputValueType == memType) {
                         return convertJSON(jsonValue, memType);
@@ -359,6 +361,30 @@ public class JsonUtils {
                             getTypeName(jsonValue));
                 } else {
                     return convertJSON(jsonValue, matchingTypes.iterator().next());
+                }
+            case TypeTags.FINITE_TYPE_TAG:
+                BFiniteType finiteType = (BFiniteType) targetType;
+                if (finiteType.valueSpace.size() == 1) {
+                    Type valueType = TypeChecker.getType(finiteType.valueSpace.iterator().next());
+                    if (!TypeChecker.isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+                        return convertJSON(jsonValue, valueType);
+                    }
+                }
+                inputValueType = TypeChecker.getType(jsonValue);
+                Set<Object> matchedValues = new LinkedHashSet<>();
+                for (Object valueSpaceItem : finiteType.valueSpace) {
+                    if (jsonValue == valueSpaceItem) {
+                        return convertJSON(jsonValue, inputValueType);
+                    }
+                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem)) {
+                        matchedValues.add(convertJSON(jsonValue, TypeChecker.getType(valueSpaceItem)));
+                    }
+                }
+                if (matchedValues.size() != 1) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                            getTypeName(jsonValue));
+                } else {
+                    return matchedValues.iterator().next();
                 }
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
