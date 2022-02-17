@@ -41,7 +41,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 /**
  * Unit tests for @code{CommandUtil} class used in commands.
  *
- * @since 2.0.0
+ * @since 2201.0.1
  */
 public class CommandUtilTest {
 
