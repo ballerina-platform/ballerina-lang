@@ -25,7 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for recursive record type
+ * Test cases for recursive record type.
  */
 public class RecursiveRecordTypeTest {
 
