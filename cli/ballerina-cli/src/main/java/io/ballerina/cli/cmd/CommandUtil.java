@@ -242,6 +242,27 @@ public class CommandUtil {
             Files.createDirectories(libs);
             Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, libs));
         }
+
+        // Copy icon
+        Path docsPath = balaPath.resolve(ProjectConstants.BALA_DOCS_DIR);
+        try (Stream<Path> pathStream = Files.walk(docsPath, 1)) {
+            List<Path> icon = pathStream
+                    .filter(FileSystems.getDefault().getPathMatcher("glob:**.png")::matches)
+                    .collect(Collectors.toList());
+            if (icon.isEmpty()) {
+                return;
+            }
+            Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
+            Files.createDirectory(projectDocsDir);
+            Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
+            Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            printError(errStream,
+                    "Error while retrieving the icon: " + e.getMessage(),
+                    null,
+                    false);
+            getRuntime().exit(1);
+        }
     }
 
     /**
