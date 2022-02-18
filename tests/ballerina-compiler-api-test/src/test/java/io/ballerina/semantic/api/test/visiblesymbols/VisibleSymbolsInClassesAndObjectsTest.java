@@ -63,12 +63,15 @@ public class VisibleSymbolsInClassesAndObjectsTest extends BaseVisibleSymbolsTes
                         from("generateName", METHOD),
                         from("age", CLASS_FIELD),
                         from("init", METHOD),
+                        from("obj", VARIABLE),
                         from("self", VARIABLE))},
                 {49, 25, concat(expModuleSymbols,
+                        from("y", VARIABLE),
                         from("name", CLASS_FIELD),
                         from("getName", METHOD),
                         from("age", CLASS_FIELD),
                         from("init", METHOD),
+                        from("obj", VARIABLE),
                         from("self", VARIABLE))}
         };
     }
