@@ -505,6 +505,10 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbolEnvScopeOwner = symbolEnv.scope.owner;
         BSymbol symbol = scopeEntry.symbol;
 
+        if (isIgnorableSelfSymbol(name, symbol, symbolEnvScopeOwner)) {
+            return;
+        }
+
         // Checks
         // 1. if the enclosed node is within a worker declaration body and the encountered symbol is the same
         // worker that is being declared.
@@ -580,6 +584,10 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isResourceFunction(BSymbol symbol) {
         return Symbols.isFlagOn(symbol.flags, Flags.RESOURCE);
+    }
+
+    private boolean isIgnorableSelfSymbol(Name name, BSymbol symbol, BSymbol symbolEnvScopeOwner) {
+        return name.value.equals("self") && !symbol.owner.owner.equals(symbolEnvScopeOwner.owner);
     }
 
     private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {
