@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- *  Attempts to parse source as a worker declaration
+ *  Attempts to parse source as a worker declaration.
  *
  * @since 2.0.0
  */
