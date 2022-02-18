@@ -99,12 +99,9 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
                 .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD));
     }
 
-    public static boolean onSuggestInitMethod(Node node) {
-        if (node.kind() != SyntaxKind.SERVICE_DECLARATION) {
-            return false;
-        }
-
-        return ((ServiceDeclarationNode) node).members().stream()
+    private boolean onSuggestInitMethod(Node node) {
+        return node.kind() == SyntaxKind.SERVICE_DECLARATION 
+                && ((ServiceDeclarationNode) node).members().stream()
                 .filter(member-> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
                 .map(member->(FunctionDefinitionNode) member)
                 .noneMatch(funcDef -> ItemResolverConstants.INIT.equals(funcDef.functionName().text()));
