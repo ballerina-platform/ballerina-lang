@@ -18,7 +18,7 @@
 
 package io.ballerina.compiler.api.impl;
 
-import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -135,7 +135,7 @@ public class LangLibFunctionBinder {
                                               original.origin);
         duplicate.markdownDocumentation = original.markdownDocumentation;
 
-        for (AnnotationAttachmentSymbol annot : original.getAnnotations()) {
+        for (AnnotationSymbol annot : original.getAnnotations()) {
             duplicate.addAnnotation(annot);
         }
 

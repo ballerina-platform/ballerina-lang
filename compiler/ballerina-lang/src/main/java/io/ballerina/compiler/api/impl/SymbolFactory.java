@@ -52,11 +52,9 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
-import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -78,6 +76,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -184,8 +183,8 @@ public class SymbolFactory {
         }
 
         if (symbol instanceof BTypeSymbol) {
-            if (symbol.kind == SymbolKind.ANNOTATION_ATTACHMENT) {
-                return createAnnotationSymbol((BAnnotationAttachmentSymbol) symbol);
+            if (symbol.kind == SymbolKind.ANNOTATION) {
+                return createAnnotationSymbol((BAnnotationSymbol) symbol);
             }
             if (symbol instanceof BPackageSymbol) {
                 return createModuleSymbol((BPackageSymbol) symbol, name);
@@ -249,11 +248,11 @@ public class SymbolFactory {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
         }
 
-        for (BAnnotationAttachmentSymbol annAttachment : invokableSymbol.annAttachments) {
+        for (BLangAnnotationAttachment annAttachment : invokableSymbol.annAttachments) {
             if (annAttachment.annotationSymbol == null) {
                 continue;
             }
-            builder.withAnnotation(createAnnotationSymbol(annAttachment));
+            builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
         }
 
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
@@ -326,8 +325,8 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.ISOLATED);
         }
 
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder
@@ -354,8 +353,8 @@ public class SymbolFactory {
         BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
                 new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol, this.context);
 
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
-            builder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            builder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return builder.withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint)).build();
@@ -380,8 +379,8 @@ public class SymbolFactory {
         }
 
         List<AnnotationSymbol> annotSymbols = new ArrayList<>();
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
-            annotSymbols.add(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind, symbol, this.context);
@@ -411,12 +410,11 @@ public class SymbolFactory {
         }
 
         if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
-            for (AnnotationAttachmentSymbol annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
-                BAnnotationAttachmentSymbol bAnnotationAttachmentSymbol = (BAnnotationAttachmentSymbol) annAttachment;
-                if (bAnnotationAttachmentSymbol.annotationSymbol == null) {
+            for (BLangAnnotationAttachment annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
+                if (annAttachment.annotationSymbol == null) {
                     continue;
                 }
-                symbolBuilder.withAnnotation(createAnnotationSymbol(bAnnotationAttachmentSymbol));
+                symbolBuilder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
             }
         }
 
@@ -437,8 +435,8 @@ public class SymbolFactory {
             members.add(this.createConstantSymbol(member, member.name.value));
         }
 
-        for (AnnotationAttachmentSymbol annot : enumSymbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : enumSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder
@@ -467,8 +465,8 @@ public class SymbolFactory {
             type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
         }
 
-        for (AnnotationAttachmentSymbol annot : classSymbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : classSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
@@ -483,8 +481,8 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.ISOLATED);
         }
 
-        for (AnnotationAttachmentSymbol annot : associatedClass.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : associatedClass.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         if (serviceDeclSymbol.getAbsResourcePath().isPresent()) {
@@ -517,8 +515,8 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        for (AnnotationAttachmentSymbol annot : constantSymbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : constantSymbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.build();
@@ -527,12 +525,10 @@ public class SymbolFactory {
     /**
      * Creates an annotation Symbol.
      *
-     * @param annotationAttachmentSymbol Annotation attachment symbol to convert
+     * @param symbol Annotation symbol to convert
      * @return {@link BallerinaAnnotationSymbol}
      */
-    public BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationAttachmentSymbol annotationAttachmentSymbol) {
-        // TODO: 2022-01-03 Check with Pubudu.
-        BAnnotationSymbol symbol = annotationAttachmentSymbol.annotationSymbol;
+    public BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
         BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
                 new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.getOriginalName().getValue(), symbol,
                         this.context);
@@ -545,8 +541,8 @@ public class SymbolFactory {
             symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType));
         }
 
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
         return symbolBuilder.build();
