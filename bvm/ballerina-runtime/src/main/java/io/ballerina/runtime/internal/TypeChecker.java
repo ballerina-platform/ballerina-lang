@@ -2722,37 +2722,30 @@ public class TypeChecker {
 
         for (Object valueSpaceItem : targetType.valueSpace) {
             // TODO: 8/13/19 Maryam fix for conversion
-            if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem)) {
+            if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem, allowNumericConversion)) {
                 return true;
             }
         }
         return false;
     }
 
-    protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem) {
+    protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
+                                               boolean allowNumericConversion) {
         Type valueSpaceItemType = getType(valueSpaceItem);
         if (valueSpaceItemType.getTag() > TypeTags.FLOAT_TAG) {
             return valueSpaceItemType.getTag() == sourceType.getTag() &&
                     (valueSpaceItem == sourceValue || valueSpaceItem.equals(sourceValue));
         }
 
-        switch (sourceType.getTag()) {
-            case TypeTags.BYTE_TAG:
-            case TypeTags.INT_TAG:
-                return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue();
-            case TypeTags.FLOAT_TAG:
-                if (sourceType.getTag() != valueSpaceItemType.getTag()) {
-                    return false;
-                }
-
-                return ((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue();
-            case TypeTags.DECIMAL_TAG:
-                // falls through
-            default:
-                if (sourceType.getTag() != valueSpaceItemType.getTag()) {
-                    return false;
-                }
-                return valueSpaceItem.equals(sourceValue);
+        if (sourceType.getTag() < TypeTags.FLOAT_TAG) {
+            return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue() &&
+                    (valueSpaceItemType.getTag() != TypeTags.FLOAT_TAG || allowNumericConversion);
+        } else {
+            if (valueSpaceItemType.getTag() != sourceType.getTag()) {
+                return false;
+            }
+            return ((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue() ||
+                    (Double.isNaN((Double) sourceValue) && Double.isNaN((Double) valueSpaceItem));
         }
     }
 

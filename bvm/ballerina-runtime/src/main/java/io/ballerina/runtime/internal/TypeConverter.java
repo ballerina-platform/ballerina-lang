@@ -345,7 +345,7 @@ public class TypeConverter {
                     if (inputValue == valueSpaceItem) {
                         return Set.of(inputValueType);
                     }
-                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem)) {
+                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
                         convertibleTypes.add(TypeChecker.getType(valueSpaceItem));
                     }
                 }
