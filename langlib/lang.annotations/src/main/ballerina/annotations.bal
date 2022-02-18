@@ -48,7 +48,7 @@ type ArgsData record {|
 |};
 
 # Defaultable annotation data generated at compile time. This is for internal use.
-annotation ArgsData DefaultableArgs on function;
+const annotation ArgsData DefaultableArgs on function;
 
 # Contains the configurations related to service introspection. This is used by HTTP module.
 #
