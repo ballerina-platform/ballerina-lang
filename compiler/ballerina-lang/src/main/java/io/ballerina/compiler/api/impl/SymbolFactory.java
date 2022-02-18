@@ -67,7 +67,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -76,7 +75,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -248,12 +246,12 @@ public class SymbolFactory {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
         }
 
-        for (BLangAnnotationAttachment annAttachment : invokableSymbol.annAttachments) {
-            if (annAttachment.annotationSymbol == null) {
-                continue;
-            }
-            builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
-        }
+//        for (BLangAnnotationAttachment annAttachment : invokableSymbol.annAttachments) {
+//            if (annAttachment.annotationSymbol == null) {
+//                continue;
+//            }
+//            builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
+//        }
 
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
                 .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
@@ -325,9 +323,9 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.ISOLATED);
         }
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+//            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         return symbolBuilder
                 .withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.type))
@@ -353,9 +351,9 @@ public class SymbolFactory {
         BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
                 new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol, this.context);
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
-            builder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+//            builder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         return builder.withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint)).build();
     }
@@ -379,9 +377,9 @@ public class SymbolFactory {
         }
 
         List<AnnotationSymbol> annotSymbols = new ArrayList<>();
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
-            annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+//            annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind, symbol, this.context);
     }
@@ -410,12 +408,12 @@ public class SymbolFactory {
         }
 
         if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
-            for (BLangAnnotationAttachment annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
-                if (annAttachment.annotationSymbol == null) {
-                    continue;
-                }
-                symbolBuilder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
-            }
+//            for (BLangAnnotationAttachment annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
+//                if (annAttachment.annotationSymbol == null) {
+//                    continue;
+//                }
+//                symbolBuilder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
+//            }
         }
 
         return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, typeSymbol, true))
@@ -435,9 +433,9 @@ public class SymbolFactory {
             members.add(this.createConstantSymbol(member, member.name.value));
         }
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : enumSymbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : enumSymbol.getAnnotations()) {
+//            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         return symbolBuilder
                 .withMembers(members)
@@ -465,9 +463,9 @@ public class SymbolFactory {
             type = ((TypeReferenceTypeSymbol) type).typeDescriptor();
         }
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : classSymbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : classSymbol.getAnnotations()) {
+//            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
     }
@@ -481,9 +479,9 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.ISOLATED);
         }
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : associatedClass.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : associatedClass.getAnnotations()) {
+//            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         if (serviceDeclSymbol.getAbsResourcePath().isPresent()) {
             symbolBuilder.withAttachPoint(
@@ -515,9 +513,9 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : constantSymbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : constantSymbol.getAnnotations()) {
+//            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         return symbolBuilder.build();
     }
@@ -541,9 +539,9 @@ public class SymbolFactory {
             symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType));
         }
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+//            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         return symbolBuilder.build();
     }

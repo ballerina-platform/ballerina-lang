@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -156,9 +155,9 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationSymbol> annots = new ArrayList<>();
 
-        for (BLangAnnotationAttachment annot : this.typeSymbol.returnTypeAnnots) {
-            annots.add(symbolFactory.createAnnotationSymbol(annot.annotationSymbol));
-        }
+//        for (BLangAnnotationAttachment annot : this.typeSymbol.returnTypeAnnots) {
+//            annots.add(symbolFactory.createAnnotationSymbol(annot.annotationSymbol));
+//        }
 
         AnnotatableReturnType annotatableReturnType = new AnnotatableReturnType();
         annotatableReturnType.setAnnotations(Collections.unmodifiableList(annots));

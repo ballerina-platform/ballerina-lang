@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -61,9 +60,9 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationSymbol> annotSymbols = new ArrayList<>();
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
-            annotSymbols.add(symbolFactory.createAnnotationSymbol((BAnnotationSymbol) annot));
-        }
+//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
+//            annotSymbols.add(symbolFactory.createAnnotationSymbol((BAnnotationSymbol) annot));
+//        }
 
         this.annots = Collections.unmodifiableList(annotSymbols);
         return this.annots;
