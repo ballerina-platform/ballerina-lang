@@ -258,7 +258,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         this.currentNode = currentParentNode;
 
-        if (forEachStatementNode.blockStatement() != null) {
+        if (forEachStatementNode.blockStatement() != null && forBodyNode.hasNext()) {
             this.setChildNode(forStatementNode);
         }
     }
