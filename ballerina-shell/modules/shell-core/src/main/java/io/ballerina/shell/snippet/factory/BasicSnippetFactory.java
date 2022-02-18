@@ -126,6 +126,11 @@ public class BasicSnippetFactory extends SnippetFactory {
     @Override
     public VariableDeclarationSnippet createVariableDeclarationSnippet(Node node) {
         ModuleVariableDeclarationNode dclnNode;
+        if (isContainsIsolated(node)) {
+            addErrorDiagnostic("Isolation not allowed in Ballerina shell");
+            return null;
+        }
+
         if (node instanceof ModuleVariableDeclarationNode) {
             dclnNode = (ModuleVariableDeclarationNode) node;
         } else if (node instanceof VariableDeclarationNode) {
@@ -145,6 +150,7 @@ public class BasicSnippetFactory extends SnippetFactory {
         } else {
             return null;
         }
+
         if (dclnNode.initializer().isEmpty()) {
             addErrorDiagnostic("" +
                     "Variables without initializers are not permitted. " +
@@ -157,6 +163,11 @@ public class BasicSnippetFactory extends SnippetFactory {
     @Override
     public ModuleMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
             throws SnippetException {
+        if (isContainsIsolated(node)) {
+            addErrorDiagnostic("Isolation not allowed in the Ballerina shell.");
+            return null;
+        }
+
         if (node instanceof ModuleMemberDeclarationNode) {
             assert MODULE_MEM_DCLNS.containsKey(node.getClass());
             SnippetSubKind subKind = MODULE_MEM_DCLNS.get(node.getClass());
@@ -195,5 +206,31 @@ public class BasicSnippetFactory extends SnippetFactory {
             return new ExpressionSnippet((ExpressionNode) node);
         }
         return null;
+    }
+
+    /**
+     * Check the input node contains isolated keyword.
+     *
+     * @param node input Node.
+     * @return node contains isolated keyword or not.
+     */
+    private boolean isContainsIsolated(Node node) {
+        if (node instanceof ModuleVariableDeclarationNode) {
+            NodeList<Token> nodeList = ((ModuleVariableDeclarationNode) node).qualifiers();
+            for (Token token: nodeList) {
+                if (token.kind().stringValue().equals("isolated")) {
+                    return true;
+                }
+            }
+        } else if (node instanceof FunctionDefinitionNode) {
+            NodeList<Token> nodeList = ((FunctionDefinitionNode) node).qualifierList();
+            for (Token token: nodeList) {
+                if (token.kind().stringValue().equals("isolated")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
