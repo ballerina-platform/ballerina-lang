@@ -702,14 +702,9 @@ public abstract class BIRNode {
         public PackageID packageID;
         public Name annotTagRef;
 
-        // The length == 0 means that the value of this attachment is 'true'
-        // The length > 1 means that there are one or more attachments of this annotation
-        public List<BIRAnnotationValue> annotValues;
-
         public BIRAnnotationAttachment(Location pos, Name annotTagRef) {
             super(pos);
             this.annotTagRef = annotTagRef;
-            this.annotValues = new ArrayList<>();
         }
 
         @Override
@@ -719,57 +714,22 @@ public abstract class BIRNode {
     }
 
     /**
-     * Represents one value in an annotation attachment.
+     * Represents a const annotation attachment in BIR node tree.
      *
-     * @since 1.0.0
+     * @since 2.1.0
      */
-    public abstract static class BIRAnnotationValue {
-        public BType type;
+    public static class BIRConstAnnotationAttachment extends BIRAnnotationAttachment {
 
-        protected BIRAnnotationValue(BType type) {
-            this.type = type;
+        public ConstValue annotValue;
+
+        public BIRConstAnnotationAttachment(Location pos, Name annotTagRef, ConstValue annotValue) {
+            super(pos, annotTagRef);
+            this.annotValue = annotValue;
         }
-    }
 
-    /**
-     * Represent a literal value in an annotation attachment value.
-     *
-     * @since 1.0.0
-     */
-    public static class BIRAnnotationLiteralValue extends BIRAnnotationValue {
-        public Object value;
-
-        public BIRAnnotationLiteralValue(BType type, Object value) {
-            super(type);
-            this.value = value;
-        }
-    }
-
-    /**
-     * Represent a record value in an annotation attachment value.
-     *
-     * @since 1.0.0
-     */
-    public static class BIRAnnotationRecordValue extends BIRAnnotationValue {
-        public Map<String, BIRAnnotationValue> annotValueEntryMap;
-
-        public BIRAnnotationRecordValue(BType type, Map<String, BIRAnnotationValue> annotValueEntryMap) {
-            super(type);
-            this.annotValueEntryMap = annotValueEntryMap;
-        }
-    }
-
-    /**
-     * Represent a record value in an annotation attachment value.
-     *
-     * @since 1.0.0
-     */
-    public static class BIRAnnotationArrayValue extends BIRAnnotationValue {
-        public BIRAnnotationValue[] annotArrayValue;
-
-        public BIRAnnotationArrayValue(BType type, BIRAnnotationValue[] annotArrayValue) {
-            super(type);
-            this.annotArrayValue = annotArrayValue;
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 

@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION_ATTACHMENT;
@@ -33,12 +35,21 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANN
  */
 public class BAnnotationAttachmentSymbol extends BSymbol implements AnnotationAttachmentSymbol {
 
-    public BAnnotationSymbol annotationSymbol;
+    public PackageID annotPkgID;
+    public Name annotTag;
 
     public BAnnotationAttachmentSymbol(BAnnotationSymbol annotationSymbol, PackageID pkgID, BSymbol owner,
-                                       Location pos, SymbolOrigin origin) {
-        super(ANNOTATION_ATTACHMENT, 0, Names.EMPTY, pkgID, annotationSymbol.attachedType, owner, pos, origin);
-        this.annotationSymbol = annotationSymbol;
+                                       Location pos, SymbolOrigin origin, BType attachedType) {
+        super(ANNOTATION_ATTACHMENT, 0, Names.EMPTY, pkgID, attachedType, owner, pos, origin);
+        this.annotPkgID = annotationSymbol.pkgID;
+        this.annotTag = annotationSymbol.name;
+    }
+
+    public BAnnotationAttachmentSymbol(PackageID annotPkgID, Name annotTag, PackageID pkgID, BSymbol owner,
+                                       Location pos, SymbolOrigin origin, BType attachedType) {
+        super(ANNOTATION_ATTACHMENT, 0, Names.EMPTY, pkgID, attachedType, owner, pos, origin);
+        this.annotPkgID = annotPkgID;
+        this.annotTag = annotTag;
     }
 
     /**
@@ -48,12 +59,19 @@ public class BAnnotationAttachmentSymbol extends BSymbol implements AnnotationAt
      */
     public static class BConstAnnotationAttachmentSymbol extends BAnnotationAttachmentSymbol {
 
-        BConstantSymbol attachmentValueSymbol;
+        public BConstantSymbol attachmentValueSymbol;
 
         public BConstAnnotationAttachmentSymbol(BAnnotationSymbol annotationSymbol, PackageID pkgID, BSymbol owner,
                                                 Location pos, SymbolOrigin origin,
                                                 BConstantSymbol attachmentValueSymbol) {
-            super(annotationSymbol, pkgID, owner, pos, origin);
+            super(annotationSymbol, pkgID, owner, pos, origin, annotationSymbol.attachedType);
+            this.attachmentValueSymbol = attachmentValueSymbol;
+        }
+
+        public BConstAnnotationAttachmentSymbol(PackageID annotPkgID, Name annotTag, PackageID pkgID, BSymbol owner,
+                                                Location pos, SymbolOrigin origin,
+                                                BConstantSymbol attachmentValueSymbol, BType attachedType) {
+            super(annotPkgID, annotTag, pkgID, owner, pos, origin, attachedType);
             this.attachmentValueSymbol = attachmentValueSymbol;
         }
     }

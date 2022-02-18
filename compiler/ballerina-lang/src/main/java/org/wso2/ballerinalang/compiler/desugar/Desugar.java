@@ -768,7 +768,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
-        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+        desugarAnnotations(pkgNode);
 
         // Add invocation for user specified module init function (`init()`) if present and return.
         addUserDefinedModuleInitInvocationAndReturn(pkgNode);
@@ -803,6 +803,32 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    private void desugarAnnotations(BLangPackage pkgNode) {
+        List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+
+        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+
+        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            if (prevTypeDefinitions.contains(typeDef)) {
+                continue;
+            }
+
+            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                continue;
+            }
+            BSymbol typeSymbol = typeDef.symbol.tag == SymTag.TYPE_DEF ? typeDef.symbol.type.tsymbol : typeDef.symbol;
+            if (typeSymbol.tag != SymTag.RECORD) {
+                continue;
+            }
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+            recordTypeNode.initFunction = rewrite(
+                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
+                    env);
+            pkgNode.functions.add(recordTypeNode.initFunction);
+            pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
+        }
     }
 
     private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {

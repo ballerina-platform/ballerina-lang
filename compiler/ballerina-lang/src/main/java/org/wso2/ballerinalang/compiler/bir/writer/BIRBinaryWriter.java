@@ -23,13 +23,8 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationLiteralValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationRecordValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -39,8 +34,11 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
@@ -49,6 +47,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -391,7 +390,11 @@ public class BIRBinaryWriter {
     }
 
     private void writeConstValue(ByteBuf buf, ConstValue constValue) {
-        switch (constValue.type.tag) {
+        writeConstValue(buf, constValue.value, constValue.type);
+    }
+
+    private void writeConstValue(ByteBuf buf, Object value, BType type) {
+        switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:
@@ -399,45 +402,63 @@ public class BIRBinaryWriter {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
-                buf.writeInt(addIntCPEntry((Long) constValue.value));
+                buf.writeInt(addIntCPEntry((Long) value));
                 break;
             case TypeTags.BYTE:
-                int byteValue = ((Number) constValue.value).intValue();
+                int byteValue = ((Number) value).intValue();
                 buf.writeInt(addByteCPEntry(byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal = constValue.value instanceof String ? Double.parseDouble((String) constValue.value)
-                        : (Double) constValue.value;
+                double doubleVal = value instanceof String ? Double.parseDouble((String) value)
+                        : (Double) value;
                 buf.writeInt(addFloatCPEntry(doubleVal));
                 break;
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
-                buf.writeInt(addStringCPEntry((String) constValue.value));
+                buf.writeInt(addStringCPEntry((String) value));
                 break;
             case TypeTags.BOOLEAN:
-                buf.writeBoolean((Boolean) constValue.value);
+                buf.writeBoolean((Boolean) value);
                 break;
             case TypeTags.NIL:
                 break;
             case TypeTags.RECORD:
-                Map<String, ConstValue> mapConstVal = (Map<String, ConstValue>) constValue.value;
+                Map<String, ConstValue> mapConstVal = (Map<String, ConstValue>) value;
                 buf.writeInt(mapConstVal.size());
-                mapConstVal.forEach((key, value) -> {
+                mapConstVal.forEach((key, fieldValue) -> {
                     buf.writeInt(addStringCPEntry(key));
-                    writeType(buf, value.type);
-                    writeConstValue(buf, value);
+                    writeType(buf, fieldValue.type);
+                    writeConstValue(buf, fieldValue);
                 });
                 break;
-            case TypeTags.INTERSECTION:
-                BType effectiveType = ((BIntersectionType) constValue.type).effectiveType;
-                writeConstValue(buf, new ConstValue(constValue.value, effectiveType));
+            case TypeTags.TUPLE:
+                ConstValue[] tupleConstVal = (ConstValue[]) value;
+                buf.writeInt(tupleConstVal.length);
+                for (ConstValue memValue : tupleConstVal) {
+                    writeType(buf, memValue.type);
+                    writeConstValue(buf, memValue);
+                }
                 break;
+            case TypeTags.INTERSECTION:
+                BType effectiveType = ((BIntersectionType) type).effectiveType;
+                writeConstValue(buf, new ConstValue(value, effectiveType));
+                break;
+            // TODO: 2022-02-17 verify/remove?
+            case TypeTags.TYPEREFDESC:
+                writeConstValue(buf, value, Types.getReferredType(type));
+                break;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
+                if (valueSpace.size() == 1) {
+                    writeConstValue(buf, value, valueSpace.iterator().next().getBType());
+                    break;
+                }
             default:
                 // TODO support for other types
                 throw new UnsupportedOperationException(
-                        "finite type value is not supported for type: " + constValue.type);
+                        "finite type value is not supported for type: " + type);
 
         }
     }
@@ -517,40 +538,16 @@ public class BIRBinaryWriter {
         // Write position
         writePosition(annotBuf, annotAttachment.pos);
         annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value));
-        writeAnnotAttachValues(annotBuf, annotAttachment.annotValues);
-    }
 
-    private void writeAnnotAttachValues(ByteBuf annotBuf, List<BIRAnnotationValue> annotValues) {
-        annotBuf.writeInt(annotValues.size());
-        for (BIRAnnotationValue annotValue : annotValues) {
-            writeAnnotAttachValue(annotBuf, annotValue);
+        if (!(annotAttachment instanceof BIRNode.BIRConstAnnotationAttachment)) {
+            annotBuf.writeBoolean(false);
+            return;
         }
-    }
 
-    private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
-        BType annotType = JvmCodeGenUtil.getReferredType(annotValue.type);
-        if (annotType.tag == TypeTags.ARRAY) {
-            writeType(annotBuf, annotType);
-            BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;
-            annotBuf.writeInt(annotArrayValue.annotArrayValue.length);
-            for (BIRAnnotationValue annotValueEntry : annotArrayValue.annotArrayValue) {
-                writeAnnotAttachValue(annotBuf, annotValueEntry);
-            }
-
-        } else if (annotType.tag == TypeTags.RECORD || annotType.tag == TypeTags.MAP) {
-            writeType(annotBuf, annotType);
-            BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) annotValue;
-            annotBuf.writeInt(annotRecValue.annotValueEntryMap.size());
-            for (Map.Entry<String, BIRAnnotationValue> annotValueEntry : annotRecValue.annotValueEntryMap.entrySet()) {
-                annotBuf.writeInt(addStringCPEntry(annotValueEntry.getKey()));
-                writeAnnotAttachValue(annotBuf, annotValueEntry.getValue());
-            }
-        } else {
-            // This has to be a value type with a literal value.
-            BIRAnnotationLiteralValue annotLiteralValue = (BIRAnnotationLiteralValue) annotValue;
-            writeType(annotBuf, annotLiteralValue.type);
-            writeConstValue(annotBuf, new ConstValue(annotLiteralValue.value, annotLiteralValue.type));
-        }
+        annotBuf.writeBoolean(true);
+        ConstValue constValue = ((BIRNode.BIRConstAnnotationAttachment) annotAttachment).annotValue;
+        writeType(annotBuf, constValue.type);
+        writeConstValue(annotBuf, constValue);
     }
 
     private void writePosition(ByteBuf buf, Location pos) {

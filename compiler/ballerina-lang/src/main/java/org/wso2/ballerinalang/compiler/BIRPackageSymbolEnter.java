@@ -677,30 +677,56 @@ public class BIRPackageSymbolEnter {
         return annotationSymbol;
     }
 
-    private BAnnotationAttachmentSymbol defineAnnotationAttachmentSymbol(DataInputStream dataInStream)
+    private BAnnotationAttachmentSymbol defineAnnotationAttachmentSymbol(DataInputStream dataInStream, BSymbol owner)
             throws IOException {
-        // TODO: 2022-01-03
         PackageID pkgId = getPackageId(dataInStream.readInt());
         Location pos = readPosition(dataInStream);
         Name annotTagRef = Names.fromString(getStringCPEntryValue(dataInStream.readInt()));
 
-        // TODO: 2022-02-14 look up annotation
+//        BAnnotationSymbol annotationSymbol;
+//        if (pkgId.equals(env.pkgSymbol.pkgID)) {
+//            annotationSymbol = (BAnnotationSymbol) lookupAnnotationSymbolInScope(env.pkgSymbol.scope, annotTagRef);
+//            type = annotationSymbol.attachedType;
+//        } else if (symTable.rootPkgSymbol.pkgID.equals(pkgId)) {
+//            annotationSymbol = null; // TODO: 2022-02-17 validate
+//            type = null;
+//        } else {
+//            annotationSymbol = (BAnnotationSymbol) symbolResolver.lookupSymbolInAnnotationSpace(
+//                    symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId)), annotTagRef);
+//            type = annotationSymbol.attachedType;
+//        }
 
-        // TODO: 2022-02-14 temp
-        BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(0L, Set.of(),
-                                                                            annotTagRef,
-                                                                            annotTagRef, // TODO: NPE
-                                                                            pkgId, null, this.env.pkgSymbol, pos,
-                                                                            toOrigin(Integer.valueOf(3).byteValue()));
-        annotationSymbol.type = new BAnnotationType(annotationSymbol);
+        boolean constAnnotation = dataInStream.readBoolean();
 
-        int annotAttachmentCount = dataInStream.readInt();
-        for (int i = 0; i < annotAttachmentCount; i++) {
-            readAnnotation(dataInStream);
+        if (!constAnnotation) {
+//            return new BAnnotationAttachmentSymbol(annotationSymbol, this.env.pkgSymbol.pkgID, owner, pos,
+//                                                   COMPILED_SOURCE, type);
+            return new BAnnotationAttachmentSymbol(pkgId, annotTagRef, this.env.pkgSymbol.pkgID, owner, pos,
+                                                   COMPILED_SOURCE, null);
         }
 
-        return new BAnnotationAttachmentSymbol(annotationSymbol, null, null, null, null);
+        BType constantValType = readBType(dataInStream);
+
+        BConstantSymbol constantSymbol = new BConstantSymbol(0, Names.EMPTY, Names.EMPTY,
+                                                             this.env.pkgSymbol.pkgID, null, constantValType,
+                                                             owner, pos, COMPILED_SOURCE);
+        constantSymbol.value = readConstLiteralValue(constantValType, dataInStream);
+        constantSymbol.literalType = constantSymbol.value.type;
+        return new BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol(pkgId, annotTagRef,
+                                                                                this.env.pkgSymbol.pkgID, owner, pos,
+                                                                                COMPILED_SOURCE, constantSymbol, null);
     }
+
+//    private BSymbol lookupAnnotationSymbolInScope(Scope scope, Name name) {
+//        Scope.ScopeEntry entry = scope.lookup(name);
+//        while (entry != NOT_FOUND_ENTRY) {
+//            if ((entry.symbol.tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
+//                return entry.symbol;
+//            }
+//            entry = entry.next;
+//        }
+//        return symTable.notFoundSymbol;
+//    }
 
     private BLangExpression readAnnotation(DataInputStream dataInStream) throws IOException {
         BType bType = readBType(dataInStream);  // Read and get the type of the annotation
@@ -769,6 +795,14 @@ public class BIRPackageSymbolEnter {
     }
 
     private BLangConstantValue readConstLiteralValue(BType valueType, DataInputStream dataInStream) throws IOException {
+        // TODO: 2022-02-18 remove
+        if (valueType.tag == TypeTags.FINITE) {
+            Set<BLangExpression> valueSpace = ((BFiniteType) valueType).getValueSpace();
+            if (valueSpace.size() == 1) {
+                valueType = valueSpace.iterator().next().getBType();
+            }
+        }
+
         switch (valueType.tag) {
             case TypeTags.INT:
                 return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.intType);
@@ -940,7 +974,7 @@ public class BIRPackageSymbolEnter {
         long skip = dataInStream.readLong();
         int annotSymbolCount = dataInStream.readInt();
         for (int j = 0; j < annotSymbolCount; j++) {
-            varSymbol.addAnnotation(defineAnnotationAttachmentSymbol(dataInStream));
+            varSymbol.addAnnotation(defineAnnotationAttachmentSymbol(dataInStream, varSymbol));
         }
     }
 

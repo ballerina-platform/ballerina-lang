@@ -264,6 +264,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangArrayLiteral listConstructorExpr) {
+        visit((BLangListConstructorExpr) listConstructorExpr);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral listConstructorExpr) {
+        visit((BLangListConstructorExpr) listConstructorExpr);
+    }
+
+    @Override
     public void visit(BLangBinaryExpr binaryExpr) {
         BLangConstantValue lhs = constructBLangConstantValue(binaryExpr.lhsExpr);
         BLangConstantValue rhs = constructBLangConstantValue(binaryExpr.rhsExpr);
@@ -507,7 +517,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
-                                                                BConstantSymbol constantSymbol) {
+                                                                BConstantSymbol constantSymbol, SymbolEnv env) {
         BLangConstantValue value = constructBLangConstantValue(expression);
         constantSymbol.value = value;
 
@@ -515,7 +525,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return value;
         }
 
-        updateConstantType(constantSymbol, expression);
+        updateConstantType(constantSymbol, expression, env);
         return value;
     }
 
@@ -528,6 +538,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case NUMERIC_LITERAL:
             case RECORD_LITERAL_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
+            case ARRAY_LITERAL_EXPR:
+            case TUPLE_LITERAL_EXPR:
             case SIMPLE_VARIABLE_REF:
             case BINARY_EXPR:
             case GROUP_EXPR:
@@ -573,7 +585,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private void updateConstantType(BLangConstant constant) {
         BConstantSymbol symbol = constant.symbol;
-        updateConstantType(symbol, constant.expr);
+        updateConstantType(symbol, constant.expr, symEnv);
 
         BType resolvedType = symbol.type;
 
@@ -586,8 +598,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
     }
 
-    private void updateConstantType(BConstantSymbol symbol, BLangExpression expr) {
-        if (symbol.type.getKind() == TypeKind.FINITE) {
+    private void updateConstantType(BConstantSymbol symbol, BLangExpression expr, SymbolEnv env) {
+        BType type = Types.getReferredType(symbol.type);
+        if (type.getKind() == TypeKind.FINITE) {
             return;
         }
 
@@ -595,12 +608,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
-        BType resolvedType = checkType(expr, symbol, symbol.value.value, symbol.type, symbol.pos);
+        BType resolvedType = checkType(expr, symbol, symbol.value.value, type, symbol.pos, env);
         if (resolvedType == null) {
             return;
         }
 
-        if (isListOrMapping(symbol.type.tag) && resolvedType.getKind() == TypeKind.INTERSECTION) {
+        if (isListOrMapping(type.tag) && resolvedType.getKind() == TypeKind.INTERSECTION) {
             expr.setBType(((BIntersectionType) resolvedType).effectiveType);
             symbol.type = resolvedType;
             symbol.literalType = resolvedType;
@@ -633,12 +646,15 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
-                            Location pos) {
+                            Location pos, SymbolEnv env) {
         if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 (((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.FINITE ||
                 ((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.INTERSECTION)) {
             return ((BLangSimpleVarRef) expr).symbol.type; // Already type resolved constant
         }
+
+        type = Types.getReferredType(type);
+
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.FLOAT:
@@ -656,7 +672,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 if (value != null) {
-                    return createRecordType(expr, constantSymbol, value, pos);
+                    return createRecordType(expr, constantSymbol, value, pos, env);
                 }
                 return null;
             case TypeTags.ARRAY:
@@ -664,7 +680,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 if (value == null) {
                     return null;
                 }
-                return createTupleType(expr, constantSymbol, pos, value);
+                return createTupleType(expr, constantSymbol, pos, value, env);
             default:
                 return null;
         }
@@ -692,11 +708,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return field;
     }
 
-    private void createTypeDefinition(BRecordType type, Location pos) {
+    private void createTypeDefinition(BRecordType type, Location pos, SymbolEnv env) {
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) type.tsymbol;
 
         BTypeDefinitionSymbol typeDefinitionSymbol = Symbols.createTypeDefinitionSymbol(type.tsymbol.flags,
-                type.tsymbol.name, pkgID, null, symEnv.scope.owner, pos, VIRTUAL);
+                type.tsymbol.name, pkgID, null, env.scope.owner, pos, VIRTUAL);
         typeDefinitionSymbol.scope = new Scope(typeDefinitionSymbol);
         typeDefinitionSymbol.scope.define(names.fromString(typeDefinitionSymbol.name.value), typeDefinitionSymbol);
 
@@ -713,11 +729,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
         TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
-                symEnv, pkgID, null, 0, false);
+                env, pkgID, null, 0, false);
         recordTypeNode.sealed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
-                typeDefinitionSymbol, recordTypeNode, symEnv);
+                typeDefinitionSymbol, recordTypeNode, env);
         typeDefinition.pos = pos;
         typeDefinition.symbol.scope = new Scope(typeDefinition.symbol);
         typeDefinition.symbol.type = type;
@@ -744,7 +760,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constant.associatedTypeDefinition = typeDefinition;
     }
 
-    private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos) {
+    private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos,
+                                   SymbolEnv env) {
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return expr.getBType();
         }
@@ -756,7 +773,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
         }
 
-        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID));
+        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(SymTag.RECORD,
                                                                    constantSymbol.flags | Flags.ANONYMOUS, genName,
                                                                    constantSymbol.pkgID,
@@ -769,19 +786,20 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordTypeSymbol.type = recordType;
 
         if (constValueMap.size() != 0) {
-            if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType)) {
+            if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType, env)) {
                 return null;
             }
         }
 
-        createTypeDefinition(recordType, pos);
+        createTypeDefinition(recordType, pos, env);
         BIntersectionType intersectionType = ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                recordType, symEnv, symTable, anonymousModelHelper, names, new HashSet<>());
+                recordType, env, symTable, anonymousModelHelper, names, new HashSet<>());
         return intersectionType;
     }
 
     private boolean populateRecordFields(BLangExpression expr, BConstantSymbol constantSymbol, Location pos,
-                                         HashMap<String, BLangConstantValue> constValueMap, BRecordType recordType) {
+                                         HashMap<String, BLangConstantValue> constValueMap, BRecordType recordType,
+                                         SymbolEnv env) {
         for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expr).fields) {
             String key;
             BVarSymbol newSymbol;
@@ -818,7 +836,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 newSymbol = new BVarSymbol(constantSymbol.flags, Names.fromString(key), constantSymbol.pkgID,
                                            null, constantSymbol.owner, pos, VIRTUAL);
                 BType newType = checkType(exprValueField, constantSymbol, constValueMap.get(key).value,
-                                          constValueMap.get(key).type, pos);
+                                          constValueMap.get(key).type, pos, env);
                 if (newType == null) {
                     return false;
                 }
@@ -868,7 +886,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BType createTupleType(BLangExpression expr, BConstantSymbol constantSymbol, Location pos,
-                                  Object constValue) {
+                                  Object constValue, SymbolEnv env) {
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return expr.getBType();
         }
@@ -898,7 +916,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 }
             }
 
-            BType newType = checkType(memberExpr, constantSymbol, memberConstValue.value, memberConstValue.type, pos);
+            BType newType = checkType(memberExpr, constantSymbol, memberConstValue.value, memberConstValue.type, pos,
+                                      env);
             if (newType == null) {
                 return null;
             }
@@ -909,11 +928,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                               Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
-                                                               symEnv.scope.owner, pos, VIRTUAL);
+                                                               Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                                                               env.scope.owner, pos, VIRTUAL);
 
         return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, new BTupleType(tupleTypeSymbol, tupleTypes),
-                                                                symEnv, symTable, anonymousModelHelper, names,
+                                                                env, symTable, anonymousModelHelper, names,
                                                                 new HashSet<>());
     }
 }

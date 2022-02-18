@@ -44,8 +44,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
@@ -668,7 +670,18 @@ public class JvmCodeGenUtil {
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmConstantsGen jvmConstantsGen) {
 
-        int typeTag = getReferredType(bType).tag;
+        BType referredType = getReferredType(bType);
+        int typeTag = referredType.tag;
+
+        // TODO: 2022-02-18 get rid of this
+        if (typeTag == TypeTags.FINITE) {
+            Set<BLangExpression> valueSpace = ((BFiniteType) referredType).getValueSpace();
+            if (valueSpace.size() == 1) {
+                referredType = valueSpace.iterator().next().getBType();
+                typeTag = referredType.tag;
+            }
+        }
+
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);

@@ -174,11 +174,11 @@ class JvmObservabilityGen {
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
                     if (DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
-                        BIRNode.BIRAnnotationRecordValue annotationRecordValue = (BIRNode.BIRAnnotationRecordValue)
-                                annotationAttachment.annotValues.get(0);
-                        Map<String, BIRNode.BIRAnnotationValue> annotationMap =
-                                annotationRecordValue.annotValueEntryMap;
-                        serviceName = ((BIRNode.BIRAnnotationLiteralValue) annotationMap.get("label")).value.toString();
+                        BIRNode.ConstValue annotValue =
+                                ((BIRNode.BIRConstAnnotationAttachment) annotationAttachment).annotValue;
+                        Map<String, BIRNode.ConstValue> annotationMap =
+                                (Map<String, BIRNode.ConstValue>) annotValue.value;
+                        serviceName = annotationMap.get("label").value.toString();
                         break;
                     }
                 }
