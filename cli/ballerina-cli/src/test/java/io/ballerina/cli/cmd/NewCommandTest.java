@@ -316,6 +316,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("docs").resolve("icon.png")));
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
