@@ -236,9 +236,6 @@ public class BIRPackageSymbolEnter {
         // Define import packages.
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
-        // Define annotations.
-        defineSymbols(dataInStream, rethrow(this::defineAnnotations));
-
         // Define constants.
         defineSymbols(dataInStream, rethrow(this::defineConstant));
 
@@ -253,6 +250,9 @@ public class BIRPackageSymbolEnter {
 
         // Define functions.
         defineSymbols(dataInStream, rethrow(this::defineFunction));
+
+        // Define annotations.
+        defineSymbols(dataInStream, rethrow(this::defineAnnotations));
 
         // Define service declarations
         defineSymbols(dataInStream, rethrow(this::defineServiceDeclarations));
