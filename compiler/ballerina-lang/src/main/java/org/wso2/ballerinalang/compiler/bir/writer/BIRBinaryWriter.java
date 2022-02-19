@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -441,10 +440,6 @@ public class BIRBinaryWriter {
             case TypeTags.INTERSECTION:
                 BType effectiveType = ((BIntersectionType) type).effectiveType;
                 writeConstValue(buf, new ConstValue(value, effectiveType));
-                break;
-            // TODO: 2022-02-17 verify/remove?
-            case TypeTags.TYPEREFDESC:
-                writeConstValue(buf, value, Types.getReferredType(type));
                 break;
             default:
                 // TODO support for other types
