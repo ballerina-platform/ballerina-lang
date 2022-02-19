@@ -104,7 +104,7 @@ public class JDIEventProcessor {
             if (!context.isTerminateRequestReceived()) {
                 // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
                 // dead by now.
-                context.getAdapter().terminateServer(false);
+                context.getAdapter().terminateDebugServer(false, true);
             }
         });
     }
