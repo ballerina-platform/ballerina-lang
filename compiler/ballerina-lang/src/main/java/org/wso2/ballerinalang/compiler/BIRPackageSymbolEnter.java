@@ -683,24 +683,9 @@ public class BIRPackageSymbolEnter {
         Location pos = readPosition(dataInStream);
         Name annotTagRef = Names.fromString(getStringCPEntryValue(dataInStream.readInt()));
 
-//        BAnnotationSymbol annotationSymbol;
-//        if (pkgId.equals(env.pkgSymbol.pkgID)) {
-//            annotationSymbol = (BAnnotationSymbol) lookupAnnotationSymbolInScope(env.pkgSymbol.scope, annotTagRef);
-//            type = annotationSymbol.attachedType;
-//        } else if (symTable.rootPkgSymbol.pkgID.equals(pkgId)) {
-//            annotationSymbol = null; // TODO: 2022-02-17 validate
-//            type = null;
-//        } else {
-//            annotationSymbol = (BAnnotationSymbol) symbolResolver.lookupSymbolInAnnotationSpace(
-//                    symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId)), annotTagRef);
-//            type = annotationSymbol.attachedType;
-//        }
-
         boolean constAnnotation = dataInStream.readBoolean();
 
         if (!constAnnotation) {
-//            return new BAnnotationAttachmentSymbol(annotationSymbol, this.env.pkgSymbol.pkgID, owner, pos,
-//                                                   COMPILED_SOURCE, type);
             return new BAnnotationAttachmentSymbol(pkgId, annotTagRef, this.env.pkgSymbol.pkgID, owner, pos,
                                                    COMPILED_SOURCE, null);
         }
@@ -716,17 +701,6 @@ public class BIRPackageSymbolEnter {
                                                                                 this.env.pkgSymbol.pkgID, owner, pos,
                                                                                 COMPILED_SOURCE, constantSymbol, null);
     }
-
-//    private BSymbol lookupAnnotationSymbolInScope(Scope scope, Name name) {
-//        Scope.ScopeEntry entry = scope.lookup(name);
-//        while (entry != NOT_FOUND_ENTRY) {
-//            if ((entry.symbol.tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-//                return entry.symbol;
-//            }
-//            entry = entry.next;
-//        }
-//        return symTable.notFoundSymbol;
-//    }
 
     private BLangExpression readAnnotation(DataInputStream dataInStream) throws IOException {
         BType bType = readBType(dataInStream);  // Read and get the type of the annotation

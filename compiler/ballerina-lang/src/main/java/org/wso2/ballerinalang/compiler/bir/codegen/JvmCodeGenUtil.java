@@ -671,7 +671,6 @@ public class JvmCodeGenUtil {
                                          JvmConstantsGen jvmConstantsGen) {
 
         int typeTag = getReferredType(bType).tag;
-
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);
