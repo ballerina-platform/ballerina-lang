@@ -85,10 +85,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -700,43 +697,6 @@ public class BIRPackageSymbolEnter {
         return new BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol(pkgId, annotTagRef,
                                                                                 this.env.pkgSymbol.pkgID, owner, pos,
                                                                                 COMPILED_SOURCE, constantSymbol, null);
-    }
-
-    private BLangExpression readAnnotation(DataInputStream dataInStream) throws IOException {
-        BType bType = readBType(dataInStream);  // Read and get the type of the annotation
-        if (bType.tag == TypeTags.ARRAY) {
-            return readAnnotationArray(dataInStream);
-        } else if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.MAP) {
-            return readAnnotationRecord(dataInStream);
-        } else {
-            BLangConstantValue constValue = readConstLiteralValue(bType, dataInStream);
-            return new BLangLiteral(constValue.value, constValue.type);
-        }
-    }
-
-    private BLangRecordLiteral readAnnotationRecord(DataInputStream dataInStream) throws IOException {
-        BLangRecordLiteral recordLiteral = new BLangRecordLiteral();
-        int entryMapSize = dataInStream.readInt();  //  Read size of the entries in annotation-map
-        for (int i = 0; i < entryMapSize; i++) {
-            String mapKey = getStringCPEntryValue(dataInStream.readInt());  // Read and get key
-            BLangLiteral keyLiteral = new BLangLiteral();
-            keyLiteral.setValue(mapKey);
-            keyLiteral.setOriginalValue(mapKey);
-            BLangRecordLiteral.BLangRecordKey recordKey = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
-            BLangExpression expr = readAnnotation(dataInStream);
-            recordLiteral.getFields().add(new BLangRecordLiteral.BLangRecordKeyValueField(recordKey, expr));
-        }
-        return recordLiteral;
-    }
-
-    private BLangListConstructorExpr.BLangArrayLiteral readAnnotationArray(DataInputStream dataInStream)
-            throws IOException {
-        BLangListConstructorExpr.BLangArrayLiteral arrayLiteral = new BLangListConstructorExpr.BLangArrayLiteral();
-        int arraySize = dataInStream.readInt();  // Read annotation array size
-        for (int i = 0; i < arraySize; i++) {
-            arrayLiteral.exprs.add(readAnnotation(dataInStream));
-        }
-        return arrayLiteral;
     }
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
