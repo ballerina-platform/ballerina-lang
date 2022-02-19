@@ -63,3 +63,29 @@ class RetryMgr {
         return true;
     }
 }
+
+function testWhileOnFail(){
+    int iter = 0;
+    while (iter < 3) {
+
+    } on fail error ee { 
+        error ref = ee;
+    }
+}
+
+function testForEachOnFail() {
+    int[] arr = [1,2,3];
+    foreach int item in arr {
+        fail getError();
+    } on fail error ee {
+        error ref = ee;
+    }
+}
+
+function testLockOnFail(){
+    lock {
+        fail getError();
+    } on fail error ee {
+        error ref = ee;
+    }
+}
