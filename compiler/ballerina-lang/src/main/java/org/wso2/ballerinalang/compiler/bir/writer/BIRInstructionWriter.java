@@ -46,9 +46,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashSet;
@@ -320,18 +318,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
-        int tag = type.tag;
-
-        // TODO: 2022-02-18 fix without finite
-        if (tag == TypeTags.FINITE) {
-            Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-            if (valueSpace.size() == 1) {
-                type = valueSpace.iterator().next().getBType();
-                tag = type.tag;
-            }
-        }
-
-        switch (tag) {
+        switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:

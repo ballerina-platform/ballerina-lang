@@ -909,7 +909,15 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
             if (memberExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = ((BLangSimpleVarRef) memberExpr).symbol.type;
-                if (type.getKind() == TypeKind.FINITE || type.getKind() == TypeKind.INTERSECTION) {
+                int tag = type.tag;
+
+                if (tag == TypeTags.FINITE) {
+                    // https://github.com/ballerina-platform/ballerina-lang/issues/35127
+                    tupleTypes.add(type);
+                    continue;
+                }
+
+                if (tag == TypeTags.INTERSECTION) {
                     memberConstValue.type = type;
                     tupleTypes.add(type);
                     continue;
@@ -922,9 +930,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 return null;
             }
             tupleTypes.add(newType);
-            memberConstValue.type = newType;
-            memberExpr.setBType(newType.tag == TypeTags.INTERSECTION ?
-                                        ((BIntersectionType) newType).effectiveType : newType);
+
+            if (newType.tag != TypeTags.FINITE) {
+                // https://github.com/ballerina-platform/ballerina-lang/issues/35127
+                memberConstValue.type = newType;
+                memberExpr.setBType(newType.tag == TypeTags.INTERSECTION ?
+                                            ((BIntersectionType) newType).effectiveType : newType);
+            }
         }
 
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),

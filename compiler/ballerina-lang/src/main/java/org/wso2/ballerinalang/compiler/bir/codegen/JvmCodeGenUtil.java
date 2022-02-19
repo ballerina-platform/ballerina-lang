@@ -670,17 +670,7 @@ public class JvmCodeGenUtil {
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmConstantsGen jvmConstantsGen) {
 
-        BType referredType = getReferredType(bType);
-        int typeTag = referredType.tag;
-
-        // TODO: 2022-02-18 get rid of this
-        if (typeTag == TypeTags.FINITE) {
-            Set<BLangExpression> valueSpace = ((BFiniteType) referredType).getValueSpace();
-            if (valueSpace.size() == 1) {
-                referredType = valueSpace.iterator().next().getBType();
-                typeTag = referredType.tag;
-            }
-        }
+        int typeTag = getReferredType(bType).tag;
 
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));

@@ -101,7 +101,7 @@ public class AnnotationTests {
         Assert.assertEquals(pkgID.version.value, "0.2.0");
         Assert.assertEquals(attachmentSymbol.annotTag.value, "Allow");
         Assert.assertEquals(((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) attachmentSymbol)
-                                    .attachmentValueSymbol.type.tag, TypeTags.FINITE);
+                                    .attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
 
         BInvokableSymbol otherFunc = (BInvokableSymbol) importedModuleEntries.get(
                 Names.fromString("otherFunc")).symbol;

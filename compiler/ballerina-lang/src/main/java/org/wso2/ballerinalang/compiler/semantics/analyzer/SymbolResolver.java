@@ -2505,7 +2505,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BLangConstantValue constAnnotationValue;
 
         if (expr == null) {
-            constAnnotationValue = new BLangConstantValue(true, symTable.trueType);
+            // https://github.com/ballerina-platform/ballerina-lang/issues/35127
+            constAnnotationValue = new BLangConstantValue(true, symTable.booleanType);
             constantSymbol.value = constAnnotationValue;
         } else {
             constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr,

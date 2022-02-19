@@ -35,10 +35,8 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
@@ -47,7 +45,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -449,12 +446,6 @@ public class BIRBinaryWriter {
             case TypeTags.TYPEREFDESC:
                 writeConstValue(buf, value, Types.getReferredType(type));
                 break;
-            case TypeTags.FINITE:
-                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                if (valueSpace.size() == 1) {
-                    writeConstValue(buf, value, valueSpace.iterator().next().getBType());
-                    break;
-                }
             default:
                 // TODO support for other types
                 throw new UnsupportedOperationException(

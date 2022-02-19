@@ -795,14 +795,6 @@ public class BIRPackageSymbolEnter {
     }
 
     private BLangConstantValue readConstLiteralValue(BType valueType, DataInputStream dataInStream) throws IOException {
-        // TODO: 2022-02-18 remove
-        if (valueType.tag == TypeTags.FINITE) {
-            Set<BLangExpression> valueSpace = ((BFiniteType) valueType).getValueSpace();
-            if (valueSpace.size() == 1) {
-                valueType = valueSpace.iterator().next().getBType();
-            }
-        }
-
         switch (valueType.tag) {
             case TypeTags.INT:
                 return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.intType);
