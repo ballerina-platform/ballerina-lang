@@ -1013,12 +1013,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private boolean checkForKeyEquality(HashMap<Integer, List<BLangExpression>> keyValues,
                                         List<BLangExpression> keyArray, int hash) {
-        boolean res = true;
-        List<BLangExpression> existing = keyValues.get(hash);
-        for (int i = 0; i < keyArray.size(); i++) {
-            res = res && equality(keyArray.get(i), existing.get(i));
+        List<BLangExpression> existingExpList = keyValues.get(hash);
+        if (existingExpList.size() == keyArray.size()) {
+            boolean res = true;
+            for (int i = 0; i < keyArray.size(); i++) {
+                res = res && equality(keyArray.get(i), existingExpList.get(i));
+            }
+            return res;
         }
-        return res;
+        return false;
     }
 
     private int generateHash(List<BLangExpression> keyArray) {
