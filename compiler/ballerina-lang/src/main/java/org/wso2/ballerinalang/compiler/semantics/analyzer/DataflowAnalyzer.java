@@ -996,17 +996,29 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkForDuplicateKeys(BLangTableConstructorExpr tableConstructorExpr) {
         Set<Integer> keyHashSet = new HashSet<>();
         List<String> fieldNames = getFieldNames(tableConstructorExpr);
+        HashMap<Integer, List<BLangExpression>> keyValues = new HashMap<>();
         if (!fieldNames.isEmpty()) {
             for (BLangRecordLiteral literal : tableConstructorExpr.recordLiteralList) {
                 List<BLangExpression> keyArray = createKeyArray(literal, fieldNames);
                 int hashInt = generateHash(keyArray);
-                if (!keyHashSet.add(hashInt)) {
+                if (!keyHashSet.add(hashInt) && checkForKeyEquality(keyValues, keyArray, hashInt)) {
                     String fields = String.join(", ", fieldNames);
                     String values = keyArray.stream().map(Object::toString).collect(Collectors.joining(", "));
                     dlog.error(literal.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_TABLE_LITERAL, fields, values);
                 }
+                keyValues.put(hashInt, keyArray);
             }
         }
+    }
+
+    private boolean checkForKeyEquality(HashMap<Integer, List<BLangExpression>> keyValues,
+                                        List<BLangExpression> keyArray, int hash) {
+        boolean res = true;
+        List<BLangExpression> existing = keyValues.get(hash);
+        for (int i = 0; i < keyArray.size(); i++) {
+            res = res && equality(keyArray.get(i), existing.get(i));
+        }
+        return res;
     }
 
     private int generateHash(List<BLangExpression> keyArray) {
@@ -1015,6 +1027,168 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             result = 31 * result + hash(expr);
         }
         return result;
+    }
+
+    public boolean equality(Node nodeA, Node nodeB) {
+        if (nodeA == null || nodeB == null) {
+            return false;
+        }
+
+        if (nodeA.getKind() != nodeB.getKind()) {
+            return false;
+        }
+
+        boolean res = true;
+        switch (nodeA.getKind()) {
+            case RECORD_LITERAL_EXPR:
+                BLangRecordLiteral recordLiteralA = (BLangRecordLiteral) nodeA;
+                BLangRecordLiteral recordLiteralB = (BLangRecordLiteral) nodeB;
+                for (int i = 0; i < recordLiteralA.fields.size(); i++) {
+                    RecordLiteralNode.RecordField exprA = recordLiteralA.fields.get(i);
+                    RecordLiteralNode.RecordField exprB = recordLiteralB.fields.get(i);
+                    res = res && equality(exprA, exprB);
+                }
+                return res;
+            case RECORD_LITERAL_KEY_VALUE:
+                BLangRecordLiteral.BLangRecordKeyValueField fieldA = (BLangRecordLiteral.BLangRecordKeyValueField) nodeA;
+                BLangRecordLiteral.BLangRecordKeyValueField fieldB = (BLangRecordLiteral.BLangRecordKeyValueField) nodeB;
+                return equality(fieldA.valueExpr, fieldB.valueExpr);
+            case ARRAY_LITERAL_EXPR:
+                BLangListConstructorExpr.BLangArrayLiteral arrayLiteralA =
+                        (BLangListConstructorExpr.BLangArrayLiteral) nodeA;
+                BLangListConstructorExpr.BLangArrayLiteral arrayLiteralB =
+                        (BLangListConstructorExpr.BLangArrayLiteral) nodeB;
+
+                for (int i = 0; i < arrayLiteralA.exprs.size(); i++) {
+                    BLangExpression exprA = arrayLiteralA.exprs.get(i);
+                    BLangExpression exprB = arrayLiteralB.exprs.get(i);
+                    res = res && equality(exprA, exprB);
+                }
+                return res;
+            case LITERAL:
+            case NUMERIC_LITERAL:
+                BLangLiteral literalA = (BLangLiteral) nodeA;
+                BLangLiteral literalB = (BLangLiteral) nodeB;
+                return Objects.equals(literalA.value, literalB.value);
+            case XML_TEXT_LITERAL:
+                BLangXMLTextLiteral textLiteralA = (BLangXMLTextLiteral) nodeA;
+                BLangXMLTextLiteral textLiteralB = (BLangXMLTextLiteral) nodeB;
+                res = equality(textLiteralA.concatExpr, textLiteralB.concatExpr);
+                for (int i = 0; i < textLiteralA.textFragments.size(); i++) {
+                    BLangExpression exprA = textLiteralA.textFragments.get(i);
+                    BLangExpression exprB = textLiteralB.textFragments.get(i);
+                    res = res && equality(exprA, exprB);
+                }
+                return res;
+            case XML_ATTRIBUTE:
+                BLangXMLAttribute attributeA = (BLangXMLAttribute) nodeA;
+                BLangXMLAttribute attributeB = (BLangXMLAttribute) nodeB;
+                return equality(attributeA.value, attributeB.value);
+            case XML_QNAME:
+                BLangXMLQName xmlqNameA = (BLangXMLQName) nodeA;
+                BLangXMLQName xmlqNameB = (BLangXMLQName) nodeA;
+                return equality(xmlqNameA.localname, xmlqNameB.localname) && equality(xmlqNameA.prefix, xmlqNameB.prefix);
+            case XML_COMMENT_LITERAL:
+                BLangXMLCommentLiteral commentliteralA = (BLangXMLCommentLiteral) nodeA;
+                BLangXMLCommentLiteral commentliteralB = (BLangXMLCommentLiteral) nodeB;
+                res = equality(commentliteralA.concatExpr, commentliteralB.concatExpr);
+                for (int i = 0; i < commentliteralA.textFragments.size(); i++) {
+                    BLangExpression exprA = commentliteralA.textFragments.get(i);
+                    BLangExpression exprB = commentliteralB.textFragments.get(i);
+                    res = res && equality(exprA, exprB);
+                }
+                return res;
+            case XML_QUOTED_STRING:
+                BLangXMLQuotedString quotedLiteralA = (BLangXMLQuotedString) nodeA;
+                BLangXMLQuotedString quotedLiteralB = (BLangXMLQuotedString) nodeB;
+                res = equality(quotedLiteralA.concatExpr, quotedLiteralB.concatExpr);
+                for (int i = 0; i < quotedLiteralA.textFragments.size(); i++) {
+                    BLangExpression exprA = quotedLiteralA.textFragments.get(i);
+                    BLangExpression exprB = quotedLiteralB.textFragments.get(i);
+                    res = res && equality(exprA, exprB);
+                }
+                return res;
+            case XMLNS:
+                BLangXMLNS xmlnsA = (BLangXMLNS) nodeA;
+                BLangXMLNS xmlnsB = (BLangXMLNS) nodeB;
+                return equality(xmlnsA.prefix, xmlnsB.prefix) && equality(xmlnsA.namespaceURI, xmlnsB.namespaceURI);
+            case XML_PI_LITERAL:
+                BLangXMLProcInsLiteral insLiteralA = (BLangXMLProcInsLiteral) nodeA;
+                BLangXMLProcInsLiteral insLiteralB = (BLangXMLProcInsLiteral) nodeB;
+                res = equality(insLiteralA.target, insLiteralB.target) &&
+                        equality(insLiteralA.dataConcatExpr, insLiteralB.dataConcatExpr);
+                for (int i = 0; i < insLiteralA.dataFragments.size(); i++) {
+                    BLangExpression exprA = insLiteralA.dataFragments.get(i);
+                    BLangExpression exprB = insLiteralB.dataFragments.get(i);
+                    res = res && equality(exprA, exprB);
+                }
+                return res;
+            case IDENTIFIER:
+                BLangIdentifier identifierA = (BLangIdentifier) nodeA;
+                BLangIdentifier identifierB = (BLangIdentifier) nodeB;
+                return identifierA.value.equals(identifierB.value);
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef simpleVarRefA = (BLangSimpleVarRef) nodeA;
+                BLangSimpleVarRef simpleVarRefB = (BLangSimpleVarRef) nodeB;
+                return simpleVarRefA.variableName.equals(simpleVarRefB.variableName);
+            case STRING_TEMPLATE_LITERAL:
+                BLangStringTemplateLiteral stringTemplateLiteralA = (BLangStringTemplateLiteral) nodeA;
+                BLangStringTemplateLiteral stringTemplateLiteralB = (BLangStringTemplateLiteral) nodeB;
+                for (int i = 0; i < stringTemplateLiteralA.exprs.size(); i++) {
+                    BLangExpression exprA = stringTemplateLiteralA.exprs.get(i);
+                    BLangExpression exprB = stringTemplateLiteralB.exprs.get(i);
+                    res = res && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                }
+                return res;
+            case LIST_CONSTRUCTOR_EXPR:
+                BLangListConstructorExpr listConstructorExprA = (BLangListConstructorExpr) nodeA;
+                BLangListConstructorExpr listConstructorExprB = (BLangListConstructorExpr) nodeB;
+                for (int i = 0; i < listConstructorExprA.exprs.size(); i++) {
+                    BLangExpression exprA = listConstructorExprA.exprs.get(i);
+                    BLangExpression exprB = listConstructorExprB.exprs.get(i);
+                    res = res && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                }
+                return res;
+            case TABLE_CONSTRUCTOR_EXPR:
+                BLangTableConstructorExpr tableConstructorExprA = (BLangTableConstructorExpr) nodeA;
+                BLangTableConstructorExpr tableConstructorExprB = (BLangTableConstructorExpr) nodeB;
+                for (int i = 0; i < tableConstructorExprA.recordLiteralList.size(); i++) {
+                    BLangExpression exprA = tableConstructorExprA.recordLiteralList.get(i);
+                    BLangExpression exprB = tableConstructorExprB.recordLiteralList.get(i);
+                    res = res && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                }
+                return res;
+            case TYPE_CONVERSION_EXPR:
+                BLangTypeConversionExpr typeConversionExprA = (BLangTypeConversionExpr) nodeA;
+                BLangTypeConversionExpr typeConversionExprB = (BLangTypeConversionExpr) nodeB;
+                return equality(typeConversionExprA.expr, typeConversionExprB.expr);
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExprA = (BLangBinaryExpr) nodeA;
+                BLangBinaryExpr binaryExprB = (BLangBinaryExpr) nodeB;
+                return equality(binaryExprA.lhsExpr, binaryExprB.lhsExpr) &&
+                        equality(binaryExprA.rhsExpr, binaryExprB.rhsExpr);
+            case UNARY_EXPR:
+                BLangUnaryExpr unaryExprA = (BLangUnaryExpr) nodeA;
+                BLangUnaryExpr unaryExprB = (BLangUnaryExpr) nodeB;
+                return equality(unaryExprA.expr, unaryExprB.expr);
+            case TYPE_TEST_EXPR:
+                BLangTypeTestExpr typeTestExprA = (BLangTypeTestExpr) nodeA;
+                BLangTypeTestExpr typeTestExprB = (BLangTypeTestExpr) nodeB;
+                return equality(typeTestExprA.expr, typeTestExprB.expr);
+            case TERNARY_EXPR:
+                BLangTernaryExpr ternaryExprA = (BLangTernaryExpr) nodeA;
+                BLangTernaryExpr ternaryExprB = (BLangTernaryExpr) nodeB;
+                return equality(ternaryExprA.expr, ternaryExprB.expr)
+                        && equality(ternaryExprA.thenExpr, ternaryExprB.thenExpr)
+                        && equality(ternaryExprA.elseExpr, ternaryExprB.elseExpr);
+            case GROUP_EXPR:
+                BLangGroupExpr groupExprA = (BLangGroupExpr) nodeA;
+                BLangGroupExpr groupExprB = (BLangGroupExpr) nodeA;
+
+                return equality(groupExprA.expression, groupExprB.expression);
+            default:
+                return false;
+        }
     }
 
     public Integer hash(Node node) {
@@ -1130,6 +1304,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private Integer getTypeHash(BType type) {
         return Objects.hash(type.tag, type.name);
+    }
+
+    private boolean getTypeEquality(BType typeA, BType typeB) {
+        return typeA.tag == typeB.tag && Objects.equals(typeA.name, typeB.name);
     }
 
     private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
