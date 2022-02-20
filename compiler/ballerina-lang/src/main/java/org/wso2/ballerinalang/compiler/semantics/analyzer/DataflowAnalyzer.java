@@ -1015,11 +1015,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                                         List<BLangExpression> keyArray, int hash) {
         List<BLangExpression> existingExpList = keyValues.get(hash);
         if (existingExpList.size() == keyArray.size()) {
-            boolean res = true;
+            boolean isEqual = true;
             for (int i = 0; i < keyArray.size(); i++) {
-                res = res && equality(keyArray.get(i), existingExpList.get(i));
+                isEqual = isEqual && equality(keyArray.get(i), existingExpList.get(i));
             }
-            return res;
+            return isEqual;
         }
         return false;
     }
@@ -1041,7 +1041,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        boolean res = true;
+        boolean isEqual = true;
         switch (nodeA.getKind()) {
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteralA = (BLangRecordLiteral) nodeA;
@@ -1049,12 +1049,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 for (int i = 0; i < recordLiteralA.fields.size(); i++) {
                     RecordLiteralNode.RecordField exprA = recordLiteralA.fields.get(i);
                     RecordLiteralNode.RecordField exprB = recordLiteralB.fields.get(i);
-                    res = res && equality(exprA, exprB);
+                    isEqual = isEqual && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case RECORD_LITERAL_KEY_VALUE:
-                BLangRecordLiteral.BLangRecordKeyValueField fieldA = (BLangRecordLiteral.BLangRecordKeyValueField) nodeA;
-                BLangRecordLiteral.BLangRecordKeyValueField fieldB = (BLangRecordLiteral.BLangRecordKeyValueField) nodeB;
+                BLangRecordLiteral.BLangRecordKeyValueField fieldA =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) nodeA;
+                BLangRecordLiteral.BLangRecordKeyValueField fieldB =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) nodeB;
                 return equality(fieldA.valueExpr, fieldB.valueExpr);
             case ARRAY_LITERAL_EXPR:
                 BLangListConstructorExpr.BLangArrayLiteral arrayLiteralA =
@@ -1065,9 +1067,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 for (int i = 0; i < arrayLiteralA.exprs.size(); i++) {
                     BLangExpression exprA = arrayLiteralA.exprs.get(i);
                     BLangExpression exprB = arrayLiteralB.exprs.get(i);
-                    res = res && equality(exprA, exprB);
+                    isEqual = isEqual && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case LITERAL:
             case NUMERIC_LITERAL:
                 BLangLiteral literalA = (BLangLiteral) nodeA;
@@ -1076,13 +1078,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case XML_TEXT_LITERAL:
                 BLangXMLTextLiteral textLiteralA = (BLangXMLTextLiteral) nodeA;
                 BLangXMLTextLiteral textLiteralB = (BLangXMLTextLiteral) nodeB;
-                res = equality(textLiteralA.concatExpr, textLiteralB.concatExpr);
+                isEqual = equality(textLiteralA.concatExpr, textLiteralB.concatExpr);
                 for (int i = 0; i < textLiteralA.textFragments.size(); i++) {
                     BLangExpression exprA = textLiteralA.textFragments.get(i);
                     BLangExpression exprB = textLiteralB.textFragments.get(i);
-                    res = res && equality(exprA, exprB);
+                    isEqual = isEqual && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case XML_ATTRIBUTE:
                 BLangXMLAttribute attributeA = (BLangXMLAttribute) nodeA;
                 BLangXMLAttribute attributeB = (BLangXMLAttribute) nodeB;
@@ -1090,27 +1092,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case XML_QNAME:
                 BLangXMLQName xmlqNameA = (BLangXMLQName) nodeA;
                 BLangXMLQName xmlqNameB = (BLangXMLQName) nodeA;
-                return equality(xmlqNameA.localname, xmlqNameB.localname) && equality(xmlqNameA.prefix, xmlqNameB.prefix);
+                return equality(xmlqNameA.localname, xmlqNameB.localname)
+                        && equality(xmlqNameA.prefix, xmlqNameB.prefix);
             case XML_COMMENT_LITERAL:
                 BLangXMLCommentLiteral commentliteralA = (BLangXMLCommentLiteral) nodeA;
                 BLangXMLCommentLiteral commentliteralB = (BLangXMLCommentLiteral) nodeB;
-                res = equality(commentliteralA.concatExpr, commentliteralB.concatExpr);
+                isEqual = equality(commentliteralA.concatExpr, commentliteralB.concatExpr);
                 for (int i = 0; i < commentliteralA.textFragments.size(); i++) {
                     BLangExpression exprA = commentliteralA.textFragments.get(i);
                     BLangExpression exprB = commentliteralB.textFragments.get(i);
-                    res = res && equality(exprA, exprB);
+                    isEqual = isEqual && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case XML_QUOTED_STRING:
                 BLangXMLQuotedString quotedLiteralA = (BLangXMLQuotedString) nodeA;
                 BLangXMLQuotedString quotedLiteralB = (BLangXMLQuotedString) nodeB;
-                res = equality(quotedLiteralA.concatExpr, quotedLiteralB.concatExpr);
+                isEqual = equality(quotedLiteralA.concatExpr, quotedLiteralB.concatExpr);
                 for (int i = 0; i < quotedLiteralA.textFragments.size(); i++) {
                     BLangExpression exprA = quotedLiteralA.textFragments.get(i);
                     BLangExpression exprB = quotedLiteralB.textFragments.get(i);
-                    res = res && equality(exprA, exprB);
+                    isEqual = isEqual && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case XMLNS:
                 BLangXMLNS xmlnsA = (BLangXMLNS) nodeA;
                 BLangXMLNS xmlnsB = (BLangXMLNS) nodeB;
@@ -1118,14 +1121,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case XML_PI_LITERAL:
                 BLangXMLProcInsLiteral insLiteralA = (BLangXMLProcInsLiteral) nodeA;
                 BLangXMLProcInsLiteral insLiteralB = (BLangXMLProcInsLiteral) nodeB;
-                res = equality(insLiteralA.target, insLiteralB.target) &&
-                        equality(insLiteralA.dataConcatExpr, insLiteralB.dataConcatExpr);
+                isEqual = equality(insLiteralA.target, insLiteralB.target)
+                        && equality(insLiteralA.dataConcatExpr, insLiteralB.dataConcatExpr);
                 for (int i = 0; i < insLiteralA.dataFragments.size(); i++) {
                     BLangExpression exprA = insLiteralA.dataFragments.get(i);
                     BLangExpression exprB = insLiteralB.dataFragments.get(i);
-                    res = res && equality(exprA, exprB);
+                    isEqual = isEqual && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case IDENTIFIER:
                 BLangIdentifier identifierA = (BLangIdentifier) nodeA;
                 BLangIdentifier identifierB = (BLangIdentifier) nodeB;
@@ -1140,27 +1143,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 for (int i = 0; i < stringTemplateLiteralA.exprs.size(); i++) {
                     BLangExpression exprA = stringTemplateLiteralA.exprs.get(i);
                     BLangExpression exprB = stringTemplateLiteralB.exprs.get(i);
-                    res = res && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                    isEqual = isEqual && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case LIST_CONSTRUCTOR_EXPR:
                 BLangListConstructorExpr listConstructorExprA = (BLangListConstructorExpr) nodeA;
                 BLangListConstructorExpr listConstructorExprB = (BLangListConstructorExpr) nodeB;
                 for (int i = 0; i < listConstructorExprA.exprs.size(); i++) {
                     BLangExpression exprA = listConstructorExprA.exprs.get(i);
                     BLangExpression exprB = listConstructorExprB.exprs.get(i);
-                    res = res && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                    isEqual = isEqual && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case TABLE_CONSTRUCTOR_EXPR:
                 BLangTableConstructorExpr tableConstructorExprA = (BLangTableConstructorExpr) nodeA;
                 BLangTableConstructorExpr tableConstructorExprB = (BLangTableConstructorExpr) nodeB;
                 for (int i = 0; i < tableConstructorExprA.recordLiteralList.size(); i++) {
                     BLangExpression exprA = tableConstructorExprA.recordLiteralList.get(i);
                     BLangExpression exprB = tableConstructorExprB.recordLiteralList.get(i);
-                    res = res && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                    isEqual = isEqual && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
                 }
-                return res;
+                return isEqual;
             case TYPE_CONVERSION_EXPR:
                 BLangTypeConversionExpr typeConversionExprA = (BLangTypeConversionExpr) nodeA;
                 BLangTypeConversionExpr typeConversionExprB = (BLangTypeConversionExpr) nodeB;
@@ -1168,8 +1171,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case BINARY_EXPR:
                 BLangBinaryExpr binaryExprA = (BLangBinaryExpr) nodeA;
                 BLangBinaryExpr binaryExprB = (BLangBinaryExpr) nodeB;
-                return equality(binaryExprA.lhsExpr, binaryExprB.lhsExpr) &&
-                        equality(binaryExprA.rhsExpr, binaryExprB.rhsExpr);
+                return equality(binaryExprA.lhsExpr, binaryExprB.lhsExpr)
+                        && equality(binaryExprA.rhsExpr, binaryExprB.rhsExpr);
             case UNARY_EXPR:
                 BLangUnaryExpr unaryExprA = (BLangUnaryExpr) nodeA;
                 BLangUnaryExpr unaryExprB = (BLangUnaryExpr) nodeB;
@@ -1187,7 +1190,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case GROUP_EXPR:
                 BLangGroupExpr groupExprA = (BLangGroupExpr) nodeA;
                 BLangGroupExpr groupExprB = (BLangGroupExpr) nodeA;
-
                 return equality(groupExprA.expression, groupExprB.expression);
             default:
                 return false;
