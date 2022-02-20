@@ -125,4 +125,16 @@ public class TableNegativeTest {
         validateError(compileResult, index, "incompatible types: expected 'int'," +
                 " found 'table<record {| (any|error) a; |}>'", 311, 13);
     }
+
+    @Test
+    public void testTableKeyViolations() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table_key_violations.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        int index = 0;
+
+        validateError(compileResult, index++, "duplicate key found in table row key('id') : '13'",
+                9, 9);
+        validateError(compileResult, index++, "duplicate key found in table row key('id, firstName') : '13, Foo'",
+                15, 9);
+    }
 }
