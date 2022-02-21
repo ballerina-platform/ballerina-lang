@@ -15,7 +15,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
-import org.wso2.ballerinalang.util.Flags;
 
 /**
  * This class contains static util methods commonly used to desugar class closure access desugaring.
@@ -52,13 +51,13 @@ public class ClassClosureDesugarUtils {
                                                       BLangClassDefinition classDef, SymbolEnv env) {
         classDef.hasClosureVars = true;
         resolvedSymbol.closure = true;
-        if (enclosedFunc != null) {
-            enclosedFunc.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+        if (enclosedF != null) {
+            enclosedF.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             // TODO: can identify if attached here
         }
-        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
-        if (enclosedFunc != null && (enclosedFunc.symbol.params.contains(resolvedSymbol)
-                || (enclosedFunc.symbol.restParam == resolvedSymbol))) {
+        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
+        if (enclosedF != null && (enclosedF.symbol.params.contains(resolvedSymbol)
+                || (enclosedF.symbol.restParam == resolvedSymbol))) {
             oceEnvData.closureFuncSymbols.add(resolvedSymbol);
         } else {
             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
