@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
@@ -287,8 +288,8 @@ public class SignatureHelpUtil {
         // Add parameters and rest params
         List<ParameterSymbol> parameterSymbols = fnType.params().orElse(new ArrayList<>());
         parameters.addAll(parameterSymbols.stream()
-                                  .map(param -> new Parameter(param, false, false, context))
-                                  .collect(Collectors.toList()));
+                .map(param -> new Parameter(param, false, false, context))
+                .collect(Collectors.toList()));
         Optional<ParameterSymbol> restParam = fnType.restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
         boolean skipFirstParam = symbol.kind() == METHOD
@@ -506,9 +507,9 @@ public class SignatureHelpUtil {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameReferenceNode;
                 funcName = (qNameRef).identifier().text();
                 filteredContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
-                                                                      symbolPredicate
-                                                                              .and(symbol -> symbol.getName().orElse("")
-                                                                                      .equals(funcName)));
+                        symbolPredicate
+                                .and(symbol -> symbol.getName().orElse("")
+                                        .equals(funcName)));
             } else {
                 funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
                 List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
@@ -672,6 +673,11 @@ public class SignatureHelpUtil {
         }
         if (rawType.kind() == CLASS && ((ClassSymbol) rawType).initMethod().isPresent()) {
             functionSymbols.add(((ClassSymbol) rawType).initMethod().get());
+        }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            ((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream()
+                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT).findAny()
+                    .ifPresent(objectMember -> functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 
