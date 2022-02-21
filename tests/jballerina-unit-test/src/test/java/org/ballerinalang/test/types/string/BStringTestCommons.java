@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 
 /**

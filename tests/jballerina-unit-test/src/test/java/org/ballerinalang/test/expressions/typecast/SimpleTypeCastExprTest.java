@@ -19,8 +19,8 @@ package org.ballerinalang.test.expressions.typecast;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

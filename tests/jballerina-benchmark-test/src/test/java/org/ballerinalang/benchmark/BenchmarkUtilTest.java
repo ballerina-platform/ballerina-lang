@@ -21,8 +21,8 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,8 +36,8 @@ import java.io.PrintStream;
  * Test Native util functions used with benchmarks.
  */
 public class BenchmarkUtilTest {
-    private CompileResult compileResult;
     private final String printFuncName = "testPrintAndPrintln";
+    private CompileResult compileResult;
     private PrintStream original;
 
     @BeforeClass(alwaysRun = true)
