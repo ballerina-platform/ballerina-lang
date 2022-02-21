@@ -52,7 +52,6 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
@@ -266,7 +265,7 @@ public class ExpressionTypeTestNew {
     @DataProvider(name = "MiscExprPosProvider")
     public Object[][] getExprPos() {
         return new Object[][]{
-                {72, 12, 15, SINGLETON},
+                {72, 12, 15, INT},
                 {73, 12, 23, INT},
                 {73, 12, 19, INT},
                 {73, 17, 23, null},
