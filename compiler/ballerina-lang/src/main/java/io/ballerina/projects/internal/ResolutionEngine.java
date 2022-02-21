@@ -169,10 +169,11 @@ public class ResolutionEngine {
 
     private Collection<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDeps) {
         // Set the default locking mode based on the sticky build option.
-        PackageLockingMode lockingMode = resolutionOptions.sticky() ?
+        PackageLockingMode defaultLockingMode = resolutionOptions.sticky() ?
                 PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
         for (DependencyNode directDependency : directDeps) {
+            PackageLockingMode lockingMode = defaultLockingMode;
             PackageDescriptor pkgDesc = directDependency.pkgDesc();
             Optional<BlendedManifest.Dependency> dependency = blendedManifest.lockedDependency(
                     pkgDesc.org(), pkgDesc.name());

@@ -641,6 +641,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode((BLangNode) foreach.variableDefinitionNode);
         lookupNode(foreach.collection);
         lookupNode(foreach.body);
+        lookupNode(foreach.onFailClause);
     }
 
     @Override
@@ -722,11 +723,13 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangWhile whileNode) {
         lookupNode(whileNode.expr);
         lookupNode(whileNode.body);
+        lookupNode(whileNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         lookupNode(lockNode.body);
+        lookupNode(lockNode.onFailClause);
     }
 
     @Override

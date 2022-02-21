@@ -58,12 +58,36 @@ public class TypeReferenceTypeBalaTest {
                 "test-src/bala/test_bala/types/type_reference_type_bala_test_negative.bal");
         int i = 0;
         validateError(negativeResult, i++,
+                "attempt to refer to non-accessible symbol 'Strings2'", 19, 32);
+        validateError(negativeResult, i++, "unknown type 'Strings2'", 19, 32);
+        validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 19, 46);
+        validateError(negativeResult, i++, "attempt to refer to non-accessible symbol 'Integer2'", 20, 30);
+        validateError(negativeResult, i++, "unknown type 'Integer2'", 20, 30);
+        validateError(negativeResult, i++, "attempt to refer to non-accessible symbol 'Decimal2'", 20, 53);
+        validateError(negativeResult, i++, "unknown type 'Decimal2'", 20, 53);
+        validateError(negativeResult, i++, "unknown type 'FooBar2'", 22, 20);
+        validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 25, 5);
+        validateError(negativeResult, i++, "unknown type 'Bar2'", 29, 6);
+        validateError(negativeResult, i++, "undefined field 'b' in record 'record {| |} & readonly'", 30, 9);
+        validateError(negativeResult, i++,
                       "incompatible types: expected " +
                               "'(testorg/typereftypes:1.0.0:Foo|testorg/typereftypes:1.0.0:Bar)', found '()'",
-                      20, 22);
+                      33, 22);
         validateError(negativeResult, i++,
                       "incompatible types: expected 'testorg/typereftypes:1.0.0:Corge', found '()'",
-                      21, 22);
+                      34, 22);
+        validateError(negativeResult, i++, "unknown type 'FooBar2'", 38, 9);
+        validateError(negativeResult, i++, "unknown type 'FooBar2'", 40, 9);
+        validateError(negativeResult, i++, "attempt to refer to non-accessible symbol 'IntArray2'", 43, 5);
+        validateError(negativeResult, i++, "unknown type 'IntArray2'", 43, 5);
+        validateError(negativeResult, i++, "attempt to refer to non-accessible symbol 'Integer2'", 44, 13);
+        validateError(negativeResult, i++, "unknown type 'Integer2'", 44, 13);
+        validateError(negativeResult, i++, "attempt to refer to non-accessible symbol 'Integer2'", 45, 9);
+        validateError(negativeResult, i++, "unknown type 'Integer2'", 45, 9);
+        validateError(negativeResult, i++, "unknown type 'ImmutableIntOrStringArray'", 49, 23);
+        validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 49, 60);
+        validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 50, 13);
+        validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 51, 17);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

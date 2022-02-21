@@ -334,8 +334,8 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 # Each item is represented as a singleton value.
 #
 # + x - the xml value
-# + func - a function to apply to each child or parameter `item`
-# + return - new xml value containing result of applying function `func` to each child or parameter `item`
+# + func - a function to apply to each child or `item`
+# + return - new xml value containing result of applying parameter `func` to each child or `item`
 public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType item) returns XmlType func)
     returns xml<XmlType> = @java:Method {
         'class: "org.ballerinalang.langlib.xml.Map",

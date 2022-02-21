@@ -132,7 +132,9 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 // TODO Blocked by #34448
                 // {"create_function_in_var_decl14.json", "create_function_in_var_decl4.bal"}
                 
-                 {"create_function_which_returns_error1.json", "create_function_which_returns_error1.bal"},
+                {"create_function_which_returns_error1.json", "create_function_which_returns_error1.bal"},
+                {"create_function_in_fail1.json", "create_function_in_fail1.bal"},
+                {"create_function_in_return1.json", "create_function_in_return1.bal"},
         };
     }
 
