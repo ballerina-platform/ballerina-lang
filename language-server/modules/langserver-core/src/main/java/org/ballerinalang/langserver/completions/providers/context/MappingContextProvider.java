@@ -152,8 +152,9 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
             if (!fields.values().isEmpty()) {
-                completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields,
-                        recordTypeSymbol));
+                Optional<LSCompletionItem> fillAllStructFieldsItem =
+                        CommonUtil.getFillAllStructFieldsItem(context, fields, recordTypeSymbol);
+                fillAllStructFieldsItem.ifPresent(completionItems::add);
             }
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }

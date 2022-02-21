@@ -497,17 +497,16 @@ public class CommonUtil {
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
      * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
-     * @return {@link LSCompletionItem}   Completion Item to fill all the options
+     * @return {@link Optional}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
+    public static Optional<LSCompletionItem> getFillAllStructFieldsItem(BallerinaCompletionContext context,
                                                               Map<String, RecordFieldSymbol> fields,
                                                               Pair<TypeSymbol, TypeSymbol> symbol) {
-
         List<String> fieldEntries = new ArrayList<>();
 
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-            if (!entry.getValue().isOptional()) {
+            if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
                 requiredFields.put(entry.getKey(), entry.getValue());
             }
         }
@@ -529,26 +528,20 @@ public class CommonUtil {
                         + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
                 fieldEntries.add(fieldEntry);
             }
-        } else {
-            label = "Fill " + detail + " Optional Fields";
-            for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-                String fieldEntry = entry.getKey()
-                        + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
-                fieldEntries.add(fieldEntry);
-            }
+
+            String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
+            CompletionItem completionItem = new CompletionItem();
+            completionItem.setFilterText("fill");
+            completionItem.setLabel(label);
+            completionItem.setInsertText(insertText);
+            completionItem.setDetail(detail);
+            completionItem.setKind(CompletionItemKind.Property);
+            completionItem.setSortText(Priority.PRIORITY110.toString());
+
+            return Optional.of(new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER));
         }
 
-        String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setFilterText("fill");
-        completionItem.setLabel(label);
-        completionItem.setInsertText(insertText);
-        completionItem.setDetail(detail);
-        completionItem.setKind(CompletionItemKind.Property);
-        completionItem.setSortText(Priority.PRIORITY110.toString());
-
-        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER);
+        return Optional.empty();
     }
 
     /**

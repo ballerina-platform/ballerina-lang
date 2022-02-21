@@ -23,15 +23,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill Rec1 Optional Fields",
-      "kind": "Property",
-      "detail": "Rec1",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "rec1Field3: 0",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "rec2Field2",
       "kind": "Field",
       "detail": "Rec2.rec2Field2",
