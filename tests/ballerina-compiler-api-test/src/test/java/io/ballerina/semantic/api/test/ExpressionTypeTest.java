@@ -49,12 +49,12 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
