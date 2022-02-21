@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class BByteValueTest {
 
     @Test(description = "Test byte value assignment")
     public void testByteValue() {
-        Object returns = JvmRunUtil.invoke(result, "testByteValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testByteValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int byteValue = (int) returns;
@@ -59,14 +59,14 @@ public class BByteValueTest {
 
     @Test(description = "Test byte value space")
     public void testByteValueSpace() {
-        Object returns = JvmRunUtil.invoke(result, "testByteValueSpace", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testByteValueSpace", new Object[]{});
         int byteValue = (int) returns;
         Assert.assertEquals(byteValue, 234, "Invalid byte value returned.");
     }
 
     @Test(description = "Test byte default value")
     public void testByteDefaultValue() {
-        Object returns = JvmRunUtil.invoke(result, "testByteDefaultValue");
+        Object returns = BRunUtil.invoke(result, "testByteDefaultValue");
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int byteValue = (int) returns;
@@ -86,7 +86,7 @@ public class BByteValueTest {
     private void invokeByteInputFunction(String functionName) {
         int input = 34;
         Object[] args = {(input)};
-        Object returns = JvmRunUtil.invoke(result, functionName, args);
+        Object returns = BRunUtil.invoke(result, functionName, args);
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int byteValue = (int) returns;
@@ -97,7 +97,7 @@ public class BByteValueTest {
     public void testByteToIntCast() {
         int input = 12;
         Object[] args = {(input)};
-        Object returns = JvmRunUtil.invoke(result, "testByteToIntCast", args);
+        Object returns = BRunUtil.invoke(result, "testByteToIntCast", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -108,7 +108,7 @@ public class BByteValueTest {
     public void testIntToByteCast() {
         int input = 123;
         Object[] args = {(input)};
-        Object returns = JvmRunUtil.invoke(result, "testIntToByteCast", args);
+        Object returns = BRunUtil.invoke(result, "testIntToByteCast", args);
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int bByte = (int) returns;
@@ -119,7 +119,7 @@ public class BByteValueTest {
     public void testIntToByteExplicitCast() {
         int input = 123;
         Object[] args = {(input)};
-        Object returns = JvmRunUtil.invoke(result, "testIntToByteExplicitCast", args);
+        Object returns = BRunUtil.invoke(result, "testIntToByteExplicitCast", args);
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int bByte = (int) returns;
@@ -130,7 +130,7 @@ public class BByteValueTest {
     public void testIntToByteConversion() {
         int input = 123;
         Object[] args = {(input)};
-        Object returns = JvmRunUtil.invoke(result, "testIntToByteConversion", args);
+        Object returns = BRunUtil.invoke(result, "testIntToByteConversion", args);
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int bByte = (int) returns;
@@ -141,7 +141,7 @@ public class BByteValueTest {
     public void testByteToIntConversion() {
         int input = 45;
         Object[] args = {(input)};
-        Object returns = JvmRunUtil.invoke(result, "testByteToIntConversion", args);
+        Object returns = BRunUtil.invoke(result, "testByteToIntConversion", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -151,7 +151,7 @@ public class BByteValueTest {
     @Test(description = "Test byte to int safe conversion")
     public void testSafeCasting() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testSafeCasting", args);
+        Object returns = BRunUtil.invoke(result, "testSafeCasting", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -161,7 +161,7 @@ public class BByteValueTest {
     @Test(description = "Test byte to integer conversion")
     public void testAnyToByteCasting() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testAnyToByteCasting", args);
+        Object returns = BRunUtil.invoke(result, "testAnyToByteCasting", args);
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int bByte = (int) returns;
@@ -171,7 +171,7 @@ public class BByteValueTest {
     @Test(description = "Test byte array value")
     public void testByteArrayValue() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testByteArray", args);
+        Object returns = BRunUtil.invoke(result, "testByteArray", args);
 
         Assert.assertTrue(returns instanceof BArray);
     }
@@ -190,7 +190,7 @@ public class BByteValueTest {
         bByteArrayIn.add(3, input4);
         Object[] args = {bByteArrayIn};
 
-        Object returns = JvmRunUtil.invoke(result, "testByteArrayAssignment", args);
+        Object returns = BRunUtil.invoke(result, "testByteArrayAssignment", args);
 
         Assert.assertTrue(returns instanceof BArray);
         BArray bByteArrayOut = (BArray) returns;
@@ -213,7 +213,7 @@ public class BByteValueTest {
 
     private void invokeArrayLengthFunction(String functionName, int length) {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, functionName, args);
+        Object returns = BRunUtil.invoke(result, functionName, args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -228,7 +228,7 @@ public class BByteValueTest {
     @Test(description = "Test byte array of array")
     public void testByteArrayOfArray() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testByteArrayOfArray", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testByteArrayOfArray", args);
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -254,7 +254,7 @@ public class BByteValueTest {
         bByteArrayIn.add(4, input5);
         Object[] args = {bByteArrayIn};
 
-        Object returns = JvmRunUtil.invoke(result, "testByteArrayIteration", args);
+        Object returns = BRunUtil.invoke(result, "testByteArrayIteration", args);
 
         Assert.assertTrue(returns instanceof BArray);
         BArray bByteArrayOut = (BArray) returns;
@@ -271,7 +271,7 @@ public class BByteValueTest {
         byte b1 = 2;
         byte b2 = 3;
         Object[] args = {(b1), (b2), (b1)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testByteBinaryOperation", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testByteBinaryOperation", args);
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
         Assert.assertSame(returns.get(1).getClass(), Boolean.class);
@@ -286,7 +286,7 @@ public class BByteValueTest {
         byte b1 = 12;
         byte b2 = 32;
         Object[] args = {(b1), (b2), (b1)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testByteBinaryNotEqualOperation", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testByteBinaryNotEqualOperation", args);
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
         Assert.assertSame(returns.get(1).getClass(), Boolean.class);
@@ -298,13 +298,13 @@ public class BByteValueTest {
 
     @Test
     public void simpleWorkerMessagePassingTest() {
-        JvmRunUtil.invoke(result, "testWorkerWithByteVariable", new Object[0]);
+        BRunUtil.invoke(result, "testWorkerWithByteVariable", new Object[0]);
     }
 
     @Test(description = "Test byte to int safe conversion")
     public void testByteOrIntMatch1() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testByteOrIntMatch1", args);
+        Object returns = BRunUtil.invoke(result, "testByteOrIntMatch1", args);
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int bByte = (int) returns;
@@ -314,7 +314,7 @@ public class BByteValueTest {
     @Test(description = "Test byte to int safe conversion")
     public void testByteOrIntMatch2() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testByteOrIntMatch2", args);
+        Object returns = BRunUtil.invoke(result, "testByteOrIntMatch2", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -324,7 +324,7 @@ public class BByteValueTest {
     @Test(description = "Test byte to int safe conversion")
     public void testByteOrIntMatch3() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testByteOrIntMatch3", args);
+        Object returns = BRunUtil.invoke(result, "testByteOrIntMatch3", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -334,7 +334,7 @@ public class BByteValueTest {
     @Test(description = "Test byte to int safe conversion")
     public void testByteOrIntMatch4() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testByteOrIntMatch4", args);
+        Object returns = BRunUtil.invoke(result, "testByteOrIntMatch4", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -379,7 +379,7 @@ public class BByteValueTest {
 
     private void invokeBitwiseAndTestFunction(byte a, byte b, int i, int j) {
         Object[] args = {(a), (b), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseAndOperator", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseAndOperator", args);
         Assert.assertEquals(returns.size(), 5);
         int bByte1 = (int) returns.get(0);
         long bInteger1 = (long) returns.get(1);
@@ -423,7 +423,7 @@ public class BByteValueTest {
 
     private void testBitwiseOrTestFunction(byte a, byte b, int i, int j) {
         Object[] args = {(a), (b), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseOrOperator", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseOrOperator", args);
         Assert.assertEquals(returns.size(), 5);
         int bByte = (int) returns.get(0);
         long bInteger1 = (long) returns.get(1);
@@ -467,7 +467,7 @@ public class BByteValueTest {
 
     private void testBitwiseXorTestFunction(byte a, byte b, int i, int j) {
         Object[] args = {(a), (b), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseXorOperator", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseXorOperator", args);
         Assert.assertEquals(returns.size(), 5);
         int bByte = (int) returns.get(0);
         long bInteger1 = (long) returns.get(1);
@@ -490,7 +490,7 @@ public class BByteValueTest {
         long j = 3;
 
         Object[] args = {(a), (b), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseRightShiftOperator1", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseRightShiftOperator1", args);
         Assert.assertEquals(returns.size(), 3);
         int bByte1 = (int) returns.get(0);
         long bInteger2 = (long) returns.get(1);
@@ -501,7 +501,7 @@ public class BByteValueTest {
         Assert.assertEquals(bByte2, 15, "Invalid result");
 
         Object[] args2 = {(a), (b), (i), (j)};
-        returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseRightShiftOperator2", args2);
+        returns = (BArray) BRunUtil.invoke(result, "testBitwiseRightShiftOperator2", args2);
         Assert.assertEquals(returns.size(), 3);
         long bInteger1 = (long) returns.get(0);
         bInteger2 = (long) returns.get(1);
@@ -519,7 +519,7 @@ public class BByteValueTest {
         long j = 4;
 
         Object[] args = {(a), (b), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseRightShiftOperator1", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseRightShiftOperator1", args);
         Assert.assertEquals(returns.size(), 3);
         int bByte1 = (int) returns.get(0);
         long bInteger2 = (long) returns.get(1);
@@ -530,7 +530,7 @@ public class BByteValueTest {
         Assert.assertEquals(bByte2, 14, "Invalid result");
 
         Object[] args2 = {(a), (b), (i), (j)};
-        returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseRightShiftOperator2", args2);
+        returns = (BArray) BRunUtil.invoke(result, "testBitwiseRightShiftOperator2", args2);
         Assert.assertEquals(returns.size(), 3);
         long bInteger1 = (long) returns.get(0);
         bInteger2 = (long) returns.get(1);
@@ -566,7 +566,7 @@ public class BByteValueTest {
 
     private void invokeUnsignedRightShiftOperatorTestFunction(int a, long i, long j) {
         Object[] args = {(a), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOperator", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOperator", args);
         Assert.assertEquals(returns.size(), 2);
         long bInteger1 = (long) returns.get(0);
         long bInteger2 = (long) returns.get(1);
@@ -600,7 +600,7 @@ public class BByteValueTest {
 
     private void invokeLeftShiftOperatorTestFunction1(int a, int b, long i, long j) {
         Object[] args = {(a), (b), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseLeftShiftOperator1", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseLeftShiftOperator1", args);
         Assert.assertEquals(returns.size(), 3);
         long bInteger1 = (long) returns.get(0);
         long bInteger2 = (long) returns.get(1);
@@ -612,7 +612,7 @@ public class BByteValueTest {
 
     private void invokeLeftShiftOperatorTestFunction2(int a, int b, long i, long j) {
         Object[] args = {(a), (b), (i), (j)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseLeftShiftOperator2", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseLeftShiftOperator2", args);
         Assert.assertEquals(returns.size(), 3);
         long bInteger1 = (long) returns.get(0);
         long bInteger2 = (long) returns.get(1);
@@ -628,7 +628,7 @@ public class BByteValueTest {
         int c = (a << 1);
         int d = (c >> 1);
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testByteShift", args);
+        Object returns = BRunUtil.invoke(result, "testByteShift", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -637,7 +637,7 @@ public class BByteValueTest {
 
     @Test(description = "Test byte shift by large value")
     public void testByteShiftWithLargeValue() {
-        JvmRunUtil.invoke(result, "testByteShiftWithLargeValue");
+        BRunUtil.invoke(result, "testByteShiftWithLargeValue");
     }
 
     @Test(description = "Test bitwise Complement operator 1")
@@ -663,7 +663,7 @@ public class BByteValueTest {
 
     private void invokeBitwiseComplementOperatorFunction(byte a, int b) {
         Object[] args = {(a), (b)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBitwiseNotOperator", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBitwiseNotOperator", args);
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -785,7 +785,7 @@ public class BByteValueTest {
     private void invokeBitwisePrecedenceTestFunctionForByte(byte a, byte b, byte c, String functionName,
                                                             byte expected) {
         Object[] args = {(a), (b), (c)};
-        Object returns = JvmRunUtil.invoke(result, functionName, args);
+        Object returns = BRunUtil.invoke(result, functionName, args);
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int bByte = (int) returns;
@@ -794,7 +794,7 @@ public class BByteValueTest {
 
     private void invokeBitwisePrecedenceTestFunctionForInt(int a, int b, int c, String functionName, int expected) {
         Object[] args = {(a), (b), (c)};
-        Object returns = JvmRunUtil.invoke(result, functionName, args);
+        Object returns = BRunUtil.invoke(result, functionName, args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long bInteger = (long) returns;
@@ -803,9 +803,9 @@ public class BByteValueTest {
 
     @Test(description = "Test byte value return as int in lambda")
     public void testByteReturnAsIntInLambda() {
-        JvmRunUtil.invoke(result, "testByteReturnAsIntInLambda1");
-        JvmRunUtil.invoke(result, "testByteReturnAsIntInLambda2");
-        JvmRunUtil.invoke(result, "testByteReturnAsIntInLambda3");
+        BRunUtil.invoke(result, "testByteReturnAsIntInLambda1");
+        BRunUtil.invoke(result, "testByteReturnAsIntInLambda2");
+        BRunUtil.invoke(result, "testByteReturnAsIntInLambda3");
     }
 
     @AfterClass

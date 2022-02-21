@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,19 +42,19 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testBasicAttributeAccessSyntax() {
-        Object result = JvmRunUtil.invoke(compileResult, "getElementAttrBasic");
+        Object result = BRunUtil.invoke(compileResult, "getElementAttrBasic");
         Assert.assertEquals(result.toString(), "attr-val");
     }
 
     @Test
     public void testAttributeAccessSyntaxWithNS() {
-        Object result = JvmRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
+        Object result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
         Assert.assertEquals(result.toString(), "attr-with-ns-val");
     }
 
     @Test
     public void testGetAttrOfASequence() {
-        Object result = JvmRunUtil.invoke(compileResult, "getAttrOfASequence");
+        Object result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
         Assert.assertEquals(result.toString(),
                 "error(\"{ballerina/lang.xml}XMLOperationError\",message=\"invalid xml attribute access on xml " +
                         "sequence\")");
@@ -70,7 +70,7 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testXMLAsMapContent() {
-        BArray result = (BArray) JvmRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
+        BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLAsMapContent");
         Assert.assertEquals(result.get(0).toString(), "val");
         Assert.assertEquals(result.get(1).toString(), "val");
         Assert.assertEquals(result.get(2).toString(), "true");
@@ -78,7 +78,7 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testXMLAttributeWithNSPrefix() {
-        BArray result = (BArray) JvmRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
+        BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLAttributeWithNSPrefix");
         Assert.assertEquals(result.get(0).toString(), "preserve");
         Assert.assertEquals(result.get(1).toString(), "preserve");
         Assert.assertEquals(result.get(2).toString(), "error(\"{lang.map}InvalidKey\",key=\"b\")");
@@ -86,13 +86,13 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testXMLASMapContentInvalidKey() {
-        Object result = JvmRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
+        Object result = BRunUtil.invoke(lexCompileRes, "testXMLASMapContentInvalidKey");
         Assert.assertEquals(result.toString(), "error(\"{lang.map}InvalidKey\",key=\"b\")");
     }
 
     @Test
     public void testXMLDirectAttributeAccess() {
-        BArray result = (BArray) JvmRunUtil.invoke(lexCompileRes, "testXMLDirectAttributeAccess");
+        BArray result = (BArray) BRunUtil.invoke(lexCompileRes, "testXMLDirectAttributeAccess");
         Assert.assertTrue((Boolean) result.get(0));
         Assert.assertTrue((Boolean) result.get(1));
         Assert.assertTrue((Boolean) result.get(2));
@@ -101,7 +101,7 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testXMLAfterRemoveAttribute() {
-        JvmRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
+        BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
     }
 
 }

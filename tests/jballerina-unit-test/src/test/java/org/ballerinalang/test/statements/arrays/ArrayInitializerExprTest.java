@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test arrays initializer expression")
     public void testArrayInitExpr() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "arrayInitTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "arrayInitTest", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -58,7 +58,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test arrays return value")
     public void testArrayReturnValueTest() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "arrayReturnTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "arrayReturnTest", args);
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -72,7 +72,7 @@ public class ArrayInitializerExprTest {
 
     @Test(description = "Test array of finite type and nil")
     public void finiteTypeArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "finiteTypeArray");
+        Object returns = BRunUtil.invoke(compileResult, "finiteTypeArray");
         Assert.assertEquals(returns.toString(), "Terminating");
     }
     
@@ -85,7 +85,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test nested array inline initializing")
     public void testNestedArrayInit() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testNestedArrayInit", args);
+        Object returns = BRunUtil.invoke(compileResult, "testNestedArrayInit", args);
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -113,7 +113,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test array of maps inline initializing")
     public void testArrayOfMapsInit() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testArrayOfMapsInit", args);
+        Object returns = BRunUtil.invoke(compileResult, "testArrayOfMapsInit", args);
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -142,7 +142,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test float array initialization with integer values")
     public void testFloatArrayInitWithIntExpr() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "floatArrayInitWithInt", args);
+        Object returns = BRunUtil.invoke(compileResult, "floatArrayInitWithInt", args);
 
         Assert.assertTrue(returns instanceof BArray);
 

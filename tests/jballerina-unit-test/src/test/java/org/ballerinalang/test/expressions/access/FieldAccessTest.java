@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.access;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -131,7 +131,7 @@ public class FieldAccessTest {
 
     @Test(dataProvider = "recordFieldAccessFunctions")
     public void testRecordFieldAccess(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -146,7 +146,7 @@ public class FieldAccessTest {
 
     @Test
     public void testJsonFieldAccessPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonFieldAccessPositive");
+        Object returns = BRunUtil.invoke(result, "testJsonFieldAccessPositive");
         BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 2);
         for (int i = 0; i < 2; i++) {
@@ -156,7 +156,7 @@ public class FieldAccessTest {
 
     @Test
     public void testJsonFieldAccessNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonFieldAccessNegative");
+        Object returns = BRunUtil.invoke(result, "testJsonFieldAccessNegative");
         BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 5);
         for (int i = 0; i < 5; i++) {
@@ -166,7 +166,7 @@ public class FieldAccessTest {
 
     @Test
     public void testMapJsonFieldAccessPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testMapJsonFieldAccessPositive");
+        Object returns = BRunUtil.invoke(result, "testMapJsonFieldAccessPositive");
         BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 2);
         for (int i = 0; i < 2; i++) {
@@ -176,7 +176,7 @@ public class FieldAccessTest {
 
     @Test
     public void testMapJsonFieldAccessNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testMapJsonFieldAccessNegative");
+        Object returns = BRunUtil.invoke(result, "testMapJsonFieldAccessNegative");
         BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 5);
         for (int i = 0; i < 5; i++) {
@@ -186,7 +186,7 @@ public class FieldAccessTest {
 
     @Test(dataProvider = "nonNilLiftingJsonFieldAccessFunctions")
     public void testNonNilLiftingJsonFieldAccess(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -201,13 +201,13 @@ public class FieldAccessTest {
 
     @Test
     public void testLaxUnionFieldAccessPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testLaxUnionFieldAccessPositive");
+        Object returns = BRunUtil.invoke(result, "testLaxUnionFieldAccessPositive");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(dataProvider = "laxUnionFieldAccessNegativeFunctions")
     public void testLaxUnionFieldAccessNegative(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -222,17 +222,17 @@ public class FieldAccessTest {
 
     @Test
     public void testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() {
-        JvmRunUtil.invoke(result, "testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
+        BRunUtil.invoke(result, "testLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
     }
 
     @Test
     public void negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel() {
-        JvmRunUtil.invoke(result, "negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
+        BRunUtil.invoke(result, "negativeTestLaxFieldAccessWithCheckOnVariableDefinedAtModuleLevel");
     }
 
     @Test(dataProvider = "mapJsonFieldAccessTypePositiveFunctions")
     public void testMapJsonFieldAccessTypePositive(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -246,29 +246,29 @@ public class FieldAccessTest {
 
     @Test
     public void testFieldAccessOnInvocation() {
-        Object returns = JvmRunUtil.invoke(result, "testFieldAccessOnInvocation");
+        Object returns = BRunUtil.invoke(result, "testFieldAccessOnInvocation");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testJsonFieldAccessOnInvocation() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonFieldAccessOnInvocation");
+        Object returns = BRunUtil.invoke(result, "testJsonFieldAccessOnInvocation");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFieldAccessOnMapConstruct() {
-        Object returns = JvmRunUtil.invoke(result, "testFieldAccessOnMapConstruct");
+        Object returns = BRunUtil.invoke(result, "testFieldAccessOnMapConstruct");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAccessOptionalFieldWithFieldAccess1() {
-        Object returns = JvmRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess1");
+        Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess1");
     }
 
     @Test
     public void testAccessOptionalFieldWithFieldAccess2() {
-        Object returns = JvmRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
+        Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
     }
 }

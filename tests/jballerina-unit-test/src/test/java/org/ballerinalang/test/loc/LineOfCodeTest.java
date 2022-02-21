@@ -19,7 +19,7 @@ package org.ballerinalang.test.loc;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class LineOfCodeTest {
 
     @Test(description = "Test running ballerina program with 37000 lines of code")
     public void testRunProgramWithHighLineOfCodes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "largeFunction");
+        Object returns = BRunUtil.invoke(compileResult, "largeFunction");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 37000L);
     }

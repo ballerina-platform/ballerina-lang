@@ -20,7 +20,7 @@ package org.ballerinalang.test.cli;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -42,6 +42,6 @@ public class OperandTest {
     @Test(dataProvider = "fileAndParameters")
     public void testOperands(String fileName, String[] args) {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/" + fileName + ".bal");
-        JvmRunUtil.runMain(compileResult, args);
+        BRunUtil.runMain(compileResult, args);
     }
 }

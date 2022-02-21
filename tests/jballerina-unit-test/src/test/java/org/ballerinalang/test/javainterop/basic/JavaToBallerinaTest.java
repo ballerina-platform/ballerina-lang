@@ -19,7 +19,7 @@ package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,7 +33,7 @@ public class JavaToBallerinaTest {
     @Test
     public void testUsingExistingBallerinaRuntime() {
         CompileResult result = BCompileUtil.compile("test-src/javainterop/basic/java_to_bal_test.bal");
-        Object returns = JvmRunUtil.invoke(result, "timerTest");
+        Object returns = BRunUtil.invoke(result, "timerTest");
 
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 3L);
@@ -42,7 +42,7 @@ public class JavaToBallerinaTest {
     @Test
     public void testReturnValue() {
         CompileResult result = BCompileUtil.compile("test-src/javainterop/basic/java_to_bal_with_return.bal");
-        Object returns = JvmRunUtil.invoke(result, "returnValueTest");
+        Object returns = BRunUtil.invoke(result, "returnValueTest");
 
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 50L);

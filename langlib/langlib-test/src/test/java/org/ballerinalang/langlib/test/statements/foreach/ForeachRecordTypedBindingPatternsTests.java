@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,48 +40,48 @@ public class ForeachRecordTypedBindingPatternsTests {
 
     @Test
     public void testSimpleRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testSimpleRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testSimpleRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testSimpleRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testSimpleRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testSimpleRecordWithType");
         Assert.assertEquals(returns.toString(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testRecordInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testRecordInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testRecordInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test
     public void testRecordInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testRecordInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testRecordInRecordWithType");
         Assert.assertEquals(returns.toString(), "0:2 1:B 2:{\"i\":1,\"s\":\"A\",\"f\":1.0} ");
     }
 
     @Test
     public void testTupleInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testTupleInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testTupleInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test
     public void testTupleInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testTupleInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testTupleInRecordWithType");
         Assert.assertEquals(returns.toString(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test
     public void testEmptyRecordIteration() {
-        Object returns = JvmRunUtil.invoke(program, "testEmptyRecordIteration");
+        Object returns = BRunUtil.invoke(program, "testEmptyRecordIteration");
         Assert.assertEquals(returns.toString(), "");
     }
 
     @Test
     public void testForeachWithClosedRecordWithNoFields() {
-        JvmRunUtil.invoke(program, "testForeachWithClosedRecordWithNoFields");
+        BRunUtil.invoke(program, "testForeachWithClosedRecordWithNoFields");
     }
 }

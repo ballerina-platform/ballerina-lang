@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -52,7 +52,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLElementAccessOnSingleElementXML() {
-        BArray returns = (BArray) JvmRunUtil.invoke(elementAccess, "testXMLElementAccessOnSingleElementXML");
+        BArray returns = (BArray) BRunUtil.invoke(elementAccess, "testXMLElementAccessOnSingleElementXML");
         Assert.assertEquals(returns.get(0).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
         Assert.assertEquals(returns.get(1).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
         Assert.assertEquals(returns.get(2).toString(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
@@ -63,7 +63,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLElementAccessOnXMLSequence() {
-        BArray returns = (BArray) JvmRunUtil.invoke(elementAccess, "testXMLElementAccessOnXMLSequence");
+        BArray returns = (BArray) BRunUtil.invoke(elementAccess, "testXMLElementAccessOnXMLSequence");
         Assert.assertEquals(returns.get(0).toString(),
                 "<ns:root xmlns:ns=\"foo\"></ns:root>" +
                         "<k:root xmlns:k=\"bar\"></k:root>" +
@@ -78,7 +78,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLElementAccessMultipleFilters() {
-        BArray returns = (BArray) JvmRunUtil.invoke(elementAccess, "testXMLElementAccessMultipleFilters");
+        BArray returns = (BArray) BRunUtil.invoke(elementAccess, "testXMLElementAccessMultipleFilters");
         Assert.assertEquals(returns.get(0).toString(),
                 "<ns:root xmlns:ns=\"foo\"></ns:root>" +
                         "<k:root xmlns:k=\"bar\"></k:root>" +
@@ -99,7 +99,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavigationOnSingleElement() {
-        BArray returns = (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationOnSingleElement");
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElement");
         Assert.assertEquals(returns.get(0).toString(), "<child attr=\"attr-val\"></child>");
         Assert.assertEquals(returns.get(1).toString(), "<child attr=\"attr-val\"></child>");
         Assert.assertEquals(returns.get(2).toString(), "<child attr=\"attr-val\"></child>");
@@ -109,7 +109,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavigationOnSingleElementWithNamespaces() {
-        BArray returns = (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementWithNamespaces");
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementWithNamespaces");
         Assert.assertEquals(returns.get(0).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
         Assert.assertEquals(returns.get(1).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
         Assert.assertEquals(returns.get(2).toString(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
@@ -119,7 +119,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavigationOnSingleElementReferToDefaultNS() {
-        BArray returns = (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNS");
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNS");
         Assert.assertEquals(returns.get(0).toString(), "<child xmlns=\"foo\"></child>");
         Assert.assertEquals(returns.get(1).toString(), "<child xmlns=\"foo\"></child>");
         Assert.assertEquals(returns.get(2).toString(), "<child xmlns=\"foo\"></child>");
@@ -133,7 +133,7 @@ public class XMLAccessTest {
     @Test
     public void testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix() {
         BArray returns =
-                (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix");
+                (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix");
         Assert.assertEquals(returns.get(0).toString(), "<child xmlns=\"foo\"></child>");
         Assert.assertEquals(returns.get(1).toString(), "<child xmlns=\"foo\"></child>");
         Assert.assertEquals(returns.get(2).toString(), "<child xmlns=\"foo\"></child>");
@@ -143,7 +143,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavigationOnSequence() {
-        BArray returns = (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationOnSequence");
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSequence");
         Assert.assertEquals(returns.get(0).toString(), "<child>A</child><child>B</child><child>C</child>");
         Assert.assertEquals(returns.get(1).toString(), "<child>A</child><child>B</child>" +
                 "<child>C</child><it-child>D</it-child>TEXT");
@@ -155,7 +155,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavigationOnSequenceWithNamespaces() {
-        BArray returns = (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespaces");
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespaces");
         Assert.assertEquals(returns.get(0).toString(),
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>");
         Assert.assertEquals(returns.get(1).toString(),
@@ -174,7 +174,7 @@ public class XMLAccessTest {
     @Test
     public void testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters() {
         BArray returns =
-                (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters");
+                (BArray) BRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters");
         Assert.assertEquals(returns.get(0).toString(),
                 "<child xmlns=\"foo\">A</child><child xmlns=\"foo\" xmlns:ns=\"foo\">B</child>" +
                         "<child2 xmlns=\"foo\">D</child2>");
@@ -191,7 +191,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLElementAccessNavigationAccessComposition() {
-        BArray returns = (BArray) JvmRunUtil.invoke(navigation, "testXMLElementAccessNavigationAccessComposition");
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLElementAccessNavigationAccessComposition");
         Assert.assertEquals(returns.get(0).toString(),
                 "<lname>Gunae</lname><lname>Jayee</lname><lname>Kumarae</lname>");
         Assert.assertEquals(returns.get(1).toString(), "<fname>Kamal</fname><lname>Gunae</lname><fname>Nimal</fname>" +
@@ -206,7 +206,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavigationExpressionWithQuotedIdentifiers() {
-        BArray returns = (BArray) JvmRunUtil.invoke(navigation, "testXMLNavigationExpressionWithQuotedIdentifiers");
+        BArray returns = (BArray) BRunUtil.invoke(navigation, "testXMLNavigationExpressionWithQuotedIdentifiers");
         Assert.assertEquals(returns.get(0).toString(),
                 "<object xmlns=\"http://www.force.com/2009/06/asyncapi/dataload\">Account</object>");
         Assert.assertEquals(returns.get(1).toString(),
@@ -215,12 +215,12 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLNavigationExpressionWithXMLSubtypeOnLHS() {
-        JvmRunUtil.invoke(navigation, "testXMLNavigationExpressionWithXMLSubtypeOnLHS");
+        BRunUtil.invoke(navigation, "testXMLNavigationExpressionWithXMLSubtypeOnLHS");
     }
 
     @Test
     public void testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS() {
-        JvmRunUtil.invoke(navigation, "testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS");
+        BRunUtil.invoke(navigation, "testXMLNavigationDescendantsStepWithXMLSubtypeOnLHS");
     }
 
     @Test
@@ -240,13 +240,13 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLAccessWithIndex() {
-        JvmRunUtil.invoke(result, "testXMLAccessWithIndex");
-        JvmRunUtil.invoke(result, "testXMLSequenceAccessWithIndex");
+        BRunUtil.invoke(result, "testXMLAccessWithIndex");
+        BRunUtil.invoke(result, "testXMLSequenceAccessWithIndex");
     }
 
     @Test
     public void testLengthOfXMLSequence() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testLengthOfXMLSequence");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testLengthOfXMLSequence");
         Assert.assertEquals(returns.get(0), 1L);
         Assert.assertEquals(returns.get(1), 3L);
         Assert.assertEquals(returns.get(2), 1L);

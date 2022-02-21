@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -262,7 +262,7 @@ public class TypeGuardTest {
 
     @Test
     public void testValueTypeInUnion() {
-        Object returns = JvmRunUtil.invoke(result, "testValueTypeInUnion");
+        Object returns = BRunUtil.invoke(result, "testValueTypeInUnion");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "int: 5");
@@ -270,7 +270,7 @@ public class TypeGuardTest {
 
     @Test
     public void testSimpleRecordTypes_1() {
-        Object returns = JvmRunUtil.invoke(result, "testSimpleRecordTypes_1");
+        Object returns = BRunUtil.invoke(result, "testSimpleRecordTypes_1");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "foo");
@@ -278,7 +278,7 @@ public class TypeGuardTest {
 
     @Test
     public void testSimpleRecordTypes_2() {
-        Object returns = JvmRunUtil.invoke(result, "testSimpleRecordTypes_2");
+        Object returns = BRunUtil.invoke(result, "testSimpleRecordTypes_2");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "foo-bar");
@@ -286,7 +286,7 @@ public class TypeGuardTest {
 
     @Test
     public void testSimpleTernary() {
-        Object returns = JvmRunUtil.invoke(result, "testSimpleTernary");
+        Object returns = BRunUtil.invoke(result, "testSimpleTernary");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "hello");
@@ -294,7 +294,7 @@ public class TypeGuardTest {
 
     @Test
     public void testMultipleTypeGuardsWithAndOperator() {
-        Object returns = JvmRunUtil.invoke(result, "testMultipleTypeGuardsWithAndOperator");
+        Object returns = BRunUtil.invoke(result, "testMultipleTypeGuardsWithAndOperator");
 
         Assert.assertSame(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 12L);
@@ -302,7 +302,7 @@ public class TypeGuardTest {
 
     @Test
     public void testMultipleTypeGuardsWithAndOperatorInTernary() {
-        Object returns = JvmRunUtil.invoke(result, "testMultipleTypeGuardsWithAndOperatorInTernary");
+        Object returns = BRunUtil.invoke(result, "testMultipleTypeGuardsWithAndOperatorInTernary");
 
         Assert.assertSame(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 12L);
@@ -310,7 +310,7 @@ public class TypeGuardTest {
 
     @Test
     public void testTypeGuardInElse_1() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardInElse_1");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardInElse_1");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "int: 5");
@@ -318,7 +318,7 @@ public class TypeGuardTest {
 
     @Test
     public void testTypeGuardInElse_2() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardInElse_2");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardInElse_2");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "boolean: true");
@@ -326,7 +326,7 @@ public class TypeGuardTest {
 
     @Test
     public void testTypeGuardInElse_3() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardInElse_3");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardInElse_3");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "x is boolean and y is boolean: false");
@@ -334,7 +334,7 @@ public class TypeGuardTest {
 
     @Test
     public void testTypeGuardInElse_4() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardInElse_4");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardInElse_4");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "1st round: x is boolean and y is boolean: false | " +
@@ -343,7 +343,7 @@ public class TypeGuardTest {
 
     @Test
     public void testTypeGuardInElse_5() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardInElse_5");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardInElse_5");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "x is int: 5");
@@ -351,7 +351,7 @@ public class TypeGuardTest {
 
     @Test
     public void testTypeGuardInElse_6() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardInElse_6");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "int: 5");
@@ -359,7 +359,7 @@ public class TypeGuardTest {
 
     @Test
     public void testTypeGuardInElse_7() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardInElse_7");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardInElse_7");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "int: 5");
@@ -367,7 +367,7 @@ public class TypeGuardTest {
 
     @Test
     public void testComplexTernary_1() {
-        Object returns = JvmRunUtil.invoke(result, "testComplexTernary_1");
+        Object returns = BRunUtil.invoke(result, "testComplexTernary_1");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "string");
@@ -375,7 +375,7 @@ public class TypeGuardTest {
 
     @Test
     public void testComplexTernary_2() {
-        Object returns = JvmRunUtil.invoke(result, "testComplexTernary_2");
+        Object returns = BRunUtil.invoke(result, "testComplexTernary_2");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "string");
@@ -383,7 +383,7 @@ public class TypeGuardTest {
 
     @Test
     public void testArray() {
-        Object returns = JvmRunUtil.invoke(result, "testArray");
+        Object returns = BRunUtil.invoke(result, "testArray");
 
         Assert.assertSame(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 20L);
@@ -391,7 +391,7 @@ public class TypeGuardTest {
 
     @Test
     public void testUpdatingGuardedVar_1() {
-        Object returns = JvmRunUtil.invoke(result, "testUpdatingGuardedVar_1");
+        Object returns = BRunUtil.invoke(result, "testUpdatingGuardedVar_1");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "BALLERINA - updated");
@@ -399,7 +399,7 @@ public class TypeGuardTest {
 
     @Test
     public void testUpdatingGuardedVar_2() {
-        Object returns = JvmRunUtil.invoke(result, "testUpdatingGuardedVar_2");
+        Object returns = BRunUtil.invoke(result, "testUpdatingGuardedVar_2");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "BALLERINA - updated once - updated via function");
@@ -407,154 +407,154 @@ public class TypeGuardTest {
 
     @Test
     public void testFuncPtrTypeInferenceInElseGuard() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testFuncPtrTypeInferenceInElseGuard");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testFuncPtrTypeInferenceInElseGuard");
         Assert.assertTrue((Boolean) returns.get(0));
         Assert.assertEquals(returns.get(1), 100L);
     }
 
     @Test
     public void testTypeGuardNegation() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardNegation", new Object[]{(4)});
+        Object returns = BRunUtil.invoke(result, "testTypeGuardNegation", new Object[]{(4)});
         Assert.assertEquals(returns.toString(), "int: 4");
 
-        returns = JvmRunUtil.invoke(result, "testTypeGuardNegation", new Object[]{(true)});
+        returns = BRunUtil.invoke(result, "testTypeGuardNegation", new Object[]{(true)});
         Assert.assertEquals(returns.toString(), "boolean: true");
 
-        returns = JvmRunUtil.invoke(result, "testTypeGuardNegation", new Object[]{StringUtils.fromString("Hello")});
+        returns = BRunUtil.invoke(result, "testTypeGuardNegation", new Object[]{StringUtils.fromString("Hello")});
         Assert.assertEquals(returns.toString(), "string: Hello");
     }
 
     @Test
     public void testTypeGuardsWithBinaryOps() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{(4)});
+        Object returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{(4)});
         Assert.assertEquals(returns.toString(), "int: 4");
 
-        returns = JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{(true)});
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{(true)});
         Assert.assertEquals(returns.toString(), "boolean: true");
 
         returns =
-                JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{StringUtils.fromString("Hello")});
+                BRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{StringUtils.fromString("Hello")});
         Assert.assertEquals(returns.toString(), "string: Hello");
 
-        returns = JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{(4.5)});
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOps", new Object[]{(4.5)});
         Assert.assertEquals(returns.toString(), "float: 4.5");
     }
 
     @Test
     public void testTypeGuardsWithRecords_1() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardsWithRecords_1");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardsWithRecords_1");
         Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test
     public void testTypeGuardsWithRecords_2() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardsWithRecords_2");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardsWithRecords_2");
         Assert.assertEquals(returns.toString(), "student: John");
     }
 
     @Test
     public void testTypeGuardsWithError() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardsWithError");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardsWithError");
         Assert.assertEquals(returns.toString(), "status: 500");
     }
 
     @Test
     public void testTypeGuardsWithErrorInmatch() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
         Assert.assertEquals(returns.toString(), "some error");
     }
 
     @Test
     public void testTypeNarrowingWithClosures() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeNarrowingWithClosures");
+        Object returns = BRunUtil.invoke(result, "testTypeNarrowingWithClosures");
         Assert.assertEquals(returns.toString(), "int: 8");
     }
 
     @Test
     public void testTypeGuardsWithBinaryAnd() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryAnd", new Object[]{(2)});
+        Object returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryAnd", new Object[]{(2)});
         Assert.assertEquals(returns.toString(), "int: 2 is < 5");
 
-        returns = JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryAnd", new Object[]{(6)});
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryAnd", new Object[]{(6)});
         Assert.assertEquals(returns.toString(), "int: 6 is >= 5");
     }
 
     @Test
     public void testTypeGuardsWithBinaryOpsInTernary() {
         Object returns =
-                JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new Object[]{(4)});
+                BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new Object[]{(4)});
         Assert.assertEquals(returns.toString(), "int: 4");
 
-        returns = JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new Object[]{(true)});
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new Object[]{(true)});
         Assert.assertEquals(returns.toString(), "boolean: true");
 
         returns =
-                JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary",
+                BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary",
                         new Object[]{StringUtils.fromString("Hello")});
         Assert.assertEquals(returns.toString(), "string: Hello");
 
-        returns = JvmRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new Object[]{(4.5)});
+        returns = BRunUtil.invoke(result, "testTypeGuardsWithBinaryOpsInTernary", new Object[]{(4.5)});
         Assert.assertEquals(returns.toString(), "float: 4.5");
     }
 
     @Test
     public void testUpdatingTypeNarrowedVar_1() {
-        Object returns = JvmRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_1");
+        Object returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_1");
         Assert.assertEquals(returns.toString(), "string: hello");
     }
 
     @Test
     public void testUpdatingTypeNarrowedVar_3() {
-        Object returns = JvmRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_3");
+        Object returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_3");
         Assert.assertEquals(returns.toString(), "string: hello");
     }
 
     @Test
     public void testTypeGuardForGlobalVars() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTypeGuardForGlobalVarsUsingLocalAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTypeGuardForGlobalVarsUsingLocalAssignment");
         Assert.assertEquals(returns.get(0).toString(), "e1");
         Assert.assertEquals(returns.get(1).toString(), "e2");
     }
 
     @Test(dataProvider = "finiteTypeAsBroaderTypesFunctions")
     public void testFiniteTypeAsBroaderTypes(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(dataProvider = "finiteTypeAsBroaderTypesAndFiniteTypeFunctions")
     public void testFiniteTypeAsBroaderTypesAndFiniteType(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(dataProvider = "typeNarrowingForIntersectingUnions")
     public void testTypeNarrowingForIntersectingUnions(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(dataProvider = "valueTypesAsFiniteTypesFunctions")
     public void testValueTypesAsFiniteTypesFunctions(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFiniteTypeAsBroaderTypeInStructureNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeAsBroaderTypeInStructureNegative");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderTypeInStructureNegative");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testFiniteTypeAsFiniteTypeWithIntersectionNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeWithIntersectionNegative");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeWithIntersectionNegative");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFiniteTypeReassignmentToBroaderType() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeReassignmentToBroaderType");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeReassignmentToBroaderType");
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -610,92 +610,92 @@ public class TypeGuardTest {
 
     @Test
     public void testFiniteTypeUnionAsFiniteTypeUnionPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionPositive");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionPositive");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFiniteTypeUnionAsFiniteTypeUnionNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionNegative");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeUnionAsFiniteTypeUnionNegative");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForErrorPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForErrorPositive");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForErrorPositive");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForErrorNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForErrorNegative");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForErrorNegative");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForCustomErrorPositive() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTypeGuardForCustomErrorPositive");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTypeGuardForCustomErrorPositive");
         Assert.assertTrue((Boolean) returns.get(0));
         Assert.assertTrue((Boolean) returns.get(1));
     }
 
     @Test
     public void testTypeGuardForCustomErrorNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForCustomErrorNegative");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForCustomErrorNegative");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForTupleDestructuringAssignmentPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForTupleDestructuringAssignmentPositive");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForTupleDestructuringAssignmentPositive");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForTupleDestructuringAssignmentNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForTupleDestructuringAssignmentNegative");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForTupleDestructuringAssignmentNegative");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForRecordDestructuringAssignmentPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForRecordDestructuringAssignmentPositive");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForRecordDestructuringAssignmentPositive");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForRecordDestructuringAssignmentNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForRecordDestructuringAssignmentNegative");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForRecordDestructuringAssignmentNegative");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForErrorDestructuringAssignmentPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTypeGuardForErrorDestructuringAssignmentNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
+        Object returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test(description = "Test Typetest for TypeDefs when types are equal")
     public void testTypetestForTypedefs1() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeDescTypeTest1");
+        Object returns = BRunUtil.invoke(result, "testTypeDescTypeTest1");
         Assert.assertEquals(returns, Boolean.TRUE);
     }
 
     @Test(description = "Test Typetest for TypeDefs when types are not equal")
     public void testTypetestForTypedefs2() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeDescTypeTest2");
+        Object returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
         Assert.assertEquals(returns, Boolean.TRUE);
     }
 
     @Test(dataProvider = "functionNamesProvider")
     public void testInvokeFunctions(String funcName) {
-        JvmRunUtil.invoke(result, funcName);
+        BRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "functionNamesProvider")
@@ -723,22 +723,22 @@ public class TypeGuardTest {
 
     @Test
     public void testIfElseWithTypeTest() {
-        JvmRunUtil.invoke(result, "testIfElseWithTypeTest");
+        BRunUtil.invoke(result, "testIfElseWithTypeTest");
     }
 
     @Test
     public void testIfElseWithTypeTestMultipleVariables() {
-        JvmRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariables");
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariables");
     }
 
     @Test
     public void testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
-        JvmRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInMultipleBlocks");
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInMultipleBlocks");
     }
 
     @Test
     public void testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
-        JvmRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInNestedBlocks");
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInNestedBlocks");
     }
 
     @Test

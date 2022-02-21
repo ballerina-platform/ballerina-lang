@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.var;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,7 +39,7 @@ public class VarIgnoreTest {
 
     @Test(description = "Test long value assignment")
     public void testIntegerValue() {
-        Object returns = JvmRunUtil.invoke(result, "m", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "m", new Object[]{});
         Assert.assertEquals(returns, 3L);
     }
 

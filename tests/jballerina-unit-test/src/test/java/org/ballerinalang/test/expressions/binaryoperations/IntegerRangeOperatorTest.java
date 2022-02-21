@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,7 +49,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 12;
         int endValue = 15;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testClosedIntRange", args);
+        Object returns = BRunUtil.invoke(result, "testClosedIntRange", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue + 1;
@@ -65,7 +65,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 25;
         int endValue = 25;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testClosedIntRange", args);
+        Object returns = BRunUtil.invoke(result, "testClosedIntRange", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = 1;
@@ -81,7 +81,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 40;
         int endValue = 25;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testClosedIntRange", args);
+        Object returns = BRunUtil.invoke(result, "testClosedIntRange", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = 0;
@@ -94,7 +94,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 21;
         int endValue = 29;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testClosedIntRangeAsArray", args);
+        Object returns = BRunUtil.invoke(result, "testClosedIntRangeAsArray", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue + 1;
@@ -110,7 +110,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 12;
         int endValue = 15;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testHalfOpenIntRange", args);
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue;
@@ -126,7 +126,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 25;
         int endValue = 25;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testHalfOpenIntRange", args);
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = 0;
@@ -139,7 +139,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 40;
         int endValue = 25;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testHalfOpenIntRange", args);
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = 0;
@@ -152,7 +152,7 @@ public class IntegerRangeOperatorTest {
         int startValue = 291;
         int endValue = 310;
         Object[] args = {(startValue), (endValue)};
-        Object returns = JvmRunUtil.invoke(result, "testHalfOpenIntRangeAsArray", args);
+        Object returns = BRunUtil.invoke(result, "testHalfOpenIntRangeAsArray", args);
 
         BArray returnArray = (BArray) returns;
         int expectedSize = endValue - startValue;
@@ -165,27 +165,27 @@ public class IntegerRangeOperatorTest {
 
     @Test(description = "Test runtime anon type generation of int ranges")
     public void testIntRangeRuntime() {
-        JvmRunUtil.invoke(runtimeResult, "testClosedIntRange");
+        BRunUtil.invoke(runtimeResult, "testClosedIntRange");
     }
 
     @Test(description = "Test closed int range operator on int sub types")
     public void testClosedIntRangeOnIntSubTypes() {
-        JvmRunUtil.invoke(result, "testClosedIntRangeOnIntSubTypes");
+        BRunUtil.invoke(result, "testClosedIntRangeOnIntSubTypes");
     }
 
     @Test(description = "Test half open int range operator on int sub types")
     public void testHalfOpenIntRangeOnIntSubTypes() {
-        JvmRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
+        BRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
     }
 
     @Test
     public void testIsolatednessOfRangeExprIterableAndIterator() {
-        JvmRunUtil.invoke(result, "testIsolatednessOfRangeExprIterableAndIterator");
+        BRunUtil.invoke(result, "testIsolatednessOfRangeExprIterableAndIterator");
     }
 
     @Test(description = "Test int range with hex integer literals")
     public void testIntRangeWithHexIntLiterals() {
-        JvmRunUtil.invoke(result, "testIntRangeWithHexIntLiterals");
+        BRunUtil.invoke(result, "testIntRangeWithHexIntLiterals");
     }
 
     @Test(description = "Test integer range operators with errors")

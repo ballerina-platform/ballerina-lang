@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,41 +44,41 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics1() {
-        Object returns = JvmRunUtil.invoke(result, "testSafeAssignmentBasics1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testSafeAssignmentBasics1", new Object[]{});
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns, "Invalid boolean value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics2() {
-        JvmRunUtil.invoke(result, "testSafeAssignmentBasics2");
+        BRunUtil.invoke(result, "testSafeAssignmentBasics2");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics3() {
-        JvmRunUtil.invoke(result, "testSafeAssignmentBasics3");
+        BRunUtil.invoke(result, "testSafeAssignmentBasics3");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignmentBasics4() {
-        JvmRunUtil.invoke(result, "testSafeAssignmentBasics4");
+        BRunUtil.invoke(result, "testSafeAssignmentBasics4");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement1() {
-        Object returns = JvmRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement1", new Object[]{});
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns, "Invalid boolean value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement2() {
-        JvmRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement2", new Object[]{});
+        BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement2", new Object[]{});
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement3() {
-        Object returns = JvmRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement3", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement3", new Object[]{});
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns, "Invalid boolean value returned.");
 
@@ -86,33 +86,33 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement4() {
-        Object returns = JvmRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement4", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement4", new Object[]{});
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns, "Invalid boolean value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement5() {
-        JvmRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new Object[]{});
+        BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement5", new Object[]{});
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement6() {
-        Object returns = JvmRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement6", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement6", new Object[]{});
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns, "Invalid boolean value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testSafeAssignOpInAssignmentStatement7() {
-        Object returns = JvmRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement7", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement7", new Object[]{});
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Diayasena", "Invalid string value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr1() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckExprInBinaryExpr1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr1", new Object[]{});
         Assert.assertTrue(returns instanceof BError);
         BError errorStruct = (BError) returns;
         Assert.assertEquals(errorStruct.getMessage(), "io error", "Invalid error message value returned.");
@@ -120,7 +120,7 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr2() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckExprInBinaryExpr2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr2", new Object[]{});
         Assert.assertTrue(returns instanceof BError);
         BError errorStruct = (BError) returns;
         Assert.assertEquals(errorStruct.getMessage(), "io error", "Invalid error message value returned.");
@@ -128,14 +128,14 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr3() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckExprInBinaryExpr3", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr3", new Object[]{});
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "hello, Ballerina", "Invalid string value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr4() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckExprInBinaryExpr4", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr4", new Object[]{});
         Assert.assertTrue(returns instanceof BError);
         BError errorStruct = (BError) returns;
         Assert.assertEquals(errorStruct.getMessage(), "io error", "Invalid error message value returned.");
@@ -143,7 +143,7 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr5() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr5", new Object[]{});
         Assert.assertTrue(returns instanceof BError);
         BError errorStruct = (BError) returns;
         Assert.assertEquals(errorStruct.getMessage(), "io error", "Invalid error message value returned.");
@@ -151,7 +151,7 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr6() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckExprInBinaryExpr6", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr6", new Object[]{});
         Assert.assertTrue(returns instanceof BError);
         BError errorStruct = (BError) returns;
         Assert.assertEquals(errorStruct.getMessage(), "custom io error", "Invalid error message value returned.");
@@ -162,14 +162,14 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckExprInBinaryExpr8() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckExprInBinaryExpr8", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr8", new Object[]{});
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "hello, Hello, World!!!", "Invalid string value returned.");
     }
 
     @Test(description = "Test basics of safe assignment statement")
     public void testCheckedExprAsFuncParam1() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckedExprAsFuncParam1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckedExprAsFuncParam1", new Object[]{});
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "((((S|S)|(S|S))|((S|S)|(S|S)))|(((S|S)|(S|S))|" +
                 "((S|S)|(S|S)))) ((A|A)|(A|A)) (((M|M)|(M|M))|((M|M)|(M|M))) done", "Invalid string value returned.");
@@ -184,43 +184,43 @@ public class CheckedExpressionOperatorTest {
 
     @Test(description = "Test checked expressions in binary add expression")
     public void testCheckInBinaryAddExpression() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckInBinaryAddExpression", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckInBinaryAddExpression", new Object[]{});
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 30L);
     }
 
     @Test(description = "Test checked expressions in binary div expression")
     public void testCheckInBinaryDivExpression() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckInBinaryDivExpression", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckInBinaryDivExpression", new Object[]{});
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 2L);
     }
 
     @Test(description = "Test checked expressions in binary LT expression")
     public void testCheckInBinaryLTExpression() {
-        Object returns = JvmRunUtil.invoke(result, "testCheckInBinaryLTExpression", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testCheckInBinaryLTExpression", new Object[]{});
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testCheckedErrorsWithReadOnlyInUnion() {
-        JvmRunUtil.invoke(result, "testCheckedErrorsWithReadOnlyInUnion");
+        BRunUtil.invoke(result, "testCheckedErrorsWithReadOnlyInUnion");
     }
 
     @Test
     public void testCheckWithMixOfDefaultErrorAndDistinctErrors() {
-        JvmRunUtil.invoke(result, "testCheckWithMixOfDefaultErrorAndDistinctErrors");
+        BRunUtil.invoke(result, "testCheckWithMixOfDefaultErrorAndDistinctErrors");
     }
 
     @Test(description = "Test checked expressions in let expression")
     public void testCheckInLetExpression() {
-        JvmRunUtil.invoke(result, "testCheckInLetExpression");
+        BRunUtil.invoke(result, "testCheckInLetExpression");
     }
 
     @Test
     public void testCheckedExprWithNever() {
-        JvmRunUtil.invoke(result, "testCheckedExprWithNever");
+        BRunUtil.invoke(result, "testCheckedExprWithNever");
     }
 
     @Test(description = "Test service resource that returns an error containing check expression")

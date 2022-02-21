@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonParser;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -49,7 +49,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with simple values", dataProvider = "value-functions")
     public void testSimpleValueEquality(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "value-functions")
@@ -64,7 +64,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with record values", dataProvider = "record-equality-functions")
     public void testRecordValueEquality(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "record-equality-functions")
@@ -81,20 +81,20 @@ public class EqualAndNotEqualOperationsTest {
     @Test(description = "Test equals/unequals operation with two equal arrays", dataProvider = "equalArrayValues")
     public void test1DArrayEqualityPositive(Object i, Object j) {
         Object[] args = {i, j};
-        JvmRunUtil.invoke(result, "check1DArrayEqualityPositive", args);
+        BRunUtil.invoke(result, "check1DArrayEqualityPositive", args);
     }
 
     @Test(description = "Test equals/unequals operation with two unequal arrays", dataProvider =
             "unequalArrayValues")
     public void test1DArrayEqualityNegative(Object i, Object j) {
         Object[] args = {i, j};
-        JvmRunUtil.invoke(result, "check1DArrayEqualityNegative", args);
+        BRunUtil.invoke(result, "check1DArrayEqualityNegative", args);
     }
 
     @Test(description = "Test equals/unequals operation with array and tuple values", dataProvider = "array-equality" +
             "-functions")
     public void testArrayValueEquality(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "array-equality-functions")
@@ -117,7 +117,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with map values", dataProvider = "map-equality-functions")
     public void testMapValueEquality(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "map-equality-functions")
@@ -131,7 +131,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(description = "Test equals/unequals operation with json values", dataProvider = "json-equality-functions")
     public void testJsonValueEquality(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "json-equality-functions")
@@ -146,36 +146,36 @@ public class EqualAndNotEqualOperationsTest {
     @Test(description = "Test equals/unequals operation with two equal json arrays", dataProvider = "equalArrayValues")
     public void test1DJsonArrayEqualityPositive(Object i, Object j) {
         Object[] args = {i, j};
-        JvmRunUtil.invoke(result, "checkJsonEqualityPositive", args);
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", args);
     }
 
     @Test(description = "Test equals/unequals operation with two unequal json arrays", dataProvider =
             "unequalArrayValues")
     public void test1DJsonArrayEqualityNegative(Object i, Object j) {
         Object[] args = {i, j};
-        JvmRunUtil.invoke(result, "checkJsonEqualityNegative", args);
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", args);
     }
 
     @Test(description = "Test equals/unequals operation with two json objects")
     public void testJsonObjectEqualityPositive() {
         Object jsonVal = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
         Object jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
-        JvmRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"helloTwo\": \"worldTwo\", \"hello\": \"world\"}");
-        JvmRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\"}");
-        JvmRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
                 "\"worldThree\"}");
-        JvmRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
     }
 
     @Test(description = "Test equals/unequals operation with xml values", dataProvider = "xml-equality-functions")
     public void testXmlValueEquality(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "xml-equality-functions")
@@ -194,7 +194,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "selfAndCyclicReferencingFunctions")
     public void selfAndCyclicReferencingFunctions(String testFunctionName) {
-        JvmRunUtil.invoke(result, testFunctionName);
+        BRunUtil.invoke(result, testFunctionName);
     }
 
     @Test(description = "Test equal and not equal with errors")
@@ -322,7 +322,7 @@ public class EqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "functionsWithUnionEqualityChecks")
     public void testFunctionsWithUnionEqualityChecks(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider

@@ -19,7 +19,7 @@ package org.ballerinalang.test.worker;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,21 +39,21 @@ public class WorkerInActionTest {
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        Object returns = JvmRunUtil.invoke(result, "testAction1");
+        Object returns = BRunUtil.invoke(result, "testAction1");
 
         Assert.assertEquals(returns.toString(), "result from sampleWorker");
     }
 
     @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
-        Object returns = JvmRunUtil.invoke(result, "testAction2");
+        Object returns = BRunUtil.invoke(result, "testAction2");
 
         Assert.assertEquals(returns.toString(), "request");
     }
 
     @Test(description = "Test default strand error before send action")
     public void testDefaultErrorBeforeSend() {
-        Object returns = JvmRunUtil.invoke(result, "testDefaultError");
+        Object returns = BRunUtil.invoke(result, "testDefaultError");
 
         Assert.assertEquals(returns.toString(), "REACHED");
     }

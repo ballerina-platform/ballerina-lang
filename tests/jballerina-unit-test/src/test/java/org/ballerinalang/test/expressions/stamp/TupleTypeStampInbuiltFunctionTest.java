@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,7 +54,7 @@ public class TupleTypeStampInbuiltFunctionTest {
     @Test
     public void testStampTupleValueV1() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampTupleValueV1");
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleValueV1");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
 
@@ -93,7 +93,7 @@ public class TupleTypeStampInbuiltFunctionTest {
     @Test
     public void testStampTupleValueV2() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampTupleValueV2");
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleValueV2");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
 
@@ -132,7 +132,7 @@ public class TupleTypeStampInbuiltFunctionTest {
     @Test
     public void testStampTupleToAnydata() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampTupleToAnydata");
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleToAnydata");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
 
@@ -149,7 +149,7 @@ public class TupleTypeStampInbuiltFunctionTest {
     @Test
     public void testStampTupleValueToArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampTupleValueToArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleValueToArray");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
 
@@ -184,7 +184,7 @@ public class TupleTypeStampInbuiltFunctionTest {
     @Test
     public void testStampTupleToBasicArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampTupleToBasicArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleToBasicArray");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -193,7 +193,7 @@ public class TupleTypeStampInbuiltFunctionTest {
     @Test
     public void testStampTupleToAnydataTuple() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampTupleToAnydataTuple");
+        Object arr = BRunUtil.invoke(compileResult, "stampTupleToAnydataTuple");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -202,7 +202,7 @@ public class TupleTypeStampInbuiltFunctionTest {
     @Test
     public void testStampAnydataTupleToBasicTypeTuple() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
+        Object arr = BRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);

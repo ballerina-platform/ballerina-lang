@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,14 +44,14 @@ public class ClosedRecordTest {
 
     @Test(description = "Test using expressions as index for record arrays")
     public void testExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Jane");
     }
 
     @Test(description = "Test using records inside records")
     public void testStructOfStructs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructOfStruct");
+        Object returns = BRunUtil.invoke(compileResult, "testStructOfStruct");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "USA");
@@ -59,7 +59,7 @@ public class ClosedRecordTest {
 
     @Test(description = "Test returning fields of a record")
     public void testReturnStructAttributes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnStructAttributes");
+        Object returns = BRunUtil.invoke(compileResult, "testReturnStructAttributes");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
@@ -67,14 +67,14 @@ public class ClosedRecordTest {
 
     @Test(description = "Test using record expression as a index in another record expression")
     public void testStructExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
     }
 
     @Test(description = "Test default value of a record field")
     public void testDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultVal");
 
         // Check default value of a field where the default value is set
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -90,7 +90,7 @@ public class ClosedRecordTest {
 
     @Test(description = "Test default value of a nested record field")
     public void testNestedFieldDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "default first name");
@@ -104,7 +104,7 @@ public class ClosedRecordTest {
 
     @Test(description = "Test default value of a nested record field")
     public void testNestedStructInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNestedStructInit");
+        Object returns = BRunUtil.invoke(compileResult, "testNestedStructInit");
 
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> person = ((BMap<String, Object>) returns);
@@ -119,7 +119,7 @@ public class ClosedRecordTest {
 
     @Test(description = "Test negative default values in record")
     public void testNegativeDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getStructNegativeValues");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getStructNegativeValues");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -133,7 +133,7 @@ public class ClosedRecordTest {
 
     @Test(description = "Test negative default values in record")
     public void testStructToString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "getStruct");
+        Object returns = BRunUtil.invoke(compileResult, "getStruct");
         Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"lname\":\"\",\"adrs\":{},\"age\":25," +
                 "\"family\":{\"spouse\":\"\",\"noOfChildren\":0,\"children\":[]},\"parent\":{\"name\":\"bbb\"," +
                 "\"lname\":\"ccc\",\"adrs\":{},\"age\":50,\"family\":{\"spouse\":\"\",\"noOfChildren\":0," +
@@ -143,11 +143,11 @@ public class ClosedRecordTest {
     @Test
     public void testStructLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/sealed_record_literals.bal");
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructLiteral1");
+        Object returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns.toString(), "{\"dptName\":\"\",\"employees\":[],\"manager\":{\"name\":\"default " +
                 "first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}}");
 
-        returns = JvmRunUtil.invoke(compileResult, "testStructLiteral2");
+        returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"default first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}");
     }
@@ -155,7 +155,7 @@ public class ClosedRecordTest {
     @Test
     public void testStructLiteralInitFunc() {
         CompileResult result = BCompileUtil.compile("test-src/record/nested_sealed_record_inline_init.bal");
-        Object returns = JvmRunUtil.invoke(result, "testCreateStruct");
+        Object returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"default first name\",\"fname\":\"\",\"lname\":\"Doe\",\"adrs\":{},\"age\":999," +
                         "\"family\":{\"spouse\":\"Jane\",\"noOfChildren\":0,\"children\":[\"Alex\",\"Bob\"]}}");
@@ -174,7 +174,7 @@ public class ClosedRecordTest {
 
     @Test(description = "Test for records defined using the 'record' keyword")
     public void testRecordDefinedWithKeyword() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructWithRecordKeyword");
+        Object returns = BRunUtil.invoke(compileResult, "testStructWithRecordKeyword");
 
         Assert.assertEquals(returns.toString(), "{\"name\":\"John\",\"lname\":\"Doe\"," +
                 "\"address\":{\"country\":\"USA\",\"state\":\"CA\"},\"age\":25,\"family\":{\"spouse\":\"\"," +
@@ -183,13 +183,13 @@ public class ClosedRecordTest {
 
     @Test(description = "Test function pointer as a record field")
     public void testFuncPtrAsAField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
+        Object returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
         Assert.assertEquals(returns.toString(), "Doe, John");
     }
 
     @Test
     public void testAmbiguityResolution() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAmbiguityResolution");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAmbiguityResolution");
         Assert.assertEquals(returns.get(0).toString(), "In-memory mode configuration");
         Assert.assertEquals(returns.get(1).toString(), "Server mode configuration");
         Assert.assertEquals(returns.get(2).toString(), "Embedded mode configuration");
@@ -197,7 +197,7 @@ public class ClosedRecordTest {
 
     @Test
     public void testAmbiguityResolution2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAmbiguityResolution2");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAmbiguityResolution2");
         Assert.assertEquals(returns.get(0).toString(), "A");
         Assert.assertEquals(returns.get(1).toString(), "B");
         Assert.assertEquals(returns.get(2).toString(), "B");
@@ -206,7 +206,7 @@ public class ClosedRecordTest {
 
     @Test
     public void testEmptyClosedRecords() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testEmptyClosedRecords");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testEmptyClosedRecords");
         Assert.assertEquals(returns.get(0).toString(), "{}");
         Assert.assertEquals(returns.get(1).toString(), "{}");
         Assert.assertEquals(returns.get(2).toString(), "{}");
@@ -270,16 +270,16 @@ public class ClosedRecordTest {
 
     @Test
     public void testLiteralsAsMappingConstructorKeys() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLiteralsAsMappingConstructorKeys");
+        Object returns = BRunUtil.invoke(compileResult, "testLiteralsAsMappingConstructorKeys");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testExpressionsAsKeys() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsKeys");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsKeys");
         Assert.assertTrue((Boolean) returns);
 
-        returns = JvmRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
+        returns = BRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -304,28 +304,28 @@ public class ClosedRecordTest {
 
     @Test
     public void testOptionalRecordRemove() {
-        Object returns = JvmRunUtil.invoke(compileResult, "removeOptional");
+        Object returns = BRunUtil.invoke(compileResult, "removeOptional");
     }
 
     @Test
     public void testRestRecordRemove() {
-        Object returns = JvmRunUtil.invoke(compileResult, "removeRest");
+        Object returns = BRunUtil.invoke(compileResult, "removeRest");
     }
 
     @Test
     public void removeIfHasKeyOptional() {
-        JvmRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
+        BRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
     }
 
     @Test
     public void removeIfHasKeyRest() {
-        JvmRunUtil.invoke(compileResult, "removeIfHasKeyRest");
+        BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
     }
 
     @Test
     public void testCyclicRecordViaFields() {
         CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields.bal");
-        JvmRunUtil.invoke(cyclicBal, "testCyclicRecordResolution");
+        BRunUtil.invoke(cyclicBal, "testCyclicRecordResolution");
     }
 
     @AfterClass

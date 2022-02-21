@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.constant;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,12 +41,12 @@ public class ConstantTypeTest {
 
     @Test
     public void testTypesOfConstants() {
-        JvmRunUtil.invoke(compileResult, "testTypesOfConstants");
+        BRunUtil.invoke(compileResult, "testTypesOfConstants");
     }
 
     @Test
     public void testTypesOfConstantMaps() {
-        JvmRunUtil.invoke(compileResult, "testTypesOfConstantMaps");
+        BRunUtil.invoke(compileResult, "testTypesOfConstantMaps");
     }
 
     @Test

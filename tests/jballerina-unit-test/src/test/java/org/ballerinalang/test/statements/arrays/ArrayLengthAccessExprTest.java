@@ -21,7 +21,7 @@ package org.ballerinalang.test.statements.arrays;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression")
     public void testArrayLengthAccessExpr() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestAssignmentCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestAssignmentCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -56,7 +56,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Function invocation statement.")
     public void testArrayLengthAccessExprFunctionInvocationCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestFunctionInvocationCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestFunctionInvocationCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -68,7 +68,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Variable definition statement.")
     public void testArrayLengthAccessExprVariableDefinitionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestVariableDefinitionCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestVariableDefinitionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -80,7 +80,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Array initialization statement.")
     public void testArrayLengthAccessExprArrayInitializationCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestArrayInitializerCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestArrayInitializerCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -92,7 +92,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Map initialization statement.")
     public void testArrayLengthAccessExprMapInitializationCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestMapInitializerCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestMapInitializerCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -104,7 +104,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Return statement.")
     public void testArrayLengthAccessExprReturnExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestReturnStatementCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestReturnStatementCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -116,7 +116,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in multi Return statement.")
     public void testArrayLengthAccessExprMultiReturnExpressionCase() {
         Object[] args = {(100), (5)};
-        BArray returns = (BArray) JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestMultiReturnStatementCase",
+        BArray returns = (BArray) BRunUtil.invoke(compilerResult, "arrayLengthAccessTestMultiReturnStatementCase",
                 args);
 
         Assert.assertEquals(returns.size(), 3);
@@ -138,7 +138,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Type cast expression.")
     public void testArrayLengthAccessExprTypeCastExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestTypeCastExpressionCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestTypeCastExpressionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -150,7 +150,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in If condition.")
     public void testArrayLengthAccessExprIfConditionExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestIfConditionCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestIfConditionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -162,7 +162,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Binary expression.")
     public void testArrayLengthAccessExpBinaryExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestBinaryExpressionCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestBinaryExpressionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -174,7 +174,7 @@ public class ArrayLengthAccessExprTest {
     @Test(description = "Test array length access expression when present in Struct field access expression.")
     public void testArrayLengthAccessExpStructFieldAccessCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compilerResult, "arrayLengthAccessTestStructFieldAccessCase", args);
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestStructFieldAccessCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 

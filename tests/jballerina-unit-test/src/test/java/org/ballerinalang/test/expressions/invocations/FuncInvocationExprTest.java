@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.invocations;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -48,7 +48,7 @@ public class FuncInvocationExprTest {
     @Test
     public void invokeFunctionWithParams() {
         Object[] args = new Object[]{(1), (2)};
-        Object values = JvmRunUtil.invoke(funcInvocationExpResult, "add", args);
+        Object values = BRunUtil.invoke(funcInvocationExpResult, "add", args);
         Assert.assertTrue(values instanceof Long);
         Assert.assertEquals((values), 3L);
     }
@@ -56,7 +56,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression")
     public void testFuncInvocationExpr() {
         Object[] args = {(100), (5), (1)};
-        Object returns = JvmRunUtil.invoke(funcInvocationExpResult, "testFuncInvocation", args);
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "testFuncInvocation", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -68,7 +68,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test recursive function invocation")
     public void testFuncInvocationExprRecursive() {
         Object[] args = {(7)};
-        Object returns = JvmRunUtil.invoke(funcInvocationExpResult, "sum", args);
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "sum", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -81,7 +81,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression advanced")
     public void testFuncInvocationExprAdvanced() {
         Object[] args = {(100), (5), (1)};
-        Object returns = JvmRunUtil.invoke(funcInvocationExpResult, "funcInvocationWithinFuncInvocation", args);
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "funcInvocationWithinFuncInvocation", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -94,7 +94,7 @@ public class FuncInvocationExprTest {
     public void testReturnFuncInvocationWithinFuncInvocation() {
         Object[] args = {(2), (3)};
         Object returns =
-                JvmRunUtil.invoke(funcInvocationExpResult, "testReturnFuncInvocationWithinFuncInvocation", args);
+                BRunUtil.invoke(funcInvocationExpResult, "testReturnFuncInvocationWithinFuncInvocation", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -106,7 +106,7 @@ public class FuncInvocationExprTest {
     @Test
     public void testReturnNativeFuncInvocationWithinNativeFuncInvocation() {
         Object[] args = {(2)};
-        Object returns = JvmRunUtil.invoke(funcInvocationExpResult,
+        Object returns = BRunUtil.invoke(funcInvocationExpResult,
                 "testReturnNativeFuncInvocationWithinNativeFuncInvocation", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
@@ -119,7 +119,7 @@ public class FuncInvocationExprTest {
     @Test
     public void testNativeInvocation() {
         Object[] args = {(2), (2)};
-        Object returns = JvmRunUtil.invoke(funcInvocationExpResult, "getPowerOfN", args);
+        Object returns = BRunUtil.invoke(funcInvocationExpResult, "getPowerOfN", args);
         Assert.assertSame(returns.getClass(), Double.class);
         double actual = (double) returns;
         double expected = 4;
@@ -128,7 +128,7 @@ public class FuncInvocationExprTest {
 
     @Test(dataProvider = "invocationWithArgVarargMixTestFunctions")
     public void testInvocationWithArgVarargMix(String function) {
-        JvmRunUtil.invoke(funcInvocationExpResult, function);
+        BRunUtil.invoke(funcInvocationExpResult, function);
     }
 
     @DataProvider(name = "invocationWithArgVarargMixTestFunctions")

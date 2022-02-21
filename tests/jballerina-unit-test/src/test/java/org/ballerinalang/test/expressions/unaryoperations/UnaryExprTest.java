@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class UnaryExprTest {
     @Test(description = "Test unary negative expression")
     public void integerUnaryExprTest() {
         Object[] args = {};
-        Object arr = JvmRunUtil.invoke(result, "negativeIntTest", args);
+        Object arr = BRunUtil.invoke(result, "negativeIntTest", args);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
 
@@ -59,7 +59,7 @@ public class UnaryExprTest {
     @Test(description = "Test int positive unary expression")
     public void positiveIntegerUnaryExprTest() {
         Object[] args = {};
-        Object arr = JvmRunUtil.invoke(result, "positiveIntTest", args);
+        Object arr = BRunUtil.invoke(result, "positiveIntTest", args);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
 
@@ -73,7 +73,7 @@ public class UnaryExprTest {
     @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
         Object[] args = {};
-        Object arr = JvmRunUtil.invoke(result, "negativeFloatTest", args);
+        Object arr = BRunUtil.invoke(result, "negativeFloatTest", args);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
 
@@ -87,7 +87,7 @@ public class UnaryExprTest {
     @Test(description = "Test float positive unary expression")
     public void positiveFloatUnaryExprTest() {
         Object[] args = {};
-        Object arr = JvmRunUtil.invoke(result, "positiveFloatTest", args);
+        Object arr = BRunUtil.invoke(result, "positiveFloatTest", args);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
 
@@ -101,7 +101,7 @@ public class UnaryExprTest {
     @Test(description = "Test unary boolean not expression")
     public void booleanUnaryExprTest() {
         Object[] args = {};
-        Object arr = JvmRunUtil.invoke(result, "booleanNotTest", args);
+        Object arr = BRunUtil.invoke(result, "booleanNotTest", args);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
 
@@ -118,7 +118,7 @@ public class UnaryExprTest {
     @Test(description = "Test unary boolean not expression in if else")
     public void unaryExprInIfConditionTest() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "unaryExprInIfConditionTest", args);
+        Object returns = BRunUtil.invoke(result, "unaryExprInIfConditionTest", args);
 
 
         boolean x = (boolean) returns;
@@ -134,7 +134,7 @@ public class UnaryExprTest {
 
         Object[] args = {(a), (b)};
 
-        Object returns = JvmRunUtil.invoke(result, "unaryNegationTest", args);
+        Object returns = BRunUtil.invoke(result, "unaryNegationTest", args);
 
         Assert.assertSame(returns.getClass(), Long.class, "Invalid class type returned.");
 
@@ -152,7 +152,7 @@ public class UnaryExprTest {
 
         Object[] args = {(a)};
 
-        Object returns = JvmRunUtil.invoke(result, "unaryPositiveNegationTest", args);
+        Object returns = BRunUtil.invoke(result, "unaryPositiveNegationTest", args);
 
         Assert.assertSame(returns.getClass(), Long.class, "Invalid class type returned.");
 
@@ -164,7 +164,7 @@ public class UnaryExprTest {
 
     @Test(dataProvider = "dataToTestUnaryOperations", description = "test unary operators with types")
     public void testUnaryOperations(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider(name = "dataToTestUnaryOperations")
@@ -178,17 +178,17 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary operators for nullable expressions")
     public void testNullableUnaryExpressions() {
-        JvmRunUtil.invoke(result, "testNullableUnaryExpressions");
+        BRunUtil.invoke(result, "testNullableUnaryExpressions");
     }
 
     @Test(description = "Test unary operators with user defined subtypes")
     public void testUnaryOperationsWithUserDefinedTypes() {
-        JvmRunUtil.invoke(result, "testUnaryOperationsWithUserDefinedTypes");
+        BRunUtil.invoke(result, "testUnaryOperationsWithUserDefinedTypes");
     }
 
     @Test(description = "Test resulting type of unary plus")
     public void testResultingTypeOfUnaryPlus() {
-        JvmRunUtil.invoke(result, "testResultingTypeOfUnaryPlus");
+        BRunUtil.invoke(result, "testResultingTypeOfUnaryPlus");
     }
 
     @Test(description = "Test unary statement with errors")

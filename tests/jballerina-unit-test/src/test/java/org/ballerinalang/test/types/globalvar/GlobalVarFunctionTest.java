@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class GlobalVarFunctionTest {
     @Test(description = "Test Defining global variables")
     public void testDefiningGlobalVar() {
         Object[] args = new Object[0];
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "getGlobalVars", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "getGlobalVars", args);
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertTrue(returns.get(1) instanceof BString);
@@ -58,7 +58,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test access global variable within function")
     public void testAccessGlobalVarWithinFunctions() {
-        Object returns = JvmRunUtil.invoke(result, "accessGlobalVar");
+        Object returns = BRunUtil.invoke(result, "accessGlobalVar");
 
         Assert.assertSame(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 89143L);
@@ -67,7 +67,7 @@ public class GlobalVarFunctionTest {
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         Object[] args = {(88)};
-        Object returns = JvmRunUtil.invoke(result, "changeGlobalVar", args);
+        Object returns = BRunUtil.invoke(result, "changeGlobalVar", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -76,7 +76,7 @@ public class GlobalVarFunctionTest {
         CompileResult resultGlobalVar = BCompileUtil
                 .compile("test-src/statements/variabledef/global-var-function.bal");
 
-        Object returnsChanged = JvmRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar");
+        Object returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar");
 
         Assert.assertSame(returnsChanged.getClass(), Double.class);
 
@@ -85,7 +85,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global variable to another global variable")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        Object returns = JvmRunUtil.invoke(result, "getGlobalVarFloat1");
+        Object returns = BRunUtil.invoke(result, "getGlobalVarFloat1");
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -94,7 +94,7 @@ public class GlobalVarFunctionTest {
 
     @Test(description = "Test assigning global var within a function")
     public void testInitializingGlobalVarWithinFunction() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "initializeGlobalVarSeparately");
+        BArray returns = (BArray) BRunUtil.invoke(result, "initializeGlobalVarSeparately");
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BMap);

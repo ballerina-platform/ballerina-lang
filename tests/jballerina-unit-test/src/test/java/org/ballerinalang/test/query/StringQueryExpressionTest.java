@@ -20,7 +20,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with string result")
     public void testSimpleQueryExprForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testSimpleQueryExprForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForStringResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Alex Ranjan John ");
@@ -50,7 +50,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test query expression with where giving string result")
     public void testQueryExprWithWhereForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithWhereForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithWhereForStringResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Ranjan John ");
@@ -58,7 +58,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with limit clause giving string result")
     public void testQueryExprWithInnerJointForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithInnerJointForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithInnerJointForStringResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Alex 1 Ranjan 2 ");
@@ -66,7 +66,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with multiple from clauses giving string result")
     public void testQueryExprWithMultipleFromForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithMultipleFromForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleFromForStringResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Alex 1 Alex 2 Ranjan 1 Ranjan 2 ");
@@ -74,7 +74,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with stream giving string result")
     public void testQueryExprWithStreamForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithStreamForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithStreamForStringResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Ferdinand 2 ");
@@ -82,7 +82,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with string or error result")
     public void testSimpleQueryExprForStringOrNilResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testSimpleQueryExprForStringOrNilResult");
+        Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprForStringOrNilResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Alex Ranjan John ");
@@ -90,7 +90,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test query expression with where giving string or error result")
     public void testQueryExprWithWhereForStringOrNilResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithWhereForStringOrNilResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithWhereForStringOrNilResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Ranjan John ");
@@ -98,7 +98,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with limit clause giving string or error result")
     public void testQueryExprWithInnerJointForStringOrNilResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithInnerJointForStringOrNilResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithInnerJointForStringOrNilResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Alex 1 Ranjan 2 ");
@@ -106,7 +106,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with multiple from clauses giving string or error result")
     public void testQueryExprWithMultipleFromForStringOrNilResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithMultipleFromForStringOrNilResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleFromForStringOrNilResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Alex 1 Alex 2 Ranjan 1 Ranjan 2 ");
@@ -114,7 +114,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with stream giving string or error result")
     public void testQueryExprWithStreamForStringOrNilResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithStreamForStringOrNilResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithStreamForStringOrNilResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Ferdinand 2 ");
@@ -122,19 +122,19 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with var for string result")
     public void testQueryExprWithVarForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithVarForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithVarForStringResult");
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test simple query expression with var for string result")
     public void testQueryExprWithListForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithListForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithListForStringResult");
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test simple query expression with var for string result")
     public void testQueryExprWithUnionTypeForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Ranjan John ");
@@ -142,14 +142,14 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test simple query expression with var for string result")
     public void testQueryExprWithUnionTypeForStringResult2() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult2");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult2");
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test method access with casting in select clause")
     public void testMethodAccessWithCasting() {
         CompileResult resultV2 = BCompileUtil.compile("test-src/query/string-query-expression-v2.bal");
-        Object returnValues = JvmRunUtil.invoke(resultV2, "testMethodAccessWithCasting");
+        Object returnValues = BRunUtil.invoke(resultV2, "testMethodAccessWithCasting");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(),
@@ -158,7 +158,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test query expression with limit clause")
     public void testQueryExprWithLimitForStringResult() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithLimitForStringResult");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForStringResult");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Ranjan ");
@@ -166,7 +166,7 @@ public class StringQueryExpressionTest {
 
     @Test(description = "Test query expression with limit clause-v2")
     public void testQueryExprWithLimitForStringResultV2() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithLimitForStringResultV2");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForStringResultV2");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Ranjan John ");

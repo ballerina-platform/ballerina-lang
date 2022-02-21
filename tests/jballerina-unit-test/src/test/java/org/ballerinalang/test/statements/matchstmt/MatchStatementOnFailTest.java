@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Test basics of static pattern match statement with fail statement")
     public void testStaticMatchPatternsWithFailStmt() {
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -64,7 +64,7 @@ public class MatchStatementOnFailTest {
     @Test(description = "Test basics of static pattern match statement with check expression")
     public void testStaticMatchPatternsWithCheckExpr() {
 
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -84,7 +84,7 @@ public class MatchStatementOnFailTest {
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithFail() {
 
-        Object returns = JvmRunUtil.invoke(result, "testNestedMatchPatternsWithFail", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithFail", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -103,7 +103,7 @@ public class MatchStatementOnFailTest {
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithCheck() {
 
-        Object returns = JvmRunUtil.invoke(result, "testNestedMatchPatternsWithCheck", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithCheck", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -121,7 +121,7 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Test using var defined in match clause within on-fail")
     public void testVarInMatchPatternWithinOnfail() {
-        JvmRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
+        BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
     }
 
     @Test(description = "Check not incompatible types and reachable statements.")

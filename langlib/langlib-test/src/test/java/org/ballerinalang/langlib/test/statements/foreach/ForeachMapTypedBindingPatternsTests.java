@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -41,235 +41,235 @@ public class ForeachMapTypedBindingPatternsTests {
 
     @Test
     public void testUnconstrainedMapWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithoutType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithoutType");
         Assert.assertEquals(returns.toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testUnconstrainedMapWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithType");
         Assert.assertEquals(returns.toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testConstrainedMapWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithoutType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithoutType");
         Assert.assertEquals(returns.toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testConstrainedMapWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithType");
         Assert.assertEquals(returns.toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testConstrainedMapWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithAnyType");
         Assert.assertEquals(returns.toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithoutType");
         Assert.assertEquals(returns.toString(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleWithType");
         Assert.assertEquals(returns.toString(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
     }
 
     @Test
     public void testConstrainedMapWithTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleWithoutType");
         Assert.assertEquals(returns.toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleWithType");
         Assert.assertEquals(returns.toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleWithAnyType");
         Assert.assertEquals(returns.toString(), "0:[1,\"A\"] 1:[2,\"B\"] 2:[3,\"C\"] ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithoutType");
         Assert.assertEquals(returns.toString(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInTupleWithType");
         Assert.assertEquals(returns.toString(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithoutType");
         Assert.assertEquals(returns.toString(), "0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithType");
         Assert.assertEquals(returns.toString(), "0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInTupleWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInTupleWithAnyType");
         Assert.assertEquals(returns.toString(), "0:[1,[\"A\",2.0]] 1:[2,[\"B\",3.0]] 2:[3,[\"C\",4.0]] ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.toString(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] 2:[4," +
                 "{\"i\":3,\"v\":\"C\"}] ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithType");
         Assert.assertEquals(returns.toString(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] 2:[4," +
                 "{\"i\":3,\"v\":\"C\"}] ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithType");
         Assert.assertEquals(returns.toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInTupleWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithAnyType");
         Assert.assertEquals(returns.toString(), "0:[2,{\"i\":1,\"v\":\"A\"}] 1:[3,{\"i\":2,\"v\":\"B\"}] " +
                 "2:[4,{\"i\":3,\"v\":\"C\"}] ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2,\"v\":\"B\"} " +
                 "2:{\"i\":3,\"v\":\"C\"} ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordWithType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2,\"v\":\"B\"} " +
                 "2:{\"i\":3,\"v\":\"C\"} ");
     }
 
     @Test
     public void testConstrainedMapWithRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordWithType");
         Assert.assertEquals(returns.toString(), "0:1:A 1:2:B 2:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordWithAnyType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":1,\"v\":\"A\"} 1:{\"i\":2," +
                 "\"v\":\"B\"} 2:{\"i\":3,\"v\":\"C\"} ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
                 "\"v\":{\"i\":2,\"v\":\"B\"}} 2:{\"i\":4,\"v\":{\"i\":3,\"v\":\"C\"}} ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
                 "\"v\":{\"i\":2,\"v\":\"B\"}} 2:{\"i\":4,\"v\":{\"i\":3,\"v\":\"C\"}} ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithType");
         Assert.assertEquals(returns.toString(), "0:2:1:A 1:3:2:B 2:4:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithRecordInRecordWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithAnyType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":2,\"v\":{\"i\":1,\"v\":\"A\"}} 1:{\"i\":3," +
                 "\"v\":{\"i\":2,\"v\":\"B\"}} 2:{\"i\":4,\"v\":{\"i\":3,\"v\":\"C\"}} ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
                 "2:{\"i\":3,\"v\":[3,\"C\"]} ");
     }
 
     @Test
     public void testUnconstrainedMapWithTupleInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testUnconstrainedMapWithTupleInRecordWithType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
                 "2:{\"i\":3,\"v\":[3,\"C\"]} ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "0:1:1:A 1:2:2:B 2:3:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithType");
         Assert.assertEquals(returns.toString(), "0:1:1:A 1:2:2:B 2:3:3:C ");
     }
 
     @Test
     public void testConstrainedMapWithTupleInRecordWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testConstrainedMapWithTupleInRecordWithAnyType");
         Assert.assertEquals(returns.toString(), "0:{\"i\":1,\"v\":[1,\"A\"]} 1:{\"i\":2,\"v\":[2,\"B\"]} " +
                 "2:{\"i\":3,\"v\":[3,\"C\"]} ");
     }
 
     @Test
     public void testEmptyMapIteration() {
-        Object returns = JvmRunUtil.invoke(program, "testEmptyMapIteration");
+        Object returns = BRunUtil.invoke(program, "testEmptyMapIteration");
         Assert.assertEquals(returns.toString(), "");
     }
 
     @Test(dataProvider = "bindingPatternWithVarInForeachStatementForReadOnlyMembersOfMappings")
     public void testBindingPatternWithVarInForeachStatementForReadOnlyMembersOfMappings(String function) {
-        JvmRunUtil.invoke(program, function);
+        BRunUtil.invoke(program, function);
     }
 
     @DataProvider
@@ -282,7 +282,7 @@ public class ForeachMapTypedBindingPatternsTests {
 
     @Test(dataProvider = "bindingPatternInForeachStatementForReadOnlyMembersOfMappings")
     public void testBindingPatternInForeachStatementForReadOnlyMembersOfMappings(String function) {
-        JvmRunUtil.invoke(program, function);
+        BRunUtil.invoke(program, function);
     }
 
     @DataProvider

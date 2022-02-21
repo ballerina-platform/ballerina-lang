@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class NotSoBasicWorkerTest {
 
     @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
     public void forkWithTimeoutTest1() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithTimeoutTest1", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithTimeoutTest1", new Object[0]);
 
         @SuppressWarnings("unchecked")
         BMap<String, Long> map = (BMap<String, Long>) vals;
@@ -51,7 +51,7 @@ public class NotSoBasicWorkerTest {
 
     @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
     public void forkWithTimeoutTest2() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithTimeoutTest2", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithTimeoutTest2", new Object[0]);
 
         @SuppressWarnings("unchecked")
         BMap<String, Long> map = (BMap<String, Long>) vals;
@@ -60,7 +60,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithMessagePassing() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithMessagePassing", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithMessagePassing", new Object[0]);
 
         @SuppressWarnings("unchecked")
         BMap<String, Long> map = (BMap<String, Long>) vals;
@@ -69,7 +69,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void chainedWorkerSendReceive() {
-        Object vals = JvmRunUtil.invoke(result, "chainedWorkerSendReceive", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "chainedWorkerSendReceive", new Object[0]);
 
         @SuppressWarnings("unchecked")
         BMap<String, Long> map = (BMap<String, Long>) vals;
@@ -78,7 +78,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithWaitOnSomeSelectedWorkers1() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers1", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers1", new Object[0]);
 
         long xy = (long) vals;
         Assert.assertEquals(xy, 75);
@@ -86,7 +86,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithWaitOnSomeSelectedWorkers2() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers2", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers2", new Object[0]);
 
         @SuppressWarnings("unchecked")
         BMap<String, Long> map = (BMap<String, Long>) vals;
@@ -95,7 +95,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithWaitOnSomeSelectedWorkers3() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers3", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnSomeSelectedWorkers3", new Object[0]);
 
         @SuppressWarnings("unchecked")
         BMap<String, Long> map = (BMap<String, Long>) vals;
@@ -104,7 +104,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithWaitOnAllSelectedWorkers1() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers1", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers1", new Object[0]);
 
         @SuppressWarnings("unchecked")
         BMap<String, Long> map = (BMap<String, Long>) vals;
@@ -113,7 +113,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithWaitOnAllSelectedWorkers2() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers2", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithWaitOnAllSelectedWorkers2", new Object[0]);
 
         long result = (long) vals;
         Assert.assertEquals(result, 777);
@@ -121,7 +121,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithinWorkers() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithinWorkers", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithinWorkers", new Object[0]);
 
         long ret = (long) vals;
         Assert.assertEquals(ret, 30);
@@ -129,7 +129,7 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void largeForkCreationTest() {
-        Object vals = JvmRunUtil.invoke(result, "largeForkCreationTest", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "largeForkCreationTest", new Object[0]);
 
         long ret = (long) vals;
         Assert.assertEquals(ret, 65000);
@@ -137,14 +137,14 @@ public class NotSoBasicWorkerTest {
 
     @Test
     public void forkWithStructTest() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithStruct", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithStruct", new Object[0]);
 
         Assert.assertEquals(vals.toString(), "[block] sW1: w1[block] fW2: 10.344");
     }
 
     @Test
     public void forkWithSameWorkerContent() {
-        Object vals = JvmRunUtil.invoke(result, "forkWithSameWorkerContent", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "forkWithSameWorkerContent", new Object[0]);
 
         Assert.assertEquals(vals.toString(), "W3: data1, W4: data2");
     }
@@ -152,7 +152,7 @@ public class NotSoBasicWorkerTest {
     @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30590
     public void testForkJoinWorkersWithNonBlockingConnector() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-blocking.bal");
-        BArray vals = (BArray) JvmRunUtil.invoke(result, "testForkJoin", new Object[0]);
+        BArray vals = (BArray) BRunUtil.invoke(result, "testForkJoin", new Object[0]);
         Assert.assertEquals(vals.size(), 2);
         Assert.assertEquals(vals.get(0), 200);
         Assert.assertEquals(vals.get(1), 100);
@@ -161,7 +161,7 @@ public class NotSoBasicWorkerTest {
     @Test
     public void testVoidFunctionWorkers() {
         CompileResult result = BCompileUtil.compile("test-src/workers/void-function-workers.bal");
-        Object vals = JvmRunUtil.invoke(result, "testVoidFunction", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "testVoidFunction", new Object[0]);
 
         Assert.assertTrue(((long) vals == 10L) || ((long) vals == 5L));
     }

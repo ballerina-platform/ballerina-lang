@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +59,7 @@ public class BenchmarkUtilTest {
             final String s2 = "A Greeting from Ballerina...!!!";
             final String expected = s1 + "\n" + s2;
             Object[] args = {StringUtils.fromString(s1), StringUtils.fromString(s2)};
-            JvmRunUtil.invoke(compileResult, printFuncName + "String", args);
+            BRunUtil.invoke(compileResult, printFuncName + "String", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -74,7 +74,7 @@ public class BenchmarkUtilTest {
             final long v2 = 1;
             final String expected = v1 + "\n" + v2;
             Object[] args = {v1, v2};
-            JvmRunUtil.invoke(compileResult, printFuncName + "Int", args);
+            BRunUtil.invoke(compileResult, printFuncName + "Int", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -89,7 +89,7 @@ public class BenchmarkUtilTest {
             final double v2 = 1;
             final String expected = v1 + "\n" + v2;
             Object[] args = {v1, v2};
-            JvmRunUtil.invoke(compileResult, printFuncName + "Float", args);
+            BRunUtil.invoke(compileResult, printFuncName + "Float", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -104,7 +104,7 @@ public class BenchmarkUtilTest {
             final boolean v2 = true;
             final String expected = v1 + "\n" + v2;
             Object[] args = {v1, v2};
-            JvmRunUtil.invoke(compileResult, printFuncName + "Boolean", args);
+            BRunUtil.invoke(compileResult, printFuncName + "Boolean", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -116,7 +116,7 @@ public class BenchmarkUtilTest {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             final String expected = "object Foo\nobject Foo";
-            JvmRunUtil.invoke(compileResult, printFuncName + "Connector");
+            BRunUtil.invoke(compileResult, printFuncName + "Connector");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -129,7 +129,7 @@ public class BenchmarkUtilTest {
             System.setOut(new PrintStream(outContent));
             final String expected = "function function (int,int) returns (int)\n" +
                     "function function (int,int) returns (int)";
-            JvmRunUtil.invoke(compileResult, printFuncName + "FunctionPointer");
+            BRunUtil.invoke(compileResult, printFuncName + "FunctionPointer");
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -145,7 +145,7 @@ public class BenchmarkUtilTest {
             final String s3 = "Adios";
             final String expected = s1 + s2 + s3;
             Object[] args = {StringUtils.fromString(s1), StringUtils.fromString(s2), StringUtils.fromString(s3)};
-            JvmRunUtil.invoke(compileResult, "testPrintVarargs", args);
+            BRunUtil.invoke(compileResult, "testPrintVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -162,7 +162,7 @@ public class BenchmarkUtilTest {
             final boolean b1 = true;
             final String expected = s1 + l1 + d1 + b1;
             Object[] args = {StringUtils.fromString(s1), l1, d1, b1};
-            JvmRunUtil.invoke(compileResult, "testPrintMixVarargs", args);
+            BRunUtil.invoke(compileResult, "testPrintMixVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -178,7 +178,7 @@ public class BenchmarkUtilTest {
             final String s3 = "Adios";
             final String expected = s1 + s2 + s3 + "\n";
             Object[] args = {StringUtils.fromString(s1), StringUtils.fromString(s2), StringUtils.fromString(s3)};
-            JvmRunUtil.invoke(compileResult, "testPrintlnVarargs", args);
+            BRunUtil.invoke(compileResult, "testPrintlnVarargs", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             System.setOut(original);
@@ -190,7 +190,7 @@ public class BenchmarkUtilTest {
         PrintStream mainStream = System.out;
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(out));
-            JvmRunUtil.invoke(compileResult, "printNewline");
+            BRunUtil.invoke(compileResult, "printNewline");
             String outPut = out.toString();
             Assert.assertNotNull(outPut, "string is not printed");
             //getting the last new line character
@@ -208,7 +208,7 @@ public class BenchmarkUtilTest {
     public void testFormatBooleanTrue() {
         BArray fArgs = getAnyArrayValue(new Object[] {true});
         Object[] args = {StringUtils.fromString("%b"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "true");
     }
 
@@ -220,7 +220,7 @@ public class BenchmarkUtilTest {
     public void testFormatBooleanFalse() {
         BArray fArgs = getAnyArrayValue(new Object[] {false});
         Object[] args = {StringUtils.fromString("%b"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "false");
     }
 
@@ -228,7 +228,7 @@ public class BenchmarkUtilTest {
     public void testFormatDecimal() {
         BArray fArgs = getAnyArrayValue(new Object[] {65L});
         Object[] args = {StringUtils.fromString("%d"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "65");
     }
 
@@ -236,7 +236,7 @@ public class BenchmarkUtilTest {
     public void testFormatFloat() {
         BArray fArgs = getAnyArrayValue(new Object[] {3.25d});
         Object[] args = {StringUtils.fromString("%f"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "3.250000");
     }
 
@@ -245,7 +245,7 @@ public class BenchmarkUtilTest {
         String name = "John";
         BArray fArgs = getAnyArrayValue(new Object[]{StringUtils.fromString(name)});
         Object[] args = {StringUtils.fromString("%s"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), name);
     }
 
@@ -253,7 +253,7 @@ public class BenchmarkUtilTest {
     public void testFormatHex() {
         BArray fArgs = getAnyArrayValue(new Object[]{57005L});
         Object[] args = {StringUtils.fromString("%x"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "dead");
     }
 
@@ -263,7 +263,7 @@ public class BenchmarkUtilTest {
                 TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         BArray fArgs = getAnyArrayValue(new Object[]{arr});
         Object[] args = {StringUtils.fromString("%s"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "[111,222,333]");
     }
 
@@ -271,7 +271,7 @@ public class BenchmarkUtilTest {
     public void testFormatLiteralPercentChar() {
         BArray fArgs = getAnyArrayValue(new Object[]{StringUtils.fromString("test")});
         Object[] args = {StringUtils.fromString("%% %s"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "% test");
     }
 
@@ -279,7 +279,7 @@ public class BenchmarkUtilTest {
     public void testFormatStringWithPadding() {
         BArray fArgs = getAnyArrayValue(new Object[]{StringUtils.fromString("Hello Ballerina")});
         Object[] args = {StringUtils.fromString("%9.2s"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "       He");
     }
 
@@ -287,7 +287,7 @@ public class BenchmarkUtilTest {
     public void testFormatFloatWithPadding() {
         BArray fArgs = getAnyArrayValue(new Object[]{123456789.9876543d});
         Object[] args = {StringUtils.fromString("%5.4f"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "123456789.9877");
     }
 
@@ -295,7 +295,7 @@ public class BenchmarkUtilTest {
     public void testFormatDecimalWithPadding() {
         BArray fArgs = getAnyArrayValue(new Object[]{12345L});
         Object[] args = {StringUtils.fromString("%15d"), fArgs};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintf", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintf", args);
         Assert.assertEquals(returns.toString(), "          12345");
     }
 
@@ -303,13 +303,13 @@ public class BenchmarkUtilTest {
     public void testSprintfMix() {
         Object[] args = {StringUtils.fromString("the %s jumped over the %s, %d times"),
                 StringUtils.fromString("cow"), StringUtils.fromString("moon"), 2L};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintfMix", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSprintfMix", args);
         Assert.assertEquals(returns.toString(), "the cow jumped over the moon, 2 times");
     }
 
     @Test
     public void testSprintfForNilInputString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSprintfNilString");
+        Object returns = BRunUtil.invoke(compileResult, "testSprintfNilString");
         Assert.assertTrue(returns.toString().isEmpty());
     }
 

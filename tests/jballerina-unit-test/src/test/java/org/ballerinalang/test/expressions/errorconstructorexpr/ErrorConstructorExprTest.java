@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.errorconstructorexpr;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +53,7 @@ public class ErrorConstructorExprTest {
 
     @Test(dataProvider = "ErrorConstructorExprFunctions")
     public void testErrorConstructorExpr(String funcName) {
-        JvmRunUtil.invoke(result, funcName);
+        BRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "ErrorConstructorExprFunctions")

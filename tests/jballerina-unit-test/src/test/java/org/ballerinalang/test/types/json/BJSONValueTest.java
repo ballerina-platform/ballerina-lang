@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -81,62 +81,62 @@ public class BJSONValueTest {
     @Test
     public void testJSONWithExpressionKey() {
         CompileResult result = BCompileUtil.compile("test-src/types/jsontype/json-literal-with-expr-key.bal");
-        Object returns = JvmRunUtil.invoke(result, "testJSONWithExpressionKey");
+        Object returns = BRunUtil.invoke(result, "testJSONWithExpressionKey");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"a\":\"Lion\",\"key1\":\"Cat\",\"key2\":\"Dog\"}");
     }
 
     @Test(description = "Test initializing json with a string")
     public void testStringAsJsonVal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringAsJsonVal");
+        Object returns = BRunUtil.invoke(compileResult, "testStringAsJsonVal");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Supun");
     }
 
     @Test(description = "Test initializing json with an integer")
     public void testIntAsJsonVal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIntAsJsonVal");
+        Object returns = BRunUtil.invoke(compileResult, "testIntAsJsonVal");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 5L);
     }
 
     @Test(description = "Test initializing json with a float")
     public void testFloatAsJsonVal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloatAsJsonVal");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatAsJsonVal");
         Assert.assertTrue(returns instanceof Double);
         Assert.assertEquals(returns, 7.65);
     }
 
     @Test(description = "Test initializing json with a byte")
     public void testByteAsJsonVal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testByteAsJsonVal");
+        Object returns = BRunUtil.invoke(compileResult, "testByteAsJsonVal");
         Assert.assertTrue(returns instanceof Integer);
         Assert.assertEquals(returns, 5);
     }
 
     @Test(description = "Test initializing json with a decimal")
     public void testDecimalAsJsonVal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDecimalAsJsonVal");
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalAsJsonVal");
         Assert.assertTrue(returns instanceof BDecimal);
         Assert.assertEquals(((BDecimal) returns).value(), new BigDecimal("7.65", MathContext.DECIMAL128));
     }
 
     @Test(description = "Test initializing json with a boolean")
     public void testBooleanAsJsonVal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testBooleanAsJsonVal");
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanAsJsonVal");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test initializing json with a null")
     public void testNullAsJsonVal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNullAsJsonVal");
+        Object returns = BRunUtil.invoke(compileResult, "testNullAsJsonVal");
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test inline initializing of a json")
     public void testNestedJsonInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNestedJsonInit");
+        Object returns = BRunUtil.invoke(compileResult, "testNestedJsonInit");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"age\":25," +
                 "\"parent\":{\"name\":\"bbb\",\"age\":50},\"address\":{\"city\":\"Colombo\"," +
@@ -145,7 +145,7 @@ public class BJSONValueTest {
 
     @Test
     public void testJsonWithNull() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testJsonWithNull");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testJsonWithNull");
         Assert.assertTrue(returns.get(0) instanceof BMap);
         Assert.assertEquals(returns.get(0).toString(), "{\"name\":null}");
         Assert.assertNull(returns.get(1));
@@ -153,7 +153,7 @@ public class BJSONValueTest {
 
     @Test
     public void testGetString() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testGetString");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testGetString");
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertTrue(returns.get(1) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "Supun");
@@ -162,7 +162,7 @@ public class BJSONValueTest {
 
     @Test
     public void testGetInt() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testGetInt");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testGetInt");
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertTrue(returns.get(1) instanceof Long);
         Assert.assertEquals(returns.get(0), 25L);
@@ -171,35 +171,35 @@ public class BJSONValueTest {
 
     @Test
     public void testGetFloat() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetFloat");
+        Object returns = BRunUtil.invoke(compileResult, "testGetFloat");
         Assert.assertTrue(returns instanceof Double);
         Assert.assertEquals((Double) returns, 9.73, DELTA);
     }
 
     @Test
     public void testGetDecimal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetDecimal");
+        Object returns = BRunUtil.invoke(compileResult, "testGetDecimal");
         Assert.assertTrue(returns instanceof BDecimal);
         Assert.assertEquals(((BDecimal) returns).value(), new BigDecimal("9.5", MathContext.DECIMAL128));
     }
 
     @Test
     public void testGetBoolean() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetBoolean");
+        Object returns = BRunUtil.invoke(compileResult, "testGetBoolean");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testGetJson() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetJson");
+        Object returns = BRunUtil.invoke(compileResult, "testGetJson");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
     }
 
     @Test
     public void testGetNonExistingElement() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetNonExistingElement");
+        Object returns = BRunUtil.invoke(compileResult, "testGetNonExistingElement");
         String errorMsg = ((BMap<String, BString>) ((BError) returns).getDetails()).get(
                 StringUtils.fromString("message")).toString();
         Assert.assertEquals(errorMsg, "key 'name' not found in JSON mapping");
@@ -207,154 +207,154 @@ public class BJSONValueTest {
 
     @Test
     public void testAddString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAddString");
+        Object returns = BRunUtil.invoke(compileResult, "testAddString");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"lname\":\"Setunga\"}");
     }
 
     @Test
     public void testAddInt() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAddInt");
+        Object returns = BRunUtil.invoke(compileResult, "testAddInt");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"age\":25}");
     }
 
     @Test
     public void testAddFloat() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAddFloat");
+        Object returns = BRunUtil.invoke(compileResult, "testAddFloat");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"score\":4.37}");
     }
 
     @Test
     public void testAddDecimal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAddDecimal");
+        Object returns = BRunUtil.invoke(compileResult, "testAddDecimal");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"score\":4.37}");
     }
 
     @Test
     public void testAddBoolean() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAddBoolean");
+        Object returns = BRunUtil.invoke(compileResult, "testAddBoolean");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"status\":true}");
     }
 
     @Test
     public void testAddJson() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAddJson");
+        Object returns = BRunUtil.invoke(compileResult, "testAddJson");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
 
     @Test
     public void testUpdateString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateString");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateString");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"lname\":\"Setunga\"}");
     }
 
     @Test
     public void testUpdateInt() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateInt");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateInt");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"age\":25}");
     }
 
     @Test
     public void testUpdateFloat() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateFloat");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateFloat");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"score\":4.37}");
     }
 
     @Test
     public void testUpdateBoolean() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateBoolean");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateBoolean");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"status\":true}");
     }
 
     @Test
     public void testUpdateJson() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateJson");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateJson");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"fname\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
 
     @Test
     public void testUpdateStringInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateStringInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateStringInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",\"d\",\"c\"]");
     }
 
     @Test
     public void testUpdateIntInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateIntInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateIntInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",64,\"c\"]");
     }
 
     @Test
     public void testUpdateFloatInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateFloatInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateFloatInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",4.72,\"c\"]");
     }
 
     @Test
     public void testUpdateDecimalInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateDecimalInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateDecimalInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",4.72,\"c\"]");
     }
 
     @Test
     public void testUpdateBooleanInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateBooleanInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateBooleanInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",true,\"c\"]");
     }
 
     @Test
     public void testUpdateNullInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateNullInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateNullInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",null,\"c\"]");
     }
 
     @Test
     public void testUpdateJsonInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateJsonInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateJsonInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",{\"country\":\"SriLanka\"},\"c\"]");
     }
 
     @Test
     public void testUpdateJsonArrayInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateJsonArrayInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateJsonArrayInArray");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[\"a\",[1,2,3],\"c\"]");
     }
 
     @Test
     public void testGetNestedJsonElement() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetNestedJsonElement");
+        Object returns = BRunUtil.invoke(compileResult, "testGetNestedJsonElement");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Colombo");
     }
 
     @Test()
     public void testSetArrayOutofBoundElement() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSetArrayOutofBoundElement");
+        Object returns = BRunUtil.invoke(compileResult, "testSetArrayOutofBoundElement");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[1,2,3,null,null,null,null,8]");
     }
 
     @Test
     public void testGetStringInArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetStringInArray");
+        Object returns = BRunUtil.invoke(compileResult, "testGetStringInArray");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "b");
     }
@@ -364,12 +364,12 @@ public class BJSONValueTest {
                     ".*IndexOutOfRange \\{\"message\":\"array index out of range: index: 5, " +
                             "size: 3.*")
     public void testGetArrayOutofBoundElement() {
-        JvmRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
+        BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
     }
 
     @Test
     public void testGetElementFromPrimitive() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
+        Object returns = BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
@@ -378,42 +378,42 @@ public class BJSONValueTest {
 
     @Test
     public void testUpdateNestedElement() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUpdateNestedElement");
+        Object returns = BRunUtil.invoke(compileResult, "testUpdateNestedElement");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"details\":{\"fname\":\"Supun\",\"lname\":\"Setunga\"}}");
     }
 
     @Test
     public void testEmptyStringToJson() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEmptyStringToJson");
+        Object returns = BRunUtil.invoke(compileResult, "testEmptyStringToJson");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertTrue((Boolean) returns.toString().isEmpty());
     }
 
     @Test
     public void testJsonStringToJson() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testJsonStringToJson");
+        Object returns = BRunUtil.invoke(compileResult, "testJsonStringToJson");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "{\"name\", \"supun\"}");
     }
 
     @Test
     public void testStringWithEscapedCharsToJson() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringWithEscapedCharsToJson");
+        Object returns = BRunUtil.invoke(compileResult, "testStringWithEscapedCharsToJson");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "{\\\"name\\\", \"supun\"}");
     }
 
     @Test
     public void testJsonArrayToJsonCasting() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testJsonArrayToJsonCasting");
+        Object returns = BRunUtil.invoke(compileResult, "testJsonArrayToJsonCasting");
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(returns.toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
     }
 
     @Test
     public void testJsonToJsonArrayCasting() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testJsonToJsonArrayCasting");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testJsonToJsonArrayCasting");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertEquals(returns.get(0).toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
         Assert.assertTrue(
@@ -423,7 +423,7 @@ public class BJSONValueTest {
 
     @Test
     public void testJsonToJsonArrayInvalidCasting() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
+        Object returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
@@ -442,7 +442,7 @@ public class BJSONValueTest {
 
     @Test
     public void testJsonLength() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testJsonLength");
+        Object returns = BRunUtil.invoke(compileResult, "testJsonLength");
 
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 3L);
@@ -450,7 +450,7 @@ public class BJSONValueTest {
 
     @Test
     public void testGetFromNull() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetFromNull");
+        Object returns = BRunUtil.invoke(compileResult, "testGetFromNull");
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();
@@ -459,13 +459,13 @@ public class BJSONValueTest {
 
     @Test
     public void testAddToNull() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAddToNull");
+        Object returns = BRunUtil.invoke(compileResult, "testAddToNull");
         Assert.assertEquals(returns.toString(), "{\"name\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
 
     @Test
     public void testJsonIntToFloat() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testJsonIntToFloat");
+        Object returns = BRunUtil.invoke(compileResult, "testJsonIntToFloat");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 4.0);
     }
@@ -474,59 +474,59 @@ public class BJSONValueTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
-        JvmRunUtil.invoke(compileResult, "testNullJsonToInt");
+        BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
-        JvmRunUtil.invoke(compileResult, "testNullJsonToFloat");
+        BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
-        JvmRunUtil.invoke(compileResult, "testNullJsonToString");
+        BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
-        JvmRunUtil.invoke(compileResult, "testNullJsonToBoolean");
+        BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.value\\}ConversionError " +
                     "\\{\"message\":\"cannot convert '\\(\\)' to type 'map<json>'.*")
     public void testNullJsonToMap() {
-        JvmRunUtil.invoke(compileResult, "testNullJsonToMap");
+        BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
     public void testNullJsonToArray() {
-        JvmRunUtil.invoke(compileResult, "testNullJsonToArray");
+        BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: 'json\\[\\]' cannot be cast to 'map<json>\\[\\]'.*")
     public void testMapJsonToJsonArray() {
-        JvmRunUtil.invoke(compileResult, "testMapJsonToJsonArray");
+        BRunUtil.invoke(compileResult, "testMapJsonToJsonArray");
     }
 
     @Test
     public void testJsonMapAccess() {
-        JvmRunUtil.invoke(compileResult, "testJsonMapAccess");
+        BRunUtil.invoke(compileResult, "testJsonMapAccess");
     }
 
     @Test
     public void testIntArrayToJsonAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testIntArrayToJsonAssignment");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertEquals(returns.get(0).toString(), "[1,5,9,4]");
         Assert.assertTrue(returns.get(1) instanceof Long);
@@ -535,7 +535,7 @@ public class BJSONValueTest {
 
     @Test
     public void testFloatArrayToJsonAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testFloatArrayToJsonAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testFloatArrayToJsonAssignment");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertEquals(returns.get(0).toString(), "[1.3,5.4,9.4,4.5]");
         Assert.assertTrue(returns.get(1) instanceof Double);
@@ -544,7 +544,7 @@ public class BJSONValueTest {
 
     @Test
     public void testDecimalArrayToJsonAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testDecimalArrayToJsonAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDecimalArrayToJsonAssignment");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertEquals(returns.get(0).toString(), "[1.3,1.234,4.1,4.54]");
         Assert.assertTrue(returns.get(1) instanceof BDecimal);
@@ -553,7 +553,7 @@ public class BJSONValueTest {
 
     @Test
     public void testStringArrayToJsonAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testStringArrayToJsonAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testStringArrayToJsonAssignment");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertEquals(returns.get(0).toString(), "[\"apple\",\"orange\",\"grape\"]");
         Assert.assertTrue(returns.get(1) instanceof BString);
@@ -562,7 +562,7 @@ public class BJSONValueTest {
 
     @Test
     public void testBooleanArrayToJsonAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testBooleanArrayToJsonAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testBooleanArrayToJsonAssignment");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertEquals(returns.get(0).toString(), "[true,true,false,true]");
         Assert.assertTrue(returns.get(1) instanceof Boolean);
@@ -571,7 +571,7 @@ public class BJSONValueTest {
 
     @Test
     public void testJsonLaxErrorLifting() {
-        JvmRunUtil.invoke(compileResult, "testJsonLaxErrorLifting");
+        BRunUtil.invoke(compileResult, "testJsonLaxErrorLifting");
     }
 
     @AfterClass

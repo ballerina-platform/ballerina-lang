@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -36,7 +36,7 @@ public class ForkInFunctionTest {
     public void testForkAndWaitForAll() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-in-all.bal");
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testForkAndWaitForAll", args);
+        Object returns = BRunUtil.invoke(result, "testForkAndWaitForAll", args);
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(((BArray) returns).size(), 2);
         Assert.assertEquals(((BArray) returns).getInt(0), 234);
@@ -47,7 +47,7 @@ public class ForkInFunctionTest {
     public void testForkAndWaitForAny() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-join-some.bal");
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "testForkAndWaitForAny", args);
+        Object returns = BRunUtil.invoke(result, "testForkAndWaitForAny", args);
         Assert.assertTrue(returns instanceof BString);
         String returnStr = returns.toString();
         Assert.assertTrue(returnStr.equals("abc") || returnStr.equals("xyz"), returnStr);
@@ -58,7 +58,7 @@ public class ForkInFunctionTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-workers-under-same-funtion.bal");
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "forkWithWorkers", args);
+        Object returns = BRunUtil.invoke(result, "forkWithWorkers", args);
         Assert.assertEquals(returns.getClass(), Long.class);
         long returnInt = (long) returns;
         Assert.assertEquals(returnInt, 10);

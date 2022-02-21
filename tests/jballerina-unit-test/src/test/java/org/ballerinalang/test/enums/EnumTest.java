@@ -19,7 +19,7 @@ package org.ballerinalang.test.enums;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,12 +53,12 @@ public class EnumTest {
 
     @Test(description = "Positive tests for enums", dataProvider = "FunctionList")
     public void testLetExpression(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @Test(description = "Positive access tests for enums")
     public void testAccessPositive() {
-        JvmRunUtil.invoke(accessTest, "test");
+        BRunUtil.invoke(accessTest, "test");
     }
 
     @DataProvider(name = "FunctionList")

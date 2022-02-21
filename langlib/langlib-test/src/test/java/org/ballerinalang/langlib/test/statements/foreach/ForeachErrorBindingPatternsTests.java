@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class ForeachErrorBindingPatternsTests {
 
     @Test
     public void testArrayWithErrors() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithErrors");
+        Object returns = BRunUtil.invoke(program, "testArrayWithErrors");
         BArray result = (BArray) returns;
         Assert.assertEquals(result.size(), 3);
         Assert.assertEquals(result.get(0).toString(),
@@ -57,7 +57,7 @@ public class ForeachErrorBindingPatternsTests {
 
     @Test
     public void testMapWithErrors() {
-        Object returns = JvmRunUtil.invoke(program, "testMapWithErrors");
+        Object returns = BRunUtil.invoke(program, "testMapWithErrors");
         BArray result = (BArray) returns;
         Assert.assertEquals(result.size(), 3);
         Assert.assertEquals(result.get(0).toString(),

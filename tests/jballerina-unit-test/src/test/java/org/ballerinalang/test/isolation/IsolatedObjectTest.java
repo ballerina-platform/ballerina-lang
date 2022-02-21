@@ -20,7 +20,7 @@ package org.ballerinalang.test.isolation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -295,6 +295,6 @@ public class IsolatedObjectTest {
             Assert.assertTrue(diagnostic.message().startsWith("unused variable"));
         }
 
-        JvmRunUtil.invoke(compileResult, "testRuntimeIsolatedFlag");
+        BRunUtil.invoke(compileResult, "testRuntimeIsolatedFlag");
     }
 }

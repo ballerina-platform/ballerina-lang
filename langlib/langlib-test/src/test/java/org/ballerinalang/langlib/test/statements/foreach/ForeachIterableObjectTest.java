@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class ForeachIterableObjectTest {
 
     @Test
     public void testIterableObject() {
-        Object returns = JvmRunUtil.invoke(program, "testIterableObject");
+        Object returns = BRunUtil.invoke(program, "testIterableObject");
 
         BArray arr = (BArray) returns;
         Assert.assertEquals(arr.size(), 7);
@@ -61,32 +61,32 @@ public class ForeachIterableObjectTest {
 
     @Test
     public void testNestedIterableObject() {
-        JvmRunUtil.invoke(program, "testNestedIterableObject");
+        BRunUtil.invoke(program, "testNestedIterableObject");
     }
 
     @Test
     public void testIterableSubtype() {
-        JvmRunUtil.invoke(program, "testIterableSubtype");
+        BRunUtil.invoke(program, "testIterableSubtype");
     }
 
     @Test
     public void testIterableObjectReturnedByRangeExpression() {
-        JvmRunUtil.invoke(program, "testIterableObjectReturnedByRangeExpression");
+        BRunUtil.invoke(program, "testIterableObjectReturnedByRangeExpression");
     }
 
     @Test
     public void testIterableDistinctObjectReturnedByRangeExpression() {
-        JvmRunUtil.invoke(program, "testIterableDistinctObjectReturnedByRangeExpression");
+        BRunUtil.invoke(program, "testIterableDistinctObjectReturnedByRangeExpression");
     }
 
     @Test
     public void testIterableIterator() {
-        JvmRunUtil.invoke(program, "testIterableIterator");
+        BRunUtil.invoke(program, "testIterableIterator");
     }
 
     @Test
     public void testNextIsNotInvokedTwiseBeforeInvokingBody() {
-        JvmRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
+        BRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
     }
 
     @Test

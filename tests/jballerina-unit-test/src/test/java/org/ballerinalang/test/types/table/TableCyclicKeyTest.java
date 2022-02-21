@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.table;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class TableCyclicKeyTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}CyclicValueReferenceError " +
                     "\\{\"message\":\"'Address' value has cyclic reference.*")
     public void testCyclesInRecords() {
-        JvmRunUtil.invoke(result, "testCyclesInRecords");
+        BRunUtil.invoke(result, "testCyclesInRecords");
     }
 
     @AfterClass

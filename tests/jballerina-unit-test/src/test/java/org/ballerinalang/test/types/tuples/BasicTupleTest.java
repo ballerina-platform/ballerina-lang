@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test basics of tuple types")
     public void testTupleTypeBasics() {
-        Object returns = JvmRunUtil.invoke(result, "basicTupleTest", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "basicTupleTest", new Object[]{});
 
         Assert.assertEquals(returns.toString(), " test1 expr \n" +
                 " test2 \n" +
@@ -56,18 +56,18 @@ public class BasicTupleTest {
 
     @Test(description = "Test Function invocation using tuples")
     public void testFunctionInvocationUsingTuples() {
-        Object returns = JvmRunUtil.invoke(result, "testFunctionInvocation", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFunctionInvocation", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "xy5.0z");
     }
 
     @Test(description = "Test Function Invocation return values using tuples")
     public void testFunctionReturnValue() {
-        Object returns = JvmRunUtil.invoke(result, "testFunctionReturnValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFunctionReturnValue", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "x5.0z");
 
-        BArray returns1 = (BArray) JvmRunUtil.invoke(result, "testFunctionReturnValue2", new Object[]{});
+        BArray returns1 = (BArray) BRunUtil.invoke(result, "testFunctionReturnValue2", new Object[]{});
         Assert.assertEquals(returns1.size(), 2);
         Assert.assertEquals(returns1.get(0).toString(), "xz");
         Assert.assertEquals(returns1.get(1).toString(), "5.0");
@@ -75,19 +75,19 @@ public class BasicTupleTest {
 
     @Test(description = "Test Function Invocation return values using tuples")
     public void testIgnoredValue() {
-        Object returns = JvmRunUtil.invoke(result, "testIgnoredValue1");
+        Object returns = BRunUtil.invoke(result, "testIgnoredValue1");
 
         Assert.assertEquals(returns.toString(), "foo");
 
-        returns = JvmRunUtil.invoke(result, "testIgnoredValue2");
+        returns = BRunUtil.invoke(result, "testIgnoredValue2");
 
         Assert.assertEquals(returns.toString(), "foo");
 
-        returns = JvmRunUtil.invoke(result, "testIgnoredValue3");
+        returns = BRunUtil.invoke(result, "testIgnoredValue3");
 
         Assert.assertEquals(returns.toString(), "foo");
 
-        BArray returns1 = (BArray) JvmRunUtil.invoke(result, "testIgnoredValue4");
+        BArray returns1 = (BArray) BRunUtil.invoke(result, "testIgnoredValue4");
         Assert.assertEquals(returns1.size(), 2);
         Assert.assertEquals(returns1.get(0).toString(), "foo");
         Assert.assertTrue((Boolean) returns1.get(1));
@@ -95,7 +95,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test index based access of tuple type")
     public void testIndexBasedAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIndexBasedAccess");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIndexBasedAccess");
         Assert.assertEquals(returns.get(0).toString(), "def");
         Assert.assertEquals(returns.get(1), 4L);
         Assert.assertFalse((Boolean) returns.get(2));
@@ -103,7 +103,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test index based access of tuple type with records")
     public void testIndexBasedAccessOfRecords() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIndexBasedAccessOfRecords");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIndexBasedAccessOfRecords");
         Assert.assertEquals(returns.get(0).toString(), "NewFoo");
         Assert.assertTrue((Boolean) returns.get(1));
         Assert.assertEquals(returns.get(2).toString(), "NewBar");
@@ -113,7 +113,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test default values for tuple type")
     public void testDefaultValuesInTuples() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDefaultValuesInTuples");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDefaultValuesInTuples");
         Assert.assertEquals(returns.get(0).toString(), "");
         Assert.assertEquals(returns.get(1), 0L);
         Assert.assertFalse((Boolean) returns.get(2));
@@ -122,13 +122,13 @@ public class BasicTupleTest {
 
     @Test(description = "Test tuple to array assignment")
     public void testTupleToArrayAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleToArrayAssignment1", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleToArrayAssignment1", new Object[]{});
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "a");
         Assert.assertEquals(returns.get(1).toString(), "b");
         Assert.assertEquals(returns.get(2).toString(), "c");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "testTupleToArrayAssignment2", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "testTupleToArrayAssignment2", new Object[]{});
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "a");
         Assert.assertEquals(returns.get(1).toString(), "b");
@@ -137,47 +137,47 @@ public class BasicTupleTest {
 
     @Test(description = "Test tuple to JSON assignment")
     public void testTupleToJSONAssignment() {
-        JvmRunUtil.invoke(result, "testTupleToJSONAssignment");
+        BRunUtil.invoke(result, "testTupleToJSONAssignment");
     }
 
     @Test(description = "Test array to tuple assignment")
     public void testArrayToTupleAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testArrayToTupleAssignment1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testArrayToTupleAssignment1", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "[\"a\",\"b\",\"c\"]");
 
-        returns = JvmRunUtil.invoke(result, "testArrayToTupleAssignment2", new Object[]{});
+        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment2", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "[\"a\",\"b\",\"c\"]");
 
-        BArray returns1 = (BArray) JvmRunUtil.invoke(result, "testArrayToTupleAssignment3", new Object[]{});
+        BArray returns1 = (BArray) BRunUtil.invoke(result, "testArrayToTupleAssignment3", new Object[]{});
         Assert.assertEquals(returns1.size(), 2);
         Assert.assertEquals(returns1.get(0).toString(), "a");
         Assert.assertEquals(returns1.get(1).toString(), "[\"b\",\"c\"]");
 
-        returns = JvmRunUtil.invoke(result, "testArrayToTupleAssignment4", new Object[]{});
+        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment4", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "[\"a\",\"b\",\"c\"]");
     }
 
     @Test(description = "Test union expected type for list constructor")
     public void testTupleUnionExpectedType() {
-        JvmRunUtil.invoke(result, "testTupleUnionExpectedType");
+        BRunUtil.invoke(result, "testTupleUnionExpectedType");
     }
 
     @Test
     public void testUnionRestDescriptor() {
-        JvmRunUtil.invoke(result, "testUnionRestDescriptor");
+        BRunUtil.invoke(result, "testUnionRestDescriptor");
     }
 
     @Test
     public void testAnonRecordsInTupleTypeDescriptor() {
-        JvmRunUtil.invoke(result, "testAnonRecordsInTupleTypeDescriptor");
+        BRunUtil.invoke(result, "testAnonRecordsInTupleTypeDescriptor");
     }
 
     @Test
     public void testTupleWithUnion() {
-        JvmRunUtil.invoke(result, "testTupleWithUnion");
+        BRunUtil.invoke(result, "testTupleWithUnion");
     }
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
@@ -267,7 +267,7 @@ public class BasicTupleTest {
 
     @Test(dataProvider = "dataToTestTupleDeclaredWithVar", description = "Test tuple declared with var")
     public void testModuleLevelTupleVarDecl(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
@@ -310,7 +310,7 @@ public class BasicTupleTest {
 
     @Test
     public void testTupleAsTupleFirstMember() {
-        JvmRunUtil.invoke(result, "testTupleAsTupleFirstMember");
+        BRunUtil.invoke(result, "testTupleAsTupleFirstMember");
     }
 
     @AfterClass

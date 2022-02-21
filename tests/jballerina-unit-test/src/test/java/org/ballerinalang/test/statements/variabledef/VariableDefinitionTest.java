@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class VariableDefinitionTest {
 
     @Test
     public void testVariableDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "variableDefaultValue", new Object[0]);
+        BArray returns = (BArray) BRunUtil.invoke(result, "variableDefaultValue", new Object[0]);
         Assert.assertEquals(returns.size(), 4);
 
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -68,7 +68,7 @@ public class VariableDefinitionTest {
 
     @Test
     public void testInlineVarInit() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "inlineVarInit", new Object[0]);
+        BArray returns = (BArray) BRunUtil.invoke(result, "inlineVarInit", new Object[0]);
         Assert.assertEquals(returns.size(), 4);
 
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -99,7 +99,7 @@ public class VariableDefinitionTest {
                 (v1), (v3), StringUtils.fromString(v4), (v5)
         };
 
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "updateVarValue", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "updateVarValue", args);
         Assert.assertEquals(returns.size(), 4);
 
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -130,7 +130,7 @@ public class VariableDefinitionTest {
                 (v1), (v3), StringUtils.fromString(v4), (v5)
         };
 
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "updateVarValue", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "updateVarValue", args);
         Assert.assertEquals(returns.size(), 4);
 
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -152,7 +152,7 @@ public class VariableDefinitionTest {
 
     @Test(description = "Test defining var with wild card")
     public void wildCardLocalVariables() {
-        JvmRunUtil.invoke(result, "wildCardLocalVariables", new Object[0]);
+        BRunUtil.invoke(result, "wildCardLocalVariables", new Object[0]);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")

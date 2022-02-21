@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.access;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -55,7 +55,7 @@ public class AccessTest {
 
     @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
     public void testFieldAndOptionalFieldAccess(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -70,7 +70,7 @@ public class AccessTest {
 
     @Test(dataProvider = "fieldOptionalFieldAndMemberAccessFunctions")
     public void testFieldOptionalFieldAndMemberAccess(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -85,29 +85,29 @@ public class AccessTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testFieldOptionalFieldAndMemberAccess2() {
-        JvmRunUtil.invoke(result, "testFieldOptionalFieldAndMemberAccess3");
+        BRunUtil.invoke(result, "testFieldOptionalFieldAndMemberAccess3");
     }
 
     @Test
     public void testMemberAccessOnNillableObjectField() {
-        Object returns = JvmRunUtil.invoke(result, "testMemberAccessOnNillableObjectField");
+        Object returns = BRunUtil.invoke(result, "testMemberAccessOnNillableObjectField");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testNilLiftingOnMemberAccessOnNillableObjectField() {
-        Object returns = JvmRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
+        Object returns = BRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testSimpleTypeAccessOnFunctionPointer() {
-        JvmRunUtil.invoke(result, "testSimpleTypeAccessOnFunctionPointer");
+        BRunUtil.invoke(result, "testSimpleTypeAccessOnFunctionPointer");
     }
 
     @Test
     public void testAccessOnGroupedExpressions() {
-        Object returns = JvmRunUtil.invoke(result, "testAccessOnGroupedExpressions");
+        Object returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
         Assert.assertTrue((Boolean) returns);
     }
 }

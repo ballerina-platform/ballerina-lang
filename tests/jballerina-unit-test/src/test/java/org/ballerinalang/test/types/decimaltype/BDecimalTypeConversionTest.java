@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -65,7 +65,7 @@ public class BDecimalTypeConversionTest {
 
     @Test(description = "Test decimal to other types conversion")
     public void testDecimalToOtherTypesConversion() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalToOtherTypesConversion", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalToOtherTypesConversion", new Object[]{});
         Assert.assertEquals(returns.size(), 5);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertSame(returns.get(1).getClass(), Double.class);
@@ -90,7 +90,7 @@ public class BDecimalTypeConversionTest {
 
     @Test(description = "Test other types to decimal conversion")
     public void testOtherTypesToDecimalConversion() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testOtherTypesToDecimalConversion", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testOtherTypesToDecimalConversion", new Object[]{});
         Assert.assertEquals(returns.size(), 3);
         for (int i = 0; i < 3; i++) {
             Assert.assertTrue(returns.get(i) instanceof BDecimal);

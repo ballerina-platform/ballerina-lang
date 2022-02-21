@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.XmlFactory;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -195,17 +195,17 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLSequence() {
-        JvmRunUtil.invoke(result, "testXMLSequence");
+        BRunUtil.invoke(result, "testXMLSequence");
     }
 
     @Test
     public void testXMLWithLeadingWhiteSpace() {
-        JvmRunUtil.invoke(result, "testXMLWithLeadingWhiteSpace");
+        BRunUtil.invoke(result, "testXMLWithLeadingWhiteSpace");
     }
 
     @Test
     public void testXMLTextLiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testXMLTextLiteral");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testXMLTextLiteral");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "aaa");
 
@@ -227,7 +227,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLCommentLiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testXMLCommentLiteral");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testXMLCommentLiteral");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<!--aaa-->");
 
@@ -249,7 +249,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLPILiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testXMLPILiteral");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testXMLPILiteral");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<?foo ?>");
 
@@ -268,7 +268,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testExpressionAsAttributeValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testExpressionAsAttributeValue");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testExpressionAsAttributeValue");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<foo bar=\"&quot;zzz&quot;\"></foo>");
 
@@ -288,7 +288,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testElementLiteralWithTemplateChildren() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testElementLiteralWithTemplateChildren");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testElementLiteralWithTemplateChildren");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<root>hello aaa&lt;bbb good morning <fname>John</fname> "
                 + "<lname>Doe</lname>. Have a nice day!<foo>123</foo><bar></bar></root>");
@@ -304,7 +304,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLStartTag() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testXMLStartTag");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testXMLStartTag");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<fname>John</fname>");
 
@@ -320,7 +320,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLLiteralWithEscapeSequence() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testXMLLiteralWithEscapeSequence");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "hello &lt; &gt; &amp;"); // BXmlItem.toString()
         Assert.assertEquals(returns.get(1), 0L);
@@ -340,7 +340,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testTextWithValidMultiTypeExpressions() {
-        Object returns = JvmRunUtil.invoke(result, "testTextWithValidMultiTypeExpressions");
+        Object returns = BRunUtil.invoke(result, "testTextWithValidMultiTypeExpressions");
         Assert.assertTrue(returns instanceof BXmlSequence);
 
         Assert.assertEquals(returns.toString(), "hello 11 world. How 1.35 are you true?");
@@ -348,7 +348,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testArithmaticExpreesionInXMLTemplate() {
-        Object returns = JvmRunUtil.invoke(result, "testArithmaticExpreesionInXMLTemplate");
+        Object returns = BRunUtil.invoke(result, "testArithmaticExpreesionInXMLTemplate");
         Assert.assertTrue(returns instanceof BXmlItem);
 
         Assert.assertEquals(returns.toString(), "<foo id=\"hello 5\">hello</foo>");
@@ -356,7 +356,7 @@ public class XMLLiteralTest {
 
     @Test
     public void testFunctionCallInXMLTemplate() {
-        Object returns = JvmRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
+        Object returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
         Assert.assertTrue(returns instanceof BXmlItem);
 
         Assert.assertEquals(returns.toString(), "<foo>&lt;--&gt;returned from a function</foo>");
@@ -365,7 +365,7 @@ public class XMLLiteralTest {
     @Test
     public void testPackageLevelXML() {
         CompileResult result = BCompileUtil.compile("test-src/types/xml/package_level_xml_literals.bal");
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testPackageLevelXML");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testPackageLevelXML");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(),
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
@@ -377,7 +377,7 @@ public class XMLLiteralTest {
 
     @Test(description = "Test sequence of brackets in content of XML")
     public void testBracketSequenceInXMLLiteral() {
-        Object returns = JvmRunUtil.invoke(result, "testBracketSequenceInXMLLiteral");
+        Object returns = BRunUtil.invoke(result, "testBracketSequenceInXMLLiteral");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "{}{{ {{{ { } }} }}} - extra }<elem>{}{{</elem>");
@@ -385,7 +385,7 @@ public class XMLLiteralTest {
 
     @Test(description = "Test interpolating xml using different types")
     public void testXMLLiteralInterpolation() {
-        Object returns = JvmRunUtil.invoke(result, "testInterpolatingVariousTypes");
+        Object returns = BRunUtil.invoke(result, "testInterpolatingVariousTypes");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<elem>42|3.14|31.4444|this-is-a-string|<abc></abc></elem>");
@@ -393,7 +393,7 @@ public class XMLLiteralTest {
 
     @Test(description = "Test interpolating xml when there are extra dollar signs")
     public void testXMLLiteralWithExtraDollarSigns() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDollarSignOnXMLLiteralTemplate");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDollarSignOnXMLLiteralTemplate");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<foo id=\"hello $5\">hello</foo>");
         Assert.assertEquals(returns.get(1).toString(), "<foo id=\"hello $$5\">$hello</foo>");
@@ -409,7 +409,7 @@ public class XMLLiteralTest {
 
     @Test(dataProvider = "function-name-provider")
     public void testXMLValue(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider(name = "function-name-provider")

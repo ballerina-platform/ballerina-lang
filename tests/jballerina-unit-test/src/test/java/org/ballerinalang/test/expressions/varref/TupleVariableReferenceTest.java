@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -45,42 +45,42 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple var reference 1")
     public void testTupleVarRefBasic1() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefBasic1");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefBasic1");
         BArray returns = (BArray) arr;
         validateVarRefBasicTestResults(returns);
     }
 
     @Test(description = "Test tuple var reference 3")
     public void testTupleVarRefBasic3() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefBasic3");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefBasic3");
         BArray returns = (BArray) arr;
         validateVarRefBasicTestResults(returns);
     }
 
     @Test(description = "Test tuple var reference 4")
     public void testTupleVarRefBasic4() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefBasic4");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefBasic4");
         BArray returns = (BArray) arr;
         validateVarRefBasicTestResults(returns);
     }
 
     @Test(description = "Test tuple var reference 6")
     public void testTupleVarRefBasic6() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefBasic6");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefBasic6");
         BArray returns = (BArray) arr;
         validateVarRefBasicTestResults(returns);
     }
 
     @Test(description = "Test tuple var reference 7")
     public void testTupleVarRefBasic7() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefBasic7");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefBasic7");
         BArray returns = (BArray) arr;
         validateVarRefBasicTestResults(returns);
     }
 
     @Test(description = "Test tuple var reference 8")
     public void testTupleVarRefBasic8() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefBasic8");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefBasic8");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "UpdatedBallerina");
@@ -91,7 +91,7 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple var reference 9")
     public void testTupleVarRefBasic9() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefBasic9");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefBasic9");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "UpdatedBallerina");
@@ -102,7 +102,7 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple var reference assignment 1")
     public void testTupleVarRefAssignment1() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefAssignment1");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefAssignment1");
         BArray returns = (BArray) arr;
         validateVarRefBasicTestResults(returns);
     }
@@ -116,14 +116,14 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple var reference assignment 2")
     public void testTupleVarRefAssignment2() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefAssignment2");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefAssignment2");
         BArray returns = (BArray) arr;
         validateRedAssignmentResults(returns);
     }
 
     @Test(description = "Test tuple var reference assignment 3")
     public void testTupleVarRefAssignment3() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefAssignment3");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefAssignment3");
         BArray returns = (BArray) arr;
         validateRedAssignmentResults(returns);
     }
@@ -144,7 +144,7 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple var reference with array 1")
     public void testTupleVarRefWithArray1() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefWithArray1");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefWithArray1");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         int i = -1;
@@ -164,7 +164,7 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple var reference with array 2")
     public void testTupleVarRefWithArray2() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefWithArray2");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefWithArray2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         int i = -1;
@@ -195,7 +195,7 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple var reference with array 3")
     public void testTupleVarRefWithArray3() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefWithArray3");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefWithArray3");
         BArray returns = (BArray) arr;
         validateVarRefArrayResults(returns);
     }
@@ -233,21 +233,21 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple reference with union type 1")
     public void testVarRefWithUnionType1() {
-        Object arr = JvmRunUtil.invoke(result, "testVarRefWithUnionType1");
+        Object arr = BRunUtil.invoke(result, "testVarRefWithUnionType1");
         BArray returns = (BArray) arr;
         validateVarRefWithUnionResults(returns);
     }
 
     @Test(description = "Test tuple reference with union type 2")
     public void testVarRefWithUnionType2() {
-        Object arr = JvmRunUtil.invoke(result, "testVarRefWithUnionType2");
+        Object arr = BRunUtil.invoke(result, "testVarRefWithUnionType2");
         BArray returns = (BArray) arr;
         validateVarRefWithUnionResults(returns);
     }
 
     @Test(description = "Test tuple reference with union type 3")
     public void testVarRefWithUnionType3() {
-        Object arr = JvmRunUtil.invoke(result, "testVarRefWithUnionType3");
+        Object arr = BRunUtil.invoke(result, "testVarRefWithUnionType3");
         BArray returns = (BArray) arr;
         validateVarRefWithUnionResults(returns);
     }
@@ -261,14 +261,14 @@ public class TupleVariableReferenceTest {
 
     @Test(description = "Test tuple reference with union type 4")
     public void testVarRefWithUnionType4() {
-        Object arr = JvmRunUtil.invoke(result, "testVarRefWithUnionType4");
+        Object arr = BRunUtil.invoke(result, "testVarRefWithUnionType4");
         BArray returns = (BArray) arr;
         validateTupleVarRefWithUnitionComplexResults(returns);
     }
 
     @Test(description = "Test tuple reference with union type 5")
     public void testVarRefWithUnionType5() {
-        Object arr = JvmRunUtil.invoke(result, "testVarRefWithUnionType5");
+        Object arr = BRunUtil.invoke(result, "testVarRefWithUnionType5");
         BArray returns = (BArray) arr;
         validateTupleVarRefWithUnitionComplexResults(returns);
     }
@@ -291,7 +291,7 @@ public class TupleVariableReferenceTest {
 
     @Test(dataProvider = "dataToTestRestVarRefType", description = "Test tuple rest var ref type")
     public void testNeverWithExpressions(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

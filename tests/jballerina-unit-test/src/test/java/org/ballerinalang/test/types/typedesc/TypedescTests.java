@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BTypedesc;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -73,7 +73,7 @@ public class TypedescTests {
 
     @Test(description = "Test basics types")
     public void testBasicTypes() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBasicTypes");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicTypes");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0).toString(), "typedesc int");
         Assert.assertEquals(returns.get(1).toString(), "typedesc string");
@@ -84,12 +84,12 @@ public class TypedescTests {
 
     @Test(description = "Test buildin ref types")
     public void testRefTypes() {
-        JvmRunUtil.invoke(result, "testRefTypes");
+        BRunUtil.invoke(result, "testRefTypes");
     }
 
     @Test(description = "Test object types")
     public void testObjectTypes() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectTypes");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectTypes");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "typedesc Person");
         Assert.assertTrue(returns.get(1) instanceof BTypedesc);
@@ -98,7 +98,7 @@ public class TypedescTests {
 
     @Test(description = "Test array types")
     public void testArrayTypes() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testArrayTypes");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testArrayTypes");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "typedesc int[]");
         Assert.assertEquals(returns.get(1).toString(), "typedesc int[][]");
@@ -106,7 +106,7 @@ public class TypedescTests {
 
     @Test(description = "Test tuple/union types")
     public void testTupleUnionTypes() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleUnionTypes");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleUnionTypes");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "typedesc [string,Person]");
         Assert.assertEquals(returns.get(1).toString(), "typedesc intOrString");
@@ -114,13 +114,13 @@ public class TypedescTests {
 
     @Test(description = "Test tuples with expressions")
     public void testTuplesWithExpressions() {
-        Object returns = JvmRunUtil.invoke(result, "testTuplesWithExpressions");
+        Object returns = BRunUtil.invoke(result, "testTuplesWithExpressions");
         Assert.assertEquals(returns.toString(), "typedesc [string,int,[string,string,string],string,int]");
     }
 
     @Test(description = "Test Record types")
     public void testRecordTypes() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecordTypes");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordTypes");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "typedesc RecordA");
         Assert.assertTrue(returns.get(1) instanceof BTypedesc);
@@ -129,97 +129,97 @@ public class TypedescTests {
 
     @Test(description = "Test any to typedesc cast")
     public void testAnyToTypedescCast() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToTypedesc");
+        Object returns = BRunUtil.invoke(result, "testAnyToTypedesc");
         Assert.assertEquals(returns.toString(), "typedesc int");
     }
 
     @Test(description = "Test module level typedesc definition")
     public void testModuleLevelTypeDesc() {
-        Object returns = JvmRunUtil.invoke(result, "testModuleLevelTypeDesc");
+        Object returns = BRunUtil.invoke(result, "testModuleLevelTypeDesc");
         Assert.assertTrue(returns instanceof BTypedesc);
         Assert.assertEquals(TypeTags.JSON_TAG, ((BTypedesc) returns).getDescribingType().getTag());
     }
 
     @Test(description = "Test method level typedesc definition")
     public void testMethodLevelTypeDesc() {
-        Object returns = JvmRunUtil.invoke(result, "testMethodLevelTypeDesc");
+        Object returns = BRunUtil.invoke(result, "testMethodLevelTypeDesc");
         Assert.assertTrue(returns instanceof BTypedesc);
         Assert.assertEquals(TypeTags.JSON_TAG, ((BTypedesc) returns).getDescribingType().getTag());
     }
 
     @Test(description = "Test custom error typedesc")
     public void testCustomErrorTypeDesc() {
-        Object returns = JvmRunUtil.invoke(result, "testCustomErrorTypeDesc");
+        Object returns = BRunUtil.invoke(result, "testCustomErrorTypeDesc");
     }
 
     @Test
     public void testBasicTypesWithoutTypedescConstraint() {
-        JvmRunUtil.invoke(result, "testBasicTypesWithoutTypedescConstraint");
+        BRunUtil.invoke(result, "testBasicTypesWithoutTypedescConstraint");
     }
 
     @Test
     public void testRefTypesWithoutTypedescConstraint() {
-        JvmRunUtil.invoke(result, "testRefTypesWithoutTypedescConstraint");
+        BRunUtil.invoke(result, "testRefTypesWithoutTypedescConstraint");
     }
 
     @Test
     public void testObjectTypesWithoutTypedescConstraint() {
-        JvmRunUtil.invoke(result, "testObjectTypesWithoutTypedescConstraint");
+        BRunUtil.invoke(result, "testObjectTypesWithoutTypedescConstraint");
     }
 
     @Test
     public void testArrayTypesWithoutTypedescConstraint() {
-        JvmRunUtil.invoke(result, "testArrayTypesWithoutTypedescConstraint");
+        BRunUtil.invoke(result, "testArrayTypesWithoutTypedescConstraint");
     }
 
     @Test
     public void testRecordTypesWithoutTypedescConstraint() {
-        JvmRunUtil.invoke(result, "testRecordTypesWithoutTypedescConstraint");
+        BRunUtil.invoke(result, "testRecordTypesWithoutTypedescConstraint");
     }
 
     @Test
     public void testTuplesWithExpressionsWithoutTypedescConstraint() {
-        JvmRunUtil.invoke(result, "testTuplesWithExpressionsWithoutTypedescConstraint");
+        BRunUtil.invoke(result, "testTuplesWithExpressionsWithoutTypedescConstraint");
     }
 
     @Test
     public void testAnyToTypedescWithoutConstraint() {
-        JvmRunUtil.invoke(result, "testAnyToTypedescWithoutConstraint");
+        BRunUtil.invoke(result, "testAnyToTypedescWithoutConstraint");
     }
 
     @Test
     public void testModuleLevelTypeDescWithoutConstraint() {
-        JvmRunUtil.invoke(result, "testModuleLevelTypeDescWithoutConstraint");
+        BRunUtil.invoke(result, "testModuleLevelTypeDescWithoutConstraint");
     }
 
     @Test
     public void testMethodLevelTypeDescWithoutConstraint() {
-        JvmRunUtil.invoke(result, "testMethodLevelTypeDescWithoutConstraint");
+        BRunUtil.invoke(result, "testMethodLevelTypeDescWithoutConstraint");
     }
 
     @Test
     public void testCustomErrorTypeDescWithoutConstraint() {
-        JvmRunUtil.invoke(result, "testCustomErrorTypeDescWithoutConstraint");
+        BRunUtil.invoke(result, "testCustomErrorTypeDescWithoutConstraint");
     }
 
     @Test
     public void testTypeDefWithIntersectionTypeDescAsTypedesc() {
-        JvmRunUtil.invoke(result, "testTypeDefWithIntersectionTypeDescAsTypedesc");
+        BRunUtil.invoke(result, "testTypeDefWithIntersectionTypeDescAsTypedesc");
     }
 
     @Test
     public void testFiniteTypeAsTypedesc() {
-        JvmRunUtil.invoke(result, "testFiniteTypeAsTypedesc");
+        BRunUtil.invoke(result, "testFiniteTypeAsTypedesc");
     }
 
     @Test
     public void testTypeDefWithFunctionTypeDescAsTypedesc() {
-        JvmRunUtil.invoke(result, "testTypeDefWithFunctionTypeDescAsTypedesc");
+        BRunUtil.invoke(result, "testTypeDefWithFunctionTypeDescAsTypedesc");
     }
 
     @Test
     public void testTypeDefWithIntersectionTypeDescAsTypedescNegative() {
-        JvmRunUtil.invoke(result, "testTypeDefWithIntersectionTypeDescAsTypedescNegative");
+        BRunUtil.invoke(result, "testTypeDefWithIntersectionTypeDescAsTypedescNegative");
     }
 
     @AfterClass

@@ -19,7 +19,7 @@ package org.ballerinalang.test.record;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,7 +39,7 @@ public class RecordWithClosureTest {
 
     @Test(description = "Test record type with closure variable in default value", enabled = false)
     public void testRecordWithClosureInDefaults() {
-        Object returns = JvmRunUtil.invoke(compileResult, "recordWithClosureInDefaults");
+        Object returns = BRunUtil.invoke(compileResult, "recordWithClosureInDefaults");
         Assert.assertNotNull(returns);
     }
 

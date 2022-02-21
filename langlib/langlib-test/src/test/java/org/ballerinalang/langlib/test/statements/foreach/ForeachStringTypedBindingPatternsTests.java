@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,46 +41,46 @@ public class ForeachStringTypedBindingPatternsTests {
 
     @Test
     public void testStringWithSimpleVariableWithStringType() {
-        JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithStringType");
+        BRunUtil.invoke(program, "testStringWithSimpleVariableWithStringType");
     }
 
     @Test
     public void testStringWithSimpleVariableWithCharType() {
-        JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithCharType");
+        BRunUtil.invoke(program, "testStringWithSimpleVariableWithCharType");
     }
 
     @Test
     public void testStringWithSimpleVariableWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithoutType");
+        Object returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testStringWithSimpleVariableWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithType");
+        Object returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithType");
         Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testStringWithSimpleVariableWithAnydataType() {
-        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithAnydataType");
+        Object returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithAnydataType");
         Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testStringWithSimpleVariableWithAnyType() {
-        Object returns = JvmRunUtil.invoke(program, "testStringWithSimpleVariableWithAnyType");
+        Object returns = BRunUtil.invoke(program, "testStringWithSimpleVariableWithAnyType");
         Assert.assertEquals(returns.toString(), "0:B 1:a 2:l 3:l 4:e 5:r 6:i 7:n 8:a ");
     }
 
     @Test
     public void testIterationOnEmptyString() {
-        Object returns = JvmRunUtil.invoke(program, "testIterationOnEmptyString");
+        Object returns = BRunUtil.invoke(program, "testIterationOnEmptyString");
         Assert.assertEquals(returns.toString(), "");
     }
 
     @Test
     public void testIterationTypeCheck() {
-        JvmRunUtil.invoke(program, "testIterationTypeCheck");
+        BRunUtil.invoke(program, "testIterationTypeCheck");
     }
 }

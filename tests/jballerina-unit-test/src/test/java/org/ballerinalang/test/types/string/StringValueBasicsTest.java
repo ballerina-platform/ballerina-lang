@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.string;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +38,7 @@ public class StringValueBasicsTest extends BStringTestCommons {
 
     @Test
     public void testConcatBMPStrings() {
-        Object returns = JvmRunUtil.invoke(result, "concatBMP");
+        Object returns = BRunUtil.invoke(result, "concatBMP");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "red apple");
     }
@@ -66,13 +66,13 @@ public class StringValueBasicsTest extends BStringTestCommons {
 
     @Test
     public void testStringIndexAccess() {
-        JvmRunUtil.invoke(result, "testStringIndexAccess");
+        BRunUtil.invoke(result, "testStringIndexAccess");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*")
     public void testStringIndexAccessException() {
-        JvmRunUtil.invoke(result, "testStringIndexAccessException");
+        BRunUtil.invoke(result, "testStringIndexAccessException");
     }
 
     @Test

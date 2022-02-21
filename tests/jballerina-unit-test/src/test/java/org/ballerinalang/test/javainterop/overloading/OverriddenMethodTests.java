@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.overloading;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +41,7 @@ public class OverriddenMethodTests {
 
     @Test(description = "Test invoking an overridden and overloaded java method")
     public void testOverriddenMethods() {
-        Object val = JvmRunUtil.invoke(result, "testOverriddenMethods");
+        Object val = BRunUtil.invoke(result, "testOverriddenMethods");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "Motor Car : Honda");

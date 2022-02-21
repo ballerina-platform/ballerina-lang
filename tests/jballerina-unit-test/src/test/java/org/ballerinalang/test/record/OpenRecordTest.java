@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,14 +47,14 @@ public class OpenRecordTest {
 
     @Test(description = "Test using expressions as index for record arrays")
     public void testExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Jane");
     }
 
     @Test(description = "Test using records inside records")
     public void testStructOfStructs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructOfStruct");
+        Object returns = BRunUtil.invoke(compileResult, "testStructOfStruct");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "USA");
@@ -62,7 +62,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test returning fields of a record")
     public void testReturnStructAttributes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnStructAttributes");
+        Object returns = BRunUtil.invoke(compileResult, "testReturnStructAttributes");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
@@ -70,14 +70,14 @@ public class OpenRecordTest {
 
     @Test(description = "Test using record expression as a index in another record expression")
     public void testStructExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
     }
 
     @Test(description = "Test default value of a record field")
     public void testDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultVal");
 
         // Check default value of a field where the default value is set
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -93,7 +93,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test default value of a nested record field")
     public void testNestedFieldDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "default first name");
@@ -107,7 +107,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test default value of a nested record field")
     public void testNestedStructInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNestedStructInit");
+        Object returns = BRunUtil.invoke(compileResult, "testNestedStructInit");
 
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> person = ((BMap<String, Object>) returns);
@@ -122,7 +122,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test negative default values in record")
     public void testNegativeDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getStructNegativeValues");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getStructNegativeValues");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -136,7 +136,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test negative default values in record")
     public void testStructToString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "getStruct");
+        Object returns = BRunUtil.invoke(compileResult, "getStruct");
         Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"lname\":\"\",\"adrs\":{},\"age\":25," +
                 "\"family\":{\"spouse\":\"\",\"noOfChildren\":0,\"children\":[]},\"parent\":{\"name\":\"bbb\"," +
                 "\"lname\":\"ccc\",\"adrs\":{},\"age\":50,\"family\":{\"spouse\":\"\",\"noOfChildren\":0," +
@@ -146,11 +146,11 @@ public class OpenRecordTest {
     @Test
     public void testStructLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_literals.bal");
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructLiteral1");
+        Object returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns.toString(), "{\"dptName\":\"\",\"employees\":[],\"manager\":{\"name\":\"default " +
                 "first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}}");
 
-        returns = JvmRunUtil.invoke(compileResult, "testStructLiteral2");
+        returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"default first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}");
     }
@@ -158,7 +158,7 @@ public class OpenRecordTest {
     @Test
     public void testStructLiteralInitFunc() {
         CompileResult result = BCompileUtil.compile("test-src/record/nested_record_inline_init.bal");
-        Object returns = JvmRunUtil.invoke(result, "testCreateStruct");
+        Object returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"default first name\",\"fname\":\"\",\"lname\":\"Doe\",\"adrs\":{}," +
                         "\"age\":999,\"family\":{\"spouse\":\"Jane\",\"noOfChildren\":0," +
@@ -178,7 +178,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test addition of different types for default rest field type")
     public void testAdditionOfARestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAdditionOfARestField");
+        Object returns = BRunUtil.invoke(compileResult, "testAdditionOfARestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("mname")) instanceof BString);
@@ -197,13 +197,13 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent anydata or error rest field RHS index-based access")
     public void testAnydataOrErrorRestFieldRHSIndexAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnydataOrErrorRestFieldRHSIndexAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testAnydataOrErrorRestFieldRHSIndexAccess");
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test string constrained rest field")
     public void testStringRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testStringRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("lname")) instanceof BString);
@@ -218,7 +218,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent String rest field RHS index-based access")
     public void testStringRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testStringRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testStringRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0).toString(), "");
         Assert.assertNull(returns.get(1));
@@ -226,7 +226,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test int constrained rest field")
     public void testIntRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIntRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testIntRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("year")) instanceof Long);
@@ -237,7 +237,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent int rest field RHS index-based access")
     public void testIntRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testIntRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testIntRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0), 0L);
         Assert.assertNull(returns.get(1));
@@ -245,7 +245,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test float constrained rest field")
     public void testFloatRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloatRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("height")) instanceof Double);
@@ -256,7 +256,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent float rest field RHS index-based access")
     public void testFloatRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testFloatRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testFloatRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0), 61.5);
         Assert.assertNull(returns.get(1));
@@ -264,7 +264,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test boolean constrained rest field")
     public void testBooleanRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testBooleanRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("isEmployed")) instanceof Boolean);
@@ -275,7 +275,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent boolean rest field RHS access")
     public void testBooleanRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testBooleanRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testBooleanRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0), true);
         Assert.assertNull(returns.get(1));
@@ -283,7 +283,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test map constrained rest field")
     public void testMapRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMapRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testMapRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("misc")) instanceof BMap);
@@ -296,7 +296,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent map rest field RHS index-based access")
     public void testMapRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testMapRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(((BMap) returns.get(0)).size(), 0);
         Assert.assertNull(returns.get(1));
@@ -304,7 +304,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test union constrained rest field")
     public void testUnionRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUnionRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testUnionRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("lname")) instanceof BString);
@@ -317,7 +317,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent union rest field RHS access")
     public void testUnionRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testUnionRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testUnionRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0).toString(), "Foo");
         Assert.assertNull(returns.get(1));
@@ -325,7 +325,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test nil constrained rest field")
     public void testNilRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNilRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testNilRestField");
 
         BMap person = (BMap) returns;
         Assert.assertNull(person.get(StringUtils.fromString("lname")));
@@ -335,7 +335,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test record constrained rest field")
     public void testRecordRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRecordRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testRecordRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("dpt")) instanceof BMap);
@@ -348,14 +348,14 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent record rest field RHS access")
     public void testRecordRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testRecordRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testRecordRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertNull(returns.get(1));
     }
 
     @Test(description = "Test object constrained rest field")
     public void testObjectRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testObjectRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testObjectRestField");
 
         BMap person = (BMap) returns;
         Assert.assertTrue(person.get(StringUtils.fromString("pet")) instanceof BObject);
@@ -366,7 +366,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent object rest field RHS index-based access")
     public void testObjectRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(getType(returns.get(0)).getName(), "Animal");
         Assert.assertEquals(((BObject) returns.get(0)).get(StringUtils.fromString("kind")).toString(), "Dog");
@@ -376,7 +376,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test tuple constrained rest field")
     public void testTupleRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTupleRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testTupleRestField");
 
         BMap person = (BMap) returns;
         BArray miscInfo = (BArray) person.get(StringUtils.fromString("misc"));
@@ -392,7 +392,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent tuple rest field RHS index-based access")
     public void testTupleRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testTupleRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testTupleRestFieldRHSIndexAccess");
         Assert.assertNotNull(returns.get(0));
 
         BArray tup = (BArray) returns.get(0);
@@ -405,7 +405,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test any rest field")
     public void testAnyRestField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnyRestField");
+        Object returns = BRunUtil.invoke(compileResult, "testAnyRestField");
 
         BMap person = (BMap) returns;
         BArray pets = (BArray) person.get(StringUtils.fromString("pets"));
@@ -416,7 +416,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test non-existent any rest field RHS index-based access")
     public void testAnyRestFieldRHSIndexAccess() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAnyRestFieldRHSIndexAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAnyRestFieldRHSIndexAccess");
         BArray tup = (BArray) returns.get(0);
 
         Assert.assertNotNull(returns.get(0));
@@ -428,13 +428,13 @@ public class OpenRecordTest {
 
     @Test(description = "Test function pointer as a record field")
     public void testFuncPtrAsAField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
+        Object returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
         Assert.assertEquals(returns.toString(), "Doe, John");
     }
 
     @Test(description = "Test case for default value initializing in type referenced fields")
     public void testDefaultValueInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDefaultValueInit");
+        Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
         BMap manager = (BMap) returns;
         Assert.assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         Assert.assertEquals((manager.get(StringUtils.fromString("age"))), 25L);
@@ -446,28 +446,28 @@ public class OpenRecordTest {
 
     @Test
     public void testRecordInitWithFuncCalls() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRecordInitWithFuncCalls");
+        Object returns = BRunUtil.invoke(compileResult, "testRecordInitWithFuncCalls");
         Assert.assertEquals(returns.toString(), "{\"b\":56,\"a\":777}");
     }
 
     @Test
     public void testLiteralsAsMappingConstructorKeys() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLiteralsAsMappingConstructorKeys");
+        Object returns = BRunUtil.invoke(compileResult, "testLiteralsAsMappingConstructorKeys");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testExpressionsAsKeys() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsKeys");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsKeys");
         Assert.assertTrue((Boolean) returns);
 
-        returns = JvmRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
+        returns = BRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testLangFuncOnRecord() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLangFuncOnRecord");
+        Object returns = BRunUtil.invoke(compileResult, "testLangFuncOnRecord");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("toJson")), 44L);
     }
 
@@ -499,37 +499,37 @@ public class OpenRecordTest {
 
     @Test
     public void testCustomErrorTypeDescFieldOnRecord() {
-        JvmRunUtil.invoke(compileResult, "testCustomErrorTypeDescFieldOnRecord");
+        BRunUtil.invoke(compileResult, "testCustomErrorTypeDescFieldOnRecord");
     }
 
     @Test
     public void testOptionalRecordRemove() {
-        JvmRunUtil.invoke(compileResult, "removeOptional");
+        BRunUtil.invoke(compileResult, "removeOptional");
     }
 
     @Test
     public void testRestRecordRemove() {
-        JvmRunUtil.invoke(compileResult, "removeRest");
+        BRunUtil.invoke(compileResult, "removeRest");
     }
 
     @Test
     public void removeIfHasKeyOptional() {
-        JvmRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
+        BRunUtil.invoke(compileResult, "removeIfHasKeyOptional");
     }
 
     @Test
     public void removeIfHasKeyRest() {
-        JvmRunUtil.invoke(compileResult, "removeIfHasKeyRest");
+        BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
     }
 
     @Test
     public void testScopingRules() {
-        JvmRunUtil.invoke(compileResult, "testScopingRules");
+        BRunUtil.invoke(compileResult, "testScopingRules");
     }
 
     @Test
     public void testRecordsWithFieldsWithBuiltinNames() {
-        JvmRunUtil.invoke(compileResult, "testRecordsWithFieldsWithBuiltinNames");
+        BRunUtil.invoke(compileResult, "testRecordsWithFieldsWithBuiltinNames");
     }
 
     @AfterClass

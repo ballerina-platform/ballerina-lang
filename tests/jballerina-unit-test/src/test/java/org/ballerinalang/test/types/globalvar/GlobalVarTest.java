@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.globalvar;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,20 +33,20 @@ public class GlobalVarTest {
     @Test
     public void testGlobalVarInitialization() {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/global_variable_init.bal");
-        JvmRunUtil.invoke(result, "testGlobalVarInitialization");
+        BRunUtil.invoke(result, "testGlobalVarInitialization");
     }
 
     @Test
     public void testModuleVarDeclNegative() {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
                 "/global_variable_init_in_reverse_order.bal");
-        JvmRunUtil.invoke(result, "testReverseOrderInitialization");
+        BRunUtil.invoke(result, "testReverseOrderInitialization");
     }
 
     @Test
     public void testConfigurableVarFinalAndRedaOnly() {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/configurable_var_decl.bal");
-        JvmRunUtil.invoke(result, "testConfigValue");
+        BRunUtil.invoke(result, "testConfigValue");
     }
 
     @Test
@@ -61,6 +61,6 @@ public class GlobalVarTest {
     public void testOCEDependOnGlobalVariable() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/variabledef/oce_depend_on_global_variable.bal");
-        JvmRunUtil.invoke(result, "testOCEDependOnGlobalVariable");
+        BRunUtil.invoke(result, "testOCEDependOnGlobalVariable");
     }
 }

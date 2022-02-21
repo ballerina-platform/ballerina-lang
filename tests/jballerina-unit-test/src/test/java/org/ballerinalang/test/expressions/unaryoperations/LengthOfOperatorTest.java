@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.unaryoperations;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression")
     public void testArrayLengthAccessExpr() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestAssignmentCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestAssignmentCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -55,7 +55,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Function invocation statement.")
     public void testArrayLengthAccessExprFunctionInvocationCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestFunctionInvocationCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestFunctionInvocationCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -67,7 +67,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Variable definition statement.")
     public void testArrayLengthAccessExprVariableDefinitionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestVariableDefinitionCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestVariableDefinitionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -79,7 +79,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Array initialization statement.")
     public void testArrayLengthAccessExprArrayInitializationCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestArrayInitializerCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestArrayInitializerCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -91,7 +91,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Map initialization statement.")
     public void testArrayLengthAccessExprMapInitializationCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestMapInitializerCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestMapInitializerCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -103,7 +103,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Return statement.")
     public void testArrayLengthAccessExprReturnExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestReturnStatementCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestReturnStatementCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -115,7 +115,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in multi Return statement.")
     public void testArrayLengthAccessExprMultiReturnExpressionCase() {
         Object[] args = {(100), (5)};
-        Object arr = JvmRunUtil.invoke(result, "arrayLengthAccessTestMultiReturnStatementCase", args);
+        Object arr = BRunUtil.invoke(result, "arrayLengthAccessTestMultiReturnStatementCase", args);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -136,7 +136,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Type cast expression.")
     public void testArrayLengthAccessExprTypeCastExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestTypeCastExpressionCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestTypeCastExpressionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -148,7 +148,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in If condition.")
     public void testArrayLengthAccessExprIfConditionExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestIfConditionCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestIfConditionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -160,7 +160,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Binary expression.")
     public void testArrayLengthAccessExpBinaryExpressionCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestBinaryExpressionCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestBinaryExpressionCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -172,7 +172,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when present in Struct field access expression.")
     public void testArrayLengthAccessExpStructFieldAccessCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestStructFieldAccessCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestStructFieldAccessCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -185,7 +185,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when reference point to JSON array.")
     public void testArrayLengthAccessJSONArrayCase() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "arrayLengthAccessTestJSONArrayCase", args);
+        Object returns = BRunUtil.invoke(result, "arrayLengthAccessTestJSONArrayCase", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -197,19 +197,19 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof unary expression when array is null.")
     public void testArrayLengthAccessExpArrayNullCase() {
         Object[] args = {(100), (5)};
-        JvmRunUtil.invoke(resNegative, "arrayLengthAccessNullArrayCase", args);
+        BRunUtil.invoke(resNegative, "arrayLengthAccessNullArrayCase", args);
     }
 
     @Test(description = "Test lengthof unary expression when reference point to null map.")
     public void testArrayLengthAccessTestMapNegativeNullCase() {
         Object[] args = {(100), (5)};
-        JvmRunUtil.invoke(resNegative, "arrayLengthAccessNullMapCase", args);
+        BRunUtil.invoke(resNegative, "arrayLengthAccessNullMapCase", args);
     }
 
     @Test(description = "Test lengthof map")
     public void lengthOfMap() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "lengthOfMap", args);
+        Object returns = BRunUtil.invoke(result, "lengthOfMap", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -221,7 +221,7 @@ public class LengthOfOperatorTest {
     @Test(description = "Test lengthof map empty")
     public void lengthOfMapEmpty() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(result, "lengthOfMapEmpty", args);
+        Object returns = BRunUtil.invoke(result, "lengthOfMapEmpty", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -232,7 +232,7 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof string")
     public void lengthOfString() {
-        Object arr = JvmRunUtil.invoke(result, "lengthOfString");
+        Object arr = BRunUtil.invoke(result, "lengthOfString");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.get(0), 11L);
         Assert.assertEquals(returns.get(1), 4L);
@@ -241,7 +241,7 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof blob")
     public void lengthOfBlob() {
-        Object arr = JvmRunUtil.invoke(result, "lengthOfBlob");
+        Object arr = BRunUtil.invoke(result, "lengthOfBlob");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.get(0), 5L);
         Assert.assertEquals(returns.get(1), 0L);
@@ -249,13 +249,13 @@ public class LengthOfOperatorTest {
 
     @Test(description = "Test lengthof string")
     public void lengthOfNullString() {
-        Object returns = JvmRunUtil.invoke(result, "lengthOfNullString");
+        Object returns = BRunUtil.invoke(result, "lengthOfNullString");
         Assert.assertEquals(returns, 0L);
     }
 
     @Test(description = "Test lengthof JSON object")
     public void lengthOfJSONObject() {
-        Object returns = JvmRunUtil.invoke(result, "lengthOfJSONObject");
+        Object returns = BRunUtil.invoke(result, "lengthOfJSONObject");
         Assert.assertEquals(returns, 2L);
     }
 

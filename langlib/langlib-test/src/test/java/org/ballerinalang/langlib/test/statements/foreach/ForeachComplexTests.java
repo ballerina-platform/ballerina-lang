@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,41 +51,41 @@ public class ForeachComplexTests {
             }
             sb.append("\n");
         }
-        Object returns = JvmRunUtil.invoke(program, "testNestedForeach");
+        Object returns = BRunUtil.invoke(program, "testNestedForeach");
         Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testIntRangeSimple() {
         Object[] args = new Object[]{(-5), (5)};
-        Object returns = JvmRunUtil.invoke(program, "testIntRangeSimple", args);
+        Object returns = BRunUtil.invoke(program, "testIntRangeSimple", args);
         Assert.assertEquals(returns.toString(), getIntRangOutput(false, -5, 5));
 
         args = new Object[]{(5), (-5)};
-        returns = JvmRunUtil.invoke(program, "testIntRangeSimple", args);
+        returns = BRunUtil.invoke(program, "testIntRangeSimple", args);
         Assert.assertEquals(returns.toString(), getIntRangOutput(false, 5, -5));
     }
 
     @Test
     public void testIntRangeSimpleArity2() {
         Object[] args = new Object[]{(-5L), (5L)};
-        Object returns = JvmRunUtil.invoke(program, "testIntRangeSimpleArity2", args);
+        Object returns = BRunUtil.invoke(program, "testIntRangeSimpleArity2", args);
         Assert.assertEquals(returns.toString(), getIntRangOutput(true, -5, 5));
 
         args = new Object[]{(5L), (-5L)};
-        returns = JvmRunUtil.invoke(program, "testIntRangeSimple", args);
+        returns = BRunUtil.invoke(program, "testIntRangeSimple", args);
         Assert.assertEquals(returns.toString(), getIntRangOutput(true, 5, -5));
     }
 
     @Test
     public void testIntRangeEmptySet() {
-        Object returns = JvmRunUtil.invoke(program, "testIntRangeEmptySet");
+        Object returns = BRunUtil.invoke(program, "testIntRangeEmptySet");
         Assert.assertEquals(returns.toString(), getIntRangOutput(false, 5, 0));
     }
 
     @Test
     public void testIntRangeComplex() {
-        Object returns = JvmRunUtil.invoke(program, "testIntRangeComplex");
+        Object returns = BRunUtil.invoke(program, "testIntRangeComplex");
         Assert.assertEquals(returns.toString(), getIntRangOutput(false, 0, 10));
     }
 

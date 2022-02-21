@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,22 +41,22 @@ public class BitwiseShiftOperationTest {
 
     @Test(description = "Test bitwise left shift operation")
     public void testBitwiseLeftShiftOp() {
-        JvmRunUtil.invoke(result, "testBitwiseLeftShiftOp");
+        BRunUtil.invoke(result, "testBitwiseLeftShiftOp");
     }
 
     @Test(description = "Test bitwise right shift operation")
     public void testBitwiseRightShiftOp() {
-        JvmRunUtil.invoke(result, "testBitwiseRightShiftOp");
+        BRunUtil.invoke(result, "testBitwiseRightShiftOp");
     }
 
     @Test(description = "Test bitwise unsigned right shift operation")
     public void testBitwiseUnsignedRightShiftOp() {
-        JvmRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
+        BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
     }
 
     @Test(description = "Test bitwise operations for nullable values")
     public void testBitWiseOperationsForNullable() {
-        JvmRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
+        BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOp");
     }
 
     @Test(description = "Test bitwise shift operation negative scenarios")

@@ -20,7 +20,7 @@ package org.ballerinalang.test.imports;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -60,25 +60,25 @@ public class ImportsTest {
     @Test(description = "Test importing same module name but with different org names")
     public void testSameModuleNameDifferentOrgImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/lang.float");
-        Object returns = JvmRunUtil.invoke(result, "getStringValueOfPI");
+        Object returns = BRunUtil.invoke(result, "getStringValueOfPI");
         Assert.assertTrue(returns.toString().startsWith("3.14"));
     }
 
     @Test(description = "Test auto imports")
     public void testPredeclaredModules() {
         CompileResult result = BCompileUtil.compile("test-src/imports/PredeclaredImportsTestProject");
-        JvmRunUtil.invoke(result, "testPredeclaredModules");
+        BRunUtil.invoke(result, "testPredeclaredModules");
     }
 
     @Test(description = "Test overridden predeclared modules")
     public void testOverriddenPredeclaredModules() {
         CompileResult result = BCompileUtil.compile("test-src/imports/OverriddenPredeclaredImportsTestProject");
-        JvmRunUtil.invoke(result, "testOverriddenPredeclaredModules");
+        BRunUtil.invoke(result, "testOverriddenPredeclaredModules");
     }
 
     @Test(description = "Test overridden predeclared modules using keywords")
     public void testOverriddenPredeclaredModulesUsingKeywords() {
         CompileResult result = BCompileUtil.compile("test-src/imports/PredeclaredImportsTestProject");
-        JvmRunUtil.invoke(result, "testPredeclaredModules2");
+        BRunUtil.invoke(result, "testPredeclaredModules2");
     }
 }

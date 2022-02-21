@@ -21,7 +21,7 @@ package org.ballerinalang.test.jvm;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,43 +48,43 @@ public class ObjectSubtypingTest {
 
     @Test
     public void testAdditionalMethodsInSourceType() {
-        Object result = JvmRunUtil.invoke(compileResult, "testAdditionalMethodsInSourceType");
+        Object result = BRunUtil.invoke(compileResult, "testAdditionalMethodsInSourceType");
         assertEquals(result.toString(), "{name:John Doe, age:25}");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1' cannot be cast to 'Employee1'.*")
     public void testCastingRuntimeError() {
-        JvmRunUtil.invoke(compileResult, "testCastingRuntimeError");
+        BRunUtil.invoke(compileResult, "testCastingRuntimeError");
     }
 
     @Test
     public void testSubtypingAPublicAbstractObject() {
-        Object result = JvmRunUtil.invoke(compileResult, "testSubtypingAPublicAbstractObject");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbstractObject");
         assertEquals(result.toString(), "Student1{John Doe, 25, Ballerina Academy}");
     }
 
     @Test
     public void testSubtypingAPublicAbsObjectInAnotherModule() {
-        Object result = JvmRunUtil.invoke(compileResult, "testSubtypingAPublicAbsObjectInAnotherModule");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbsObjectInAnotherModule");
         assertEquals(result.toString(), "Student{Jane Doe, 22, BA}");
     }
 
     @Test
     public void testSubtypingAPublicObjectInAnotherModule() {
-        Object result = JvmRunUtil.invoke(compileResult, "testSubtypingAPublicObjectInAnotherModule");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAPublicObjectInAnotherModule");
         assertEquals(result.toString(), "Student{Jane Doe, 22, BA, CS}");
     }
 
     @Test
     public void testSubtypingAnAbsObjectInSameModule() {
-        Object result = JvmRunUtil.invoke(compileResult, "testSubtypingAnAbsObjectInSameModule");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAnAbsObjectInSameModule");
         assertEquals(result.toString(), "Rocky walked 50 meters");
     }
 
     @Test(description = "Test object subtyping")
     public void testObjectAssignabilityBetweenNonClientAndClientObject() {
-        JvmRunUtil.invoke(compileResult, "testObjectAssignabilityBetweenNonClientAndClientObject");
+        BRunUtil.invoke(compileResult, "testObjectAssignabilityBetweenNonClientAndClientObject");
     }
 
     @Test

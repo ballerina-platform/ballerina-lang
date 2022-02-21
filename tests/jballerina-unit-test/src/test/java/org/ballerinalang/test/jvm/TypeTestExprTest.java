@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testValueTypeInUnion() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testValueTypeInUnion");
+        Object returns = BRunUtil.invoke(compileResult, "testValueTypeInUnion");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "string");
@@ -51,7 +51,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testUnionTypeInUnion() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUnionTypeInUnion");
+        Object returns = BRunUtil.invoke(compileResult, "testUnionTypeInUnion");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "numeric");
@@ -59,7 +59,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testNestedTypeCheck() {
-        Object val = JvmRunUtil.invoke(compileResult, "testNestedTypeCheck");
+        Object val = BRunUtil.invoke(compileResult, "testNestedTypeCheck");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -72,7 +72,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testTypeInAny() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTypeInAny");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeInAny");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "string value: This is working");
@@ -80,7 +80,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testNilType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNilType");
+        Object returns = BRunUtil.invoke(compileResult, "testNilType");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "nil");
@@ -88,7 +88,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleRecordTypes_1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleRecordTypes_1");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_1");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "a is A1");
@@ -96,7 +96,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleRecordTypes_2() {
-        Object val = JvmRunUtil.invoke(compileResult, "testSimpleRecordTypes_2");
+        Object val = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_2");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
@@ -107,7 +107,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleRecordTypes_3() {
-        Object val = JvmRunUtil.invoke(compileResult, "testSimpleRecordTypes_3");
+        Object val = BRunUtil.invoke(compileResult, "testSimpleRecordTypes_3");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
@@ -118,7 +118,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testAnyJsonTypes() {
-        Object val = JvmRunUtil.invoke(compileResult, "testAnyJsonTypes");
+        Object val = BRunUtil.invoke(compileResult, "testAnyJsonTypes");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
@@ -133,12 +133,12 @@ public class TypeTestExprTest {
 
     @Test
     public void testIsLikeForTupleWithRestDescriptor() {
-        JvmRunUtil.invoke(compileResult, "testIsLikeForTupleWithRestDescriptor");
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithRestDescriptor");
     }
 
     @Test
     public void testIsLikeForTupleWithOutRestDescriptor() {
-        JvmRunUtil.invoke(compileResult, "testIsLikeForTupleWithOutRestDescriptor");
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithOutRestDescriptor");
     }
 
     @AfterClass

@@ -20,7 +20,7 @@ package org.ballerinalang.test.statements.arrays;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void addTooLargeIndex() {
         Object[] args = {(2147483648L), (7)};
-        JvmRunUtil.invoke(compileResult, "addTooLargeIndex", args);
+        BRunUtil.invoke(compileResult, "addTooLargeIndex", args);
     }
 
     @Test(description = "Test accessing too large index from an array",
@@ -52,7 +52,7 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*index number too large: 2,147,483,648.*")
     public void accessTooLargeIndex() {
         Object[] args = {(2147483648L)};
-        Object returns =  JvmRunUtil.invoke(compileResult, "accessTooLargeIndex", args);
+        Object returns =  BRunUtil.invoke(compileResult, "accessTooLargeIndex", args);
     }
 
     @Test(description = "Test adding minus index to an array",
@@ -60,7 +60,7 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void addMinusIndex() {
         Object[] args = {(-4), (7)};
-        JvmRunUtil.invoke(compileResult, "addMinusIndex", args);
+        BRunUtil.invoke(compileResult, "addMinusIndex", args);
     }
 
     @Test(description = "Test accessing minus index from an array",
@@ -68,7 +68,7 @@ public class ArrayIndexTooLargeTest {
           expectedExceptionsMessageRegExp = ".*array index out of range: index: -4, size: 0.*")
     public void accessMinusIndex() {
         Object[] args = {(-4)};
-        Object returns =  JvmRunUtil.invoke(compileResult, "accessMinusIndex", args);
+        Object returns =  BRunUtil.invoke(compileResult, "accessMinusIndex", args);
     }
 
     @AfterClass

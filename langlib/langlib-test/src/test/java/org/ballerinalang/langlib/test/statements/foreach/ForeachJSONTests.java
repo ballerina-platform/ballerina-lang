@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,21 +43,21 @@ public class ForeachJSONTests {
     public void testJSONObject() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        Object returns = JvmRunUtil.invoke(program, "testJSONObject");
+        Object returns = BRunUtil.invoke(program, "testJSONObject");
         Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
     public void testJSONArray() {
         String result = "{\"subject\":\"maths\", \"marks\":75} {\"subject\":\"English\", \"marks\":85} ";
-        Object returns = JvmRunUtil.invoke(program, "testJSONArray");
+        Object returns = BRunUtil.invoke(program, "testJSONArray");
         Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
     public void testArrayOfJSON() {
         String result = "0:{\"subject\":\"maths\", \"marks\":75} 1:{\"subject\":\"English\", \"marks\":85} ";
-        Object returns = JvmRunUtil.invoke(program, "testArrayOfJSON");
+        Object returns = BRunUtil.invoke(program, "testArrayOfJSON");
         Assert.assertEquals(returns.toString(), result);
     }
 
@@ -66,7 +66,7 @@ public class ForeachJSONTests {
     public void testJSONString() {
         String result = "{ballerina}ConversionError {\"message\":\"'string' value "
                 + "cannot be converted to 'map<json>'\"}";
-        Object returns = JvmRunUtil.invoke(program, "testJSONString");
+        Object returns = BRunUtil.invoke(program, "testJSONString");
         Assert.assertEquals(returns.toString(), result);
     }
 
@@ -75,7 +75,7 @@ public class ForeachJSONTests {
     public void testJSONNumber() {
         String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot"
                 + " be converted to 'map<json>'\"}";
-        Object returns = JvmRunUtil.invoke(program, "testJSONNumber");
+        Object returns = BRunUtil.invoke(program, "testJSONNumber");
         Assert.assertEquals(returns.toString(), result);
     }
 
@@ -84,7 +84,7 @@ public class ForeachJSONTests {
     public void testJSONBoolean() {
         String result = "{ballerina}ConversionError {\"message\":\"'boolean' value " 
                 + "cannot be converted to 'map<json>'\"}";
-        Object returns = JvmRunUtil.invoke(program, "testJSONBoolean");
+        Object returns = BRunUtil.invoke(program, "testJSONBoolean");
         Assert.assertEquals(returns.toString(), result);
     }
 
@@ -93,13 +93,13 @@ public class ForeachJSONTests {
                     " not found in JSON mapping\"\\}\n" +
                     "\tat foreach-json:testJSONNull\\(foreach-json.bal:79\\)")
     public void testJSONNull() {
-        JvmRunUtil.invoke(program, "testJSONNull");
+        BRunUtil.invoke(program, "testJSONNull");
     }
 
     @Test(enabled = false)
     public void testJSONToStructCast() {
         String result = "a-h1 b-h2 ";
-        Object returns = JvmRunUtil.invoke(program, "testJSONToStructCast");
+        Object returns = BRunUtil.invoke(program, "testJSONToStructCast");
         Assert.assertEquals(returns.toString(), result);
     }
 
@@ -107,7 +107,7 @@ public class ForeachJSONTests {
     public void testAddWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] ";
-        Object returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
+        Object returns = BRunUtil.invoke(program, "testAddWhileIteration");
         Assert.assertEquals(returns.toString(), result + "\"smith\" ");
     }
 
@@ -115,7 +115,7 @@ public class ForeachJSONTests {
     public void testDeleteWhileIteration() {
         String result = "\"bob\" 10 true [{\"subject\":\"maths\", \"marks\":75}, " +
                 "{\"subject\":\"English\", \"marks\":85}] \"bob\" 10 true ";
-        Object returns = JvmRunUtil.invoke(program, "testDeleteWhileIteration");
+        Object returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.toString(), result);
     }
 }

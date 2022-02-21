@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,7 +52,7 @@ public class LangLibBooleanTest {
 
     @Test(dataProvider = "InputList")
     public void testFromString(String val, Object expectedVal) {
-        JvmRunUtil.invoke(compileResult, "testFromString", new Object[]{StringUtils.fromString(val), expectedVal});
+        BRunUtil.invoke(compileResult, "testFromString", new Object[]{StringUtils.fromString(val), expectedVal});
     }
 
     @DataProvider(name = "InputList")

@@ -20,7 +20,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,28 +40,28 @@ public class TupleRestDescriptorTest {
 
     @Test(description = "Test tuple assignment with rest descriptor")
     public void testBasicTupleAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "basicTupleAssignment", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "basicTupleAssignment", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "[1,\"s\",true,true] [2,\"s\",true] [3,\"s\"]");
     }
 
     @Test(description = "Test tuple assignment with nil `()` rest descriptor")
     public void testTupleAssignmentWithNilRestDescriptor() {
-        Object returns = JvmRunUtil.invoke(result, "tupleAssignmentWithNilRestDescriptor", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "tupleAssignmentWithNilRestDescriptor", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "[1,\"s\"] [1,\"s\",null] [1,\"s\",null,null] [null,null]");
     }
 
     @Test(description = "Test tuple assignment with only rest descriptor")
     public void testTupleAssignmentWithOnlyRestDescriptor() {
-        Object returns = JvmRunUtil.invoke(result, "tupleAssignmentWithOnlyRestDescriptor", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "tupleAssignmentWithOnlyRestDescriptor", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "[1,2] [\"s\",\"s\"] [null,null]");
     }
 
     @Test(description = "Test tuple covariance with rest descriptor")
     public void testTupleCovarianceWithRestDescriptor() {
-        Object returns = JvmRunUtil.invoke(result, "tupleCovarianceWithRestDescriptor", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "tupleCovarianceWithRestDescriptor", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "s {\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
                 "\"intern\":true} {\"name\":\"John\",\"intern\":true} ");
@@ -69,7 +69,7 @@ public class TupleRestDescriptorTest {
 
     @Test(description = "Test tuple covariance with only rest descriptor")
     public void tupleCovarianceWithOnlyRestDescriptor() {
-        Object returns = JvmRunUtil.invoke(result, "tupleCovarianceWithOnlyRestDescriptor", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "tupleCovarianceWithOnlyRestDescriptor", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "{\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
                 "\"intern\":true} {\"name\":\"John\",\"intern\":true} ");
@@ -77,38 +77,38 @@ public class TupleRestDescriptorTest {
 
     @Test(description = "Test function invocation with tuples with rest descriptor")
     public void testFunctionInvocation() {
-        Object returns = JvmRunUtil.invoke(result, "testFunctionInvocation", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFunctionInvocation", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "y 5.0 true false ");
     }
 
     @Test(description = "Test function return value with tuple assignment with rest descriptor")
     public void testFunctionReturnValue() {
-        Object returns = JvmRunUtil.invoke(result, "testFunctionReturnValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFunctionReturnValue", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "x 5.0 true false ");
     }
 
     @Test(description = "Test indexed based access on tuples with rest descriptor")
     public void testIndexBasedAccess() {
-        Object returns = JvmRunUtil.invoke(result, "testIndexBasedAccess", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIndexBasedAccess", new Object[]{});
 
         Assert.assertEquals(returns.toString(), "false a1 b1 c1 ");
     }
 
     @Test
     public void testToStringRepresentation() {
-        JvmRunUtil.invoke(result, "testToStringRepresentation");
+        BRunUtil.invoke(result, "testToStringRepresentation");
     }
 
     @Test
     public void testSubTypingWithRestDescriptorPositive() {
-        JvmRunUtil.invoke(result, "testSubTypingWithRestDescriptorPositive");
+        BRunUtil.invoke(result, "testSubTypingWithRestDescriptorPositive");
     }
 
     @Test
     public void testSubTypingWithRestDescriptorNegative() {
-        JvmRunUtil.invoke(result, "testSubTypingWithRestDescriptorNegative");
+        BRunUtil.invoke(result, "testSubTypingWithRestDescriptorNegative");
     }
 
     @Test(description = "Test out of bound indexed based access on tuples with rest descriptor",
@@ -117,7 +117,7 @@ public class TupleRestDescriptorTest {
                     "error: \\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"tuple index out of range: " +
                             "index: 4, size: 4.*")
     public void testIndexBasedAccessNegative() {
-        JvmRunUtil.invoke(result, "testIndexBasedAccessNegative");
+        BRunUtil.invoke(result, "testIndexBasedAccessNegative");
     }
 
     @Test(description = "Test negative scenarios of assigning tuples with rest descriptors")

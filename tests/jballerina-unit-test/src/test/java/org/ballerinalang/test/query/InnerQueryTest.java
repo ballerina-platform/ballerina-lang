@@ -19,7 +19,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,37 +47,37 @@ public class InnerQueryTest {
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClauses() {
-        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClauses");
+        Object values = BRunUtil.invoke(result, "testMultipleJoinClauses");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClausesWithInnerQueries1() {
-        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries1");
+        Object values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries1");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClausesWithInnerQueries2() {
-        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries2");
+        Object values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries2");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple nested join clauses with a query action")
     public void testMultipleJoinClausesWithInnerQueries3() {
-        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries3");
+        Object values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries3");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple join clauses with inner queries")
     public void testMultipleJoinClausesWithInnerQueries4() {
-        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries4");
+        Object values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries4");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test multiple clauses with inner queries and xml")
     public void testMultipleJoinClausesWithInnerQueries5() {
-        Object values = JvmRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries5");
+        Object values = BRunUtil.invoke(result, "testMultipleJoinClausesWithInnerQueries5");
         Assert.assertTrue((Boolean) values);
     }
 
@@ -92,7 +92,7 @@ public class InnerQueryTest {
 
     @Test(description = "Test type test in where clause")
     public void testTypeTestInWhereClause() {
-        JvmRunUtil.invoke(result, "testTypeTestInWhereClause");
+        BRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
     @AfterClass

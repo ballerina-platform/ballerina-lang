@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.table;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,25 +43,25 @@ public class TableCastTest {
 
     @Test
     public void testKeyConstraintCastToString1() {
-        Object results = JvmRunUtil.invoke(result, "testKeyConstraintCastToString1");
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString1");
         Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString2() {
-        Object results = JvmRunUtil.invoke(result, "testKeyConstraintCastToString2");
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString2");
         Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString3() {
-        Object results = JvmRunUtil.invoke(result, "testKeyConstraintCastToString3");
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString3");
         Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString4() {
-        Object results = JvmRunUtil.invoke(result, "testKeyConstraintCastToString4");
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString4");
         Assert.assertTrue((Boolean) results);
     }
 

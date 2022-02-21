@@ -19,7 +19,7 @@ package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +41,7 @@ public class ModuleTest {
 
     @Test(description = "Test module")
     public void testModule() {
-        Object result = JvmRunUtil.invoke(compileResult, "testModule", new Object[]{2});
+        Object result = BRunUtil.invoke(compileResult, "testModule", new Object[]{2});
         Assert.assertTrue(result instanceof Long);
         long calculatedValue = (long) result;
         Assert.assertEquals(calculatedValue, 12L);

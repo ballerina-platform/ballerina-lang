@@ -19,7 +19,7 @@ package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,14 +42,14 @@ public class TypeReferenceTypeBalaTest {
     @Test
     public void testTypeReferenceTypeViaBala() {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/types/type_reference_type_bala_test.bal");
-        JvmRunUtil.invoke(result, "testFn");
+        BRunUtil.invoke(result, "testFn");
     }
 
     @Test
     public void testTypeReferenceTypeViaBala2() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/bala/test_bala/types/type_reference_type_bala_test_2.bal");
-        JvmRunUtil.invoke(result, "testFn");
+        BRunUtil.invoke(result, "testFn");
     }
 
     @Test

@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testCreateStructSt");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCreateStructSt");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "Jack");
@@ -64,14 +64,14 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Jane");
     }
 
     @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructOfStruct");
+        Object returns = BRunUtil.invoke(compileResult, "testStructOfStruct");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "USA");
@@ -79,7 +79,7 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnStructAttributes");
+        Object returns = BRunUtil.invoke(compileResult, "testReturnStructAttributes");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
@@ -87,14 +87,14 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
     }
 
     @Test(description = "Test default value of a struct field")
     public void testDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultVal");
 
         // Check default value of a field where the default value is set
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -110,7 +110,7 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test default value of a nested struct field")
     public void testNestedFieldDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "default first name");
@@ -137,7 +137,7 @@ public class StructAccessWithIndexTest {
     @Test(description = "Test accesing a struct with a dynamic index")
     public void testExpressionAsStructIndex() {
         CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-access-dynamic-index-negative.bal");
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsStructIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsStructIndex");
         Assert.assertEquals(returns.toString(), "Jack");
     }
 
@@ -145,31 +145,31 @@ public class StructAccessWithIndexTest {
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitField() {
-        JvmRunUtil.invoke(compileResult, "testGetNonInitAttribute");
+        BRunUtil.invoke(compileResult, "testGetNonInitAttribute");
     }
 
     @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitArrayField() {
-        JvmRunUtil.invoke(compileResult, "testGetNonInitArrayAttribute");
+        BRunUtil.invoke(compileResult, "testGetNonInitArrayAttribute");
     }
 
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "error:.*array index out of range: index: 0, size: 0.*")
     public void testGetNonInitLastField() {
-        JvmRunUtil.invoke(compileResult, "testGetNonInitLastAttribute");
+        BRunUtil.invoke(compileResult, "testGetNonInitLastAttribute");
     }
 
     @Test(description = "Test setting an field of a noninitialized child struct")
     public void testSetNonInitField() {
-        JvmRunUtil.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
+        BRunUtil.invoke(compileResult, "testSetFieldOfNonInitChildStruct");
     }
 
     @Test(description = "Test setting the field of a noninitialized root struct")
     public void testSetNonInitLastField() {
-        JvmRunUtil.invoke(compileResult, "testSetFieldOfNonInitStruct");
+        BRunUtil.invoke(compileResult, "testSetFieldOfNonInitStruct");
     }
 
     @AfterClass

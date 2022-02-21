@@ -19,7 +19,7 @@ package org.ballerinalang.test.worker;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,7 +31,7 @@ public class PackageInitWorkerTest {
     @Test
     public void testPackageInitWorkerTest() {
         CompileResult result = BCompileUtil.compile("test-src/workers/package-init-worker.bal");
-        Object vals = JvmRunUtil.invoke(result, "test", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "test", new Object[0]);
         Assert.assertEquals(vals, 1L);
     }
 }

@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.basic;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class HandleRefersNullTest {
 
     @Test(description = "Test java:createNull method in ballerinax/java")
     public void testCreateNullHandle() {
-        Object returns = JvmRunUtil.invoke(result, "testCreateNullHandle");
+        Object returns = BRunUtil.invoke(result, "testCreateNullHandle");
         Assert.assertNull(((HandleValue) returns).getValue());
     }
 
@@ -50,7 +50,7 @@ public class HandleRefersNullTest {
     public void testIsNull() {
         Object[] args = new Object[1];
         args[0] = new HandleValue(null);
-        Object returns = JvmRunUtil.invoke(result, "testIsNull", args);
+        Object returns = BRunUtil.invoke(result, "testIsNull", args);
         Assert.assertTrue((Boolean) returns);
     }
 

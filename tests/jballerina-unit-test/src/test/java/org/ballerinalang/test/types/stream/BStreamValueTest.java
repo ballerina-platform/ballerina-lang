@@ -20,7 +20,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,79 +44,79 @@ public class BStreamValueTest {
 
     @Test(description = "Test global stream construct")
     public void testGlobalStreamConstruct() {
-        Object values = JvmRunUtil.invoke(result, "testGlobalStreamConstruct", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testGlobalStreamConstruct", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream construct within a function")
     public void testStreamConstruct() {
-        Object values = JvmRunUtil.invoke(result, "testStreamConstruct", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testStreamConstruct", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream construct with stream filter")
     public void testStreamConstructWithFilter() {
-        Object values = JvmRunUtil.invoke(result, "testStreamConstructWithFilter", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testStreamConstructWithFilter", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream explicit return type")
     public void testStreamReturnTypeExplicit() {
-        Object values = JvmRunUtil.invoke(result, "testStreamReturnTypeExplicit", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testStreamReturnTypeExplicit", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream implicit return type")
     public void testStreamReturnTypeImplicit() {
-        Object values = JvmRunUtil.invoke(result, "testStreamReturnTypeImplicit", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testStreamReturnTypeImplicit", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator With Custom Error")
     public void testIteratorWithCustomError() {
-        Object values = JvmRunUtil.invoke(result, "testIteratorWithCustomError", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testIteratorWithCustomError", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator with generic error")
     public void testIteratorWithGenericError() {
-        Object values = JvmRunUtil.invoke(result, "testIteratorWithGenericError", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testIteratorWithGenericError", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator with withOut error")
     public void testIteratorWithOutError() {
-        Object values = JvmRunUtil.invoke(result, "testIteratorWithOutError", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testIteratorWithOutError", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator with error union")
     public void testIteratorWithErrorUnion() {
-        Object values = JvmRunUtil.invoke(result, "testIteratorWithErrorUnion", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testIteratorWithErrorUnion", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream construct within never")
     public void testStreamConstructWithNil() {
-        Object values = JvmRunUtil.invoke(result, "testStreamConstructWithNil", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testStreamConstructWithNil", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream of streams")
     public void testStreamOfStreams() {
-        Object values = JvmRunUtil.invoke(result, "testStreamOfStreams", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testStreamOfStreams", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test empty stream constructs")
     public void testEmptyStreamConstructs() {
-        Object values = JvmRunUtil.invoke(result, "testEmptyStreamConstructs", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testEmptyStreamConstructs", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test passing union of stream to a function which takes a stream as a argument")
     public void testUnionOfStreamsAsFunctionParams() {
-        Object values = JvmRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
@@ -266,7 +266,7 @@ public class BStreamValueTest {
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'stream<Foo>' cannot be "
                             + "cast to 'stream<Foo,error>'.*")
     public void testInvalidCast() {
-        JvmRunUtil.invoke(result, "testInvalidCast");
+        BRunUtil.invoke(result, "testInvalidCast");
     }
 
     @AfterClass

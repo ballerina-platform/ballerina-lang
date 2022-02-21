@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.types.BErrorType;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -52,7 +52,7 @@ public class NativeConversionNegativeTest {
 
     @Test
     public void testIncompatibleJsonToStructWithErrors() {
-        Object returns = JvmRunUtil.invoke(negativeResult, "testIncompatibleJsonToStructWithErrors",
+        Object returns = BRunUtil.invoke(negativeResult, "testIncompatibleJsonToStructWithErrors",
                 new Object[]{});
 
         // check the error
@@ -65,7 +65,7 @@ public class NativeConversionNegativeTest {
 
     @Test
     public void testEmptyJSONtoStructWithoutDefaults() {
-        Object returns = JvmRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
+        Object returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
                 ((BMap<String, Object>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
@@ -76,7 +76,7 @@ public class NativeConversionNegativeTest {
 
     @Test
     public void testEmptyMaptoStructWithoutDefaults() {
-        Object returns = JvmRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
+        Object returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
                 ((BMap<String, Object>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
@@ -87,7 +87,7 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test converting an unsupported array to json")
     public void testArrayToJsonFail() {
-        Object returns = JvmRunUtil.invoke(negativeResult, "testArrayToJsonFail");
+        Object returns = BRunUtil.invoke(negativeResult, "testArrayToJsonFail");
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
                 ((BMap<String, Object>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
@@ -114,7 +114,7 @@ public class NativeConversionNegativeTest {
 
     @Test
     public void testIncompatibleImplicitConversion() {
-        Object returns = JvmRunUtil.invoke(negativeResult, "testIncompatibleImplicitConversion");
+        Object returns = BRunUtil.invoke(negativeResult, "testIncompatibleImplicitConversion");
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
                 ((BMap<String, Object>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
@@ -124,7 +124,7 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test converting record to record which has cyclic reference to its own value.")
     public void testConvertRecordToRecordWithCyclicValueReferences() {
-        Object results = JvmRunUtil.invoke(negativeResult, "testConvertRecordToRecordWithCyclicValueReferences");
+        Object results = BRunUtil.invoke(negativeResult, "testConvertRecordToRecordWithCyclicValueReferences");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -135,7 +135,7 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test converting record to map having cyclic reference.")
     public void testConvertRecordToMapWithCyclicValueReferences() {
-        Object results = JvmRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
+        Object results = BRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -146,7 +146,7 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test converting record to json having cyclic reference.")
     public void testConvertRecordToJsonWithCyclicValueReferences() {
-        Object results = JvmRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
+        Object results = BRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -157,7 +157,7 @@ public class NativeConversionNegativeTest {
 
     @Test(dataProvider = "testConversionFunctionList")
     public void testConversionNegative(String funcName) {
-        JvmRunUtil.invoke(negativeResult, funcName);
+        BRunUtil.invoke(negativeResult, funcName);
     }
 
     @DataProvider(name = "testConversionFunctionList")

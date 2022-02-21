@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,43 +40,43 @@ public class LangLibStreamTest {
 
     @Test
     public void testFilterFunc() {
-        Object values = JvmRunUtil.invoke(result, "testFilterFunc", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testFilterFunc", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testMapFunc() {
-        Object values = JvmRunUtil.invoke(result, "testMapFunc", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testMapFunc", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testFilterAndMapFunc() {
-        Object values = JvmRunUtil.invoke(result, "testFilterAndMapFunc", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testFilterAndMapFunc", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testReduceFunc() {
-        Object values = JvmRunUtil.invoke(result, "testReduce", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testReduce", new Object[]{});
         Assert.assertEquals(values, 135.0d);
     }
 
     @Test
     public void testForReachFunc() {
-        Object values = JvmRunUtil.invoke(result, "testForEach", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testForEach", new Object[]{});
         Assert.assertEquals(values, 135.0d);
     }
 
     @Test
     public void testIteratorFunc() {
-        Object values = JvmRunUtil.invoke(result, "testIterator", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testIterator", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testMapFuncWithRecordType() {
-        Object values = JvmRunUtil.invoke(result, "testMapFuncWithRecordType", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testMapFuncWithRecordType", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 

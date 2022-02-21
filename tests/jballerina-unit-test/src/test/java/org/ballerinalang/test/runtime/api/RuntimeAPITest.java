@@ -19,7 +19,7 @@ package org.ballerinalang.test.runtime.api;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.Test;
 
 /**
@@ -32,30 +32,30 @@ public class RuntimeAPITest {
     @Test
     public void valueCreatorTest() {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/values");
-        JvmRunUtil.invoke(result, "main");
+        BRunUtil.invoke(result, "main");
     }
 
     @Test
     public void errorCreatorTest() {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/errors");
-        JvmRunUtil.invoke(result, "main");
+        BRunUtil.invoke(result, "main");
     }
 
     @Test
     public void methodTypeTest() {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/types");
-        JvmRunUtil.invoke(result, "main");
+        BRunUtil.invoke(result, "main");
     }
 
     @Test
     public void asyncCallTest() {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/async");
-        JvmRunUtil.invoke(result, "main");
+        BRunUtil.invoke(result, "main");
     }
 
     @Test
     public void utilsTest() {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/util");
-        JvmRunUtil.invoke(result, "main");
+        BRunUtil.invoke(result, "main");
     }
 }

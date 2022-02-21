@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testMatchStatementBasics1() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new Object[]{});
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -55,7 +55,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 2")
     public void testMatchStatementBasics2() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new Object[]{});
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -66,7 +66,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 3")
     public void testMatchStatementBasics3() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternsBasic3", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic3", new Object[]{});
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -77,7 +77,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 4")
     public void testMatchStatementBasics4() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternsBasic4", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic4", new Object[]{});
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -89,7 +89,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 5")
     public void testMatchStatementBasics5() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternsBasics5", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasics5", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -105,7 +105,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match statement complex 1")
     public void testStructuredMatchPatternComplex1() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternComplex1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternComplex1", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -120,7 +120,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern runtime matching")
     public void testRuntimeCheck() {
-        Object returns = JvmRunUtil.invoke(result, "testRuntimeCheck", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testRuntimeCheck", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -138,7 +138,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 1")
     public void testStructuredMatchPatternWithTypeGuard1() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard1", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -154,7 +154,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 2")
     public void testStructuredMatchPatternWithTypeGuard2() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard2", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -169,7 +169,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 3")
     public void testStructuredMatchPatternWithTypeGuard3() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard3", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard3", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -184,7 +184,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with type guard 4")
     public void testStructuredMatchPatternWithTypeGuard4() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -199,7 +199,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern with closed record")
     public void testClosedRecord() {
-        Object returns = JvmRunUtil.invoke(result, "testClosedRecord", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testClosedRecord", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -213,7 +213,7 @@ public class MatchStructuredRecordPatternsTest {
 
     @Test(description = "Test structured pattern match with empty record")
     public void testStructuredMatchPatternWithEmptyRecord() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new Object[]{});
 
         Assert.assertTrue(returns instanceof BArray);
         BArray results = (BArray) returns;

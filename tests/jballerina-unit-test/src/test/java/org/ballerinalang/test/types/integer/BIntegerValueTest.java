@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.integer;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value assignment")
     public void testIntegerValue() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -56,7 +56,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test negative long value assignment")
     public void testNegativeIntegerValue() {
-        Object returns = JvmRunUtil.invoke(result, "testNegativeIntegerValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNegativeIntegerValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -65,7 +65,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long(hex) value assignment")
     public void testHexValue() {
-        Object returns = JvmRunUtil.invoke(result, "testHexValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testHexValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -74,7 +74,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test negative long(hex) value assignment")
     public void testNegativeHexValue() {
-        Object returns = JvmRunUtil.invoke(result, "testNegativeHaxValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNegativeHaxValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -83,7 +83,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value assignment from a value returned by function")
     public void testIntegerValueAssignmentByReturnValue() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerValueAssignmentByReturnValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerValueAssignmentByReturnValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -93,7 +93,7 @@ public class BIntegerValueTest {
     @Test(description = "Test long value assignment")
     public void testIntegerParameter() {
         Object[] args = {(20)};
-        Object returns = JvmRunUtil.invoke(result, "testIntegerParameter", args);
+        Object returns = BRunUtil.invoke(result, "testIntegerParameter", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -102,7 +102,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Addition")
     public void testIntegerValueAddition() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerAddition", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerAddition", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -111,7 +111,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test integer types value Addition")
     public void testIntegerTypesValueAddition() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerTypesAddition", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerTypesAddition", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -120,7 +120,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Subtraction")
     public void testIntegerValueSubtraction() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerSubtraction", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerSubtraction", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -129,7 +129,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test integer types value Subtraction")
     public void testIntegerTypesValueSubtraction() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerTypesSubtraction", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerTypesSubtraction", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -138,7 +138,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Multiplication")
     public void testIntegerValueMultiplication() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerMultiplication", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerMultiplication", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -147,7 +147,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test integer types value Multiplication")
     public void testIntegerTypesValueMultiplication() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerTypesMultiplication", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerTypesMultiplication", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -156,7 +156,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Division")
     public void testIntegerValueDivision() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerDivision", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerDivision", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -165,7 +165,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test integer types value Division")
     public void testIntegerTypesValueDivision() {
-        Object returns = JvmRunUtil.invoke(result, "testIntegerTypesDivision", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIntegerTypesDivision", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intValue = (long) returns;
@@ -174,7 +174,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test record fields with int:subtypes")
     public void testIntSubtypeField() {
-        JvmRunUtil.invoke(result, "testIntSubtypeField");
+        BRunUtil.invoke(result, "testIntSubtypeField");
     }
 
     @AfterClass

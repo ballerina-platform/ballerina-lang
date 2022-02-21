@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,56 +46,56 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on expression evaluated to value type positive.")
     public void testElvisValueTypePositive() {
-        Object results = JvmRunUtil.invoke(compileResult, "testElvisValueTypePositive");
+        Object results = BRunUtil.invoke(compileResult, "testElvisValueTypePositive");
         Assert.assertTrue(results instanceof Long);
         Assert.assertEquals(results, 120L);
     }
 
     @Test(description = "Test Elvis operator on expression evaluated to value type negative.")
     public void testElvisValueTypeNegative() {
-        Object results = JvmRunUtil.invoke(compileResult, "testElvisValueTypeNegative");
+        Object results = BRunUtil.invoke(compileResult, "testElvisValueTypeNegative");
         Assert.assertTrue(results instanceof Long);
         Assert.assertEquals(results, 111L);
     }
 
     @Test(description = "Test Elvis operator on nested expressions evaluated to value type.")
     public void testElvisValueTypeNested() {
-        Object results = JvmRunUtil.invoke(compileResult, "testElvisValueTypeNested");
+        Object results = BRunUtil.invoke(compileResult, "testElvisValueTypeNested");
         Assert.assertTrue(results instanceof Long);
         Assert.assertEquals(results, 3000L);
     }
 
     @Test(description = "Test Elvis operator on expression evaluated to ref type positive.")
     public void testElvisRefTypePositive() {
-        Object results = JvmRunUtil.invoke(compileResult, "testElvisRefTypePositive");
+        Object results = BRunUtil.invoke(compileResult, "testElvisRefTypePositive");
         Assert.assertTrue(results instanceof Long);
         Assert.assertEquals(results, 2300L);
     }
 
     @Test(description = "Test Elvis operator on expression evaluated to ref type negative.")
     public void testElvisRefTypeNegative() {
-        Object results = JvmRunUtil.invoke(compileResult, "testElvisRefTypeNegative");
+        Object results = BRunUtil.invoke(compileResult, "testElvisRefTypeNegative");
         Assert.assertTrue(results instanceof Long);
         Assert.assertEquals(results, 111L);
     }
 
     @Test(description = "Test Elvis operator on nested expressions evaluated to ref type.")
     public void testElvisRefTypeNested() {
-        Object results = JvmRunUtil.invoke(compileResult, "testElvisRefTypeNested");
+        Object results = BRunUtil.invoke(compileResult, "testElvisRefTypeNested");
         Assert.assertTrue(results instanceof Long);
         Assert.assertEquals(results, 4000L);
     }
 
     @Test(description = "Test Elvis operator on nested expressions evaluated to ref type case two.")
     public void testElvisRefTypeNestedCaseTwo() {
-        Object results = JvmRunUtil.invoke(compileResult, "testElvisRefTypeNestedCaseTwo");
+        Object results = BRunUtil.invoke(compileResult, "testElvisRefTypeNestedCaseTwo");
         Assert.assertTrue(results instanceof BString);
         Assert.assertEquals(results.toString(), "kevin");
     }
 
     @Test(description = "Test Elvis operator on expression evaluated to record type positive.")
     public void testElvisRecordTypePositive() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisRecordTypePositive");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisRecordTypePositive");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -106,7 +106,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on expression evaluated to record type negative.")
     public void testElvisRecordTypeNegative() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisRecordTypeNegative");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisRecordTypeNegative");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -117,7 +117,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on expression evaluated to object type positive.")
     public void testElvisObjectTypePositive() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisObjectTypePositive");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisObjectTypePositive");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 3);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -130,7 +130,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on expression evaluated to object type negative.")
     public void testElvisObjectTypeNegative() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisObjectTypeNegative");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisObjectTypeNegative");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 3);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -143,7 +143,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on expression evaluated to tuple type positive.")
     public void testElvisTupleTypePositive() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisTupleTypePositive");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisTupleTypePositive");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -154,7 +154,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on expression evaluated to tuple type negative.")
     public void testElvisTupleTypeNegative() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisTupleTypeNegative");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisTupleTypeNegative");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -165,7 +165,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on nested tuple case one.")
     public void testElvisNestedTupleTypeCaseOne() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisNestedTupleTypeCaseOne");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisNestedTupleTypeCaseOne");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -176,7 +176,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on nested tuple case two.")
     public void testElvisNestedTupleTypeCaseTwo() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisNestedTupleTypeCaseTwo");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisNestedTupleTypeCaseTwo");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -187,7 +187,7 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis operator on nested tuple case three.")
     public void testElvisNestedTupleTypeCaseThree() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testElvisNestedTupleTypeCaseThree");
+        Object arr = BRunUtil.invoke(compileResult, "testElvisNestedTupleTypeCaseThree");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
         Assert.assertTrue(results.get(0) instanceof BString);
@@ -198,32 +198,32 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis as an function argument.")
     public void testElvisAsArgumentPositive() {
-        JvmRunUtil.invoke(compileResult, "testElvisAsArgumentPositive");
+        BRunUtil.invoke(compileResult, "testElvisAsArgumentPositive");
     }
 
     @Test(description = "Test Elvis as a configurable variable.")
     public void testElvisWithConfigurableVar() {
-        JvmRunUtil.invoke(compileResult, "testElvisWithConfigurableVar");
+        BRunUtil.invoke(compileResult, "testElvisWithConfigurableVar");
     }
 
     @Test(description = "Test Elvis with lang:value method calls in module level.")
     public void testElvisWithLangValueMethodCallsModuleLevel() {
-        JvmRunUtil.invoke(compileResult, "testElvisWithLangValueMethodCallsModuleLevel");
+        BRunUtil.invoke(compileResult, "testElvisWithLangValueMethodCallsModuleLevel");
     }
 
     @Test(description = "Test Elvis with lang:value method calls.")
     public void testElvisWithLangValueMethodCalls() {
-        JvmRunUtil.invoke(compileResult, "testElvisWithLangValueMethodCalls");
+        BRunUtil.invoke(compileResult, "testElvisWithLangValueMethodCalls");
     }
 
     @Test(description = "Test nested Elvis expressions without parenthesis in module level.")
     public void testNestedElvisWithoutParenthesisModuleLevel() {
-        JvmRunUtil.invoke(compileResult, "testNestedElvisWithoutParenthesisModuleLevel");
+        BRunUtil.invoke(compileResult, "testNestedElvisWithoutParenthesisModuleLevel");
     }
 
     @Test(description = "Test nested Elvis expressions without parenthesis.")
     public void testNestedElvisWithoutParenthesis() {
-        JvmRunUtil.invoke(compileResult, "testNestedElvisWithoutParenthesis");
+        BRunUtil.invoke(compileResult, "testNestedElvisWithoutParenthesis");
     }
 
     @Test(description = "Negative test cases.")

@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test accessing global variables defined in other packages")
     public void testAccessingGlobalVar() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "getGlobalVars", new Object[0]);
+        BArray returns = (BArray) BRunUtil.invoke(result, "getGlobalVars", new Object[0]);
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertTrue(returns.get(1) instanceof BString);
@@ -57,14 +57,14 @@ public class GlobalVarFunctionWithPkgTest {
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         Object[] args = {(88)};
-        Object returns = JvmRunUtil.invoke(result, "changeGlobalVar", args);
+        Object returns = BRunUtil.invoke(result, "changeGlobalVar", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
         Assert.assertEquals(returns, 165.0);
 
         CompileResult resultGlobalVar = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject1");
-        Object returnsChanged = JvmRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar", new Object[0]);
+        Object returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar", new Object[0]);
 
         Assert.assertSame(returnsChanged.getClass(), Double.class);
 
@@ -73,7 +73,7 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test assigning global variable to another global variable in different package")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        Object returns = JvmRunUtil.invoke(result, "getAssignedGlobalVarFloat", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "getAssignedGlobalVarFloat", new Object[0]);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -83,7 +83,7 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test assigning function invocation to global variable")
     public void testAssignFuncInvocationToGlobalVar() {
-        Object returns = JvmRunUtil.invoke(result, "getGlobalVarInt", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "getGlobalVarInt", new Object[0]);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -96,7 +96,7 @@ public class GlobalVarFunctionWithPkgTest {
     public void testRetrievingVarFromDifferentPkg() {
 
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject2");
-        Object returns = JvmRunUtil.invoke(result, "getStringInPkg", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "getStringInPkg", new Object[0]);
 
         Assert.assertTrue(returns instanceof BString);
 

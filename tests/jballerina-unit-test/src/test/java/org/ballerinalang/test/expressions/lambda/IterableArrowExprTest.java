@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,33 +52,33 @@ public class IterableArrowExprTest {
 
     @Test(description = "Test arrow expression inside map() with return string collection")
     public void testMapIterable() {
-        Object returns = JvmRunUtil.invoke(basic, "testMapIterable");
+        Object returns = BRunUtil.invoke(basic, "testMapIterable");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "ANT");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside filter() and then inside map() followed by average()")
     public void testFilterIterable() {
-        Object returns = JvmRunUtil.invoke(basic, "testFilterIterable");
+        Object returns = BRunUtil.invoke(basic, "testFilterIterable");
         Assert.assertEquals(returns, 9.0);
     }
 
     @Test(description = "Test arrow expression inside map() followed by map()")
     public void testTwoLevelMapIterable() {
-        Object returns = JvmRunUtil.invoke(basic, "testTwoLevelMapIterable");
+        Object returns = BRunUtil.invoke(basic, "testTwoLevelMapIterable");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "ANT");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside map() then filter() then map()")
     public void testTwoLevelMapIterableWithFilter() {
-        Object returns = JvmRunUtil.invoke(basic, "testTwoLevelMapIterableWithFilter");
+        Object returns = BRunUtil.invoke(basic, "testTwoLevelMapIterableWithFilter");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BEAR");
     }
 
     @Test(description = "Test arrow expression with filter() first and then map")
     public void testFilterThenMap() {
-        Object arr = JvmRunUtil.invoke(basic, "testFilterThenMap");
+        Object arr = BRunUtil.invoke(basic, "testFilterThenMap");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "{\"a\":\"N MAN\"}");
@@ -87,14 +87,14 @@ public class IterableArrowExprTest {
 
     @Test(description = "Test arrow expression inside map() with return a single string")
     public void testFilterWithArityOne() {
-        Object returns = JvmRunUtil.invoke(basic, "testFilterWithArityOne");
+        Object returns = BRunUtil.invoke(basic, "testFilterWithArityOne");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "ANT");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("c")).toString(), "TIGER");
     }
 
     @Test(description = "Test arrow expression inside map() which returns a lambda collection")
     public void testIterableReturnLambda() {
-        Object returns = JvmRunUtil.invoke(basic, "testIterableReturnLambda");
+        Object returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
         Assert.assertNotNull(returns);
         BMap res = (BMap) returns;
         Assert.assertTrue(res.get(StringUtils.fromString("a")) instanceof BFunctionPointer);
@@ -110,7 +110,7 @@ public class IterableArrowExprTest {
 
     @Test(description = "Test arrow expression inside map() with return string collection and then count()")
     public void testCountFunction() {
-        Object returns = JvmRunUtil.invoke(basic, "testCountFunction");
+        Object returns = BRunUtil.invoke(basic, "testCountFunction");
         Assert.assertEquals(returns, 3L);
     }
 

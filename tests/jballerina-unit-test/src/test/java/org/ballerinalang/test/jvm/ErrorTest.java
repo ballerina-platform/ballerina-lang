@@ -19,7 +19,7 @@ package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,35 +45,35 @@ public class ErrorTest {
             expectedExceptionsMessageRegExp = "error: reason foo 1 \\{\"message\":\"int value\"\\}\n\tat errors:foo\\" +
                     "(errors.bal:91\\)\n\t   errors:testPanic\\(errors.bal:20\\)")
     public void testPanic() {
-        JvmRunUtil.invoke(compileResult, "testPanic", new Object[]{0});
+        BRunUtil.invoke(compileResult, "testPanic", new Object[]{0});
     }
 
     @Test(description = "Test trap an error")
     public void testTrap() {
-        JvmRunUtil.invoke(compileResult, "testTrap", new Object[]{0});
+        BRunUtil.invoke(compileResult, "testTrap", new Object[]{0});
     }
 
     @Test(description = "Test handle errors of nested function calls with single trap")
     public void testNestedCallsWithSingleTrap() {
         // Run with zero integer input
-        JvmRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{0});
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{0});
 
         // Run with non zero integer input
-        JvmRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{1});
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{1});
     }
 
     @Test(description = "Test handle errors of nested function calls with trap expression for each function call")
     public void testNestedCallsWithAllTraps() {
         // Run with zero integer input
-        JvmRunUtil.invoke(compileResult, "testNestedCallsWithAllTraps", new Object[]{0});
+        BRunUtil.invoke(compileResult, "testNestedCallsWithAllTraps", new Object[]{0});
 
         // Run with non zero integer input
-        JvmRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{1});
+        BRunUtil.invoke(compileResult, "testNestedCallsWithSingleTrap", new Object[]{1});
     }
 
     @Test
     public void testSelfReferencingObject() {
-        JvmRunUtil.invoke(compileResult, "testSelfReferencingError");
+        BRunUtil.invoke(compileResult, "testSelfReferencingError");
     }
 
     @Test(description = "Test runtime out of memory error", expectedExceptions = java.lang.RuntimeException.class,
@@ -84,7 +84,7 @@ public class ErrorTest {
         final List<String> javaOpts = new ArrayList<>();
         javaOpts.add(0, "-Xms256m");
         javaOpts.add(1, "-Xmx256m");
-        JvmRunUtil.runMain(compileResult, javaOpts);
+        BRunUtil.runMain(compileResult, javaOpts);
     }
 
     @AfterClass

@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.lambda;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,19 +42,19 @@ public class FunctionPointersWithRestArgsTest {
 
     @Test
     public void testFunctionPointerRest() {
-        Object returns = JvmRunUtil.invoke(fpProgram, "testFunctionPointerRest");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRest");
         Assert.assertEquals(returns.toString(), "[1,2,3]");
     }
 
     @Test
     public void testFunctionPointerRestTyped() {
-        Object returns = JvmRunUtil.invoke(fpProgram, "testFunctionPointerRestTyped");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestTyped");
         Assert.assertEquals(returns.toString(), "[4,5,6]");
     }
 
     @Test
     public void testFunctionPointerAssignmentWithRestParams() {
-        Object arr = JvmRunUtil.invoke(fpProgram, "testFunctionPointerAssignmentWithRestParams");
+        Object arr = BRunUtil.invoke(fpProgram, "testFunctionPointerAssignmentWithRestParams");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 3);
@@ -70,7 +70,7 @@ public class FunctionPointersWithRestArgsTest {
 
     @Test
     public void testFunctionPointerRestParamExpand() {
-        Object arr = JvmRunUtil.invoke(fpProgram, "testFunctionPointerRestParamExpand");
+        Object arr = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamExpand");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 3);
@@ -86,7 +86,7 @@ public class FunctionPointersWithRestArgsTest {
 
     @Test
     public void testFunctionPointerRestParamUnionNarrow() {
-        Object returns = JvmRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrow");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrow");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "[2,3,4]");
@@ -94,7 +94,7 @@ public class FunctionPointersWithRestArgsTest {
 
     @Test
     public void testFunctionPointerRestParamUnionNarrowName() {
-        Object returns = JvmRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrowName");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrowName");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "[3,2,1]");
@@ -102,7 +102,7 @@ public class FunctionPointersWithRestArgsTest {
 
     @Test
     public void testFunctionPointerRestParamStructuredType() {
-        Object returns = JvmRunUtil.invoke(fpProgram, "testFunctionPointerRestParamStructuredType");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamStructuredType");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "Irshad");

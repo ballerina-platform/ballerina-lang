@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest1() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest1");
+        Object returns = BRunUtil.invoke(result, "waitTest1");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f1", "7");
@@ -60,7 +60,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest2() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest2");
+        Object returns = BRunUtil.invoke(result, "waitTest2");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f1", "7");
@@ -73,7 +73,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest3() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest3");
+        Object returns = BRunUtil.invoke(result, "waitTest3");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f1", "7");
@@ -85,7 +85,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest4() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest4");
+        Object returns = BRunUtil.invoke(result, "waitTest4");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f1", "7");
@@ -97,7 +97,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest5() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest5");
+        Object returns = BRunUtil.invoke(result, "waitTest5");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "66");
@@ -108,7 +108,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest6() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest6");
+        Object returns = BRunUtil.invoke(result, "waitTest6");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("idField", "150");
@@ -119,14 +119,14 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest7() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest7");
+        Object returns = BRunUtil.invoke(result, "waitTest7");
 
         Assert.assertEquals(returns.toString(), "7");
     }
 
     @Test
     public void waitTest8() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest8");
+        Object returns = BRunUtil.invoke(result, "waitTest8");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "8");
@@ -137,7 +137,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest9() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest9");
+        Object returns = BRunUtil.invoke(result, "waitTest9");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f1", "20");
@@ -148,7 +148,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest10() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest10");
+        Object returns = BRunUtil.invoke(result, "waitTest10");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f1", "30");
@@ -159,7 +159,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest11() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest11");
+        Object returns = BRunUtil.invoke(result, "waitTest11");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f1", "30");
@@ -170,7 +170,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest12() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest12");
+        Object returns = BRunUtil.invoke(result, "waitTest12");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "86");
@@ -181,31 +181,31 @@ public class WaitForAllActionsTest {
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest13() {
-        JvmRunUtil.invoke(result, "waitTest13");
+        BRunUtil.invoke(result, "waitTest13");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest14() {
-        JvmRunUtil.invoke(result, "waitTest14");
+        BRunUtil.invoke(result, "waitTest14");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest15() {
-        JvmRunUtil.invoke(result, "waitTest15");
+        BRunUtil.invoke(result, "waitTest15");
     }
 
     @Test
     public void waitTest16() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest16");
+        Object returns = BRunUtil.invoke(result, "waitTest16");
 
         Assert.assertEquals(returns.toString(), "0");
     }
 
     @Test
     public void waitTest17() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest17");
+        Object returns = BRunUtil.invoke(result, "waitTest17");
 
         Assert.assertEquals(((BMap) returns).values().size(), 2);
         BMap val1 = (BMap) ((BMap) returns).get(StringUtils.fromString("f1"));
@@ -218,7 +218,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest18() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest18");
+        Object returns = BRunUtil.invoke(result, "waitTest18");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("f5", "hello foo");
@@ -229,7 +229,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest19() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest19");
+        Object returns = BRunUtil.invoke(result, "waitTest19");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("w1", "30");
@@ -240,7 +240,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest20() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest20");
+        Object returns = BRunUtil.invoke(result, "waitTest20");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("w2", "hello world");
@@ -251,7 +251,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest21() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest21");
+        Object returns = BRunUtil.invoke(result, "waitTest21");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "7");
@@ -262,7 +262,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest22() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest22");
+        Object returns = BRunUtil.invoke(result, "waitTest22");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "7");
@@ -274,7 +274,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest23() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest23");
+        Object returns = BRunUtil.invoke(result, "waitTest23");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "7");
@@ -286,7 +286,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest24() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest24");
+        Object returns = BRunUtil.invoke(result, "waitTest24");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "12");
@@ -298,7 +298,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest25() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest25");
+        Object returns = BRunUtil.invoke(result, "waitTest25");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "7");
@@ -308,7 +308,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest26() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest26");
+        Object returns = BRunUtil.invoke(result, "waitTest26");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "30");
@@ -328,7 +328,7 @@ public class WaitForAllActionsTest {
 
     @Test
     public void waitTest27() {
-        Object returns = JvmRunUtil.invoke(result, "waitTest27");
+        Object returns = BRunUtil.invoke(result, "waitTest27");
 
         Map<String, String> expectedMap = new HashMap<>();
         expectedMap.put("id", "200");

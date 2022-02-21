@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.readonly;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class ReadonlyArrayTest {
           expectedExceptionsMessageRegExp = ".*modification not allowed on readonly " +
                   "value.*", dataProvider = "arrayTests")
     public void testCreateArray(String funcName) {
-        JvmRunUtil.invoke(result, funcName);
+        BRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "arrayTests")
@@ -50,6 +50,6 @@ public class ReadonlyArrayTest {
 
     @Test
     public void testReadOnlyMappingWithOptionalNeverFieldArray() {
-        JvmRunUtil.invoke(result, "testReadOnlyMappingWithOptionalNeverFieldArray");
+        BRunUtil.invoke(result, "testReadOnlyMappingWithOptionalNeverFieldArray");
     }
 }

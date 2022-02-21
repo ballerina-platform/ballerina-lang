@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class AsyncTest {
 
     @Test
     public void testAcceptNothing() {
-        Object returns = JvmRunUtil.invoke(result, "asyncTest");
+        Object returns = BRunUtil.invoke(result, "asyncTest");
 
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 42L);
@@ -52,7 +52,7 @@ public class AsyncTest {
     public void testAsyncComplete() {
         CompileResult compileResult =
                 BCompileUtil.compileWithoutInitInvocation("test-src/javainterop/basic/async_test.bal");
-        JvmRunUtil.ExitDetails output = JvmRunUtil.run(compileResult, new String[]{});
+        BRunUtil.ExitDetails output = BRunUtil.run(compileResult, new String[]{});
         Assert.assertTrue(output.errorOutput.contains("cannot complete the same future twice."));
     }
 

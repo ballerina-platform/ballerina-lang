@@ -21,7 +21,7 @@ package org.ballerinalang.test.statements.fail;
 import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class FailStmtTest {
 
     @Test(description = "Test fail statement basic syntax")
     public void testFailStmt() {
-        Object returnValues = JvmRunUtil.invoke(result, "testFailStmt");
+        Object returnValues = BRunUtil.invoke(result, "testFailStmt");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue(returnValues instanceof BError);

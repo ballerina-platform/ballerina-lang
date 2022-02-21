@@ -23,7 +23,7 @@ import org.ballerinalang.nativeimpl.jvm.tests.ClassWithOneParamConstructor;
 import org.ballerinalang.nativeimpl.jvm.tests.ClassWithTwoParamConstructor;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class ConstructorTest {
     @Test(description = "Test invoking a java constructor that accepts nothing", dataProvider =
             "AcceptNothingFunctionNamesProvider")
     public void testAcceptNothing(String funcName) {
-        Object returns = JvmRunUtil.invoke(result, funcName);
+        Object returns = BRunUtil.invoke(result, funcName);
 
         Assert.assertEquals(((HandleValue) returns).getValue().getClass(), ClassWithDefaultConstructor.class);
         ClassWithDefaultConstructor createdClass =
@@ -60,7 +60,7 @@ public class ConstructorTest {
     public void testAcceptOneParam(String funcName) {
         Object[] args = new Object[1];
         args[0] = new HandleValue("Ballerina");
-        Object returns = JvmRunUtil.invoke(result, funcName, args);
+        Object returns = BRunUtil.invoke(result, funcName, args);
         ClassWithOneParamConstructor createdClass =
                 (ClassWithOneParamConstructor) ((HandleValue) returns).getValue();
         Assert.assertEquals(createdClass.getValue(), "Hello Ballerina");
@@ -72,7 +72,7 @@ public class ConstructorTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue("Bye ");
         args[1] = new HandleValue("Ballerina");
-        Object returns = JvmRunUtil.invoke(result, funcName, args);
+        Object returns = BRunUtil.invoke(result, funcName, args);
         
         ClassWithTwoParamConstructor createdClass =
                 (ClassWithTwoParamConstructor) ((HandleValue) returns).getValue();

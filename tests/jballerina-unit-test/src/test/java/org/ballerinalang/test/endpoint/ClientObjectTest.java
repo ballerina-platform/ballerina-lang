@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,34 +42,34 @@ public class ClientObjectTest {
 
     @Test
     public void testRemoteFunctions() {
-        Object returns = JvmRunUtil.invoke(remoteBasic, "test1", new Object[] { (4) });
+        Object returns = BRunUtil.invoke(remoteBasic, "test1", new Object[] { (4) });
         Assert.assertEquals(returns.toString(), "false");
 
-        returns = JvmRunUtil.invoke(remoteBasic, "test1", new Object[] { (10) });
+        returns = BRunUtil.invoke(remoteBasic, "test1", new Object[] { (10) });
         Assert.assertEquals(returns.toString(), "true");
     }
 
     @Test
     public void testFunctions() {
-        Object returns = JvmRunUtil.invoke(remoteBasic, "test2");
+        Object returns = BRunUtil.invoke(remoteBasic, "test2");
         Assert.assertEquals(returns.toString(), "5");
     }
 
     @Test
     public void testEndPointDeclInALoop() {
-        Object result = JvmRunUtil.invoke(remoteBasic, "clientObjectDeclaredInLoop");
+        Object result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInLoop");
         Assert.assertEquals(result, 10L);
     }
 
     @Test
     public void testEndPointDeclInAIfStmtIfBlock() {
-        Object result = JvmRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatement");
+        Object result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatement");
         Assert.assertEquals(result, 10L);
     }
 
     @Test
     public void testEndPointDeclInAIfStmtElseBlock() {
-        Object result = JvmRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatementElseBlock");
+        Object result = BRunUtil.invoke(remoteBasic, "clientObjectDeclaredInIfStatementElseBlock");
         Assert.assertEquals(result, 10L);
     }
 
@@ -77,9 +77,9 @@ public class ClientObjectTest {
     public void testReferringEndpointInDifferentPkg() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestEndpointProject");
 
-        JvmRunUtil.invoke(compileResult, "testCheck");
+        BRunUtil.invoke(compileResult, "testCheck");
 
-        JvmRunUtil.invoke(compileResult, "testNewEP", new Object[] { StringUtils.fromString("done") });
+        BRunUtil.invoke(compileResult, "testNewEP", new Object[] { StringUtils.fromString("done") });
     }
 
     @Test

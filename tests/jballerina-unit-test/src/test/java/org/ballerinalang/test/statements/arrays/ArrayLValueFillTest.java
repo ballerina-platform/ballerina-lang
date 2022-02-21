@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,22 +49,22 @@ public class ArrayLValueFillTest {
 
     @Test
     public void testSimpleBasic2DArrays() {
-        JvmRunUtil.invoke(compileResult, "testSimpleBasic2DArrays");
+        BRunUtil.invoke(compileResult, "testSimpleBasic2DArrays");
     }
 
     @Test
     public void testRecordArrays() {
-        JvmRunUtil.invoke(compileResult, "testRecordArrays");
+        BRunUtil.invoke(compileResult, "testRecordArrays");
     }
 
     @Test
     public void test2DRecordArrays() {
-        JvmRunUtil.invoke(compileResult, "test2DRecordArrays");
+        BRunUtil.invoke(compileResult, "test2DRecordArrays");
     }
 
     @Test
     public void testObjectArrays() {
-        BArray arr = (BArray) JvmRunUtil.invoke(compileResult, "testObjectArrays");
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "testObjectArrays");
         assertEquals(arr.size(), 2);
 
         BObject person = (BObject) arr.getRefValue(0);
@@ -78,7 +78,7 @@ public class ArrayLValueFillTest {
 
     @Test
     public void test2DObjectArrays() {
-        BArray arr = (BArray) JvmRunUtil.invoke(compileResult, "test2DObjectArrays");
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "test2DObjectArrays");
 
         assertEquals(arr.size(), 3);
         assertEquals(((BArray) arr.getRefValue(0)).size(), 0);
@@ -96,7 +96,7 @@ public class ArrayLValueFillTest {
     // https://github.com/ballerina-platform/ballerina-lang/issues/20983
     @Test(enabled = false)
     public void test2DObjectArrays2() {
-        BArray arr = (BArray) JvmRunUtil.invoke(compileResult, "test2DObjectArrays2");
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "test2DObjectArrays2");
 
         assertEquals(arr.size(), 3);
         assertEquals(((BArray) arr.getRefValue(0)).size(), 0);
@@ -116,7 +116,7 @@ public class ArrayLValueFillTest {
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
     public void test2DObjectArrays3() {
-        JvmRunUtil.invoke(compileResult, "test2DObjectArrays3");
+        BRunUtil.invoke(compileResult, "test2DObjectArrays3");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -124,7 +124,7 @@ public class ArrayLValueFillTest {
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
     public void testRecordsWithoutFillerValues() {
-        JvmRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
+        BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -132,37 +132,37 @@ public class ArrayLValueFillTest {
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 1 without " +
                   "filler values.*")
     public void testRecordsWithoutFillerValues2() {
-        JvmRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
+        BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
     }
 
     @Test
     public void testArraysInRecordFields() {
-        JvmRunUtil.invoke(compileResult, "testArraysInRecordFields");
+        BRunUtil.invoke(compileResult, "testArraysInRecordFields");
     }
 
     @Test
     public void testArraysInObjectFields() {
-        JvmRunUtil.invoke(compileResult, "testArraysInObjectFields");
+        BRunUtil.invoke(compileResult, "testArraysInObjectFields");
     }
 
     @Test
     public void testArraysInUnionTypes() {
-        JvmRunUtil.invoke(compileResult, "testArraysInUnionTypes");
+        BRunUtil.invoke(compileResult, "testArraysInUnionTypes");
     }
 
     @Test
     public void testArraysOfTuples() {
-        JvmRunUtil.invoke(compileResult, "testArraysOfTuples");
+        BRunUtil.invoke(compileResult, "testArraysOfTuples");
     }
 
     @Test
     public void test2DArrayInATuple() {
-        JvmRunUtil.invoke(compileResult, "test2DArrayInATuple");
+        BRunUtil.invoke(compileResult, "test2DArrayInATuple");
     }
 
     @Test
     public void testFiniteTyped2DArrays() {
-        JvmRunUtil.invoke(compileResult, "testFiniteTyped2DArrays");
+        BRunUtil.invoke(compileResult, "testFiniteTyped2DArrays");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -170,12 +170,12 @@ public class ArrayLValueFillTest {
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
     public void testNoDefFiniteTyped2DArrays() {
-        JvmRunUtil.invoke(compileResult, "testNoDefFiniteTyped2DArrays");
+        BRunUtil.invoke(compileResult, "testNoDefFiniteTyped2DArrays");
     }
 
     @Test
     public void testMapArrayAsAnLValue() {
-        JvmRunUtil.invoke(compileResult, "testMapArrayAsAnLValue");
+        BRunUtil.invoke(compileResult, "testMapArrayAsAnLValue");
     }
 
     @AfterClass

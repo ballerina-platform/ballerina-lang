@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,7 +54,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value assignment")
     public void testFloatValue() {
-        Object returns = JvmRunUtil.invoke(result, "testFloatValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFloatValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -63,7 +63,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test negative double value assignment")
     public void testNegativeFloatValue() {
-        Object returns = JvmRunUtil.invoke(result, "testNegativeFloatValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNegativeFloatValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -72,7 +72,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value assignment from a value returned by function")
     public void testFloatValueAssignmentByReturnValue() {
-        Object returns = JvmRunUtil.invoke(result, "testFloatValueAssignmentByReturnValue", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFloatValueAssignmentByReturnValue", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -82,7 +82,7 @@ public class BFloatValueTest {
     @Test(description = "Test double value assignment")
     public void testFloatParameter() {
         Object[] args = {(3.3f)};
-        Object returns = JvmRunUtil.invoke(result, "testFloatParameter", args);
+        Object returns = BRunUtil.invoke(result, "testFloatParameter", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -91,7 +91,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Addition")
     public void testFloatValueAddition() {
-        Object returns = JvmRunUtil.invoke(result, "testFloatAddition", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFloatAddition", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -100,7 +100,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Subtraction")
     public void testFloatValueSubtraction() {
-        Object returns = JvmRunUtil.invoke(result, "testFloatSubtraction", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFloatSubtraction", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -109,7 +109,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Multiplication")
     public void testFloatValueMultiplication() {
-        Object returns = JvmRunUtil.invoke(result, "testFloatMultiplication", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFloatMultiplication", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -118,7 +118,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Division")
     public void testFloatValueDivision() {
-        Object returns = JvmRunUtil.invoke(result, "testFloatDivision", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testFloatDivision", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatValue = (double) returns;
@@ -127,7 +127,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test double value Division")
     public void testFloatValues() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testFloatValues");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testFloatValues");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0), 123.4, "Invalid float value returned.");
         Assert.assertEquals(returns.get(1), 1.234e2, "Invalid float value returned.");
@@ -137,7 +137,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test hexadecimal literal")
     public void testHexFloatingPointLiterals() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testHexFloatingPointLiterals");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testHexFloatingPointLiterals");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0), 4779.0, "Invalid float value returned.");
         Assert.assertEquals(returns.get(1), 8.0, "Invalid float value returned.");
@@ -147,7 +147,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test int literal")
     public void testIntLiteralAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIntLiteralAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIntLiteralAssignment");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0), 12.0, "Invalid float value returned.");
         Assert.assertEquals(returns.get(1), 15.0, "Invalid float value returned.");
@@ -155,7 +155,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test discriminated float literal")
     public void testDiscriminatedFloatLiterals() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDiscriminatedFloatLiteral");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDiscriminatedFloatLiteral");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0), 1.0, "Invalid float value returned.");
         Assert.assertEquals(returns.get(1), 1.0, "Invalid float value returned.");
@@ -188,7 +188,7 @@ public class BFloatValueTest {
 
     @Test(description = "Test hexa decimal literal with float type")
     public void testHexaDecimalLiteralsWithFloat() {
-        JvmRunUtil.invoke(result, "testHexaDecimalLiteralsWithFloat");
+        BRunUtil.invoke(result, "testHexaDecimalLiteralsWithFloat");
     }
 
     @AfterClass

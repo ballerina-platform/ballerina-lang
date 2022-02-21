@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action statement")
     public void testSimpleQueryAction() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleQueryAction");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleQueryAction");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
@@ -59,7 +59,7 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action - record variable definition")
     public void testSimpleQueryActionWithRecordVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleQueryActionWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleQueryActionWithRecordVariable");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
@@ -73,7 +73,7 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action - record variable definition")
     public void testSimpleSelectQueryWithRecordVariableV2() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
@@ -87,7 +87,7 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action statement v2")
     public void testSimpleQueryAction2() {
-        Object returnValues = JvmRunUtil.invoke(result, "testSimpleQueryAction2");
+        Object returnValues = BRunUtil.invoke(result, "testSimpleQueryAction2");
         Assert.assertNotNull(returnValues);
 
         long countValue = (long) returnValues;
@@ -96,7 +96,7 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action with let clause")
     public void testSimpleSelectQueryWithLetClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
         Assert.assertNotNull(returnValues);
         BMap<String, Object> person = (BMap<String, Object>) returnValues.get(0);
 
@@ -105,7 +105,7 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action with where clause")
     public void testSimpleSelectQueryWithWhereClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
         Assert.assertNotNull(returnValues);
         BMap<String, Object> person = (BMap<String, Object>) returnValues.get(0);
 
@@ -114,7 +114,7 @@ public class QueryActionTest {
 
     @Test(description = "Test simple query action with multiple from clauses")
     public void testSimpleSelectQueryWithMultipleFromClauses() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithMultipleFromClauses");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithMultipleFromClauses");
         Assert.assertNotNull(returnValues);
         BMap<String, Object> employee = (BMap<String, Object>) returnValues.get(0);
 
@@ -124,34 +124,34 @@ public class QueryActionTest {
 
     @Test(description = "Test query expression iterating over xml<xml:Element> in from clause in query action")
     public void testQueryExpressionIteratingOverXMLInFromInQueryAction() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromInQueryAction");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromInQueryAction");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals((returnValues), 149.93);
     }
 
     @Test(description = "Test type test in where clause")
     public void testTypeTestInWhereClause() {
-        JvmRunUtil.invoke(result, "testTypeTestInWhereClause");
+        BRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
     @Test(description = "Test type test in variable defined in let clause")
     public void testTypeNarrowingVarDefinedWithLet() {
-        JvmRunUtil.invoke(result, "testTypeNarrowingVarDefinedWithLet");
+        BRunUtil.invoke(result, "testTypeNarrowingVarDefinedWithLet");
     }
 
     @Test
     public void testWildcardBindingPatternInQueryAction1() {
-        JvmRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction1");
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction1");
     }
 
     @Test
     public void testWildcardBindingPatternInQueryAction2() {
-        JvmRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction2");
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction2");
     }
 
     @Test
     public void testQueryActionWithAsyncCalls() {
-        JvmRunUtil.invoke(result, "testQueryActionWithAsyncCalls");
+        BRunUtil.invoke(result, "testQueryActionWithAsyncCalls");
     }
 
     @AfterClass

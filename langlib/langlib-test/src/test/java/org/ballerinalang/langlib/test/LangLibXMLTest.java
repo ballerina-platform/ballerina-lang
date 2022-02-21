@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -52,13 +52,13 @@ public class LangLibXMLTest {
 
     @Test(dataProvider = "XMLDataProvider")
     public void testLength(BXml val, long expectedLength) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLength", new Object[]{val});
+        Object returns = BRunUtil.invoke(compileResult, "testLength", new Object[]{val});
         assertEquals((returns), expectedLength);
     }
 
     @DataProvider(name = "XMLDataProvider")
     public Object[][] getXML() {
-        Object returns = JvmRunUtil.invoke(compileResult, "getXML");
+        Object returns = BRunUtil.invoke(compileResult, "getXML");
         BArray result = (BArray) returns;
         return new Object[][]{
                 {result.get(0), 1},
@@ -69,26 +69,26 @@ public class LangLibXMLTest {
 
     @Test
     public void testXMLIteratorInvocation() {
-        JvmRunUtil.invoke(compileResult, "testXMLIteratorInvocation");
+        BRunUtil.invoke(compileResult, "testXMLIteratorInvocation");
     }
 
     @Test
     public void testFromXml() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFromString");
+        Object returns = BRunUtil.invoke(compileResult, "testFromString");
         assertEquals(returns.toString(),
                 "<TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE><TITLE>Greatest Hits</TITLE>");
     }
 
     @Test
     public void testEmptyConcatCall() {
-        Object returns = JvmRunUtil.invoke(compileResult, "emptyConcatCall");
+        Object returns = BRunUtil.invoke(compileResult, "emptyConcatCall");
         assertTrue(((BXml) returns).getNodeType() == XmlNodeType.SEQUENCE);
         assertEquals(((BXml) returns).size(), 0);
     }
 
     @Test
     public void testConcat() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testConcat");
+        Object returns = BRunUtil.invoke(compileResult, "testConcat");
         assertTrue(((BXml) returns).getNodeType() == XmlNodeType.SEQUENCE);
         assertEquals(((BXml) returns).size(), 5);
         assertEquals(returns.toString(),
@@ -98,12 +98,12 @@ public class LangLibXMLTest {
 
     @Test
     public void testConcatWithXMLSequence() {
-        JvmRunUtil.invoke(compileResult, "testConcatWithXMLSequence");
+        BRunUtil.invoke(compileResult, "testConcatWithXMLSequence");
     }
 
     @Test
     public void testIsElement() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIsElement");
+        Object returns = BRunUtil.invoke(compileResult, "testIsElement");
         BArray result = (BArray) returns;
         assertFalse(result.getBoolean(0));
         assertTrue(result.getBoolean(1));
@@ -112,7 +112,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testXmlPI() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testXmlPI");
+        Object returns = BRunUtil.invoke(compileResult, "testXmlPI");
         BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertFalse(result.getBoolean(1));
@@ -120,7 +120,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testXmlIsComment() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testXmlIsComment");
+        Object returns = BRunUtil.invoke(compileResult, "testXmlIsComment");
         BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertFalse(result.getBoolean(1));
@@ -128,7 +128,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testXmlIsText() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testXmlIsText");
+        Object returns = BRunUtil.invoke(compileResult, "testXmlIsText");
         BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertTrue(result.getBoolean(1));
@@ -136,13 +136,13 @@ public class LangLibXMLTest {
 
     @Test
     public void testGetNameOfElement() {
-        Object returns = JvmRunUtil.invoke(compileResult, "getNameOfElement");
+        Object returns = BRunUtil.invoke(compileResult, "getNameOfElement");
         assertEquals(returns.toString(), "elem");
     }
 
     @Test
     public void testSetElementName() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSetElementName");
+        Object returns = BRunUtil.invoke(compileResult, "testSetElementName");
         BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(), "<el2 attr=\"attr1\">content</el2>");
         assertEquals(results.get(1).toString(), "<Elem xmlns=\"http://www.ballerina-schema.io/schema\"/>");
@@ -150,31 +150,31 @@ public class LangLibXMLTest {
 
     @Test
     public void testGetChildren() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetChildren");
+        Object returns = BRunUtil.invoke(compileResult, "testGetChildren");
         assertEquals(returns.toString(), "<TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST>");
     }
 
     @Test
     public void testSetChildren() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSetChildren");
+        Object returns = BRunUtil.invoke(compileResult, "testSetChildren");
         assertEquals(returns.toString(), "<CD><e>child</e></CD>");
     }
 
     @Test
     public void testGetAttributes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetAttributes");
+        Object returns = BRunUtil.invoke(compileResult, "testGetAttributes");
         assertEquals(returns.toString(), "{\"attr\":\"attr1\",\"attr2\":\"attr2\"}");
     }
 
     @Test
     public void testGetTarget() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetTarget");
+        Object returns = BRunUtil.invoke(compileResult, "testGetTarget");
         assertEquals(returns.toString(), "xml-stylesheet");
     }
 
     @Test
     public void testGetContent() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetContent");
+        Object returns = BRunUtil.invoke(compileResult, "testGetContent");
         BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(), "type=\"cont\"");
         assertEquals(results.get(1).toString(), " this is a comment text ");
@@ -182,44 +182,44 @@ public class LangLibXMLTest {
 
     @Test
     public void xmlGetContentOverACommentSequence() {
-        JvmRunUtil.invoke(compileResult, "testXmlGetContentOverACommentSequence");
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverACommentSequence");
     }
 
     @Test
     public void xmlGetContentOverAProcessingInstructionSequence() {
-        JvmRunUtil.invoke(compileResult, "testXmlGetContentOverAProcInstructionSequence");
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverAProcInstructionSequence");
     }
 
     @Test
     public void testCreateElement() {
-        JvmRunUtil.invoke(compileResult, "testCreateElement");
+        BRunUtil.invoke(compileResult, "testCreateElement");
     }
 
     @Test
     public void testCreateProcessingInstruction() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testCreateProcessingInstruction");
+        Object returns = BRunUtil.invoke(compileResult, "testCreateProcessingInstruction");
         assertEquals(returns.toString(), "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>");
     }
 
     @Test
     public void testCreateComment() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testCreateComment");
+        Object returns = BRunUtil.invoke(compileResult, "testCreateComment");
         assertEquals(returns.toString(), "<!--This text should be wraped in xml comment-->");
     }
 
     @Test
     public void testCreateText() {
-        JvmRunUtil.invoke(compileResult, "testCreateText");
+        BRunUtil.invoke(compileResult, "testCreateText");
     }
 
     @Test
     public void testForEach() {
-        JvmRunUtil.invoke(compileResult, "testForEach");
+        BRunUtil.invoke(compileResult, "testForEach");
     }
 
     @Test
     public void testSlice() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSlice");
+        Object returns = BRunUtil.invoke(compileResult, "testSlice");
         BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(), "<elemL>content</elemL><elemN>content</elemN>");
         assertEquals(results.get(1).toString(), "<elemN>content</elemN><elemM>content</elemM>");
@@ -228,7 +228,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testXMLCycleError() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testXMLCycleError");
+        Object returns = BRunUtil.invoke(compileResult, "testXMLCycleError");
         BArray results = (BArray) returns;
         assertEquals(results.get(0).toString(),
                 "error(\"{ballerina/lang.xml}XMLOperationError\",message=\"Failed to set children to xml element: " +
@@ -239,19 +239,19 @@ public class LangLibXMLTest {
 
     @Test
     public void testXMLCycleDueToChildrenOfChildren() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
+        Object returns = BRunUtil.invoke(compileResult, "testXMLCycleDueToChildrenOfChildren");
         assertEquals(returns.toString(), "error(\"{ballerina/lang.xml}XMLOperationError\",message=\"Failed to set " +
                 "children to xml element: Cycle detected\")");
     }
 
     @Test
     public void testXMLStrip() {
-        JvmRunUtil.invoke(compileResult, "testXMLStrip");
+        BRunUtil.invoke(compileResult, "testXMLStrip");
     }
 
     @Test
     public void testGet() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGet");
+        Object returns = BRunUtil.invoke(compileResult, "testGet");
         assertEquals(returns.toString(),
                 "[`<elem/>`,error(\"xml sequence index out of range. Length: '1' requested: '3'\"),`<!--Comment " +
                         "content-->`,`<?PITarget VAL-0?>`,error(\"xml sequence index out of range. Length: '3' " +
@@ -260,7 +260,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testAsyncFpArgsWithXmls() {
-        Object results = JvmRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
+        Object results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
         BArray arr = (BArray) results;
         assertTrue(arr.get(0) instanceof Long);
         assertTrue(arr.get(1) instanceof BXml);
@@ -271,72 +271,72 @@ public class LangLibXMLTest {
     }
 
     public void testChildren() {
-        JvmRunUtil.invoke(compileResult, "testChildren");
+        BRunUtil.invoke(compileResult, "testChildren");
     }
 
     @Test
     public void testElements() {
-        JvmRunUtil.invoke(compileResult, "testElements");
+        BRunUtil.invoke(compileResult, "testElements");
     }
 
     @Test
     public void testElementsNS()  {
-        JvmRunUtil.invoke(compileResult, "testElementsNS");
+        BRunUtil.invoke(compileResult, "testElementsNS");
     }
 
     @Test
     public void testElementChildren() {
-        JvmRunUtil.invoke(compileResult, "testElementChildren");
+        BRunUtil.invoke(compileResult, "testElementChildren");
     }
 
     @Test
     public void testElementChildrenNS()  {
-        JvmRunUtil.invoke(compileResult, "testElementChildrenNS");
+        BRunUtil.invoke(compileResult, "testElementChildrenNS");
     }
 
     @Test
     public void testSelectingTextFromXml() {
-        JvmRunUtil.invoke(compileResult, "testSelectingTextFromXml");
+        BRunUtil.invoke(compileResult, "testSelectingTextFromXml");
     }
 
     @Test
     public void testXmlFilter() {
-        JvmRunUtil.invoke(compileResult, "testXmlFilter");
+        BRunUtil.invoke(compileResult, "testXmlFilter");
     }
 
     @Test
     public void testGetDescendants() {
-        JvmRunUtil.invoke(compileResult, "testGetDescendants");
+        BRunUtil.invoke(compileResult, "testGetDescendants");
     }
 
     @Test
     public void testData() {
-        JvmRunUtil.invoke(compileResult, "testData");
+        BRunUtil.invoke(compileResult, "testData");
     }
 
     @Test
     public void fromStringTest() {
-        JvmRunUtil.invoke(compileResult, "fromStringTest");
+        BRunUtil.invoke(compileResult, "fromStringTest");
     }
 
     @Test
     public void testXmlSubtypeFillerValue() {
-        JvmRunUtil.invoke(compileResult, "testXmlSubtypeFillerValue");
+        BRunUtil.invoke(compileResult, "testXmlSubtypeFillerValue");
     }
 
     @Test
     public void testXmlIteratorNextValue() {
-        JvmRunUtil.invoke(compileResult, "testXmlIteratorNextInvocations");
+        BRunUtil.invoke(compileResult, "testXmlIteratorNextInvocations");
     }
 
     @Test
     public void testNamespaces() {
-        JvmRunUtil.invoke(compileResult, "testNamespaces");
+        BRunUtil.invoke(compileResult, "testNamespaces");
     }
 
     @Test
     public void testSetChildrenFunction() {
-        JvmRunUtil.invoke(compileResult, "testSetChildrenFunction");
+        BRunUtil.invoke(compileResult, "testSetChildrenFunction");
     }
 
     @Test
@@ -369,7 +369,7 @@ public class LangLibXMLTest {
 
     @Test(dataProvider = "ConstraintTestFunctionList")
     public void testXMLConstrained(String functionName) {
-        JvmRunUtil.invoke(constrainedTest, functionName);
+        BRunUtil.invoke(constrainedTest, functionName);
     }
 
     @DataProvider(name = "ConstraintTestFunctionList")
@@ -390,7 +390,7 @@ public class LangLibXMLTest {
                     "'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
                     "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<lang\\.xml:Comment\\>.*")
     public void xmlConstraintRuntimeCastInvalid() {
-        JvmRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastInvalid");
+        BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastInvalid");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -399,14 +399,14 @@ public class LangLibXMLTest {
                     "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Text\\)" +
                     "\\>'.*")
     public void xmlConstraintRuntimeCastUnionInvalid() {
-        JvmRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastUnionInvalid");
+        BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastUnionInvalid");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
                     "'lang\\.xml:Comment' cannot be cast to 'xml\\<lang\\.xml:Element\\>'.*")
     public void xmlElementToConstraintClassInvalid() {
-        JvmRunUtil.invoke(constrainedTest, "xmlElementToConstraintClassInvalid");
+        BRunUtil.invoke(constrainedTest, "xmlElementToConstraintClassInvalid");
     }
 
     @Test

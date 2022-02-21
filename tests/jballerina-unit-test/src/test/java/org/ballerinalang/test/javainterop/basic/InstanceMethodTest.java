@@ -27,7 +27,7 @@ import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -56,7 +56,7 @@ public class InstanceMethodTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
 
-        Object returns = JvmRunUtil.invoke(result, "testAcceptNothingAndReturnNothing", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing", args);
 
         Assert.assertNull(returns);
         Assert.assertEquals(testIns.getCounter(), new Integer(1));
@@ -68,13 +68,13 @@ public class InstanceMethodTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
 
-        Object returns = JvmRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrows", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrows", args);
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(getType(returns) instanceof BErrorType);
         Assert.assertEquals(((BError) returns).getMessage(), "java.lang.InterruptedException");
 
-        returns = JvmRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrowsReturn", args);
+        returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrowsReturn", args);
         Assert.assertNull(returns);
     }
 
@@ -84,11 +84,11 @@ public class InstanceMethodTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
 
-        Object returns = JvmRunUtil.invoke(result, "testHandleOrErrorReturn", args);
+        Object returns = BRunUtil.invoke(result, "testHandleOrErrorReturn", args);
         Assert.assertTrue(getType(returns) instanceof BHandleType);
         Assert.assertEquals(((HandleValue) returns).getValue(), 70);
 
-        returns = JvmRunUtil.invoke(result, "testHandleOrErrorReturnThrows", args);
+        returns = BRunUtil.invoke(result, "testHandleOrErrorReturnThrows", args);
         Assert.assertNotNull(returns);
         Assert.assertEquals(getType(returns).getName(), "error");
         Assert.assertEquals(((BError) returns).getMessage(), "java.lang.InterruptedException");
@@ -100,12 +100,12 @@ public class InstanceMethodTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
 
-        Object returns = JvmRunUtil.invoke(result, "handleOrErrorWithObjectReturn", args);
+        Object returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturn", args);
 
         Object value = ((HandleValue) returns).getValue();
         Assert.assertEquals((int) value, 70);
 
-        returns = JvmRunUtil.invoke(result, "handleOrErrorWithObjectReturnThrows", args);
+        returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturnThrows", args);
 
         Assert.assertNotNull(returns);
         Assert.assertEquals(getType(returns).getName(), "error");
@@ -118,12 +118,12 @@ public class InstanceMethodTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
 
-        Object returns = JvmRunUtil.invoke(result, "testPrimitiveOrErrorReturn", args);
+        Object returns = BRunUtil.invoke(result, "testPrimitiveOrErrorReturn", args);
 
         Assert.assertEquals(getType(returns).getName(), "float");
         Assert.assertEquals(returns, 55.0);
 
-        returns = JvmRunUtil.invoke(result, "testPrimitiveOrErrorReturnThrows", args);
+        returns = BRunUtil.invoke(result, "testPrimitiveOrErrorReturnThrows", args);
 
         Assert.assertNotNull(returns);
         Assert.assertEquals(getType(returns).getName(), "error");
@@ -136,18 +136,18 @@ public class InstanceMethodTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
 
-        Object returns = JvmRunUtil.invoke(result, "testUnionWithErrorReturnByte", args);
+        Object returns = BRunUtil.invoke(result, "testUnionWithErrorReturnByte", args);
 
         Assert.assertEquals(getType(returns).getName(), "byte");
         Assert.assertEquals(((Integer) returns).byteValue(), (byte) '5');
 
-        returns = JvmRunUtil.invoke(result, "testUnionWithErrorReturnThrows", args);
+        returns = BRunUtil.invoke(result, "testUnionWithErrorReturnThrows", args);
 
         Assert.assertNotNull(returns);
         Assert.assertEquals(getType(returns).getName(), "error");
         Assert.assertEquals(((BError) returns).getMessage(), "java.lang.InterruptedException");
 
-        returns = JvmRunUtil.invoke(result, "testUnionWithErrorReturnHandle", args);
+        returns = BRunUtil.invoke(result, "testUnionWithErrorReturnHandle", args);
 
         Assert.assertNotNull(returns);
         Assert.assertEquals(getType(returns).getName(), "handle");
@@ -159,7 +159,7 @@ public class InstanceMethodTest {
         InstanceMethods testIns = new InstanceMethods();
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
-        Object returns = JvmRunUtil.invoke(result, "testInteropFunctionWithDifferentName", args);
+        Object returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName", args);
 
         Assert.assertNull(returns);
         Assert.assertEquals(testIns.getCounter(), new Integer(1));
@@ -171,7 +171,7 @@ public class InstanceMethodTest {
         testIns.setCounterValue(21);
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
-        Object returns = JvmRunUtil.invoke(result, "testAcceptNothingButReturnSomething", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptNothingButReturnSomething", args);
 
         Assert.assertEquals(((HandleValue) returns).getValue(), 21);
     }
@@ -182,7 +182,7 @@ public class InstanceMethodTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue(testIns);
         args[1] = new HandleValue(22);
-        Object returns = JvmRunUtil.invoke(result, "testAcceptSomethingButReturnNothing", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptSomethingButReturnNothing", args);
 
         Assert.assertNull(returns);
         Assert.assertEquals(testIns.getCounter(), new Integer(22));
@@ -194,7 +194,7 @@ public class InstanceMethodTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue(testIns);
         args[1] = new HandleValue(25);
-        Object returns = JvmRunUtil.invoke(result, "testAcceptSomethingAndReturnSomething", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptSomethingAndReturnSomething", args);
 
         Assert.assertEquals(((HandleValue) returns).getValue(), 25);
     }
@@ -206,7 +206,7 @@ public class InstanceMethodTest {
         args[0] = new HandleValue(testIns);
         args[1] = new HandleValue(20);
         args[2] = new HandleValue(30);
-        Object returns = JvmRunUtil.invoke(result, "testAcceptTwoParamsAndReturnSomething", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptTwoParamsAndReturnSomething", args);
 
         Assert.assertEquals(((HandleValue) returns).getValue(), 50);
     }
@@ -217,7 +217,7 @@ public class InstanceMethodTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
 
-        Object returns = JvmRunUtil.invoke(result, "errorDetail", args);
+        Object returns = BRunUtil.invoke(result, "errorDetail", args);
 
         Assert.assertEquals(getType(returns).getName(), "error");
         Assert.assertEquals(((BError) returns).getMessage(),
@@ -238,7 +238,7 @@ public class InstanceMethodTest {
         args[0] = new HandleValue(testIns);
 
         try {
-            JvmRunUtil.invoke(result, "uncheckedErrorDetail", args);
+            BRunUtil.invoke(result, "uncheckedErrorDetail", args);
             Assert.fail("Unchecked exception not thrown");
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("error: java.lang.RuntimeException"));
@@ -251,7 +251,7 @@ public class InstanceMethodTest {
     @Test(description = "When instance and static methods have the same name resolve instance method based on the " +
             "parameter type")
     public void testInstanceResolve() {
-        JvmRunUtil.invoke(result, "testInstanceResolve");
+        BRunUtil.invoke(result, "testInstanceResolve");
     }
 
     @Test
@@ -259,7 +259,7 @@ public class InstanceMethodTest {
         InstanceMethods testIns = new InstanceMethods();
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
-        JvmRunUtil.invoke(result, "testGetCurrentModule", args);
+        BRunUtil.invoke(result, "testGetCurrentModule", args);
     }
 
     @Test(dataProvider = "unionWithErrorTestFunctions")
@@ -267,7 +267,7 @@ public class InstanceMethodTest {
         InstanceMethods testIns = new InstanceMethods();
         Object[] args = new Object[1];
         args[0] = new HandleValue(testIns);
-        JvmRunUtil.invoke(result, function, args);
+        BRunUtil.invoke(result, function, args);
     }
 
     @DataProvider(name = "unionWithErrorTestFunctions")

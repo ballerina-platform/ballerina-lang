@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.primitivetypes;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,21 +45,21 @@ public class PrimitiveConversionInFunctionReturnsTest {
         Long receiver = 10L;
         Object[] args = new Object[1];
         args[0] = new HandleValue(receiver);
-        Object returns = JvmRunUtil.invoke(result, "testReturningBIntJByte", args);
+        Object returns = BRunUtil.invoke(result, "testReturningBIntJByte", args);
         
         Assert.assertEquals(((Long) returns).byteValue(), receiver.byteValue());
 
-        returns = JvmRunUtil.invoke(result, "testReturningBIntJShort", args);
+        returns = BRunUtil.invoke(result, "testReturningBIntJShort", args);
         
         Assert.assertEquals(((Long) returns).shortValue(), receiver.shortValue());
 
-        returns = JvmRunUtil.invoke(result, "testReturningBIntJInt", args);
+        returns = BRunUtil.invoke(result, "testReturningBIntJInt", args);
         
         Assert.assertEquals(((Long) returns).intValue(), receiver.intValue());
 
         Character charValue = (char) 68;
         args[0] = new HandleValue(charValue);
-        returns = JvmRunUtil.invoke(result, "testReturningBIntJChar", args);
+        returns = BRunUtil.invoke(result, "testReturningBIntJChar", args);
 
         Assert.assertEquals(((char) ((long) returns)), charValue + 3);
     }
@@ -69,25 +69,25 @@ public class PrimitiveConversionInFunctionReturnsTest {
         Double receiver = 4d;
         Object[] args = new Object[1];
         args[0] = new HandleValue(receiver);
-        Object returns = JvmRunUtil.invoke(result, "testReturningBFloatJByte", args);
+        Object returns = BRunUtil.invoke(result, "testReturningBFloatJByte", args);
         
         Assert.assertEquals(returns, receiver);
 
-        returns = JvmRunUtil.invoke(result, "testReturningBFloatJShort", args);
+        returns = BRunUtil.invoke(result, "testReturningBFloatJShort", args);
 
         Assert.assertEquals(((Double) returns).shortValue(), receiver.shortValue());
 
-        returns = JvmRunUtil.invoke(result, "testReturningBFloatJInt", args);
+        returns = BRunUtil.invoke(result, "testReturningBFloatJInt", args);
         
         Assert.assertEquals(returns, receiver);
 
-        returns = JvmRunUtil.invoke(result, "testReturningBFloatJFloat", args);
+        returns = BRunUtil.invoke(result, "testReturningBFloatJFloat", args);
         
         Assert.assertEquals(returns, receiver);
 
         Character charValue = (char) 68;
         args[0] = new HandleValue(charValue);
-        returns = JvmRunUtil.invoke(result, "testReturningBFloatJChar", args);
+        returns = BRunUtil.invoke(result, "testReturningBFloatJChar", args);
 
         Assert.assertEquals(((char) ((double) returns)), charValue.charValue());
     }

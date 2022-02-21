@@ -20,7 +20,7 @@ package org.ballerinalang.test.record;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +40,7 @@ public class AnonymousClosedRecordTest {
 
     @Test(description = "Test Anonymous record in a function parameter declaration")
     public void testAnonStructAsFuncParam() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonStructAsFuncParam");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonStructAsFuncParam");
 
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 24L);
@@ -48,7 +48,7 @@ public class AnonymousClosedRecordTest {
 
     @Test(description = "Test Anonymous record in a local variable declaration")
     public void testAnonStructAsLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonStructAsLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonStructAsLocalVar");
 
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 11L);
@@ -56,7 +56,7 @@ public class AnonymousClosedRecordTest {
 
     @Test(description = "Test Anonymous record in a package variable declaration")
     public void testAnonStructAsPkgVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonStructAsPkgVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonStructAsPkgVar");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "sameera:jayasoma:100");
@@ -64,7 +64,7 @@ public class AnonymousClosedRecordTest {
 
     @Test(description = "Test Anonymous record in a record field")
     public void testAnonStructAsStructField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonStructAsStructField");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonStructAsStructField");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "JAN:12 Gemba St APT 134:CA:sam");
@@ -72,7 +72,7 @@ public class AnonymousClosedRecordTest {
 
     @Test(description = "Test Anonymous record with referenced type")
     public void anonymousRecordWithTypeInclusion() {
-        JvmRunUtil.invoke(compileResult, "anonymousRecordWithTypeInclusion");
+        BRunUtil.invoke(compileResult, "anonymousRecordWithTypeInclusion");
     }
 
     @AfterClass

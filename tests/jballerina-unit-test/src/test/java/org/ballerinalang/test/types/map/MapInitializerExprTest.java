@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class MapInitializerExprTest {
     @Test(description = "Test map initializer expression")
     public void testMapInitExpr() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "mapInitTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "mapInitTest", args);
 
         Assert.assertTrue(returns instanceof BMap);
 
@@ -65,7 +65,7 @@ public class MapInitializerExprTest {
 
     @Test
     public void testNestedMapInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNestedMapInit", new Object[]{});
+        Object returns = BRunUtil.invoke(compileResult, "testNestedMapInit", new Object[]{});
 
         Assert.assertTrue(returns instanceof BMap<?, ?>);
         BMap<String, Object> outerMap = (BMap<String, Object>) returns;
@@ -78,7 +78,7 @@ public class MapInitializerExprTest {
 
     @Test
     public void testMapInitWithJson() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMapInitWithJson", new Object[]{});
+        Object returns = BRunUtil.invoke(compileResult, "testMapInitWithJson", new Object[]{});
 
         Assert.assertTrue(returns instanceof BMap<?, ?>);
         BMap<String, Object> outerMap = (BMap<String, Object>) returns;
@@ -91,7 +91,7 @@ public class MapInitializerExprTest {
 
     @Test
     public void testComplexMapInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexMapInit", new Object[]{});
+        Object returns = BRunUtil.invoke(compileResult, "testComplexMapInit", new Object[]{});
 
         Assert.assertTrue(returns instanceof BMap<?, ?>);
         BMap<String, Object> outerMap = (BMap<String, Object>) returns;
@@ -123,7 +123,7 @@ public class MapInitializerExprTest {
     @Test()
     public void testMapInitWithPackageVars() {
         CompileResult result = BCompileUtil.compile("test-src/types/map/MapAccessProject");
-        Object returns = JvmRunUtil.invoke(result, "testMapInitWithPackageVars");
+        Object returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
 
         Assert.assertTrue(returns instanceof BMap);
 
@@ -136,7 +136,7 @@ public class MapInitializerExprTest {
     @Test
     public void testMapInitWithStringTemplateAsKey() {
         CompileResult result = BCompileUtil.compile("test-src/types/map/map-initializer-with-string-template.bal");
-        Object returns = JvmRunUtil.invoke(result, "testMapInitWithStringTemplateAsKey");
+        Object returns = BRunUtil.invoke(result, "testMapInitWithStringTemplateAsKey");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, BString> mapValue = (BMap<String, BString>) returns;
         Assert.assertEquals(mapValue.get(StringUtils.fromString("firstname")).toString(), "John");
@@ -145,7 +145,7 @@ public class MapInitializerExprTest {
     @Test(description = "Test map initializer expression")
     public void mapInitWithIdentifiersTest() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "mapInitWithIdentifiersTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "mapInitWithIdentifiersTest", args);
 
         Assert.assertTrue(returns instanceof BMap);
 
@@ -159,7 +159,7 @@ public class MapInitializerExprTest {
 
     @Test
     public void testEmptyMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEmptyMap", new Object[]{});
+        Object returns = BRunUtil.invoke(compileResult, "testEmptyMap", new Object[]{});
 
         Assert.assertTrue(returns instanceof BMap<?, ?>, "empty map initialization with {}");
         Assert.assertEquals(((BMap) returns).size(), 0, "incorrect empty map size");
@@ -167,10 +167,10 @@ public class MapInitializerExprTest {
 
     @Test
     public void testExpressionsAsKeys() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsKeys");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsKeys");
         Assert.assertTrue((Boolean) returns);
 
-        returns = JvmRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
+        returns = BRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
         Assert.assertTrue((Boolean) returns);
     }
 

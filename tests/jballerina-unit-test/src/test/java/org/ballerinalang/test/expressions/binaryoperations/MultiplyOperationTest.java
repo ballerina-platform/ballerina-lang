@@ -20,7 +20,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -43,7 +43,7 @@ public class MultiplyOperationTest {
     @Test(description = "Test two int multiply expression")
     public void testIntMultiplyExpr() {
         Object[] args = { (4611686018427387904L), (-2L) };
-        Object returns = JvmRunUtil.invoke(result, "intMultiply", args);
+        Object returns = BRunUtil.invoke(result, "intMultiply", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -56,13 +56,13 @@ public class MultiplyOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByMultiplication() {
-        JvmRunUtil.invoke(result, "overflowByMultiplication");
+        BRunUtil.invoke(result, "overflowByMultiplication");
     }
 
     @Test(description = "Test two float multiply expression")
     public void testFloatMultiplyExpr() {
         Object[] args = { (40.0f), (40.0f) };
-        Object returns = JvmRunUtil.invoke(result, "floatMultiply", args);
+        Object returns = BRunUtil.invoke(result, "floatMultiply", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -73,7 +73,7 @@ public class MultiplyOperationTest {
 
     @Test(dataProvider = "dataToTestMultiplicationWithTypes", description = "Test multiplication with types")
     public void testMultiplicationWithTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
@@ -86,7 +86,7 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test contextually expected type of numeric literals in multiplication")
     public void testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
-        JvmRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInMultiply");
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInMultiply");
     }
 
     @Test(description = "Test binary statement with errors")
@@ -109,6 +109,6 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test multiplication of nullable values")
     public void testMultiplyNullable() {
-        JvmRunUtil.invoke(result, "testMultiplyNullable");
+        BRunUtil.invoke(result, "testMultiplyNullable");
     }
 }

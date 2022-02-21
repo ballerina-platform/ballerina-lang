@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.types.BErrorType;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -150,7 +150,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampRecordToXML() {
 
-        Object results = JvmRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToXML");
+        Object results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToXML");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -163,7 +163,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampOpenRecordToClosedRecord() {
 
-        Object results = JvmRunUtil.invoke(recordNegativeTestCompileResult, "stampOpenRecordToClosedRecord");
+        Object results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampOpenRecordToClosedRecord");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -176,7 +176,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampClosedRecordToClosedRecord() {
 
-        Object results = JvmRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToClosedRecord");
+        Object results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToClosedRecord");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -189,7 +189,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampClosedRecordToMap() {
 
-        Object results = JvmRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToMap");
+        Object results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToMap");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -202,7 +202,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampRecordToArray() {
 
-        Object results = JvmRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToArray");
+        Object results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToArray");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -214,7 +214,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampRecordToTuple() {
 
-        Object results = JvmRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToTuple");
+        Object results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToTuple");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -228,7 +228,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampJSONToXML() {
 
-        Object results = JvmRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToXML");
+        Object results = BRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToXML");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -241,7 +241,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampJSONToTuple() {
 
-        Object results = JvmRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToTuple");
+        Object results = BRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToTuple");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -255,7 +255,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampXMLToRecord() {
 
-        Object results = JvmRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToRecord");
+        Object results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToRecord");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -267,7 +267,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampXMLToJson() {
 
-        Object results = JvmRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToJson");
+        Object results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToJson");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -279,7 +279,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampXMLToMap() {
 
-        Object results = JvmRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToMap");
+        Object results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToMap");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -291,7 +291,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampXMLToArray() {
 
-        Object results = JvmRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToArray");
+        Object results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToArray");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -303,7 +303,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampXMLToTuple() {
 
-        Object results = JvmRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToTuple");
+        Object results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToTuple");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -317,7 +317,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampMapToXML() {
 
-        Object results = JvmRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToXML");
+        Object results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToXML");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -330,7 +330,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampMapToArray() {
 
-        Object results = JvmRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToArray");
+        Object results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToArray");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -342,7 +342,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampMapToTuple() {
 
-        Object results = JvmRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToTuple");
+        Object results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToTuple");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -356,7 +356,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampAnyArrayToRecord() {
 
-        Object results = JvmRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToRecord");
+        Object results = BRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToRecord");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results).getDetails()).get(
@@ -367,7 +367,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampAnyArrayToXML() {
 
-        Object results = JvmRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToXML");
+        Object results = BRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToXML");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -382,7 +382,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampTupleToRecord() {
 
-        Object results = JvmRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToRecord");
+        Object results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToRecord");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -394,7 +394,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampTupleToXML() {
 
-        Object results = JvmRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToXML");
+        Object results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToXML");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -407,7 +407,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampTupleToMap() {
 
-        Object results = JvmRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToMap");
+        Object results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToMap");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -421,7 +421,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void stampUnionToXML() {
 
-        Object results = JvmRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToXML");
+        Object results = BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToXML");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(
@@ -434,7 +434,7 @@ public class StampInbuiltFunctionNegativeTest {
     public void stampUnionToConstraintMapToUnionNegative() {
 
         Object results =
-                JvmRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToConstraintMapToUnionNegative");
+                BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToConstraintMapToUnionNegative");
         Object error = results;
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
         Assert.assertEquals(

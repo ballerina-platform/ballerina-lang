@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.any;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,7 +33,7 @@ public class BAnyTypeInvalidCastError {
         CompileResult resultNegative = BCompileUtil.compile("test-src/types/any/any-type-cast-negative.bal");
 
         Assert.assertEquals(resultNegative.getErrorCount(), 0);
-        Object returns = JvmRunUtil.invoke(resultNegative, "invalidCastingError", new Object[]{});
+        Object returns = BRunUtil.invoke(resultNegative, "invalidCastingError", new Object[]{});
         Assert.assertEquals(returns.toString(), "error(\"{ballerina}TypeCastError\",message=\"incompatible types: " +
                 "'string' cannot be cast to 'float'\")");
     }

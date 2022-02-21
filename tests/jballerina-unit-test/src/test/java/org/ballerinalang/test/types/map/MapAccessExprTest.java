@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map access expression")
     public void testMapAccessExpr() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compileResult, "mapAccessTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "mapAccessTest", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -62,7 +62,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map access through var keyword")
     public void testAccessThroughVar() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testAccessThroughVar", args);
+        Object returns = BRunUtil.invoke(compileResult, "testAccessThroughVar", args);
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -74,7 +74,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
         Object[] args = {StringUtils.fromString("Chanaka"), StringUtils.fromString("Fernando")};
-        Object returns = JvmRunUtil.invoke(compileResult, "mapReturnTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "mapReturnTest", args);
 
         Assert.assertTrue(returns instanceof  BMap);
 
@@ -98,7 +98,7 @@ public class MapAccessExprTest {
     @Test(description = "Test array access expression as the index of a map")
     public void testArrayAccessAsIndexOfMapt() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testArrayAccessAsIndexOfMapt", args);
+        Object returns = BRunUtil.invoke(compileResult, "testArrayAccessAsIndexOfMapt", args);
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -108,7 +108,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map clear.")
     public void testMapRemoveAll() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testMapRemoveAll", args);
+        Object returns = BRunUtil.invoke(compileResult, "testMapRemoveAll", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -118,7 +118,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map has key positive.")
     public void testHasKeyPositive() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testHasKeyPositive", args);
+        Object returns = BRunUtil.invoke(compileResult, "testHasKeyPositive", args);
 
         Assert.assertSame(returns.getClass(), Boolean.class);
 
@@ -128,7 +128,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map has key negative.")
     public void testHasKeyNegative() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testHasKeyNegative", args);
+        Object returns = BRunUtil.invoke(compileResult, "testHasKeyNegative", args);
 
         Assert.assertSame(returns.getClass(), Boolean.class);
 
@@ -138,7 +138,7 @@ public class MapAccessExprTest {
     @Test(description = "Test get map values.")
     public void testGetMapValues() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testGetMapValues", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testGetMapValues", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -173,7 +173,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map remove key positive.")
     public void testMapRemovePositive() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testMapRemovePositive", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMapRemovePositive", args);
 
         Assert.assertEquals(returns.size(), 3);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
@@ -189,36 +189,36 @@ public class MapAccessExprTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key 'fname2'.*")
     public void testMapRemoveNegative() {
-        JvmRunUtil.invoke(compileResult, "testMapRemoveNegative");
+        BRunUtil.invoke(compileResult, "testMapRemoveNegative");
     }
 
     @Test(description = "Test removeIfHasKey if key exists.")
     public void testRemoveIfHasKeyPositive1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive1");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive1");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test removeIfHasKey if key does not exist.")
     public void testRemoveIfHasKeyNegative1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative1");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative1");
         Assert.assertFalse((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test removeIfHasKey if key exists.")
     public void testRemoveIfHasKeyPositive2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive2");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive2");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test removeIfHasKey if key does not exist.")
     public void testRemoveIfHasKeyNegative2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative2");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative2");
         Assert.assertFalse((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test to check toString for map of maps.")
     public void testMapToString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMapToString");
+        Object returns = BRunUtil.invoke(compileResult, "testMapToString");
         BString value = (BString) returns;
         Assert.assertEquals(value.toString(), "typedesc map<map<json>>");
     }

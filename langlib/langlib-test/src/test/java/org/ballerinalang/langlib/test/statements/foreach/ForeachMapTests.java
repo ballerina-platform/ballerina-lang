@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ public class ForeachMapTests {
     public void testMapWithArityOne() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(value).append(" "));
-        Object returns = JvmRunUtil.invoke(program, "testMapWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testMapWithArityOne");
         Assert.assertEquals(returns.toString(), sb.toString());
     }
 
@@ -58,14 +58,14 @@ public class ForeachMapTests {
     public void testMapWithArityTwo() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(value).append(" "));
-        Object returns = JvmRunUtil.invoke(program, "testMapWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testMapWithArityTwo");
         Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testDeleteWhileIteration() {
         String result = "1A 2B ";
-        Object returns = JvmRunUtil.invoke(program, "testDeleteWhileIteration");
+        Object returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.toString(), result);
     }
 
@@ -74,12 +74,12 @@ public class ForeachMapTests {
         String result = "1A 1A 2B 3C 1A1A \n" +
                         "2B 1A 2B 3C 1A1A 2B2B \n" +
                         "3C 1A 2B 3C 1A1A 2B2B 3C3C \n";
-        Object returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
+        Object returns = BRunUtil.invoke(program, "testAddWhileIteration");
         Assert.assertEquals(returns.toString(), result);
     }
 
     @Test
     public void testWildcardBindingPatternInForeachStatement() {
-        JvmRunUtil.invoke(program, "testWildcardBindingPatternInForeachStatement");
+        BRunUtil.invoke(program, "testWildcardBindingPatternInForeachStatement");
     }
 }

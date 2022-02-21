@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class MultipleLetClauseTest {
 
     @Test(description = "Test multiple let clauses in single line - simple variable definition statement ")
     public void testLetClauseWithSimpleVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable1");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable1");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
@@ -57,7 +57,7 @@ public class MultipleLetClauseTest {
 
     @Test(description = "Test multiple let clauses in multiple lines - simple variable definition statement ")
     public void testMultipleLetClausesWithSimpleVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable2");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
@@ -69,7 +69,7 @@ public class MultipleLetClauseTest {
 
     @Test(description = "Test multiple let clauses - record variable definition statement")
     public void testMultipleLetClausesWithRecordVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleLetClausesWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleLetClausesWithRecordVariable");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
@@ -81,7 +81,7 @@ public class MultipleLetClauseTest {
 
     @Test(description = "Reuse variables in let clause")
     public void testMultipleVarDeclReuseLetClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleVarDeclReuseLetClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleVarDeclReuseLetClause");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -99,12 +99,12 @@ public class MultipleLetClauseTest {
 
     @Test
     public void testQueryExpressionWithinLetClause() {
-        JvmRunUtil.invoke(result, "testQueryExpressionWithinLetClause");
+        BRunUtil.invoke(result, "testQueryExpressionWithinLetClause");
     }
 
     @Test
     public void testwildcardBindingPatternInLetClause() {
-        JvmRunUtil.invoke(result, "testwildcardBindingPatternInLetClause");
+        BRunUtil.invoke(result, "testwildcardBindingPatternInLetClause");
     }
 
     @AfterClass

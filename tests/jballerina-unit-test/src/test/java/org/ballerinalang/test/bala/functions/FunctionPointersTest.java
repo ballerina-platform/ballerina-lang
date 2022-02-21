@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -61,7 +61,7 @@ public class FunctionPointersTest {
     @Test
     public void testGlobalFP() {
         // testing function pointer.
-        Object returns = JvmRunUtil.invoke(result, "test1");
+        Object returns = BRunUtil.invoke(result, "test1");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "test1");
@@ -70,7 +70,7 @@ public class FunctionPointersTest {
     @Test
     public void testGlobalFPAsLambda() {
         // lambda.
-        Object returns = JvmRunUtil.invoke(result, "test2");
+        Object returns = BRunUtil.invoke(result, "test2");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "test2true");
@@ -79,7 +79,7 @@ public class FunctionPointersTest {
     @Test
     public void testGlobalFPAssignment() {
         // assign function pointer and invoke.
-        Object resultArr = JvmRunUtil.invoke(result, "test3");
+        Object resultArr = BRunUtil.invoke(result, "test3");
         BArray returns = (BArray) resultArr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 3);
@@ -94,7 +94,7 @@ public class FunctionPointersTest {
     @Test
     public void testGlobalFPWithLocalFP() {
         // Check global and local variable.
-        Object returns = JvmRunUtil.invoke(result, "test5");
+        Object returns = BRunUtil.invoke(result, "test5");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "falsetest5");
@@ -103,7 +103,7 @@ public class FunctionPointersTest {
     @Test
     public void testGlobalFPByAssigningLocalFP() {
         // assign local ref to global and invoke.
-        Object returns = JvmRunUtil.invoke(result, "test6");
+        Object returns = BRunUtil.invoke(result, "test6");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "truetest6");
@@ -112,6 +112,6 @@ public class FunctionPointersTest {
     @Test
     public void testAnyFunction() {
         // test any function type descriptor.
-        JvmRunUtil.invoke(result, "test7");
+        BRunUtil.invoke(result, "test7");
     }
 }

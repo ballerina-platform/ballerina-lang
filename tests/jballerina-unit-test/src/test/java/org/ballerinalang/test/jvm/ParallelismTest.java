@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +40,7 @@ public class ParallelismTest {
 
     @Test
     public void testOrdering() {
-        Object result = JvmRunUtil.invoke(compileResult, "orderingTest");
+        Object result = BRunUtil.invoke(compileResult, "orderingTest");
         Assert.assertEquals(result.toString(), "[\"child: end\",\"parent: end\"]");
     }
 
@@ -54,7 +54,7 @@ public class ParallelismTest {
         Object[] args = new Object[1];
         BArray arr = ValueCreator.createArrayValue(sample);
         args[0] = arr;
-        Object result = JvmRunUtil.invoke(compileResult, "testMergeSort", args);
+        Object result = BRunUtil.invoke(compileResult, "testMergeSort", args);
         Assert.assertTrue(result instanceof  BArray);
         Assert.assertEquals(result.toString(), "[1,2,3,4,5,6,7,8,9,10]");
     }

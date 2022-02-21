@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.stamp;
 import io.ballerina.runtime.internal.types.BXmlType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class XMLStampInbuiltFunctionTest {
     @Test
     public void testStampXMLToXML() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampXMLToXML");
+        Object results = BRunUtil.invoke(compileResult, "stampXMLToXML");
         Object xmlValue = results;
 
         Assert.assertEquals(xmlValue.toString(), "<book>The Lost World</book>");
@@ -57,7 +57,7 @@ public class XMLStampInbuiltFunctionTest {
     @Test
     public void testStampXMLToAnydata() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampXMLToAnydata");
+        Object results = BRunUtil.invoke(compileResult, "stampXMLToAnydata");
         Object anydataValue = results;
 
         Assert.assertEquals(anydataValue.toString(), "<book>The Lost World</book>");

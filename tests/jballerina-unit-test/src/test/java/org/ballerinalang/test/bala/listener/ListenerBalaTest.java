@@ -19,7 +19,7 @@ package org.ballerinalang.test.bala.listener;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,7 +39,7 @@ public class ListenerBalaTest {
 
     @Test(description = "Test access listener in different module")
     public void testBasicStructAsObject() {
-        final Object result = JvmRunUtil.invoke(compileResult, "getStartAndAttachCount");
+        final Object result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
         Assert.assertNotNull(result);
         Assert.assertEquals(result.toString(), "2_3");
     }

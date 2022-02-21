@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.util.BFileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +53,7 @@ public class XMLLiteralWithNamespacesTest {
     @Test
     public void testElementLiteralWithNamespaces() {
         BArray returns = (BArray)
-                JvmRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
+                BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(),
                 "<root xmlns=\"http://ballerina.com/\" " +
@@ -75,7 +75,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testElementWithQualifiedName() {
-        BArray returns = (BArray) JvmRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
+        BArray returns = (BArray) BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(), "<root>hello</root>");
 
@@ -90,7 +90,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testDefineInlineNamespace() {
-        Object returns = JvmRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<nsx:foo xmlns:nsx=\"http://wso2.com\" nsx:id=\"123\">hello</nsx:foo>");
@@ -99,7 +99,7 @@ public class XMLLiteralWithNamespacesTest {
     @Test
     public void testDefineInlineDefaultNamespace() {
         BArray returns = (BArray)
-                JvmRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
+                BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(),
                 "<foo xmlns=\"http://ballerina.com/default/namespace\" xmlns:nsx=\"http://wso2.com/aaa\">hello</foo>");
@@ -111,7 +111,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testUsingNamespcesOfParent() {
-        Object returns = JvmRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent");
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent");
         Assert.assertTrue(returns instanceof BXmlItem);
 
         Assert.assertEquals(returns.toString(),
@@ -120,7 +120,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test(enabled = false)
     public void testComplexXMLLiteral() throws IOException {
-        Object returns = JvmRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
         Assert.assertTrue(returns instanceof BXmlItem);
         Assert.assertEquals(returns.toString(), BFileUtil.readFileAsString(
                 "src/test/resources/test-src/types/xml/sampleXML.txt"));
@@ -128,7 +128,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testNamespaceDclr() {
-        BArray returns = (BArray) JvmRunUtil.invoke(literalWithNamespacesResult, "testNamespaceDclr");
+        BArray returns = (BArray) BRunUtil.invoke(literalWithNamespacesResult, "testNamespaceDclr");
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "{http://sample.com/wso2/a2}foo");
 
@@ -141,7 +141,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testInnerScopeNamespaceDclr() {
-        BArray returns = (BArray) JvmRunUtil.invoke(literalWithNamespacesResult, "testInnerScopeNamespaceDclr");
+        BArray returns = (BArray) BRunUtil.invoke(literalWithNamespacesResult, "testInnerScopeNamespaceDclr");
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "{http://ballerina.com/b}foo");
 
@@ -155,7 +155,7 @@ public class XMLLiteralWithNamespacesTest {
     @Test
     public void testPackageLevelXML() {
         CompileResult result = BCompileUtil.compile("test-src/types/xml/package_level_xml_literals.bal");
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testPackageLevelXML");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testPackageLevelXML");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(),
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
@@ -167,7 +167,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testObjectLevelXML() {
-        Object returns = JvmRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
@@ -175,7 +175,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void xmlWithDefaultNamespaceToString() {
-        Object returns = JvmRunUtil.invoke(literalWithNamespacesResult, "XMLWithDefaultNamespaceToString");
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "XMLWithDefaultNamespaceToString");
         Assert.assertEquals(returns.toString(),
                 "<Order xmlns=\"http://acme.company\" xmlns:acme=\"http://acme.company\">\n" +
                         "        <OrderLines>\n" +
@@ -188,7 +188,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXMLSerialize() {
-        Object returns = JvmRunUtil.invoke(literalWithNamespacesResult, "getXML");
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns instanceof BXml);
 
         XmlValue xmlItem = (XmlValue) XmlFactory.parse(returns.toString());
@@ -200,7 +200,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXmlLiteralUsingXmlNamespacePrefix() {
-        JvmRunUtil.invoke(literalWithNamespacesResult, "testXmlLiteralUsingXmlNamespacePrefix");
+        BRunUtil.invoke(literalWithNamespacesResult, "testXmlLiteralUsingXmlNamespacePrefix");
     }
 
     @Test
