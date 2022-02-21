@@ -22,8 +22,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.CreateFunctionNodeValidator;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -60,6 +60,14 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
+        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
+            return Collections.emptyList();
+        }
+
+        if (positionDetails.matchedNode() == null) {
+            return Collections.emptyList();
+        }
+
         Optional<FunctionCallExpressionNode> callExpr = 
                 checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
         if (callExpr.isEmpty()) {
@@ -94,21 +102,12 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public boolean validate(Diagnostic diagnostic,
-                            DiagBasedPositionDetails positionDetails,
-                            CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
-            return false;
-        }
-
-        if (positionDetails.matchedNode() == null) {
-            return false;
-        }
-        
-        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(), 
-                context.cursorPosition()), syntaxTree);
-        return CodeActionNodeValidator.validate(matchedNode);
+    public boolean validate(CodeActionContext ctx) {
+        SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
+        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(ctx.cursorPosition(), ctx.cursorPosition()), syntaxTree);
+        CreateFunctionNodeValidator nodeValidator = new CreateFunctionNodeValidator(matchedNode);
+        Boolean validSyntax = nodeValidator.validate(matchedNode);
+        return validSyntax;
     }
 
     /**

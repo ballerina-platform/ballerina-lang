@@ -78,6 +78,11 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
         return NAME;
     }
 
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
+
     private boolean isCloneReadonlyAvailable(TypeSymbol typeSymbol) {
         return typeSymbol.langLibMethods().stream()
                 .anyMatch(fSymbol -> fSymbol.getName().orElse("")
