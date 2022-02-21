@@ -199,15 +199,15 @@ function testIntOverflowWithSum() {
 function testIntNonOverflowWithSum() {
     int a1 = int:MIN_VALUE;
     int result = a1.sum();
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a2 = -9223372036854775807;
     result = int:sum(a2, -1);
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a3 = -9223372036854775805;
     result = a3.sum(-1, -2);
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a4 = int:MAX_VALUE;
     result = a4.sum();

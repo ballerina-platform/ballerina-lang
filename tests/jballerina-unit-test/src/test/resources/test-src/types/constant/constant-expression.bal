@@ -78,7 +78,6 @@ const int AND = 31 & 1;
 const int OR = 30 | 1;
 const int XOR = 3 ^ 1;
 
-const int WRAP_AROUND_1 = 1 << 63;
 const int WRAP_AROUND_0 = 1 << 62;
 const int WRAP_AROUND_2 = 1 << 64;
 const int WRAP_AROUND_3 = 1 << 65;
@@ -105,7 +104,6 @@ function testBitwiseConstExpressions() {
     assertEqual(XOR, 0x2);
 
     assertEqual(WRAP_AROUND_0, 0x4000000000000000);
-    assertEqual(WRAP_AROUND_1, -0x8000000000000000);
     assertEqual(WRAP_AROUND_2, 0x1);
     assertEqual(WRAP_AROUND_3, 0x2);
 

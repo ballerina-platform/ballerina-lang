@@ -274,9 +274,9 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 352, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 353, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 354, 24);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 355, 24);
-        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range", 356, 23);
-        BAssertUtil.validateError(result, err++, "'-9223372036854775809' is out of range", 357, 25);
+        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range", 355, 25);
+        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range", 356, 22);
+        BAssertUtil.validateError(result, err++, "'9223372036854775809' is out of range", 357, 24);
 
         Assert.assertEquals(result.getErrorCount(), err);
     }

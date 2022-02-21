@@ -174,8 +174,8 @@ public class BFloatValueTest {
         BAssertUtil.validateError(negativeResult, 5, "'99.9E-99999999' is out of range", 12, 27);
         BAssertUtil.validateError(negativeResult, 6, "'0x9999999p999999999999999999999999' is out of range", 15, 10);
         BAssertUtil.validateError(negativeResult, 7, "'0x9999999p-999999999999999999999999' is out of range", 17, 11);
-        BAssertUtil.validateError(negativeResult, 8, "'9999999999e9999999999999999999f' is out of range", 19, 10);
-        BAssertUtil.validateError(negativeResult, 9, "'9999999999e-9999999999999999999f' is out of range", 21, 11);
+        BAssertUtil.validateError(negativeResult, 8, "'9999999999e9999999999999999999' is out of range", 19, 10);
+        BAssertUtil.validateError(negativeResult, 9, "'9999999999e-9999999999999999999' is out of range", 21, 11);
         BAssertUtil.validateError(negativeResult, 10, "'0x999.9p999999999999999' is out of range", 23, 1);
         BAssertUtil.validateError(negativeResult, 11, "'0x999.9p999999999999999' is out of range", 23, 29);
     }

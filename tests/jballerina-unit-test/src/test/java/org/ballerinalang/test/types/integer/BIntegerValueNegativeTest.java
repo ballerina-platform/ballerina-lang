@@ -41,11 +41,11 @@ public class BIntegerValueNegativeTest {
         expectedError = "'9999999999999999999' is out of range";
         BAssertUtil.validateError(compileResult, index++, expectedError, 3, 13);
 
-        expectedError = "'-0xFFFFFFFFFFFFFFFF' is out of range";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 5, 13);
+        expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 5, 14);
 
-        expectedError = "'-9999999999999999999' is out of range";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
+        expectedError = "'9999999999999999999' is out of range";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 6, 14);
 
         expectedError = "missing semicolon token";
         BAssertUtil.validateError(compileResult, index++, expectedError, 12, 1);

@@ -4695,6 +4695,7 @@ public class TypeChecker extends BLangNodeVisitor {
         newNumericLiteral.setBType(exprInUnary.getBType());
         newNumericLiteral.value = objectValueInUnary;
         newNumericLiteral.originalValue = strValueInUnary;
+        newNumericLiteral.expectedType = exprInUnary.getBType();
 
         return newNumericLiteral;
     }
@@ -4755,11 +4756,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     referredType.tag == TypeTags.ANY) {
                 newExpectedType = BUnionType.create(null, symTable.intType, symTable.floatType,
                         symTable.decimalType);
-            } else {
-                dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                        expType, unaryExpr.expr);
-                resultType = symTable.semanticError;
             }
+//            else {
+//                dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+//                        expType, unaryExpr.expr);
+//                resultType = symTable.semanticError;
+//            }
         }
 
         newExpectedType = clonedExprChecker(unaryExpr.expr, newExpectedType);

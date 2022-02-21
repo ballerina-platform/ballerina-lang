@@ -7170,12 +7170,6 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        OperatorKind opKind = unaryExpr.operator;
-
-        if (opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) {
-            createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
-        }
-
         // Replacing unary expression with numeric literal
         if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && unaryExpr.expectedType.tag == TypeTags.FINITE) {
             BLangExpression exprInUnary = unaryExpr.expr;
@@ -7214,6 +7208,10 @@ public class Desugar extends BLangNodeVisitor {
 
             result = rewriteExpr(newNumericLiteral);
             return;
+        }
+        OperatorKind opKind = unaryExpr.operator;
+        if (opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) {
+            createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
         }
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
