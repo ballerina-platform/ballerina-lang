@@ -72,6 +72,18 @@ public class ObjectConstructorTest {
                 {"testClosureButAsArgument"},
                 {"testAttachedMethodClosuresMapFromFunctionBlock"},
                 {"testFunctionPointerAsFieldValue"},
+                {"testClosuresWithObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprAsFunctionDefaultParam"},
+                {"testClosuresWithObjectConstrExprInAnonFunc"},
+                {"testClosuresWithObjectConstrExprInObjectFunc"},
+                {"testClosuresWithObjectConstrExprInVarAssignment"},
+                {"testClosuresWithObjectConstrExprInReturnStmt"},
+                {"testClosuresWithClientObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprInClientObjectConstrExpr"},
+                {"testClosuresWithServiceObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprsInObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprAsArrayMember"},
+                {"testClosuresWithObjectConstrExprInEqaulityExpr"}
         };
     }
 
@@ -85,11 +97,29 @@ public class ObjectConstructorTest {
         BRunUtil.invoke(closures, funcName);
     }
 
-    @Test
-    public void testClosureSupportForObjectCtorAnnotations() {
-        BRunUtil.invoke(annotations, "testAnnotations");
-        BRunUtil.invoke(annotations, "testObjectConstructorAnnotationAttachment");
-        BRunUtil.invoke(annotations, "testAnnotsOfServiceObjectConstructorInReturnStmt");
+    @Test(dataProvider = "dataToTestClosuresWithObjectConstrExprWithAnnots")
+    public void testClosureSupportForObjectCtorAnnotations(String funcName) {
+        BRunUtil.invoke(annotations, funcName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestClosuresWithObjectConstrExprWithAnnots() {
+        return new Object[]{
+                "testAnnotations",
+                "testObjectConstructorAnnotationAttachment",
+                "testAnnotsOfServiceObjectConstructorInReturnStmt",
+                "testClosuresWithObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsAsFunctionDefaultParam",
+                "testClosuresWithObjectConstrExprWithAnnotsInAnonFunc",
+                "testClosuresWithObjectConstrExprWithAnnotsInObjectFunc",
+                "testClosuresWithObjectConstrExprWithAnnotsInVarAssignment",
+                "testClosuresWithObjectConstrExprWithAnnotsInReturnStmt",
+                "testClosuresWithClientObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsInClientObjectConstrExpr",
+                "testClosuresWithServiceObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsInObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsAsArrayMember"
+        };
     }
 
     @Test
@@ -162,6 +192,8 @@ public class ObjectConstructorTest {
                         "constructors which are fields", 18, 29);
         validateError(negativeResult, index++, "closure variable 'i' : closures not yet supported for object " +
                 "constructors which are fields", 49, 25);
+        validateError(negativeResult, index++, "closure variable 'a1' : closures not yet supported for object " +
+                "constructors which are fields", 72, 22);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

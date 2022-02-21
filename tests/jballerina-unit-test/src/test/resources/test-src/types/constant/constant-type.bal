@@ -31,7 +31,7 @@ type TYPE4 20;
 type TYPE5 false;
 type TYPE6 "CS";
 
-function testTypesOfConstants() {
+function testTypesOfSimpleConstants() {
     CI1 ci1 = 3;
     CI2 ci2 = 2;
     CF3 cf3 = 12.0;
@@ -193,6 +193,87 @@ function testTypesOfConstantMaps() {
     assertEqual(t13, {CN1 : {a : ()}});
     assertEqual(t14, {a : {e : "C", f : "S"}, b : {g : "C", h : "S"}, d : {i : "C", j : "S"}, e : {k : "C", l : "S"}});
     assertEqual(t15, {});
+}
+
+const A = 1;
+
+const map<int> B = {
+    a: A,
+    b: 2
+};
+
+const map<map<int>> C = {
+    a: B,
+    b: {
+        a: 3
+    }
+};
+
+function testConstTypesInline() {
+    1 _ = A; // OK
+    anydata a = A;
+    assertTrue(a is 1);
+    assertEqual(1, a);
+
+    readonly & record {| 1 a; 2 b; |} _ = B; // OK
+    anydata b = B;
+    assertTrue(b is readonly & record {| 1 a; 2 b; |});
+    assertEqual({a: 1, b: 2}, b);
+
+    readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |} _ = C; // OK
+    anydata c = C;
+    assertTrue(c is readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |});
+    assertEqual({a: {a: 1, b: 2}, b: {a: 3}}, c);
+}
+
+function testInvalidRuntimeUpdateOfConstMaps() {
+    map<int> a = B;
+
+    function () fn = function () {
+        a["a"] = 1;
+    };
+    error? res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+
+    record {| 1 a; 2 b; |} b = C.a;
+    fn = function () {
+        b.b = 2;
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+
+    map<map<int>> c = C;
+    fn = function () {
+        c["a"]["a"] = 2;
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+
+    fn = function () {
+        c["c"] = {};
+    };
+    res = trap fn();
+    // https://github.com/ballerina-platform/ballerina-lang/issues/34798
+    assertInvalidUpdateError(res, "invalid value for record field 'c': expected value of type 'never', found 'map<int>'");
+
+    fn = function () {
+        c["a"] = {a: 1, b: 2};
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type " +
+                                    "'record {| readonly (record {| 1 a; 2 b; |} & readonly & readonly) a; " +
+                                    "readonly (record {| 3 a; |} & readonly & readonly) b; |} & readonly'");
+}
+
+function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
+    assertTrue(res is error);
+    error err = <error> res;
+    assertEqual("{ballerina/lang.map}InherentTypeViolation", err.message());
+    assertEqual(expectedDetailMessage, <string> checkpanic err.detail()["message"]);
+}
+
+function assertTrue(anydata actual) {
+    assertEqual(true, actual);
 }
 
 function assertEqual(anydata expected, anydata actual) {
