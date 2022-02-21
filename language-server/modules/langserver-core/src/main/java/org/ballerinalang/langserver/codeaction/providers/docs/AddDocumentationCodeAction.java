@@ -89,4 +89,9 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
     public String getName() {
         return NAME;
     }
+
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
 }

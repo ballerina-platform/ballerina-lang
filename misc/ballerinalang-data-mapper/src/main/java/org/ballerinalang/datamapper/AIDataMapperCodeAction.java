@@ -66,6 +66,11 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */

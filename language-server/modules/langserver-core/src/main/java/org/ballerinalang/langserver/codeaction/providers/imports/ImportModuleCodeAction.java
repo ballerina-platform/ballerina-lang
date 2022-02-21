@@ -95,6 +95,11 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
+
     private static Position getImportPosition(CodeActionContext context) {
         // Calculate initial import insertion line
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();

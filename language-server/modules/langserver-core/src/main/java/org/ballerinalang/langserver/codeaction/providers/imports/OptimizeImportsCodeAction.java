@@ -153,6 +153,11 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
+
     private List<ImportDeclarationNode> sortImports(List<ImportDeclarationNode> fileImports) {
         return fileImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?

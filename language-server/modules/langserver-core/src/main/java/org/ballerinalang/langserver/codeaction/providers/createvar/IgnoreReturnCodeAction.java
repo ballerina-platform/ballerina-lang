@@ -79,6 +79,11 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
+
     private boolean hasErrorType(TypeSymbol typeSymbol) {
         if (typeSymbol.typeKind() == TypeDescKind.ERROR) {
             return true;

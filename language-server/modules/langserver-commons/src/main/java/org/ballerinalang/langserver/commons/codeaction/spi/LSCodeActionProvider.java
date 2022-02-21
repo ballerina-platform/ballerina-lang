@@ -97,4 +97,11 @@ public interface LSCodeActionProvider {
      * @return Name of the code action
      */
     String getName();
+
+    /**
+     * Checks whether the syntax is valid.
+     *
+     * @return True if syntactically correct, false otherwise.
+     */
+    boolean validate(CodeActionContext ctx);
 }

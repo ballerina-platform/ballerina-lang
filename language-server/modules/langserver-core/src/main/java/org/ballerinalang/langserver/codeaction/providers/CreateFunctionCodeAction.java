@@ -22,9 +22,11 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.CreateFunctionNodeValidator;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -98,6 +100,15 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
+        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(ctx.cursorPosition(), ctx.cursorPosition()), syntaxTree);
+        CreateFunctionNodeValidator nodeValidator = new CreateFunctionNodeValidator(matchedNode);
+        Boolean validSyntax = nodeValidator.validate(matchedNode);
+        return validSyntax;
     }
 
     /**

@@ -101,6 +101,11 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
+
     CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
                                                  TypeSymbol typeDescriptor, CodeActionContext context) {
         Symbol matchedSymbol = positionDetails.matchedSymbol();

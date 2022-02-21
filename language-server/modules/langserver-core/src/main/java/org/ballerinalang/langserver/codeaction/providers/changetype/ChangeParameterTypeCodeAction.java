@@ -134,6 +134,11 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
+    @Override
+    public boolean validate(CodeActionContext ctx) {
+        return true;
+    }
+
     private VariableDeclarationNode getVariableDeclarationNode(NonTerminalNode node) {
         while (node != null && node.kind() != SyntaxKind.LOCAL_VAR_DECL) {
             node = node.parent();
