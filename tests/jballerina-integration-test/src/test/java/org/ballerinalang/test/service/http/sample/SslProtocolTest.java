@@ -21,9 +21,9 @@ package org.ballerinalang.test.service.http.sample;
 import io.ballerina.runtime.api.values.BString;
 import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
