@@ -95,10 +95,9 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
                 TypeDescKind.DECIMAL);
 
         QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent().parent();
-        List<String> filteredSymbolNames = SortingUtil.getVisibleSymbolNamesWithinNodeAndCursor(context, queryExprNode);
 
         completionItems.forEach(lsCItem -> {
-            if (SortingUtil.isCompletionItemNameInList(lsCItem, filteredSymbolNames)) {
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
             } else if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {

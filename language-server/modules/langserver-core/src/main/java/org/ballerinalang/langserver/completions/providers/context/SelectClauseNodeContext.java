@@ -70,10 +70,9 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
     public void sort(BallerinaCompletionContext context, SelectClauseNode node, 
                      List<LSCompletionItem> completionItems) {
         QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent();
-        List<String> filteredSymbolNames = SortingUtil.getVisibleSymbolNamesWithinNodeAndCursor(context, queryExprNode);
 
         for (LSCompletionItem lsCItem : completionItems) {
-            if (SortingUtil.isCompletionItemNameInList(lsCItem, filteredSymbolNames)) {
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
             } else {
