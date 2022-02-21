@@ -3883,31 +3883,31 @@ public class Types {
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
         BType expType = getReferredType(targetType);
-        if (expType.tag == TypeTags.FINITE) {
-            return finiteType.getValueSpace().stream()
-                    .allMatch(expression -> isAssignableToFiniteType(expType, (BLangLiteral) expression));
-        }
-
-        if (targetType.tag == TypeTags.UNION) {
-            List<BType> unionMemberTypes = getAllTypes(targetType, true);
-            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-                if (unionMemberTypes.stream()
-                        .noneMatch(targetMemType ->
-                                getReferredType(targetMemType).tag == TypeTags.FINITE ?
-                                        isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                        isAssignable(valueExpr.getBType(), targetMemType, unresolvedTypes) ||
-                                                isLiteralCompatibleWithBuiltinTypeWithSubTypes(
-                                                        (BLangLiteral) valueExpr, targetMemType))) {
+        for (BLangExpression expression : finiteType.getValueSpace()) {
+            if (expType.tag != TypeTags.FINITE && expType.tag != TypeTags.UNION) {
+                if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
+                        !isAssignable(expression.getBType(), expType, unresolvedTypes)) {
                     return false;
                 }
             }
-            return true;
-        }
 
-        for (BLangExpression expression : finiteType.getValueSpace()) {
-            if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
-                    !isAssignable(expression.getBType(), expType, unresolvedTypes)) {
-                return false;
+            ((BLangLiteral) expression).isFiniteContext = true;
+            if (expType.tag == TypeTags.FINITE) {
+                boolean foundMember = isAssignableToFiniteType(expType, (BLangLiteral) expression);
+                if (!foundMember) {
+                    return false;
+                }
+            } else {
+                List<BType> unionMemberTypes = getAllTypes(targetType, true);
+                if (unionMemberTypes.stream()
+                        .noneMatch(targetMemType ->
+                                getReferredType(targetMemType).tag == TypeTags.FINITE ?
+                                        isAssignableToFiniteType(targetMemType, (BLangLiteral) expression) :
+                                        isAssignable(expression.getBType(), targetMemType, unresolvedTypes) ||
+                                                isLiteralCompatibleWithBuiltinTypeWithSubTypes(
+                                                        (BLangLiteral) expression, targetMemType))) {
+                    return false;
+                }
             }
         }
         return true;
@@ -4006,7 +4006,8 @@ public class Types {
                 }
                 double baseDoubleVal = Double.parseDouble(baseValueStr);
                 double candidateDoubleVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
+                        !candidateLiteral.isFiniteContext) {
                     candidateDoubleVal = ((Long) candidateValue).doubleValue();
                     return baseDoubleVal == candidateDoubleVal;
                 } else if (candidateTypeTag == TypeTags.FLOAT) {
