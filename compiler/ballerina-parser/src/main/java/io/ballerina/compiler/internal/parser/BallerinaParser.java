@@ -8512,6 +8512,7 @@ public class BallerinaParser extends AbstractParser {
             annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
         } else {
             annotReference = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            annotReference = STNodeFactory.createSimpleNameReferenceNode(annotReference);
         }
 
         STNode annotValue;

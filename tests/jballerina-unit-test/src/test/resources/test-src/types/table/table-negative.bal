@@ -310,3 +310,16 @@ function testTableConstructorWithVar5() {
         ];
     int _ = v1;
 }
+
+type Zero 0;
+
+type NaturalNums 1|2|3;
+
+type WholeNums Zero|NaturalNums;
+
+function testTableConstructorWithVar6() {
+    WholeNums f = 2;
+
+    var v1 = table [{a: f}];
+    int _ = v1;
+}

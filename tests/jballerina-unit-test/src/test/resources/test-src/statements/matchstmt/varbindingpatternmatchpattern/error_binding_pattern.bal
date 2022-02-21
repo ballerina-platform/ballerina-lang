@@ -36,7 +36,7 @@ function testErrorBindingPattern1() {
 function errorBindingPattern2(any|error e) returns string {
     match e {
         var error(a) => {
-            return <string> a;
+            return <string>a;
         }
     }
     return "No match";
@@ -98,7 +98,7 @@ function errorBindingPattern6(error e) returns string {
             return "match";
         }
         var error(a, b) => {
-            return (<error> b).message();
+            return (<error>b).message();
         }
     }
     return "No match";
@@ -111,7 +111,7 @@ function testErrorBindingPattern6() {
 
 function errorBindingPattern7(error e) returns string {
     match e {
-        var error(a, error(b), c1=c) => {
+        var error(a, error(b), c1 = c) => {
             return "match1";
         }
     }
@@ -119,20 +119,20 @@ function errorBindingPattern7(error e) returns string {
 }
 
 function testErrorBindingPattern7() {
-    assertEquals("match1", errorBindingPattern7(error("Message1", error("Message2"), c1=200)));
-    assertEquals("match1", errorBindingPattern7(error("Message1", error("Message2"), c1=2)));
-    assertEquals("match1", errorBindingPattern7(error("Message1", error("Message2"), c1=4)));
+    assertEquals("match1", errorBindingPattern7(error("Message1", error("Message2"), c1 = 200)));
+    assertEquals("match1", errorBindingPattern7(error("Message1", error("Message2"), c1 = 2)));
+    assertEquals("match1", errorBindingPattern7(error("Message1", error("Message2"), c1 = 4)));
     assertEquals("No match", errorBindingPattern7(error("Message1")));
 }
 
-type MyError1 error<record { int x; }>;
+type MyError1 error<record {int x;}>;
 
 function errorBindingPattern8(error e) returns string {
     match e {
-        var error MyError1 (a) if a is string && a == "Message" => {
+        var error MyError1(a) if a is string && a == "Message" => {
             return "match1";
         }
-        var error MyError1 (a, x = b) => {
+        var error MyError1(a, x = b) => {
             return "match2";
         }
     }
@@ -166,7 +166,7 @@ function errorBindingPattern9(any|error x) returns string {
         var error(m, c) => {
             string m2 = m;
             error? c2 = c;
-            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message());
+            return "message:" + m2 + " cause:" + (c2 is () ? "No Cause" : c2.message());
         }
     }
 
@@ -178,7 +178,7 @@ function errorBindingPattern10(any|error x) returns string {
         error(var m, var c) => {
             string m2 = m;
             error? c2 = c;
-            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message());
+            return "message:" + m2 + " cause:" + (c2 is () ? "No Cause" : c2.message());
         }
     }
 
@@ -227,8 +227,8 @@ function errorBindingPattern11(any|error x) returns string {
             if !(code2 is ()) {
                 details["code2"] = code2;
             }
-            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
-                   + " details:" + details.toString();
+            return "message:" + m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                    + " details:" + details.toString();
         }
     }
 
@@ -249,8 +249,8 @@ function errorBindingPattern12(any|error x) returns string {
             if !(x2 is ()) {
                 details["rest"] = x2;
             }
-            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
-                   + " details:" + details.toString();
+            return "message:" + m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                    + " details:" + details.toString();
         }
     }
 
@@ -271,8 +271,8 @@ function errorBindingPattern13(any|error x) returns string {
             if !(x2 is ()) {
                 details["rest"] = x2;
             }
-            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
-                   + " details:" + details.toString();
+            return "message:" + m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                    + " details:" + details.toString();
         }
     }
 
@@ -293,12 +293,35 @@ function errorBindingPattern14(any|error x) returns string {
             if !(x2 is ()) {
                 details["rest"] = x2;
             }
-            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
-                   + " details:" + details.toString();
+            return "message:" + m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                    + " details:" + details.toString();
         }
     }
 
     return "Default";
+}
+
+type MyErrorX error<record {int x;}>;
+
+type MyErrorY error<record {int y;}>;
+
+function errorBindingPattern15(MyErrorX|MyErrorY e) returns string {
+    match e {
+        var error MyErrorX() => {
+            return "MyErrorX";
+        }
+        var error MyErrorY(_) => {
+            return "MyErrorY";
+        }
+    }
+    return "INVALID"; // TODO: unreachable code
+}
+
+function testErrorBindingPattern15() {
+    MyErrorX|MyErrorY e1 = error MyErrorX("MyErrorX", x = 2);
+    MyErrorX|MyErrorY e2 = error MyErrorY("MyErrorY", y = 2);
+    assertEquals("MyErrorX", errorBindingPattern15(e1));
+    assertEquals("MyErrorY", errorBindingPattern15(e2));
 }
 
 function assertEquals(anydata expected, anydata actual) {
