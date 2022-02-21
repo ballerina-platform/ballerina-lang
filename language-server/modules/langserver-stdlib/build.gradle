@@ -25,7 +25,6 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-core')
     testCompile project(':ballerina-cli')
 }
 

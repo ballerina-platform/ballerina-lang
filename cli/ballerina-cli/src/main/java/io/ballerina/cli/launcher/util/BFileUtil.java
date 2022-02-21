@@ -17,7 +17,7 @@
  */
 package io.ballerina.cli.launcher.util;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 
 import java.io.IOException;
 import java.nio.file.CopyOption;
