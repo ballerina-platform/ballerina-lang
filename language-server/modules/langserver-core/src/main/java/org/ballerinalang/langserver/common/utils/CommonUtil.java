@@ -181,7 +181,7 @@ public class CommonUtil {
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
-    private static final int MAX_DEPTH = 2;
+    private static final int MAX_DEPTH = 1;
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
