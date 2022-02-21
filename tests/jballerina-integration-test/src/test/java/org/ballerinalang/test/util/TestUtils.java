@@ -19,16 +19,12 @@
 package org.ballerinalang.test.util;
 
 import io.netty.handler.codec.http.FullHttpResponse;
-import org.ballerinalang.core.util.BLangConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -162,18 +158,6 @@ public class TestUtils {
             stringContent.append((char) content.get());
         }
         return stringContent.toString();
-    }
-
-    // TODO: find a better way to run client bal files during integration tests.
-    public static void prepareBala(Object test) throws URISyntaxException {
-        if (System.getProperty(BLangConstants.BALLERINA_HOME) != null) {
-            return;
-        }
-
-        String path = new File(test.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
-                .getAbsolutePath();
-        Path target = Paths.get(path).getParent();
-        System.setProperty(BLangConstants.BALLERINA_HOME, target.toString());
     }
 
     public static KeyStore getKeyStore(File keyStore)

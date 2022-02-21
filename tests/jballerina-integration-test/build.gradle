@@ -43,7 +43,6 @@ configurations {
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m2-SNAPSHOT'
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')

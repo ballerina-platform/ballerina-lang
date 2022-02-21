@@ -21,7 +21,6 @@ package org.ballerinalang.test.bala.globalvar;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.JvmRunUtil;
@@ -47,7 +46,7 @@ public class GlobalVarFunctionInBalaTest {
 
     @Test(description = "Test Defining global variables")
     public void testDefiningGlobalVar() {
-        Object[] args = new BValue[0];
+        Object[] args = new Object[0];
         Object result = JvmRunUtil.invoke(compileResult, "getGlobalVars", args);
         BArray returns = (BArray) result;
         Assert.assertEquals(returns.size(), 4);

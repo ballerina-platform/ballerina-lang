@@ -23,7 +23,6 @@ configurations {
 }
 
 dependencies {
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')

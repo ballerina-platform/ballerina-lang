@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.core.util.BLangConstants;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -103,7 +102,7 @@ public class StructAccessWithIndexTest {
 
         // Check the default value of a field where the default value is not set
         Assert.assertTrue(returns.get(1) instanceof BString);
-        Assert.assertEquals(returns.get(1).toString(), BLangConstants.STRING_EMPTY_VALUE);
+        Assert.assertEquals(returns.get(1).toString(), "");
 
         Assert.assertTrue(returns.get(2) instanceof Long);
         Assert.assertEquals(returns.get(2), 999L);
