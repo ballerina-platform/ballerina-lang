@@ -44,6 +44,7 @@ public class RuntimeAPITest {
                 "types",
                 "async",
                 "invalid_values",
+                "utils"
         };
     }
 }
