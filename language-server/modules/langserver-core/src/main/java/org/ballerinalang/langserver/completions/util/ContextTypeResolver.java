@@ -91,7 +91,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 
 /**
- * This visitor is used to resolve a type of a given context.
+ * This visitor is used to resolve a type of given context.
  * For example, consider the following example,
  * <pre>
  *     function sayHello() returns int {
@@ -198,7 +198,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 && symbol.getName().get().equals(node.identifier().text());
         List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
         if (moduleContent.size() != 1) {
-            // At the moment we do not handle the ambiguity. Hence consider only single item
+            // At the moment we do not handle the ambiguity. Hence, consider only single item
             return Optional.empty();
         }
 
@@ -661,9 +661,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(MatchStatementNode matchStatementNode) {
-        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+        return context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(matchStatementNode.condition()));
-        return typeSymbol;
     }
 
     //    @Override
@@ -679,7 +678,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     private Optional<Symbol> getTypeFromQNameReference(QualifiedNameReferenceNode node, Predicate<Symbol> predicate) {
         List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
         if (moduleContent.size() != 1) {
-            // At the moment we do not handle the ambiguity. Hence consider only single item
+            // At the moment we do not handle the ambiguity. Hence, consider only single item
             return Optional.empty();
         }
 
@@ -825,7 +824,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
      * @param positionalArgumentNode Positional arg node
      * @param argumentNodes          Argument nodes
      * @param newExpressionNode      Implicit/explicit new expression node
-     * @return Optiona type symbol of the parameter
+     * @return Optional type symbol of the parameter
      */
     private Optional<TypeSymbol> getPositionalArgumentTypeForNewExpr(PositionalArgumentNode positionalArgumentNode,
                                                                      NodeList<FunctionArgumentNode> argumentNodes,
