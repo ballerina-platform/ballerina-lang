@@ -80,14 +80,18 @@ function addFloat5 (float x, float y) returns (float) {
 }
 
 function testRecursiveFunctionWhichYields() {
-   bar(0);
+   bar(0, 1000);
 }
 
-function bar(int x) {
-    if (x == 1000) {
+function testRecursiveFunctionWhereStackOverflows() {
+   bar(0, 10000);
+}
+
+function bar(int x, int lim) {
+    if (x == lim) {
         runtime:sleep(0.01);
         return;
     } else {
-        bar(x + 1);
+        bar(x + 1, lim);
     }
 }
