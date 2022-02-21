@@ -113,6 +113,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
 
                 {"createVariableWithFunctionCall1.json", "createVariableWithFunctionCall1.bal"},
                 {"createVariableWithFunctionCall2.json", "createVariableWithFunctionCall2.bal"},
+                {"createVariableNegative1.json", "createVariableNegative1.bal"},
         };
     }
 }

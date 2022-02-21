@@ -18,7 +18,6 @@
 package org.ballerinalang.test.statements.matchstmt;
 
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,79 +44,22 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Test basics of static pattern match statement with fail statement")
     public void testStaticMatchPatternsWithFailStmt() {
-        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'Hello'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
-        Assert.assertEquals(results.getString(++i), msg + "'15'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'false'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
+        BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt");
     }
 
     @Test(description = "Test basics of static pattern match statement with check expression")
     public void testStaticMatchPatternsWithCheckExpr() {
-
-        BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'Hello'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
-        Assert.assertEquals(results.getString(++i), msg + "'15'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'false'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
+         BRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr");
     }
 
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithFail() {
-
-        BValue[] returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithFail", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & HelloWorld'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & 34'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
+        BRunUtil.invoke(result, "testNestedMatchPatternsWithFail");
     }
 
     @Test(description = "Test basics of static pattern match statement 2")
     public void testNestedMatchPatternsWithCheck() {
-
-        BValue[] returns = BRunUtil.invoke(result, "testNestedMatchPatternsWithCheck", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BValueArray.class);
-
-        BValueArray results = (BValueArray) returns[0];
-
-        int i = -1;
-        String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + "'12'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & HelloWorld'");
-        Assert.assertEquals(results.getString(++i), msg + "'error'");
-        Assert.assertEquals(results.getString(++i), msg + "'Default'");
-        Assert.assertEquals(results.getString(++i), msg + "'15 & 34'");
-        Assert.assertEquals(results.getString(++i), msg + "'true'");
+        BRunUtil.invoke(result, "testNestedMatchPatternsWithCheck");
     }
 
     @Test(description = "Test using var defined in match clause within on-fail")

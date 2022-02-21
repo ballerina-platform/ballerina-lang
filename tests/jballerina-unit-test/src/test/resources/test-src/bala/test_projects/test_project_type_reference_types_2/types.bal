@@ -34,3 +34,12 @@ public class FooFunction {
         return self.functionName;
     }
 }
+
+public type Object2 object {
+    public int b;
+    *Object3;
+};
+
+public type Object3 object {
+    public int c;
+};
