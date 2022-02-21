@@ -656,39 +656,18 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
     }
 
-    static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
+    @Test(description = "tests consistent conflicted jars reporting")
+    public void testConsistentConflictedJarsReporting() throws IOException {
+        Path projectPath = this.testResources.resolve("conflictedJarsProject");
+        System.setProperty("user.dir", projectPath.toString());
 
-
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
-            this.fromPath = fromPath;
-            this.toPath = toPath;
-            this.copyOption = copyOption;
-        }
-
-        public Copy(Path fromPath, Path toPath) {
-            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
-
-            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
-            if (!Files.exists(targetPath)) {
-                Files.createDirectory(targetPath);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
-
-            Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
-            return FileVisitResult.CONTINUE;
+        // Check build output which contains conflicted jars for 10 consecutive builds
+        for (int i = 0; i < 10; i++) {
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, false);
+            new CommandLine(buildCommand).parse();
+            buildCommand.execute();
+            String buildLog = readOutput(true);
+            Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-conflicted-jars-project.txt"));
         }
     }
 
@@ -756,4 +735,39 @@ public class BuildCommandTest extends BaseCommandTest {
                 ".json")));
     }
 
+    static class Copy extends SimpleFileVisitor<Path> {
+        private Path fromPath;
+        private Path toPath;
+        private StandardCopyOption copyOption;
+
+
+        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOption = copyOption;
+        }
+
+        public Copy(Path fromPath, Path toPath) {
+            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+
+            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
+            if (!Files.exists(targetPath)) {
+                Files.createDirectory(targetPath);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+
+            Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
+            return FileVisitResult.CONTINUE;
+        }
+    }
 }

@@ -1,0 +1,16 @@
+Compiling source
+	pramodya/conflictedJarsProject:0.1.0
+
+Generating executable
+	warning: Detected conflicting jar files:
+		'io-native-1.2.1.jar' dependency of 'ballerina/io' conflict with 'io-native-1.2.0.jar' dependency of 'ballerina/os'
+		'netty-handler-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-handler-proxy-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-codec-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-codec-http-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-codec-http2-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-transport-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-common-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-resolver-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-buffer-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+	target/bin/conflictedJarsProject.jar
