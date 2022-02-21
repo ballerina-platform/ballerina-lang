@@ -231,3 +231,20 @@ function testNullFiniteType() {
     null _ = "null"; // error
     "null" _ = null; // error
 }
+
+type IntOne 1;
+type FloatOne 1.0;
+type StringA "A";
+
+function testFiniteTypeAssignableNegative() {
+    IntOne intOne = 1;
+    FloatOne _ = intOne;
+    1.0 _ = intOne;
+    float _ = intOne;
+
+    FloatOne floatOne = 1.0;
+    IntOne _ = floatOne;
+    1 _ = floatOne;
+    FloatOne|StringA _ = intOne;
+    FloatOne|StringA _ = floatOne;
+}
