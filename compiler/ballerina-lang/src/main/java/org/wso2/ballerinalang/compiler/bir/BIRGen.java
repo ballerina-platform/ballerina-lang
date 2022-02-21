@@ -1623,7 +1623,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBasicBlocks.add(whileExprBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(astWhileStmt.pos, whileExprBB, this.currentScope);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, whileExprBB, this.currentScope);
 
         // Visit condition expression
         this.env.enclBB = whileExprBB;
