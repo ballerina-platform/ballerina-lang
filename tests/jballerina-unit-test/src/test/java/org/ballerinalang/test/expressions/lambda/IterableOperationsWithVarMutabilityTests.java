@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.utils.BStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -52,7 +52,7 @@ public class IterableOperationsWithVarMutabilityTests {
     @Test
     public void testInt1() {
         List<Integer> values = Arrays.asList(-5, 2, 4, 5, 7, -8, -3, 2);
-        Object returns = JvmRunUtil.invoke(compileResult, "testInt1");
+        Object returns = BRunUtil.invoke(compileResult, "testInt1");
         Assert.assertEquals(returns, (long) values.stream().mapToInt(Integer::intValue).sum());
     }
 
@@ -60,14 +60,14 @@ public class IterableOperationsWithVarMutabilityTests {
     public void testFloat1() {
         List<Double> values = Arrays.asList(1.1, 2.2, -3.3, 4.4, 5.5);
         double intSum = values.stream().mapToDouble(Double::doubleValue).sum();
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloat1");
+        Object returns = BRunUtil.invoke(compileResult, "testFloat1");
         Assert.assertEquals(returns, intSum);
     }
 
     @Test
     public void testBasicArray1() {
         BArray array = ValueCreator.createArrayValue(values);
-        Object returns = JvmRunUtil.invoke(compileResult, "testBasicArray1", new Object[]{array});
+        Object returns = BRunUtil.invoke(compileResult, "testBasicArray1", new Object[]{array});
         StringBuilder sb = new StringBuilder();
         Arrays.stream(values).forEach(s -> sb.append(s.getValue().toUpperCase(Locale.getDefault())).append(":").
                 append(s.getValue().toLowerCase(Locale.getDefault())).append(" "));
@@ -77,7 +77,7 @@ public class IterableOperationsWithVarMutabilityTests {
     @Test
     public void testBasicArray2() {
         BArray array = ValueCreator.createArrayValue(values);
-        Object returns = JvmRunUtil.invoke(compileResult, "testBasicArray2", new Object[]{array});
+        Object returns = BRunUtil.invoke(compileResult, "testBasicArray2", new Object[]{array});
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
             sb.append(i).append(values[i]).append(" ");
@@ -87,7 +87,7 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test()
     public void testBasicMap1() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testBasicMap1");
+        Object arr = BRunUtil.invoke(compileResult, "testBasicMap1");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 2);
@@ -97,7 +97,7 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test()
     public void testBasicMap2() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testBasicMap2");
+        Object arr = BRunUtil.invoke(compileResult, "testBasicMap2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "91");
@@ -107,7 +107,7 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void testXML() {
-        Object arr = JvmRunUtil.invoke(compileResult, "xmlTest");
+        Object arr = BRunUtil.invoke(compileResult, "xmlTest");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "start-1-2-end");
@@ -117,7 +117,7 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void testRecord() {
-        Object arr = JvmRunUtil.invoke(compileResult, "recordTest");
+        Object arr = BRunUtil.invoke(compileResult, "recordTest");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 2);
@@ -127,14 +127,14 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void testIgnoredValue() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIgnoredValue");
+        Object returns = BRunUtil.invoke(compileResult, "testIgnoredValue");
         Assert.assertEquals(returns.toString(), "The start- hello abc :) bye :)  hello cde :) bye :)  " +
                 "hello pqr :) bye :) -The end");
     }
 
     @Test
     public void testInExpression() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testInExpression");
+        Object arr = BRunUtil.invoke(compileResult, "testInExpression");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "total count 4");
@@ -143,14 +143,14 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void testInStatement() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInStatement");
+        Object returns = BRunUtil.invoke(compileResult, "testInStatement");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "16");
     }
 
     @Test
     public void testWithComplexJson() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testWithComplexJson");
+        Object arr = BRunUtil.invoke(compileResult, "testWithComplexJson");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 2);
@@ -162,7 +162,7 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void testWithComplexXML() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testWithComplexXML");
+        Object arr = BRunUtil.invoke(compileResult, "testWithComplexXML");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 4);
@@ -174,7 +174,7 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void testWithComplexRecords() {
-        Object arr = JvmRunUtil.invoke(compileResult, "testWithComplexRecords");
+        Object arr = BRunUtil.invoke(compileResult, "testWithComplexRecords");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 2);
@@ -184,7 +184,7 @@ public class IterableOperationsWithVarMutabilityTests {
 
     @Test
     public void multipleIterableOps() {
-        Object returns = JvmRunUtil.invoke(compileResult, "multipleIterableOps");
+        Object returns = BRunUtil.invoke(compileResult, "multipleIterableOps");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "[\"USD\",\"USD\",\"EUR\",\"GBP\",\"USD\",\"EUR\",\"GBP\",\"USD\"]");
     }

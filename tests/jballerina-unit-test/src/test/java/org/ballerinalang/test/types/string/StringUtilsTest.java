@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class StringUtilsTest {
 
     @Test
     public void testStringUtils() {
-        JvmRunUtil.invoke(result, "testStringUtils");
+        BRunUtil.invoke(result, "testStringUtils");
     }
 
     public static BString getStringVal(Object... values) {
@@ -55,7 +55,7 @@ public class StringUtilsTest {
 
     @Test
     public void testStringValue() {
-        JvmRunUtil.invoke(result, "testStringValue");
+        BRunUtil.invoke(result, "testStringValue");
     }
 
     public static BString invokeStringValue(Object value) {

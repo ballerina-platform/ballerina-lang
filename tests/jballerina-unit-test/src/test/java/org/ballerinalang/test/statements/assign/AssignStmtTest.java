@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class AssignStmtTest {
     @Test
     public void invokeAssignmentTest() {
         Object[] args = {(100)};
-        Object returns = JvmRunUtil.invoke(result, "testIntAssignStmt", args);
+        Object returns = BRunUtil.invoke(result, "testIntAssignStmt", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -58,7 +58,7 @@ public class AssignStmtTest {
 
         // floattype assignment test
         args = new Object[]{(2.3f)};
-        returns = JvmRunUtil.invoke(result, "testFloatAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testFloatAssignStmt", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -68,7 +68,7 @@ public class AssignStmtTest {
 
         // Boolean assignment test
         args = new Object[]{(true)};
-        returns = JvmRunUtil.invoke(result, "testBooleanAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testBooleanAssignStmt", args);
 
         Assert.assertSame(returns.getClass(), Boolean.class);
 
@@ -77,7 +77,7 @@ public class AssignStmtTest {
 
         // String assignment test
         args = new Object[]{StringUtils.fromString("Test Value")};
-        returns = JvmRunUtil.invoke(result, "testStringAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testStringAssignStmt", args);
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -89,7 +89,7 @@ public class AssignStmtTest {
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 150);
         args = new Object[]{arrayValue};
-        returns = JvmRunUtil.invoke(result, "testArrayIndexToIntAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testArrayIndexToIntAssignStmt", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -99,7 +99,7 @@ public class AssignStmtTest {
 
         // Int to array index assignment test
         args = new Object[]{(250)};
-        returns = JvmRunUtil.invoke(result, "testIntToArrayAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testIntToArrayAssignStmt", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -112,7 +112,7 @@ public class AssignStmtTest {
     public void testAssignmentStmtWithMultiReturnFunc() {
         // Int assignment test
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testMultiReturn", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testMultiReturn", args);
 
         Assert.assertEquals(returns.size(), 3);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -124,7 +124,7 @@ public class AssignStmtTest {
     @Test(description = "Test assignment of int to float")
     public void testAssignmentStatementIntToFloat() {
         Object[] args = {(100)};
-        Object returns = JvmRunUtil.invoke(result, "testIntCastFloatStmt", args);
+        Object returns = BRunUtil.invoke(result, "testIntCastFloatStmt", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -135,7 +135,7 @@ public class AssignStmtTest {
 
     @Test(description = "Test action result assignment with variable destructure")
     public void restActionResultAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "restActionResultAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "restActionResultAssignment");
         Assert.assertEquals(returns.get(0), 0L);
         Assert.assertEquals(returns.get(1), 0L);
         Assert.assertEquals(returns.get(2).toString(), "a");
@@ -252,22 +252,22 @@ public class AssignStmtTest {
 
     @Test()
     public void testAssignErrorArrayToAny() {
-        JvmRunUtil.invoke(result, "testAssignErrorArrayToAny");
+        BRunUtil.invoke(result, "testAssignErrorArrayToAny");
     }
 
     @Test()
     public void testAssignIntArrayToJson() {
-        JvmRunUtil.invoke(result, "testAssignIntArrayToJson");
+        BRunUtil.invoke(result, "testAssignIntArrayToJson");
     }
 
     @Test()
     public void testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
-        JvmRunUtil.invoke(result, "testAssignIntOrStringArrayIntOrFloatOrStringUnionArray");
+        BRunUtil.invoke(result, "testAssignIntOrStringArrayIntOrFloatOrStringUnionArray");
     }
 
     @Test()
     public void assignAnyToUnionWithErrorAndAny() {
-        JvmRunUtil.invoke(result, "assignAnyToUnionWithErrorAndAny");
+        BRunUtil.invoke(result, "assignAnyToUnionWithErrorAndAny");
     }
 
     @Test

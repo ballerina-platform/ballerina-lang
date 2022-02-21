@@ -19,7 +19,7 @@ package org.ballerinalang.test.statements.returnstmt;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class ReturnStmtInBranchTest {
     public void testReturnStmtInBranches1() {
         Object[] args = {(12), (13)};
 
-        Object returns = JvmRunUtil.invoke(compileResult, "returnStmtBranch1", args);
+        Object returns = BRunUtil.invoke(compileResult, "returnStmtBranch1", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -54,7 +54,7 @@ public class ReturnStmtInBranchTest {
     public void testReturnStmtInBranches2() {
         Object[] args = {(9), (10)};
 
-        Object returns = JvmRunUtil.invoke(compileResult, "returnStmtBranch2", args);
+        Object returns = BRunUtil.invoke(compileResult, "returnStmtBranch2", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 

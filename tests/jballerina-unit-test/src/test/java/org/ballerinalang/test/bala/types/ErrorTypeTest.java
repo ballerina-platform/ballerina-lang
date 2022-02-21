@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class ErrorTypeTest {
 
     @Test
     public void errorFromAnotherPkg() {
-        Object returns = JvmRunUtil.invoke(result, "getApplicationError");
+        Object returns = BRunUtil.invoke(result, "getApplicationError");
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(returns.toString(),
@@ -54,7 +54,7 @@ public class ErrorTypeTest {
 
     @Test
     public void indirectErrorCtorFromAnotherPkg() {
-        Object returns = JvmRunUtil.invoke(result, "getApplicationErrorIndirectCtor");
+        Object returns = BRunUtil.invoke(result, "getApplicationErrorIndirectCtor");
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(returns.toString(),
@@ -63,7 +63,7 @@ public class ErrorTypeTest {
 
     @Test
     public void testUsageOfDistinctTypeFromAnotherPackage() {
-        Object returns = JvmRunUtil.invoke(result, "getDistinctError");
+        Object returns = BRunUtil.invoke(result, "getDistinctError");
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(returns.toString(),
@@ -72,7 +72,7 @@ public class ErrorTypeTest {
 
     @Test
     public void testDistinctTypeFromAnotherPackageInATypeDef() {
-        Object returns = JvmRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDef");
+        Object returns = BRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDef");
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(returns.toString(),
@@ -81,7 +81,7 @@ public class ErrorTypeTest {
 
     @Test
     public void testDistinctTypeFromAnotherPackageInATypeDefWithACast() {
-        Object returns = JvmRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDefWithACast");
+        Object returns = BRunUtil.invoke(result, "testDistinctTypeFromAnotherPackageInATypeDefWithACast");
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(returns.toString(),
@@ -90,7 +90,7 @@ public class ErrorTypeTest {
 
     @Test
     public void testPerformInvalidCastWithDistinctErrorType() {
-        Object returns = JvmRunUtil.invoke(result, "performInvalidCastWithDistinctErrorType");
+        Object returns = BRunUtil.invoke(result, "performInvalidCastWithDistinctErrorType");
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(returns.toString(),
@@ -100,7 +100,7 @@ public class ErrorTypeTest {
 
     @Test
     public void testErrorDetailDefinedAfterErrorDef() {
-        JvmRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
+        BRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
     }
     
     @Test

@@ -20,7 +20,7 @@ package org.ballerinalang.test.object;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,7 +33,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testRuntimeObjEqNegative() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/object/RuntimeObjEgNegativeProject");
-        Object returns = JvmRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
         Assert.assertEquals(returns.toString(), "error(\"{ballerina}TypeCastError\",message=\"incompatible types: " +
                 "'pkg.org_foo:user' cannot be cast to 'pkg:userB'\")");

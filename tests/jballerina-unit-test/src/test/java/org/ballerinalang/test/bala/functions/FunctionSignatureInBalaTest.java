@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFunctionInOrder1() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFunctionInOrder1");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionInOrder1");
         BArray returns = (BArray) result;
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 10L);
@@ -70,7 +70,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFunctionInOrder2() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFunctionInOrder2");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionInOrder2");
         BArray returns = (BArray) result;
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 10L);
@@ -90,7 +90,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFunctionWithoutRestArgs() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFunctionWithoutRestArgs");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionWithoutRestArgs");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -114,7 +114,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFunctionWithoutSomeNamedArgs() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFunctionWithoutSomeNamedArgs");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionWithoutSomeNamedArgs");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -138,7 +138,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFunctionWithRequiredArgsOnly() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFunctionWithRequiredArgsOnly");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFunctionWithRequiredArgsOnly");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -162,7 +162,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFunctionWithAnyFunctionTypeParam() {
-        Object result = JvmRunUtil.invoke(compileResult, "testAnyFunction");
+        Object result = BRunUtil.invoke(compileResult, "testAnyFunction");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -173,7 +173,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFuncWithoutRestParams() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithoutRestParams");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithoutRestParams");
         BArray returns = (BArray) result;
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 10L);
@@ -193,7 +193,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFuncWithOnlyNamedParams1() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams1");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams1");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -214,7 +214,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFuncWithOnlyNamedParams2() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams2");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams2");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -235,7 +235,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFuncWithOnlyNamedParams3() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams3");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyNamedParams3");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -256,28 +256,28 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvokeFuncWithOnlyRestParam1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam1");
+        Object returns = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam1");
         Assert.assertTrue(returns instanceof  BArray);
         Assert.assertEquals(returns.toString(), "[]");
     }
 
     @Test
     public void testInvokeFuncWithOnlyRestParam2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam2");
+        Object returns = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam2");
         Assert.assertTrue(returns instanceof  BArray);
         Assert.assertEquals(returns.toString(), "[10,20,30]");
     }
 
     @Test
     public void testInvokeFuncWithOnlyRestParam3() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam3");
+        Object returns = BRunUtil.invoke(compileResult, "testInvokeFuncWithOnlyRestParam3");
         Assert.assertTrue(returns instanceof  BArray);
         Assert.assertEquals(returns.toString(), "[10,20,30]");
     }
 
     @Test
     public void testInvokeFuncWithAnyRestParam1() {
-        Object result = JvmRunUtil.invoke(compileResult, "testInvokeFuncWithAnyRestParam1");
+        Object result = BRunUtil.invoke(compileResult, "testInvokeFuncWithAnyRestParam1");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof  BArray);
@@ -288,7 +288,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void funcInvocAsRestArgs() {
-        Object result = JvmRunUtil.invoke(compileResult, "funcInvocAsRestArgs");
+        Object result = BRunUtil.invoke(compileResult, "funcInvocAsRestArgs");
         BArray returns = (BArray) result;
 
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -309,13 +309,13 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testFuncWithUnionTypedDefaultParam() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFuncWithUnionTypedDefaultParam");
+        Object returns = BRunUtil.invoke(compileResult, "testFuncWithUnionTypedDefaultParam");
         Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test
     public void testFuncWithNilDefaultParamExpr() {
-        Object result = JvmRunUtil.invoke(compileResult, "testFuncWithNilDefaultParamExpr");
+        Object result = BRunUtil.invoke(compileResult, "testFuncWithNilDefaultParamExpr");
         BArray returns = (BArray) result;
         Assert.assertNull(returns.get(0));
         Assert.assertNull(returns.get(1));
@@ -323,7 +323,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testAttachedFunction() {
-        Object result = JvmRunUtil.invoke(compileResult, "testAttachedFunction");
+        Object result = BRunUtil.invoke(compileResult, "testAttachedFunction");
         BArray returns = (BArray) result;
         Assert.assertEquals(returns.get(0), 100L);
         Assert.assertEquals(returns.get(1), 110L);
@@ -331,7 +331,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test(description = "Test object function with defaultableParam")
     public void defaultValueForObjectFunctionParam() {
-        Object result = JvmRunUtil.invoke(compileResult, "testDefaultableParamInnerFunc");
+        Object result = BRunUtil.invoke(compileResult, "testDefaultableParamInnerFunc");
         BArray returns = (BArray) result;
 
         Assert.assertEquals(returns.size(), 2);
@@ -344,7 +344,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test(description = "Test object outer function with defaultable param")
     public void defaultValueForObjectOuterFunctionParam() {
-        Object result = JvmRunUtil.invoke(compileResult, "testDefaultableParamOuterFunc");
+        Object result = BRunUtil.invoke(compileResult, "testDefaultableParamOuterFunc");
         BArray returns = (BArray) result;
 
         Assert.assertEquals(returns.size(), 2);
@@ -357,7 +357,7 @@ public class FunctionSignatureInBalaTest {
 
     @Test
     public void testInvocationWithArgVarargMix() {
-        JvmRunUtil.invoke(compileResult, "testInvocationWithArgVarargMix");
+        BRunUtil.invoke(compileResult, "testInvocationWithArgVarargMix");
     }
 
     @Test

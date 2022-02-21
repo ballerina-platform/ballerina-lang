@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.values.StreamingJsonValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -57,7 +57,7 @@ public class JSONTest {
     @Test(description = "Remove an element in a valid jsonpath")
     public void testRemove() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "remove", args);
+        Object returns = BRunUtil.invoke(compileResult, "remove", args);
 
         final String expected = "{\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(getJsonAsString(returns), expected);
@@ -67,7 +67,7 @@ public class JSONTest {
     @Test(description = "Get string representation of json")
     public void testToString() {
         Object[] args = {JsonParser.parse(json1)};
-        Object returns = JvmRunUtil.invoke(compileResult, "toString", args);
+        Object returns = BRunUtil.invoke(compileResult, "toString", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\", \"lname\":\"Taylor\"}, \"state\":\"CA\", \"age\":20}";
         Assert.assertEquals(returns.toString(), expected);
@@ -76,7 +76,7 @@ public class JSONTest {
     @Test(description = "Get JSON string from a string")
     public void testParseString() {
         Object[] args = {StringUtils.fromString("\"hello\"")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(getType(returns).getTag(), TypeTags.STRING_TAG);
@@ -85,7 +85,7 @@ public class JSONTest {
 
     @Test
     public void testJsonAssignabilityToUnion() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAssignabilityToUnion");
+        Object returns = BRunUtil.invoke(compileResult, "testAssignabilityToUnion");
         Assert.assertNotNull(returns);
         Assert.assertEquals(getType(returns).getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(returns.toString(), "1");
@@ -94,7 +94,7 @@ public class JSONTest {
     @Test(description = "Get JSON boolean from a string")
     public void testParseBoolean() {
         Object[] args = {StringUtils.fromString("true")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertEquals(getType(returns).getTag(), TypeTags.BOOLEAN_TAG);
@@ -104,7 +104,7 @@ public class JSONTest {
     @Test(description = "Get JSON number from a string")
     public void testParseNumber() {
         Object[] args = {StringUtils.fromString("45678")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(getType(returns).getTag(), TypeTags.INT_TAG);
@@ -114,14 +114,14 @@ public class JSONTest {
     @Test(description = "Get JSON null from a string")
     public void testParseNull() {
         Object[] args = {StringUtils.fromString("null")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertNull(returns);
     }
 
     @Test(description = "Get JSON object from a string")
     public void testParseObject() {
         Object[] args = {StringUtils.fromString("{\"name\":\"supun\"}")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
@@ -131,7 +131,7 @@ public class JSONTest {
     @Test(description = "Get JSON array from a string")
     public void testParseArray() {
         Object[] args = {StringUtils.fromString("[\"supun\",45,true,null]")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns instanceof BArray);
         Assert.assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
@@ -142,7 +142,7 @@ public class JSONTest {
     public void testParseComplexObject() {
         Object[] args = {StringUtils.fromString("{\"name\":\"supun\",\"address\":{\"street\":\"Palm Grove\"}, " +
                 "\"marks\":[78, 45, 87]}")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
@@ -153,7 +153,7 @@ public class JSONTest {
     @Test(description = "Get JSON from a malformed string")
     public void testParseMalformedString() {
         Object[] args = {StringUtils.fromString("some words without quotes")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testParse", args);
+        Object returns = BRunUtil.invoke(compileResult, "testParse", args);
         Assert.assertTrue(returns instanceof BError);
         String errorMsg =
                 (((BMap) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))).toString();
@@ -167,7 +167,7 @@ public class JSONTest {
     @Test(description = "Get keys from a JSON")
     public void testGetKeys() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testGetKeys", args);
+        Object returns = BRunUtil.invoke(compileResult, "testGetKeys", args);
 
         Assert.assertTrue(returns instanceof BArray);
         BArray keys = (BArray) returns;
@@ -179,20 +179,20 @@ public class JSONTest {
 
     @Test(description = "Convert a string to json")
     public void testStringToJSONConversion() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringToJSONConversion");
+        Object returns = BRunUtil.invoke(compileResult, "testStringToJSONConversion");
         Assert.assertEquals(returns.toString(), "{\"foo\":\"bar\"}");
     }
 
     @Test
     public void testJSONArrayToJsonAssignment() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
+        Object returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
     }
 
     @Test
     public void testCloseRecordToMapJsonAssigment() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testCloseRecordToMapJsonAssigment");
+        Object returns = BRunUtil.invoke(compileResult, "testCloseRecordToMapJsonAssigment");
         BArray array = (BArray) returns;
         Assert.assertEquals(array.getRefValue(0).toString(), "{\"name\":\"\",\"age\":10}");
         Assert.assertEquals(array.getRefValue(1).toString(), "{\"name\":\"\",\"age\":30}");
@@ -201,7 +201,7 @@ public class JSONTest {
     @Test
     public void testFieldAccessOfNullableJSON() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/jsontype/nullable-json-test.bal");
-        Object returns = JvmRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
+        Object returns = BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
         String errorMsg =
                 ((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString("message"))
                         .toString();

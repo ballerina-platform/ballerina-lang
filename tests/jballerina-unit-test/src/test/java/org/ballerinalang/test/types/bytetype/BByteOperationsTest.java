@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.bytetype;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +51,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte addition")
     public void testByteAddition1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteAddition1");
+        Object returns = BRunUtil.invoke(result, "testByteAddition1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -60,7 +60,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte addition")
     public void testByteAddition2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteAddition2");
+        Object returns = BRunUtil.invoke(result, "testByteAddition2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -69,7 +69,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte, int addition")
     public void testByteIntAddition1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntAddition1");
+        Object returns = BRunUtil.invoke(result, "testByteIntAddition1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -78,7 +78,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test int, byte addition")
     public void testByteIntAddition2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntAddition2");
+        Object returns = BRunUtil.invoke(result, "testByteIntAddition2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -87,7 +87,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte subtraction")
     public void testByteSubtraction1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteSubtraction1");
+        Object returns = BRunUtil.invoke(result, "testByteSubtraction1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -96,7 +96,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte subtraction")
     public void testByteSubtraction2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteSubtraction2");
+        Object returns = BRunUtil.invoke(result, "testByteSubtraction2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -105,7 +105,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte, int subtraction")
     public void testByteIntSubtraction1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntSubtraction1");
+        Object returns = BRunUtil.invoke(result, "testByteIntSubtraction1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -114,7 +114,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test int, byte subtraction")
     public void testByteIntSubtraction2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntSubtraction2");
+        Object returns = BRunUtil.invoke(result, "testByteIntSubtraction2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -123,7 +123,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte multiplication")
     public void testByteMultiplication1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteMultiplication1");
+        Object returns = BRunUtil.invoke(result, "testByteMultiplication1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -132,7 +132,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte multiplication")
     public void testByteMultiplication2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteMultiplication2");
+        Object returns = BRunUtil.invoke(result, "testByteMultiplication2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -141,7 +141,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte, int multiplication")
     public void testByteIntMultiplication1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntMultiplication1");
+        Object returns = BRunUtil.invoke(result, "testByteIntMultiplication1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -150,7 +150,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test int, byte multiplication")
     public void testByteIntMultiplication2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntMultiplication2");
+        Object returns = BRunUtil.invoke(result, "testByteIntMultiplication2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -159,7 +159,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte division")
     public void testByteDivision1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteDivision1");
+        Object returns = BRunUtil.invoke(result, "testByteDivision1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -168,7 +168,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte division")
     public void testByteDivision2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteDivision2");
+        Object returns = BRunUtil.invoke(result, "testByteDivision2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -177,7 +177,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte, int division")
     public void testByteIntDivision1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntDivision1");
+        Object returns = BRunUtil.invoke(result, "testByteIntDivision1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -186,7 +186,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test int, byte division")
     public void testByteIntDivision2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntDivision2");
+        Object returns = BRunUtil.invoke(result, "testByteIntDivision2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -195,7 +195,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte modulus")
     public void testByteModulus1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteModulus1");
+        Object returns = BRunUtil.invoke(result, "testByteModulus1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -204,7 +204,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte modulus")
     public void testByteModulus2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteModulus2");
+        Object returns = BRunUtil.invoke(result, "testByteModulus2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -213,7 +213,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte, int modulus")
     public void testByteIntModulus1() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntModulus1");
+        Object returns = BRunUtil.invoke(result, "testByteIntModulus1");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -222,7 +222,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test int, byte modulus")
     public void testByteIntModulus2() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntModulus2");
+        Object returns = BRunUtil.invoke(result, "testByteIntModulus2");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -231,7 +231,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test complex expression")
     public void testByteComplexExpression() {
-        Object returns = JvmRunUtil.invoke(result, "testByteComplexExpression");
+        Object returns = BRunUtil.invoke(result, "testByteComplexExpression");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -240,7 +240,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise AND between bytes")
     public void testByteBitwiseAnd() {
-        Object returns = JvmRunUtil.invoke(result, "testByteBitwiseAnd");
+        Object returns = BRunUtil.invoke(result, "testByteBitwiseAnd");
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int value = (int) returns;
@@ -249,7 +249,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise AND between int and byte")
     public void testIntByteBitwiseAnd() {
-        Object returns = JvmRunUtil.invoke(result, "testIntByteBitwiseAnd");
+        Object returns = BRunUtil.invoke(result, "testIntByteBitwiseAnd");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -258,7 +258,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise AND between byte and int")
     public void testByteIntBitwiseAnd() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntBitwiseAnd");
+        Object returns = BRunUtil.invoke(result, "testByteIntBitwiseAnd");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -267,7 +267,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise AND between integers")
     public void testIntBitwiseAnd() {
-        Object returns = JvmRunUtil.invoke(result, "testIntBitwiseAnd");
+        Object returns = BRunUtil.invoke(result, "testIntBitwiseAnd");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -276,7 +276,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise OR between bytes")
     public void testByteBitwiseOr() {
-        Object returns = JvmRunUtil.invoke(result, "testByteBitwiseOr");
+        Object returns = BRunUtil.invoke(result, "testByteBitwiseOr");
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int value = (int) returns;
@@ -285,7 +285,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise OR between int, byte")
     public void testIntByteBitwiseOr() {
-        Object returns = JvmRunUtil.invoke(result, "testIntByteBitwiseOr");
+        Object returns = BRunUtil.invoke(result, "testIntByteBitwiseOr");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -294,7 +294,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise OR between byte, int")
     public void testByteIntBitwiseOr() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntBitwiseOr");
+        Object returns = BRunUtil.invoke(result, "testByteIntBitwiseOr");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -303,7 +303,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise OR between integers")
     public void testIntBitwiseOr() {
-        Object returns = JvmRunUtil.invoke(result, "testIntBitwiseOr");
+        Object returns = BRunUtil.invoke(result, "testIntBitwiseOr");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -312,7 +312,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise XOR between bytes")
     public void testByteBitwiseXor() {
-        Object returns = JvmRunUtil.invoke(result, "testByteBitwiseXor");
+        Object returns = BRunUtil.invoke(result, "testByteBitwiseXor");
 
         Assert.assertSame(returns.getClass(), Integer.class);
         int value = (int) returns;
@@ -321,7 +321,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise XOR between int, byte")
     public void testIntByteBitwiseXor() {
-        Object returns = JvmRunUtil.invoke(result, "testIntByteBitwiseXor");
+        Object returns = BRunUtil.invoke(result, "testIntByteBitwiseXor");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -330,7 +330,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise XOR between byte, int")
     public void testByteIntBitwiseXor() {
-        Object returns = JvmRunUtil.invoke(result, "testByteIntBitwiseXor");
+        Object returns = BRunUtil.invoke(result, "testByteIntBitwiseXor");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -339,7 +339,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test bitwise XOR between integers")
     public void testIntBitwiseXor() {
-        Object returns = JvmRunUtil.invoke(result, "testIntBitwiseXor");
+        Object returns = BRunUtil.invoke(result, "testIntBitwiseXor");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -348,7 +348,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test byte bitwise complement")
     public void testByteBitwiseComplement() {
-        Object returns = JvmRunUtil.invoke(result, "testByteBitwiseComplement");
+        Object returns = BRunUtil.invoke(result, "testByteBitwiseComplement");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;
@@ -357,7 +357,7 @@ public class BByteOperationsTest {
 
     @Test(description = "Test int bitwise complement")
     public void testIntBitwiseComplement() {
-        Object returns = JvmRunUtil.invoke(result, "testIntBitwiseComplement");
+        Object returns = BRunUtil.invoke(result, "testIntBitwiseComplement");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long value = (long) returns;

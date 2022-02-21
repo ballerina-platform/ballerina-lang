@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class TypeUnificationTest {
 
     @Test(description = "Test inline initializing of a struct and its fields")
     public void testMultiValuedStructInlineInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMultiValuedStructInlineInit");
+        Object returns = BRunUtil.invoke(compileResult, "testMultiValuedStructInlineInit");
 
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> person = ((BMap<String, Object>) returns);
@@ -70,7 +70,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testAccessJsonInStruct() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAccessJsonInStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAccessJsonInStruct");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "married");
@@ -84,7 +84,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testAccessMapInStruct() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAccessMapInStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAccessMapInStruct");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "Colombo");
@@ -101,7 +101,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testAccessArrayInStruct() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAccessArrayInStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAccessArrayInStruct");
 
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 94L);
@@ -112,7 +112,7 @@ public class TypeUnificationTest {
 
     @Test
     public void testSetValueToJsonInStruct() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
+        Object returns = BRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"status\":\"widowed\",\"retired\":true}");
     }

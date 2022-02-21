@@ -20,7 +20,7 @@ package org.ballerinalang.test.klass;
 import org.ballerinalang.nativeimpl.jvm.servicetests.ServiceValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -38,13 +38,13 @@ public class ServiceClassTest {
     @Test
     public void testBasicStructAsObject() {
         CompileResult compileResult = BCompileUtil.compile("test-src/klass/simple_service_class.bal");
-        JvmRunUtil.invoke(compileResult, "testServiceObjectValue");
+        BRunUtil.invoke(compileResult, "testServiceObjectValue");
     }
 
     @Test
     public void testResourceMethodsDoesNotAffectAssignability() {
         CompileResult compileResult = BCompileUtil.compile("test-src/klass/resource-method-assignability-test.bal");
-        JvmRunUtil.invoke(compileResult, "testServiceObjectValue");
+        BRunUtil.invoke(compileResult, "testServiceObjectValue");
     }
 
     @Test

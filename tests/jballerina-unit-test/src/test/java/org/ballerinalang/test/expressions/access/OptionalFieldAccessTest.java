@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.access;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -77,7 +77,7 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
     public void testRecordOptionalFieldAccess(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -98,7 +98,7 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions2")
     public void testRecordOptionalFieldAccess2(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "recordOptionalFieldAccessFunctions2")
@@ -113,7 +113,7 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "laxOptionalFieldAccessFunctions")
     public void testLaxOptionalFieldAccess(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -140,7 +140,7 @@ public class OptionalFieldAccessTest {
 
     @Test(dataProvider = "optionalFieldAccessOnInvocationFunctions")
     public void testOptionalFieldAccessOnInvocation(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -156,16 +156,16 @@ public class OptionalFieldAccessTest {
 
     @Test
     public void testOptionalFieldAccessInUnionType() {
-        JvmRunUtil.invoke(result, "testOptionalFieldAccessInUnionType");
+        BRunUtil.invoke(result, "testOptionalFieldAccessInUnionType");
     }
 
     @Test
     public void testOptionalFieldAccessOnMethodCall() {
-        JvmRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
+        BRunUtil.invoke(result, "testOptionalFieldAccessOnMethodCall");
     }
 
     @Test
     public void testNestedOptionalFieldAccessOnIntersectionTypes() {
-        JvmRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
+        BRunUtil.invoke(result, "testNestedOptionalFieldAccessOnIntersectionTypes");
     }
 }

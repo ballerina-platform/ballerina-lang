@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter")
     public void testSingleNamedReturnParam() {
         Object[] args = {(10), StringUtils.fromString("test")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSingleNamedReturnParam", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParam", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -54,7 +54,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter, zero return arguments")
     public void testSingleNamedReturnParamZeroReturnArgs() {
         Object[] args = {(10), StringUtils.fromString("test")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testSingleNamedReturnParamZeroReturnArgs", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -64,7 +64,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParam() {
         Object[] args = {(10), StringUtils.fromString("test")};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testTwoNamedReturnParam", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testTwoNamedReturnParam", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -77,7 +77,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgs() {
         Object[] args = {(10), StringUtils.fromString("test")};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgs", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);

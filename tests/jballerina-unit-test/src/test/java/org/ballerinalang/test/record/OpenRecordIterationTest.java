@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -106,7 +106,7 @@ public class OpenRecordIterationTest {
     @Test
     public void testForeachWithOpenRecords() {
         String[] expectedFields = new String[]{"name", "age", "address"};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testForeachWithOpenRecords");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachWithOpenRecords");
 
         BArray fields = (BArray) returns.get(0);
         for (int i = 0; i < fields.size(); i++) {
@@ -126,7 +126,7 @@ public class OpenRecordIterationTest {
     @Test
     public void testForeachWithOpenRecords2() {
         String[] expectedFields = new String[]{"name", "age", "address", "height"};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testForeachWithOpenRecords2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachWithOpenRecords2");
 
         BArray fields = (BArray) returns.get(0);
         for (int i = 0; i < fields.size(); i++) {
@@ -146,7 +146,7 @@ public class OpenRecordIterationTest {
 
     @Test
     public void testForeachWithOpenRecords3() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testForeachWithOpenRecords3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachWithOpenRecords3");
 
         Assert.assertEquals(returns.get(0).toString(), "John Doe");
         Assert.assertEquals(returns.get(1), 25L);
@@ -159,7 +159,7 @@ public class OpenRecordIterationTest {
 
     @Test(description = "Tests foreach iterable operation on open records")
     public void testForeachOpWithOpenRecords() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testForeachOpWithOpenRecords");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachOpWithOpenRecords");
 
         Assert.assertEquals(returns.get(0).toString(), "John Doe");
         Assert.assertEquals(returns.get(1), 25L);
@@ -175,7 +175,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Tests map iterable operation on open records")
     public void testMapOpWithOpenRecords() {
         String[] expectedFields = new String[]{"name", "age", "address", "profession"};
-        Object returns = JvmRunUtil.invoke(result, "testMapOpWithOpenRecords");
+        Object returns = BRunUtil.invoke(result, "testMapOpWithOpenRecords");
 
         BMap person = (BMap) returns;
         Assert.assertEquals(person.get(StringUtils.fromString(expectedFields[0])).toString(), "john doe");
@@ -190,7 +190,7 @@ public class OpenRecordIterationTest {
 
     @Test(description = "Tests filter iterable operation on open records")
     public void testFilterOpWithOpenRecords() {
-        Object returns = JvmRunUtil.invoke(result, "testFilterOpWithOpenRecords");
+        Object returns = BRunUtil.invoke(result, "testFilterOpWithOpenRecords");
         BMap foo = (BMap) returns;
 
         Assert.assertNull(foo.get(StringUtils.fromString("a")));
@@ -203,13 +203,13 @@ public class OpenRecordIterationTest {
 
     @Test(description = "Tests count iterable operation on open records")
     public void testCountOpWithOpenRecords() {
-        Object returns = JvmRunUtil.invoke(result, "testCountOpWithOpenRecords");
+        Object returns = BRunUtil.invoke(result, "testCountOpWithOpenRecords");
         Assert.assertEquals(returns, 6L);
     }
 
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords() {
-        Object returns = JvmRunUtil.invoke(result, "testChainedOpsWithOpenRecords");
+        Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords");
         BMap foo = (BMap) returns;
 
         Assert.assertNull(foo.get(StringUtils.fromString("a")));
@@ -222,7 +222,7 @@ public class OpenRecordIterationTest {
 
     @Test(description = "Test case for map op on open records with all int fields")
     public void testMapWithAllStringOpenRecord() {
-        Object returns = JvmRunUtil.invoke(result, "testMapWithAllStringOpenRecord");
+        Object returns = BRunUtil.invoke(result, "testMapWithAllStringOpenRecord");
 
         BMap foo = (BMap) returns;
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "aa");
@@ -235,7 +235,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for map op on open records with all int fields")
     public void testMapWithAllIntOpenRecord() {
         Object[] args = new Object[]{(80), (75), (65), (78)};
-        Object returns = JvmRunUtil.invoke(result, "testMapWithAllIntOpenRecord", args);
+        Object returns = BRunUtil.invoke(result, "testMapWithAllIntOpenRecord", args);
 
         BMap gradesMap = (BMap) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), 90L);
@@ -248,7 +248,7 @@ public class OpenRecordIterationTest {
     public void testMapWithAllFloatOpenRecord() {
         final double a = 20.15, b = 7.89, c = 5.15, p = 9.9;
         Object[] args = new Object[]{(a), (b), (c)};
-        Object returns = JvmRunUtil.invoke(result, "testMapWithAllFloatOpenRecord", args);
+        Object returns = BRunUtil.invoke(result, "testMapWithAllFloatOpenRecord", args);
 
         BMap gradesMap = (BMap) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a + 10);
@@ -260,7 +260,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for filter op on open records with all string fields")
     public void testFilterWithAllStringOpenRecord() {
         final String a = "AA", e = "EE", f = "FF";
-        Object returns = JvmRunUtil.invoke(result, "testFilterWithAllStringOpenRecord");
+        Object returns = BRunUtil.invoke(result, "testFilterWithAllStringOpenRecord");
 
         BMap foo = (BMap) returns;
         Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), a);
@@ -274,7 +274,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for filter op on open records with all int fields")
     public void testFilterWithAllIntOpenRecord() {
         final long m = 80, p = 75, e = 78;
-        Object returns = JvmRunUtil.invoke(result, "testFilterWithAllIntOpenRecord");
+        Object returns = BRunUtil.invoke(result, "testFilterWithAllIntOpenRecord");
 
         BMap gradesMap = (BMap) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), m);
@@ -287,7 +287,7 @@ public class OpenRecordIterationTest {
     public void testFilterWithAllFloatOpenRecord() {
         final double a = 20.15, b = 7.89, c = 5.15, p = 9.9;
         Object[] args = new Object[]{(a), (b), (c)};
-        Object returns = JvmRunUtil.invoke(result, "testFilterWithAllFloatOpenRecord", args);
+        Object returns = BRunUtil.invoke(result, "testFilterWithAllFloatOpenRecord", args);
 
         BMap gradesMap = (BMap) returns;
         Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a);
@@ -301,7 +301,7 @@ public class OpenRecordIterationTest {
         long[] marks = new long[]{80, 75, 65, 78};
         Object[] args = new Object[]
                 {(marks[0]), (marks[1]), (marks[2]), (marks[3])};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord", args);
 
         Assert.assertEquals(returns.get(0), stream(marks).count());
         Assert.assertEquals(returns.get(1), stream(marks).max().getAsLong());
@@ -312,7 +312,7 @@ public class OpenRecordIterationTest {
 
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords2() {
-        Object returns = JvmRunUtil.invoke(result, "testChainedOpsWithOpenRecords2");
+        Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords2");
         BMap grades = (BMap) returns;
 
         Assert.assertEquals((grades.get(StringUtils.fromString("maths"))), 4.2);
@@ -323,7 +323,7 @@ public class OpenRecordIterationTest {
 
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords3() {
-        Object returns = JvmRunUtil.invoke(result, "testChainedOpsWithOpenRecords3");
+        Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords3");
         BMap grades = (BMap) returns;
 
         Assert.assertEquals((grades.get(StringUtils.fromString("maths"))), 4.2);
@@ -337,7 +337,7 @@ public class OpenRecordIterationTest {
         long[] marks = new long[]{80, 75, 0, 78};
         Object[] args = new Object[]
                 {(marks[0]), (marks[1]), (marks[3])};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord2", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord2", args);
 
         Assert.assertEquals(returns.get(0), stream(marks).count());
         Assert.assertEquals(returns.get(1), stream(marks).max().getAsLong());
@@ -349,7 +349,7 @@ public class OpenRecordIterationTest {
     @Test(description = "Test case for iterable op chains ending with a terminal op")
     public void testOpChainsWithTerminalOps() {
         long[] grades = new long[]{80, 76, 78};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testOpChainsWithTerminalOps",
+        BArray returns = (BArray) BRunUtil.invoke(result, "testOpChainsWithTerminalOps",
                 new Object[]{(grades[0]), (grades[1]),
                         (65)});
         grades = stream(grades).map(g -> g + 10).toArray();
@@ -362,7 +362,7 @@ public class OpenRecordIterationTest {
 
     @Test(description = "Test case for checking whether iterable ops mutate the original record")
     public void testMutability() {
-        Object returns = JvmRunUtil.invoke(result, "testMutability");
+        Object returns = BRunUtil.invoke(result, "testMutability");
         BMap grades = (BMap) returns;
         Assert.assertEquals(grades.size(), 4);
         Assert.assertEquals(grades.get(StringUtils.fromString("maths")), 80L);

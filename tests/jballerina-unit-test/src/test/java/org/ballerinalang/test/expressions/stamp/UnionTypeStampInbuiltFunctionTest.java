@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.types.BStringType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -56,7 +56,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToRecord");
         BMap<String, Object> employee0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(employee0.size(), 4);
@@ -73,7 +73,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToJSON() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToJSON");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToJSON");
         BMap<String, Object> employee0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(employee0.size(), 4);
@@ -90,7 +90,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToXML() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToXML");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToXML");
         Object xmlValue = results;
 
         Assert.assertEquals(getType(xmlValue).getClass(), BXmlType.class);
@@ -99,7 +99,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToIntMap() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToIntMap");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToIntMap");
         BMap<String, Object> mapValue = (BMap<String, Object>) results;
 
         Assert.assertEquals(getType(mapValue).getClass(), BMapType.class);
@@ -109,7 +109,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToConstraintMap() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToConstraintMap");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToConstraintMap");
         BMap<String, Object> employee0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(employee0.size(), 2);
@@ -144,7 +144,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToAnydata() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToAnydata");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToAnydata");
         Object stampedValue = results;
 
         Assert.assertEquals(getType(stampedValue).getClass(), BStringType.class);
@@ -153,7 +153,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToTuple() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampUnionToTuple");
+        Object arr = BRunUtil.invoke(compileResult, "stampUnionToTuple");
         BArray results = (BArray) arr;
         Object stampedValue0 = results.get(0);
         Object stampedValue1 = results.get(1);
@@ -168,7 +168,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToAnydataV2() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToAnydataV2");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToAnydataV2");
         Object stampedValue = results;
 
         Assert.assertEquals(getType(stampedValue).getClass(), BStringType.class);
@@ -177,7 +177,7 @@ public class UnionTypeStampInbuiltFunctionTest {
     @Test
     public void testStampUnionToConstraintMapToUnion() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampUnionToConstraintMapToUnion");
+        Object results = BRunUtil.invoke(compileResult, "stampUnionToConstraintMapToUnion");
         BMap<String, Object> employee0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(employee0.size(), 2);

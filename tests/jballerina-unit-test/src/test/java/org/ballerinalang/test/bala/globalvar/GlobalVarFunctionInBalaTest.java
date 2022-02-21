@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class GlobalVarFunctionInBalaTest {
     @Test(description = "Test Defining global variables")
     public void testDefiningGlobalVar() {
         Object[] args = new Object[0];
-        Object result = JvmRunUtil.invoke(compileResult, "getGlobalVars", args);
+        Object result = BRunUtil.invoke(compileResult, "getGlobalVars", args);
         BArray returns = (BArray) result;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -62,7 +62,7 @@ public class GlobalVarFunctionInBalaTest {
 
     @Test(description = "Test access global variable within function")
     public void testAccessGlobalVarWithinFunctions() {
-        Object returns = JvmRunUtil.invoke(compileResult, "accessGlobalVar");
+        Object returns = BRunUtil.invoke(compileResult, "accessGlobalVar");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 89143L);
     }
@@ -70,7 +70,7 @@ public class GlobalVarFunctionInBalaTest {
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
         Object[] args = {(88)};
-        Object returns = JvmRunUtil.invoke(compileResult, "changeGlobalVar", args);
+        Object returns = BRunUtil.invoke(compileResult, "changeGlobalVar", args);
 
         Assert.assertTrue(returns instanceof Double);
 
@@ -80,7 +80,7 @@ public class GlobalVarFunctionInBalaTest {
         CompileResult resultGlobalVar = BCompileUtil
                 .compile("test-src/statements/variabledef/global-var-function.bal");
 
-        Object returnsChanged = JvmRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar");
+        Object returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar");
 
         Assert.assertTrue(returnsChanged instanceof Double);
 
@@ -89,7 +89,7 @@ public class GlobalVarFunctionInBalaTest {
 
     @Test(description = "Test assigning global variable to another global variable")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "getGlobalVarFloat1");
+        Object returns = BRunUtil.invoke(compileResult, "getGlobalVarFloat1");
 
         Assert.assertTrue(returns instanceof Double);
 
@@ -98,7 +98,7 @@ public class GlobalVarFunctionInBalaTest {
 
     @Test(description = "Test assigning global var within a function")
     public void testInitializingGlobalVarWithinFunction() {
-        Object result = JvmRunUtil.invoke(compileResult, "initializeGlobalVarSeparately");
+        Object result = BRunUtil.invoke(compileResult, "initializeGlobalVarSeparately");
         BArray returns = (BArray) result;
 
         Assert.assertEquals(returns.size(), 2);
@@ -111,7 +111,7 @@ public class GlobalVarFunctionInBalaTest {
 
     @Test(description = "Test global variable byte")
     public void testGlobalVarByte() {
-        Object returns = JvmRunUtil.invoke(compileResult, "getGlobalVarByte");
+        Object returns = BRunUtil.invoke(compileResult, "getGlobalVarByte");
         Assert.assertTrue(returns instanceof Integer);
         Assert.assertEquals(returns, 234);
     }
@@ -119,7 +119,7 @@ public class GlobalVarFunctionInBalaTest {
     @Test(description = "Test global variable byte array1")
     public void testGlobalVarByteArray1() {
         byte[] bytes1 = new byte[]{2, 3, 4, 67, 89};
-        Object returns = JvmRunUtil.invoke(compileResult, "getGlobalVarByteArray1");
+        Object returns = BRunUtil.invoke(compileResult, "getGlobalVarByteArray1");
         Assert.assertTrue(returns instanceof BArray);
         BArray blob1 = (BArray) returns;
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1.getBytes());
@@ -129,7 +129,7 @@ public class GlobalVarFunctionInBalaTest {
     public void testGlobalVarByteArray2() {
         String b1 = "afcd34abcdef+dfginermkmf123w/bc234cd/1a4bdfaaFGTdaKMN8923as=";
         byte[] bytes1 = ByteArrayUtils.decodeBase64(b1);
-        Object returns = JvmRunUtil.invoke(compileResult, "getGlobalVarByteArray2");
+        Object returns = BRunUtil.invoke(compileResult, "getGlobalVarByteArray2");
         Assert.assertTrue(returns instanceof BArray);
         BArray blob1 = (BArray) returns;
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1.getBytes());
@@ -139,7 +139,7 @@ public class GlobalVarFunctionInBalaTest {
     public void testGlobalVarByteArray3() {
         String b1 = "afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df";
         byte[] bytes1 = ByteArrayUtils.hexStringToByteArray(b1);
-        Object returns = JvmRunUtil.invoke(compileResult, "getGlobalVarByteArray3");
+        Object returns = BRunUtil.invoke(compileResult, "getGlobalVarByteArray3");
         Assert.assertTrue(returns instanceof BArray);
         BArray blob1 = (BArray) returns;
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1.getBytes());
@@ -147,7 +147,7 @@ public class GlobalVarFunctionInBalaTest {
 
     @Test(description = "Test access global arrays within functions")
     public void testGlobalArraysWithinFunction() {
-        Object result = JvmRunUtil.invoke(compileResult, "getGlobalArrays");
+        Object result = BRunUtil.invoke(compileResult, "getGlobalArrays");
         BArray returns = (BArray) result;
 
         Assert.assertEquals(returns.size(), 7);

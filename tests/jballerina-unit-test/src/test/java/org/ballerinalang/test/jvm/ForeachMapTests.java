@@ -19,7 +19,7 @@ package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +52,7 @@ public class ForeachMapTests {
     public void testMapWithArityOne() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append("_").append(":").append(value).append(" "));
-        Object returns = JvmRunUtil.invoke(program, "testMapWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testMapWithArityOne");
 
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -61,7 +61,7 @@ public class ForeachMapTests {
     public void testMapWithArityTwo() {
         StringBuilder sb = new StringBuilder();
         values.forEach((key, value) -> sb.append(key).append(":").append(value).append(" "));
-        Object returns = JvmRunUtil.invoke(program, "testMapWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testMapWithArityTwo");
 
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -71,7 +71,7 @@ public class ForeachMapTests {
         String result = "a:1A a:1A b:2B c:3C aa:1A1A \n" +
                 "b:2B a:1A b:2B c:3C aa:1A1A bb:2B2B \n" +
                 "c:3C a:1A b:2B c:3C aa:1A1A bb:2B2B cc:3C3C \n";
-        Object returns = JvmRunUtil.invoke(program, "testAddWhileIteration");
+        Object returns = BRunUtil.invoke(program, "testAddWhileIteration");
 
         Assert.assertEquals(returns.toString(), result);
     }

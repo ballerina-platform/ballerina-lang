@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -93,7 +93,7 @@ public class FinalAccessTest {
     @Test(description = "Test final global variable")
     public void testFinalAccess() {
 
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testFinalAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testFinalAccess");
 
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 10L);
@@ -111,7 +111,7 @@ public class FinalAccessTest {
     @Test(description = "Test final global variable")
     public void testFinalStringAccess() {
 
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testFinalStringAccess");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testFinalStringAccess");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals((returns.get(0)).toString(), "hello");
@@ -128,49 +128,49 @@ public class FinalAccessTest {
 
     @Test(description = "Test final global variable as a parameter")
     public void testFinalFieldAsParameter() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFinalFieldAsParameter");
+        Object returns = BRunUtil.invoke(compileResult, "testFinalFieldAsParameter");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 10L);
     }
 
     @Test(description = "Test final parameter")
     public void testFieldAsFinalParameter() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFieldAsFinalParameter");
+        Object returns = BRunUtil.invoke(compileResult, "testFieldAsFinalParameter");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test final local variable with type")
     public void testLocalFinalValueWithType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLocalFinalValueWithType");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithType");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test final local variable without type")
     public void testLocalFinalValueWithoutType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLocalFinalValueWithoutType");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithoutType");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test final local variable with type initialized from a function")
     public void testLocalFinalValueWithTypeInitializedFromFunction() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLocalFinalValueWithTypeInitializedFromFunction");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithTypeInitializedFromFunction");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test final local variable without type initialized from a function")
     public void testLocalFinalValueWithoutTypeInitializedFromFunction() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLocalFinalValueWithoutTypeInitializedFromFunction");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalFinalValueWithoutTypeInitializedFromFunction");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(dataProvider = "finalLocalNoInitVarTests")
     public void testFinalLocalNoInitVar(String function) {
-        JvmRunUtil.invoke(finalLocalNoInitVarResult, function);
+        BRunUtil.invoke(finalLocalNoInitVarResult, function);
     }
 
     @DataProvider(name = "finalLocalNoInitVarTests")

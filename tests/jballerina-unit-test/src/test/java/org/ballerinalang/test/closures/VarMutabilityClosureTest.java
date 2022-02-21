@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,37 +46,37 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test basic closure operations with variable mutability")
     public void testBasicClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test1");
+        Object returns = BRunUtil.invoke(compileResult, "test1");
         Assert.assertEquals(returns, 49L);
     }
 
     @Test(description = "Test two level closure operations with variable mutability")
     public void testTwoLevelClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test2");
+        Object returns = BRunUtil.invoke(compileResult, "test2");
         Assert.assertEquals(returns, 152L);
     }
 
     @Test(description = "Test three level operations with variable mutability")
     public void testThreeLevelClosure1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test3");
+        Object returns = BRunUtil.invoke(compileResult, "test3");
         Assert.assertEquals(returns, 388L);
     }
 
     @Test(description = "Test with if block with variable mutability")
     public void testClosureWithIfBlock() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test4");
+        Object returns = BRunUtil.invoke(compileResult, "test4");
         Assert.assertEquals(returns, 246L);
     }
 
     @Test(description = "Test multi level function pointer call with variable mutability")
     public void testMultiLevelFPCallWithClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test5");
+        Object returns = BRunUtil.invoke(compileResult, "test5");
         Assert.assertEquals(returns, 250L);
     }
 
     @Test(description = "Test variable mutability with tuples")
     public void testVarMutabilityWithTuples() {
-        Object result = JvmRunUtil.invoke(compileResult, "test6");
+        Object result = BRunUtil.invoke(compileResult, "test6");
         BArray returns = (BArray) result;
         Assert.assertEquals(returns.get(0), 80L);
         Assert.assertEquals(returns.get(1).toString(), "one-two-three-four-five-three-six");
@@ -84,7 +84,7 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test with arrays")
     public void testVarMutabilityWithArrays() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test7");
+        Object returns = BRunUtil.invoke(compileResult, "test7");
         Assert.assertEquals(((BArray) returns).size(), 9);
         Assert.assertEquals(((BArray) returns).getString(0), "a");
         Assert.assertEquals(((BArray) returns).getString(1), "B");
@@ -100,7 +100,7 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test variable mutability with maps")
     public void testVarMutabilityWithMaps() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test8");
+        Object returns = BRunUtil.invoke(compileResult, "test8");
         Assert.assertEquals(((BMap) returns).size(), 8);
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("a")).toString(), "AAAA");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("b")).toString(), "BB");
@@ -115,7 +115,7 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test variable mutability with objects")
     public void testVarMutabilityWithObjects() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test9");
+        Object returns = BRunUtil.invoke(compileResult, "test9");
         Assert.assertEquals(((BObject) returns).get(StringUtils.fromString("age")).toString(), "25");
         Assert.assertEquals(((BObject) returns).get(StringUtils.fromString("name")).toString(), "Adam");
         Assert.assertEquals(((BObject) returns).get(StringUtils.fromString("fullName")).toString(), "Papadam Page");
@@ -123,7 +123,7 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test variable mutability with records")
     public void testVarMutabilityWithRecords() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test10");
+        Object returns = BRunUtil.invoke(compileResult, "test10");
 
         BMap resMap = ((BMap) returns);
         Assert.assertEquals(resMap.get(StringUtils.fromString("age")).toString(), "17");
@@ -139,7 +139,7 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test variable mutability with json objects")
     public void testVarMutabilityWithJSONObjects() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test11");
+        Object returns = BRunUtil.invoke(compileResult, "test11");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("f1")).toString(), "{\"name\":\"apple\"," +
                 "\"color\":\"red\",\"price\":12.48}");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("f2")).toString(), "{\"name\":\"orange\"," +
@@ -150,7 +150,7 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test variable mutability with xml")
     public void testVarMutabilityWithXML() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test12");
+        Object returns = BRunUtil.invoke(compileResult, "test12");
         Assert.assertEquals(((BXmlSequence) returns).size(), 3);
         Assert.assertEquals(((BXmlSequence) returns).getItem(0).toString(), "<book>The Princess Diaries" +
                 "</book>");
@@ -160,7 +160,7 @@ public class VarMutabilityClosureTest {
 
     @Test(description = "Test variable mutability with error types")
     public void testVarMutabilityWithError() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test13");
+        Object returns = BRunUtil.invoke(compileResult, "test13");
         Assert.assertEquals(((BError) returns).getErrorMessage().toString(), "Account Not Found");
         String s = ((BError) returns).getDetails().toString();
         Assert.assertEquals(s, "{\"accountID\":222}");

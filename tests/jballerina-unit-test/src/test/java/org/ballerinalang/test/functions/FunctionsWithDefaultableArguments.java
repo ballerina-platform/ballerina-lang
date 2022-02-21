@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments with function calls as default value")
     public void testFunctionCallAsDefaultExpr() {
-        Object arr = JvmRunUtil.invoke(result, "testFunctionCallAsDefaultExpr");
+        Object arr = BRunUtil.invoke(result, "testFunctionCallAsDefaultExpr");
         BArray returns = (BArray) arr;
         Assert.assertTrue(returns.get(0) instanceof  BArray);
         Assert.assertTrue(returns.get(1) instanceof  BArray);
@@ -75,7 +75,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments with record literal as default value")
     public void testRecordAsDefaultExpr() {
-        Object arr = JvmRunUtil.invoke(result, "testRecordAsDefaultExpr");
+        Object arr = BRunUtil.invoke(result, "testRecordAsDefaultExpr");
         BArray returns = (BArray) arr;
         Assert.assertTrue(returns.get(0) instanceof BMap);
         Assert.assertTrue(returns.get(1) instanceof BMap);
@@ -109,7 +109,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test function pointer arguments")
     public void testDefaultExprInFunctionPointers() {
-        Object arr = JvmRunUtil.invoke(result, "testDefaultExprInFunctionPointers");
+        Object arr = BRunUtil.invoke(result, "testDefaultExprInFunctionPointers");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.get(0), 200L);
         Assert.assertEquals(returns.get(1).toString(), "given");
@@ -119,7 +119,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments with combined expressions for default values")
     public void testCombinedExprAsDefaultValue() {
-        Object arr = JvmRunUtil.invoke(result, "testCombinedExprAsDefaultValue");
+        Object arr = BRunUtil.invoke(result, "testCombinedExprAsDefaultValue");
         BArray returns = (BArray) arr;
         Assert.assertTrue(returns.get(0) instanceof  BArray);
         Assert.assertTrue(returns.get(1) instanceof  BArray);
@@ -143,12 +143,12 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments with error as default values")
     public void testDefaultValueWithError() {
-        JvmRunUtil.invoke(result, "testDefaultValueWithError");
+        BRunUtil.invoke(result, "testDefaultValueWithError");
     }
 
     @Test(description = "Test functions arguments with error as default values")
     public void testDefaultValueWithTernary() {
-        Object arr = JvmRunUtil.invoke(result, "testDefaultValueWithTernary");
+        Object arr = BRunUtil.invoke(result, "testDefaultValueWithTernary");
         BArray returns = (BArray) arr;
         Assert.assertTrue(returns.get(0) instanceof  BArray);
         Assert.assertTrue(returns.get(1) instanceof  BArray);
@@ -171,14 +171,14 @@ public class FunctionsWithDefaultableArguments {
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: Panic!.*")
     public void testPanicWithinDefaultExpr() {
-        Object returns = JvmRunUtil.invoke(result, "testPanicWithinDefaultExpr");
+        Object returns = BRunUtil.invoke(result, "testPanicWithinDefaultExpr");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 0L);
     }
 
     @Test(description = "Test functions arguments object type as default value")
     public void testDefaultObject() {
-        Object arr = JvmRunUtil.invoke(result, "testDefaultObject");
+        Object arr = BRunUtil.invoke(result, "testDefaultObject");
         BArray returns = (BArray) arr;
         Assert.assertTrue(returns.get(0) instanceof  BArray);
         Assert.assertTrue(returns.get(1) instanceof  BArray);
@@ -194,7 +194,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(dataProvider = "functionsWithDefaultByteValues")
     public void testFuncWithDefaultByteParamValues(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider
@@ -207,14 +207,14 @@ public class FunctionsWithDefaultableArguments {
 
     @Test
     public void testFuncWithAsyncDefaultParamExpression() {
-        Object returns = JvmRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
+        Object returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "hellohelloworldhellosamplevalue");
     }
 
     @Test
     public void testUsingParamValues() {
-        Object returns = JvmRunUtil.invoke(result, "testUsingParamValues");
+        Object returns = BRunUtil.invoke(result, "testUsingParamValues");
         Assert.assertTrue(returns instanceof BString);
 
         Assert.assertEquals(returns.toString(), "hellohelloasyncworldworldasyncsamplevalue");
@@ -222,7 +222,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test
     public void testAttachedAsyncDefaultParam() {
-        Object returns = JvmRunUtil.invoke(result, "testAttachedAsyncDefaultParam");
+        Object returns = BRunUtil.invoke(result, "testAttachedAsyncDefaultParam");
         Assert.assertTrue(returns instanceof BString);
 
         Assert.assertEquals(returns.toString(), "hellohelloworldhellosamplevalue");
@@ -230,7 +230,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test
     public void testUsingParamValuesInAttachedFunc() {
-        Object returns = JvmRunUtil.invoke(result, "testUsingParamValuesInAttachedFunc");
+        Object returns = BRunUtil.invoke(result, "testUsingParamValuesInAttachedFunc");
         Assert.assertTrue(returns instanceof BString);
 
         Assert.assertEquals(returns.toString(), "hellohelloasyncworldworldasyncsamplevalue");

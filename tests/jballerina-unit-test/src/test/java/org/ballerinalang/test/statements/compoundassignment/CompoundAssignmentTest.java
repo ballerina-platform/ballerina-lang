@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition.")
     public void testCompoundAssignmentAddition() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAddition");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAddition");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 15L);
@@ -52,7 +52,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with subtraction.")
     public void testCompoundAssignmentSubtraction() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentSubtraction");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentSubtraction");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, -5L);
@@ -60,7 +60,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with multiplication.")
     public void testCompoundAssignmentMultiplication() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentMultiplication");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentMultiplication");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 50L);
@@ -68,7 +68,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with division.")
     public void testCompoundAssignmentDivision() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentDivision");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentDivision");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 10L);
@@ -76,7 +76,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with bitwise AND.")
     public void testCompoundAssignmentBitwiseAND() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentBitwiseAND");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentBitwiseAND");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 5L);
@@ -84,7 +84,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with bitwise OR.")
     public void testCompoundAssignmentBitwiseOR() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentBitwiseOR");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentBitwiseOR");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 15L);
@@ -92,7 +92,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with bitwise XOR.")
     public void testCompoundAssignmentBitwiseXOR() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentBitwiseXOR");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentBitwiseXOR");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 10L);
@@ -100,7 +100,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with left shift.")
     public void testCompoundAssignmentLeftShift() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentLeftShift");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentLeftShift");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 16L);
@@ -108,7 +108,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with right shift.")
     public void testCompoundAssignmentRightShift() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentRightShift");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentRightShift");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 4L);
@@ -116,7 +116,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with logical shift.")
     public void testCompoundAssignmentLogicalShift() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentLogicalShift");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentLogicalShift");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 4L);
@@ -124,7 +124,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition on array element.")
     public void testCompoundAssignmentAdditionArrayElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 110L);
@@ -132,7 +132,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with subtraction on array element.")
     public void testCompoundAssignmentSubtractionArrayElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentSubtractionArrayElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentSubtractionArrayElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 90L);
@@ -140,7 +140,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with multiplication on array element.")
     public void testCompoundAssignmentMultiplicationArrayElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentMultiplicationArrayElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentMultiplicationArrayElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 1000L);
@@ -148,7 +148,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with division on array element.")
     public void testCompoundAssignmentDivisionArrayElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentDivisionArrayElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentDivisionArrayElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 10L);
@@ -157,7 +157,7 @@ public class CompoundAssignmentTest {
     @Test(description = "Test compound assignment with addition on array element where the index is an invocation.")
     public void testCompoundAssignmentAdditionArrayElementFunctionInvocation() {
         BArray returns =
-                (BArray) JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElementFunctionInvocation");
+                (BArray) BRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElementFunctionInvocation");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertTrue(returns.get(1) instanceof Long);
@@ -170,7 +170,7 @@ public class CompoundAssignmentTest {
     @Test(description = "Test compound assignment with subtraction on array element where the index is an invocation.")
     public void testCompoundAssignmentSubtractionArrayElementFunctionInvocation() {
         BArray returns =
-                (BArray) JvmRunUtil.invoke(result, "testCompoundAssignmentSubtractionArrayElementFunctionInvocation");
+                (BArray) BRunUtil.invoke(result, "testCompoundAssignmentSubtractionArrayElementFunctionInvocation");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertTrue(returns.get(1) instanceof Long);
@@ -183,7 +183,7 @@ public class CompoundAssignmentTest {
     @Test(description = "Test compound assignment with division on array element where the index is an invocation.")
     public void testCompoundAssignmentDivisionArrayElementFunctionInvocation() {
         BArray returns =
-                (BArray) JvmRunUtil.invoke(result, "testCompoundAssignmentDivisionArrayElementFunctionInvocation");
+                (BArray) BRunUtil.invoke(result, "testCompoundAssignmentDivisionArrayElementFunctionInvocation");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertTrue(returns.get(1) instanceof Long);
@@ -196,7 +196,7 @@ public class CompoundAssignmentTest {
     @Test(description = "Test compound assignment with multiplication on array element where the index is an " +
             "invocation.")
     public void testCompoundAssignmentMultiplicationArrayElementFunctionInvocation() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result,
+        BArray returns = (BArray) BRunUtil.invoke(result,
                 "testCompoundAssignmentMultiplicationArrayElementFunctionInvocation");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -211,7 +211,7 @@ public class CompoundAssignmentTest {
             "invocation.")
     public void testCompoundAssignmentArrayElementFunctionInvocationOrder() {
         BArray returns =
-                (BArray) JvmRunUtil.invoke(result, "testCompoundAssignmentArrayElementFunctionInvocationOrder");
+                (BArray) BRunUtil.invoke(result, "testCompoundAssignmentArrayElementFunctionInvocationOrder");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 30L);
@@ -221,7 +221,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition on struct element.")
     public void testCompoundAssignmentAdditionStructElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 110L);
@@ -229,7 +229,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with subtraction on struct element.")
     public void testCompoundAssignmentSubtractionStructElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentSubtractionStructElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentSubtractionStructElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 90L);
@@ -237,7 +237,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with multiplication on struct element.")
     public void testCompoundAssignmentMultiplicationStructElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentMultiplicationStructElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentMultiplicationStructElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 1000L);
@@ -245,7 +245,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with division on struct element.")
     public void testCompoundAssignmentDivisionStructElement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentDivisionStructElement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentDivisionStructElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 10L);
@@ -253,7 +253,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test increment operator on struct element.")
     public void testIncrementOperatorArrayElement() {
-        Object returns = JvmRunUtil.invoke(result, "testIncrementOperatorArrayElement");
+        Object returns = BRunUtil.invoke(result, "testIncrementOperatorArrayElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 101L);
@@ -261,7 +261,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test decrement operator on array element.")
     public void testDecrementOperatorArrayElement() {
-        Object returns = JvmRunUtil.invoke(result, "testDecrementOperatorArrayElement");
+        Object returns = BRunUtil.invoke(result, "testDecrementOperatorArrayElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 99L);
@@ -269,7 +269,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test increment operator on struct element.")
     public void testIncrementOperatorStructElement() {
-        Object returns = JvmRunUtil.invoke(result, "testIncrementOperatorStructElement");
+        Object returns = BRunUtil.invoke(result, "testIncrementOperatorStructElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 889L);
@@ -277,7 +277,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test increment operator on float.")
     public void testDecrementOperatorStructElement() {
-        Object returns = JvmRunUtil.invoke(result, "testDecrementOperatorStructElement");
+        Object returns = BRunUtil.invoke(result, "testDecrementOperatorStructElement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 887L);
@@ -285,7 +285,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test increment operator on float.")
     public void testIncrementOperatorFloat() {
-        Object returns = JvmRunUtil.invoke(result, "testIncrementOperatorFloat");
+        Object returns = BRunUtil.invoke(result, "testIncrementOperatorFloat");
         
         Assert.assertTrue(returns instanceof Double);
         Assert.assertEquals(returns, 101.0);
@@ -293,7 +293,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test decrement operator on float.")
     public void testDecrementOperatorFloat() {
-        Object returns = JvmRunUtil.invoke(result, "testDecrementOperatorFloat");
+        Object returns = BRunUtil.invoke(result, "testDecrementOperatorFloat");
         
         Assert.assertTrue(returns instanceof Double);
         Assert.assertEquals(returns, 99.0);
@@ -301,7 +301,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition of int and string.")
     public void testStringIntCompoundAssignmentAddition() {
-        Object returns = JvmRunUtil.invoke(result, "testStringIntCompoundAssignmentAddition");
+        Object returns = BRunUtil.invoke(result, "testStringIntCompoundAssignmentAddition");
         
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "test5");
@@ -309,7 +309,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition of int and float.")
     public void testIntFloatCompoundAssignmentAddition() {
-        Object returns = JvmRunUtil.invoke(result, "testIntFloatCompoundAssignmentAddition");
+        Object returns = BRunUtil.invoke(result, "testIntFloatCompoundAssignmentAddition");
         
         Assert.assertTrue(returns instanceof Double);
         Assert.assertEquals(returns, 7.5);
@@ -317,7 +317,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition of xml attribute and string.")
     public void testXMLAttributeWithCompoundAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testXMLAttributeWithCompoundAssignment");
+        Object returns = BRunUtil.invoke(result, "testXMLAttributeWithCompoundAssignment");
         
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "bar1bar2");
@@ -325,7 +325,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition recursive integer reference.")
     public void testCompoundAssignmentAdditionRecursive() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionRecursive");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionRecursive");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 10L);
@@ -333,7 +333,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition recursive struct element reference.")
     public void testCompoundAssignmentAdditionStructElementRecursive() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElementRecursive");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElementRecursive");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 200L);
@@ -341,7 +341,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition to expression.")
     public void testCompoundAssignmentAdditionWithExpression() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionWithExpression");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionWithExpression");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 19L);
@@ -349,7 +349,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with multiple addition.")
     public void testCompoundAssignmentAdditionMultiple() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionMultiple");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionMultiple");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 20L);
@@ -357,7 +357,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with multiple addition and increments.")
     public void testCompoundAssignmentAdditionMultipleWithIncrement() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionMultipleWithIncrement");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionMultipleWithIncrement");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 19L);
@@ -365,7 +365,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition with struct access expression.")
     public void testCompoundAssignmentAdditionWithStructAccess() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionWithStructAccess");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionWithStructAccess");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 305L);
@@ -373,7 +373,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition with function invocation expression.")
     public void testCompoundAssignmentAdditionWithFunctionInvocation() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionWithFunctionInvocation");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionWithFunctionInvocation");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 205L);
@@ -381,7 +381,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition with two struct elements.")
     public void testCompoundAssignmentAdditionStructElements() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElements");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElements");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 500L);
@@ -389,7 +389,7 @@ public class CompoundAssignmentTest {
 
     @Test(description = "Test compound assignment with addition.")
     public void testCompoundAssignmentOfXmlAndString() {
-        Object returns = JvmRunUtil.invoke(result, "xmlCompoundAssignment");
+        Object returns = BRunUtil.invoke(result, "xmlCompoundAssignment");
         Assert.assertTrue(returns instanceof BXmlSequence);
         BXmlSequence sequence = (BXmlSequence) returns;
         Assert.assertEquals(sequence.size(), 3);
@@ -399,7 +399,7 @@ public class CompoundAssignmentTest {
 
     @Test
     public void testCompoundAssignmentAdditionRecordElementRecursive() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionRecordElementRecursive");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionRecordElementRecursive");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 200L);
@@ -407,7 +407,7 @@ public class CompoundAssignmentTest {
 
     @Test
     public void testCompoundAssignmentAdditionRecordElements() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionRecordElements");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionRecordElements");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 500L);
@@ -415,7 +415,7 @@ public class CompoundAssignmentTest {
 
     @Test
     public void testCompoundAssignmentAdditionWithRecordAccess() {
-        Object returns = JvmRunUtil.invoke(result, "testCompoundAssignmentAdditionWithRecordAccess");
+        Object returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionWithRecordAccess");
         
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 305L);
@@ -492,7 +492,7 @@ public class CompoundAssignmentTest {
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
             "binary operations with types")
     public void testCompoundAssignmentBinaryOpsWithTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

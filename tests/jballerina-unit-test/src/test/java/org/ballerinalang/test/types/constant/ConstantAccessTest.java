@@ -21,7 +21,7 @@ package org.ballerinalang.test.types.constant;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +41,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test accessing constant from other packages")
     public void testAccessingConstantFromOtherPkg() {
-        Object returns = JvmRunUtil.invoke(compileResult, "accessConstantFromOtherPkg");
+        Object returns = BRunUtil.invoke(compileResult, "accessConstantFromOtherPkg");
 
         Assert.assertSame(returns.getClass(), Double.class);
         Assert.assertEquals(returns, 342342.234);
@@ -49,21 +49,21 @@ public class ConstantAccessTest {
 
     @Test(description = "Test accessing public constant from other packages")
     public void accessPublicConstantFromOtherPackage() {
-        Object returns = JvmRunUtil.invoke(compileResult, "accessPublicConstantFromOtherPackage");
+        Object returns = BRunUtil.invoke(compileResult, "accessPublicConstantFromOtherPackage");
 
         Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test accessing public constant type from other packages")
     public void accessPublicConstantTypeFromOtherPackage() {
-        Object returns = JvmRunUtil.invoke(compileResult, "accessPublicConstantTypeFromOtherPackage");
+        Object returns = BRunUtil.invoke(compileResult, "accessPublicConstantTypeFromOtherPackage");
 
         Assert.assertEquals(returns.toString(), "A");
     }
 
     @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "assignConstFromOtherPkgToGlobalVar");
+        Object returns = BRunUtil.invoke(compileResult, "assignConstFromOtherPkgToGlobalVar");
 
         Assert.assertSame(returns.getClass(), Double.class);
         Assert.assertEquals(returns, 342342.234);
@@ -71,7 +71,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test negative constant values")
     public void testNegativeConstantValues() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getNegativeConstants");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getNegativeConstants");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -85,7 +85,7 @@ public class ConstantAccessTest {
 
     @Test(description = "Test assigning float to int in constants")
     public void floatIntConversion() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "floatIntConversion");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "floatIntConversion");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertSame(returns.get(0).getClass(), Double.class);
         Assert.assertEquals(returns.get(0), 4.0);
@@ -99,7 +99,7 @@ public class ConstantAccessTest {
 
     @Test
     public void testTypeAssignment() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTypeAssignment");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeAssignment");
 
         Assert.assertEquals(returns.toString(), "A");
     }

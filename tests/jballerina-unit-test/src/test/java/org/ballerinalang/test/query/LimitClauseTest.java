@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class LimitClauseTest {
 
     @Test(description = "Test limit clause when limit < number of elements")
     public void testLimitClauseWithQueryExpr() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testLimitClauseWithQueryExpr");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testLimitClauseWithQueryExpr");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
@@ -63,7 +63,7 @@ public class LimitClauseTest {
 
     @Test(description = "Test limit clause when limit > number of elements")
     public void testLimitClauseWithQueryExpr2() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testLimitClauseWithQueryExpr2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testLimitClauseWithQueryExpr2");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 3, "Expected events are not received");
@@ -79,7 +79,7 @@ public class LimitClauseTest {
 
     @Test(description = "Test limit clause when limit = number of elements")
     public void testLimitClauseWithQueryExpr3() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testLimitClauseWithQueryExpr3");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testLimitClauseWithQueryExpr3");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 3, "Expected events are not received");
@@ -95,13 +95,13 @@ public class LimitClauseTest {
 
     @Test
     public void testLimitClauseReturnStream() {
-        Object values = JvmRunUtil.invoke(result, "testLimitClauseReturnStream", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testLimitClauseReturnStream", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test query action with limit clause return simple value")
     public void testLimitClauseWithQueryAction() {
-        Object returnValues = JvmRunUtil.invoke(result, "testLimitClauseWithQueryAction");
+        Object returnValues = BRunUtil.invoke(result, "testLimitClauseWithQueryAction");
         Assert.assertNotNull(returnValues);
 
         long i = (long) returnValues;
@@ -111,7 +111,7 @@ public class LimitClauseTest {
 
     @Test(description = "Test query action with limit clause return list")
     public void testLimitClauseWithQueryAction2() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testLimitClauseWithQueryAction2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testLimitClauseWithQueryAction2");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 1, "Expected events are not received");
 
@@ -123,7 +123,7 @@ public class LimitClauseTest {
 
     @Test(description = "Test limit clause when limit > number of elements")
     public void testLimitClauseWithQueryAction3() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testLimitClauseWithQueryAction3");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testLimitClauseWithQueryAction3");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -136,7 +136,7 @@ public class LimitClauseTest {
 
     @Test(description = "Test limit clause when limit = number of elements")
     public void testLimitClauseWithQueryAction4() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testLimitClauseWithQueryAction4");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testLimitClauseWithQueryAction4");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -149,7 +149,7 @@ public class LimitClauseTest {
 
     @Test(description = "Test limit clause a let expression")
     public void testLetExpressionWithLimitClause() {
-        Object values = JvmRunUtil.invoke(result, "testLetExpressionWithLimitClause");
+        Object values = BRunUtil.invoke(result, "testLetExpressionWithLimitClause");
         Assert.assertTrue((Boolean) values);
     }
 

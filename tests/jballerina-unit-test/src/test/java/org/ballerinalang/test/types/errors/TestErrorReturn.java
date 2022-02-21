@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.errors;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +41,7 @@ public class TestErrorReturn {
     @Test(description = "Testing test1 method")
     public void testValidateIgnoreReturn1() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "test1", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "test1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0).toString(), "a");
@@ -52,7 +52,7 @@ public class TestErrorReturn {
     @Test(description = "Testing test2 method")
     public void testValidateIgnoreReturn2() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "test2", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "test2", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0).toString(), "a");
@@ -63,7 +63,7 @@ public class TestErrorReturn {
     @Test(description = "Testing test3 method")
     public void testValidateIgnoreReturn3() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "test3", args);
+        Object returns = BRunUtil.invoke(compileResult, "test3", args);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 1.0);
     }
@@ -72,7 +72,7 @@ public class TestErrorReturn {
     public void testValidateErrorReturn() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/errors/error-return.bal");
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testReturnError", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testReturnError", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns.get(0));
         Assert.assertEquals(returns.get(0).toString(), "FOO:10.5");
@@ -83,7 +83,7 @@ public class TestErrorReturn {
         Assert.assertNotNull(returns.get(3));
         Assert.assertEquals(returns.get(3).toString(), "BAR:11.5");
 
-        Object returns1 = JvmRunUtil.invoke(compileResult, "testReturnAndThrowError", args);
+        Object returns1 = BRunUtil.invoke(compileResult, "testReturnAndThrowError", args);
         Assert.assertNotNull(returns1);
         Assert.assertEquals(returns1.toString(), "invalid name");
     }
@@ -91,8 +91,8 @@ public class TestErrorReturn {
     @Test(description = "test case for validating when all variables are ignored. ")
     public void testValidateIgnoreAll() {
         Object[] args = {};
-        JvmRunUtil.invoke(compileResult, "test4", args);
-        JvmRunUtil.invoke(compileResult, "test5", args);
+        BRunUtil.invoke(compileResult, "test4", args);
+        BRunUtil.invoke(compileResult, "test5", args);
     }
 
     @AfterClass

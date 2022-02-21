@@ -21,7 +21,7 @@ package org.ballerinalang.test.statements.variabledef;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,7 +55,7 @@ public class VariableScopeTest {
 
     private void scopeValue(CompileResult result, String functionName, int a, int b, int c, int expected) {
         Object[] args = {(a), (b), (c)};
-        Object returns = JvmRunUtil.invoke(result, functionName, args);
+        Object returns = BRunUtil.invoke(result, functionName, args);
         Assert.assertEquals(returns.getClass(), Long.class);
         long actual = (long) returns;
         Assert.assertEquals(actual, expected);

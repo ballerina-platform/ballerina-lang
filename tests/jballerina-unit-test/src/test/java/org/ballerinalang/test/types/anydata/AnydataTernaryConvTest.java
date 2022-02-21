@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.types.BArrayType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,7 +49,7 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to value type conversion using ternary operator")
     public void testAnydataToValueTypes() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testAnydataToValueTypes");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToValueTypes");
         assertEquals(returns.get(0), 33L);
         assertEquals(returns.get(1), 23.45);
         assertTrue((Boolean) returns.get(2));
@@ -58,28 +58,28 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to json conversion")
     public void testAnydataToJson() {
-        Object returns = JvmRunUtil.invoke(result, "testAnydataToJson");
+        Object returns = BRunUtil.invoke(result, "testAnydataToJson");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
         assertEquals(returns.toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
     }
 
     @Test(description = "Test anydata to xml conversion")
     public void testAnydataToXml() {
-        Object returns = JvmRunUtil.invoke(result, "testAnydataToXml");
+        Object returns = BRunUtil.invoke(result, "testAnydataToXml");
         assertEquals(getType(returns).getTag(), TypeTags.XML_ELEMENT_TAG);
         assertEquals(returns.toString(), "<book>The Lost World</book>");
     }
 
     @Test(description = "Test anydata to record conversion")
     public void testAnydataToRecord() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testAnydataToRecord");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToRecord");
         assertEquals(getType(returns.get(0)).getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns.get(0).toString(), "{\"a\":15}");
     }
 
     @Test(description = "Test anydata to union conversion")
     public void testAnydataToUnion() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testAnydataToUnion");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToUnion");
         assertEquals(getType(returns.get(0)).getTag(), TypeTags.INT_TAG);
         assertEquals(getType(returns.get(1)).getTag(), TypeTags.FLOAT_TAG);
         assertEquals(getType(returns.get(2)).getTag(), TypeTags.STRING_TAG);
@@ -94,7 +94,7 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to union conversion for complex types")
     public void testAnydataToUnion2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testAnydataToUnion2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToUnion2");
         assertEquals(getType(returns.get(0)).getTag(), TypeTags.MAP_TAG);
         assertEquals(getType(returns.get(1)).getTag(), TypeTags.XML_ELEMENT_TAG);
         assertEquals(getType(returns.get(2)).getTag(), TypeTags.RECORD_TYPE_TAG);
@@ -107,7 +107,7 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple() {
-        Object returns = JvmRunUtil.invoke(result, "testAnydataToTuple");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple");
         assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
         assertEquals(getType(returns).toString(), "[int,float,boolean,string,byte]");
         assertEquals(returns.toString(), "[123,23.45,true,\"hello world!\",255]");
@@ -115,7 +115,7 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple2() {
-        Object returns = JvmRunUtil.invoke(result, "testAnydataToTuple2");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple2");
         assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
         assertEquals(getType(returns).toString(), "[json,xml<(lang.xml:Element|lang.xml:Comment|lang" +
                 ".xml:ProcessingInstruction|lang.xml:Text)>]");
@@ -125,7 +125,7 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to tuple conversion")
     public void testAnydataToTuple3() {
-        Object returns = JvmRunUtil.invoke(result, "testAnydataToTuple3");
+        Object returns = BRunUtil.invoke(result, "testAnydataToTuple3");
         assertEquals(getType(returns).getTag(), TypeTags.TUPLE_TAG);
         assertEquals(getType(returns).toString(), "[[DataType[],string],int,float]");
         assertEquals(returns.toString(), "[[[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost " +
@@ -134,13 +134,13 @@ public class AnydataTernaryConvTest {
 
     @Test(description = "Test anydata to nil conversion")
     public void testAnydataToNil() {
-        Object returns = JvmRunUtil.invoke(result, "testAnydataToNil");
+        Object returns = BRunUtil.invoke(result, "testAnydataToNil");
         assertNull(returns);
     }
 
     @Test(description = "Test type testing on any")
     public void testTypeCheckingOnAny() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeCheckingOnAny");
+        Object returns = BRunUtil.invoke(result, "testTypeCheckingOnAny");
 
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
         assertEquals(((BArrayType) getType(returns)).getElementType().getTag(), TypeTags.ANYDATA_TAG);

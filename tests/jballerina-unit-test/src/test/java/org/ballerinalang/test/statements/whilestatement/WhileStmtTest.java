@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -51,7 +51,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtConditionTrue() {
         Object[] args = {(10), (1)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testWhileStmt", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testWhileStmt", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -63,7 +63,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop with a condition which evaluates to false")
     public void testWhileStmtConditionFalse() {
         Object[] args = {(10), (11)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testWhileStmt", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testWhileStmt", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -75,14 +75,14 @@ public class WhileStmtTest {
     @Test(description = "Check the scope managing in while block")
     public void testWhileBlockScopes() {
         Object[] args = {(1)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testWhileScope", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testWhileScope", args);
 
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         long actual = (long) returns;
         Assert.assertEquals(actual, 200, "mismatched output value");
 
         args = new Object[]{(2)};
-        returns = JvmRunUtil.invoke(positiveCompileResult, "testWhileScope", args);
+        returns = BRunUtil.invoke(positiveCompileResult, "testWhileScope", args);
 
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
@@ -91,7 +91,7 @@ public class WhileStmtTest {
 
     @Test(description = "Check the scope managing in while block with ifelse")
     public void testWhileBlockScopesWithIf() {
-        BArray returns = (BArray) JvmRunUtil.invoke(positiveCompileResult, "testWhileScopeWithIf");
+        BArray returns = (BArray) BRunUtil.invoke(positiveCompileResult, "testWhileScopeWithIf");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class, "Class type of return param1 mismatched");
         Assert.assertSame(returns.get(1).getClass(), Double.class, "Class type of return param2 mismatched");
@@ -103,7 +103,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test while statement with default values inside the while block")
     public void testWhileWithDefaultValues() {
-        BArray returns = (BArray) JvmRunUtil.invoke(positiveCompileResult, "testWhileStmtWithDefaultValues");
+        BArray returns = (BArray) BRunUtil.invoke(positiveCompileResult, "testWhileStmtWithDefaultValues");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertSame(returns.get(0).getClass(), Long.class, "Class type of return param1 mismatched");
         Assert.assertTrue(returns.get(1) instanceof BString, "Class type of return param2 mismatched");
@@ -130,7 +130,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test nested while loop with break 1")
     public void testNestedWhileWithBreak1() {
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testNestedWhileWithBreak1");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testNestedWhileWithBreak1");
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -141,7 +141,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test nested while loop with break 2")
     public void testNestedWhileWithBreak2() {
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testNestedWhileWithBreak2");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testNestedWhileWithBreak2");
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -152,7 +152,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test while loop with continue")
     public void testWhileWithContinue() {
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testWhileWithContinue");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testWhileWithContinue");
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -163,7 +163,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test nested while loop with continue")
     public void testNestedWhileWithContinue() {
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testNestedWhileWithContinue");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testNestedWhileWithContinue");
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -174,7 +174,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test type narrowing inside the while body")
     public void testTypeNarrowingInWhileBody() {
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testTypeNarrowingInWhileBody");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testTypeNarrowingInWhileBody");
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -186,7 +186,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtWithOnFail() {
         Object[] args = {(5)};
-        Object returns = JvmRunUtil.invoke(onfailCompileResult, "testWhileStmtWithFail", args);
+        Object returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithFail", args);
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), " Value: 1 Value: 2 Value: 3-> error caught. " +
@@ -196,7 +196,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtWithCheck() {
         Object[] args = {(5)};
-        Object returns = JvmRunUtil.invoke(onfailCompileResult, "testWhileStmtWithCheck", args);
+        Object returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithCheck", args);
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), " Value: 1 Value: 2 Value: 3-> error caught. " +
@@ -205,7 +205,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test nested while loop with break 2")
     public void testNestedWhileStmtWithFail() {
-        Object returns = JvmRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtWithFail");
+        Object returns = BRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtWithFail");
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -218,7 +218,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop termination with fail statement")
     public void testWhileStmtLoopEndingWithFail() {
         Object[] args = {(5)};
-        Object returns = JvmRunUtil.invoke(onfailCompileResult, "testWhileStmtLoopEndingWithFail", args);
+        Object returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtLoopEndingWithFail", args);
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), " Value: 1-> error caught. " +
@@ -227,7 +227,7 @@ public class WhileStmtTest {
 
     @Test(description = "Test nested while loop termination with multiple fail statements")
     public void testNestedWhileStmtLoopTerminationWithFail() {
-        Object returns = JvmRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtLoopTerminationWithFail");
+        Object returns = BRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtLoopTerminationWithFail");
 
         Assert.assertTrue(returns instanceof BString);
 

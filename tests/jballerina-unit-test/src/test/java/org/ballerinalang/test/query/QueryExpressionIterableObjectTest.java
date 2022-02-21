@@ -20,7 +20,7 @@ package org.ballerinalang.test.query;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testIterableObject() {
-        Object returns = JvmRunUtil.invoke(program, "testIterableObject");
+        Object returns = BRunUtil.invoke(program, "testIterableObject");
         BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 12);
@@ -60,7 +60,7 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testNestedIterableObject() {
-        Object returns = JvmRunUtil.invoke(program, "testNestedIterableObject");
+        Object returns = BRunUtil.invoke(program, "testNestedIterableObject");
         BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 12);
@@ -82,12 +82,12 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testIterableWithError() {
-        JvmRunUtil.invoke(program, "testIterableWithError");
+        BRunUtil.invoke(program, "testIterableWithError");
     }
 
     @Test
     public void testStreamOfStreams() {
-        Object returns = JvmRunUtil.invoke(program, "testStreamOfStreams");
+        Object returns = BRunUtil.invoke(program, "testStreamOfStreams");
         BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 1);
@@ -106,7 +106,7 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testIteratorInStream() {
-        Object returns = JvmRunUtil.invoke(program, "testIteratorInStream");
+        Object returns = BRunUtil.invoke(program, "testIteratorInStream");
         BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getInt(i++), 1);
@@ -118,7 +118,7 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testObjectIterator() {
-        JvmRunUtil.invoke(program, "testObjectIterator");
+        BRunUtil.invoke(program, "testObjectIterator");
     }
 
     @Test

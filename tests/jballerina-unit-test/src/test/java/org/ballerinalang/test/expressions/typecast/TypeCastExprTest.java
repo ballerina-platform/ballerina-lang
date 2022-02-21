@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToInt() {
         Object[] args = {(222222.44444f)};
-        Object returns = JvmRunUtil.invoke(result, "floattoint", args);
+        Object returns = BRunUtil.invoke(result, "floattoint", args);
         Assert.assertTrue(returns instanceof Long);
         final String expected = "222222";
         Assert.assertEquals(returns.toString(), expected);
@@ -58,7 +58,7 @@ public class TypeCastExprTest {
     @Test
     public void floattointWithError() {
         Object[] args = {(222222.44444f)};
-        Object returns = JvmRunUtil.invoke(result, "floattointWithError", args);
+        Object returns = BRunUtil.invoke(result, "floattointWithError", args);
         Assert.assertTrue(returns instanceof Long);
         final String expected = "222222";
         Assert.assertEquals(returns.toString(), expected);
@@ -67,7 +67,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToFloat() {
         Object[] args = {(55555555)};
-        Object returns = JvmRunUtil.invoke(result, "inttofloat", args);
+        Object returns = BRunUtil.invoke(result, "inttofloat", args);
         Assert.assertTrue(returns instanceof Double);
         double expected = 5.5555555E7;
         Assert.assertEquals((Double) returns, expected, DELTA);
@@ -76,7 +76,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToInt() {
         Object[] args = {StringUtils.fromString("100")};
-        Object returns = JvmRunUtil.invoke(result, "stringtoint", args);
+        Object returns = BRunUtil.invoke(result, "stringtoint", args);
         Assert.assertTrue(returns instanceof Long);
         final String expected = "100";
         Assert.assertEquals(returns.toString(), expected);
@@ -85,7 +85,7 @@ public class TypeCastExprTest {
     @Test
     public void testIncompatibleStringToFloat() {
         Object[] args = {StringUtils.fromString("2222.333f")};
-        Object returns = JvmRunUtil.invoke(result, "stringtofloat", args);
+        Object returns = BRunUtil.invoke(result, "stringtofloat", args);
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
         String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
@@ -95,7 +95,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToJSON() {
         Object[] args = {StringUtils.fromString("{\"name\":\"chanaka\"}")};
-        Object returns = JvmRunUtil.invoke(result, "testStringToJson", args);
+        Object returns = BRunUtil.invoke(result, "testStringToJson", args);
         Assert.assertTrue(returns instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns.toString(), expected);
@@ -104,7 +104,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToString() {
         Object[] args = {(111)};
-        Object returns = JvmRunUtil.invoke(result, "inttostring", args);
+        Object returns = BRunUtil.invoke(result, "inttostring", args);
         Assert.assertTrue(returns instanceof BString);
         final String expected = "111";
         Assert.assertEquals(returns.toString(), expected);
@@ -113,7 +113,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToString() {
         Object[] args = {(111.333f)};
-        Object returns = JvmRunUtil.invoke(result, "floattostring", args);
+        Object returns = BRunUtil.invoke(result, "floattostring", args);
         Assert.assertTrue(returns instanceof BString);
         final String expected = "111.333";
         Assert.assertEquals(returns.toString().substring(0, 7), expected);
@@ -122,7 +122,7 @@ public class TypeCastExprTest {
     @Test
     public void testBooleanToString() {
         Object[] args = {(true)};
-        Object returns = JvmRunUtil.invoke(result, "booleantostring", args);
+        Object returns = BRunUtil.invoke(result, "booleantostring", args);
         Assert.assertTrue(returns instanceof BString);
         final String expected = "true";
         Assert.assertEquals(returns.toString(), expected);
@@ -130,7 +130,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToString() {
-        Object returns = JvmRunUtil.invoke(result, "anyjsontostring");
+        Object returns = BRunUtil.invoke(result, "anyjsontostring");
         Assert.assertTrue(returns instanceof BString);
         final String expected2 = "{\"a\":\"b\"}";
         Assert.assertEquals(returns.toString(), expected2);
@@ -139,7 +139,7 @@ public class TypeCastExprTest {
     @Test
     public void testBooleanAppendToString() {
         Object[] args = {(true)};
-        Object returns = JvmRunUtil.invoke(result, "booleanappendtostring", args);
+        Object returns = BRunUtil.invoke(result, "booleanappendtostring", args);
         Assert.assertTrue(returns instanceof BString);
         final String expected = "true-append-true";
         Assert.assertEquals(returns.toString(), expected);
@@ -147,42 +147,42 @@ public class TypeCastExprTest {
 
     @Test
     public void testJSONToString() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonToStringCast");
+        Object returns = BRunUtil.invoke(result, "testJsonToStringCast");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "hello");
     }
 
     @Test
     public void testJSONObjectToStringCast() {
-        Object returns = JvmRunUtil.invoke(result, "testJSONObjectToStringCast");
+        Object returns = BRunUtil.invoke(result, "testJSONObjectToStringCast");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "{\"foo\":\"bar\"}");
     }
 
     @Test
     public void testJsonToInt() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonToInt");
+        Object returns = BRunUtil.invoke(result, "testJsonToInt");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 5L);
     }
 
     @Test
     public void testJsonToFloat() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonToFloat");
+        Object returns = BRunUtil.invoke(result, "testJsonToFloat");
         Assert.assertTrue(returns instanceof Double);
         Assert.assertEquals(returns, 7.65);
     }
 
     @Test
     public void testJsonToBoolean() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonToBoolean");
+        Object returns = BRunUtil.invoke(result, "testJsonToBoolean");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testStructToStruct() {
-        Object returns = JvmRunUtil.invoke(result, "testStructToStruct");
+        Object returns = BRunUtil.invoke(result, "testStructToStruct");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> student = (BMap<String, Object>) returns;
 
@@ -216,14 +216,14 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a JSON integer to a string")
     public void testJsonIntToString() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonIntToString");
+        Object returns = BRunUtil.invoke(result, "testJsonIntToString");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "5");
     }
 
     @Test
     public void testIncompatibleJsonToInt() {
-        Object returns = JvmRunUtil.invoke(result, "testIncompatibleJsonToInt");
+        Object returns = BRunUtil.invoke(result, "testIncompatibleJsonToInt");
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
         String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
@@ -232,7 +232,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testIncompatibleJsonToFloat() {
-        Object returns = JvmRunUtil.invoke(result, "testIncompatibleJsonToFloat");
+        Object returns = BRunUtil.invoke(result, "testIncompatibleJsonToFloat");
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
         String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
@@ -241,7 +241,7 @@ public class TypeCastExprTest {
 
     @Test(enabled = false) // See https://github.com/ballerina-platform/ballerina-lang/issues/29359
     public void testBooleanInJsonToInt() {
-        Object returns = JvmRunUtil.invoke(result, "testBooleanInJsonToInt");
+        Object returns = BRunUtil.invoke(result, "testBooleanInJsonToInt");
         Assert.assertTrue(returns instanceof BError);
         BError error = (BError) returns;
         String errorMsg = error.getMessage();
@@ -252,62 +252,62 @@ public class TypeCastExprTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: 'map<json>' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
-        JvmRunUtil.invoke(result, "testNullJsonToString");
+        BRunUtil.invoke(result, "testNullJsonToString");
     }
 
     @Test(description = "Test casting a null JSON to int",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: 'map<json>' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
-        JvmRunUtil.invoke(result, "testNullJsonToInt");
+        BRunUtil.invoke(result, "testNullJsonToInt");
     }
 
     @Test(description = "Test casting a null JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: 'map<json>' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
-        JvmRunUtil.invoke(result, "testNullJsonToFloat");
+        BRunUtil.invoke(result, "testNullJsonToFloat");
     }
 
     @Test(description = "Test casting a null JSON to boolean",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: 'map<json>' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
-        JvmRunUtil.invoke(result, "testNullJsonToBoolean");
+        BRunUtil.invoke(result, "testNullJsonToBoolean");
     }
 
     @Test(description = "Test casting nil to a record",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'Student'.*")
     public void testNullStructToStruct() {
-        JvmRunUtil.invoke(result, "testNullStructToStruct");
+        BRunUtil.invoke(result, "testNullStructToStruct");
     }
 
     @Test(description = "Test casting an int as any type to json")
     public void testAnyIntToJson() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyIntToJson");
+        Object returns = BRunUtil.invoke(result, "testAnyIntToJson");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 8L);
     }
 
     @Test(description = "Test casting a string as any type to json")
     public void testAnyStringToJson() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyStringToJson");
+        Object returns = BRunUtil.invoke(result, "testAnyStringToJson");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Supun");
     }
 
     @Test(description = "Test casting a boolean as any type to json")
     public void testAnyBooleanToJson() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyBooleanToJson");
+        Object returns = BRunUtil.invoke(result, "testAnyBooleanToJson");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test casting a float as any type to json")
     public void testAnyFloatToJson() {
-        JvmRunUtil.invoke(result, "testAnyFloatToJson");
-        Object returns = JvmRunUtil.invoke(result, "testAnyFloatToJson");
+        BRunUtil.invoke(result, "testAnyFloatToJson");
+        Object returns = BRunUtil.invoke(result, "testAnyFloatToJson");
         Assert.assertTrue(returns instanceof Double);
         Assert.assertEquals(returns, 8.73);
     }
@@ -316,37 +316,37 @@ public class TypeCastExprTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: 'map' cannot be cast to 'json'.*")
     public void testAnyMapToJson() {
-        JvmRunUtil.invoke(result, "testAnyMapToJson");
+        BRunUtil.invoke(result, "testAnyMapToJson");
     }
 
     @Test(description = "Test casting a struct as any type to json",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: 'Address' cannot be cast to 'json'.*")
     public void testAnyStructToJson() {
-        JvmRunUtil.invoke(result, "testAnyStructToJson");
+        BRunUtil.invoke(result, "testAnyStructToJson");
     }
 
     @Test(description = "Test casting a json as any type to json")
     public void testAnyJsonToJson() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyJsonToJson");
+        Object returns = BRunUtil.invoke(result, "testAnyJsonToJson");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"home\":\"SriLanka\"}");
     }
 
     @Test(description = "Test casting a any to table")
     public void testAnyToTable() {
-        JvmRunUtil.invoke(result, "testAnyToTable");
+        BRunUtil.invoke(result, "testAnyToTable");
     }
 
     @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToJson");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToJson");
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test casting struct stored as any to struct")
     public void testStructAsAnyToStruct() {
-        Object returns = JvmRunUtil.invoke(result, "testStructAsAnyToStruct");
+        Object returns = BRunUtil.invoke(result, "testStructAsAnyToStruct");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> student = (BMap<String, Object>) returns;
 
@@ -374,14 +374,14 @@ public class TypeCastExprTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: 'map' cannot be cast to 'Person'.*")
     public void testAnyToStruct() {
-        JvmRunUtil.invoke(result, "testAnyToStruct");
+        BRunUtil.invoke(result, "testAnyToStruct");
     }
 
     @Test(description = "Test casting a null stored as any to struct",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'Person'.*")
     public void testAnyNullToStruct() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToStruct");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToStruct");
         Assert.assertNull(returns);
     }
 
@@ -389,7 +389,7 @@ public class TypeCastExprTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'map'.*")
     public void testAnyNullToMap() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToMap");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToMap");
         Assert.assertNull(returns);
     }
 
@@ -399,13 +399,13 @@ public class TypeCastExprTest {
                     "'xml<\\(lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
                     "lang\\.xml:Text\\)>'.*")
     public void testAnyNullToXml() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToXml");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToXml");
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test record as any")
     public void testRecordToAny() {
-        Object returns = JvmRunUtil.invoke(result, "testRecordToAny");
+        Object returns = BRunUtil.invoke(result, "testRecordToAny");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> student = (BMap<String, Object>) returns;
 
@@ -430,7 +430,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test map as any")
     public void testMapToAny() {
-        Object returns = JvmRunUtil.invoke(result, "testMapToAny");
+        Object returns = BRunUtil.invoke(result, "testMapToAny");
         Assert.assertTrue(returns instanceof BMap<?, ?>);
         BMap<String, Object> map = (BMap<String, Object>) returns;
         Assert.assertEquals(map.get(StringUtils.fromString("name")).toString(), "supun");
@@ -439,12 +439,12 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
         CompileResult res = BCompileUtil.compile("test-src/expressions.typecast.foo");
-        JvmRunUtil.invoke(res, "testCastToStructInDifferentPkg");
+        BRunUtil.invoke(res, "testCastToStructInDifferentPkg");
     }
 
     @Test
     public void testCompatibleStructForceCasting() {
-        Object returns = JvmRunUtil.invoke(result, "testCompatibleStructForceCasting");
+        Object returns = BRunUtil.invoke(result, "testCompatibleStructForceCasting");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> structC = (BMap<String, Object>) returns;
 
@@ -455,7 +455,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testInCompatibleStructForceCasting() {
-        Object returns = JvmRunUtil.invoke(result, "testInCompatibleStructForceCasting");
+        Object returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -468,7 +468,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test any to int casting happens without errors, error struct should be null")
     public void testAnyToIntWithoutErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToIntWithoutErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyToIntWithoutErrors");
 
         Assert.assertSame(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 6L);
@@ -476,7 +476,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test any to float casting happens without errors, error struct should be null")
     public void testAnyToFloatWithoutErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToFloatWithoutErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyToFloatWithoutErrors");
 
         Assert.assertSame(returns.getClass(), Double.class);
         Assert.assertEquals(returns, 6.99);
@@ -484,7 +484,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test any to boolean casting happens without errors, error struct should be null")
     public void testAnyToBooleanWithoutErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToBooleanWithoutErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyToBooleanWithoutErrors");
 
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns);
@@ -492,7 +492,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToString() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToString");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToString");
 
         // null to string should return string null
         Assert.assertEquals(returns.toString(), "");
@@ -500,7 +500,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToBooleanWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToBooleanWithErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -512,7 +512,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToBooleanWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToBooleanWithErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -524,7 +524,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToIntWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToIntWithErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyToIntWithErrors");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -536,7 +536,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToIntWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToIntWithErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -548,7 +548,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToFloatWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToFloatWithErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyToFloatWithErrors");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -560,7 +560,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyNullToFloatWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToFloatWithErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -572,7 +572,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testAnyToMapWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToMapWithErrors");
+        Object returns = BRunUtil.invoke(result, "testAnyToMapWithErrors");
 
         // check the error
         Assert.assertTrue(returns instanceof BError);
@@ -584,47 +584,47 @@ public class TypeCastExprTest {
 
     @Test(description = "Test any boolean to int with errors.")
     public void testAnyBooleanToIntWithErrors() {
-        JvmRunUtil.invoke(result, "testAnyBooleanToIntWithErrors");
+        BRunUtil.invoke(result, "testAnyBooleanToIntWithErrors");
     }
 
     @Test(description = "Test any boolean to float with errors.")
     public void testAnyBooleanToFloatWithErrors() {
-        JvmRunUtil.invoke(result, "testAnyBooleanToFloatWithErrors");
+        BRunUtil.invoke(result, "testAnyBooleanToFloatWithErrors");
     }
 
     @Test(description = "Test any boolean to decimal with errors.")
     public void testAnyBooleanToDecimalWithErrors() {
-        JvmRunUtil.invoke(result, "testAnyBooleanToDecimalWithErrors");
+        BRunUtil.invoke(result, "testAnyBooleanToDecimalWithErrors");
     }
 
     @Test(description = "Test any boolean to string with errors.")
     public void testAnyBooleanToStringWithErrors() {
-        JvmRunUtil.invoke(result, "testAnyBooleanToStringWithErrors");
+        BRunUtil.invoke(result, "testAnyBooleanToStringWithErrors");
     }
 
     @Test(description = "Test any boolean to byte with errors.")
     public void testAnyBooleanToByteWithErrors() {
-        JvmRunUtil.invoke(result, "testAnyBooleanToByteWithErrors");
+        BRunUtil.invoke(result, "testAnyBooleanToByteWithErrors");
     }
 
     @Test(description = "Test any boolean to union with errors.")
     public void testAnyBooleanToUnionWithErrors() {
-        JvmRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
+        BRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
     }
 
     @Test(description = "Test type cast to union type with int subtypes.")
     public void testCastingToIntSubtypesInUnion() {
-        JvmRunUtil.invoke(result, "testCastingToIntSubtypesInUnion");
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnion");
     }
 
     @Test(description = "Test erroneous type cast to union type with int subtypes.")
     public void testCastingToIntSubtypesInUnionNegative() {
-        JvmRunUtil.invoke(result, "testCastingToIntSubtypesInUnionNegative");
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnionNegative");
     }
 
     @Test
     public void testSameTypeCast() {
-        Object returns = JvmRunUtil.invoke(result, "testSameTypeCast");
+        Object returns = BRunUtil.invoke(result, "testSameTypeCast");
         Assert.assertTrue(returns instanceof Long);
         final long expected = 10;
         Assert.assertEquals(returns, expected);
@@ -632,24 +632,24 @@ public class TypeCastExprTest {
 
     @Test
     public void testJSONValueCasting() {
-        Object returns = JvmRunUtil.invoke(result, "testJSONValueCasting");
+        Object returns = BRunUtil.invoke(result, "testJSONValueCasting");
         Assert.assertEquals(returns.toString(), "[\"hello\",4,4.2,true]");
     }
 
     @Test
     public void testAnonRecordInCast() {
-        Object returns = JvmRunUtil.invoke(result, "testAnonRecordInCast");
+        Object returns = BRunUtil.invoke(result, "testAnonRecordInCast");
         Assert.assertEquals(returns.toString(), "{\"name\":\"Pubudu\"}");
     }
 
     @Test(dataProvider = "typesTestExpressionTestFunctions")
     public void testTypeTestsExpression(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @Test(dataProvider = "immutableArrayTypesTestFunctions")
     public void testCastOfImmutableArrayTypes(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "typesTestExpressionTestFunctions")

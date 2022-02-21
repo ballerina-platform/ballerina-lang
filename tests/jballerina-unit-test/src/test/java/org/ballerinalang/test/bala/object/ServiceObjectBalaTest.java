@@ -20,7 +20,7 @@ package org.ballerinalang.test.bala.object;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,6 +43,6 @@ public class ServiceObjectBalaTest {
 
     @Test
     public void testServiceClassBala() {
-        JvmRunUtil.invoke(result, "testServiceObjectValue");
+        BRunUtil.invoke(result, "testServiceObjectValue");
     }
 }

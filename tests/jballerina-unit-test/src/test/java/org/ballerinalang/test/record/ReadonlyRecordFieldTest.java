@@ -20,7 +20,7 @@ package org.ballerinalang.test.record;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -37,7 +37,7 @@ public class ReadonlyRecordFieldTest {
     @Test(dataProvider = "readonlyRecordFieldTestFunctions")
     public void testReadonlyRecordFields(String testFunction) {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields.bal");
-        JvmRunUtil.invoke(result, testFunction);
+        BRunUtil.invoke(result, testFunction);
     }
 
     @DataProvider(name = "readonlyRecordFieldTestFunctions")

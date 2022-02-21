@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +52,7 @@ public class FunctionPointersWithOptionalArgsTest {
 
     @Test
     public void testFunctionPointerAssignmentWithNamedParams() {
-        Object arr = JvmRunUtil.invoke(result, "testFunctionPointerAssignmentWithNamedParams");
+        Object arr = BRunUtil.invoke(result, "testFunctionPointerAssignmentWithNamedParams");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 3);

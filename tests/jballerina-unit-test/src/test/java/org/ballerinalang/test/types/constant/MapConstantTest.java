@@ -21,7 +21,7 @@ package org.ballerinalang.test.types.constant;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,14 +44,14 @@ public class MapConstantTest {
 
     @Test
     public void testSimpleBooleanConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleBooleanConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleBooleanConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key1\":true,\"key2\":false}");
     }
 
     @Test
     public void testComplexBooleanConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexBooleanConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexBooleanConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":true,\"key2\":false},\"key6\":{\"key3\":false," +
                 "\"key4\":true},\"key7\":{\"key8\":true,\"key9\":false}}");
@@ -59,14 +59,14 @@ public class MapConstantTest {
 
     @Test
     public void testSimpleIntConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleIntConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleIntConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key1\":1,\"key2\":2}");
     }
 
     @Test
     public void testComplexIntConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexIntConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexIntConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":1,\"key2\":2},\"key6\":{\"key3\":3,\"key4\":4}," +
                 "\"key7:\":{\"key8\":8,\"key9\":9}}");
@@ -74,14 +74,14 @@ public class MapConstantTest {
 
     @Test
     public void testSimpleByteConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleByteConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleByteConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key1\":10,\"key2\":20}");
     }
 
     @Test
     public void testComplexByteConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexByteConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexByteConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":10,\"key2\":20},\"key6\":{\"key3\":30," +
                 "\"key4\":40},\"key7\":{\"key8\":80,\"key9\":90}}");
@@ -89,14 +89,14 @@ public class MapConstantTest {
 
     @Test
     public void testSimpleDecimalConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleDecimalConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleDecimalConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key1\":100,\"key2\":200}");
     }
 
     @Test
     public void testComplexDecimalConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexDecimalConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexDecimalConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":100,\"key2\":200},\"key6\":{\"key3\":300," +
                 "\"key4\":400},\"key7\":{\"key8\":800,\"key9\":900}}");
@@ -104,14 +104,14 @@ public class MapConstantTest {
 
     @Test
     public void testSimpleFloatConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleFloatConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleFloatConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key1\":1.0,\"key2\":2.0}");
     }
 
     @Test
     public void testComplexFloatConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexFloatConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexFloatConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":1.0,\"key2\":2.0},\"key6\":{\"key3\":3.0," +
                 "\"key4\":4.0},\"key7\":{\"key8\":8.0,\"key9\":9.0}}");
@@ -119,14 +119,14 @@ public class MapConstantTest {
 
     @Test
     public void testSimpleStringConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleStringConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleStringConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key1\":\"value1\",\"key2\":\"value2\"}");
     }
 
     @Test
     public void testComplexStringConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexStringConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexStringConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":\"value1\",\"key2\":\"value2\"}," +
                 "\"key6\":{\"key3\":\"value3\",\"key4\":\"value4\"},\"key7\":{\"key8\":\"value8\"," +
@@ -135,14 +135,14 @@ public class MapConstantTest {
 
     @Test
     public void testSimpleNilConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSimpleNilConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testSimpleNilConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key1\":null,\"key2\":null}");
     }
 
     @Test
     public void testComplexNilConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexNilConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexNilConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"key5\":{\"key1\":null,\"key2\":null},\"key6\":{\"key3\":null," +
                 "\"key4\":null},\"key7\":{\"key8\":null,\"key9\":null}}");
@@ -150,91 +150,91 @@ public class MapConstantTest {
 
     @Test
     public void testComplexConstMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexConstMap");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexConstMap");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"k3\":{\"k2\":{\"k1\":\"v1\"}}}");
     }
 
     @Test
     public void testBooleanMapConstMemberAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testBooleanMapConstMemberAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanMapConstMemberAccess");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"bm5kn\":true}");
     }
 
     @Test
     public void testIntMapConstMemberAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIntMapConstMemberAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testIntMapConstMemberAccess");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"im5kn\":123}");
     }
 
     @Test
     public void testByteMapConstMemberAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testByteMapConstMemberAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testByteMapConstMemberAccess");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"bytem5kn\":64}");
     }
 
     @Test
     public void testFloatMapConstMemberAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloatMapConstMemberAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatMapConstMemberAccess");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"fm5kn\":12.5}");
     }
 
     @Test
     public void testDecimalMapConstMemberAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDecimalMapConstMemberAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalMapConstMemberAccess");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"dm5kn\":5.56}");
     }
 
     @Test
     public void testStringMapConstMemberAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringMapConstMemberAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testStringMapConstMemberAccess");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"sm5kn\":\"sm4v\"}");
     }
 
     @Test
     public void testNilMapConstMemberAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNilMapConstMemberAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testNilMapConstMemberAccess");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"nm5kn\":null}");
     }
 
     @Test
     public void testBooleanConstMemberAccessInLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testBooleanConstMemberAccessInLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testIntConstMemberAccessInLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIntConstMemberAccessInLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testIntConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 123L);
     }
 
     @Test
     public void testByteConstMemberAccessInLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testByteConstMemberAccessInLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testByteConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 64);
     }
 
     @Test
     public void testFloatConstMemberAccessInLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloatConstMemberAccessInLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 12.5);
     }
 
     @Test
     public void testDecimalConstMemberAccessInLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDecimalConstMemberAccessInLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns);
         BigDecimal expected = new BigDecimal("5.56", MathContext.DECIMAL128);
         Assert.assertEquals(returns, ValueCreator.createDecimalValue(expected));
@@ -242,27 +242,27 @@ public class MapConstantTest {
 
     @Test
     public void testStringConstMemberAccessInLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringConstMemberAccessInLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testStringConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "sm4v");
     }
 
     @Test
     public void testNullConstMemberAccessInLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNullConstMemberAccessInLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testNullConstMemberAccessInLocalVar");
         Assert.assertNull(returns);
     }
 
     @Test
     public void testConstInAnnotations() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testConstInAnnotations");
+        Object returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"s\":\"Ballerina\",\"i\":100,\"m\":{\"mKey\":\"mValue\"}}");
     }
 
     @Test
     public void testNestedConstMapAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNestedConstMapAccess");
+        Object returns = BRunUtil.invoke(compileResult, "testNestedConstMapAccess");
         Assert.assertTrue((Boolean) returns);
     }
 

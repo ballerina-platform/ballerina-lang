@@ -19,7 +19,7 @@ package org.ballerinalang.test.worker;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +38,7 @@ public class WorkerCallingFunction {
 
     @Test(description = "Test worker calling function")
     public void testWorkerCallingFunction() {
-        Object returns = JvmRunUtil.invoke(result, "testWorkerInVM");
+        Object returns = BRunUtil.invoke(result, "testWorkerInVM");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 20L);
     }

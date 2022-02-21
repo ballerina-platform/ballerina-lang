@@ -19,7 +19,7 @@ package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class ForeachArrayTests {
 
     @Test
     public void testIntArrayWithArityOne() {
-        Object returns = JvmRunUtil.invoke(program, "testIntArrayWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testIntArrayWithArityOne");
         
         Assert.assertEquals(returns, (long) Arrays.stream(iValues).sum());
     }
@@ -61,7 +61,7 @@ public class ForeachArrayTests {
         for (int i = 0; i < iValues.length; i++) {
             sb.append(i).append(":").append(iValues[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testIntArrayWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testIntArrayWithArityTwo");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -72,7 +72,7 @@ public class ForeachArrayTests {
         for (double fValue : fValues) {
             sb.append(0).append(":").append(fValue).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testFloatArrayWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testFloatArrayWithArityOne");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -83,7 +83,7 @@ public class ForeachArrayTests {
         for (int i = 0; i < fValues.length; i++) {
             sb.append(i).append(":").append(fValues[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testFloatArrayWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testFloatArrayWithArityTwo");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -94,7 +94,7 @@ public class ForeachArrayTests {
         for (String sValue : sValues) {
             sb.append(0).append(":").append(sValue).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testStringArrayWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testStringArrayWithArityOne");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -105,7 +105,7 @@ public class ForeachArrayTests {
         for (int i = 0; i < sValues.length; i++) {
             sb.append(i).append(":").append(sValues[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testStringArrayWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testStringArrayWithArityTwo");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -116,7 +116,7 @@ public class ForeachArrayTests {
         for (boolean bValue : bValues) {
             sb.append(0).append(":").append(bValue).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testBooleanArrayWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testBooleanArrayWithArityOne");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -127,7 +127,7 @@ public class ForeachArrayTests {
         for (int i = 0; i < bValues.length; i++) {
             sb.append(i).append(":").append(bValues[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testBooleanArrayWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testBooleanArrayWithArityTwo");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -138,7 +138,7 @@ public class ForeachArrayTests {
         for (String tValue : tValues) {
             sb.append("0").append(":").append(tValue).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testStructArrayWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testStructArrayWithArityOne");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -149,7 +149,7 @@ public class ForeachArrayTests {
         for (int i = 0; i < tValues.length; i++) {
             sb.append(i).append(":").append(tValues[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testStructArrayWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testStructArrayWithArityTwo");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -161,7 +161,7 @@ public class ForeachArrayTests {
         for (int i = 0; i < values.length; i++) {
             sb.append(i).append(":").append(values[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testArrayInsertInt");
+        Object returns = BRunUtil.invoke(program, "testArrayInsertInt");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -173,7 +173,7 @@ public class ForeachArrayTests {
         for (int i = 0; i < values.length; i++) {
             sb.append(i).append(":").append(values[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testArrayInsertString");
+        Object returns = BRunUtil.invoke(program, "testArrayInsertString");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
@@ -185,42 +185,42 @@ public class ForeachArrayTests {
         for (int i = 0; i < values.length; i++) {
             sb.append(i).append(":").append(values[i]).append(" ");
         }
-        Object returns = JvmRunUtil.invoke(program, "testArrayInsertInForeach");
+        Object returns = BRunUtil.invoke(program, "testArrayInsertInForeach");
         
         Assert.assertEquals(returns.toString(), sb.toString());
     }
 
     @Test
     public void testBreak() {
-        Object returns = JvmRunUtil.invoke(program, "testBreak");
+        Object returns = BRunUtil.invoke(program, "testBreak");
         
         Assert.assertEquals(returns.toString(), "0:d0 break");
     }
 
     @Test
     public void testContinue() {
-        Object returns = JvmRunUtil.invoke(program, "testContinue");
+        Object returns = BRunUtil.invoke(program, "testContinue");
         
         Assert.assertEquals(returns.toString(), "0:d0 continue 2:d2 ");
     }
 
     @Test
     public void testReturn() {
-        Object returns = JvmRunUtil.invoke(program, "testReturn");
+        Object returns = BRunUtil.invoke(program, "testReturn");
         
         Assert.assertEquals(returns.toString(), "0:d0 ");
     }
 
     @Test
     public void testArrayWithNullElements() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithNullElements");
+        Object returns = BRunUtil.invoke(program, "testArrayWithNullElements");
         
         Assert.assertEquals(returns.toString(), "0:d0 1: 2:d2 3: ");
     }
 
     @Test
     public void testEmptyArray() {
-        JvmRunUtil.invoke(program, "testEmptyArray");
+        BRunUtil.invoke(program, "testEmptyArray");
     }
 
     @AfterClass

@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.utils.BStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -114,7 +114,7 @@ public class IterableOperationsTests {
     public void testInt1() {
         List<Integer> values = Arrays.asList(-5, 2, 4, 5, 7, -8, -3, 2);
         int sum = values.stream().mapToInt(Integer::intValue).sum();
-        Object arr = JvmRunUtil.invoke(basic, "testInt1");
+        Object arr = BRunUtil.invoke(basic, "testInt1");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 5);
@@ -131,7 +131,7 @@ public class IterableOperationsTests {
     public void testInt2() {
         List<Integer> values = Arrays.asList(2, 4, 5, 7, 2);
         int sum = values.stream().mapToInt(Integer::intValue).sum();
-        Object arr = JvmRunUtil.invoke(basic, "testInt2");
+        Object arr = BRunUtil.invoke(basic, "testInt2");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 4);
@@ -148,7 +148,7 @@ public class IterableOperationsTests {
         List<Double> values = Arrays.asList(1.1, 2.2, -3.3, 4.4, 5.5);
         double intSum = values.stream().mapToDouble(Double::doubleValue).sum();
         double sum = values.stream().mapToDouble(Double::doubleValue).sum();
-        Object arr = JvmRunUtil.invoke(basic, "testFloat1");
+        Object arr = BRunUtil.invoke(basic, "testFloat1");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 5);
@@ -165,7 +165,7 @@ public class IterableOperationsTests {
     public void testFloat2() {
         List<Double> values = Arrays.asList(1.1, 2.2, 4.4, 5.5);
         double sum = values.stream().mapToDouble(Double::doubleValue).sum();
-        Object arr = JvmRunUtil.invoke(basic, "testFloat2");
+        Object arr = BRunUtil.invoke(basic, "testFloat2");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 4L);
@@ -180,7 +180,7 @@ public class IterableOperationsTests {
     @Test
     public void testBasicArray1() {
         BArray sarray = ValueCreator.createArrayValue(values);
-        Object returns = JvmRunUtil.invoke(basic, "testBasicArray1", new Object[]{sarray});
+        Object returns = BRunUtil.invoke(basic, "testBasicArray1", new Object[]{sarray});
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         StringBuilder sb = new StringBuilder();
@@ -192,7 +192,7 @@ public class IterableOperationsTests {
     @Test
     public void testBasicArray2() {
         BArray sarray = ValueCreator.createArrayValue(values);
-        Object returns = JvmRunUtil.invoke(basic, "testBasicArray2", new Object[]{sarray});
+        Object returns = BRunUtil.invoke(basic, "testBasicArray2", new Object[]{sarray});
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         StringBuilder sb = new StringBuilder();
@@ -204,7 +204,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicMap1() {
-        Object arr = JvmRunUtil.invoke(basic, "testBasicMap1");
+        Object arr = BRunUtil.invoke(basic, "testBasicMap1");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 2);
@@ -214,7 +214,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicMap2() {
-        Object returns = JvmRunUtil.invoke(basic, "testBasicMap2");
+        Object returns = BRunUtil.invoke(basic, "testBasicMap2");
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "[\"aA\",\"eE\"]");
@@ -222,7 +222,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testXML() {
-        Object arr = JvmRunUtil.invoke(basic, "xmlTest");
+        Object arr = BRunUtil.invoke(basic, "xmlTest");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 3);
@@ -234,7 +234,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testStruct() {
-        Object arr = JvmRunUtil.invoke(basic, "structTest");
+        Object arr = BRunUtil.invoke(basic, "structTest");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 2);
@@ -244,14 +244,14 @@ public class IterableOperationsTests {
 
     @Test
     public void testIgnoredValue() {
-        Object returns = JvmRunUtil.invoke(basic, "testIgnoredValue");
+        Object returns = BRunUtil.invoke(basic, "testIgnoredValue");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "abc pqr");
     }
 
     @Test
     public void testInExpression() {
-        Object arr = JvmRunUtil.invoke(basic, "testInExpression");
+        Object arr = BRunUtil.invoke(basic, "testInExpression");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 2);
@@ -261,21 +261,21 @@ public class IterableOperationsTests {
 
     @Test
     public void testInFunctionInvocation() {
-        Object returns = JvmRunUtil.invoke(basic, "testInFunctionInvocation");
+        Object returns = BRunUtil.invoke(basic, "testInFunctionInvocation");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "4");
     }
 
     @Test
     public void testInStatement() {
-        Object returns = JvmRunUtil.invoke(basic, "testInStatement");
+        Object returns = BRunUtil.invoke(basic, "testInStatement");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "10");
     }
 
     @Test
     public void testIterableOutputPrint() {
-        Object arr = JvmRunUtil.invoke(basic, "testIterableOutputPrint");
+        Object arr = BRunUtil.invoke(basic, "testIterableOutputPrint");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.size(), 4);
@@ -295,7 +295,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testIterableReturnLambda() {
-        Object arr = JvmRunUtil.invoke(basic, "testIterableReturnLambda");
+        Object arr = BRunUtil.invoke(basic, "testIterableReturnLambda");
         BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns.get(0) instanceof BFunctionPointer);

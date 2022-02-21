@@ -18,7 +18,7 @@ package org.ballerinalang.test.types.table;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,32 +39,32 @@ public class TableWithRecordKeySpecifierTest {
 
     @Test(description = "Test key specifier and key type constraint options")
     public void testKeySpecifierAndTypeConstraintOptions() {
-        JvmRunUtil.invoke(result, "runKeySpecifierTestCases");
+        BRunUtil.invoke(result, "runKeySpecifierTestCases");
     }
 
     @Test(description = "Test member access")
     public void testMemberAccessExpr() {
-        JvmRunUtil.invoke(result, "runMemberAccessTestCases");
+        BRunUtil.invoke(result, "runMemberAccessTestCases");
     }
 
     @Test(description = "Test keyless table")
     public void testKeylessTable() {
-        JvmRunUtil.invoke(result, "testKeylessTable");
+        BRunUtil.invoke(result, "testKeylessTable");
     }
 
     @Test(description = "Test invalid member access in table with a single key field")
     public void testMemberAccessWithInvalidSingleKey() {
-        JvmRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
     }
 
     @Test(description = "Test invalid member access in table with multiple key fields")
     public void testMemberAccessWithInvalidMultiKey() {
-        JvmRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
     }
 
     @Test(description = "Test Table with var type")
     public void testTableWithVarType() {
-        JvmRunUtil.invoke(result, "runTableTestcasesWithVarType");
+        BRunUtil.invoke(result, "runTableTestcasesWithVarType");
     }
 
     @AfterClass

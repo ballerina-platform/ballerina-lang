@@ -18,7 +18,7 @@ package org.ballerinalang.test.identifiers;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -35,7 +35,7 @@ public class IdentifierTest {
     @Test(dataProvider = "errorAsIdentifierFunctions")
     public void testErrorAsIdentifier(String function) {
         CompileResult errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/error_as_identifier.bal");
-        JvmRunUtil.invoke(errorTestCompileResult, function);
+        BRunUtil.invoke(errorTestCompileResult, function);
     }
 
     @DataProvider(name = "errorAsIdentifierFunctions")
@@ -54,7 +54,7 @@ public class IdentifierTest {
     @Test(dataProvider = "errorAsIdentifierFunctions")
     public void testErrorAsIdentifierNegative(String function) {
         CompileResult errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/error_as_identifier.bal");
-        JvmRunUtil.invoke(errorTestCompileResult, function);
+        BRunUtil.invoke(errorTestCompileResult, function);
     }
 
     @Test(description = "Test error as a identifier negative cases")
@@ -76,7 +76,7 @@ public class IdentifierTest {
     @Test(dataProvider = "functionsWithSelfAsIdentifier")
     public void testSelfAsIdentifier(String function) {
         CompileResult result = BCompileUtil.compile("test-src/identifiers/self_as_identifier.bal");
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "functionsWithSelfAsIdentifier")

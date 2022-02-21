@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple basic variable definition")
     public void testBasic() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBasic");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasic");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "Fooo");
         Assert.assertEquals(returns.get(1), 4L);
@@ -57,7 +57,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple basic recursive definition")
     public void testBasicRecursive1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBasicRecursive1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicRecursive1");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "Fooo");
         Assert.assertEquals(returns.get(1), 4L);
@@ -66,7 +66,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple basic recursive definition")
     public void testBasicRecursive2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBasicRecursive2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicRecursive2");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "Fooo");
         Assert.assertEquals(returns.get(1), 34L);
@@ -76,7 +76,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple complex recursive definition")
     public void testComplexRecursive() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testComplexRecursive");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testComplexRecursive");
         Assert.assertEquals(returns.size(), 6);
         Assert.assertEquals(returns.get(0).toString(), "Bal");
         Assert.assertEquals(returns.get(1), 3L);
@@ -88,7 +88,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple recursive definition with expression on rhs")
     public void testRecursiveWithExpression() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecursiveWithExpression");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveWithExpression");
         Assert.assertEquals(returns.size(), 6);
         Assert.assertEquals(returns.get(0).toString(), "Bal");
         Assert.assertEquals(returns.get(1), 3L);
@@ -100,7 +100,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple binding with records and objects 1")
     public void testTupleBindingWithRecordsAndObjects() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects1");
         Assert.assertEquals(returns.size(), 9);
         int i = -1;
         Assert.assertEquals(returns.get(++i).toString(), "Test");
@@ -116,7 +116,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple binding with records and objects 2")
     public void testTupleBindingWithRecordsAndObjects2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleBindingWithRecordsAndObjects2");
         Assert.assertEquals(returns.size(), 11);
         int i = -1;
         Assert.assertEquals(returns.get(++i).toString(), "Test");
@@ -134,7 +134,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple binding with records and objects")
     public void testRecordInsideTuple() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecordInsideTuple");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordInsideTuple");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "Peter Parker");
         Assert.assertEquals(returns.get(1), 12L);
@@ -143,7 +143,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple var definition with var declaration 1")
     public void testTupleVarDefinition1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleVarDef1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDef1");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "Ballerina");
         Assert.assertEquals(returns.get(1), 123L);
@@ -152,7 +152,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple var definition with var declaration 2")
     public void testTupleVarDefinition2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleVarDef2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDef2");
         Assert.assertEquals(returns.size(), 9);
         int i = -1;
         Assert.assertEquals(returns.get(++i).toString(), "Test");
@@ -168,17 +168,17 @@ public class TupleVariableDefinitionTest {
 
     @Test
     public void testTupleVarDefinition3() {
-        JvmRunUtil.invoke(result, "testTupleVarDef3");
+        BRunUtil.invoke(result, "testTupleVarDef3");
     }
 
     @Test
     public void testTupleVarDefinition4() {
-        JvmRunUtil.invoke(result, "testTupleVarDef4");
+        BRunUtil.invoke(result, "testTupleVarDef4");
     }
 
     @Test(description = "Test tuple var definition with array 1")
     public void testTupleVarDefWithArray1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleVarDefWithArray1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray1");
         Assert.assertEquals(returns.size(), 4);
         int i = -1;
         Assert.assertEquals(returns.get(++i).toString(), "Ballerina");
@@ -197,7 +197,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple var definition with array 2")
     public void testTupleVarDefWithArray2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleVarDefWithArray2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray2");
         Assert.assertEquals(returns.size(), 4);
         int i = -1;
         Object val1 = returns.get(++i);
@@ -227,13 +227,13 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple var definition with array 3")
     public void testTupleVarDefWithArray3() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleVarDefWithArray3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray3");
         validateArrayResults(returns);
     }
 
     @Test(description = "Test tuple var definition with array 4")
     public void testTupleVarDefWithArray4() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleVarDefWithArray4");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefWithArray4");
         validateArrayResults(returns);
     }
 
@@ -270,25 +270,25 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple recursive definition with var on lhs 1")
     public void testRecursiveExpressionWithVar1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecursiveExpressionWithVar1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar1");
         validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 2")
     public void testRecursiveExpressionWithVar2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecursiveExpressionWithVar2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar2");
         validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 3")
     public void testRecursiveExpressionWithVar3() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecursiveExpressionWithVar3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar3");
         validateRecursiveVarRefTestResults(returns);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 4")
     public void testRecursiveExpressionWithVar4() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecursiveExpressionWithVar4");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecursiveExpressionWithVar4");
         validateRecursiveVarRefTestResults(returns);
     }
 
@@ -304,19 +304,19 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple definition with union type 1")
     public void testVarDefWithUnionType1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarDefWithUnionType1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType1");
         validateVarDefWithUnionResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 2")
     public void testVarDefWithUnionType2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarDefWithUnionType2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType2");
         validateVarDefWithUnionResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 3")
     public void testVarDefWithUnionType3() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarDefWithUnionType3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType3");
         validateVarDefWithUnionResults(returns);
     }
 
@@ -329,19 +329,19 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple definition with union type 4")
     public void testVarDefWithUnionType4() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarDefWithUnionType4");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType4");
         validateTupleVarDefWithUnitionComplexResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 5")
     public void testVarDefWithUnionType5() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarDefWithUnionType5");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType5");
         validateTupleVarDefWithUnitionComplexResults(returns);
     }
 
     @Test(description = "Test tuple definition with union type 6")
     public void testVarDefWithUnionType6() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarDefWithUnionType6");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarDefWithUnionType6");
         Assert.assertEquals(returns.size(), 2);
 
         BString val1 = (BString) returns.get(0);
@@ -352,7 +352,7 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple variable with ignore variable")
     public void testIgnoreVariable() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIgnoreVariable");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIgnoreVariable");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0), 23L);
         Assert.assertEquals(returns.get(1), 24L);
@@ -360,22 +360,22 @@ public class TupleVariableDefinitionTest {
 
     @Test(description = "Test tuple variable with error BP")
     public void testTupleVariableWithErrorBP() {
-        JvmRunUtil.invoke(result, "testTupleVariableWithErrorBP");
+        BRunUtil.invoke(result, "testTupleVariableWithErrorBP");
     }
 
     @Test
     public void testTupleVarDeclWithTypeReferenceTypedExpr() {
-        JvmRunUtil.invoke(result, "testTupleVarDeclWithTypeReferenceTypedExpr");
+        BRunUtil.invoke(result, "testTupleVarDeclWithTypeReferenceTypedExpr");
     }
 
     @Test
     public void testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs() {
-        JvmRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs");
+        BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithNamedArgs");
     }
 
     @Test
     public void testTupleVarDefWithRestBPContainsErrorBPWithRestBP() {
-        JvmRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithRestBP");
+        BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithRestBP");
     }
 
     private void validateTupleVarDefWithUnitionComplexResults(BArray returns) {

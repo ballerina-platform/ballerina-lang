@@ -20,7 +20,7 @@ package org.ballerinalang.test.query;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,31 +43,31 @@ public class GlobalQueryTest {
 
     @Test(description = "Test module level simple join clause with record variable")
     public void testGlobalQuery1() {
-        Object values = JvmRunUtil.invoke(result, "testGlobalQuery1");
+        Object values = BRunUtil.invoke(result, "testGlobalQuery1");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test module level simple join clause with function in an equals")
     public void testGlobalQuery2() {
-        Object values = JvmRunUtil.invoke(result, "testGlobalQuery2");
+        Object values = BRunUtil.invoke(result, "testGlobalQuery2");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test module level multiple join clauses with inner queries")
     public void testGlobalQuery3() {
-        Object values = JvmRunUtil.invoke(result, "testGlobalQuery3");
+        Object values = BRunUtil.invoke(result, "testGlobalQuery3");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test module level let clause")
     public void testGlobalQuery4() {
-        Object values = JvmRunUtil.invoke(result, "testGlobalQuery4");
+        Object values = BRunUtil.invoke(result, "testGlobalQuery4");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test nested query-expr as a collection of a query-expr")
     public void testGlobalQuery5() {
-        Object values = JvmRunUtil.invoke(result, "testGlobalQuery5");
+        Object values = BRunUtil.invoke(result, "testGlobalQuery5");
         Assert.assertTrue((Boolean) values);
     }
 

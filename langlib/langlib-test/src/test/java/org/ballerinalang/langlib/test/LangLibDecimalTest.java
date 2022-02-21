@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -49,55 +49,55 @@ public class LangLibDecimalTest {
 
     @Test(dataProvider = "dualDecimalProvider")
     public void testSum(Object[] args, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSum", args);
+        Object returns = BRunUtil.invoke(compileResult, "testSum", args);
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalProvider")
     public void testSingleArgMax(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testOneArgMax", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testOneArgMax", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalArrayProvider")
     public void testMax(BDecimal x, BArray xs, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMultiArgMax", new Object[] {x, xs});
+        Object returns = BRunUtil.invoke(compileResult, "testMultiArgMax", new Object[] {x, xs});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalArrayProvider")
     public void testMaxAsMethodInvok(BDecimal x, BArray xs, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMaxAsMethodInvok", new Object[] {x, xs});
+        Object returns = BRunUtil.invoke(compileResult, "testMaxAsMethodInvok", new Object[] {x, xs});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalMinProvider")
     public void testSingleArgMin(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testOneArgMin", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testOneArgMin", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalMinArrayProvider")
     public void testMin(BDecimal x, BArray xs, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMultiArgMin", new Object[] {x, xs});
+        Object returns = BRunUtil.invoke(compileResult, "testMultiArgMin", new Object[] {x, xs});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalMinArrayProvider")
     public void testMinAsMethodInvok(BDecimal x, BArray xs, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMinAsMethodInvok", new Object[] {x, xs});
+        Object returns = BRunUtil.invoke(compileResult, "testMinAsMethodInvok", new Object[] {x, xs});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalAbsProvider")
     public void testAbs(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAbs", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testAbs", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalAbsProvider")
     public void testAbsAsMethodInvok(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAbsAsMethodInvok", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testAbsAsMethodInvok", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
@@ -190,13 +190,13 @@ public class LangLibDecimalTest {
 
     @Test(dataProvider = "decimalRoundValueProvider")
     public void testRound(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRound", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testRound", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalRoundValueProvider")
     public void testRoundAsMethodInvok(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRoundAsMethodInvok", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testRoundAsMethodInvok", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
@@ -218,14 +218,14 @@ public class LangLibDecimalTest {
 
     @Test(dataProvider = "decimalFloorValueProvider")
     public void testFloor(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloor", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testFloor", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
 
     @Test(dataProvider = "decimalFloorValueProvider")
     public void testFloorAsMethodInvok(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloorAsMethodInvok", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testFloorAsMethodInvok", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
@@ -248,13 +248,13 @@ public class LangLibDecimalTest {
 
     @Test(dataProvider = "decimalCeilingValueProvider")
     public void testCeiling(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testCeiling", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testCeiling", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
     @Test(dataProvider = "decimalCeilingValueProvider")
     public void testCeilingAsMethodInvok(BDecimal arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testCeilingAsMethodInvok", new Object[] {arg});
+        Object returns = BRunUtil.invoke(compileResult, "testCeilingAsMethodInvok", new Object[] {arg});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
 
@@ -276,7 +276,7 @@ public class LangLibDecimalTest {
 
     @Test(dataProvider = "decimalFromStringValueProvider")
     public void testFromString(String arg, String expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFromString",
+        Object returns = BRunUtil.invoke(compileResult, "testFromString",
                 new Object[] {StringUtils.fromString(arg)});
         assertEquals(returns, ValueCreator.createDecimalValue(expected));
     }
@@ -299,17 +299,17 @@ public class LangLibDecimalTest {
 
     @Test
     public void testFromStringWithStringArg() {
-        JvmRunUtil.invoke(compileResult, "testFromStringWithStringArg");
+        BRunUtil.invoke(compileResult, "testFromStringWithStringArg");
     }
 
     @Test
     public void testLangLibCallOnFiniteType() {
-        JvmRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
     }
 
     @Test(dataProvider = "functionsWithDecimalEqualityChecks")
     public void testFunctionsWithDecimalEqualityChecks(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider
@@ -324,6 +324,6 @@ public class LangLibDecimalTest {
 
     @Test
     public void testFromStringFunctionWithInvalidValues() {
-        JvmRunUtil.invoke(compileResult, "testFromStringFunctionWithInvalidValues");
+        BRunUtil.invoke(compileResult, "testFromStringFunctionWithInvalidValues");
     }
 }

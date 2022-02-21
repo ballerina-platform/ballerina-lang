@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -55,7 +55,7 @@ public class AnnotationRuntimeTest {
     public void testAnnotAccess(String testFunction) {
         CompileResult resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         Assert.assertEquals(resultOne.getErrorCount(), 0);
-        Object returns = JvmRunUtil.invoke(resultOne, testFunction);
+        Object returns = BRunUtil.invoke(resultOne, testFunction);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns);
     }
@@ -65,7 +65,7 @@ public class AnnotationRuntimeTest {
     public void testSourceOnlyAnnotAccess(String testFunction) {
         CompileResult resultTwo = BCompileUtil.compile("test-src/annotations/annot_access_with_source_only_points.bal");
         Assert.assertEquals(resultTwo.getErrorCount(), 0);
-        Object returns = JvmRunUtil.invoke(resultTwo, testFunction);
+        Object returns = BRunUtil.invoke(resultTwo, testFunction);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns);
     }
@@ -126,7 +126,7 @@ public class AnnotationRuntimeTest {
     public void testAnnotAvailabilty() {
         CompileResult resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
         Assert.assertEquals(resultFour.getErrorCount(), 0);
-        Object obj = JvmRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
+        Object obj = BRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
         Assert.assertEquals(TypeChecker.getType(obj).getTag(), io.ballerina.runtime.api.TypeTags.TUPLE_TAG);
 
         TupleValueImpl tupleValue = (TupleValueImpl) obj;
@@ -179,19 +179,19 @@ public class AnnotationRuntimeTest {
     }
 
     public void testRecordTypeAnnotationReadonlyValueEdit() {
-        JvmRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
+        BRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
     }
 
     public void testAnnotationOnObjectTypeReadonlyValueEdit() {
-        JvmRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
+        BRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
     }
 
     public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
-        JvmRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
+        BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
     }
 
     public void testReadonlyTypeAnnotationAttachment() {
         CompileResult readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
-        JvmRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
+        BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 }

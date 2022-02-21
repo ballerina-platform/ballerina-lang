@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object function method with default values")
     public void testObjectInitWithDefaultValues() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectInitWithDefaultValues");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectInitWithDefaultValues");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertTrue(returns.get(1) instanceof BArray);
 
@@ -86,7 +86,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object init function with default values 2")
     public void testObjectInitWithDefaultValues2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectInitWithDefaultValues2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectInitWithDefaultValues2");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertTrue(returns.get(1) instanceof BArray);
 
@@ -116,7 +116,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object attached functions with default values")
     public void testObjectAttachedFunction1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectAttachedFunction1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction1");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertTrue(returns.get(1) instanceof BArray);
 
@@ -143,7 +143,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object attached functions with default values 2")
     public void testObjectAttachedFunction2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectAttachedFunction2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction2");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertTrue(returns.get(1) instanceof BArray);
 
@@ -172,7 +172,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object attached functions with default values 3")
     public void testObjectAttachedFunction3() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectAttachedFunction3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction3");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertTrue(returns.get(1) instanceof BArray);
 
@@ -199,7 +199,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object attached functions with default values 4")
     public void testObjectAttachedFunction4() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectAttachedFunction4");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectAttachedFunction4");
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertTrue(returns.get(1) instanceof BArray);
 
@@ -228,7 +228,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object casting 1")
     public void testObjectCasting1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectCasting1");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectCasting1");
         BArray bValueArray = (BArray) returns.get(0);
         Assert.assertEquals(bValueArray.getRefValue(0), 200L);
         Assert.assertEquals(bValueArray.getRefValue(1), 2.2);
@@ -248,7 +248,7 @@ public class ObjectFunctionsWithDefaultableArguments {
 
     @Test(description = "Test object casting 2")
     public void testObjectCasting12() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testObjectCasting2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testObjectCasting2");
         BArray bValueArray = (BArray) returns.get(0);
         Assert.assertEquals(bValueArray.getRefValue(0), 400L);
         Assert.assertEquals(bValueArray.getRefValue(1), 4.4);

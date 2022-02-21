@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.invocations;
 import io.ballerina.runtime.api.types.ObjectType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class PackageInitTest {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outputStream));
             CompileResult result = BCompileUtil.compile("test-src/packagetest/initOrder");
-            JvmRunUtil.invoke(result, "getA1", new ObjectType[0]);
+            BRunUtil.invoke(result, "getA1", new ObjectType[0]);
             int count = countOccurences(outputStream.toString().replace("\r", ""), "PackageA");
             Assert.assertEquals(count, 1);
         } finally {

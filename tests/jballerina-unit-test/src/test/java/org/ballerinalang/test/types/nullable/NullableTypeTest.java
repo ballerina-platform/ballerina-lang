@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.nullable;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,7 +42,7 @@ public class NullableTypeTest {
 
     @Test(description = "Test basics of nullable types")
     public void testNullableTypeBasics1() {
-        Object returns = JvmRunUtil.invoke(result, "testNullableTypeBasics1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNullableTypeBasics1", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 5L, "Invalid int value returned.");
@@ -50,14 +50,14 @@ public class NullableTypeTest {
 
     @Test(description = "Test basics of nullable types")
     public void testNullableTypeBasics2() {
-        Object returns = JvmRunUtil.invoke(result, "testNullableTypeBasics2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNullableTypeBasics2", new Object[]{});
 
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test basics of nullable types")
     public void testNullableArrayTypes1() {
-        Object returns = JvmRunUtil.invoke(result, "testNullableArrayTypes1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNullableArrayTypes1", new Object[]{});
 
         Assert.assertSame(returns.getClass(), Double.class);
         Assert.assertEquals(returns, 1.0, "Invalid float value returned.");
@@ -65,7 +65,7 @@ public class NullableTypeTest {
 
     @Test(description = "Test referring to a user defined type in a type test")
     public void testNilableTypeInTypeTest() {
-        Object returns = JvmRunUtil.invoke(result, "testNilableTypeInTypeTest");
+        Object returns = BRunUtil.invoke(result, "testNilableTypeInTypeTest");
         Assert.assertEquals(returns.toString(), "mixed");
     }
 
@@ -78,7 +78,7 @@ public class NullableTypeTest {
 
     @Test(dataProvider = "dataToTestNullUsageWithDifferentTypes", description = "Test null in JSON related context")
     public void testNullUsageWithDifferentTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

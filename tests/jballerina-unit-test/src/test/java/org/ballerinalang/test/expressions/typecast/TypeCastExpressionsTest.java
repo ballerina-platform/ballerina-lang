@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class TypeCastExpressionsTest {
 
     @Test(dataProvider = "positiveTests")
     public void testCastPositive(String functionName) {
-        Object returns = JvmRunUtil.invoke(result, functionName, new Object[0]);
+        Object returns = BRunUtil.invoke(result, functionName, new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns, "expected assertion to succeed and return the " +
                 "original value");
@@ -58,14 +58,14 @@ public class TypeCastExpressionsTest {
 
     @Test(dataProvider = "stringAsStringTests")
     public void testStringAsString(String functionName, String s) {
-        Object returns = JvmRunUtil.invoke(result, functionName, new Object[]{StringUtils.fromString(s)});
+        Object returns = BRunUtil.invoke(result, functionName, new Object[]{StringUtils.fromString(s)});
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns, "expected strings to be the same");
     }
 
     @Test
     public void testBooleanAsBoolean() {
-        Object arr = JvmRunUtil.invoke(result, "testBooleanAsBoolean", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testBooleanAsBoolean", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
@@ -84,7 +84,7 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testBooleanInUnionAsBoolean() {
-        Object arr = JvmRunUtil.invoke(result, "testBooleanInUnionAsBoolean", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testBooleanInUnionAsBoolean", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);
@@ -97,7 +97,7 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testTypeCastOnRecordLiterals() {
-        Object arr = JvmRunUtil.invoke(result, "testTypeCastOnRecordLiterals");
+        Object arr = BRunUtil.invoke(result, "testTypeCastOnRecordLiterals");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.get(0).toString(), "Server mode configuration");
         Assert.assertEquals(returns.get(1).toString(), "Embedded mode configuration");
@@ -190,7 +190,7 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testUntaintedWithoutType() {
-        Object returns = JvmRunUtil.invoke(result, "testContexuallyExpectedType");
+        Object returns = BRunUtil.invoke(result, "testContexuallyExpectedType");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("id")).toString(), "1100");
@@ -198,7 +198,7 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testUntaintedWithoutType2() {
-        Object returns = JvmRunUtil.invoke(result, "testContexuallyExpectedTypeRecContext");
+        Object returns = BRunUtil.invoke(result, "testContexuallyExpectedTypeRecContext");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Em Zee");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("id")).toString(), "1100");
@@ -214,17 +214,17 @@ public class TypeCastExpressionsTest {
 
     @Test(dataProvider = "positiveTests")
     public void testJsonMappingToRecordPositive(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @Test(dataProvider = "futureCastTests")
     public void testFutureCast(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @Test(dataProvider = "negativeCastTests")
     public void testNegativeCast(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider

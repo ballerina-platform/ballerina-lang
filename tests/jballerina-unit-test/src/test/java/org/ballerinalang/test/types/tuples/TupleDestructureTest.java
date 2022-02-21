@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,47 +42,47 @@ public class TupleDestructureTest {
 
     @Test(description = "Test positive tuple destructure scenarios")
     public void testTupleDestructure() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest1", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest1", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "1");
         Assert.assertEquals(returns.get(1).toString(), "a");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest2", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest2", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "1");
         Assert.assertEquals(returns.get(1).toString(), "[2,3,4]");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest3", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest3", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "1");
         Assert.assertEquals(returns.get(1).toString(), "[2,3,4]");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest4", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest4", new Object[]{});
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.toString(), "[1,2,3,4]");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest5", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest5", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "1");
         Assert.assertEquals(returns.get(1).toString(), "[2,3,4]");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest6", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest6", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "1");
         Assert.assertEquals(returns.get(1).toString(), "[\"a\",\"b\"]");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest7", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest7", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "1");
         Assert.assertEquals(returns.get(1).toString(), "[\"a\",\"b\"]");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest8", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest8", new Object[]{});
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "1");
         Assert.assertEquals(returns.get(1).toString(), "a");
         Assert.assertEquals(returns.get(2).toString(), "[\"b\"]");
 
-        returns = (BArray) JvmRunUtil.invoke(result, "tupleDestructureTest9", new Object[]{});
+        returns = (BArray) BRunUtil.invoke(result, "tupleDestructureTest9", new Object[]{});
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "true");
         Assert.assertEquals(returns.get(1).toString(), "string value");

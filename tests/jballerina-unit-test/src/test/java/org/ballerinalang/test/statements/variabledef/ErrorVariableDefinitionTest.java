@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def with string and map")
     public void testBasicErrorVariableWithMapDetails() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.size(), 8);
         Assert.assertEquals(returns.get(0).toString(), "Error One");
         Assert.assertEquals(returns.get(1).toString(), "Error One");
@@ -62,7 +62,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.size(), 8);
         Assert.assertEquals(returns.get(0).toString(), "Some Error One");
         Assert.assertEquals(returns.get(1).toString(), "Some Error One");
@@ -77,7 +77,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def with string and map declared with var")
     public void testVarBasicErrorVariableWithMapDetails() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarBasicErrorVariableWithMapDetails");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarBasicErrorVariableWithMapDetails");
         Assert.assertEquals(returns.size(), 8);
         Assert.assertEquals(returns.get(0).toString(), "Error One");
         Assert.assertEquals(returns.get(1).toString(), "Error One");
@@ -92,7 +92,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def with const and map declared with var")
     public void testVarBasicErrorVariableWithConstAndMap() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVarBasicErrorVariableWithConstAndMap");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVarBasicErrorVariableWithConstAndMap");
         Assert.assertEquals(returns.size(), 8);
         Assert.assertEquals(returns.get(0).toString(), "Some Error One");
         Assert.assertEquals(returns.get(1).toString(), "Some Error One");
@@ -107,7 +107,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def with record as detail")
     public void testBasicErrorVariableWithRecordDetails() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testBasicErrorVariableWithRecordDetails");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBasicErrorVariableWithRecordDetails");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0).toString(), "Error One");
         Assert.assertEquals(returns.get(1).toString(), "Error One");
@@ -119,7 +119,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def inside tuple")
     public void testErrorInTuple() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorInTuple");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorInTuple");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0), 12L);
         Assert.assertEquals(returns.get(1).toString(), "Bal");
@@ -130,7 +130,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def inside tuple with var")
     public void testErrorInTupleWithVar() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorInTupleWithVar");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorInTupleWithVar");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0), 12L);
         Assert.assertEquals(returns.get(1).toString(), "Bal");
@@ -141,7 +141,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorInTupleWithDestructure() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorInTupleWithDestructure");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0), 12L);
         Assert.assertEquals(returns.get(1).toString(), "Bal");
@@ -152,7 +152,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorInTupleWithDestructure2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0), 12L);
         Assert.assertEquals(returns.get(1).toString(), "Bal");
@@ -163,7 +163,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorInRecordWithDestructure() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorInRecordWithDestructure");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorInRecordWithDestructure");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0), 1000L);
         Assert.assertEquals(returns.get(1).toString(), "Err3");
@@ -172,7 +172,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorWithAnonErrorType() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorWithAnonErrorType");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorWithAnonErrorType");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "Error Code");
         Assert.assertEquals(returns.get(1).toString(), "Fatal");
@@ -180,7 +180,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test error variable with ignore as the detail variable")
     public void testErrorWithUnderscore() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorWithUnderscore");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorWithUnderscore");
         Assert.assertEquals(returns.size(), 11);
         Assert.assertEquals(returns.get(0).toString(), "Error Code");
         Assert.assertEquals(returns.get(1).toString(), "Error Code");
@@ -197,7 +197,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test named error variable def")
     public void testIndirectErrorDestructuring() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIndirectErrorDestructuring");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIndirectErrorDestructuring");
         Assert.assertEquals(returns.get(0).toString(), "Msg");
         Assert.assertEquals(returns.get(1).toString(), "false");
         Assert.assertEquals(returns.get(2).toString(), "{\"other\":\"k\"}");
@@ -205,14 +205,14 @@ public class ErrorVariableDefinitionTest {
 
     @Test(description = "Test error destruturing with sealed detail record")
     public void testSealedDetailDestructuring() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testSealedDetailDestructuring");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testSealedDetailDestructuring");
         Assert.assertEquals(returns.get(0).toString(), "sealed");
         Assert.assertEquals(returns.get(1).toString(), "{\"message\":\"Msg\"}");
     }
 
     @Test(description = "Test error binding pattern")
     public void testErrorBindingPattern() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testErrorBindingPattern");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testErrorBindingPattern");
         Assert.assertEquals(returns.get(0).toString(), "Detail Info");
         Assert.assertEquals(returns.get(1).toString(), "true");
         Assert.assertEquals(returns.get(2).toString(), "{\"A\":\"a\",\"B\":\"b\"}");
@@ -220,7 +220,7 @@ public class ErrorVariableDefinitionTest {
 
     @Test
     public void testLocalErrorType() {
-        JvmRunUtil.invoke(result, "testLocalErrorType");
+        BRunUtil.invoke(result, "testLocalErrorType");
     }
 
     @Test

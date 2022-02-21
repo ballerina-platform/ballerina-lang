@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.table;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,46 +42,46 @@ public class TablesAsFuncArgs {
 
     @Test
     public void testSameKeySpecifierInParamAndArg() {
-        Object values = JvmRunUtil.invoke(result, "testSameKeySpecifierInParamAndArg", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testSameKeySpecifierInParamAndArg", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testKeySpecifierAndKeyConstraint() {
-        Object values = JvmRunUtil.invoke(result, "testKeySpecifierAndKeyConstraint", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testKeySpecifierAndKeyConstraint", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testSameKeyConstraintInArgAndParam() {
-        Object values = JvmRunUtil.invoke(result, "testSameKeyConstraintInArgAndParam", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testSameKeyConstraintInArgAndParam", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testNoKeyConstraintParam() {
-        Object values = JvmRunUtil.invoke(result, "testNoKeyConstraintParam1", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testNoKeyConstraintParam1", new Object[]{});
         Assert.assertTrue((Boolean) values);
 
-        values = JvmRunUtil.invoke(result, "testNoKeyConstraintParam2", new Object[]{});
+        values = BRunUtil.invoke(result, "testNoKeyConstraintParam2", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testUnionTypeInParam() {
-        Object values = JvmRunUtil.invoke(result, "testUnionTypeInParam", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testUnionTypeInParam", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testUnionConstraintParam() {
-        Object values = JvmRunUtil.invoke(result, "testUnionConstraintParam", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testUnionConstraintParam", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test
     public void testUnionKeyConstraintParam() {
-        Object values = JvmRunUtil.invoke(result, "testUnionKeyConstraintParam", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testUnionKeyConstraintParam", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 

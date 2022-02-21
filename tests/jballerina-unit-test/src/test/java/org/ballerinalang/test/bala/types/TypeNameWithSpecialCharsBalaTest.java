@@ -19,7 +19,7 @@ package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -42,6 +42,6 @@ public class TypeNameWithSpecialCharsBalaTest {
         }
         CompileResult result = BCompileUtil.compile(
                 "test-src/bala/test_bala/types/test_type_name_with_special_chars.bal");
-        JvmRunUtil.invoke(result, "testTypeNameWithSpecialChars");
+        BRunUtil.invoke(result, "testTypeNameWithSpecialChars");
     }
 }

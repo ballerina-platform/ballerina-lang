@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.primitivetypes;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -65,28 +65,28 @@ public class UnionsWithPrimitiveTypesTest {
         Object[] args = new Object[1];
         args[0] = new HandleValue(dataIS);
 
-        Object returns = JvmRunUtil.invoke(result, "readBoolean", args);
+        Object returns = BRunUtil.invoke(result, "readBoolean", args);
         Assert.assertEquals(returns, aBoolean);
 
-        returns = JvmRunUtil.invoke(result, "readByte", args);
+        returns = BRunUtil.invoke(result, "readByte", args);
         Assert.assertEquals(((Integer) returns).byteValue(), aByte);
 
-        returns = JvmRunUtil.invoke(result, "readShort", args);
+        returns = BRunUtil.invoke(result, "readShort", args);
         Assert.assertEquals(((Long) returns).shortValue(), aShort);
 
-        returns = JvmRunUtil.invoke(result, "readChar", args);
+        returns = BRunUtil.invoke(result, "readChar", args);
         Assert.assertEquals((char) ((Long) returns).intValue(), aChar);
 
-        returns = JvmRunUtil.invoke(result, "readInt", args);
+        returns = BRunUtil.invoke(result, "readInt", args);
         Assert.assertEquals(((Long) returns).intValue(), anInt);
 
-        returns = JvmRunUtil.invoke(result, "readLong", args);
+        returns = BRunUtil.invoke(result, "readLong", args);
         Assert.assertEquals(returns, aLong);
 
-        returns = JvmRunUtil.invoke(result, "readFloat", args);
+        returns = BRunUtil.invoke(result, "readFloat", args);
         Assert.assertEquals(((Double) returns).floatValue(), aFloat);
 
-        returns = JvmRunUtil.invoke(result, "readDouble", args);
+        returns = BRunUtil.invoke(result, "readDouble", args);
         Assert.assertEquals(returns, aDouble);
     }
 

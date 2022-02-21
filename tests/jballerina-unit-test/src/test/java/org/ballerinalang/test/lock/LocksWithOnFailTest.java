@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -40,7 +40,7 @@ public class LocksWithOnFailTest {
     public void testLockWithinLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/lock-on-fail.bal");
 
-        Object val = JvmRunUtil.invoke(compileResult, "failLockWithinLock");
+        Object val = BRunUtil.invoke(compileResult, "failLockWithinLock");
         BArray returnsWithFail = (BArray) val;
         assertEquals(returnsWithFail.size(), 2);
         assertSame(returnsWithFail.get(0).getClass(), Long.class);
@@ -49,7 +49,7 @@ public class LocksWithOnFailTest {
         assertEquals(returnsWithFail.get(0), 100L);
         assertEquals(returnsWithFail.get(1).toString(), "Error caught");
 
-        Object val2 = JvmRunUtil.invoke(compileResult, "checkLockWithinLock");
+        Object val2 = BRunUtil.invoke(compileResult, "checkLockWithinLock");
         BArray returnsWithCheck = (BArray) val2;
         assertEquals(returnsWithCheck.size(), 2);
         assertSame(returnsWithCheck.get(0).getClass(), Long.class);

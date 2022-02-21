@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.primitivetypes;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,27 +46,27 @@ public class PrimitiveConversionsInFunctionParamsTest {
         Object[] args = new Object[1];
         args[0] = (byteValue);
 
-        Object returns = JvmRunUtil.invoke(result, "testCreateJShortFromBByte", args);
+        Object returns = BRunUtil.invoke(result, "testCreateJShortFromBByte", args);
         Short aShort = (Short) ((HandleValue) returns).getValue();
         Assert.assertEquals(aShort.byteValue(), byteValue);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJCharacterFromBByte", args);
+        returns = BRunUtil.invoke(result, "testCreateJCharacterFromBByte", args);
         Character character = (Character) ((HandleValue) returns).getValue();
         Assert.assertEquals((byte) character.charValue(), byteValue);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJIntegerFromBByte", args);
+        returns = BRunUtil.invoke(result, "testCreateJIntegerFromBByte", args);
         Integer integer = (Integer) ((HandleValue) returns).getValue();
         Assert.assertEquals(integer.byteValue(), byteValue);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJLongFromBByte", args);
+        returns = BRunUtil.invoke(result, "testCreateJLongFromBByte", args);
         Long longValue = (Long) ((HandleValue) returns).getValue();
         Assert.assertEquals(longValue.byteValue(), byteValue);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJFloatFromBByte", args);
+        returns = BRunUtil.invoke(result, "testCreateJFloatFromBByte", args);
         Float floatValue = (Float) ((HandleValue) returns).getValue();
         Assert.assertEquals(floatValue, (float) byteValue);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJDoubleFromBByte", args);
+        returns = BRunUtil.invoke(result, "testCreateJDoubleFromBByte", args);
         Double doubleValue = (Double) ((HandleValue) returns).getValue();
         Assert.assertEquals(doubleValue, (double) byteValue);
     }
@@ -77,27 +77,27 @@ public class PrimitiveConversionsInFunctionParamsTest {
         Object[] args = new Object[1];
         args[0] = (value);
 
-        Object returns = JvmRunUtil.invoke(result, "testCreateJByteFromBInt", args);
+        Object returns = BRunUtil.invoke(result, "testCreateJByteFromBInt", args);
         Byte aByte = (Byte) ((HandleValue) returns).getValue();
         Assert.assertEquals(aByte.longValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJShortFromBInt", args);
+        returns = BRunUtil.invoke(result, "testCreateJShortFromBInt", args);
         Short aShort = (Short) ((HandleValue) returns).getValue();
         Assert.assertEquals(aShort.longValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJCharacterFromBInt", args);
+        returns = BRunUtil.invoke(result, "testCreateJCharacterFromBInt", args);
         Character character = (Character) ((HandleValue) returns).getValue();
         Assert.assertEquals(character.charValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJIntFromBInt", args);
+        returns = BRunUtil.invoke(result, "testCreateJIntFromBInt", args);
         Integer integer = (Integer) ((HandleValue) returns).getValue();
         Assert.assertEquals(integer.longValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJFloatFromBInt", args);
+        returns = BRunUtil.invoke(result, "testCreateJFloatFromBInt", args);
         Float floatValue = (Float) ((HandleValue) returns).getValue();
         Assert.assertEquals(floatValue.longValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJDoubleFromBInt", args);
+        returns = BRunUtil.invoke(result, "testCreateJDoubleFromBInt", args);
         Double doubleValue = (Double) ((HandleValue) returns).getValue();
         Assert.assertEquals(doubleValue.longValue(), value);
     }
@@ -108,27 +108,27 @@ public class PrimitiveConversionsInFunctionParamsTest {
         Object[] args = new Object[1];
         args[0] = (value);
 
-        Object returns = JvmRunUtil.invoke(result, "testCreateJByteFromBFloat", args);
+        Object returns = BRunUtil.invoke(result, "testCreateJByteFromBFloat", args);
         Byte aByte = (Byte) ((HandleValue) returns).getValue();
         Assert.assertEquals(aByte.doubleValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJShortFromBFloat", args);
+        returns = BRunUtil.invoke(result, "testCreateJShortFromBFloat", args);
         Short aShort = (Short) ((HandleValue) returns).getValue();
         Assert.assertEquals(aShort.doubleValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJCharacterFromBFloat", args);
+        returns = BRunUtil.invoke(result, "testCreateJCharacterFromBFloat", args);
         Character character = (Character) ((HandleValue) returns).getValue();
         Assert.assertEquals((double) character, value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJIntFromBFloat", args);
+        returns = BRunUtil.invoke(result, "testCreateJIntFromBFloat", args);
         Integer integer = (Integer) ((HandleValue) returns).getValue();
         Assert.assertEquals(integer.doubleValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJLongFromBFloat", args);
+        returns = BRunUtil.invoke(result, "testCreateJLongFromBFloat", args);
         Long aLong = (Long) ((HandleValue) returns).getValue();
         Assert.assertEquals(aLong.doubleValue(), value);
 
-        returns = JvmRunUtil.invoke(result, "testCreateJFloatFromBFloat", args);
+        returns = BRunUtil.invoke(result, "testCreateJFloatFromBFloat", args);
         Float floatValue = (Float) ((HandleValue) returns).getValue();
         Assert.assertEquals(floatValue.doubleValue(), value);
     }

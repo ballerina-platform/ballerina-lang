@@ -18,7 +18,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean expectedResult = true;
 
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
+        Object returns = BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean actualResult = (boolean) returns;
 
@@ -57,7 +57,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = false;
         boolean three = false;
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
+        Object returns = BRunUtil.invoke(result, "binaryOrExprWithLeftMostSubExprTrue", args);
         boolean actualResult = (boolean) returns;
         Assert.assertEquals(actualResult, one);
     }
@@ -71,7 +71,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean expectedResult = false;
 
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
+        Object returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean actualResult = (boolean) returns;
 
@@ -84,7 +84,7 @@ public class BinaryExprEvalPrecedenceTest {
         boolean two = false;
         boolean three = false;
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
+        Object returns = BRunUtil.invoke(result, "binaryANDExprWithLeftMostSubExprFalse", args);
         boolean actualResult = (boolean) returns;
         Assert.assertFalse(actualResult);
     }
@@ -98,7 +98,7 @@ public class BinaryExprEvalPrecedenceTest {
         long expectedResult = 101;
 
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "multiBinaryORExpr", args);
+        Object returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actualResult = (long) returns;
 
@@ -114,7 +114,7 @@ public class BinaryExprEvalPrecedenceTest {
         long expectedResult = 201;
 
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "multiBinaryORExpr", args);
+        Object returns = BRunUtil.invoke(result, "multiBinaryORExpr", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actualResult = (long) returns;
 
@@ -130,7 +130,7 @@ public class BinaryExprEvalPrecedenceTest {
         long expectedResult = 101;
 
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "multiBinaryANDExpr", args);
+        Object returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actualResult = (long) returns;
 
@@ -146,7 +146,7 @@ public class BinaryExprEvalPrecedenceTest {
         long expectedResult = 201;
 
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "multiBinaryANDExpr", args);
+        Object returns = BRunUtil.invoke(result, "multiBinaryANDExpr", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actualResult = (long) returns;
 

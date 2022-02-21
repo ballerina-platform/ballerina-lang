@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,7 +42,7 @@ public class BinaryExprTest {
         boolean stone = true;
         boolean value = true;
         Object[] args = { (stone), (value) };
-        Object returns = JvmRunUtil.invoke(result, "makeChild", args);
+        Object returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean actual = (boolean) returns;
         boolean expected = true;
@@ -52,7 +52,7 @@ public class BinaryExprTest {
         stone = true;
         value = false;
         args = new Object[] { (stone), (value) };
-        returns = JvmRunUtil.invoke(result, "makeChild", args);
+        returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         actual = (boolean) returns;
         expected = false;
@@ -62,7 +62,7 @@ public class BinaryExprTest {
         stone = false;
         value = true;
         args = new Object[] { (stone), (value) };
-        returns = JvmRunUtil.invoke(result, "makeChild", args);
+        returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         actual = (boolean) returns;
         expected = false;
@@ -72,7 +72,7 @@ public class BinaryExprTest {
         stone = false;
         value = false;
         args = new Object[] { (stone), (value) };
-        returns = JvmRunUtil.invoke(result, "makeChild", args);
+        returns = BRunUtil.invoke(result, "makeChild", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         actual = (boolean) returns;
         expected = false;
@@ -88,7 +88,7 @@ public class BinaryExprTest {
         boolean expectedResult = one & two & three;
 
         Object[] args = { (one), (two), (three) };
-        Object returns = JvmRunUtil.invoke(result, "multiBinaryANDExpression", args);
+        Object returns = BRunUtil.invoke(result, "multiBinaryANDExpression", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean actualResult = (boolean) returns;
 
@@ -104,7 +104,7 @@ public class BinaryExprTest {
         boolean expectedResult = one || two || three;
 
         Object[] args = {(one), (two), (three)};
-        Object returns = JvmRunUtil.invoke(result, "multiBinaryORExpression", args);
+        Object returns = BRunUtil.invoke(result, "multiBinaryORExpression", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean actualResult = (boolean) returns;
 
@@ -120,7 +120,7 @@ public class BinaryExprTest {
         boolean expectedResult = (!one || (two && three)) || (!three || (one && two));
 
         Object[] args = { (one), (two), (three) };
-        Object returns = JvmRunUtil.invoke(result, "multiBinaryExpression", args);
+        Object returns = BRunUtil.invoke(result, "multiBinaryExpression", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean actualResult = (boolean) returns;
 
@@ -134,7 +134,7 @@ public class BinaryExprTest {
         int c = 7;
         int d = 8;
         Object[] args = {(a), (b), (c), (d)};
-        Object arr = JvmRunUtil.invoke(result, "bitwiseAnd", args);
+        Object arr = BRunUtil.invoke(result, "bitwiseAnd", args);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.get(0), a & b);
         Assert.assertEquals(((Byte) returns.get(1)).longValue(), a & c);

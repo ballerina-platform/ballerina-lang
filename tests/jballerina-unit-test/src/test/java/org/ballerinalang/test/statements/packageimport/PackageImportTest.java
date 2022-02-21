@@ -20,7 +20,7 @@ package org.ballerinalang.test.statements.packageimport;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -101,7 +101,7 @@ public class PackageImportTest {
         System.setOut(new PrintStream(baos));
 
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-2");
-        JvmRunUtil.invoke(result, "runFoo");
+        BRunUtil.invoke(result, "runFoo");
 
         System.setOut(out);
         String output = new String(baos.toByteArray());

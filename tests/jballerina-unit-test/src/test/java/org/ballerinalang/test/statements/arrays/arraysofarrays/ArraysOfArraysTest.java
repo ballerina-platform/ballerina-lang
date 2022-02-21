@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,49 +45,49 @@ public class ArraysOfArraysTest {
     public void testValueAssignmentAndRetrieval() {
 //        Object[] args = new Object[]{(1), (2)};
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "valueAssignmentAndRetrieval", args);
+        Object returns = BRunUtil.invoke(result, "valueAssignmentAndRetrieval", args);
         Assert.assertEquals(returns.toString(), "3");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testArrayInitializationAndRetrieval() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "arrayInitializationAndRetrieval", args);
+        Object returns = BRunUtil.invoke(result, "arrayInitializationAndRetrieval", args);
         Assert.assertEquals(returns.toString(), "1");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testArrayToArrayAssignment() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "arrayToArrayAssignment", args);
+        Object returns = BRunUtil.invoke(result, "arrayToArrayAssignment", args);
         Assert.assertEquals(returns.toString(), "9");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testThreeDarrayTest() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "threeDarray", args);
+        Object returns = BRunUtil.invoke(result, "threeDarray", args);
         Assert.assertEquals(returns.toString(), "2");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testThreeDarrayValueAccess() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "threeDarrayValueAccess", args);
+        Object returns = BRunUtil.invoke(result, "threeDarrayValueAccess", args);
         Assert.assertEquals(returns.toString(), "99");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testThreeDarrayStringValueAccess() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "threeDarrayStringValueAccess", args);
+        Object returns = BRunUtil.invoke(result, "threeDarrayStringValueAccess", args);
         Assert.assertEquals(returns.toString(), "string");
     }
 
     @Test(description = "Test Basic arrays of arrays operations")
     public void testTwoDarrayFunctionCalltest() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "twoDarrayFunctionCalltest", args);
+        Object returns = BRunUtil.invoke(result, "twoDarrayFunctionCalltest", args);
         Assert.assertEquals(returns.toString(), "4");
     }
 
@@ -103,7 +103,7 @@ public class ArraysOfArraysTest {
     public void testTwoDarrayStruct() {
 //        Object returns = BLangFunctions.invokeNew(programFile, "twoDarrayStructTest");
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "twoDarrayStructTest", args);
+        Object returns = BRunUtil.invoke(result, "twoDarrayStructTest", args);
         Assert.assertEquals(returns.toString(), "2");
     }
 
@@ -111,7 +111,7 @@ public class ArraysOfArraysTest {
     public void testVNestedArrayInit() {
 //        Object returns = BLangFunctions.invokeNew(programFile, "nestedArrayInit");
         Object[] args = new Object[0];
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "nestedArrayInit", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "nestedArrayInit", args);
         Assert.assertEquals(returns.get(0), 12L);
         Assert.assertEquals(returns.get(1), 6L);
     }
@@ -119,35 +119,35 @@ public class ArraysOfArraysTest {
     @Test(description = "Test nested string array iteration")
     public void testStringArrayIterator() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "testStringArrayIterator", args);
+        Object returns = BRunUtil.invoke(result, "testStringArrayIterator", args);
         Assert.assertEquals((returns).toString(), "BBBBBB");
     }
 
     @Test(description = "Test nested string array iteration")
     public void testIntArrayIterator() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "testIntArrayIterator", args);
+        Object returns = BRunUtil.invoke(result, "testIntArrayIterator", args);
         Assert.assertEquals(returns, 45L);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testFloatArrayIterator() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "testFloatArrayIterator", args);
+        Object returns = BRunUtil.invoke(result, "testFloatArrayIterator", args);
         Assert.assertEquals(returns, 27.1);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testBlobArrayIterator() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "testByteArrayIterator", args);
+        Object returns = BRunUtil.invoke(result, "testByteArrayIterator", args);
         assertJBytesWithBBytes(hexStringToByteArray("aa"), (BArray) returns);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testRefArrayIterator() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "testRefArrayIterator", args);
+        Object returns = BRunUtil.invoke(result, "testRefArrayIterator", args);
         Assert.assertEquals(((BMap<String, Object>) returns).get(StringUtils.fromString("name")).toString(),
                 "ballerina");
     }
@@ -155,7 +155,7 @@ public class ArraysOfArraysTest {
     @Test(description = "Test multi-dimension array unions")
     public void testArrayUnion() {
         Object[] args = new Object[0];
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testArrayUnion", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testArrayUnion", args);
         Assert.assertFalse(((BArray) (((BArray) returns.get(0)).getRefValue(0))).getBoolean(0));
         Assert.assertEquals(((BArray) (((BArray) returns.get(1)).getRefValue(0))).getString(0), "scope1");
     }
@@ -163,7 +163,7 @@ public class ArraysOfArraysTest {
     @Test(description = "Test multi-dimension array unions with objects")
     public void testObjectArrayUnion() {
         Object[] args = new Object[0];
-        Object returns = JvmRunUtil.invoke(result, "testObjectArrayUnion", args);
+        Object returns = BRunUtil.invoke(result, "testObjectArrayUnion", args);
         BObject bMap = (BObject) ((BArray) (((BArray) returns).getRefValue(0))).get(0);
         Assert.assertEquals(bMap.get(StringUtils.fromString("fooId1")).toString(), "Foo1");
         Assert.assertEquals(bMap.get(StringUtils.fromString("fooId2")).toString(), "Foo2");

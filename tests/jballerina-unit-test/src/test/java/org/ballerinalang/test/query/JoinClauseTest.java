@@ -19,7 +19,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,73 +46,73 @@ public class JoinClauseTest {
 
     @Test(description = "Test join clause with record variable definition")
     public void testSimpleJoinClauseWithRecordVariable() {
-        Object values = JvmRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable");
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with field name : variable name")
     public void testSimpleJoinClauseWithRecordVariable2() {
-        Object values = JvmRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable2");
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable2");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with variable name")
     public void testSimpleJoinClauseWithRecordVariable3() {
-        Object values = JvmRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable3");
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable3");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause with simple variable definition and stream")
     public void testJoinClauseWithStream() {
-        Object values = JvmRunUtil.invoke(result, "testJoinClauseWithStream", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testJoinClauseWithStream", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test query expr with join and limit clause")
     public void testJoinClauseWithLimit() {
-        Object values = JvmRunUtil.invoke(result, "testJoinClauseWithLimit");
+        Object values = BRunUtil.invoke(result, "testJoinClauseWithLimit");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test outer join clause with record variable definition")
     public void testOuterJoinClauseWithRecordVariable() {
-        Object values = JvmRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable");
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with field name : variable name")
     public void testOuterJoinClauseWithRecordVariable2() {
-        Object values = JvmRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable2");
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable2");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with variable name")
     public void testOuterJoinClauseWithRecordVariable3() {
-        Object values = JvmRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable3");
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable3");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause with simple variable definition and stream")
     public void testOuterJoinClauseWithStream() {
-        Object values = JvmRunUtil.invoke(result, "testOuterJoinClauseWithStream", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithStream", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test query expr with join and limit clause")
     public void testOuterJoinClauseWithLimit() {
-        Object values = JvmRunUtil.invoke(result, "testOuterJoinClauseWithLimit");
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithLimit");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test equals clause with a variable defined from a let clause")
     public void testSimpleJoinClauseWithLetAndEquals() {
-        Object values = JvmRunUtil.invoke(result, "testSimpleJoinClauseWithLetAndEquals");
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithLetAndEquals");
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test equals clause with a function invocation")
     public void testSimpleJoinClauseWithFunctionInAnEquals() {
-        Object values = JvmRunUtil.invoke(result, "testSimpleJoinClauseWithFunctionInAnEquals");
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithFunctionInAnEquals");
         Assert.assertTrue((Boolean) values);
     }
 

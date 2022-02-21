@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.test;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -54,49 +54,49 @@ public class LangLibSubTypeTest {
     @Test
     public void testIntSubType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/subtypes/int_subtypes_test.bal");
-        JvmRunUtil.invoke(compileResult, "testValueAssignment");
-        JvmRunUtil.invoke(compileResult, "testSigned32Assignment");
-        JvmRunUtil.invoke(compileResult, "testSigned16Assignment");
-        JvmRunUtil.invoke(compileResult, "testSigned8Assignment");
-        JvmRunUtil.invoke(compileResult, "testUnsigned32Assignment");
-        JvmRunUtil.invoke(compileResult, "testUnsigned16Assignment");
-        JvmRunUtil.invoke(compileResult, "testUnsigned8Assignment");
-        JvmRunUtil.invoke(compileResult, "testTypeAlias");
-        JvmRunUtil.invoke(compileResult, "testMathsOperators");
-        JvmRunUtil.invoke(compileResult, "testTypeCastingWithInt");
-        JvmRunUtil.invoke(compileResult, "testTypeCastingWith32");
-        JvmRunUtil.invoke(compileResult, "testTypeCastingWith16");
-        JvmRunUtil.invoke(compileResult, "testTypeCastingWith8");
-        JvmRunUtil.invoke(compileResult, "testTypeCastingWithFloat");
-        JvmRunUtil.invoke(compileResult, "testTypeCastingWithDecimal");
-        JvmRunUtil.invoke(compileResult, "testTypeTest");
-        JvmRunUtil.invoke(compileResult, "testList");
-        JvmRunUtil.invoke(compileResult, "testMapping");
+        BRunUtil.invoke(compileResult, "testValueAssignment");
+        BRunUtil.invoke(compileResult, "testSigned32Assignment");
+        BRunUtil.invoke(compileResult, "testSigned16Assignment");
+        BRunUtil.invoke(compileResult, "testSigned8Assignment");
+        BRunUtil.invoke(compileResult, "testUnsigned32Assignment");
+        BRunUtil.invoke(compileResult, "testUnsigned16Assignment");
+        BRunUtil.invoke(compileResult, "testUnsigned8Assignment");
+        BRunUtil.invoke(compileResult, "testTypeAlias");
+        BRunUtil.invoke(compileResult, "testMathsOperators");
+        BRunUtil.invoke(compileResult, "testTypeCastingWithInt");
+        BRunUtil.invoke(compileResult, "testTypeCastingWith32");
+        BRunUtil.invoke(compileResult, "testTypeCastingWith16");
+        BRunUtil.invoke(compileResult, "testTypeCastingWith8");
+        BRunUtil.invoke(compileResult, "testTypeCastingWithFloat");
+        BRunUtil.invoke(compileResult, "testTypeCastingWithDecimal");
+        BRunUtil.invoke(compileResult, "testTypeTest");
+        BRunUtil.invoke(compileResult, "testList");
+        BRunUtil.invoke(compileResult, "testMapping");
 //        JvmRunUtil.invoke(compileResult, "testConstReference");
-        JvmRunUtil.invoke(compileResult, "testLeftShift");
-        JvmRunUtil.invoke(compileResult, "testRightShift");
-        JvmRunUtil.invoke(compileResult, "testUnsignedRightShift");
-        JvmRunUtil.invoke(compileResult, "testBitwiseAnd");
-        JvmRunUtil.invoke(compileResult, "testBitwiseOr");
-        JvmRunUtil.invoke(compileResult, "testBitwiseXor");
-        JvmRunUtil.invoke(compileResult, "testFiniteTypeAsIntSubType");
-        JvmRunUtil.invoke(compileResult, "testLanglibFunctionsForUnionIntSubtypes");
+        BRunUtil.invoke(compileResult, "testLeftShift");
+        BRunUtil.invoke(compileResult, "testRightShift");
+        BRunUtil.invoke(compileResult, "testUnsignedRightShift");
+        BRunUtil.invoke(compileResult, "testBitwiseAnd");
+        BRunUtil.invoke(compileResult, "testBitwiseOr");
+        BRunUtil.invoke(compileResult, "testBitwiseXor");
+        BRunUtil.invoke(compileResult, "testFiniteTypeAsIntSubType");
+        BRunUtil.invoke(compileResult, "testLanglibFunctionsForUnionIntSubtypes");
     }
 
     @Test
     public void testCharSubType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/subtypes/char_subtypes_test.bal");
-        JvmRunUtil.invoke(compileResult, "testValueAssignment");
-        JvmRunUtil.invoke(compileResult, "testConcat");
-        JvmRunUtil.invoke(compileResult, "testCharLangLib");
-        JvmRunUtil.invoke(compileResult, "testList");
-        JvmRunUtil.invoke(compileResult, "testMapping");
-        JvmRunUtil.invoke(compileResult, "testFromCodePointIntInSurrogateRange");
-        JvmRunUtil.invoke(compileResult, "testFromCodePointIntsInSurrogateRange");
-        JvmRunUtil.invoke(compileResult, "testStringAssignabilityToSingleCharVarDef");
-        JvmRunUtil.invoke(compileResult, "testToCodePointWithChaType");
-        JvmRunUtil.invoke(compileResult, "testFiniteTypeAsStringSubType");
-        JvmRunUtil.invoke(compileResult, "testLanglibFunctionsForUnionStringSubtypes");
+        BRunUtil.invoke(compileResult, "testValueAssignment");
+        BRunUtil.invoke(compileResult, "testConcat");
+        BRunUtil.invoke(compileResult, "testCharLangLib");
+        BRunUtil.invoke(compileResult, "testList");
+        BRunUtil.invoke(compileResult, "testMapping");
+        BRunUtil.invoke(compileResult, "testFromCodePointIntInSurrogateRange");
+        BRunUtil.invoke(compileResult, "testFromCodePointIntsInSurrogateRange");
+        BRunUtil.invoke(compileResult, "testStringAssignabilityToSingleCharVarDef");
+        BRunUtil.invoke(compileResult, "testToCodePointWithChaType");
+        BRunUtil.invoke(compileResult, "testFiniteTypeAsStringSubType");
+        BRunUtil.invoke(compileResult, "testLanglibFunctionsForUnionStringSubtypes");
     }
 
     @Test

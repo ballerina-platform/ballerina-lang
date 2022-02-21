@@ -23,7 +23,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,14 +45,14 @@ public class TupleMutabilityTest {
 
     @Test
     public void testValidTupleAssignment() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(compileResult, "testValidTupleAssignment");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "testValidTupleAssignment");
         Assert.assertTrue((Boolean) returnValues.get(0), "Expected value of true but found false");
         Assert.assertEquals(returnValues.get(1), 100L, "Expected value of 100");
     }
 
     @Test
     public void testWithTryCatch() {
-        Object returnValues = JvmRunUtil.invoke(compileResult, "testWithTryCatch");
+        Object returnValues = BRunUtil.invoke(compileResult, "testWithTryCatch");
         Assert.assertEquals(returnValues, 5L, "Expected value of 5");
     }
 
@@ -62,7 +62,7 @@ public class TupleMutabilityTest {
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'Employee' cannot be " +
                             "cast to 'Intern'.*")
     public void testInvalidCast() {
-        JvmRunUtil.invoke(compileResult, "testInvalidCast");
+        BRunUtil.invoke(compileResult, "testInvalidCast");
     }
 
     @Test(description = "Test mutation of record type using covariant tuple",
@@ -71,7 +71,7 @@ public class TupleMutabilityTest {
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'Employee', found 'Person'.*")
     public void testAssignmentOfSuperTypeMember() {
-        JvmRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
+        BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
 
     @Test(description = "Test mutation of record type by assigning invalid record type",
@@ -80,7 +80,7 @@ public class TupleMutabilityTest {
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'Employee', found 'Student'.*")
     public void testInvalidAssignment() {
-        JvmRunUtil.invoke(compileResult, "testInvalidAssignment");
+        BRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
 
     @Test(description = "Test mutation of int by inserting nil value to int? covariant tuple",
@@ -89,12 +89,12 @@ public class TupleMutabilityTest {
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected 'int', found '\\(\\)'.*")
     public void testCovarianceIntOrNilArray() {
-        JvmRunUtil.invoke(compileResult, "testCovarianceIntOrNilTuple");
+        BRunUtil.invoke(compileResult, "testCovarianceIntOrNilTuple");
     }
 
     @Test
     public void testDifferentTypeCovariance() {
-        Object results = JvmRunUtil.invoke(compileResult, "testDifferentTypeCovariance");
+        Object results = BRunUtil.invoke(compileResult, "testDifferentTypeCovariance");
         Assert.assertEquals(results, 12L);
     }
 
@@ -104,7 +104,7 @@ public class TupleMutabilityTest {
                     "error: \\{ballerina/lang.array\\}InherentTypeViolation \\{\"message\":\"incompatible types: " +
                             "expected '\\(boolean\\|float\\)', found 'Person'.*")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
-        JvmRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordTuple");
+        BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordTuple");
     }
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
@@ -123,7 +123,7 @@ public class TupleMutabilityTest {
 
     @Test
     public void testComplexTypes() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(compileResult, "testComplexTupleTypes");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "testComplexTupleTypes");
         Assert.assertEquals(returnValues.get(0), 12.0);
         Assert.assertTrue((Boolean) returnValues.get(1));
         Assert.assertTrue((Boolean) returnValues.get(2));

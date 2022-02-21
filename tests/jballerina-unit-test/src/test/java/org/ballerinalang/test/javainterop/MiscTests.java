@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,7 +35,7 @@ public class MiscTests {
     @Test(description = "Test interoperability with Java ArryList")
     public void testInteropWithJavaArrayList() {
         CompileResult result = BCompileUtil.compile("test-src/javainterop/java_array_list_interop_tests.bal");
-        Object val = JvmRunUtil.invoke(result, "interopWithJavaArrayList");
+        Object val = BRunUtil.invoke(result, "interopWithJavaArrayList");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(((HandleValue) returns.get(0)).getValue(), "[Ballerina, Language, Specification]");

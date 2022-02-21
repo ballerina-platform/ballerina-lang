@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,13 +48,13 @@ public class ForeachXMLTest {
 
     @Test
     public void testXMLWithArityOne() {
-        Object returns = JvmRunUtil.invoke(program, "testXMLWithArityOne");
+        Object returns = BRunUtil.invoke(program, "testXMLWithArityOne");
         Assert.assertEquals(returns.toString(), payload + " ");
     }
 
     @Test
     public void testXMLWithArityTwo() {
-        Object returns = JvmRunUtil.invoke(program, "testXMLWithArityTwo");
+        Object returns = BRunUtil.invoke(program, "testXMLWithArityTwo");
         Assert.assertEquals(returns.toString(), "0:" + payload + " ");
     }
 
@@ -64,7 +64,7 @@ public class ForeachXMLTest {
                 "            <p:city>NY</p:city>\n" +
                 "            <q:country xmlns:q=\"bar\">US</q:country>\n" +
                 "        </p:address> 2:<q:ID xmlns:q=\"bar\">1131313</q:ID> ";
-        Object returns = JvmRunUtil.invoke(program, "testXMLWithArityChildren");
+        Object returns = BRunUtil.invoke(program, "testXMLWithArityChildren");
         Assert.assertEquals(returns.toString(), payload);
     }
 }

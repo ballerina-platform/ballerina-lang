@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,14 +51,14 @@ public class ArrayAccessExprTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"array index out of range: index: 5, size: 0.*")
     public void testNonInitArrayAccess() {
-        JvmRunUtil.invoke(compileResult, "testNonInitArrayAccess");
+        BRunUtil.invoke(compileResult, "testNonInitArrayAccess");
         Assert.fail("Test should fail at this point.");
     }
 
     @Test(description = "Test arrays access expression")
     public void testArrayAccessExpr() {
         Object[] args = { (100), (5)};
-        Object returns = JvmRunUtil.invoke(compileResult, "arrayAccessTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "arrayAccessTest", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -69,14 +69,14 @@ public class ArrayAccessExprTest {
 
     @Test(description = "Test arrays access with finite type")
     public void testArrayAccessWithFiniteType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testArrayAccessWithFiniteType");
+        Object returns = BRunUtil.invoke(compileResult, "testArrayAccessWithFiniteType");
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test arrays access with unions with finite types")
     public void testArrayAccessUsingUnionWithFiniteTypes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testArrayAccessUsingUnionWithFiniteTypes");
+        Object returns = BRunUtil.invoke(compileResult, "testArrayAccessUsingUnionWithFiniteTypes");
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns);
     }
@@ -84,7 +84,7 @@ public class ArrayAccessExprTest {
     @Test(description = "Test arrays return value")
     public void testArrayReturnValue() {
         Object[] args = {(100), (5)};
-        Object returns = JvmRunUtil.invoke(compileResult, "arrayReturnTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "arrayReturnTest", args);
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -103,7 +103,7 @@ public class ArrayAccessExprTest {
         arrayValue.add(1, 1);
 
         Object[] args = {arrayValue};
-        Object returns = JvmRunUtil.invoke(compileResult, "arrayArgTest", args);
+        Object returns = BRunUtil.invoke(compileResult, "arrayArgTest", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -116,21 +116,21 @@ public class ArrayAccessExprTest {
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*array index out of range: index: 5, size: 2.*")
     public void testArrayIndexOutOfBoundError() {
-        JvmRunUtil.invoke(compileResult, "arrayIndexOutOfBoundTest");
+        BRunUtil.invoke(compileResult, "arrayIndexOutOfBoundTest");
     }
 
     @Test(description = "Test array index out of range with finite type",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 3, size: 2.*")
     public void testArrayIndexOutOfRangeErrorWithFiniteTypeIndex() {
-        JvmRunUtil.invoke(compileResult, "testArrayIndexOutOfRangeErrorWithFiniteTypeIndex");
+        BRunUtil.invoke(compileResult, "testArrayIndexOutOfRangeErrorWithFiniteTypeIndex");
     }
 
     @Test(description = "Test array index out of range with union with finite type",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 4, size: 2.*")
     public void testArrayIndexOutOfRangeErrorWithUnionWithFiniteTypesIndex() {
-        JvmRunUtil.invoke(compileResult, "testArrayIndexOutOfRangeErrorWithUnionWithFiniteTypesIndex");
+        BRunUtil.invoke(compileResult, "testArrayIndexOutOfRangeErrorWithUnionWithFiniteTypesIndex");
     }
 
     @Test(description = "Test arrays access with a key")

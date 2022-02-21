@@ -20,7 +20,7 @@ package org.ballerinalang.test.bala.record;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,16 +44,16 @@ public class RecordInBalaTest {
 
     @Test
     public void testRestFieldTypeDefAfterRecordDef() {
-        Object returns = JvmRunUtil.invoke(result, "testORRestFieldInOR");
+        Object returns = BRunUtil.invoke(result, "testORRestFieldInOR");
         assertEquals(returns.toString(), "{\"name\":\"Open Foo\",\"ob\":{\"x\":1.0}}");
 
-        returns = JvmRunUtil.invoke(result, "testORRestFieldInCR");
+        returns = BRunUtil.invoke(result, "testORRestFieldInCR");
         assertEquals(returns.toString(), "{\"name\":\"Closed Foo\",\"ob\":{\"x\":2.0}}");
 
-        returns = JvmRunUtil.invoke(result, "testCRRestFieldInOR");
+        returns = BRunUtil.invoke(result, "testCRRestFieldInOR");
         assertEquals(returns.toString(), "{\"name\":\"Open Foo\",\"cb\":{\"x\":3.0}}");
 
-        returns = JvmRunUtil.invoke(result, "testCRRestFieldInCR");
+        returns = BRunUtil.invoke(result, "testCRRestFieldInCR");
         assertEquals(returns.toString(), "{\"name\":\"Closed Foo\",\"cb\":{\"x\":4.0}}");
     }
 

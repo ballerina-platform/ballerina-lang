@@ -19,7 +19,7 @@ package org.ballerinalang.test.lock;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -46,27 +46,27 @@ public class FieldLockTest {
     @Test(description = "Test locking by self var")
     public void testLockInAttachedFunc() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "lockFieldInSameObject");
+        Object returns = BRunUtil.invoke(compileResult, "lockFieldInSameObject");
         assertFalse(returns.toString().contains("*#*") || returns.toString().contains("#*#"));
     }
 
     @Test(description = "Test locking by passing object as param")
     public void testObjectLock() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "fieldLock");
+        Object returns = BRunUtil.invoke(compileResult, "fieldLock");
         assertTrue((returns.toString().equals("1001000") || returns.toString().equals("500500")));
 
-        Object returns2 = JvmRunUtil.invoke(compileResult, "objectParamLock");
+        Object returns2 = BRunUtil.invoke(compileResult, "objectParamLock");
         assertTrue((returns2.toString().equals("1001000") || returns2.toString().equals("500500")));
     }
 
     @Test(description = "Test locking based on a record field")
     public void testLockInRecords() {
 
-        Object returns = JvmRunUtil.invoke(compileResult2, "fieldLock");
+        Object returns = BRunUtil.invoke(compileResult2, "fieldLock");
         assertTrue((returns.toString().equals("1001000") || returns.toString().equals("500500")));
 
-        Object returns2 = JvmRunUtil.invoke(compileResult2, "arrayFieldLock");
+        Object returns2 = BRunUtil.invoke(compileResult2, "arrayFieldLock");
         assertTrue((returns2.toString().equals("1001000") || returns2.toString().equals("500500")));
     }
 }

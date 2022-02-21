@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test object initializers that are in the same package")
     public void testStructInitializerInSamePackage1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectInitializerInSamePackage1");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectInitializerInSamePackage1");
 
         Assert.assertEquals(returns.get(0), 10L);
         Assert.assertEquals(returns.get(1).toString(), "Peter");
@@ -56,7 +56,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test object initializers that are in different packages")
     public void testStructInitializerInAnotherPackage() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectInitializerInAnotherPackage");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectInitializerInAnotherPackage");
 
         Assert.assertEquals(returns.get(0), 10L);
         Assert.assertEquals(returns.get(1).toString(), "Peter");
@@ -64,7 +64,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test object initializer order, 1) default values, 2) initializer, 3) literal ")
     public void testStructInitializerOrder() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectInitializerOrder");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectInitializerOrder");
 
         Assert.assertEquals(returns.get(0), 40L);
         Assert.assertEquals(returns.get(1).toString(), "AB");
@@ -102,12 +102,12 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test error returning object initializer invocation")
     public void testErrorReturningInitializer() {
-        JvmRunUtil.invoke(compileResult, "testErrorReturningInitializer");
+        BRunUtil.invoke(compileResult, "testErrorReturningInitializer");
     }
 
     @Test(description = "Test initializer with rest args")
     public void testInitializerWithRestArgs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitializerWithRestArgs");
+        Object returns = BRunUtil.invoke(compileResult, "testInitializerWithRestArgs");
         BObject person = (BObject) returns;
 
         Assert.assertEquals(person.get(StringUtils.fromString("name")).toString(), "Pubudu");
@@ -119,7 +119,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test returning a custom error from initializer")
     public void testCustomErrorReturn() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testCustomErrorReturn");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCustomErrorReturn");
 
         Assert.assertEquals(getType(returns.get(0)).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(getType(returns.get(0)).getName(), "Err");
@@ -134,13 +134,13 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test value returned from initializer with a type guard")
     public void testReturnedValWithTypeGuard() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnedValWithTypeGuard");
+        Object returns = BRunUtil.invoke(compileResult, "testReturnedValWithTypeGuard");
         Assert.assertEquals(returns.toString(), "error");
     }
 
     @Test(description = "Test returning multiple errors from initializer")
     public void testMultipleErrorReturn() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testMultipleErrorReturn");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testMultipleErrorReturn");
 
         Assert.assertEquals(getType(returns.get(0)).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(((BError) returns.get(0)).getMessage(), "Foo Error");
@@ -153,33 +153,33 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test assigning to a variable declared with var")
     public void testAssigningToVar() {
-        JvmRunUtil.invoke(compileResult, "testAssigningToVar");
+        BRunUtil.invoke(compileResult, "testAssigningToVar");
     }
 
     @Test(description = "Test checkpanic expression in object init expr's argument")
     public void testCheckPanicInObjectInitArg() {
-        JvmRunUtil.invoke(compileResult, "testCheckPanicInObjectInitArg");
+        BRunUtil.invoke(compileResult, "testCheckPanicInObjectInitArg");
     }
 
     @Test(description = "Test checkpanic expression in object init expr's argument")
     public void testCheckPanicObjectInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new Object[]{(true)});
+        Object returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new Object[]{(true)});
         Assert.assertEquals(getType(returns).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(returns.toString(), "error FooErr (\"Foo Error\",f=\"foo\")");
 
-        returns = JvmRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new Object[]{(false)});
+        returns = BRunUtil.invoke(compileResult, "testCheckPanicObjectInit", new Object[]{(false)});
         Assert.assertEquals(getType(returns).getTag(), TypeTags.ERROR_TAG);
         Assert.assertEquals(returns.toString(), "error BarErr (\"Bar Error\",b=\"bar\")");
     }
 
     @Test(description = "Test panic in object init function")
     public void testObjectInitPanic() {
-        JvmRunUtil.invoke(compileResult, "testObjectInitPanic");
+        BRunUtil.invoke(compileResult, "testObjectInitPanic");
     }
 
     @Test(description = "Test invoking 'init' function in a function inside object descriptor")
     public void testInitActionInsideObjectDescriptor() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitActionInsideObjectDescriptor");
+        Object returns = BRunUtil.invoke(compileResult, "testInitActionInsideObjectDescriptor");
 
         Assert.assertEquals(getType(returns).getTag(), TypeTags.STRING_TAG);
         Assert.assertEquals(returns.toString(), "Ballerina");
@@ -187,109 +187,109 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test invoking 'init' function in a function inside object descriptor.")
     public void testInitInvocationInsideObject() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationInsideObject");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObject");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with args.")
     public void testInitInvocationInsideObjectWithArgs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationInsideObjectWithArgs");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObjectWithArgs");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "return.")
     public void testObjInitWithCheck1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testObjInitWithCheck1");
+        Object returns = BRunUtil.invoke(compileResult, "testObjInitWithCheck1");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "nil.")
     public void testObjInitWithCheck2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testObjInitWithCheck2");
+        Object returns = BRunUtil.invoke(compileResult, "testObjInitWithCheck2");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with rest " +
             "args.")
     public void testInitInvocationWithRestArgs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithRestArgs");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithRestArgs");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "return and rest params.")
     public void testInitInvocationWithCheckAndRestParams1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams1");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams1");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args in a function inside object descriptor with error " +
             "nil and rest param.")
     public void testInitInvocationWithCheckAndRestParams2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams2");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams2");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with default values.")
     public void testInitInvocationWithDefaultParams1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams1");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams1");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with default values.")
     public void testInitInvocationWithDefaultParams2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams2");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultParams2");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with finite type.")
     public void testInitInvocationWithFiniteType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithFiniteType");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithFiniteType");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with error as a default value.")
     public void testInitInvocationWithDefaultError() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithDefaultError");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithDefaultError");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with default values and some of them are " +
             "referenced by params.")
     public void testInitInvocationWithReferenceToDefaultValue1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue1");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue1");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with default values and some of them are " +
             "referenced by params.")
     public void testInitInvocationWithReferenceToDefaultValue2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue2");
+        Object returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReferenceToDefaultValue2");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with default values and returns error.")
     public void testErrorReturnWithInitialization() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testErrorReturnWithInitialization");
+        Object returns = BRunUtil.invoke(compileResult, "testErrorReturnWithInitialization");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with args with constant references as default values.")
     public void testConstRefsAsDefaultValue() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testConstRefsAsDefaultValue");
+        Object returns = BRunUtil.invoke(compileResult, "testConstRefsAsDefaultValue");
         Assert.assertTrue((Boolean) returns, "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking 'init' function with function pointer args")
     public void testFunctionPointerAsDefaultableParam1() {
-        JvmRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam1");
+        BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam1");
     }
 
     @Test(description = "Test invoking 'init' function with lambda function args")
     public void testFunctionPointerAsDefaultableParam2() {
-        JvmRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam2");
+        BRunUtil.invoke(compileResult, "testFunctionPointerAsDefaultableParam2");
     }
 
     @AfterClass

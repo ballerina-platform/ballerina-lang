@@ -21,7 +21,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,23 +42,23 @@ public class FunctionTest {
     @Test(description = "Test empty function scenario")
     public void testEmptyFunction() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "emptyFunction", args);
+        Object returns = BRunUtil.invoke(result, "emptyFunction", args);
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test function with empty default worker")
     public void testFunctionWithEmptyDefaultWorker() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "funcEmptyDefaultWorker", args);
+        Object returns = BRunUtil.invoke(result, "funcEmptyDefaultWorker", args);
         Assert.assertNull(returns);
     }
 
     @Test
     public void testNoReturnFunctions() {
         Object[] args = {};
-        JvmRunUtil.invoke(result, "test1", args);
-        JvmRunUtil.invoke(result, "test2", args);
-        JvmRunUtil.invoke(result, "test3", args);
+        BRunUtil.invoke(result, "test1", args);
+        BRunUtil.invoke(result, "test2", args);
+        BRunUtil.invoke(result, "test3", args);
     }
 
     @Test(description = "Test frame yield depth overflow", expectedExceptions = BLangRuntimeException.class,

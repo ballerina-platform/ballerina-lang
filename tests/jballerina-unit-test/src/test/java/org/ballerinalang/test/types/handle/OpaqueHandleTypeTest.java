@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class OpaqueHandleTypeTest {
 
     @Test(description = "Test a function that returns a value of handle")
     public void testHandleReturnFromFunction() {
-        Object returns = JvmRunUtil.invoke(result, "getHandle");
+        Object returns = BRunUtil.invoke(result, "getHandle");
         Assert.assertNull(returns);
     }
 
@@ -58,7 +58,7 @@ public class OpaqueHandleTypeTest {
         UUID uuidValue = UUID.randomUUID();
         Object[] args = new Object[1];
         args[0] = new HandleValue(uuidValue);
-        Object returns = JvmRunUtil.invoke(result, "getHandleValueAsAParameter", args);
+        Object returns = BRunUtil.invoke(result, "getHandleValueAsAParameter", args);
         Assert.assertEquals(((HandleValue) returns).getValue(), uuidValue);
     }
 
@@ -67,7 +67,7 @@ public class OpaqueHandleTypeTest {
         String strValue = "any string value";
         Object[] args = new Object[1];
         args[0] = new HandleValue(strValue);
-        Object returns = JvmRunUtil.invoke(result, "acceptHandleValueWithAny", args);
+        Object returns = BRunUtil.invoke(result, "acceptHandleValueWithAny", args);
         Assert.assertEquals(((HandleValue) returns).getValue(), strValue);
     }
 
@@ -77,14 +77,14 @@ public class OpaqueHandleTypeTest {
         Object[] args1 = new Object[2];
         args1[0] = new HandleValue(uuidValue1);
         args1[1] = new HandleValue(uuidValue1);
-        Object returns1 = JvmRunUtil.invoke(result, "testHandleValueEquality", args1);
+        Object returns1 = BRunUtil.invoke(result, "testHandleValueEquality", args1);
         Assert.assertTrue((Boolean) returns1);
 
         UUID uuidValue2 = UUID.randomUUID();
         Object[] args2 = new Object[2];
         args2[0] = new HandleValue(uuidValue1);
         args2[1] = new HandleValue(uuidValue2);
-        Object returns2 = JvmRunUtil.invoke(result, "testHandleValueEquality", args2);
+        Object returns2 = BRunUtil.invoke(result, "testHandleValueEquality", args2);
         Assert.assertFalse((Boolean) returns2);
     }
 
@@ -94,14 +94,14 @@ public class OpaqueHandleTypeTest {
         Object[] args1 = new Object[2];
         args1[0] = new HandleValue(uuidValue1);
         args1[1] = new HandleValue(uuidValue1);
-        Object returns1 = JvmRunUtil.invoke(result, "testHandleValueInequality", args1);
+        Object returns1 = BRunUtil.invoke(result, "testHandleValueInequality", args1);
         Assert.assertFalse((Boolean) returns1);
 
         UUID uuidValue2 = UUID.randomUUID();
         Object[] args2 = new Object[2];
         args2[0] = new HandleValue(uuidValue1);
         args2[1] = new HandleValue(uuidValue2);
-        Object returns2 = JvmRunUtil.invoke(result, "testHandleValueInequality", args2);
+        Object returns2 = BRunUtil.invoke(result, "testHandleValueInequality", args2);
         Assert.assertTrue((Boolean) returns2);
     }
 
@@ -110,7 +110,7 @@ public class OpaqueHandleTypeTest {
         String strValue = "any string value";
         Object[] args = new Object[1];
         args[0] = new HandleValue(strValue);
-        Object returns = JvmRunUtil.invoke(result, "setAndGetModuleLevelHandleValue", args);
+        Object returns = BRunUtil.invoke(result, "setAndGetModuleLevelHandleValue", args);
         Assert.assertEquals(((HandleValue) returns).getValue(), strValue);
     }
 
@@ -119,17 +119,17 @@ public class OpaqueHandleTypeTest {
         String strValue = "String handle value";
         Object[] args = new Object[1];
         args[0] = new HandleValue(strValue);
-        Object returns = JvmRunUtil.invoke(result, "testUnionsWithHandleType", args);
+        Object returns = BRunUtil.invoke(result, "testUnionsWithHandleType", args);
         Assert.assertEquals(returns.toString(), "handle");
 
         args = new Object[1];
         args[0] = StringUtils.fromString("String handle value");
-        returns = JvmRunUtil.invoke(result, "testUnionsWithHandleType", args);
+        returns = BRunUtil.invoke(result, "testUnionsWithHandleType", args);
         Assert.assertEquals(returns.toString(), "string");
 
         args = new Object[1];
         args[0] = (10);
-        returns = JvmRunUtil.invoke(result, "testUnionsWithHandleType", args);
+        returns = BRunUtil.invoke(result, "testUnionsWithHandleType", args);
         Assert.assertEquals(returns.toString(), "int");
     }
 
@@ -147,7 +147,7 @@ public class OpaqueHandleTypeTest {
         Object[] args = new Object[2];
         args[0] = bValueArray;
         args[1] = (testIndex); // index
-        Object returns = JvmRunUtil.invoke(result, "testArrayAccessOfHandleValues", args);
+        Object returns = BRunUtil.invoke(result, "testArrayAccessOfHandleValues", args);
         Assert.assertEquals(((HandleValue) returns).getValue(), testValue);
     }
 
@@ -166,7 +166,7 @@ public class OpaqueHandleTypeTest {
         args[0] = bValueArray;
         args[1] = (testIndex); // index
         args[2] = testValue;
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testArrayStoreOfHandleValues", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testArrayStoreOfHandleValues", args);
         Assert.assertEquals(((HandleValue) returns.get(testIndex)).getValue(), testValue.getValue());
     }
 
@@ -179,7 +179,7 @@ public class OpaqueHandleTypeTest {
         args[2] = new HandleValue(UUID.randomUUID());
         args[3] = new HandleValue(UUID.randomUUID());
         args[4] = (testIndex);
-        Object returns = JvmRunUtil.invoke(result, "testCreateArrayOfHandleValues", args);
+        Object returns = BRunUtil.invoke(result, "testCreateArrayOfHandleValues", args);
         Assert.assertEquals(((HandleValue) returns).getValue(), ((HandleValue) args[testIndex]).getValue());
     }
 
@@ -190,7 +190,7 @@ public class OpaqueHandleTypeTest {
         args[1] = new HandleValue(UUID.randomUUID());
         args[2] = new HandleValue(UUID.randomUUID());
         args[3] = new HandleValue(UUID.randomUUID());
-        Object returns = JvmRunUtil.invoke(result, "testCreateMapOfHandleValues", args);
+        Object returns = BRunUtil.invoke(result, "testCreateMapOfHandleValues", args);
         Assert.assertEquals(((HandleValue) returns).getValue(),
                 ((HandleValue) args[1]).getValue());
     }
@@ -200,7 +200,7 @@ public class OpaqueHandleTypeTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue(UUID.randomUUID());
         args[1] = new HandleValue(UUID.randomUUID());
-        Object returns = JvmRunUtil.invoke(result, "testCreateRecordWithHandleValues", args);
+        Object returns = BRunUtil.invoke(result, "testCreateRecordWithHandleValues", args);
         Assert.assertEquals(((HandleValue) returns).getValue(),
                 ((HandleValue) args[1]).getValue());
     }
@@ -210,7 +210,7 @@ public class OpaqueHandleTypeTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue(UUID.randomUUID());
         args[1] = new HandleValue(UUID.randomUUID());
-        Object returns = JvmRunUtil.invoke(result, "testCreateTuplesWithHandleValues", args);
+        Object returns = BRunUtil.invoke(result, "testCreateTuplesWithHandleValues", args);
         Assert.assertEquals(((HandleValue) returns).getValue(),
                 ((HandleValue) args[0]).getValue());
     }
@@ -220,7 +220,7 @@ public class OpaqueHandleTypeTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue(UUID.randomUUID());
         args[1] = new HandleValue(UUID.randomUUID());
-        Object returns = JvmRunUtil.invoke(result, "testCreateObjectWithHandleValues", args);
+        Object returns = BRunUtil.invoke(result, "testCreateObjectWithHandleValues", args);
         Assert.assertEquals(((HandleValue) returns).getValue(),
                 ((HandleValue) args[1]).getValue());
     }

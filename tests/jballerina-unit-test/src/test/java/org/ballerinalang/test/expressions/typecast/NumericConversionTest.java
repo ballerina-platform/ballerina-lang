@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -57,7 +57,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "floatAsFloatTests")
     public void testFloatAsFloat(String functionName, double d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -69,7 +69,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "floatAsDecimalTests")
     public void testFloatAsDecimal(String functionName, double d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -82,7 +82,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "floatAsIntTests")
     public void testFloatAsInt(String functionName, double d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -93,7 +93,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "floatAsByteTests")
     public void testFloatAsByte(String functionName, double d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -105,7 +105,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "decimalAsFloatTests")
     public void testDecimalAsFloat(String functionName, BigDecimal d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -117,7 +117,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "decimalAsDecimalTests")
     public void testDecimalAsDecimal(String functionName, BigDecimal d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -129,7 +129,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "decimalAsIntTests")
     public void testDecimalAsInt(String functionName, BigDecimal d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -140,7 +140,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "decimalAsByteTests")
     public void testDecimalAsByte(String functionName, BigDecimal d) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -152,7 +152,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "intAsFloatTests")
     public void testIntAsFloat(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -164,7 +164,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "intAsDecimalTests")
     public void testIntAsDecimal(String functionName, long i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -176,7 +176,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "intAsIntTests")
     public void testIntAsInt(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -188,7 +188,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "intAsByteTests")
     public void testIntAsByte(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -198,7 +198,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "intAsByteInUnionTests")
     public void testIntAsByteInUnions(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -208,7 +208,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "byteAsFloatTests")
     public void testByteAsFloat(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -219,7 +219,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "byteAsDecimalTests")
     public void testByteAsDecimal(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -231,7 +231,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "byteAsIntTests")
     public void testByteAsInt(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -241,7 +241,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "byteAsIntInUnionTests")
     public void testByteAsIntInUnions(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -251,7 +251,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "byteAsByteTests")
     public void testByteAsByte(String functionName, int i) {
-        Object arr = JvmRunUtil.invoke(result, functionName, new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -265,35 +265,35 @@ public class NumericConversionTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
                     "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidIntAsByte(int i) {
-        JvmRunUtil.invoke(result, "testIntAsByte", new Object[]{(i)});
+        BRunUtil.invoke(result, "testIntAsByte", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: 'int' cannot be cast to '\\(byte\\|boolean\\)'.*")
     public void testInvalidIntAsByteInUnions(int i) {
-        JvmRunUtil.invoke(result, "testIntAsByteInUnions", new Object[]{(i)});
+        BRunUtil.invoke(result, "testIntAsByteInUnions", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidFloatAsByte(int i) {
-        JvmRunUtil.invoke(result, "testFloatAsByte", new Object[]{(i)});
+        BRunUtil.invoke(result, "testFloatAsByte", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidFloatAsByteInUnions(int i) {
-        JvmRunUtil.invoke(result, "testFloatAsByteInUnions", new Object[]{(i)});
+        BRunUtil.invoke(result, "testFloatAsByteInUnions", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
                     " value '.*' cannot be converted to 'byte'.*")
     public void testInvalidDecimalAsByte(int i) {
-        JvmRunUtil.invoke(result, "testDecimalAsByte",
+        BRunUtil.invoke(result, "testDecimalAsByte",
                 new Object[]{ValueCreator.createDecimalValue(new BigDecimal(i))});
     }
 
@@ -301,7 +301,7 @@ public class NumericConversionTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'decimal' cannot be cast to '\\(byte\\|Employee\\)'.*")
     public void testInvalidDecimalAsByteInUnions(int i) {
-        JvmRunUtil.invoke(result, "testDecimalAsByteInUnions",
+        BRunUtil.invoke(result, "testDecimalAsByteInUnions",
                 new Object[]{ValueCreator.createDecimalValue(new BigDecimal(i))});
     }
 
@@ -309,47 +309,47 @@ public class NumericConversionTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'NaN' cannot be converted to 'byte'.*")
     public void testNaNFloatAsByte(String functionName) {
-        JvmRunUtil.invoke(result, functionName, new Object[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'Infinity' cannot be converted to 'byte'.*")
     public void testInfiniteFloatAsByte(String functionName) {
-        JvmRunUtil.invoke(result, functionName, new Object[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'NaN' cannot be converted to 'int'.*")
     public void testNaNFloatAsInt(String functionName) {
-        JvmRunUtil.invoke(result, functionName, new Object[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'Infinity' cannot be converted to 'int'.*")
     public void testInfiniteFloatAsInt(String functionName) {
-        JvmRunUtil.invoke(result, functionName, new Object[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "outOfRangeFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
                     "'float' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeFloatAsInt(String functionName) {
-        JvmRunUtil.invoke(result, functionName, new Object[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
                     "'decimal' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeDecimalAsInt(String functionName) {
-        JvmRunUtil.invoke(result, functionName, new Object[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test
     public void testExplicitlyTypedExprForExactValues() {
-        Object returns = JvmRunUtil.invoke(result, "testExplicitlyTypedExprForExactValues", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testExplicitlyTypedExprForExactValues", new Object[0]);
         if (returns instanceof BError) {
             Assert.fail(((BError) returns).getMessage());
         }
@@ -357,19 +357,19 @@ public class NumericConversionTest {
 
     @Test
     public void testConversionFromUnionWithNumericBasicTypes() {
-        Object returns = JvmRunUtil.invoke(result, "testConversionFromUnionWithNumericBasicTypes");
+        Object returns = BRunUtil.invoke(result, "testConversionFromUnionWithNumericBasicTypes");
         Assert.assertTrue((Boolean) returns, "expected numeric conversion to be successful");
     }
 
     @Test
     public void testNumericConversionFromBasicTypeToUnionType() {
-        Object returns = JvmRunUtil.invoke(result, "testNumericConversionFromBasicTypeToUnionType");
+        Object returns = BRunUtil.invoke(result, "testNumericConversionFromBasicTypeToUnionType");
         Assert.assertTrue((Boolean) returns, "expected numeric conversion to be successful");
     }
 
     @Test
     public void testNumericConversionFromFiniteType() {
-        Object returns = JvmRunUtil.invoke(result, "testNumericConversionFromFiniteType");
+        Object returns = BRunUtil.invoke(result, "testNumericConversionFromFiniteType");
         Assert.assertTrue((Boolean) returns, "expected numeric conversion to be successful");
     }
 

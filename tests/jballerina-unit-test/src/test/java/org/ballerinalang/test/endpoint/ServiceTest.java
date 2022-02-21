@@ -21,8 +21,8 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
-import org.ballerinalang.test.JvmRunUtil.ExitDetails;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.BRunUtil.ExitDetails;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,7 +38,7 @@ public class ServiceTest {
     @Test
     public void testServiceInitNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_negative.bal");
-        ExitDetails output = JvmRunUtil.run(compileResult, new String[]{});
+        ExitDetails output = BRunUtil.run(compileResult, new String[]{});
         Assert.assertTrue(output.errorOutput.contains("error: startError"));
     }
 
@@ -56,13 +56,13 @@ public class ServiceTest {
           expectedExceptionsMessageRegExp = ".*error: startError.*")
     public void testServiceInitPanicNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_panic_negative.bal");
-        JvmRunUtil.invoke(compileResult, "test1");
+        BRunUtil.invoke(compileResult, "test1");
     }
 
     @Test
     public void testMultipleServiceTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_multiple.bal");
-        final Object resultArr = JvmRunUtil.invoke(compileResult, "test1");
+        final Object resultArr = BRunUtil.invoke(compileResult, "test1");
         BArray result = (BArray) resultArr;
         Assert.assertEquals(result.size(), 2, "expected two return type");
         Assert.assertNotNull(result.get(0));
@@ -74,7 +74,7 @@ public class ServiceTest {
     @Test
     public void testUsingListenerFromDepModule() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestListenerProject");
-        final Object result = JvmRunUtil.invoke(compileResult, "getStartAndAttachCount");
+        final Object result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
         Assert.assertNotNull(result);
         Assert.assertEquals(result.toString(), "2_1");
     }

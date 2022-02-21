@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -89,7 +89,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(description = "Test case for type referencing all value-typed fields")
     public void testValRefType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testValRefType");
+        Object returns = BRunUtil.invoke(compileResult, "testValRefType");
         BMap foo1 = (BMap) returns;
         assertEquals(foo1.get(StringUtils.fromString("a")), 10L);
         assertEquals(foo1.get(StringUtils.fromString("b")), 23.45);
@@ -108,7 +108,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(description = "Test case for type referencing records with complex ref types")
     public void testRefTypes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRefTypes");
+        Object returns = BRunUtil.invoke(compileResult, "testRefTypes");
         BMap foo2 = (BMap) returns;
         assertEquals(foo2.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo2.get(StringUtils.fromString("i")), 10L);
@@ -144,7 +144,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(description = "Test case for order of resolving")
     public void testOrdering() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testOrdering");
+        Object returns = BRunUtil.invoke(compileResult, "testOrdering");
         BMap foo3 = (BMap) returns;
         assertEquals(foo3.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo3.get(StringUtils.fromString("ri")), 10L);
@@ -153,7 +153,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(description = "Test case for reference chains")
     public void testReferenceChains() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReferenceChains");
+        Object returns = BRunUtil.invoke(compileResult, "testReferenceChains");
         BMap foo4 = (BMap) returns;
         assertEquals(foo4.get(StringUtils.fromString("s")).toString(), "qwerty");
         assertEquals(foo4.get(StringUtils.fromString("abi")), 10L);
@@ -163,7 +163,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(description = "Test case for type referencing in BALAs")
     public void testTypeReferencingInBALAs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTypeReferencingInBALAs");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeReferencingInBALAs");
         BMap manager = (BMap) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         assertEquals(manager.get(StringUtils.fromString("age")), 25L);
@@ -175,7 +175,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(description = "Test case for default value initializing in type referenced fields")
     public void testDefaultValueInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDefaultValueInit");
+        Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
         BMap manager = (BMap) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "John Doe");
         assertEquals(manager.get(StringUtils.fromString("age")), 25L);
@@ -187,7 +187,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(description = "Test case for default value initializing in type referenced fields from a bala")
     public void testDefaultValueInitInBALAs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDefaultValueInitInBALAs");
+        Object returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALAs");
         BMap manager = (BMap) returns;
         assertEquals(manager.get(StringUtils.fromString("name")).toString(), "anonymous");
         assertEquals(manager.get(StringUtils.fromString("age")), 0L);
@@ -198,7 +198,7 @@ public class ClosedRecordTypeInclusionTest {
 
     @Test(dataProvider = "FunctionList")
     public void testSimpleFunctions(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @DataProvider(name = "FunctionList")

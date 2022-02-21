@@ -19,7 +19,7 @@ package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,27 +47,27 @@ public class NeverTypeBalaTest {
 
     @Test
     public void testTypeOfNeverReturnTypedFunction() {
-        JvmRunUtil.invoke(result, "testTypeOfNeverReturnTypedFunction");
+        BRunUtil.invoke(result, "testTypeOfNeverReturnTypedFunction");
     }
 
     @Test
     public void testNeverReturnTypedFunctionCall() {
-        JvmRunUtil.invoke(result, "testNeverReturnTypedFunctionCall");
+        BRunUtil.invoke(result, "testNeverReturnTypedFunctionCall");
     }
 
     @Test
     public void testInclusiveRecordTypeWithNeverTypedField() {
-        JvmRunUtil.invoke(result, "testInclusiveRecord");
+        BRunUtil.invoke(result, "testInclusiveRecord");
     }
 
     @Test
     public void testExclusiveRecordTypeWithNeverTypedField() {
-        JvmRunUtil.invoke(result, "testExclusiveRecord");
+        BRunUtil.invoke(result, "testExclusiveRecord");
     }
 
     @Test
     public void testNeverWithKeyLessTable() {
-        JvmRunUtil.invoke(result, "testNeverWithKeyLessTable");
+        BRunUtil.invoke(result, "testNeverWithKeyLessTable");
     }
 
     @AfterClass

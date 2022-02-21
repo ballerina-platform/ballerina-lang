@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,14 +41,14 @@ public class ClosedRecordEquivalencyTest {
 
     @Test(description = "Test equivalence of records that are in the same package")
     public void testEqOfPrivateStructsInSamePackage() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEquivalenceOfPrivateStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPrivateStructsInSamePackage");
 
         Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalence of public records that are in the same package")
     public void testEqOfPublicStructsInSamePackage() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEquivalenceOfPublicStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPublicStructsInSamePackage");
 
         Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
@@ -56,55 +56,55 @@ public class ClosedRecordEquivalencyTest {
     @Test(description = "Test equivalence of public records that are in the same package. " +
             "Equivalency test is performed in another package.")
     public void testEqOfPublicStructs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEqOfPublicStructs");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs");
         Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalency of public records that are in two different packages")
     public void testEqOfPublicStructs1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEqOfPublicStructs1");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs1");
 
         Assert.assertEquals(returns.toString(), "234-56-1234:employee");
     }
 
     @Test(description = "Test equivalency of public records that are in two different packages")
     public void testEqOfPublicStructs2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEqOfPublicStructs2");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs2");
 
         Assert.assertEquals(returns.toString(), "234-56-3345:employee");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPrivateStructsInSamePackage() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRuntimeEqPrivateStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPrivateStructsInSamePackage");
 
         Assert.assertEquals(returns.toString(), "ttt");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPublicStructsInSamePackage() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRuntimeEqPublicStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructsInSamePackage");
 
         Assert.assertEquals(returns.toString(), "Skyhigh");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPublicStructs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs");
 
         Assert.assertEquals(returns.toString(), "Skytop");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPublicStructs1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
 
         Assert.assertEquals(returns.toString(), "Brandon");
     }
 
     @Test(description = "Test case for record equivalence")
     public void testRecordEquivalence() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRecordEquivalence");
+        Object returns = BRunUtil.invoke(compileResult, "testRecordEquivalence");
         BMap foo = (BMap) returns;
 
         Assert.assertEquals(foo.size(), 6);
@@ -118,7 +118,7 @@ public class ClosedRecordEquivalencyTest {
 
     @Test(description = "Test case for using records with unordered fields in a match")
     public void testUnorderedFieldRecordsInAMatch() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUnorderedFieldRecordsInAMatch");
+        Object returns = BRunUtil.invoke(compileResult, "testUnorderedFieldRecordsInAMatch");
         BMap foo = (BMap) returns;
 
         Assert.assertEquals(foo.size(), 6);

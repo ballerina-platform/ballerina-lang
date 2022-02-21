@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +52,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test simple record variable definition")
     public void simpleDefinition() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "simpleDefinition");
+        BArray returns = (BArray) BRunUtil.invoke(result, "simpleDefinition");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "Peter");
         Assert.assertTrue((Boolean) returns.get(1));
@@ -60,7 +60,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable inside record variable")
     public void recordVarInRecordVar() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "recordVarInRecordVar");
+        BArray returns = (BArray) BRunUtil.invoke(result, "recordVarInRecordVar");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "Peter");
         Assert.assertEquals(returns.get(1), 29L);
@@ -70,7 +70,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable inside record variable")
     public void recordVarInRecordVar2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "recordVarInRecordVar2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "recordVarInRecordVar2");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "Peter");
         Assert.assertEquals((((BMap) returns.get(1)).get(StringUtils.fromString("age"))), 29L);
@@ -79,7 +79,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable inside record variable inside record variable")
     public void recordVarInRecordVarInRecordVar() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "recordVarInRecordVarInRecordVar");
+        BArray returns = (BArray) BRunUtil.invoke(result, "recordVarInRecordVarInRecordVar");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0).toString(), "Peter");
         Assert.assertTrue((Boolean) returns.get(1));
@@ -90,7 +90,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test tuple variable inside record variable")
     public void tupleVarInRecordVar() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "tupleVarInRecordVar");
+        BArray returns = (BArray) BRunUtil.invoke(result, "tupleVarInRecordVar");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "John");
         Assert.assertEquals(returns.get(1), 20L);
@@ -99,7 +99,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test declaring 3 record variables and using the variables")
     public void defineThreeRecordVariables() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "defineThreeRecordVariables");
+        BArray returns = (BArray) BRunUtil.invoke(result, "defineThreeRecordVariables");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "JohnDoePeterYYMMDD");
         Assert.assertEquals(returns.get(1), 50L);
@@ -107,19 +107,19 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test declaring 3 record variables and using the variables")
     public void recordVariableWithRHSInvocation() {
-        Object returns = JvmRunUtil.invoke(result, "recordVariableWithRHSInvocation");
+        Object returns = BRunUtil.invoke(result, "recordVariableWithRHSInvocation");
         Assert.assertEquals(returns.toString(), "Jack Jill");
     }
 
     @Test(description = "Test declaring 3 record variables and using the variables")
     public void nestedRecordVariableWithRHSInvocation() {
-        Object returns = JvmRunUtil.invoke(result, "nestedRecordVariableWithRHSInvocation");
+        Object returns = BRunUtil.invoke(result, "nestedRecordVariableWithRHSInvocation");
         Assert.assertEquals(returns.toString(), "Peter Parker");
     }
 
     @Test(description = "Test rest parameter")
     public void testRestParameter() {
-        Object returns = JvmRunUtil.invoke(result, "testRestParameter");
+        Object returns = BRunUtil.invoke(result, "testRestParameter");
         Assert.assertTrue(returns instanceof BMap);
         BMap bMap = (BMap) returns;
         Assert.assertEquals(bMap.size(), 2);
@@ -133,7 +133,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test rest parameter in nested record variable")
     public void testNestedRestParameter() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testNestedRestParameter");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testNestedRestParameter");
         Assert.assertTrue(returns.get(0) instanceof BMap);
         BMap bMap = (BMap) returns.get(0);
         Assert.assertEquals(bMap.size(), 1);
@@ -146,7 +146,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test rest parameter in nested record variable")
     public void testVariableAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVariableAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVariableAssignment");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0).toString(), "Peter");
         Assert.assertEquals(returns.get(1), 29L);
@@ -157,7 +157,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test rest parameter in nested record variable")
     public void testVariableAssignment2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testVariableAssignment2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testVariableAssignment2");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0).toString(), "James");
         Assert.assertEquals(returns.get(1), 30L);
@@ -168,7 +168,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test tuple var def inside record var def")
     public void testTupleVarDefInRecordVarDef() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testTupleVarDefInRecordVarDef");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTupleVarDefInRecordVarDef");
         Assert.assertEquals(returns.size(), 7);
         Assert.assertEquals(returns.get(0).toString(), "Mark");
         Assert.assertEquals((((BArray) returns.get(1)).getRefValue(0)), 1L);
@@ -183,7 +183,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record var def inside tuple var def inside record var def")
     public void testRecordInsideTupleInsideRecord() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(((BArray) returns.get(0)).getString(0), "A");
         Assert.assertEquals(((BArray) returns.get(0)).getString(1), "B");
@@ -198,7 +198,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record var def inside tuple var def inside record var def")
     public void testRecordInsideTupleInsideRecord2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "C");
         Assert.assertEquals(returns.get(1), 1996L);
@@ -208,7 +208,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record var def inside tuple var def inside record var def")
     public void testRecordInsideTupleInsideRecordWithVar() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecordInsideTupleInsideRecordWithVar");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordInsideTupleInsideRecordWithVar");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(((BArray) returns.get(0)).getString(0), "A");
         Assert.assertEquals(((BArray) returns.get(0)).getString(1), "B");
@@ -223,7 +223,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record var def inside tuple var def inside record var def")
     public void testRecordInsideTupleInsideRecord2WithVar() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2WithVar");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2WithVar");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "D");
         Assert.assertEquals(returns.get(1), 1998L);
@@ -233,7 +233,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record var def inside tuple var def inside record var def")
     public void testRecordVarWithUnionType() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRecordVarWithUnionType");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRecordVarWithUnionType");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0), 50L);
         Assert.assertEquals(returns.get(1), 51.1);
@@ -243,7 +243,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable with Union Type")
     public void testUnionRecordVariable() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testUnionRecordVariable");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testUnionRecordVariable");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "A");
         Assert.assertEquals(returns.get(1).toString(), "B");
@@ -253,7 +253,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable with ignore variable")
     public void testIgnoreVariable() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIgnoreVariable");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIgnoreVariable");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "John");
         Assert.assertEquals(returns.get(1), 30L);
@@ -261,7 +261,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable with only a rest parameter")
     public void testRecordVariableWithOnlyRestParam() {
-        BMap returns = (BMap) JvmRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
+        BMap returns = (BMap) BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
 
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"John\",\"age\":{\"age\":30,\"format\":\"YY\",\"year\":1990},\"married\":true," +
@@ -270,7 +270,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testRestParameterType");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testRestParameterType");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertTrue((Boolean) returns.get(0));
         Assert.assertFalse((Boolean) returns.get(1));
@@ -281,7 +281,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test resolving the rest field type during record restructuring")
     public void testResolvingRestField() {
-        JvmRunUtil.invoke(result, "testRestFieldResolving");
+        BRunUtil.invoke(result, "testRestFieldResolving");
     }
 
     @Test

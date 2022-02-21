@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +59,7 @@ public class StringValueRecordTest {
     }
 
     private void testAndAssert(String funcName, long i) {
-        Object returns = JvmRunUtil.invoke(result, funcName);
+        Object returns = BRunUtil.invoke(result, funcName);
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, i);
     }

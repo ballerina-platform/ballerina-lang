@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -62,13 +62,13 @@ public class FreezeAndIsFrozenTest {
 
     @Test()
     public void testFreezeOnNilTypedValue() {
-        Object returns = JvmRunUtil.invoke(result, "testFreezeOnNilTypedValue");
+        Object returns = BRunUtil.invoke(result, "testFreezeOnNilTypedValue");
         Assert.assertNull(returns);
     }
 
     @Test(dataProvider = "booleanValues")
     public void testBooleanFreeze(boolean i) {
-        Object arr = JvmRunUtil.invoke(result, "testBooleanFreeze", new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, "testBooleanFreeze", new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -79,7 +79,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "intValues")
     public void testIntFreeze(int i) {
-        Object arr = JvmRunUtil.invoke(result, "testIntFreeze", new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, "testIntFreeze", new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -90,7 +90,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "byteValues")
     public void testByteFreeze(int i) {
-        Object arr = JvmRunUtil.invoke(result, "testByteFreeze", new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, "testByteFreeze", new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -101,7 +101,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "floatValues")
     public void testFloatFreeze(double i) {
-        Object arr = JvmRunUtil.invoke(result, "testFloatFreeze", new Object[]{(i)});
+        Object arr = BRunUtil.invoke(result, "testFloatFreeze", new Object[]{(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -112,7 +112,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "decimalValues")
     public void testDecimalFreeze(BigDecimal i) {
-        Object arr = JvmRunUtil.invoke(result, "testDecimalFreeze", new Object[]{
+        Object arr = BRunUtil.invoke(result, "testDecimalFreeze", new Object[]{
                 ValueCreator.createDecimalValue(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
@@ -124,7 +124,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "stringValues")
     public void testStringFreeze(String i) {
-        Object arr = JvmRunUtil.invoke(result, "testStringFreeze", new Object[]{StringUtils.fromString(i)});
+        Object arr = BRunUtil.invoke(result, "testStringFreeze", new Object[]{StringUtils.fromString(i)});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -135,12 +135,12 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testRecordWithEnumFreeze() {
-        JvmRunUtil.invoke(result, "testRecordWithEnumFreeze");
+        BRunUtil.invoke(result, "testRecordWithEnumFreeze");
     }
 
     @Test
     public void testBasicTypeNullableUnionFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testBasicTypeNullableUnionFreeze", new Object[]{});
+        Object arr = BRunUtil.invoke(result, "testBasicTypeNullableUnionFreeze", new Object[]{});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -151,7 +151,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testBasicTypeUnionFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testBasicTypeUnionFreeze", new Object[]{});
+        Object arr = BRunUtil.invoke(result, "testBasicTypeUnionFreeze", new Object[]{});
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -162,14 +162,14 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testBasicTypesAsJsonFreeze() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicTypesAsJsonFreeze", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testBasicTypesAsJsonFreeze", new Object[0]);
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns, "Expected json values to be the same");
     }
 
     @Test
     public void testIsFrozenOnStructuralTypes() {
-        Object arr = JvmRunUtil.invoke(result, "testIsFrozenOnStructuralTypes", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testIsFrozenOnStructuralTypes", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -183,70 +183,70 @@ public class FreezeAndIsFrozenTest {
                     ":\"modification not allowed on readonly value\".*",
             dataProvider = "frozenBasicTypeArrayModificationFunctions")
     public void testFrozenBasicTypeArrayModification(String frozenBasicTypeArrayModificationFunction) {
-        JvmRunUtil.invoke(result, frozenBasicTypeArrayModificationFunction, new Object[0]);
+        BRunUtil.invoke(result, frozenBasicTypeArrayModificationFunction, new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value.*")
     public void testFrozenDecimalArrayModification() {
-        JvmRunUtil.invoke(result, "testFrozenDecimalArrayModification", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenDecimalArrayModification", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":\"" +
                     "modification not allowed on readonly value\"}.*")
     public void testFrozenJsonArrayModification() {
-        JvmRunUtil.invoke(result, "testFrozenJsonArrayModification", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenJsonArrayModification", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenJsonModification() {
-        JvmRunUtil.invoke(result, "testFrozenJsonModification", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenJsonModification", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testAdditionToFrozenJson() {
-        JvmRunUtil.invoke(result, "testAdditionToFrozenJson", new Object[0]);
+        BRunUtil.invoke(result, "testAdditionToFrozenJson", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"failed " +
                     "to remove element from map: modification not allowed on readonly value.*")
     public void testRemovalFromFrozenJson() {
-        JvmRunUtil.invoke(result, "testRemovalFromFrozenJson", new Object[0]);
+        BRunUtil.invoke(result, "testRemovalFromFrozenJson", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenInnerJsonModification() {
-        JvmRunUtil.invoke(result, "testFrozenInnerJsonModification", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenInnerJsonModification", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testAdditionToFrozenInnerJson() {
-        JvmRunUtil.invoke(result, "testAdditionToFrozenInnerJson", new Object[0]);
+        BRunUtil.invoke(result, "testAdditionToFrozenInnerJson", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"failed to remove element from map: modification not allowed on readonly value\".*")
     public void testRemovalFromFrozenInnerJson() {
-        JvmRunUtil.invoke(result, "testRemovalFromFrozenInnerJson", new Object[0]);
+        BRunUtil.invoke(result, "testRemovalFromFrozenInnerJson", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml}XMLOperationError \\{\"message\":" +
                     "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
     public void testFrozenXmlSetChildren() {
-        JvmRunUtil.invoke(result, "testFrozenXmlSetChildren", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenXmlSetChildren", new Object[0]);
     }
 
 
@@ -254,63 +254,63 @@ public class FreezeAndIsFrozenTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml}XMLOperationError \\{\"message\":" +
             "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
     public void testFrozenXmlSetChildrenDeep() {
-        JvmRunUtil.invoke(result, "testFrozenXmlSetChildrenDeep", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenXmlSetChildrenDeep", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
                     "Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenMapUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenMapUpdate", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenMapUpdate", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
                     "failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenMapRemoval() {
-        JvmRunUtil.invoke(result, "testFrozenMapRemoval", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenMapRemoval", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Failed to clear map: modification not allowed on readonly value\".*")
     public void testFrozenMapClear() {
-        JvmRunUtil.invoke(result, "testFrozenMapClear", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenMapClear", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\"" +
                     ":\"Invalid map insertion: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenInnerMapUpdate", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenInnerMapUpdate", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapRemoval() {
-        JvmRunUtil.invoke(result, "testFrozenInnerMapRemoval", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenInnerMapRemoval", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
                     "\"Failed to clear map: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapClear() {
-        JvmRunUtil.invoke(result, "testFrozenInnerMapClear", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenInnerMapClear", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value\".*")
     public void testFrozenAnyArrayAddition() {
-        JvmRunUtil.invoke(result, "testFrozenAnyArrayAddition", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenAnyArrayAddition", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value\".*")
     public void testFrozenAnyArrayUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenAnyArrayUpdate", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenAnyArrayUpdate", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -318,59 +318,59 @@ public class FreezeAndIsFrozenTest {
                     "\"cannot update 'readonly' field 'name' in record of type '\\(Employee & readonly\\)'\".*")
     public void
     testFrozenAnyArrayElementUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenAnyArrayElementUpdate", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenAnyArrayElementUpdate", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value\".*")
     public void testFrozenTupleUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenTupleUpdate", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenTupleUpdate", new Object[0]);
     }
 
     @Test
     public void testFrozenRecursiveTupleUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenRecursiveTupleUpdate");
+        BRunUtil.invoke(result, "testFrozenRecursiveTupleUpdate");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
                     "\"cannot update 'readonly' field 'name' in record of type '\\(DeptEmployee & readonly\\)'\".*")
     public void testFrozenRecordUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenRecordUpdate", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenRecordUpdate", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
                     "\"cannot update 'readonly' field 'code' in record of type '\\(Dept & readonly\\)'\".*")
     public void testFrozenInnerRecordUpdate() {
-        JvmRunUtil.invoke(result, "testFrozenInnerRecordUpdate", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenInnerRecordUpdate", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate " +
                     "\\{\"message\":\"modification not allowed on readonly value\"}.*")
     public void testFrozenTableAddition() {
-        JvmRunUtil.invoke(result, "testFrozenTableAddition", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenTableAddition", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate " +
                     "\\{\"message\":\"modification not allowed on readonly value\"}.*")
     public void testFrozenTableRemoval() {
-        JvmRunUtil.invoke(result, "testFrozenTableRemoval", new Object[0]);
+        BRunUtil.invoke(result, "testFrozenTableRemoval", new Object[0]);
     }
 
     @Test
     public void testSimpleUnionFreeze() {
-        Object returns = JvmRunUtil.invoke(result, "testSimpleUnionFreeze", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testSimpleUnionFreeze", new Object[0]);
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns, "Expected values to be identified as frozen");
     }
 
     @Test(description = "test a map of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexMapFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testValidComplexMapFreeze", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testValidComplexMapFreeze", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -382,12 +382,12 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testRecursiveTupleFreeze() {
-        JvmRunUtil.invoke(result, "testRecursiveTupleFreeze");
+        BRunUtil.invoke(result, "testRecursiveTupleFreeze");
     }
 
     @Test(description = "test an array of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexArrayFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testValidComplexArrayFreeze", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testValidComplexArrayFreeze", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -399,7 +399,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(description = "test a record of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexRecordFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testValidComplexRecordFreeze", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testValidComplexRecordFreeze", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -411,7 +411,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(description = "test a tuple of type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexTupleFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testValidComplexTupleFreeze", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testValidComplexTupleFreeze", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -423,7 +423,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(description = "test a union of member type not purely anydata, a combination of anydata and non-anydata")
     public void testValidComplexUnionFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testValidComplexUnionFreeze", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testValidComplexUnionFreeze", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -435,7 +435,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testValidSelfReferencingValueFreeze() {
-        Object arr = JvmRunUtil.invoke(result, "testValidSelfReferencingValueFreeze", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testValidSelfReferencingValueFreeze", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -447,14 +447,14 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testStructureWithErrorValueFreeze() {
-        Object returns = JvmRunUtil.invoke(result, "testStructureWithErrorValueFreeze", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testStructureWithErrorValueFreeze", new Object[0]);
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFrozenValueUpdatePanicWithCheckTrap() {
-        Object returns = JvmRunUtil.invoke(result, "testFrozenValueUpdatePanicWithCheckTrap", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testFrozenValueUpdatePanicWithCheckTrap", new Object[0]);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns).getDetails()).get(StringUtils.fromString(
                 "message")).toString(), "modification not allowed on readonly value");
@@ -462,7 +462,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testXMLItemsCloneReadOnly() {
-        JvmRunUtil.invoke(result, "testXMLItemsCloneReadOnly");
+        BRunUtil.invoke(result, "testXMLItemsCloneReadOnly");
     }
 
     @Test

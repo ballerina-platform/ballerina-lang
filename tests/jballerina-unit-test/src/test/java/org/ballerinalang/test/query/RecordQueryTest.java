@@ -20,7 +20,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,7 +42,7 @@ public class RecordQueryTest {
 
     @Test
     public void testSimpleQueryAction() {
-        JvmRunUtil.invoke(result, "testRecordBasedQueryExpr");
+        BRunUtil.invoke(result, "testRecordBasedQueryExpr");
     }
 
     @AfterClass

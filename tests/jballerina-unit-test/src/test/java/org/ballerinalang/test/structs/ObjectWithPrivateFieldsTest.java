@@ -20,7 +20,7 @@ package org.ballerinalang.test.structs;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +40,7 @@ public class ObjectWithPrivateFieldsTest {
 
     @Test(description = "Test private struct field access")
     public void testPrivateFieldAccessSamePackage() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "textPrivateFieldAccess1");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "textPrivateFieldAccess1");
 
         Assert.assertEquals(returns.get(0).toString(), "sam");
         Assert.assertEquals(returns.get(1).toString(), "95134");
@@ -51,7 +51,7 @@ public class ObjectWithPrivateFieldsTest {
 
     @Test(description = "Test struct with private field which is in a different package")
     public void testStructWithPrivateFieldDifferentPackage() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "textPrivateFieldAccess2");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "textPrivateFieldAccess2");
 
         Assert.assertEquals(returns.get(0), 12L);
         Assert.assertEquals(returns.get(1).toString(), "mad");
@@ -59,7 +59,7 @@ public class ObjectWithPrivateFieldsTest {
 
     @Test(description = "Test compile time struct equivalence with private fields")
     public void testCompileTimeStructEqWithPrivateFields() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFields");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFields");
 
         Assert.assertEquals(returns.get(0).toString(), "jay");
         Assert.assertEquals(returns.get(1).toString(), "95134");
@@ -71,7 +71,7 @@ public class ObjectWithPrivateFieldsTest {
             "Structs are in different packages")
     public void testCompileTimeStructEqWithPrivateFieldsTwoPackages() {
         BArray returns =
-                (BArray) JvmRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFieldsTwoPackages");
+                (BArray) BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFieldsTwoPackages");
 
         Assert.assertEquals(returns.get(0), 28L);
         Assert.assertEquals(returns.get(1).toString(), "mal");
@@ -80,7 +80,7 @@ public class ObjectWithPrivateFieldsTest {
 
     @Test(description = "Test compile time struct equivalence with private fields")
     public void testRuntimeStructEqWithPrivateFields() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFields");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFields");
 
         Assert.assertEquals(returns.get(0).toString(), "jay");
         Assert.assertEquals(returns.get(1).toString(), "95134");
@@ -92,7 +92,7 @@ public class ObjectWithPrivateFieldsTest {
     @Test(description = "Test runtime time struct equivalence with private fields. " +
             "Structs are in different packages")
     public void testRuntimeStructEqWithPrivateFieldsTwoPackages1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages1");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages1");
 
         Assert.assertEquals(returns.get(0).toString(), "jay");
         Assert.assertEquals(returns.get(1).toString(), "95134");
@@ -103,7 +103,7 @@ public class ObjectWithPrivateFieldsTest {
     @Test(description = "Test runtime time struct equivalence with private fields. " +
             "Structs are in different packages")
     public void testRuntimeStructEqWithPrivateFieldsTwoPackages2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages2");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages2");
 
         Assert.assertEquals(returns.get(0).toString(), "mal");
         Assert.assertEquals(returns.get(1), 56L);

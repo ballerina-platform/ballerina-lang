@@ -20,7 +20,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -58,7 +58,7 @@ public class ModOperationTest {
 
     private void intMod(int val1, int val2, long expected) {
         Object[] args = { (val1), (val2) };
-        Object returns = JvmRunUtil.invoke(result, "intMod", args);
+        Object returns = BRunUtil.invoke(result, "intMod", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -68,7 +68,7 @@ public class ModOperationTest {
 
     private void floatMod(float val1, float val2, double expected) {
         Object[] args = { (val1), (val2) };
-        Object returns = JvmRunUtil.invoke(result, "floatMod", args);
+        Object returns = BRunUtil.invoke(result, "floatMod", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -80,18 +80,18 @@ public class ModOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero \\{\"message\":\" / " +
                     "by zero\"\\}.*")
     public void testIntModZero() {
-        JvmRunUtil.invoke(result, "intMod", new Object[]{(2000), (0)});
+        BRunUtil.invoke(result, "intMod", new Object[]{(2000), (0)});
     }
 
     @Test
     public void testFloatModZero() {
-        Object returns = JvmRunUtil.invoke(result, "floatMod", new Object[]{(200.1), (0.0)});
+        Object returns = BRunUtil.invoke(result, "floatMod", new Object[]{(200.1), (0.0)});
         Assert.assertEquals(returns.toString(), "NaN");
     }
 
     @Test(dataProvider = "dataToTestModWithTypes", description = "Test mod with types")
     public void testModWithTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
@@ -120,6 +120,6 @@ public class ModOperationTest {
 
     @Test(description = "Test mod of nullable values")
     public void testModNullable() {
-        JvmRunUtil.invoke(result, "testModNullable");
+        BRunUtil.invoke(result, "testModNullable");
     }
 }

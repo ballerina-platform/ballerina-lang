@@ -20,7 +20,7 @@ package org.ballerinalang.test.object;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,56 +40,56 @@ public class ObjectAttachedFunctionPointerTest {
 
     @Test(description = "Test basic function pointer test")
     public void testBasicAttachedFunctionPointerTest() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test1");
+        Object returns = BRunUtil.invoke(compileResult, "test1");
         Assert.assertEquals(returns, 60L);
     }
 
     @Test(description = "Test object attached function pointer with lambda")
     public void testAttachedFunctionPointerWithLambdaTest() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test2");
+        Object returns = BRunUtil.invoke(compileResult, "test2");
         Assert.assertEquals(returns, 60L);
     }
 
     @Test(description = "Test basic externally attached function pointer")
     public void testBasicExternalAttachedFunctionPointerTest() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test3");
+        Object returns = BRunUtil.invoke(compileResult, "test3");
         Assert.assertEquals(returns, 53L);
     }
 
     @Test(description = "Test externally attached function pointer with lambda")
     public void testExternalAttachedFunctionPointerWithLambdaTest() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test4");
+        Object returns = BRunUtil.invoke(compileResult, "test4");
         Assert.assertEquals(returns, 60L);
     }
 
     @Test(description = "Test multi level lambda with attached function")
     public void testMultiLevelLambdaWithinAttachedFunction() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test5");
+        Object returns = BRunUtil.invoke(compileResult, "test5");
         Assert.assertEquals(returns, 65L);
     }
 
     @Test(description = "Test invoke attached function as function pointer1")
     public void testInvokeAttachedFunctionAsFunctionPointer1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test6");
+        Object returns = BRunUtil.invoke(compileResult, "test6");
         Assert.assertEquals(returns, 106L);
     }
 
     @Test(description = "Test invoke attached function as function pointer2")
     public void testInvokeAttachedFunctionAsFunctionPointer2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test7");
+        Object returns = BRunUtil.invoke(compileResult, "test7");
         Assert.assertEquals(returns, 106L);
     }
 
     @Test(description = "Test invoke attached function as function pointer3")
     public void testInvokeAttachedFunctionAsFunctionPointer3() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "test8");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "test8");
         Assert.assertEquals(returns.get(0).toString(), "A");
         Assert.assertEquals(returns.get(1), 2L);
     }
 
     @Test(description = "Test invoke attached function as function pointer4")
     public void testInvokeAttachedFunctionAsFunctionPointer4() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test9");
+        Object returns = BRunUtil.invoke(compileResult, "test9");
         Assert.assertEquals(returns.toString(), "finally");
     }
 

@@ -19,7 +19,7 @@ package org.ballerinalang.test.javainterop;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -45,7 +45,7 @@ public class InferredDependentlyTypeFunctionTest {
 
     @Test(dataProvider = "FunctionNames")
     public void testVariableTypeAsReturnType(String funcName) {
-        JvmRunUtil.invoke(result, funcName);
+        BRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "FunctionNames")

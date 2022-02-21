@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,14 +47,14 @@ public class StringFunctionInvocationExprTest {
 
     @Test
     public void testStringFunctionInvocation() {
-        Object values = JvmRunUtil.invoke(compileResult, "testStringFunctionInvocation");
+        Object values = BRunUtil.invoke(compileResult, "testStringFunctionInvocation");
         Assert.assertTrue(values instanceof BString);
         Assert.assertEquals(values.toString(), "BALLERINA");
     }
 
     @Test
     public void testStringFunctionInvocationInArgument() {
-        Object values = JvmRunUtil.invoke(compileResult, "testStringFunctionInvocationInArgument");
+        Object values = BRunUtil.invoke(compileResult, "testStringFunctionInvocationInArgument");
         Assert.assertTrue(values instanceof BString);
         Assert.assertEquals(values.toString(), "Hello BALLERINA");
     }

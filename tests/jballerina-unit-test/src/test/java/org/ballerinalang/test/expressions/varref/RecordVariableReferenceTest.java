@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,7 +46,7 @@ public class RecordVariableReferenceTest {
 
     @Test(description = "Test simple record variable definition")
     public void testVariableAssignment() {
-        Object arr = JvmRunUtil.invoke(result, "testVariableAssignment");
+        Object arr = BRunUtil.invoke(result, "testVariableAssignment");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "Peter");
@@ -57,7 +57,7 @@ public class RecordVariableReferenceTest {
 
     @Test(description = "Test simple record variable definition")
     public void testRecVarRefInsideRecVarRefInsideRecVarRef() {
-        Object arr = JvmRunUtil.invoke(result, "testRecVarRefInsideRecVarRefInsideRecVarRef");
+        Object arr = BRunUtil.invoke(result, "testRecVarRefInsideRecVarRefInsideRecVarRef");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(((BMap) returns.get(0)).get(StringUtils.fromString("mKey1")), 1L);
@@ -69,14 +69,14 @@ public class RecordVariableReferenceTest {
 
     @Test(description = "Test simple record variable definition")
     public void testRestParam() {
-        Object returns = JvmRunUtil.invoke(result, "testRestParam");
+        Object returns = BRunUtil.invoke(result, "testRestParam");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("var3")), 12L);
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("var4")).toString(), "text");
     }
 
     @Test(description = "Test simple record variable definition")
     public void testRecordTypeInRecordVarRef() {
-        Object arr = JvmRunUtil.invoke(result, "testRecordTypeInRecordVarRef");
+        Object arr = BRunUtil.invoke(result, "testRecordTypeInRecordVarRef");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(((BMap) returns.get(0)).get(StringUtils.fromString("mKey1")), 1L);
@@ -88,7 +88,7 @@ public class RecordVariableReferenceTest {
 
     @Test(description = "Test tuple var ref inside record var ref")
     public void testTupleVarRefInRecordVarRef() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleVarRefInRecordVarRef");
+        Object arr = BRunUtil.invoke(result, "testTupleVarRefInRecordVarRef");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 7);
         Assert.assertEquals(returns.get(0).toString(), "Mark");
@@ -104,7 +104,7 @@ public class RecordVariableReferenceTest {
 
     @Test(description = "Test record var ref inside tuple var ref inside record var ref")
     public void testRecordInsideTupleInsideRecord() {
-        Object arr = JvmRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
+        Object arr = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(((BArray) returns.get(0)).getString(0), "A");
@@ -120,7 +120,7 @@ public class RecordVariableReferenceTest {
 
     @Test(description = "Test record var ref inside tuple var ref inside record var ref")
     public void testRecordInsideTupleInsideRecord2() {
-        Object arr = JvmRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2");
+        Object arr = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertEquals(returns.get(0).toString(), "C");
@@ -131,7 +131,7 @@ public class RecordVariableReferenceTest {
 
     @Test(description = "Test record var ref rest parameter types")
     public void testRestParameterType() {
-        Object returns = JvmRunUtil.invoke(result, "testRestParameterType");
+        Object returns = BRunUtil.invoke(result, "testRestParameterType");
         Assert.assertTrue((Boolean) returns);
     }
 

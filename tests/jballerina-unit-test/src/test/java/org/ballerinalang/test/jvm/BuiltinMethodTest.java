@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class BuiltinMethodTest {
 
     @Test(description = "Test clone")
     public void testClone() {
-        Object result = JvmRunUtil.invoke(compileResult, "testClone");
+        Object result = BRunUtil.invoke(compileResult, "testClone");
         Assert.assertTrue(result instanceof BMap);
         BMap bMap = (BMap) result;
         Assert.assertEquals(bMap.get(StringUtils.fromString("test")).toString(), "sample");
@@ -51,7 +51,7 @@ public class BuiltinMethodTest {
 
     @Test(description = "Test clone any")
     public void testCloneAny() {
-        Object result = JvmRunUtil.invoke(compileResult, "testCloneAny");
+        Object result = BRunUtil.invoke(compileResult, "testCloneAny");
         Assert.assertTrue(result instanceof BMap);
         BMap bMap = (BMap) result;
         Assert.assertEquals(bMap.get(StringUtils.fromString("test")).toString(), "sample");

@@ -229,7 +229,7 @@ public class BCompileUtil {
         }
 
         try {
-            JvmRunUtil.runInit(compileResult);
+            BRunUtil.runInit(compileResult);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("error while invoking init method of " + compileResult.projectSourceRoot(), e);
         }

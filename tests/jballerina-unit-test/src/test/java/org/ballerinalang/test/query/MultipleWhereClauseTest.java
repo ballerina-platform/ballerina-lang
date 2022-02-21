@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class MultipleWhereClauseTest {
 
     @Test(description = "Test multiple select clauses - simple variable definition statement ")
     public void testMultipleWhereClausesWithSimpleVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleWhereClausesWithSimpleVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleWhereClausesWithSimpleVariable");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
@@ -64,7 +64,7 @@ public class MultipleWhereClauseTest {
 
     @Test(description = "Test multiple where clauses - record variable definition statement")
     public void testMultipleWhereClausesWithRecordVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleWhereClausesWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleWhereClausesWithRecordVariable");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
@@ -76,7 +76,7 @@ public class MultipleWhereClauseTest {
 
     @Test(description = "Test logical operands with where")
     public void testLogicalOperandsWithWhere() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testLogicalOperandsWithWhere");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testLogicalOperandsWithWhere");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
