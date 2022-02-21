@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.invocations;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,14 +41,14 @@ public class PackageInitInvocationTest {
 
     @Test
     public void invokeFunctionWithParams() {
-        Object values = JvmRunUtil.invoke(result, "testInitInvocation");
+        Object values = BRunUtil.invoke(result, "testInitInvocation");
         Assert.assertTrue(values instanceof Long);
         Assert.assertEquals((values), 19L);
     }
 
     @Test
     public void testGetValueFromPackageLevelAsyncInvocation() {
-        Object values = JvmRunUtil.invoke(result, "testGetIntValue");
+        Object values = BRunUtil.invoke(result, "testGetIntValue");
         Assert.assertTrue(values instanceof Long);
         Assert.assertEquals(values, 899L);
     }

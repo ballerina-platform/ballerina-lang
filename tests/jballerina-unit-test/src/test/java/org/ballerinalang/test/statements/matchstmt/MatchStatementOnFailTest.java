@@ -21,7 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -64,7 +64,7 @@ public class MatchStatementOnFailTest {
 
     @Test(description = "Test using var defined in match clause within on-fail")
     public void testVarInMatchPatternWithinOnfail() {
-        JvmRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
+        BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
     }
 
     @Test(description = "Check not incompatible types and reachable statements.")

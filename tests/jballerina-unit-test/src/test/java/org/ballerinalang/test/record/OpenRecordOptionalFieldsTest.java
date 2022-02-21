@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -60,7 +60,7 @@ public class OpenRecordOptionalFieldsTest {
 
     @Test(description = "Test creating a record with a non-defaultable required field")
     public void testNonDefReqField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNonDefReqField");
+        Object returns = BRunUtil.invoke(compileResult, "testNonDefReqField");
 
         BMap person = (BMap) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");
@@ -76,7 +76,7 @@ public class OpenRecordOptionalFieldsTest {
     @Test(description = "Test creating a record with a non-defaultable required field with explicit values for " +
             "required fields")
     public void testNonDefReqField2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNonDefReqField2");
+        Object returns = BRunUtil.invoke(compileResult, "testNonDefReqField2");
 
         BMap person = (BMap) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "John");
@@ -91,7 +91,7 @@ public class OpenRecordOptionalFieldsTest {
 
     @Test(description = "Test defaultable user defined type as a required field")
     public void testDefaultableReqField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDefaultableReqField");
+        Object returns = BRunUtil.invoke(compileResult, "testDefaultableReqField");
 
         BMap person = (BMap) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");
@@ -106,7 +106,7 @@ public class OpenRecordOptionalFieldsTest {
 
     @Test(description = "Test non-defaultable user defined type as an optional field")
     public void testOptionalNonDefField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testOptionalNonDefField");
+        Object returns = BRunUtil.invoke(compileResult, "testOptionalNonDefField");
         BMap person = (BMap) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");
         Assert.assertNull(person.get(StringUtils.fromString("lname")));
@@ -119,19 +119,19 @@ public class OpenRecordOptionalFieldsTest {
             expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' " +
                     "cannot be cast to 'Address3'.*")
     public void testOptionalNonDefField2() {
-        JvmRunUtil.invoke(compileResult, "testOptionalNonDefField2");
+        BRunUtil.invoke(compileResult, "testOptionalNonDefField2");
     }
 
     @Test(description = "Test non-defaultable optional field access",
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'adrs'.*")
     public void testOptionalNonDefField3() {
-        JvmRunUtil.invoke(compileResult, "testOptionalNonDefField3");
+        BRunUtil.invoke(compileResult, "testOptionalNonDefField3");
     }
 
     @Test(description = "Test non-defaultable optional field access")
     public void testOptionalNonDefField4() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testOptionalNonDefField4");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testOptionalNonDefField4");
         Assert.assertEquals(returns.get(0).toString(),
                 "{\"street\":\"Palm Grove\",\"city\":\"Colombo 3\",\"country\":\"LK\"}");
         Assert.assertEquals(getType(returns.get(0)).getTag(), TypeTags.RECORD_TYPE_TAG);
@@ -144,7 +144,7 @@ public class OpenRecordOptionalFieldsTest {
 
     @Test(description = "Test defaultable user defined type as an optional field")
     public void testOptionalDefaultableField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testOptionalDefaultableField");
+        Object returns = BRunUtil.invoke(compileResult, "testOptionalDefaultableField");
 
         BMap person = (BMap) returns;
         Assert.assertEquals(person.get(StringUtils.fromString("fname")).toString(), "default");

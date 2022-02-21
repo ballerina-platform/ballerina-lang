@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -62,7 +62,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test positive decimal value assignment")
     public void testDecimalValue() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalValue");
+        Object returns = BRunUtil.invoke(result, "testDecimalValue");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -72,7 +72,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test negative decimal value assignment")
     public void testNegativeDecimalValue() {
-        Object returns = JvmRunUtil.invoke(result, "testNegativeDecimalValue");
+        Object returns = BRunUtil.invoke(result, "testNegativeDecimalValue");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -82,7 +82,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal value assignment by a return value")
     public void testDecimalValueAssignmentByReturnValue() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalValueAssignmentByReturnValue");
+        Object returns = BRunUtil.invoke(result, "testDecimalValueAssignmentByReturnValue");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -92,7 +92,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal addition")
     public void testDecimalAddition() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalAddition");
+        Object returns = BRunUtil.invoke(result, "testDecimalAddition");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -102,7 +102,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal subtraction")
     public void testDecimalSubtraction() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalSubtraction");
+        Object returns = BRunUtil.invoke(result, "testDecimalSubtraction");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -112,7 +112,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal multiplication")
     public void testDecimalMultiplication() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalMultiplication");
+        Object returns = BRunUtil.invoke(result, "testDecimalMultiplication");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -122,7 +122,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal division")
     public void testDecimalDivision() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalDivision");
+        Object returns = BRunUtil.invoke(result, "testDecimalDivision");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -135,7 +135,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal modulus")
     public void testDecimalModulus() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalModulus");
+        Object returns = BRunUtil.invoke(result, "testDecimalModulus");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -145,7 +145,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal negation")
     public void testDecimalNegation() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalNegation");
+        Object returns = BRunUtil.invoke(result, "testDecimalNegation");
 
         Assert.assertTrue(returns instanceof BDecimal);
         BDecimal value = (BDecimal) returns;
@@ -155,7 +155,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal comparison operations")
     public void testDecimalComparisonOperations() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalComparisonOperations");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalComparisonOperations");
         Assert.assertEquals(returns.size(), 6);
         for (int i = 0; i < 6; i++) {
             Assert.assertSame(returns.get(i).getClass(), Boolean.class);
@@ -173,7 +173,7 @@ public class BDecimalValueTest {
         BigDecimal decimalArg1 = new BigDecimal("343.342", MathContext.DECIMAL128);
         BigDecimal decimalArg2 = new BigDecimal("-21.2", MathContext.DECIMAL128);
         Object[] args = {ValueCreator.createDecimalValue(decimalArg1), ValueCreator.createDecimalValue(decimalArg2)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalParameter", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalParameter", args);
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BDecimal);
         Assert.assertTrue(returns.get(1) instanceof BDecimal);
@@ -187,7 +187,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test assigning an int literal to a decimal variable")
     public void testIntLiteralAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIntLiteralAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIntLiteralAssignment");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BDecimal);
         Assert.assertTrue(returns.get(1) instanceof BDecimal);
@@ -201,7 +201,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test positively signed literal assignment")
     public void testPositivelySignedLiteralAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testPositivelySignedLiteralAssignment");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testPositivelySignedLiteralAssignment");
         Assert.assertEquals(returns.size(), 3);
         for (Object aReturn : returns.getValues()) {
             Assert.assertTrue(aReturn instanceof BDecimal);
@@ -219,14 +219,14 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal array literal without decimal discriminator")
     public void testDecimalArrayLiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalArrayValue", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalArrayValue", new Object[]{});
         Assert.assertEquals(returns.get(0), ValueCreator.createDecimalValue("1.0", DecimalValueKind.OTHER));
         Assert.assertEquals(returns.get(1), ValueCreator.createDecimalValue("2.0", DecimalValueKind.OTHER));
     }
 
     @Test(description = "Test decimal array literal with decimal discriminator")
     public void testDiscriminatedDecimalArrayLiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalArrayValueWithDiscriminator", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalArrayValueWithDiscriminator", new Object[]{});
         Assert.assertEquals(returns.get(0), ValueCreator.createDecimalValue("1.0", DecimalValueKind.OTHER));
         Assert.assertEquals(returns.get(1), ValueCreator.createDecimalValue("2.0", DecimalValueKind.OTHER));
         Assert.assertEquals(returns.get(2), ValueCreator.createDecimalValue("3000.0", DecimalValueKind.OTHER));
@@ -234,7 +234,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal array literal with decimal discriminator")
     public void testDiscriminatedDecimalLiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDiscriminatedDecimalLiterals", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDiscriminatedDecimalLiterals", new Object[]{});
         Assert.assertEquals(returns.get(0), ValueCreator.createDecimalValue("3.22", DecimalValueKind.OTHER));
         Assert.assertEquals(returns.get(1), ValueCreator.createDecimalValue("0.0", DecimalValueKind.ZERO));
         Assert.assertEquals(returns.get(2),
@@ -245,7 +245,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal inference for binary literal expressions")
     public void testDecimalTypeInferenceInBinaryLiteralExpressions() {
-        Object returns = JvmRunUtil.invoke(result, "testDecimalInferenceInMapContext", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testDecimalInferenceInMapContext", new Object[]{});
         BMap<String, BDecimal> map = (BMap<String, BDecimal>) returns;
 
         Assert.assertEquals(map.get(StringUtils.fromString("a")),
@@ -262,7 +262,7 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal inference on binary literals")
     public void testDecimalInferenceOnBinaryExpressions() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "decimalInferenceInLiterals");
+        BArray returns = (BArray) BRunUtil.invoke(result, "decimalInferenceInLiterals");
         Assert.assertEquals(returns.get(0), ValueCreator.createDecimalValue("0.5", DecimalValueKind.OTHER));
         Assert.assertEquals(returns.get(1), ValueCreator.createDecimalValue("3.0", DecimalValueKind.OTHER));
         Assert.assertEquals(returns.get(2), ValueCreator.createDecimalValue("-1.0", DecimalValueKind.OTHER));
@@ -272,13 +272,13 @@ public class BDecimalValueTest {
 
     @Test(description = "Test decimal inference on binary literals")
     public void testDecimalArrayValueLoading() {
-        Object returns = JvmRunUtil.invoke(result, "decimalArrayLoad");
+        Object returns = BRunUtil.invoke(result, "decimalArrayLoad");
         Assert.assertEquals(returns, ValueCreator.createDecimalValue("2.0", DecimalValueKind.OTHER));
     }
 
     @Test(description = "Test decimal filler value")
     public void testDecimalFillerValue() {
-        JvmRunUtil.invoke(result, "testDecimalFillerValue");
+        BRunUtil.invoke(result, "testDecimalFillerValue");
     }
 
     @Test()

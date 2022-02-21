@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -47,7 +47,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
-        Object resultObject = JvmRunUtil.invoke(result, "testSimpleObjectAsStruct");
+        Object resultObject = BRunUtil.invoke(result, "testSimpleObjectAsStruct");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -65,7 +65,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test Object field defaultable")
     public void testObjectFieldDefaultable() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectFieldDefaultable");
+        Object resultObject = BRunUtil.invoke(result, "testObjectFieldDefaultable");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -83,7 +83,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test Basic object as struct with just new")
     public void testBasicStructAsObjectWithJustNew() {
-        Object resultObject = JvmRunUtil.invoke(result, "testSimpleObjectAsStructWithNew");
+        Object resultObject = BRunUtil.invoke(result, "testSimpleObjectAsStructWithNew");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -101,7 +101,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with init function")
     public void testObjectWithSimpleInit() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithSimpleInit");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithSimpleInit");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -118,7 +118,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with defaultable field in init function")
     public void testObjectWithDefaultableField() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithDefaultableValues");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithDefaultableValues");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -135,7 +135,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with init with different values")
     public void testObjectWithSimpleInitWithDiffValues() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithSimpleInitWithDiffValues");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithSimpleInitWithDiffValues");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -152,7 +152,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object without RHS type")
     public void testObjectWithoutRHSType() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithoutRHSType");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithoutRHSType");
         BArray returns = (BArray) resultObject;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -168,7 +168,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with init attached function")
     public void testObjectWithAttachedFunction() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithAttachedFunc1");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithAttachedFunc1");
         BArray returns = (BArray) resultObject;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -184,7 +184,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with self keyword")
     public void testObjectWithSelfKeyword() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithSelfKeyword");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithSelfKeyword");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -201,7 +201,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with byte type fields")
     public void testObjectWithByteTypeFields() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithByteTypeFields");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithByteTypeFields");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 3);
@@ -222,7 +222,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with calling attached functions")
     public void testObjectCallAttachedFunctions() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectCallAttachedFunctions");
+        Object resultObject = BRunUtil.invoke(result, "testObjectCallAttachedFunctions");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -239,7 +239,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object inside object with different values")
     public void testObjectInsideObject() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectInsideObject");
+        Object resultObject = BRunUtil.invoke(result, "testObjectInsideObject");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 2);
@@ -252,7 +252,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object self as a value")
     public void testObjectPassSelfAsValue() {
-        Object returns = JvmRunUtil.invoke(result, "testGetValueFromPassedSelf");
+        Object returns = BRunUtil.invoke(result, "testGetValueFromPassedSelf");
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -261,7 +261,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with init attached function")
     public void testObjectWithAttachedFunction1() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectWithInterface");
+        Object resultObject = BRunUtil.invoke(result, "testObjectWithInterface");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -278,7 +278,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with default initializer")
     public void testObjectWithWithDefaultInitialize() {
-        Object resultObject = JvmRunUtil.invoke(result, "testGetDefaultValuesInObject");
+        Object resultObject = BRunUtil.invoke(result, "testGetDefaultValuesInObject");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -297,7 +297,7 @@ public class ObjectInBalaTest {
     public void testPassingValueForDefaultableObjectField() {
         CompileResult compileResult = BCompileUtil
                                   .compile("test-src/object/object_values_for_defaultable_field.bal");
-        Object resultObject = JvmRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
+        Object resultObject = BRunUtil.invoke(compileResult, "passValueForDefaultableObjectField");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 2);
@@ -310,7 +310,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test shadowing object field")
     public void testShadowingObjectField() {
-        Object resultObject = JvmRunUtil.invoke(result, "testShadowingObjectField");
+        Object resultObject = BRunUtil.invoke(result, "testShadowingObjectField");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 2);
@@ -323,7 +323,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test initializing object in return statement with same type")
     public void testNewAsReturnWithSameType() {
-        Object returns = JvmRunUtil.invoke(result, "testCreateObjectInReturnSameType");
+        Object returns = BRunUtil.invoke(result, "testCreateObjectInReturnSameType");
 
         Assert.assertTrue(returns instanceof Long);
 
@@ -332,7 +332,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test initializing object in return statement with different type")
     public void testNewAsReturnWithDifferentType() {
-        Object returns = JvmRunUtil.invoke(result, "testCreateObjectInReturnDifferentType");
+        Object returns = BRunUtil.invoke(result, "testCreateObjectInReturnDifferentType");
 
         Assert.assertTrue(returns instanceof Long);
 
@@ -341,7 +341,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object with default initialize global variable")
     public void testObjectWithDefaultInitializeGlobalVar() {
-        Object resultObject = JvmRunUtil.invoke(result, "testGetDefaultValuesInObjectGlobalVar");
+        Object resultObject = BRunUtil.invoke(result, "testGetDefaultValuesInObjectGlobalVar");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 4);
@@ -358,7 +358,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object self reference with defaultable")
     public void testObjectSelfreferenceWithDefaultable() {
-        Object returns = JvmRunUtil.invoke(result, "testCyclicReferenceWithDefaultable");
+        Object returns = BRunUtil.invoke(result, "testCyclicReferenceWithDefaultable");
 
         Assert.assertTrue(returns instanceof Long);
 
@@ -367,7 +367,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object recursive reference with nillable")
     public void testRecursiveObjectRefWithNillable() {
-        Object returns = JvmRunUtil.invoke(result, "testRecursiveObjectWithNill");
+        Object returns = BRunUtil.invoke(result, "testRecursiveObjectWithNill");
 
         Assert.assertTrue(returns instanceof Long);
 
@@ -376,7 +376,7 @@ public class ObjectInBalaTest {
 
     @Test(description = "Test object field with expr as defaultable")
     public void testFieldWithExpr() {
-        Object resultObject = JvmRunUtil.invoke(result, "testFieldWithExpr");
+        Object resultObject = BRunUtil.invoke(result, "testFieldWithExpr");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 2);
@@ -476,7 +476,7 @@ public class ObjectInBalaTest {
 
     @Test
     public void testObjectReferingTypeFromBala_1() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectReferingTypeFromBala_1");
+        Object resultObject = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_1");
         BArray returns = (BArray) resultObject;
 
         Assert.assertEquals(returns.size(), 2);
@@ -490,7 +490,7 @@ public class ObjectInBalaTest {
 
     @Test
     public void testObjectReferingTypeFromBala_2() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectReferingTypeFromBala_2");
+        Object resultObject = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_2");
         BArray returns = (BArray) resultObject;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -501,7 +501,7 @@ public class ObjectInBalaTest {
 
     @Test
     public void testObjectReferingTypeFromBala_3() {
-        Object resultObject = JvmRunUtil.invoke(result, "testObjectReferingTypeFromBala_3");
+        Object resultObject = BRunUtil.invoke(result, "testObjectReferingTypeFromBala_3");
         BArray returns = (BArray) resultObject;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -512,12 +512,12 @@ public class ObjectInBalaTest {
 
     @Test
     public void testObjectReferingNonAbstractObjFromBala() {
-        JvmRunUtil.invoke(result, "testObjectReferingNonAbstractObjFromBala");
+        BRunUtil.invoke(result, "testObjectReferingNonAbstractObjFromBala");
     }
 
     @Test
     public void testObjectReferingNonAbstractObjLoadedFromBala() {
-        JvmRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBala");
+        BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBala");
     }
 
     @Test

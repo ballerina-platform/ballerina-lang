@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.table;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class TableKeyFieldValueTest {
 
     @Test(dataProvider = "dataToTestTableKeyFieldValue", description = "Test table key field value")
     public void testTableKeyFieldValue(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

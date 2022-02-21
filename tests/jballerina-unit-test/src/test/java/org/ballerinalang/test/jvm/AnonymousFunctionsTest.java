@@ -19,7 +19,7 @@
 
  import org.ballerinalang.test.BCompileUtil;
  import org.ballerinalang.test.CompileResult;
- import org.ballerinalang.test.JvmRunUtil;
+ import org.ballerinalang.test.BRunUtil;
  import org.testng.Assert;
  import org.testng.annotations.AfterClass;
  import org.testng.annotations.BeforeClass;
@@ -42,31 +42,31 @@
 
      @Test(description = "Test anon call")
      public void testAnonCall() {
-         Object result = JvmRunUtil.invoke(compileResult, "testAnonFunc");
+         Object result = BRunUtil.invoke(compileResult, "testAnonFunc");
          Assert.assertEquals(result.toString(), "Hello World.!!!");
      }
 
      @Test(description = "Test fp passing between methods")
      public void testFPPassing() {
-         Object result = JvmRunUtil.invoke(compileResult, "testFPPassing");
+         Object result = BRunUtil.invoke(compileResult, "testFPPassing");
          Assert.assertEquals(result.toString(), "200");
      }
 
      @Test(description = "Test basic closures")
      public void testBasicClosure() {
-         Object result = JvmRunUtil.invoke(compileResult, "testBasicClosure");
+         Object result = BRunUtil.invoke(compileResult, "testBasicClosure");
          Assert.assertEquals(result.toString(), "242");
      }
 
      @Test(description = "Test multilevel closures")
      public void testMultilevelClosures() {
-         Object result = JvmRunUtil.invoke(compileResult, "testMultilevelClosure");
+         Object result = BRunUtil.invoke(compileResult, "testMultilevelClosure");
          Assert.assertEquals(result.toString(), "72");
      }
 
      @Test(description = "Test basic worker")
      public void testWorkerBasic() {
-         Object result = JvmRunUtil.invoke(compileResult, "basicWorkerTest");
+         Object result = BRunUtil.invoke(compileResult, "basicWorkerTest");
          Assert.assertEquals(result.toString(), "120");
      }
 

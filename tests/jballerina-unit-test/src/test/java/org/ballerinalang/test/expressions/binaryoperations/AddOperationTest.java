@@ -23,7 +23,7 @@ import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -47,7 +47,7 @@ public class AddOperationTest {
     public void testIntAddExpr() {
         Object[] args = { (2147483647), (2147483646)};
 
-        Object returns = JvmRunUtil.invoke(result, "intAdd", args);
+        Object returns = BRunUtil.invoke(result, "intAdd", args);
         Assert.assertTrue(returns instanceof Long);
         long actual = (long) returns;
         long expected = 4294967293L;
@@ -58,14 +58,14 @@ public class AddOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByAddition() {
-        JvmRunUtil.invoke(result, "overflowByAddition");
+        BRunUtil.invoke(result, "overflowByAddition");
     }
 
     @Test(description = "Test two float add expression")
     public void testFloatAddExpr() {
         Object[] args = { (100.0f), (200.0f)};
 
-        Object returns = JvmRunUtil.invoke(result, "floatAdd", args);
+        Object returns = BRunUtil.invoke(result, "floatAdd", args);
         Assert.assertTrue(returns instanceof Double);
         double actual = (double) returns;
         double expected = 300.0f;
@@ -75,7 +75,7 @@ public class AddOperationTest {
     @Test(description = "Test two string add expression")
     public void testStringAddExpr() {
         Object[] args = { StringUtils.fromString("WSO2"), StringUtils.fromString(" Inc.")};
-        Object returns = JvmRunUtil.invoke(result, "stringAdd", args);
+        Object returns = BRunUtil.invoke(result, "stringAdd", args);
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -93,7 +93,7 @@ public class AddOperationTest {
 
         Object[] args = {(a), (b)};
 
-        Object returns = JvmRunUtil.invoke(result, "intAdd", args);
+        Object returns = BRunUtil.invoke(result, "intAdd", args);
         Assert.assertTrue(returns instanceof Long);
         long actualResult = (long) returns;
         Assert.assertEquals(actualResult, expectedResult);
@@ -108,7 +108,7 @@ public class AddOperationTest {
 
         Object[] args = {StringUtils.fromString(a), (b)};
 
-        Object returns = JvmRunUtil.invoke(result, "stringAndIntAdd", args);
+        Object returns = BRunUtil.invoke(result, "stringAndIntAdd", args);
         Assert.assertTrue(returns instanceof BString);
         String actualResult = returns.toString();
         Assert.assertEquals(actualResult, expectedResult);
@@ -116,38 +116,38 @@ public class AddOperationTest {
 
     @Test(description = "Test xml xml add expression")
     public void testXmlXmlAddExpr() {
-        Object returns = JvmRunUtil.invoke(result, "xmlXmlAdd");
+        Object returns = BRunUtil.invoke(result, "xmlXmlAdd");
         Assert.assertEquals(((XmlValue) returns).size(), 1);
         Assert.assertEquals(returns.toString(), "abcdef");
     }
 
     @Test(description = "Test xml string add expression")
     public void testXmlStringAddExpr() {
-        Object returns = JvmRunUtil.invoke(result, "xmlStringAdd");
+        Object returns = BRunUtil.invoke(result, "xmlStringAdd");
         Assert.assertEquals(((XmlValue) returns).size(), 1);
         Assert.assertEquals(returns.toString(), "abcdef");
     }
 
     @Test(description = "Test string xml add expression")
     public void testStringXmlAddExpr() {
-        Object returns = JvmRunUtil.invoke(result, "stringXmlAdd");
+        Object returns = BRunUtil.invoke(result, "stringXmlAdd");
         Assert.assertEquals(((XmlValue) returns).size(), 1);
         Assert.assertEquals(returns.toString(), "defabc");
     }
 
     @Test(dataProvider = "dataToTestAdditionWithTypes", description = "Test addition with types")
     public void testAdditionWithTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @Test(description = "Test contextually expected type of numeric literals in addition")
     public void testContextuallyExpectedTypeOfNumericLiteralInAdd() {
-        JvmRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInAdd");
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInAdd");
     }
 
     @Test(description = "Test addition of nullable values")
     public void testAddNullable() {
-        JvmRunUtil.invoke(result, "testAddNullable");
+        BRunUtil.invoke(result, "testAddNullable");
     }
 
     @DataProvider

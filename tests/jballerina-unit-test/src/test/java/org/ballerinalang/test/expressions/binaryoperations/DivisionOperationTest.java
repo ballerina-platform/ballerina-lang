@@ -20,7 +20,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -44,7 +44,7 @@ public class DivisionOperationTest {
     @Test(description = "Test two int divide expression")
     public void testIntDivideExpr() {
         Object[] args = { (2000), (50) };
-        Object returns = JvmRunUtil.invoke(result, "intDivide", args);
+        Object returns = BRunUtil.invoke(result, "intDivide", args);
 
         Assert.assertSame(returns.getClass(), Long.class);
 
@@ -56,7 +56,7 @@ public class DivisionOperationTest {
     @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
         Object[] args = { (2000), (0) };
-        JvmRunUtil.invoke(result, "intDivide", args);
+        BRunUtil.invoke(result, "intDivide", args);
     }
 
     @Test(description = "Test two float divide expression")
@@ -67,7 +67,7 @@ public class DivisionOperationTest {
         double expectedResult = a / b;
 
         Object[] args = { (a), (b) };
-        Object returns = JvmRunUtil.invoke(result, "floatDivide", args);
+        Object returns = BRunUtil.invoke(result, "floatDivide", args);
 
         Assert.assertSame(returns.getClass(), Double.class);
 
@@ -78,7 +78,7 @@ public class DivisionOperationTest {
     @Test(description = "Test float by zero")
     public void testFloatDivideByZeroExpr() {
         Object[] args = { (300.0f), (0) };
-        Object returns = JvmRunUtil.invoke(result, "floatDivide", args);
+        Object returns = BRunUtil.invoke(result, "floatDivide", args);
         Assert.assertSame(returns.getClass(), Double.class, "Return type of the division is invalid");
         Assert.assertTrue(Double.isInfinite((Double) returns),
                 "Result of the division operation is incorrect");
@@ -106,12 +106,12 @@ public class DivisionOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowByDivision() {
-        JvmRunUtil.invoke(result, "overflowByDivision");
+        BRunUtil.invoke(result, "overflowByDivision");
     }
 
     @Test(dataProvider = "dataToTestDivisionWithTypes", description = "Test division with types")
     public void testDivisionWithTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
@@ -124,11 +124,11 @@ public class DivisionOperationTest {
 
     @Test(description = "Test contextually expected type of numeric literals in division")
     public void testContextuallyExpectedTypeOfNumericLiteralInDivision() {
-        JvmRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInDivision");
     }
 
     @Test(description = "Test division of nullable values")
     public void testDivisionNullable() {
-        JvmRunUtil.invoke(result, "testDivisionNullable");
+        BRunUtil.invoke(result, "testDivisionNullable");
     }
 }

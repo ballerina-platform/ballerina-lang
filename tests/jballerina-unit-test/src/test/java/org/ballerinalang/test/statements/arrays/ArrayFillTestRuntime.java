@@ -20,7 +20,7 @@ package org.ballerinalang.test.statements.arrays;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,7 +41,7 @@ public class ArrayFillTestRuntime {
 
     @Test
     public void runtimeArrayFillTest() {
-        JvmRunUtil.runMain(compileResult, new String[]{});
+        BRunUtil.runMain(compileResult, new String[]{});
     }
 
     @AfterClass

@@ -31,7 +31,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -61,7 +61,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampOpenRecords() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampWithOpenRecords");
+        Object results = BRunUtil.invoke(compileResult, "stampWithOpenRecords");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -78,7 +78,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampOpenRecordsNonAssignable() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignable");
+        Object results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignable");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals(employee0.size(), 5);
@@ -91,7 +91,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampClosedRecordWithOpenRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampClosedRecordWithOpenRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampClosedRecordWithOpenRecord");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals(employee0.size(), 4);
@@ -106,7 +106,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampClosedRecordWithClosedRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampClosedRecordWithClosedRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampClosedRecordWithClosedRecord");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals(employee0.size(), 4);
@@ -121,7 +121,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToJSON() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordToJSON");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToJSON");
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
@@ -137,7 +137,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToMap() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordToMap");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToMap");
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals((mapValue0).size(), 4);
@@ -160,7 +160,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToMapV2() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordToMapV2");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToMapV2");
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals((mapValue0).size(), 4);
@@ -184,7 +184,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToMapV3() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordToMapV3");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToMapV3");
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals((mapValue0).size(), 6);
@@ -216,7 +216,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToAnydata() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordToAnydata");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToAnydata");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 5);
@@ -228,7 +228,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampFunctionReferenceWithOpenRecords() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampFunctionReferenceWithOpenRecords");
+        Object results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithOpenRecords");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -245,7 +245,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampFunctionReferenceWithArgs() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampFunctionReferenceWithArgs");
+        Object results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithArgs");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -262,7 +262,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampOpenRecordToTypeClosedRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecord");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 5);
@@ -280,7 +280,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToOpenRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecord");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -301,7 +301,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToOpenRecordV2() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV2");
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV2");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -321,7 +321,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToOpenRecordV3() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV3");
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV3");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -339,7 +339,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToOpenRecordV4() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV4");
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV4");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -357,7 +357,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToOpenRecordV5() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV5");
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV5");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -375,7 +375,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToOpenRecordV6() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV6");
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToOpenRecordV6");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -392,7 +392,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampNilTypeToOpenRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampNilTypeToOpenRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampNilTypeToOpenRecord");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -409,7 +409,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordWithNilValues() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordWithNilValues");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordWithNilValues");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -422,7 +422,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordWithNilValuesV2() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordWithNilValuesV2");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordWithNilValuesV2");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -435,7 +435,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampExtendedRecordToRecordWithUnionV7() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampExtendedRecordToRecordWithUnionV7");
+        Object results = BRunUtil.invoke(compileResult, "stampExtendedRecordToRecordWithUnionV7");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -453,7 +453,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToRecordWithNilValues() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordToRecordWithNilValues");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithNilValues");
         BMap<BString, Object> mapValue = (BMap<BString, Object>) results;
 
         Assert.assertEquals(mapValue.size(), 4);
@@ -470,7 +470,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToRecordWithOptionalFields() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampRecordToRecordWithOptionalFields");
+        Object results = BRunUtil.invoke(compileResult, "stampRecordToRecordWithOptionalFields");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
         Assert.assertEquals(employee0.size(), 3);
@@ -488,7 +488,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampAnyRecordToRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampAnyRecordToRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampAnyRecordToRecord");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -511,7 +511,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampComplexRecordToJSON() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
+        Object results = BRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
         BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
 
 
@@ -534,7 +534,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampOpenRecordToMap() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampOpenRecordToMap");
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordToMap");
         Object error = results;
 
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
@@ -548,7 +548,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampOpenRecordToTypeClosedRecordNegative() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecordNegative");
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecordNegative");
         Object error = results;
 
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
@@ -562,7 +562,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampWithOpenRecordsNonAssignableNegative() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignableNegative");
+        Object results = BRunUtil.invoke(compileResult, "stampWithOpenRecordsNonAssignableNegative");
         Object error = results;
 
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
@@ -577,7 +577,7 @@ public class RecordStampInbuiltFunctionTest {
     @Test
     public void testStampOpenRecordWithInvalidValues() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampOpenRecordWithInvalidValues");
+        Object results = BRunUtil.invoke(compileResult, "stampOpenRecordWithInvalidValues");
         Object error = results;
 
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);

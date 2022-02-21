@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,19 +51,19 @@ public class LangLibIntTest {
 
     @Test(dataProvider = "MaxNumList")
     public void testMax(long n, BArray ns, long expectedMax) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMax", new Object[]{n, ns});
+        Object returns = BRunUtil.invoke(compileResult, "testMax", new Object[]{n, ns});
         assertEquals(returns, expectedMax);
     }
 
     @Test(dataProvider = "MinNumList")
     public void testMin(long n, BArray ns, long expectedMin) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMin", new Object[]{n, ns});
+        Object returns = BRunUtil.invoke(compileResult, "testMin", new Object[]{n, ns});
         assertEquals(returns, expectedMin);
     }
 
     @Test
     public void testFromString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFromString");
+        Object returns = BRunUtil.invoke(compileResult, "testFromString");
         BArray result = (BArray) returns;
         assertEquals(result.get(0), 123L);
         assertEquals(getType(result.get(1)).getTag(), TypeTags.ERROR_TAG);
@@ -77,13 +77,13 @@ public class LangLibIntTest {
 
     @Test
     public void testSum() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSum");
+        Object returns = BRunUtil.invoke(compileResult, "testSum");
         assertEquals(returns, 110L);
     }
 
     @Test
     public void testAbs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAbs");
+        Object returns = BRunUtil.invoke(compileResult, "testAbs");
         BArray result = (BArray) returns;
         assertEquals(result.get(0), 123L);
         assertEquals(result.get(1), 234L);
@@ -91,7 +91,7 @@ public class LangLibIntTest {
 
     @Test
     public void testToHexString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testToHexString");
+        Object returns = BRunUtil.invoke(compileResult, "testToHexString");
         BArray result = (BArray) returns;
         assertEquals(result.get(0).toString(), "75bcd15");
         assertEquals(result.get(1).toString(), "-3039");
@@ -100,7 +100,7 @@ public class LangLibIntTest {
 
     @Test
     public void testFromHexString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFromHexString");
+        Object returns = BRunUtil.invoke(compileResult, "testFromHexString");
         BArray result = (BArray) returns;
         assertEquals(result.get(0), 11259205L);
         assertEquals(getType(result.get(1)).getTag(), TypeTags.ERROR_TAG);
@@ -131,13 +131,13 @@ public class LangLibIntTest {
 
     @Test
     public void testChainedIntFunctions() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testChainedIntFunctions");
+        Object returns = BRunUtil.invoke(compileResult, "testChainedIntFunctions");
         assertEquals(returns, 1L);
     }
 
     @Test(dataProvider = "functionProvider")
     public void testIntFunctions(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @DataProvider

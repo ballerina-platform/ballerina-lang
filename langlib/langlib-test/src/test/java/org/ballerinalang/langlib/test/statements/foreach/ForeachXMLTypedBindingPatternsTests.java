@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -53,31 +53,31 @@ public class ForeachXMLTypedBindingPatternsTests {
 
     @Test
     public void testXmlWithRootWithSimpleVariableWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithoutType");
+        Object returns = BRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.toString(), expectedXml1);
     }
 
     @Test
     public void testXmlWithRootWithSimpleVariableWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithType");
+        Object returns = BRunUtil.invoke(program, "testXmlWithRootWithSimpleVariableWithType");
         Assert.assertEquals(returns.toString(), expectedXml1);
     }
 
     @Test
     public void testXmlInnerElementsWithSimpleVariableWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithoutType");
+        Object returns = BRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.toString(), expectedXml2);
     }
 
     @Test
     public void testXmlInnerElementsWithSimpleVariableWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithType");
+        Object returns = BRunUtil.invoke(program, "testXmlInnerElementsWithSimpleVariableWithType");
         Assert.assertEquals(returns.toString(), expectedXml2);
     }
 
     @Test
     public void testEmptyXmlIteration() {
-        Object returns = JvmRunUtil.invoke(program, "testEmptyXmlIteration");
+        Object returns = BRunUtil.invoke(program, "testEmptyXmlIteration");
         Assert.assertEquals(returns.toString(), "");
     }
 }

@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.group;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -41,7 +41,7 @@ public class GroupExpressionTest {
 
     @Test(dataProvider = "GroupExpressionAccessFunctions")
     public void testGroupExpressionAccessFunctions(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 

@@ -20,7 +20,7 @@ package org.ballerinalang.test.action;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -36,7 +36,7 @@ public class NestedActionsTest {
     @Test
     public void testNestedClientObjectActions() {
         CompileResult result = BCompileUtil.compile("test-src/action/nested_actions.bal");
-        JvmRunUtil.invoke(result, "testNestedClientObjectActions");
+        BRunUtil.invoke(result, "testNestedClientObjectActions");
     }
 
     @Test

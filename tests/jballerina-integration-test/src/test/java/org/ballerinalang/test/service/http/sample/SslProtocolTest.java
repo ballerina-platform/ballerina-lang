@@ -23,7 +23,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,7 +53,7 @@ public class SslProtocolTest extends BaseTest {
         runtimeParams.put("truststore", trustStore);
         CompileResult result = BCompileUtil.compile(balFile);
 
-        Object responses = JvmRunUtil.invoke(result, "testSslProtocol", new Object[] {});
+        Object responses = BRunUtil.invoke(result, "testSslProtocol", new Object[] {});
         Assert.assertTrue(responses instanceof BString);
         Assert.assertTrue(responses.toString().contains(clientLog));
     }

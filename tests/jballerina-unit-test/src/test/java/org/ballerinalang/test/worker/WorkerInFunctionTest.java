@@ -20,7 +20,7 @@ package org.ballerinalang.test.worker;
 import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -33,7 +33,7 @@ public class WorkerInFunctionTest {
     public void testWorkerInFunction() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
         Object[] args = {StringUtils.fromString("hello")};
-        Object returns = JvmRunUtil.invoke(result, "testSimpleWorker", args);
+        Object returns = BRunUtil.invoke(result, "testSimpleWorker", args);
         Assert.assertEquals(returns.toString(), "hello");
     }
 
@@ -41,7 +41,7 @@ public class WorkerInFunctionTest {
     public void testWorkerMultipleInteractions() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-multiple-interactions.bal");
         Object[] args = {(100)};
-        Object returns = JvmRunUtil.invoke(result, "testMultiInteractions", args);
+        Object returns = BRunUtil.invoke(result, "testMultiInteractions", args);
         Assert.assertTrue(returns instanceof Long);
         final String expected = "1103";
         Assert.assertEquals(returns.toString(), expected);

@@ -20,7 +20,7 @@ package org.ballerinalang.test.services;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.Test;
 
 /**
@@ -31,6 +31,6 @@ public class ErrorReturnTest {
     @Test(description = "Tests invoking a function returning an error in a service")
     public void testErrorReturnFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/error_return_function.bal");
-        JvmRunUtil.invoke(compileResult, "testErrorFunction");
+        BRunUtil.invoke(compileResult, "testErrorFunction");
     }
 }

@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.DecimalValueKind;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +47,7 @@ public class UnionTypeTest {
 
     @Test(description = "Test basics of union types")
     public void testUnionTypeBasics1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testUnionTypeBasics1", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testUnionTypeBasics1", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Double.class);
         Assert.assertTrue(returns.get(1) instanceof BString);
@@ -57,7 +57,7 @@ public class UnionTypeTest {
 
     @Test(description = "Test basics of union types")
     public void testUnionTypeBasics2() {
-        Object returns = JvmRunUtil.invoke(result, "testUnionTypeBasics2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testUnionTypeBasics2", new Object[]{});
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "union types", "Invalid string value returned.");
@@ -65,42 +65,42 @@ public class UnionTypeTest {
 
     @Test(description = "Test basics of union types")
     public void testNullableTypeBasics1() {
-        Object returns = JvmRunUtil.invoke(result, "testNullableTypeBasics1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNullableTypeBasics1", new Object[]{});
 
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test basics of union types")
     public void testNullableTypeBasics2() {
-        Object returns = JvmRunUtil.invoke(result, "testNullableTypeBasics2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testNullableTypeBasics2", new Object[]{});
 
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test union type arrays")
     public void testUnionTypeArrays() {
-        Object returns = JvmRunUtil.invoke(result, "testUnionTypeArrays");
+        Object returns = BRunUtil.invoke(result, "testUnionTypeArrays");
 
         Assert.assertEquals(returns, 2L);
     }
 
     @Test(description = "Test union type arrays")
     public void testUnionTypeArrayWithValueTypeArrayAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testUnionTypeArrayWithValueTypeArrayAssignment");
+        Object returns = BRunUtil.invoke(result, "testUnionTypeArrayWithValueTypeArrayAssignment");
 
         Assert.assertEquals(returns, 3L);
     }
 
     @Test(description = "Test union type with record literal")
     public void testRecordLiteralAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testRecordLiteralAssignment");
+        Object returns = BRunUtil.invoke(result, "testRecordLiteralAssignment");
 
         Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test(description = "Test union type with record literal")
     public void testUnionTypeWithMultipleRecordTypes() {
-        Object returns = JvmRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypes");
+        Object returns = BRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypes");
 
         Assert.assertEquals(((BArray) returns).getString(0), "FOO");
         Assert.assertEquals(((BArray) returns).getString(1), "BAR");
@@ -108,12 +108,12 @@ public class UnionTypeTest {
 
     @Test
     public void testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral() {
-        JvmRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral");
+        BRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypesWithLiteralKeysInLiteral");
     }
 
     @Test(description = "Test union type LHS with float/decimal literals")
     public void testUnionLhsWithDiscriminatedFloatDecimalLiterals() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testUnionLhsWithDiscriminatedFloatDecimalLiterals");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testUnionLhsWithDiscriminatedFloatDecimalLiterals");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0), 1.0);
         Assert.assertEquals(returns.get(1), 1.0);
@@ -141,7 +141,7 @@ public class UnionTypeTest {
     @Test(description = "Test nullable check")
     public void testNullableCheck() {
         try {
-            JvmRunUtil.invoke(result, "testNullableTypeArrayFill");
+            BRunUtil.invoke(result, "testNullableTypeArrayFill");
         } catch (Throwable e) {
             Assert.fail("Nullable check in Union type failed");
         }
@@ -149,7 +149,7 @@ public class UnionTypeTest {
 
     @Test(dataProvider = "function-name-provider")
     public void testUnionMemberTypes(String funcName) {
-        JvmRunUtil.invoke(result, funcName);
+        BRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "function-name-provider")

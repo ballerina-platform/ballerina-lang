@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.intersection;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,22 +45,22 @@ public class IntersectionTypeTest {
 
     @Test
     public void testImmutableTypes() {
-        JvmRunUtil.invoke(readOnlyIntersectionResults, "testIntersectionTypes");
+        BRunUtil.invoke(readOnlyIntersectionResults, "testIntersectionTypes");
     }
 
     @Test
     public void testReadOnlyIntersectionFieldInRecord() {
-        JvmRunUtil.invoke(readOnlyIntersectionResults, "testReadOnlyIntersectionFieldInRecord");
+        BRunUtil.invoke(readOnlyIntersectionResults, "testReadOnlyIntersectionFieldInRecord");
     }
 
     @Test
     public void testRecursiveReadonlyIntersection() {
-        JvmRunUtil.invoke(readOnlyIntersectionResults, "testRecursiveReadonlyIntersection");
+        BRunUtil.invoke(readOnlyIntersectionResults, "testRecursiveReadonlyIntersection");
     }
 
     @Test
     public void testRuntimeTypeNameOfIntersectionType() {
-        JvmRunUtil.invoke(readOnlyIntersectionResults, "testRuntimeTypeNameOfIntersectionType");
+        BRunUtil.invoke(readOnlyIntersectionResults, "testRuntimeTypeNameOfIntersectionType");
     }
 
     @Test
@@ -82,67 +82,67 @@ public class IntersectionTypeTest {
 
     @Test
     public void testErrorIntersectionWithExistingDetail() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionForExistingDetail");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForExistingDetail");
     }
 
     @Test
     public void testErrorIntersectionWithExistingAndNewDetail() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionForExisitingAndNewDetail");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForExisitingAndNewDetail");
     }
 
     @Test
     public void testErrorIntersectionWithDetailRecordAndMap() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionForDetailRecordAndDetailMap");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionForDetailRecordAndDetailMap");
     }
 
     @Test
     public void testDistinctErrorIntersection() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testDistinctIntersectionType");
+        BRunUtil.invoke(errorIntersectionResults, "testDistinctIntersectionType");
     }
 
     @Test
     public void testIntersectionOfDistinctErrors() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionOfDistinctErrors");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfDistinctErrors");
     }
 
     @Test
     public void testIntersectionAsFieldInRecord() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInRecord");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInRecord");
     }
 
     @Test
     public void testIntersectionAsFieldInAnonymousRecord() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInAnonymousRecord");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionAsFieldInAnonymousRecord");
     }
 
     @Test
     public void testIntersectionOfErrorWithInlineError() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionOfErrorWithInlineError");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfErrorWithInlineError");
     }
 
     @Test
     public void testAnonDistinctError() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testAnonDistinctError");
+        BRunUtil.invoke(errorIntersectionResults, "testAnonDistinctError");
     }
 
     @Test
     public void testIntersectionOfSameSetOfErrorShapes() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testIntersectionOfSameSetOfErrorShapes");
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfSameSetOfErrorShapes");
     }
 
     @Test
     public void testDistinctErrorWithSameTypeIdsButDifferentTypes() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testDistinctErrorWithSameTypeIdsButDifferentTypes");
+        BRunUtil.invoke(errorIntersectionResults, "testDistinctErrorWithSameTypeIdsButDifferentTypes");
     }
 
     @Test
     public void testSingleErrorIntersectionWithReadOnly() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testSingleErrorIntersectionWithReadOnly");
+        BRunUtil.invoke(errorIntersectionResults, "testSingleErrorIntersectionWithReadOnly");
     }
 
     @Test
     public void testMultipleErrorIntersectionWithReadOnly() {
-        JvmRunUtil.invoke(errorIntersectionResults, "testMultipleErrorIntersectionWithReadOnly");
+        BRunUtil.invoke(errorIntersectionResults, "testMultipleErrorIntersectionWithReadOnly");
     }
 
     @Test

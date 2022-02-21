@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +59,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToAnydataArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampRecordToAnydataArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampRecordToAnydataArray");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -75,7 +75,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampAnydataToRecordArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampAnydataToRecordArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampAnydataToRecordArray");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -89,7 +89,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampAnydataToSimilarOpenRecordArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampAnydataToSimilarOpenRecordArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampAnydataToSimilarOpenRecordArray");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -108,7 +108,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToSimilarOpenRecordArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampRecordToSimilarOpenRecordArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampRecordToSimilarOpenRecordArray");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -127,7 +127,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampConstraintArrayToJSONArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampConstraintArrayToJSONArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampConstraintArrayToJSONArray");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -155,7 +155,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToAnydata() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampRecordToAnydata");
+        Object arr = BRunUtil.invoke(compileResult, "stampRecordToAnydata");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -172,7 +172,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampRecordToAnydataArrayV2() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampRecordToAnydataArrayV2");
+        Object arr = BRunUtil.invoke(compileResult, "stampRecordToAnydataArrayV2");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -188,7 +188,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampAnydataArrayToUnion() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampAnydataArrayToUnion");
+        Object arr = BRunUtil.invoke(compileResult, "stampAnydataArrayToUnion");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -207,7 +207,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampArrayValueToTuple() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampArrayValueToTuple");
+        Object arr = BRunUtil.invoke(compileResult, "stampArrayValueToTuple");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 2);
 
@@ -246,7 +246,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToBasicArray() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToBasicArray");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToBasicArray");
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
@@ -260,7 +260,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampAnydataToBasicArray() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampAnydataToBasicArray");
+        Object results = BRunUtil.invoke(compileResult, "stampAnydataToBasicArray");
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
@@ -274,7 +274,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampAnydataArrayToBasicArray() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampAnydataArrayToBasicArray");
+        Object results = BRunUtil.invoke(compileResult, "stampAnydataArrayToBasicArray");
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
@@ -288,7 +288,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampJSONArrayToBasicArray() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONArrayToBasicArray");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONArrayToBasicArray");
         BArray valueArray = (BArray) results;
 
         Assert.assertEquals(valueArray.size(), 4);
@@ -302,7 +302,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicArrayToJSON() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampBasicArrayToJSON");
+        Object arr = BRunUtil.invoke(compileResult, "stampBasicArrayToJSON");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -313,7 +313,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicArrayToAnydata() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampBasicArrayToAnydata");
+        Object arr = BRunUtil.invoke(compileResult, "stampBasicArrayToAnydata");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -324,7 +324,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicArrayToAnydataArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampBasicArrayToAnydataArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampBasicArrayToAnydataArray");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -335,7 +335,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicArrayToJSONArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampBasicArrayToJSONArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampBasicArrayToJSONArray");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -346,7 +346,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicArrayToTuple() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampBasicArrayToTuple");
+        Object arr = BRunUtil.invoke(compileResult, "stampBasicArrayToTuple");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -355,7 +355,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampAnydataBasicArrayToTuple() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampAnydataBasicArrayToTuple");
+        Object arr = BRunUtil.invoke(compileResult, "stampAnydataBasicArrayToTuple");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -364,7 +364,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicArrayToAnydataTuple() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampBasicArrayToAnydataTuple");
+        Object arr = BRunUtil.invoke(compileResult, "stampBasicArrayToAnydataTuple");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.get(0), 1L);
         Assert.assertEquals(results.get(1), 2L);
@@ -373,7 +373,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicArrayToBasicArray() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampBasicArrayToBasicArray");
+        Object results = BRunUtil.invoke(compileResult, "stampBasicArrayToBasicArray");
         Assert.assertEquals(((BArray) results).getInt(0), 1);
         Assert.assertEquals(((BArray) results).getInt(1), 2);
     }
@@ -381,7 +381,7 @@ public class ArrayStampInbuiltFunctionTest {
     @Test
     public void testStampBasicMapArrayToAnydataMapArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampBasicMapArrayToAnydataMapArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampBasicMapArrayToAnydataMapArray");
         BArray results = (BArray) arr;
         BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> mapValue1 = (BMap<BString, Object>) results.get(1);
@@ -395,7 +395,7 @@ public class ArrayStampInbuiltFunctionTest {
 
     @Test
     public void teststampRecordArrayToJsonArray() {
-        Object arr = JvmRunUtil.invoke(compileResult, "stampRecordArrayToJsonArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampRecordArrayToJsonArray");
         BArray results = (BArray) arr;
         BMap<BString, Object> jsonValue1 = (BMap<BString, Object>) results.get(0);
         BMap<BString, Object> jsonValue2 = (BMap<BString, Object>) results.get(1);

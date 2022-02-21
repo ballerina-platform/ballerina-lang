@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object in a function parameter declaration")
     public void testAnonObjectAsFuncParam() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonObjectAsFuncParam");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsFuncParam");
 
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 24L);
@@ -53,7 +53,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object in a local variable declaration")
     public void testAnonObjectAsLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonObjectAsLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsLocalVar");
 
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 11L);
@@ -61,7 +61,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object in a package variable declaration")
     public void testAnonObjectAsPkgVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonObjectAsPkgVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsPkgVar");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "sameera:jayasoma:100");
@@ -69,7 +69,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object in a object field")
     public void testAnonObjectAsObjectField() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonObjectAsObjectField");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectAsObjectField");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "JAN:12 Gemba St APT 134:CA:sam");
@@ -77,7 +77,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object with function as global variable")
     public void testAnonObjectWithFunctionsAsGlobalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsGlobalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsGlobalVar");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "a hello");
@@ -85,7 +85,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object with function as local variable")
     public void testAnonObjectWithFunctionsAsLocalVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsLocalVar");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectWithFunctionAsLocalVar");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "a hello");
@@ -93,7 +93,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous casted to normal object")
     public void testAnonObjectCastWithNormalObject() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectEquivalencyBetweenAnonAndNormalObject");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectEquivalencyBetweenAnonAndNormalObject");
 
         Assert.assertEquals(returns.size(), 3);
 
@@ -108,7 +108,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test Anonymous object with record literal")
     public void testAnonObjectWithRecordLiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAnonObjectWithRecordLiteral");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAnonObjectWithRecordLiteral");
 
         Assert.assertEquals(returns.size(), 2);
 
@@ -121,7 +121,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test object with anonymous record literal")
     public void testObjectWithAnonRecordLiteral() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectWithAnonRecordLiteral");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithAnonRecordLiteral");
 
         Assert.assertEquals(returns.size(), 2);
 
@@ -134,7 +134,7 @@ public class AnonymousObjectTest {
 
     @Test(description = "Test object with self reference")
     public void testObjectWithSelfReference() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectWithSelfReference");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithSelfReference");
 
         Assert.assertEquals(returns.size(), 2);
 

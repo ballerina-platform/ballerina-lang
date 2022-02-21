@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.mappingconstructor;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +51,7 @@ public class MappingConstructorExprTest {
 
     @Test(dataProvider = "mappingConstructorTests")
     public void testMappingConstructor(String test) {
-        JvmRunUtil.invoke(result, test);
+        BRunUtil.invoke(result, test);
     }
 
     @DataProvider(name = "mappingConstructorTests")
@@ -123,7 +123,7 @@ public class MappingConstructorExprTest {
 
     @Test(dataProvider = "varNameFieldTests")
     public void testVarNameField(String test) {
-        JvmRunUtil.invoke(varNameFieldResult, test);
+        BRunUtil.invoke(varNameFieldResult, test);
     }
 
     @DataProvider(name = "varNameFieldTests")
@@ -226,7 +226,7 @@ public class MappingConstructorExprTest {
 
     @Test(dataProvider = "spreadOpFieldTests")
     public void testSpreadOpField(String test) {
-        JvmRunUtil.invoke(spreadOpFieldResult, test);
+        BRunUtil.invoke(spreadOpFieldResult, test);
     }
 
     @DataProvider(name = "spreadOpFieldTests")
@@ -281,7 +281,7 @@ public class MappingConstructorExprTest {
 
     @Test(dataProvider = "inferRecordTypeTests")
     public void testInferRecordTypeTests(String test) {
-        JvmRunUtil.invoke(inferRecordResult, test);
+        BRunUtil.invoke(inferRecordResult, test);
     }
 
     @DataProvider(name = "inferRecordTypeTests")
@@ -304,7 +304,7 @@ public class MappingConstructorExprTest {
 
     @Test(dataProvider = "readOnlyFieldTests")
     public void testReadOnlyFields(String test) {
-        JvmRunUtil.invoke(readOnlyFieldResult, test);
+        BRunUtil.invoke(readOnlyFieldResult, test);
     }
 
     @DataProvider(name = "readOnlyFieldTests")

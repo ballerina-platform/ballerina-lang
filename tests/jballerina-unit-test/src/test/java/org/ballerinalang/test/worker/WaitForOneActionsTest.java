@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,28 +41,28 @@ public class WaitForOneActionsTest {
 
     @Test
     public void waitTest1() {
-        Object vals = JvmRunUtil.invoke(result, "waitTest1", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest1", new Object[0]);
         
         Assert.assertEquals(vals.toString(), "7");
     }
 
     @Test
     public void waitTest2() {
-        Object vals = JvmRunUtil.invoke(result, "waitTest2", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest2", new Object[0]);
         
         Assert.assertEquals(vals.toString(), "true");
     }
 
     @Test
     public void waitTest3() {
-        Object vals = JvmRunUtil.invoke(result, "waitTest3", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest3", new Object[0]);
         
         Assert.assertEquals(vals.toString(), "hello foo");
     }
 
     @Test
     public void waitTest4() { // Need to check
-        BArray vals = (BArray) JvmRunUtil.invoke(result, "waitTest4", new Object[0]);
+        BArray vals = (BArray) BRunUtil.invoke(result, "waitTest4", new Object[0]);
         Assert.assertEquals(vals.size(), 3);
         Assert.assertEquals(vals.get(0).toString(), "22");
         Assert.assertEquals(vals.get(1).toString(), "hello bar");
@@ -71,21 +71,21 @@ public class WaitForOneActionsTest {
 
     @Test
     public void waitTest5() {
-        Object vals = JvmRunUtil.invoke(result, "waitTest5", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest5", new Object[0]);
         
         Assert.assertEquals(vals.toString(), "{\"fname\":\"foo\",\"lname\":\"bar\"}");
     }
 
     @Test
     public void waitTest6() {
-        Object vals = JvmRunUtil.invoke(result, "waitTest6", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest6", new Object[0]);
         
         Assert.assertEquals(vals.toString(), "99");
     }
 
     @Test
     public void waitTest7() {
-        Object vals = JvmRunUtil.invoke(result, "waitTest7", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest7", new Object[0]);
         
         Assert.assertEquals(vals.toString(), "66");
     }
@@ -93,19 +93,19 @@ public class WaitForOneActionsTest {
     @Test (expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest8() {
-        JvmRunUtil.invoke(result, "waitTest8");
+        BRunUtil.invoke(result, "waitTest8");
     }
 
     @Test
     public void waitTest9() {
-        Object vals = JvmRunUtil.invoke(result, "waitTest9", new Object[0]);
+        Object vals = BRunUtil.invoke(result, "waitTest9", new Object[0]);
         
         Assert.assertNull(vals);
     }
 
     @Test
     public void asyncObjectCreationTest() {
-        JvmRunUtil.invoke(result, "asyncObjectCreationTest", new Object[0]);
+        BRunUtil.invoke(result, "asyncObjectCreationTest", new Object[0]);
     }
 
     @AfterClass

@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class OverloadedMethodTests {
 
     @Test(description = "Test invoking an overloaded java constructor")
     public void testOverloadedConstructorsWithOneParam() {
-        Object val = JvmRunUtil.invoke(result, "testOverloadedConstructorsWithOneParam");
+        Object val = BRunUtil.invoke(result, "testOverloadedConstructorsWithOneParam");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(((HandleValue) returns.get(0)).getValue(), "string buffer value");
@@ -58,7 +58,7 @@ public class OverloadedMethodTests {
         Object[] args = new Object[1];
         String strValue = "BALLERINA";
         args[0] = StringUtils.fromString(strValue);
-        Object returns = JvmRunUtil.invoke(result, "testOverloadedMethodsWithByteArrayParams", args);
+        Object returns = BRunUtil.invoke(result, "testOverloadedMethodsWithByteArrayParams", args);
 
 
         byte[] bytes = strValue.getBytes();
@@ -72,14 +72,14 @@ public class OverloadedMethodTests {
     public void testOverloadedMethodsWithDifferentParametersOne() {
         Object[] args = new Object[1];
         args[0] = (5);
-        JvmRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersOne", args);
+        BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersOne", args);
     }
 
     @Test(description = "Test invoking multiple overloaded java methods")
     public void testOverloadedMethodsWithDifferentParametersTwo() {
         Object[] args = new Object[1];
         args[0] = StringUtils.fromString("BALLERINA");
-        JvmRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersTwo", args);
+        BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersTwo", args);
     }
 
     @AfterClass

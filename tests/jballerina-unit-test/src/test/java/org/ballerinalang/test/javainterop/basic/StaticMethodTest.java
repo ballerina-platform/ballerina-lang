@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +51,7 @@ public class StaticMethodTest {
 
     @Test(dataProvider = "nullReturnFunctions")
     public void testReturnNothing(String funcName) {
-        Object returns = JvmRunUtil.invoke(result, funcName);
+        Object returns = BRunUtil.invoke(result, funcName);
         Assert.assertNull(returns);
     }
 
@@ -64,7 +64,7 @@ public class StaticMethodTest {
 
     @Test
     public void testErrorOrTupleReturn() {
-        Object val = JvmRunUtil.invoke(result, "testErrorOrTupleReturn");
+        Object val = BRunUtil.invoke(result, "testErrorOrTupleReturn");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertNull(returns.get(0));
@@ -73,13 +73,13 @@ public class StaticMethodTest {
 
     @Test(description = "Test invoking a java static function that accepts nothing and returns a Date")
     public void testAcceptNothingButReturnDate() {
-        Object returns = JvmRunUtil.invoke(result, "testAcceptNothingButReturnDate");
+        Object returns = BRunUtil.invoke(result, "testAcceptNothingButReturnDate");
         Assert.assertTrue(((HandleValue) returns).getValue() instanceof Date);
     }
 
     @Test(description = "Test invoking a java static function that accepts nothing and returns a string")
     public void testAcceptNothingButReturnString() {
-        Object returns = JvmRunUtil.invoke(result, "testAcceptNothingButReturnString");
+        Object returns = BRunUtil.invoke(result, "testAcceptNothingButReturnString");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "hello world");
     }
@@ -88,7 +88,7 @@ public class StaticMethodTest {
     public void testStringParamAndReturn() {
         Object[] args = new Object[1];
         args[0] = StringUtils.fromString("Royce");
-        Object returns = JvmRunUtil.invoke(result, "stringParamAndReturn", args);
+        Object returns = BRunUtil.invoke(result, "stringParamAndReturn", args);
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Royce and Hadrian");
     }
@@ -98,7 +98,7 @@ public class StaticMethodTest {
         Object[] args = new Object[1];
         Date argValue = new Date();
         args[0] = new HandleValue(argValue);
-        Object returns = JvmRunUtil.invoke(result, "testAcceptSomethingAndReturnSomething", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptSomethingAndReturnSomething", args);
         Assert.assertTrue(((HandleValue) returns).getValue() instanceof Date);
         Assert.assertEquals(((HandleValue) returns).getValue(), argValue);
     }
@@ -108,7 +108,7 @@ public class StaticMethodTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue("1");
         args[1] = new HandleValue("2");
-        Object returns = JvmRunUtil.invoke(result, "testAcceptTwoParamsAndReturnSomething", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptTwoParamsAndReturnSomething", args);
         Assert.assertEquals(((HandleValue) returns).getValue(), "12");
     }
 
@@ -118,35 +118,35 @@ public class StaticMethodTest {
         args[0] = new HandleValue(1);
         args[1] = new HandleValue(2);
         args[2] = new HandleValue(3);
-        Object returns = JvmRunUtil.invoke(result, "testAcceptThreeParamsAndReturnSomething", args);
+        Object returns = BRunUtil.invoke(result, "testAcceptThreeParamsAndReturnSomething", args);
         
         Assert.assertEquals(((HandleValue) returns).getValue(), 6);
     }
 
     @Test(description = "Test static java method that returns error value as objects")
     public void testReturnObjectValueOrError() {
-        Object returns = JvmRunUtil.invoke(result, "getObjectOrError");
+        Object returns = BRunUtil.invoke(result, "getObjectOrError");
         
         Assert.assertEquals(((BError) returns).getMessage(), "some reason");
     }
 
     @Test(description = "Test static java method that returns error value or MapValue")
     public void testMapValueOrErrorReturn() {
-        Object returns = JvmRunUtil.invoke(result, "testUnionReturn");
+        Object returns = BRunUtil.invoke(result, "testUnionReturn");
         Assert.assertEquals(returns.toString(),
                 "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
     }
 
     @Test
     public void testFuncWithAsyncDefaultParamExpression() {
-        Object returns = JvmRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
+        Object returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 145L);
     }
 
     @Test
     public void testUsingParamValues() {
-        Object returns = JvmRunUtil.invoke(result, "testUsingParamValues");
+        Object returns = BRunUtil.invoke(result, "testUsingParamValues");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 290L);
     }
@@ -155,7 +155,7 @@ public class StaticMethodTest {
     public void testDecimalParamAndReturn() {
         Object[] args = new Object[1];
         args[0] = ValueCreator.createDecimalValue("100");
-        Object returns = JvmRunUtil.invoke(result, "testDecimalParamAndReturn", args);
+        Object returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
         Assert.assertTrue(returns instanceof BDecimal);
         Assert.assertEquals(returns.toString(), "199.7");
     }
@@ -164,19 +164,19 @@ public class StaticMethodTest {
           expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
                   "value.*")
     public void testCreateRawDetails() {
-        JvmRunUtil.invoke(result, "testCreateRawDetails");
+        BRunUtil.invoke(result, "testCreateRawDetails");
     }
 
     @Test(expectedExceptions = io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
                   "value.*")
     public void testCreateDetails() {
-        JvmRunUtil.invoke(result, "testCreateDetails");
+        BRunUtil.invoke(result, "testCreateDetails");
     }
 
     @Test(dataProvider = "functionNamesProvider")
     public void testInvokeFunctions(String funcName) {
-        JvmRunUtil.invoke(result, funcName);
+        BRunUtil.invoke(result, funcName);
     }
 
     @DataProvider(name = "functionNamesProvider")

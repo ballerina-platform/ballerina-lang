@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,7 +49,7 @@ public class SealedArraysOfArraysTest {
     @Test
     public void testInitializeTwoDArray() {
 
-        BArray returnValues = (BArray) JvmRunUtil.invoke(compileResult, "initTwoDimensionalSealedArray");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "initTwoDimensionalSealedArray");
         Assert.assertFalse(
                 returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
                 "Invalid Return Values.");
@@ -62,7 +62,7 @@ public class SealedArraysOfArraysTest {
     @Test
     public void testInitializeThreeDArray() {
 
-        BArray returnValues = (BArray) JvmRunUtil.invoke(compileResult, "initThreeDimensionalSealedArray");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "initThreeDimensionalSealedArray");
         Assert.assertFalse(
                 returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
                 "Invalid Return Values.");
@@ -82,7 +82,7 @@ public class SealedArraysOfArraysTest {
         arrayValue.add(1, 12);
         Object[] args = {arrayValue};
 
-        BArray returnValues = (BArray) JvmRunUtil.invoke(compileResult, "twoDArrayIntAssignment", args);
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "twoDArrayIntAssignment", args);
         Assert.assertFalse(returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null, "Invalid " +
                 "Return Values.");
         Assert.assertEquals(returnValues.get(0), 3L, "Value didn't match");
@@ -99,7 +99,7 @@ public class SealedArraysOfArraysTest {
         arrayValue.add(1, "multidimensional");
         Object[] args = {arrayValue};
 
-        BArray returnValues = (BArray) JvmRunUtil.invoke(compileResult, "twoDArrayStringAssignment", args);
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "twoDArrayStringAssignment", args);
         Assert.assertFalse(
                 returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
                 "Invalid Return Values.");

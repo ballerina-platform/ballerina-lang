@@ -40,6 +40,7 @@ public class ConstantTypeTest {
         compileResult = BCompileUtil.compile("test-src/types/constant/constant-type.bal");
     }
 
+<<<<<<< HEAD
     @Test(dataProvider = "testFunctions")
     public void testTypesOfConstants(String functionName) {
         BRunUtil.invoke(compileResult, functionName);
@@ -53,6 +54,16 @@ public class ConstantTypeTest {
            "testConstTypesInline",
            "testInvalidRuntimeUpdateOfConstMaps"
         };
+=======
+    @Test
+    public void testTypesOfConstants() {
+        BRunUtil.invoke(compileResult, "testTypesOfConstants");
+    }
+
+    @Test
+    public void testTypesOfConstantMaps() {
+        BRunUtil.invoke(compileResult, "testTypesOfConstantMaps");
+>>>>>>> Rename `JvmRunUtil` class to `BRunUtil`
     }
 
     @Test

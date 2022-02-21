@@ -18,7 +18,7 @@ package org.ballerinalang.test.statements.matchstmt;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,32 +44,32 @@ public class MatchStmtTypeNarrowingTest {
 
     @Test
     public void testNarrowTypeInCaptureBindingPattern1() {
-        JvmRunUtil.invoke(result, "testNarrowTypeInCaptureBindingPattern1");
+        BRunUtil.invoke(result, "testNarrowTypeInCaptureBindingPattern1");
     }
 
     @Test
     public void testNarrowTypeInCaptureBindingPattern2() {
-        JvmRunUtil.invoke(result, "testNarrowTypeInCaptureBindingPattern2");
+        BRunUtil.invoke(result, "testNarrowTypeInCaptureBindingPattern2");
     }
 
     @Test
     public void testNarrowTypeInListBindingPattern1() {
-        JvmRunUtil.invoke(result, "testNarrowTypeInListBindingPattern1");
+        BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern1");
     }
 
     @Test
     public void testNarrowTypeInListBindingPattern2() {
-        JvmRunUtil.invoke(result, "testNarrowTypeInListBindingPattern2");
+        BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern2");
     }
 
     @Test
     public void testNarrowTypeInListBindingPattern3() {
-        JvmRunUtil.invoke(result, "testNarrowTypeInListBindingPattern3");
+        BRunUtil.invoke(result, "testNarrowTypeInListBindingPattern3");
     }
 
     @Test(dataProvider = "dataToTestMatchClauseWithTypeGuard", description = "Test match clause with type guard")
     public void testMatchClauseWithTypeGuard(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

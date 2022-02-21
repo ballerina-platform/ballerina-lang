@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class IfElseStmtTest {
     @Test(description = "Check a == b")
     public void testIfBlock() {
         Object[] args = {(10), (10), (20)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, funcName, args);
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -67,7 +67,7 @@ public class IfElseStmtTest {
     @Test(description = "Check a == b + 1")
     public void testElseIfFirstBlock() {
         Object[] args = {(11), (10), (20)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, funcName, args);
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -86,7 +86,7 @@ public class IfElseStmtTest {
     @Test(description = "Check a == b + 2")
     public void testElseIfSecondBlock() {
         Object[] args = {(12), (10), (20)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, funcName, args);
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -104,7 +104,7 @@ public class IfElseStmtTest {
     @Test(description = "Check else")
     public void testElseBlock() {
         Object[] args = {(10), (100), (20)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, funcName, args);
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -122,7 +122,7 @@ public class IfElseStmtTest {
     @Test(description = "Check If Stmt Without Parentheses")
     public void testIfStmtWithoutParentheses() {
         Object[] args = {(10), (100), (20)};
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testIfStmtWithoutParentheses", args);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIfStmtWithoutParentheses", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -140,7 +140,7 @@ public class IfElseStmtTest {
     @Test(description = "Check simple ifElse")
     public void testAge() {
         Object[] args = {(21)};
-        Object returns = JvmRunUtil.invoke(result, "testAgeGroup", args);
+        Object returns = BRunUtil.invoke(result, "testAgeGroup", args);
 
         
         Assert.assertTrue(returns instanceof BString);
@@ -149,7 +149,7 @@ public class IfElseStmtTest {
         Assert.assertEquals(actual, expected);
 
         args = new Object[]{(16)};
-        returns = JvmRunUtil.invoke(result, "testAgeGroup", args);
+        returns = BRunUtil.invoke(result, "testAgeGroup", args);
 
         
         Assert.assertTrue(returns instanceof BString);
@@ -162,21 +162,21 @@ public class IfElseStmtTest {
     @Test(description = "Check the scope managing in ifelse block")
     public void testIfElseBlockScopes() {
         Object[] args = { (1) };
-        Object returns = JvmRunUtil.invoke(result, "ifElseScope", args);
+        Object returns = BRunUtil.invoke(result, "ifElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         long actual = (long) returns;
         Assert.assertEquals(actual, 200, "mismatched output value");
 
         args = new Object[] { (2) };
-        returns = JvmRunUtil.invoke(result, "ifElseScope", args);
+        returns = BRunUtil.invoke(result, "ifElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
         Assert.assertEquals(actual, 400, "mismatched output value");
 
         args = new Object[] { (16) };
-        returns = JvmRunUtil.invoke(result, "ifElseScope", args);
+        returns = BRunUtil.invoke(result, "ifElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
@@ -186,42 +186,42 @@ public class IfElseStmtTest {
     @Test(description = "Check the scope managing in nested ifelse block")
     public void testNestedIfElseBlockScopes() {
         Object[] args = { (1), (1) };
-        Object returns = JvmRunUtil.invoke(result, "nestedIfElseScope", args);
+        Object returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         long actual = (long) returns;
         Assert.assertEquals(actual, 100, "mismatched output value");
 
         args = new Object[] { (1), (2) };
-        returns = JvmRunUtil.invoke(result, "nestedIfElseScope", args);
+        returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
         Assert.assertEquals(actual, 200, "mismatched output value");
 
         args = new Object[] { (2), (2) };
-        returns = JvmRunUtil.invoke(result, "nestedIfElseScope", args);
+        returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
         Assert.assertEquals(actual, 300, "mismatched output value");
 
         args = new Object[] { (2), (3) };
-        returns = JvmRunUtil.invoke(result, "nestedIfElseScope", args);
+        returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
         Assert.assertEquals(actual, 400, "mismatched output value");
 
         args = new Object[] { (3), (3) };
-        returns = JvmRunUtil.invoke(result, "nestedIfElseScope", args);
+        returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
         Assert.assertEquals(actual, 500, "mismatched output value");
 
         args = new Object[] { (3), (4) };
-        returns = JvmRunUtil.invoke(result, "nestedIfElseScope", args);
+        returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
@@ -231,14 +231,14 @@ public class IfElseStmtTest {
     @Test(description = "Test if condition parameter resolver scope")
     public void testIfConditionScope() {
         Object[] args1 = { (3)};
-        Object returns = JvmRunUtil.invoke(result, "testConditionScope", args1);
+        Object returns = BRunUtil.invoke(result, "testConditionScope", args1);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         long actual = (long) returns;
         Assert.assertEquals(actual, 10, "if condition scope not set properly");
 
         Object[] args2 = new Object[] { (6) };
-        returns = JvmRunUtil.invoke(result, "testConditionScope", args2);
+        returns = BRunUtil.invoke(result, "testConditionScope", args2);
         
         Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
         actual = (long) returns;
@@ -278,9 +278,9 @@ public class IfElseStmtTest {
     @Test()
     public void ifStmtTypeNarrowingTest() {
         Object[] args = {StringUtils.fromString("ballerina")};
-        JvmRunUtil.invoke(result, "testTypeNarrowingWithLambda");
-        JvmRunUtil.invoke(result, "testResetTypeNarrowingForCompoundAssignment");
-        Object returns = JvmRunUtil.invoke(result, "testTypeNarrowing", args);
+        BRunUtil.invoke(result, "testTypeNarrowingWithLambda");
+        BRunUtil.invoke(result, "testResetTypeNarrowingForCompoundAssignment");
+        Object returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
         
         Assert.assertEquals(returns.toString(), "ballerina");
     }

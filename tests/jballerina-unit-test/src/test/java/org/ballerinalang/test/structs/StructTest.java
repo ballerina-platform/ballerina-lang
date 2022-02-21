@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class StructTest {
 
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testCreateStruct");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCreateStruct");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "Jack");
@@ -59,7 +59,7 @@ public class StructTest {
 
     @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Jane");
     }
@@ -74,7 +74,7 @@ public class StructTest {
 
     @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructOfStruct");
+        Object returns = BRunUtil.invoke(compileResult, "testStructOfStruct");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "USA");
@@ -82,7 +82,7 @@ public class StructTest {
 
     @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnStructAttributes");
+        Object returns = BRunUtil.invoke(compileResult, "testReturnStructAttributes");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
@@ -90,14 +90,14 @@ public class StructTest {
 
     @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
+        Object returns = BRunUtil.invoke(compileResult, "testStructExpressionAsIndex");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "emily");
     }
 
     @Test(description = "Test default value of a struct field")
     public void testDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultVal");
 
         // Check default value of a field where the default value is set
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -113,7 +113,7 @@ public class StructTest {
 
     @Test(description = "Test default value of a nested struct field")
     public void testNestedFieldDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testNestedFieldDefaultVal");
 
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "default first name");
@@ -127,7 +127,7 @@ public class StructTest {
 
     @Test(description = "Test default value of a nested struct field")
     public void testNestedStructInit() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testNestedStructInit");
+        Object returns = BRunUtil.invoke(compileResult, "testNestedStructInit");
 
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> person = ((BMap<String, Object>) returns);
@@ -142,7 +142,7 @@ public class StructTest {
 
     @Test(description = "Test negative default values in struct")
     public void testNegativeDefaultValue() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getStructNegativeValues");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getStructNegativeValues");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertSame(returns.get(0).getClass(), Long.class);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -156,7 +156,7 @@ public class StructTest {
 
     @Test(description = "Test negative default values in struct")
     public void testStructToString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "getStruct");
+        Object returns = BRunUtil.invoke(compileResult, "getStruct");
         Assert.assertEquals(returns.toString(), "{\"name\":\"aaa\",\"lname\":\"\",\"adrs\":{},\"age\":25," +
                 "\"family\":{\"spouse\":\"\",\"noOfChildren\":0,\"children\":[]},\"parent\":{\"name\":\"bbb\"," +
                 "\"lname\":\"ccc\",\"adrs\":{},\"age\":50,\"family\":{\"spouse\":\"\",\"noOfChildren\":0," +
@@ -167,11 +167,11 @@ public class StructTest {
     public void testStructLiteral() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/structs/ObjectWithPrivateFieldsTestProject/struct-literals.bal");
-        Object returns = JvmRunUtil.invoke(compileResult, "testStructLiteral1");
+        Object returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns.toString(), "{\"dptName\":\"\",\"employees\":[],\"manager\":{\"name\":\"default " +
                 "first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}}");
 
-        returns = JvmRunUtil.invoke(compileResult, "testStructLiteral2");
+        returns = BRunUtil.invoke(compileResult, "testStructLiteral2");
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"default first name\",\"lname\":\"\",\"adrs\":{},\"age\":999,\"child\":null}");
     }
@@ -180,7 +180,7 @@ public class StructTest {
     public void testStructLiteralInitFunc() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/structs/ObjectWithPrivateFieldsTestProject/nested-struct-inline-init.bal");
-        Object returns = JvmRunUtil.invoke(result, "testCreateStruct");
+        Object returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"default first name\",\"fname\":\"\",\"lname\":\"Doe\",\"adrs\":{},\"age\":999," +
                         "\"family\":{\"spouse\":\"Jane\",\"noOfChildren\":0,\"children\":[\"Alex\",\"Bob\"]}}");

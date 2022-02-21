@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,7 +47,7 @@ public class NativeConversionWithStampTypesTest {
             + "are not changed")
     public void testConvertStampRecordToRecord() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "testConvertStampRecordToRecord");
+        Object arr = BRunUtil.invoke(compileResult, "testConvertStampRecordToRecord");
         BArray results = (BArray) arr;
         BMap<String, Object> person = (BMap<String, Object>) results.get(0);
         BMap<String, Object> employee = (BMap<String, Object>) results.get(1);
@@ -67,7 +67,7 @@ public class NativeConversionWithStampTypesTest {
     @Test(description = "Test converting a record into a json and check previous values are not changed")
     public void testConvertStampRecordToJSON() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "testConvertStampRecordToJSON");
+        Object arr = BRunUtil.invoke(compileResult, "testConvertStampRecordToJSON");
         BArray results = (BArray) arr;
         BMap<String, Object> employee = (BMap<String, Object>) results.get(0);
         BMap<String, Object> json = (BMap<String, Object>) results.get(1);
@@ -88,7 +88,7 @@ public class NativeConversionWithStampTypesTest {
     @Test(description = "Test converting a record into a map and check previous values are not changed")
     public void testConvertStampRecordToMap() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "testConvertStampRecordToMap");
+        Object arr = BRunUtil.invoke(compileResult, "testConvertStampRecordToMap");
         BArray results = (BArray) arr;
         BMap<String, Object> employee = (BMap<String, Object>) results.get(0);
         BMap<String, Object> map = (BMap<String, Object>) results.get(1);
@@ -106,7 +106,7 @@ public class NativeConversionWithStampTypesTest {
     @Test(description = "Test converting a tuple into a map and check previous values are not changed")
     public void testConvertStampTupleToMap() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "testConvertStampTupleToMap");
+        Object arr = BRunUtil.invoke(compileResult, "testConvertStampTupleToMap");
         BArray results = (BArray) arr;
         BArray original = (BArray) results.get(0);
         BArray converted = (BArray) results.get(1);
@@ -129,16 +129,16 @@ public class NativeConversionWithStampTypesTest {
 
     @Test
     public void testConvertMapJsonWithDecimalToOpenRecord() {
-        JvmRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalToOpenRecord");
+        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalToOpenRecord");
     }
 
     @Test
     public void testConvertMapJsonWithDecimalUnionTarget() {
-        JvmRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalUnionTarget");
+        BRunUtil.invoke(compileResult, "testConvertMapJsonWithDecimalUnionTarget");
     }
 
     @Test
     void testConvertToUnionWithActualType() {
-        JvmRunUtil.invoke(compileResult, "testConvertToUnionWithActualType");
+        BRunUtil.invoke(compileResult, "testConvertToUnionWithActualType");
     }
 }

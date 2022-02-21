@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -152,8 +152,8 @@ public class ObjectTypeReferenceTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
 
-        JvmRunUtil.invoke(result, "testObjectConstructorWithReadOnlyReference");
-        JvmRunUtil.invoke(result, "testReadOnlyAndObjectIntersectionInclusion");
+        BRunUtil.invoke(result, "testObjectConstructorWithReadOnlyReference");
+        BRunUtil.invoke(result, "testReadOnlyAndObjectIntersectionInclusion");
     }
 
     @Test
@@ -273,7 +273,7 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testSimpleObjectTypeReference() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testSimpleObjectTypeReference");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testSimpleObjectTypeReference");
         Assert.assertEquals(returns.size(), 4);
 
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -289,7 +289,7 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testInitTypeReferenceObjectWithNew() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testInitTypeReferenceObjectWithNew");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testInitTypeReferenceObjectWithNew");
         Assert.assertEquals(returns.size(), 4);
 
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -305,7 +305,7 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testObjectWithChainedTypeReferences() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testObjectWithChainedTypeReferences");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectWithChainedTypeReferences");
         Assert.assertEquals(returns.size(), 4);
 
         Assert.assertSame(returns.get(0).getClass(), Long.class);
@@ -321,7 +321,7 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testAbstractObjectFuncWithDefaultVal() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testAbstractObjectFuncWithDefaultVal");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testAbstractObjectFuncWithDefaultVal");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "Hello Jane");
@@ -331,12 +331,12 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testNonAbstractObjectInclusion() {
-        JvmRunUtil.invoke(compileResult, "testNonAbstractObjectInclusion");
+        BRunUtil.invoke(compileResult, "testNonAbstractObjectInclusion");
     }
 
     @Test
     public void testCreatingObjectWithOverriddenFields() {
-        JvmRunUtil.invoke(compileResult, "testCreatingObjectWithOverriddenFields");
+        BRunUtil.invoke(compileResult, "testCreatingObjectWithOverriddenFields");
     }
 
     @Test
@@ -402,6 +402,6 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testCreatingObjectWithOverriddenMethods() {
-        JvmRunUtil.invoke(compileResult, "testCreatingObjectWithOverriddenMethods");
+        BRunUtil.invoke(compileResult, "testCreatingObjectWithOverriddenMethods");
     }
 }

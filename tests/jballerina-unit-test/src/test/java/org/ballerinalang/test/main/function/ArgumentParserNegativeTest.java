@@ -19,7 +19,7 @@ package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -38,7 +38,7 @@ public class ArgumentParserNegativeTest {
     public void testTooManyArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_param.bal");
-        JvmRunUtil.runMain(compileResult, new String[]{"1", "Hello World"});
+        BRunUtil.runMain(compileResult, new String[]{"1", "Hello World"});
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -46,7 +46,7 @@ public class ArgumentParserNegativeTest {
     public void testInsufficientArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_multiple_typed_params.bal");
-        JvmRunUtil.runMain(compileResult, new String[]{"1"});
+        BRunUtil.runMain(compileResult, new String[]{"1"});
     }
 
     @Test(description = "Test passing undefined parameters to the main function",
@@ -55,7 +55,7 @@ public class ArgumentParserNegativeTest {
     public void testIncorrectArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_param.bal");
-        JvmRunUtil.runMain(compileResult, new String[]{"-j=1"});
+        BRunUtil.runMain(compileResult, new String[]{"-j=1"});
     }
 
     @Test(dataProvider = "intValues")
@@ -63,7 +63,7 @@ public class ArgumentParserNegativeTest {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                        + "test_main_with_int_param.bal");
-            JvmRunUtil.runMain(compileResult, new String[]{arg});
+            BRunUtil.runMain(compileResult, new String[]{arg});
         } catch (RuntimeException e) {
             Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
                     "' for parameter 'i', expected integer value");
@@ -76,7 +76,7 @@ public class ArgumentParserNegativeTest {
         String argument = "5.5s";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_multiple_typed_params.bal");
-        JvmRunUtil.runMain(compileResult, new String[]{"10", argument});
+        BRunUtil.runMain(compileResult, new String[]{"10", argument});
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -84,7 +84,7 @@ public class ArgumentParserNegativeTest {
     public void testInvalidArgsWithDefaultableParams() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_defaultable_param.bal");
-        JvmRunUtil.runMain(compileResult, new String[]{"1", "true", "hi", "not", "yes"});
+        BRunUtil.runMain(compileResult, new String[]{"1", "true", "hi", "not", "yes"});
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -93,7 +93,7 @@ public class ArgumentParserNegativeTest {
         String argument = "[true, \"hi\", 5]";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_array_param.bal");
-        JvmRunUtil.runMain(compileResult, new String[]{argument});
+        BRunUtil.runMain(compileResult, new String[]{argument});
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -102,7 +102,7 @@ public class ArgumentParserNegativeTest {
         String argument = "5, 1, hi.there";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_float_array_param.bal");
-        JvmRunUtil.runMain(compileResult, new String[]{argument});
+        BRunUtil.runMain(compileResult, new String[]{argument});
     }
 
     @DataProvider(name = "intValues")

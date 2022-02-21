@@ -20,7 +20,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -42,7 +42,7 @@ public class QueryExprWithAnonFunctionExprs {
     @Test(dataProvider = "dataToTestQueryExprWithAnonFuncExprs", description = "Test query expressions with " +
             "anonymous function expressions")
     public void testQueryExprWithAnonFuncExprs(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

@@ -22,7 +22,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class CheckPanicExpressionOperatorTest {
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics1() {
         Object[] arg = {(1)};
-        Object returns = JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Object returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
@@ -52,20 +52,20 @@ public class CheckPanicExpressionOperatorTest {
                     "\"message\":\"Something Went Wrong.*")
     public void testSafeAssignmentBasics2() {
         Object[] arg = {(2)};
-        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics3() {
         Object[] arg = {(3)};
-        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test
     public void testSafeAssignmentBasics4() {
         Object[] arg = {(4)};
-        Object returns = JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Object returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
         Assert.assertEquals(returns, 2.2);
     }
 
@@ -74,14 +74,14 @@ public class CheckPanicExpressionOperatorTest {
                     "\\{\"message\":\"array index out of range: index: 4, size: 2.*")
     public void testSafeAssignmentBasics5() {
         Object[] arg = {(5)};
-        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: My Error \\{\"code\":12.*")
     public void testSafeAssignmentBasics6() {
         Object[] arg = {(6)};
-        JvmRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test

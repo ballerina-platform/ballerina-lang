@@ -20,7 +20,7 @@ package org.ballerinalang.test.record;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -60,28 +60,28 @@ public class MapToRecordAssignabilityTest {
 
     @Test(dataProvider = "FunctionList")
     public void testMapToRecordAssignability(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
                     "expected value of type 'decimal', found 'float'.*")
     public void testInherentTypeViolationInInclusiveRecords() {
-        JvmRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
+        BRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
                     "expected value of type 'int', found 'string'.*")
     public void testInherentTypeViolationInExclusiveRecords() {
-        JvmRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
+        BRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"invalid field access: field 'cc' " +
                     "not found in record type 'Bar'.*")
     public void testSubtyping() {
-        JvmRunUtil.invoke(compileResult, "testSubtyping");
+        BRunUtil.invoke(compileResult, "testSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -89,17 +89,17 @@ public class MapToRecordAssignabilityTest {
                     ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: expected" +
                             " value of type 'Bar', found 'record \\{\\| int c; \\|\\}'.*")
     public void testComplexSubtyping2() {
-        JvmRunUtil.invoke(compileResult, "testComplexSubtyping2");
+        BRunUtil.invoke(compileResult, "testComplexSubtyping2");
     }
 
     @Test
     public void testQuotedFieldNamesWithEscapeCharacters() {
-        JvmRunUtil.invoke(compileResult, "testQuotedFieldNamesWithEscapeCharacters");
+        BRunUtil.invoke(compileResult, "testQuotedFieldNamesWithEscapeCharacters");
     }
 
     @Test
     public void testQuotedSubFieldNamesWithEscapeCharacters() {
-        JvmRunUtil.invoke(compileResult, "testQuotedSubFieldNamesWithEscapeCharacters");
+        BRunUtil.invoke(compileResult, "testQuotedSubFieldNamesWithEscapeCharacters");
     }
 
     @DataProvider(name = "FunctionList")

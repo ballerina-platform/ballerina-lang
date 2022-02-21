@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any type as a return value with actual json returning")
     public void testAnyReturnWithJson() {
-        Object returns = JvmRunUtil.invoke(result, "jsonReturnTest", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "jsonReturnTest", new Object[0]);
         
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
@@ -51,17 +51,17 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any type as a return value with actual table returning")
     public void testAnyReturnWithTable() {
-        JvmRunUtil.invoke(result, "tableReturnTestAsAny");
+        BRunUtil.invoke(result, "tableReturnTestAsAny");
     }
 
     @Test(description = "Test any type as a return value with actual table returning")
     public void testInputAnyAsTable() {
-        JvmRunUtil.invoke(result, "inputAnyAsTableTest");
+        BRunUtil.invoke(result, "inputAnyAsTableTest");
     }
 
     @Test(description = "Test any type as a parameter for function and explicit casting")
     public void testAnyAsParameterForFunction() {
-        Object returns = JvmRunUtil.invoke(result, "anyMethodParameter");
+        Object returns = BRunUtil.invoke(result, "anyMethodParameter");
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intReturn = (long) returns;
@@ -70,7 +70,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any type as a struct parameter with boolean value")
     public void testAnyAsStructParam() {
-        Object returns = JvmRunUtil.invoke(result, "anyInStructTest", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "anyInStructTest", new Object[0]);
 
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean bBoolean = (boolean) returns;
@@ -79,7 +79,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test float value in any type get casted to int in two steps")
     public void testFloatInAnyCastToInt() {
-        Object returns = JvmRunUtil.invoke(result, "successfulIntCasting", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "successfulIntCasting", new Object[0]);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intVal = (long) returns;
@@ -88,7 +88,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any to any explicit cast")
     public void testAnyToAnyCast() {
-        Object returns = JvmRunUtil.invoke(result, "anyToAnyExplicitCasting", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "anyToAnyExplicitCasting", new Object[0]);
 
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
@@ -96,7 +96,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test Multiple returns with any")
     public void testMultipleReturnWithAny() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "multipleReturnWithAny", new Object[0]);
+        BArray returns = (BArray) BRunUtil.invoke(result, "multipleReturnWithAny", new Object[0]);
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BMap);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -107,7 +107,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test multiple params with any")
     public void testMultipleParamWithAny() {
-        Object returns = JvmRunUtil.invoke(result, "multipleParamWithAny", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "multipleParamWithAny", new Object[0]);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intVal = (long) returns;
@@ -116,7 +116,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test variable init with any")
     public void variableDefTest() {
-        Object returns = JvmRunUtil.invoke(result, "variableDefTest", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "variableDefTest", new Object[0]);
 
         Assert.assertSame(returns.getClass(), Long.class);
         long intVal = (long) returns;
@@ -125,7 +125,7 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any variable assignment with float")
     public void assignmentTest() {
-        Object returns = JvmRunUtil.invoke(result, "assignmentTest", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "assignmentTest", new Object[0]);
 
         Assert.assertSame(returns.getClass(), Double.class);
         double floatVal = (double) returns;
@@ -135,7 +135,7 @@ public class BAnyTypeSuccessScenariosTest {
     @Test(description = "Test any type as a struct parameter with boolean value")
     public void testAnyArrayWithMapArray() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(result, "anyArrayWithMapArray", args);
+        Object returns = BRunUtil.invoke(result, "anyArrayWithMapArray", args);
 
         Assert.assertTrue(returns instanceof BArray);
     }

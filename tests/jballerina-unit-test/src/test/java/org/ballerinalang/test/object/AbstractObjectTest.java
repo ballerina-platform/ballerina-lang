@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -78,28 +78,28 @@ public class AbstractObjectTest {
 
     @Test
     public void testAbstractAnonObjectInMatch() {
-        BArray result = (BArray) JvmRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInTypeTest");
+        BArray result = (BArray) BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInTypeTest");
         Assert.assertEquals(result.get(0).toString(), "Person Name");
         Assert.assertEquals(result.get(1).toString(), "Employee Name");
     }
 
     @Test
     public void testAbstractAnonObjectInFunction() {
-        BArray result = (BArray) JvmRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInFunction");
+        BArray result = (BArray) BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInFunction");
         Assert.assertEquals(result.get(0).toString(), "Person Name");
         Assert.assertEquals(result.get(1).toString(), "Employee Name");
     }
 
     @Test
     public void testAbstractAnonObjectInVarDef() {
-        BArray result = (BArray) JvmRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInVarDef");
+        BArray result = (BArray) BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInVarDef");
         Assert.assertEquals(result.get(0).toString(), "Person Name");
         Assert.assertEquals(result.get(1).toString(), "Employee Name");
     }
 
     @Test(description = "Test abstract object as an object field")
     public void testAbstractObjectInObject() {
-        Object result = JvmRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
+        Object result = BRunUtil.invoke(abstractObjects, "testAbstractObjectInObject");
         Assert.assertEquals(result.toString(), "{city:Colombo, address:{city:Colombo}}");
     }
 

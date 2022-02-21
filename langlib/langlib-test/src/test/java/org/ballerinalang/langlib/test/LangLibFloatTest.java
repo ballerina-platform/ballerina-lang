@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.test;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -46,7 +46,7 @@ public class LangLibFloatTest {
 
     @Test
     public void testIsFinite() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIsFinite");
+        Object returns = BRunUtil.invoke(compileResult, "testIsFinite");
         BArray result = (BArray) returns;
         assertTrue(result.getBoolean(0));
         assertFalse(result.getBoolean(1));
@@ -54,7 +54,7 @@ public class LangLibFloatTest {
 
     @Test
     public void testIsInfinite() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIsInfinite");
+        Object returns = BRunUtil.invoke(compileResult, "testIsInfinite");
         BArray result = (BArray) returns;
         assertFalse(result.getBoolean(0));
         assertTrue(result.getBoolean(1));
@@ -63,14 +63,14 @@ public class LangLibFloatTest {
     @Test
     public void testSum() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "testSum");
+        Object returns = BRunUtil.invoke(compileResult, "testSum");
         assertEquals(returns, 70.35d);
     }
 
     @Test
     public void testFloatConsts() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloatConsts");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatConsts");
         BArray result = (BArray) returns;
         assertEquals(result.getFloat(0), Double.NaN);
         assertEquals(result.getFloat(1), Double.POSITIVE_INFINITY);
@@ -78,12 +78,12 @@ public class LangLibFloatTest {
 
     @Test
     public void testLangLibCallOnFiniteType() {
-        JvmRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
     }
 
     @Test(dataProvider = "functionsWithFloatEqualityChecks")
     public void testFunctionsWithFloatEqualityChecks(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider
@@ -98,17 +98,17 @@ public class LangLibFloatTest {
 
     @Test
     public void testFromHexString() {
-        JvmRunUtil.invoke(compileResult, "testFromHexString");
+        BRunUtil.invoke(compileResult, "testFromHexString");
     }
 
     @Test
     public void testMinAndMaxWithNaN() {
-        JvmRunUtil.invoke(compileResult, "testMinAndMaxWithNaN");
+        BRunUtil.invoke(compileResult, "testMinAndMaxWithNaN");
     }
 
     @Test(dataProvider = "functionsWithFromStringTests")
     public void testFromString(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider

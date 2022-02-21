@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a while loop.")
     public void testBreakStmtConditionTrue() {
         Object[] args = {(15), 5};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);
@@ -58,7 +58,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a while loop, where break in a ")
     public void testBreakStmtConditionElseIf() {
         Object[] args = {(25), (15)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);
@@ -71,7 +71,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a while loop, where break not hits")
     public void testBreakStmtConditionFalse() {
         Object[] args = {(8), (5)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);
@@ -84,7 +84,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a nested while loop.")
     public void testBreakStmtInNestedWhile() {
         Object[] args = {(12), (8)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "nestedBreakStmt", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "nestedBreakStmt", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);
@@ -97,7 +97,7 @@ public class BreakStmtTest {
     @Test
     public void testBreakWithForeach() {
         Object[] args = {StringUtils.fromString("break")};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "testBreakWithForeach", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testBreakWithForeach", args);
         
         Assert.assertEquals(returns.toString(),
                 "start->foreach0->foreachEnd0->foreach1->foreachEnd1->foreach2->foreachEnd2->foreach3->break->end");

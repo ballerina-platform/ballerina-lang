@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.json;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -66,22 +66,22 @@ public class RecordToJSONTest {
                   ".*KeyNotFound \\{\"message\":\"invalid field access: field 'newField' not found in " +
                           "record type 'Foo'.*")
     public void testClosedRecordToJson() {
-        JvmRunUtil.invoke(compileResult, "testClosedRecordToJson");
+        BRunUtil.invoke(compileResult, "testClosedRecordToJson");
     }
 
     @Test
     public void testOpenRecordToJson() {
-        JvmRunUtil.invoke(compileResult, "testOpenRecordToJson");
+        BRunUtil.invoke(compileResult, "testOpenRecordToJson");
     }
 
     @Test
     public void testNestedRecordModification() {
-        JvmRunUtil.invoke(compileResult, "testNestedRecordModification");
+        BRunUtil.invoke(compileResult, "testNestedRecordModification");
     }
 
     @Test
     public void testRecursiveCheckAgainstJson() {
-        JvmRunUtil.invoke(compileResult, "testRecursiveCheckAgainstJson");
+        BRunUtil.invoke(compileResult, "testRecursiveCheckAgainstJson");
     }
 
     @AfterClass

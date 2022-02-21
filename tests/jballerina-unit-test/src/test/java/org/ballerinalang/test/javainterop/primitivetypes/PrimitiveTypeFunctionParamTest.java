@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.primitivetypes;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class PrimitiveTypeFunctionParamTest {
     public void testCreateBoxedBoolean() {
         Object[] args = new Object[1];
         args[0] = (true);
-        Object returns = JvmRunUtil.invoke(result, "testCreateBoxedBooleanFromBBoolean", args);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedBooleanFromBBoolean", args);
         
         Assert.assertEquals(((HandleValue) returns).getValue(), true);
     }
@@ -53,7 +53,7 @@ public class PrimitiveTypeFunctionParamTest {
         byte byteVal = (byte) 130;
         Object[] args = new Object[1];
         args[0] = (byteVal);
-        Object returns = JvmRunUtil.invoke(result, "testCreateBoxedByteFromBByte", args);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedByteFromBByte", args);
         
         Assert.assertEquals(((HandleValue) returns).getValue(), byteVal);
     }
@@ -62,7 +62,7 @@ public class PrimitiveTypeFunctionParamTest {
     public void testCreateBoxedLongFromBInt() {
         Object[] args = new Object[1];
         args[0] = (100000000);
-        Object returns = JvmRunUtil.invoke(result, "testCreateBoxedLongFromBInt", args);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedLongFromBInt", args);
         
         Assert.assertEquals(((HandleValue) returns).getValue(), (long) 100000000);
     }
@@ -71,7 +71,7 @@ public class PrimitiveTypeFunctionParamTest {
     public void testCreateBoxedDoubleFromBFloat() {
         Object[] args = new Object[1];
         args[0] = (30000000.00);
-        Object returns = JvmRunUtil.invoke(result, "testCreateBoxedDoubleFromBFloat", args);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedDoubleFromBFloat", args);
         
         Assert.assertEquals(((HandleValue) returns).getValue(), 30000000.00d);
     }

@@ -18,7 +18,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ public class OperatorPrecedenceTest {
         long expected = a - b + c;
         Object[] args = { (a), (b), (c) };
 
-        Object returns = JvmRunUtil.invoke(result, "addSubPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "addSubPrecedence", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actual = (long) returns;
 
@@ -75,7 +75,7 @@ public class OperatorPrecedenceTest {
                 (a), (b), (c), (d), (e), (f)
         };
 
-        Object returns = JvmRunUtil.invoke(result, "addSubMultPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "addSubMultPrecedence", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actual = (long) returns;
         Assert.assertEquals(actual, expected);
@@ -100,7 +100,7 @@ public class OperatorPrecedenceTest {
                 (a), (b), (c), (d), (e), (f)
         };
 
-        Object returns = JvmRunUtil.invoke(result, "multDivisionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "multDivisionPrecedence", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actual = (long) returns;
         Assert.assertEquals(actual, expected);
@@ -121,7 +121,7 @@ public class OperatorPrecedenceTest {
                 (a), (b), (c), (d), (e), (f)
         };
 
-        Object returns = JvmRunUtil.invoke(result, "addMultPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "addMultPrecedence", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actual = (long) returns;
         Assert.assertEquals(actual, expected);
@@ -141,7 +141,7 @@ public class OperatorPrecedenceTest {
                 (a), (b), (c), (d), (e), (f)
         };
 
-        Object returns = JvmRunUtil.invoke(result, "addDivisionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "addDivisionPrecedence", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actual = (long) returns;
         Assert.assertEquals(actual, expected);
@@ -167,7 +167,7 @@ public class OperatorPrecedenceTest {
                 (a), (b), (c), (d), (e), (f)
         };
 
-        Object returns = JvmRunUtil.invoke(result, "comparatorPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "comparatorPrecedence", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         boolean actual = (boolean) returns;
         Assert.assertEquals(actual, expected);
@@ -185,7 +185,7 @@ public class OperatorPrecedenceTest {
 
         Object[] args = {(a), (b), (c), (d)};
 
-        Object returns = JvmRunUtil.invoke(result, "intAdditionAndSubtractionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intAdditionAndSubtractionPrecedence", args);
 
         long actualResult = (long) returns;
 
@@ -208,7 +208,7 @@ public class OperatorPrecedenceTest {
         long expectedResult = x + y - z;
         Object[] args = {(a), (b), (c), (d)};
 
-        Object returns = JvmRunUtil.invoke(result, "intMultiplicationPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intMultiplicationPrecedence", args);
 
         long actualResult = (long) returns;
 
@@ -231,7 +231,7 @@ public class OperatorPrecedenceTest {
 
         Object[] args = {(a), (b), (c), (d)};
 
-        Object returns = JvmRunUtil.invoke(result, "intDivisionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intDivisionPrecedence", args);
 
         long actualResult = (long) returns;
 
@@ -255,7 +255,7 @@ public class OperatorPrecedenceTest {
 
         Object[] args = {(a), (b), (c), (d)};
 
-        Object returns = JvmRunUtil.invoke(result, "intMultiplicationAndDivisionPrecedence", args);
+        Object returns = BRunUtil.invoke(result, "intMultiplicationAndDivisionPrecedence", args);
 
         long actualResult = (long) returns;
 

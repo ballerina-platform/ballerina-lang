@@ -37,7 +37,7 @@ import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -64,7 +64,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina array value as return and map as a param")
     public void testInteropWithBalArrayAndMap() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithArrayAndMap");
+        Object returns = BRunUtil.invoke(result, "interopWithArrayAndMap");
 
         Assert.assertTrue(returns instanceof BArray);
         BArray arr = (BArray) returns;
@@ -73,7 +73,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina service type value as a param")
     public void testInteropWithServiceTypesAndStringReturn() {
-        Object returns = JvmRunUtil.invoke(result, "acceptServiceAndBooleanReturn");
+        Object returns = BRunUtil.invoke(result, "acceptServiceAndBooleanReturn");
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
@@ -81,7 +81,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina ref types as params and map return")
     public void testInteropWithRefTypesAndMapReturn() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
+        Object returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
 
         Assert.assertTrue(returns instanceof BMap);
         BMap bMap = (BMap) returns;
@@ -91,7 +91,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina error return")
     public void testInteropWithErrorReturn() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithErrorReturn");
+        Object returns = BRunUtil.invoke(result, "interopWithErrorReturn");
 
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "example error with given reason");
@@ -99,7 +99,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina union return")
     public void testInteropWithUnionReturn() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithUnionReturn");
+        Object returns = BRunUtil.invoke(result, "interopWithUnionReturn");
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
@@ -112,7 +112,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina object return")
     public void testInteropWithObjectReturn() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithObjectReturn");
+        Object returns = BRunUtil.invoke(result, "interopWithObjectReturn");
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
@@ -120,7 +120,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina record return")
     public void testInteropWithRecordReturn() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithRecordReturn");
+        Object returns = BRunUtil.invoke(result, "interopWithRecordReturn");
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
@@ -128,7 +128,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina any return")
     public void testInteropWithAnyReturn() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithAnyReturn");
+        Object returns = BRunUtil.invoke(result, "interopWithAnyReturn");
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
@@ -136,7 +136,7 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina anydata return")
     public void testInteropWithAnydataReturn() {
-        Object returns = JvmRunUtil.invoke(result, "interopWithAnydataReturn");
+        Object returns = BRunUtil.invoke(result, "interopWithAnydataReturn");
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
@@ -144,12 +144,12 @@ public class RefTypeTests {
 
     @Test
     public void interopWithHandleOrErrorReturn() {
-        JvmRunUtil.invoke(result, "interopWithHandleOrErrorReturn");
+        BRunUtil.invoke(result, "interopWithHandleOrErrorReturn");
     }
 
     @Test(description = "Test interoperability with ballerina json return")
     public void testInteropWithJsonReturns() {
-        Object val = JvmRunUtil.invoke(result, "testJsonReturns");
+        Object val = BRunUtil.invoke(result, "testJsonReturns");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 5);
 
@@ -170,35 +170,35 @@ public class RefTypeTests {
 
     @Test(description = "Test interoperability with ballerina json params")
     public void testInteropWithJsonParams() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonParams");
+        Object returns = BRunUtil.invoke(result, "testJsonParams");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 7L);
     }
 
     @Test
     public void testGetXML() {
-        Object returns = JvmRunUtil.invoke(result, "getXML");
+        Object returns = BRunUtil.invoke(result, "getXML");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(), "<hello></hello>");
     }
 
     @Test
     public void testPassXML() {
-        Object returns = JvmRunUtil.invoke(result, "testPassingXML");
+        Object returns = BRunUtil.invoke(result, "testPassingXML");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "<foo></foo>");
     }
 
     @Test
     public void testGetAllInts() {
-        Object returns = JvmRunUtil.invoke(result, "getAllInts");
+        Object returns = BRunUtil.invoke(result, "getAllInts");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 2L);
     }
 
     @Test
     public void testAcceptAllInts() {
-        Object val = JvmRunUtil.invoke(result, "testAcceptAllInts");
+        Object val = BRunUtil.invoke(result, "testAcceptAllInts");
         BArray returns = (BArray) val;
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 4L);
@@ -210,14 +210,14 @@ public class RefTypeTests {
 
     @Test
     public void testGetMixType() {
-        Object returns = JvmRunUtil.invoke(result, "getMixType");
+        Object returns = BRunUtil.invoke(result, "getMixType");
         Assert.assertTrue(returns instanceof Integer);
         Assert.assertEquals(returns, 5);
     }
 
     @Test
     public void testGetIntegersAsMixType() {
-        Object returns = JvmRunUtil.invoke(result, "getIntegersAsMixType");
+        Object returns = BRunUtil.invoke(result, "getIntegersAsMixType");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 2L);
     }
@@ -226,7 +226,7 @@ public class RefTypeTests {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
-        Object returns = JvmRunUtil.invoke(result, "getInvalidIntegerAsMixType");
+        Object returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
         Assert.assertTrue(returns instanceof ObjectType);
         Assert.assertEquals(returns, 3);
     }
@@ -235,7 +235,7 @@ public class RefTypeTests {
     public void testInteropWithJavaStringReturn() {
         Exception expectedException = null;
         try {
-            JvmRunUtil.invoke(result, "interopWithJavaStringReturn");
+            BRunUtil.invoke(result, "interopWithJavaStringReturn");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -250,7 +250,7 @@ public class RefTypeTests {
 
     @Test
     public void testAcceptMixType() {
-        Object val = JvmRunUtil.invoke(result, "testAcceptMixTypes");
+        Object val = BRunUtil.invoke(result, "testAcceptMixTypes");
         BArray returns = (BArray) val;
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertEquals(returns.get(0), 2L);
@@ -262,28 +262,28 @@ public class RefTypeTests {
 
     @Test
     public void testUseFunctionPointer() {
-        Object returns = JvmRunUtil.invoke(result, "testUseFunctionPointer");
+        Object returns = BRunUtil.invoke(result, "testUseFunctionPointer");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 7L);
     }
 
     @Test
     public void testGetFunctionPointer() {
-        Object returns = JvmRunUtil.invoke(result, "testGetFunctionPointer");
+        Object returns = BRunUtil.invoke(result, "testGetFunctionPointer");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testUseTypeDesc() {
-        Object returns = JvmRunUtil.invoke(result, "testUseTypeDesc");
+        Object returns = BRunUtil.invoke(result, "testUseTypeDesc");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "typedesc json");
     }
 
     @Test
     public void testGetTypeDesc() {
-        Object returns = JvmRunUtil.invoke(result, "testGetTypeDesc");
+        Object returns = BRunUtil.invoke(result, "testGetTypeDesc");
         Assert.assertTrue(returns instanceof BTypedesc);
         Assert.assertEquals(returns.toString(), "typedesc xml<(lang.xml:Element|lang.xml:Comment|lang" +
                 ".xml:ProcessingInstruction|lang.xml:Text)>");
@@ -291,21 +291,21 @@ public class RefTypeTests {
 
     @Test
     public void testUseFuture() {
-        Object returns = JvmRunUtil.invoke(result, "testUseFuture");
+        Object returns = BRunUtil.invoke(result, "testUseFuture");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 4L);
     }
 
     @Test
     public void testGetFuture() {
-        Object returns = JvmRunUtil.invoke(result, "testGetFuture");
+        Object returns = BRunUtil.invoke(result, "testGetFuture");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 4L);
     }
 
     @Test
     public void testGetHandle() {
-        Object returns = JvmRunUtil.invoke(result, "testGetHandle");
+        Object returns = BRunUtil.invoke(result, "testGetHandle");
         Assert.assertTrue(returns instanceof HandleValue);
         HandleValue handle = (HandleValue) returns;
         Assert.assertTrue(handle.getValue() instanceof Map);
@@ -316,21 +316,21 @@ public class RefTypeTests {
 
     @Test
     public void testUseHandle() {
-        Object returns = JvmRunUtil.invoke(result, "testUseHandle");
+        Object returns = BRunUtil.invoke(result, "testUseHandle");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test
     public void testUseHandleInUnion() {
-        Object returns = JvmRunUtil.invoke(result, "testUseHandleInUnion");
+        Object returns = BRunUtil.invoke(result, "testUseHandleInUnion");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "John");
     }
 
     @Test
     public void testThrowJavaException() {
-        Object returns = JvmRunUtil.invokeAndGetJVMResult(result, "testThrowJavaException2");
+        Object returns = BRunUtil.invokeAndGetJVMResult(result, "testThrowJavaException2");
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
@@ -341,22 +341,22 @@ public class RefTypeTests {
 
     @Test
     public void testDifferentRefTypesForIntersectionEffectiveType() {
-        JvmRunUtil.invoke(result, "testDifferentRefTypesForIntersectionEffectiveType");
+        BRunUtil.invoke(result, "testDifferentRefTypesForIntersectionEffectiveType");
     }
 
     @Test
     public void testUsingIntersectionEffectiveType() {
-        JvmRunUtil.invoke(result, "testUsingIntersectionEffectiveType");
+        BRunUtil.invoke(result, "testUsingIntersectionEffectiveType");
     }
 
     @Test
     public void testReadOnlyAsParamAndReturnTypes() {
-        JvmRunUtil.invoke(result, "testReadOnlyAsParamAndReturnTypes");
+        BRunUtil.invoke(result, "testReadOnlyAsParamAndReturnTypes");
     }
 
     @Test
     public void testNarrowerTypesAsReadOnlyReturnTypes() {
-        JvmRunUtil.invoke(result, "testNarrowerTypesAsReadOnlyReturnTypes");
+        BRunUtil.invoke(result, "testNarrowerTypesAsReadOnlyReturnTypes");
     }
 
     // static methods

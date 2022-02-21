@@ -20,7 +20,7 @@ package org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpatter
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,152 +49,152 @@ public class ListBindingPatternTest {
 
     @Test
     public void testListBindingPattern1() {
-        JvmRunUtil.invoke(result, "testListBindingPattern1");
+        BRunUtil.invoke(result, "testListBindingPattern1");
     }
 
     @Test
     public void testListBindingPattern2() {
-        JvmRunUtil.invoke(result, "testListBindingPattern2");
+        BRunUtil.invoke(result, "testListBindingPattern2");
     }
 
     @Test
     public void testListBindingPattern3() {
-        JvmRunUtil.invoke(result, "testListBindingPattern3");
+        BRunUtil.invoke(result, "testListBindingPattern3");
     }
 
     @Test
     public void testListBindingPattern4() {
-        JvmRunUtil.invoke(result, "testListBindingPattern4");
+        BRunUtil.invoke(result, "testListBindingPattern4");
     }
 
     @Test
     public void testListBindingPattern5() {
-        JvmRunUtil.invoke(result, "testListBindingPattern5");
+        BRunUtil.invoke(result, "testListBindingPattern5");
     }
 
     @Test
     public void testListBindingPattern6() {
-        JvmRunUtil.invoke(result, "testListBindingPattern6");
+        BRunUtil.invoke(result, "testListBindingPattern6");
     }
 
     @Test
     public void testListBindingPattern7() {
-        JvmRunUtil.invoke(result, "testListBindingPattern7");
+        BRunUtil.invoke(result, "testListBindingPattern7");
     }
 
     @Test
     public void testListBindingPattern8() {
-        JvmRunUtil.invoke(result, "testListBindingPattern8");
+        BRunUtil.invoke(result, "testListBindingPattern8");
     }
 
     @Test
     public void testListBindingPattern9() {
-        JvmRunUtil.invoke(result, "testListBindingPattern9");
+        BRunUtil.invoke(result, "testListBindingPattern9");
     }
 
     @Test
     public void testListBindingPattern10() {
-        JvmRunUtil.invoke(result, "testListBindingPattern10");
+        BRunUtil.invoke(result, "testListBindingPattern10");
     }
 
     @Test
     public void testListBindingPattern11() {
-        JvmRunUtil.invoke(result, "testListBindingPattern11");
+        BRunUtil.invoke(result, "testListBindingPattern11");
     }
 
     @Test
     public void testListBindingPattern12() {
-        JvmRunUtil.invoke(result, "testListBindingPattern12");
+        BRunUtil.invoke(result, "testListBindingPattern12");
     }
 
     @Test
     public void testListBindingPattern13() {
-        JvmRunUtil.invoke(result, "testListBindingPattern13");
+        BRunUtil.invoke(result, "testListBindingPattern13");
     }
 
     @Test
     public void testListBindingPattern14() {
-        JvmRunUtil.invoke(result, "testListBindingPattern14");
+        BRunUtil.invoke(result, "testListBindingPattern14");
     }
 
     @Test
     public void testListBindingPattern15() {
-        JvmRunUtil.invoke(result, "testListBindingPattern15");
+        BRunUtil.invoke(result, "testListBindingPattern15");
     }
 
     @Test
     public void testListBindingPattern16() {
-        JvmRunUtil.invoke(result, "testListBindingPattern16");
+        BRunUtil.invoke(result, "testListBindingPattern16");
     }
 
     @Test
     public void testListBindingPattern17() {
-        JvmRunUtil.invoke(result, "testListBindingPattern17");
+        BRunUtil.invoke(result, "testListBindingPattern17");
     }
 
     @Test
     public void testListBindingPattern18() {
-        JvmRunUtil.invoke(result, "testListBindingPattern18");
+        BRunUtil.invoke(result, "testListBindingPattern18");
     }
 
     @Test
     public void testListBindingPattern19() {
-        JvmRunUtil.invoke(result, "testListBindingPattern19");
+        BRunUtil.invoke(result, "testListBindingPattern19");
     }
 
     @Test
     public void testListBindingPattern20() {
-        JvmRunUtil.invoke(result, "testListBindingPattern20");
+        BRunUtil.invoke(result, "testListBindingPattern20");
     }
 
     @Test
     public void testListBindingPattern21() {
-        JvmRunUtil.invoke(result, "testListBindingPattern21");
+        BRunUtil.invoke(result, "testListBindingPattern21");
     }
 
     @Test
     public void testListBindingPattern22() {
-        JvmRunUtil.invoke(result, "testListBindingPattern22");
+        BRunUtil.invoke(result, "testListBindingPattern22");
     }
 
     @Test
     public void testRestBindingPattern1() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest1");
+        BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest1");
     }
 
     @Test
     public void testRestBindingPattern2() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest2");
+        BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest2");
     }
 
     @Test
     public void testRestBindingPattern3() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest3");
+        BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest3");
     }
 
     @Test
     public void testRestBindingPattern4() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest4");
+        BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest4");
     }
 
     @Test
     public void testRestBindingPattern5() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest5");
+        BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest5");
     }
 
     @Test
     public void testRestBindingPattern6() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest6");
+        BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest6");
     }
 
     @Test
     public void testRestBindingPatternWithClosedArray() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testRestBindingPatternWithClosedArray");
+        BRunUtil.invoke(restMatchPatternResult, "testRestBindingPatternWithClosedArray");
     }
 
     @Test
     public void testRestBindingPattern8() {
-        JvmRunUtil.invoke(restMatchPatternResult, "testRestBindingPattern8");
+        BRunUtil.invoke(restMatchPatternResult, "testRestBindingPattern8");
     }
 
     @Test

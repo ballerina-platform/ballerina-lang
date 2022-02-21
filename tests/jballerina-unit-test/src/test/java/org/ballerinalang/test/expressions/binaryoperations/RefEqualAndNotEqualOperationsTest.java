@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -48,7 +48,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "equalBooleanValues")
     public void testBooleanRefEqualityPositive(boolean i, boolean j) {
         Object[] args = {(i), (j)};
-        Object returns = JvmRunUtil.invoke(result, "testBooleanRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testBooleanRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected booleans to be identified as reference equal");
@@ -57,7 +57,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "unequalBooleanValues")
     public void testBooleanRefEqualityNegative(boolean i, boolean j) {
         Object[] args = {(i), (j)};
-        Object returns = JvmRunUtil.invoke(result, "testBooleanRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testBooleanRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected booleans to be identified as not reference equal");
@@ -66,7 +66,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "equalIntValues")
     public void testIntRefEqualityPositive(int i, int j) {
         Object[] args = {(i), (j)};
-        Object returns = JvmRunUtil.invoke(result, "testIntRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testIntRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns, "Expected ints to be identified as reference equal");
     }
@@ -74,7 +74,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "unequalIntValues")
     public void testIntRefEqualityNegative(int i, int j) {
         Object[] args = {(i), (j)};
-        Object returns = JvmRunUtil.invoke(result, "testIntRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testIntRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected ints to be identified as not reference equal");
@@ -83,7 +83,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "equalByteValues")
     public void testByteRefEqualityPositive(int i, int j) {
         Object[] args = {(i), (i)};
-        Object returns = JvmRunUtil.invoke(result, "testByteRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected bytes to be identified as reference equal");
@@ -92,7 +92,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "unequalByteValues")
     public void testByteRefEqualityNegative(int i, int j) {
         Object[] args = {(i), (j)};
-        Object returns = JvmRunUtil.invoke(result, "testByteRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testByteRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected bytes to be identified as not reference equal");
@@ -101,7 +101,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "equalFloatValues")
     public void testFloatRefEqualityPositive(double i, double j) {
         Object[] args = {(i), (j)};
-        Object returns = JvmRunUtil.invoke(result, "testFloatRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testFloatRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected floats to be identified as reference equal");
@@ -110,7 +110,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "unequalFloatValues")
     public void testFloatRefEqualityNegative(double i, double j) {
         Object[] args = {(i), (j)};
-        Object returns = JvmRunUtil.invoke(result, "testFloatRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testFloatRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected floats to be identified as not reference equal");
@@ -120,7 +120,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "equalStringValues")
     public void testStringRefEqualityPositive(String i, String j) {
         Object[] args = {StringUtils.fromString(i), StringUtils.fromString(j)};
-        Object returns = JvmRunUtil.invoke(result, "testStringRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testStringRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected strings to be identified as reference equal");
@@ -129,7 +129,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "unequalStringValues")
     public void testStringRefEqualityNegative(String i, String j) {
         Object[] args = {StringUtils.fromString(i), StringUtils.fromString(j)};
-        Object returns = JvmRunUtil.invoke(result, "testStringRefEquality", args);
+        Object returns = BRunUtil.invoke(result, "testStringRefEquality", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected strings to be identified as not reference equal");
@@ -138,7 +138,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test
     public void testRefEqualityToNilPositive() {
         Object[] args = {null};
-        Object returns = JvmRunUtil.invoke(result, "testRefEqualityToNil", args);
+        Object returns = BRunUtil.invoke(result, "testRefEqualityToNil", args);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected nil values to be identified as reference equal");
@@ -146,7 +146,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test(dataProvider = "nonNilObjects")
     public void testRefEqualityToNilNegative(Object b) {
-        Object returns = JvmRunUtil.invoke(result, "testRefEqualityToNil", new Object[]{b});
+        Object returns = BRunUtil.invoke(result, "testRefEqualityToNil", new Object[]{b});
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected value to be identified as not reference equal to nil");
@@ -154,7 +154,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testOpenRecordsRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testOpenRecordRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testOpenRecordRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected open records to be identified as reference equal");
@@ -162,7 +162,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testOpenRecordsRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testOpenRecordRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testOpenRecordRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                           "Expected open records to be identified as not reference equal");
@@ -170,7 +170,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testClosedRecordRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testClosedRecordRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testClosedRecordRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected closed records to be identified as reference equal");
@@ -178,7 +178,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testClosedRecordRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testClosedRecordRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testClosedRecordRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected closed records to be identified as not reference equal");
@@ -186,7 +186,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testArrayRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testArrayRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testArrayRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected array values to be identified as reference equal");
@@ -194,7 +194,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testArrayRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testArrayRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testArrayRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected array values to be identified as not reference equal");
@@ -202,7 +202,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void checkMapRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "checkMapRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "checkMapRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected map values to be identified as reference equal");
@@ -210,7 +210,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void checkMapRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "checkMapRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "checkMapRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected map values to be identified as not reference equal");
@@ -218,7 +218,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void checkTupleRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "checkTupleRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "checkTupleRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected tuple values to be identified as reference equal");
@@ -226,7 +226,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void checkTupleRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "checkTupleRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "checkTupleRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected tuple values to be identified as not reference equal");
@@ -234,7 +234,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void checkJsonRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "checkJsonRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "checkJsonRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected json values to be identified as reference equal");
@@ -242,7 +242,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void checkJsonRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "checkJsonRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "checkJsonRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected json values to be identified as not reference equal");
@@ -250,7 +250,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testIntByteRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testIntByteRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testIntByteRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected int and byte values to be identified as reference equal");
@@ -258,7 +258,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testIntByteEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testIntByteEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testIntByteEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected int and byte values to be identified as not reference equal");
@@ -266,7 +266,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testXmlRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testXmlRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testXmlRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected xml values to be identified as reference equal");
@@ -274,7 +274,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testXmlRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testXmlRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testXmlRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected xml values to be identified as not reference equal");
@@ -282,7 +282,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testObjectRefEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testObjectRefEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testObjectRefEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected objects to be identified as reference equal");
@@ -290,7 +290,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testObjectRefEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testObjectRefEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testObjectRefEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected objects to be identified as not reference equal");
@@ -298,7 +298,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testValueTypeAndRefTypeEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected values to be identified as reference equal");
@@ -306,7 +306,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testValueTypeAndRefTypeEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testValueTypeAndRefTypeEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected values to be identified as not reference equal");
@@ -314,7 +314,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testValueTypesAsRefTypesEqualityPositive() {
-        Object returns = JvmRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityPositive", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityPositive", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertTrue((Boolean) returns,
                           "Expected values to be identified as reference equal");
@@ -322,7 +322,7 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testValueTypesAsRefTypesEqualityNegative() {
-        Object returns = JvmRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityNegative", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "testValueTypesAsRefTypesEqualityNegative", new Object[0]);
         Assert.assertSame(returns.getClass(), Boolean.class);
         Assert.assertFalse((Boolean) returns,
                            "Expected values to be identified as not reference equal");
@@ -330,17 +330,17 @@ public class RefEqualAndNotEqualOperationsTest {
 
     @Test
     public void testTupleJSONRefEquality() {
-        JvmRunUtil.invoke(result, "testTupleJSONRefEquality");
+        BRunUtil.invoke(result, "testTupleJSONRefEquality");
     }
 
     @Test
     public void testIntersectingUnionRefEquality() {
-        JvmRunUtil.invoke(result, "testIntersectingUnionRefEquality");
+        BRunUtil.invoke(result, "testIntersectingUnionRefEquality");
     }
 
     @Test(dataProvider = "functionsWithXmlExactEqualityChecks")
     public void testXmlExactEquality(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider

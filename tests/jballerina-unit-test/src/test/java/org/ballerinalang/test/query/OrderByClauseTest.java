@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expression with order by")
     public void testQueryExprWithOrderByClause() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClause");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClause");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -59,7 +59,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expression with order by")
     public void testQueryExprWithOrderByClause2() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClause2");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClause2");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -67,7 +67,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expression with order by and other clauses")
     public void testQueryExprWithOrderByClause3() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testQueryExprWithOrderByClause3");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testQueryExprWithOrderByClause3");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 4, "Expected events are not received");
@@ -89,7 +89,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expr with order by clause returning a table")
     public void testQueryExprWithOrderByClauseReturnTable() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnTable");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnTable");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -97,7 +97,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expr with order by clause returning a stream")
     public void testQueryExprWithOrderByClauseReturnStream() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnStream");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -105,7 +105,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expression having join with order by")
     public void testQueryExprWithOrderByClauseAndJoin() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseAndJoin");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testQueryExprWithOrderByClauseAndJoin");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 4, "Expected events are not received");
@@ -127,7 +127,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expr with order by clause with user defined function in order-key")
     public void testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseHavingUser" +
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseHavingUser" +
                 "DefinedOrderKeyFunction");
         Assert.assertNotNull(returnValues);
 
@@ -136,7 +136,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expr with order by clause with user defined function in order-key")
     public void testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction2() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseHavingUser" +
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseHavingUser" +
                 "DefinedOrderKeyFunction2");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
@@ -144,7 +144,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expression with join, order by and user defined order-key function")
     public void testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result,
+        BArray returnValues = (BArray) BRunUtil.invoke(result,
                 "testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3");
         Assert.assertNotNull(returnValues);
 
@@ -167,7 +167,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expression with order by clause and inner query")
     public void testQueryExprWithOrderByClauseAndInnerQueries() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result,
+        BArray returnValues = (BArray) BRunUtil.invoke(result,
                 "testQueryExprWithOrderByClauseAndInnerQueries");
         Assert.assertNotNull(returnValues);
 
@@ -190,7 +190,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expression with order by clause and inner query")
     public void testQueryExprWithOrderByClauseAndInnerQueries2() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result,
+        BArray returnValues = (BArray) BRunUtil.invoke(result,
                 "testQueryExprWithOrderByClauseAndInnerQueries2");
         Assert.assertNotNull(returnValues);
 
@@ -209,7 +209,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expr with order by clause with NaN and Nil values in order-key")
     public void testQueryExprWithOrderByClauseHavingNaNNilValues() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseHavingNaNNilValues");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseHavingNaNNilValues");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -217,7 +217,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expr with order by clause return string")
     public void testQueryExprWithOrderByClauseReturnString() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnString");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnString");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(), "Melina Kodel,Meghan Markle,Amy Melina,");
@@ -225,7 +225,7 @@ public class OrderByClauseTest {
 
     @Test(description = "Test query expr with order by clause return XML")
     public void testQueryExprWithOrderByClauseReturnXML() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnXML");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnXML");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.toString(),

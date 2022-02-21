@@ -19,7 +19,7 @@ package org.ballerinalang.test.expressions.typeof;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -41,7 +41,7 @@ public class TypeofOverLiteralExpressionTest {
 
     @Test (dataProvider = "function-provider")
     public void testTypeOfExpression(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider(name = "function-provider")

@@ -20,7 +20,7 @@ package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class TupleTypeBalaTest {
 
     @Test(dataProvider = "tupleTypeTests")
     public void testTupleType(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "tupleTypeTests")

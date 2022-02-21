@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,13 +47,13 @@ public class VarMutabilityWithWorkersTest {
 
     @Test(description = "Test variable mutability with basic types")
     public void basicWorkerTest() {
-        Object returns = JvmRunUtil.invoke(compileResult, "basicWorkerTest", new Object[0]);
+        Object returns = BRunUtil.invoke(compileResult, "basicWorkerTest", new Object[0]);
         Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test variable mutability with tuples")
     public void testWithTuples() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testWithTuples", new Object[0]);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testWithTuples", new Object[0]);
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0).toString().contains("Changed inside worker 1!!!"));
         Assert.assertTrue(returns.get(0).toString().contains("Changed inside worker 2!!!"));
@@ -62,7 +62,7 @@ public class VarMutabilityWithWorkersTest {
 
     @Test(description = "Test variable mutability with maps")
     public void testWithMaps() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testWithMaps");
+        Object returns = BRunUtil.invoke(compileResult, "testWithMaps");
         BMap resMap = (BMap) returns;
         Assert.assertEquals(resMap.size(), 7);
         Assert.assertEquals(resMap.get(StringUtils.fromString("a")).toString(), "AAAA");
@@ -76,7 +76,7 @@ public class VarMutabilityWithWorkersTest {
 
     @Test(description = "Test variable mutability with complex workers")
     public void complexWorkerTest() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "complexWorkerTest");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "complexWorkerTest");
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0), 400L);
 
@@ -92,7 +92,7 @@ public class VarMutabilityWithWorkersTest {
 
     @Test(description = "Test variable mutability with records")
     public void testWithRecords() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testWithRecords");
+        Object returns = BRunUtil.invoke(compileResult, "testWithRecords");
         Assert.assertEquals(((BMap) returns).size(), 3);
         Assert.assertEquals(returns.toString(),
                 "{\"name\":\"Adam Page\",\"age\":24,\"email\":\"adamp@wso2.com\"}");
@@ -100,7 +100,7 @@ public class VarMutabilityWithWorkersTest {
 
     @Test(description = "Test variable mutability with objects")
     public void testWithObjects() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testWithObjects");
+        Object returns = BRunUtil.invoke(compileResult, "testWithObjects");
         Assert.assertEquals(returns.toString(), "{age:40, name:Adam, fullName:Adam Adam Page}");
     }
 

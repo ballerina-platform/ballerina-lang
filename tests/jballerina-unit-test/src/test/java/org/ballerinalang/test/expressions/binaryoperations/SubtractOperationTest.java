@@ -20,7 +20,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -44,7 +44,7 @@ public class SubtractOperationTest {
     public void testIntAddExpr() {
         Object[] args = { (1234567891011L), (9876543211110L)};
 
-        Object returns = JvmRunUtil.invoke(result, "intSubtract", args);
+        Object returns = BRunUtil.invoke(result, "intSubtract", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actual = (long) returns;
         long expected = -8641975320099L;
@@ -55,14 +55,14 @@ public class SubtractOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowBySubtraction() {
-        JvmRunUtil.invoke(result, "overflowBySubtraction");
+        BRunUtil.invoke(result, "overflowBySubtraction");
     }
 
     @Test(description = "Test two float subtract expression")
     public void testFloatAddExpr() {
         Object[] args = { (100.0f), (200.0f)};
 
-        Object returns = JvmRunUtil.invoke(result, "floatSubtract", args);
+        Object returns = BRunUtil.invoke(result, "floatSubtract", args);
         Assert.assertSame(returns.getClass(), Double.class);
         double actual = (double) returns;
         double expected = -100.0f;
@@ -77,7 +77,7 @@ public class SubtractOperationTest {
         Object[] args = {(a), (b)};
         // Subtract
         long expectedResult = a - b;
-        Object returns = JvmRunUtil.invoke(result, "intSubtract", args);
+        Object returns = BRunUtil.invoke(result, "intSubtract", args);
         Assert.assertSame(returns.getClass(), Long.class);
         long actualResult = (long) returns;
         Assert.assertEquals(actualResult, expectedResult);
@@ -85,7 +85,7 @@ public class SubtractOperationTest {
 
     @Test(dataProvider = "dataToTestSubtractionWithTypes", description = "Test subtraction with types")
     public void testSubtractionWithTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
@@ -98,7 +98,7 @@ public class SubtractOperationTest {
 
     @Test(description = "Test contextually expected type of numeric literals in subtraction")
     public void testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
-        JvmRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
+        BRunUtil.invoke(result, "testContextuallyExpectedTypeOfNumericLiteralInSubtract");
     }
 
     @Test(description = "Test subtract statement with errors")
@@ -121,6 +121,6 @@ public class SubtractOperationTest {
 
     @Test(description = "Test subtraction of nullable values")
     public void testSubNullable() {
-        JvmRunUtil.invoke(result, "testSubNullable");
+        BRunUtil.invoke(result, "testSubNullable");
     }
 }

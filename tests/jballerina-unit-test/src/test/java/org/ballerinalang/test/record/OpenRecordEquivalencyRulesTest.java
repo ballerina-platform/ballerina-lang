@@ -21,7 +21,7 @@ package org.ballerinalang.test.record;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -71,13 +71,13 @@ public class OpenRecordEquivalencyRulesTest {
 
     @Test(description = "Test assigning a closed record to an open record type variable")
     public void testCRToORClosedToOpenAssignment1() {
-        Object returns = JvmRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment1");
+        Object returns = BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment1");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS closed and LHS open with RHS field types which are assignable to LHS field types")
     public void testCRToORClosedToOpenAssignment2() {
-        Object returns = JvmRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment2");
+        Object returns = BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment2");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
@@ -86,18 +86,18 @@ public class OpenRecordEquivalencyRulesTest {
             expectedExceptionsMessageRegExp = ".*invalid field access: field 'rest' not found in record type " +
                     "'Person1'.*")
     public void testCRToORClosedToOpenAssignment3() {
-        JvmRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment3");
+        BRunUtil.invoke(closedRecToOpenRec, "testClosedToOpenAssignment3");
     }
 
     @Test(description = "RHS closed and LHS open with RHS required fields corresponding to LHS optional fields")
     public void testCRToORReqFieldToOptField() {
-        Object returns = JvmRunUtil.invoke(closedRecToOpenRec, "testReqFieldToOptField");
+        Object returns = BRunUtil.invoke(closedRecToOpenRec, "testReqFieldToOptField");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS closed and LHS open with RHS optional fields corresponding to LHS optional fields")
     public void testCRToOROptFieldToOptField1() {
-        Object returns = JvmRunUtil.invoke(closedRecToOpenRec, "testOptFieldToOptField1");
+        Object returns = BRunUtil.invoke(closedRecToOpenRec, "testOptFieldToOptField1");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
@@ -105,38 +105,38 @@ public class OpenRecordEquivalencyRulesTest {
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
     public void testCRToOROptFieldToOptField2() {
-        JvmRunUtil.invoke(closedRecToOpenRec, "testOptFieldToOptField2");
+        BRunUtil.invoke(closedRecToOpenRec, "testOptFieldToOptField2");
     }
 
     @Test(description = "RHS closed and LHS open with RHS having additional fields which are assignable to the rest " +
             "field of the LHS type")
     public void testCRToORAdditionalFieldsToRest() {
-        Object returns = JvmRunUtil.invoke(closedRecToOpenRec, "testAdditionalFieldsToRest");
+        Object returns = BRunUtil.invoke(closedRecToOpenRec, "testAdditionalFieldsToRest");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25,\"address\":\"Colombo, Sri Lanka\"," +
                 "\"weight\":70.0}");
     }
 
     @Test(description = "Test assigning an open record to an open record type variable")
     public void testORToOROpenToOpenAssignment1() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testOpenToOpenAssignment1");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testOpenToOpenAssignment1");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS both open with RHS field types which are assignable to LHS field types")
     public void testORToOROpenToOpenAssignment2() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testOpenToOpenAssignment2");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testOpenToOpenAssignment2");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS both open with RHS required fields corresponding to LHS optional fields")
     public void testORToORReqFieldToOptField() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testReqFieldToOptField");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testReqFieldToOptField");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS both open with RHS optional fields corresponding to LHS optional fields")
     public void testORToOROptFieldToOptField1() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testOptFieldToOptField1");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testOptFieldToOptField1");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
@@ -144,20 +144,20 @@ public class OpenRecordEquivalencyRulesTest {
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
     public void testORToOROptFieldToOptField2() {
-        JvmRunUtil.invoke(openRecToOpenRec, "testOptFieldToOptField2");
+        BRunUtil.invoke(openRecToOpenRec, "testOptFieldToOptField2");
     }
 
     @Test(description = "RHS and LHS both open with RHS having additional fields which are assignable to the rest " +
             "field of the LHS type")
     public void testORToORAdditionalFieldsToRest() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testAdditionalFieldsToRest");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testAdditionalFieldsToRest");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25,\"address\":\"Colombo, Sri Lanka\"," +
                 "\"weight\":70.0}");
     }
 
     @Test(description = "Both open with RHS having a union rest field which a sub type of the LHS rest field type")
     public void testORToORRestFieldToRestField1() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testRestFieldToRestField1");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testRestFieldToRestField1");
         assertEquals(returns.toString(), "{\"s\":\"qwerty\",\"rest1\":\"asdf\",\"rest2\":123}");
     }
 
@@ -166,31 +166,31 @@ public class OpenRecordEquivalencyRulesTest {
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'rest3': expected value of type " +
                     "'\\(string\\|int\\)', found 'float'.*")
     public void testORToORRestFieldToRestField2() {
-        JvmRunUtil.invoke(openRecToOpenRec, "testRestFieldToRestField2");
+        BRunUtil.invoke(openRecToOpenRec, "testRestFieldToRestField2");
     }
 
     @Test(description = "Closed record to open record with RHS type being a public typedesc")
     public void testCRToORHeterogeneousTypedescEq() {
-        Object returns = JvmRunUtil.invoke(closedRecToOpenRec, "testHeterogeneousTypedescEq");
+        Object returns = BRunUtil.invoke(closedRecToOpenRec, "testHeterogeneousTypedescEq");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25,\"address\":\"Colombo, Sri Lanka\"}");
     }
 
     @Test(description = "Closed record to open record with LHS type being a public typedesc")
     public void testCRToORHeterogeneousTypedescEq2() {
-        Object returns = JvmRunUtil.invoke(closedRecToOpenRec, "testHeterogeneousTypedescEq2");
+        Object returns = BRunUtil.invoke(closedRecToOpenRec, "testHeterogeneousTypedescEq2");
         assertEquals(returns.toString(),
                 "{\"name\":\"John Doe\",\"age\":25,\"address\":\"Colombo, Sri Lanka\",\"weight\":70.0}");
     }
 
     @Test(description = "RHS and LHS open with RHS type being a public typedesc")
     public void testORToORHeterogeneousTypedescEq1() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testHeterogeneousTypedescEq3");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testHeterogeneousTypedescEq3");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25,\"address\":\"Colombo, Sri Lanka\"}");
     }
 
     @Test(description = "RHS and LHS open with LHS type being a public typedesc")
     public void testORToORHeterogeneousTypedescEq2() {
-        Object returns = JvmRunUtil.invoke(openRecToOpenRec, "testHeterogeneousTypedescEq4");
+        Object returns = BRunUtil.invoke(openRecToOpenRec, "testHeterogeneousTypedescEq4");
         assertEquals(returns.toString(),
                 "{\"name\":\"John Doe\",\"age\":25,\"address\":\"Colombo, Sri Lanka\"}");
     }

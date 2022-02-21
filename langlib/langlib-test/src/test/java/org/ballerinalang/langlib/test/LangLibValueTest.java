@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -78,7 +78,7 @@ public class LangLibValueTest {
     @Test
     public void testToJsonString() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "testToJsonString");
+        Object returns = BRunUtil.invoke(compileResult, "testToJsonString");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<BString, BString> arr = (BMap<BString, BString>) returns;
@@ -107,18 +107,18 @@ public class LangLibValueTest {
 
     @Test
     public void testToJsonForNonJsonTypes() {
-        JvmRunUtil.invoke(compileResult, "testToJsonStringForNonJsonTypes");
+        BRunUtil.invoke(compileResult, "testToJsonStringForNonJsonTypes");
     }
 
     @Test
     public void testToStringOnCycles() {
-        JvmRunUtil.invoke(compileResult, "testToStringOnCycles");
+        BRunUtil.invoke(compileResult, "testToStringOnCycles");
     }
 
     @Test
     public void testFromJsonString() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "testFromJsonString");
+        Object returns = BRunUtil.invoke(compileResult, "testFromJsonString");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<BString, Object> arr = (BMap<BString, Object>) returns;
@@ -140,13 +140,13 @@ public class LangLibValueTest {
 
     @Test
     public void testFromJsonStringNegative() {
-        JvmRunUtil.invoke(compileResult, "testFromJsonStringNegative");
+        BRunUtil.invoke(compileResult, "testFromJsonStringNegative");
     }
 
     @Test
     public void testFromJsonFloatString() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "testFromJsonFloatString");
+        Object returns = BRunUtil.invoke(compileResult, "testFromJsonFloatString");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<BString, Object> arr = (BMap<BString, Object>) returns;
@@ -169,7 +169,7 @@ public class LangLibValueTest {
     @Test
     public void testFromJsonDecimalString() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "testFromJsonDecimalString");
+        Object returns = BRunUtil.invoke(compileResult, "testFromJsonDecimalString");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap<BString, Object> arr = (BMap<BString, Object>) returns;
@@ -191,9 +191,9 @@ public class LangLibValueTest {
 
     @Test
     public void testToString() {
-        JvmRunUtil.invoke(compileResult, "testToStringMethod");
+        BRunUtil.invoke(compileResult, "testToStringMethod");
 
-        Object returns = JvmRunUtil.invoke(compileResult, "testToString");
+        Object returns = BRunUtil.invoke(compileResult, "testToString");
         BArray array = (BArray) returns;
         int i = 0;
         Assert.assertEquals(array.getString(i++), "6");
@@ -241,69 +241,69 @@ public class LangLibValueTest {
 
     @Test
     public void testToStringOnSubTypes() {
-        JvmRunUtil.invoke(compileResult, "testToStringOnSubTypes");
+        BRunUtil.invoke(compileResult, "testToStringOnSubTypes");
     }
 
     @Test
     public void testToStringOnFiniteTypes() {
-        JvmRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
+        BRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
     }
 
     @Test
     public void testXMLToStringWithXMLTextContainingAngleBrackets() {
-        JvmRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
+        BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
     }
 
     @Test
     public void testToStringForTable() {
-        JvmRunUtil.invoke(compileResult, "testToStringMethodForTable");
+        BRunUtil.invoke(compileResult, "testToStringMethodForTable");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")
     public void testMergeJson(String function) {
-        Object returns = JvmRunUtil.invoke(compileResult, function);
+        Object returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void xmlSequenceFragmentToString() {
-        Object returns = JvmRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
+        Object returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
         Assert.assertEquals((returns).toString(), "<def>DEF</def><ghi>1</ghi>");
     }
 
     @Test
     public void testToBalStringMethod() {
         CompileResult testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
-        JvmRunUtil.invoke(testFile, "testIntValueToBalString");
-        JvmRunUtil.invoke(testFile, "testStringValueToBalString");
-        JvmRunUtil.invoke(testFile, "testFloatingPointNumbersToBalString");
-        JvmRunUtil.invoke(testFile, "testAnyAnydataNilToBalString");
-        JvmRunUtil.invoke(testFile, "testTableToBalString");
-        JvmRunUtil.invoke(testFile, "testErrorToBalString");
-        JvmRunUtil.invoke(testFile, "testArrayToBalString");
-        JvmRunUtil.invoke(testFile, "testTupleToBalString");
-        JvmRunUtil.invoke(testFile, "testJsonToBalString");
-        JvmRunUtil.invoke(testFile, "testXmlToBalString");
-        JvmRunUtil.invoke(testFile, "testObjectToBalString");
-        JvmRunUtil.invoke(testFile, "testToBalStringOnCycles");
+        BRunUtil.invoke(testFile, "testIntValueToBalString");
+        BRunUtil.invoke(testFile, "testStringValueToBalString");
+        BRunUtil.invoke(testFile, "testFloatingPointNumbersToBalString");
+        BRunUtil.invoke(testFile, "testAnyAnydataNilToBalString");
+        BRunUtil.invoke(testFile, "testTableToBalString");
+        BRunUtil.invoke(testFile, "testErrorToBalString");
+        BRunUtil.invoke(testFile, "testArrayToBalString");
+        BRunUtil.invoke(testFile, "testTupleToBalString");
+        BRunUtil.invoke(testFile, "testJsonToBalString");
+        BRunUtil.invoke(testFile, "testXmlToBalString");
+        BRunUtil.invoke(testFile, "testObjectToBalString");
+        BRunUtil.invoke(testFile, "testToBalStringOnCycles");
     }
 
     @Test
     public void testFromBalString() {
         CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
-        JvmRunUtil.invoke(file, "testIntValueFromBalString");
-        JvmRunUtil.invoke(file, "testStringValueFromBalString");
-        JvmRunUtil.invoke(file, "testFloatingPointNumbersFromBalString");
-        JvmRunUtil.invoke(file, "testAnydataNilFromBalString");
-        JvmRunUtil.invoke(file, "testMapFromBalString");
-        JvmRunUtil.invoke(file, "testTableFromBalString");
-        JvmRunUtil.invoke(file, "testArrayFromBalString");
-        JvmRunUtil.invoke(file, "testTupleFromBalString");
-        JvmRunUtil.invoke(file, "testJsonFromBalString");
-        JvmRunUtil.invoke(file, "testXmlFromBalString");
-        JvmRunUtil.invoke(file, "testObjectFromString");
-        JvmRunUtil.invoke(file, "testFromBalStringOnCycles");
-        JvmRunUtil.invoke(file, "testFromBalStringNegative");
+        BRunUtil.invoke(file, "testIntValueFromBalString");
+        BRunUtil.invoke(file, "testStringValueFromBalString");
+        BRunUtil.invoke(file, "testFloatingPointNumbersFromBalString");
+        BRunUtil.invoke(file, "testAnydataNilFromBalString");
+        BRunUtil.invoke(file, "testMapFromBalString");
+        BRunUtil.invoke(file, "testTableFromBalString");
+        BRunUtil.invoke(file, "testArrayFromBalString");
+        BRunUtil.invoke(file, "testTupleFromBalString");
+        BRunUtil.invoke(file, "testJsonFromBalString");
+        BRunUtil.invoke(file, "testXmlFromBalString");
+        BRunUtil.invoke(file, "testObjectFromString");
+        BRunUtil.invoke(file, "testFromBalStringOnCycles");
+        BRunUtil.invoke(file, "testFromBalStringNegative");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
@@ -324,7 +324,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "cloneWithTypeFunctions")
     public void testCloneWithType(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "cloneWithTypeFunctions")
@@ -353,7 +353,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "cloneWithTypeToTupleTypeFunctions")
     public void testCloneWithTypeToTuple(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "cloneWithTypeToTupleTypeFunctions")
@@ -378,18 +378,18 @@ public class LangLibValueTest {
     @Test(dataProvider = "fromJsonWithTypeFunctions")
     public void testFromJsonWithType(String function) {
         file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
-        JvmRunUtil.invoke(file, function);
+        BRunUtil.invoke(file, function);
     }
 
     @Test
     public void testAssigningCloneableToAnyOrError() {
-        JvmRunUtil.invoke(compileResult, "testAssigningCloneableToAnyOrError");
-        JvmRunUtil.invoke(compileResult, "testUsingCloneableReturnType");
+        BRunUtil.invoke(compileResult, "testAssigningCloneableToAnyOrError");
+        BRunUtil.invoke(compileResult, "testUsingCloneableReturnType");
     }
 
     @Test
     public void testDestructuredNamedArgs() {
-        JvmRunUtil.invoke(compileResult, "testDestructuredNamedArgs");
+        BRunUtil.invoke(compileResult, "testDestructuredNamedArgs");
     }
 
     @DataProvider(name = "fromJsonWithTypeFunctions")
@@ -421,7 +421,7 @@ public class LangLibValueTest {
     @Test(dataProvider = "fromJsonStringWithTypeFunctions")
     public void testFromJsonStringWithType(String function) {
         file = BCompileUtil.compile("test-src/valuelib_fromJson_test.bal");
-        JvmRunUtil.invoke(file, function);
+        BRunUtil.invoke(file, function);
     }
 
     @DataProvider(name = "fromJsonStringWithTypeFunctions")
@@ -440,7 +440,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "toJsonFunctions")
     public void testToJson(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "toJsonFunctions")
@@ -464,7 +464,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "ensureTypeFunctions")
     public void testEnsureType(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "ensureTypeFunctions")
@@ -477,7 +477,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "ensureTypeNegativeFunctions")
     public void testEnsureTypeNegative(String function) {
-        JvmRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "ensureTypeNegativeFunctions")
@@ -490,8 +490,8 @@ public class LangLibValueTest {
 
     @Test
     public void testDecimalToString() {
-        BRunUtil.invokeFunction(compileResult, "testDecimalZeroToString");
-        BRunUtil.invokeFunction(compileResult, "testDecimalNonZeroToString");
+        BRunUtil.invoke(compileResult, "testDecimalZeroToString");
+        BRunUtil.invoke(compileResult, "testDecimalNonZeroToString");
     }
 
     @AfterClass

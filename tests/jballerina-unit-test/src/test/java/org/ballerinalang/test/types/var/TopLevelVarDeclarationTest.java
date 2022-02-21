@@ -21,7 +21,7 @@ package org.ballerinalang.test.types.var;
 import io.ballerina.runtime.api.values.BDecimal;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,49 +43,49 @@ public class TopLevelVarDeclarationTest {
 
     @Test
     public void testGetInt() {
-        Object returns = JvmRunUtil.invoke(result, "testGetInt");
+        Object returns = BRunUtil.invoke(result, "testGetInt");
         Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testGetString() {
-        Object returns = JvmRunUtil.invoke(result, "testGetString");
+        Object returns = BRunUtil.invoke(result, "testGetString");
         Assert.assertEquals((returns).toString(), "Ballerina");
     }
 
     @Test
     public void testGetDecimal() {
-        BDecimal returns = (BDecimal) JvmRunUtil.invoke(result, "testGetDecimal");
+        BDecimal returns = (BDecimal) BRunUtil.invoke(result, "testGetDecimal");
         Assert.assertEquals(returns.value().compareTo(new BigDecimal(100.0)), 0);
     }
 
     @Test
     public void testGetBoolean() {
-        Object returns = JvmRunUtil.invoke(result, "testGetBoolean");
+        Object returns = BRunUtil.invoke(result, "testGetBoolean");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testGetByte() {
-        Object returns = JvmRunUtil.invoke(result, "testGetByte");
+        Object returns = BRunUtil.invoke(result, "testGetByte");
         Assert.assertEquals(returns, 2);
     }
 
     @Test
     public void testGetFloat() {
-        Object returns = JvmRunUtil.invoke(result, "testGetFloat");
+        Object returns = BRunUtil.invoke(result, "testGetFloat");
         Assert.assertEquals(returns, 2.0);
     }
 
     @Test
     public void testFunctionInvocation() {
-        Object returns = JvmRunUtil.invoke(result, "testFunctionInvocation");
+        Object returns = BRunUtil.invoke(result, "testFunctionInvocation");
         Assert.assertEquals(returns.toString(), "{\"k\":\"v\"}");
     }
 
     @Test
     public void testVarAssign() {
-        Object returns = JvmRunUtil.invoke(result, "testVarAssign");
+        Object returns = BRunUtil.invoke(result, "testVarAssign");
         Assert.assertEquals(returns.toString(), "{\"x\":\"y\"}");
     }
 

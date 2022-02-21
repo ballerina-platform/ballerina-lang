@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -114,40 +114,40 @@ public class XMLIterationTest {
 
     @Test
     public void testXMLForeach() {
-        JvmRunUtil.invoke(result, "foreachTest");
+        BRunUtil.invoke(result, "foreachTest");
     }
 
     @Test
     public void testXMLForeachOp() {
-        JvmRunUtil.invoke(result, "foreachOpTest");
+        BRunUtil.invoke(result, "foreachOpTest");
     }
 
     @Test
     public void testXMLTypesForeachOp() {
-        JvmRunUtil.invoke(result, "testXmlElementSequenceIteration");
-        JvmRunUtil.invoke(result, "testXmlTextSequenceIteration");
-        JvmRunUtil.invoke(result, "testXmlCommentSequenceIteration");
-        JvmRunUtil.invoke(result, "testXmlPISequenceIteration");
-        JvmRunUtil.invoke(result, "testXmlUnionSequenceIteration");
-        JvmRunUtil.invoke(result, "testXmlSequenceIteration");
-        JvmRunUtil.invoke(result, "xmlTypeParamCommentIter");
-        JvmRunUtil.invoke(result, "xmlTypeParamElementIter");
-        JvmRunUtil.invoke(result, "xmlTypeParamPIIter");
+        BRunUtil.invoke(result, "testXmlElementSequenceIteration");
+        BRunUtil.invoke(result, "testXmlTextSequenceIteration");
+        BRunUtil.invoke(result, "testXmlCommentSequenceIteration");
+        BRunUtil.invoke(result, "testXmlPISequenceIteration");
+        BRunUtil.invoke(result, "testXmlUnionSequenceIteration");
+        BRunUtil.invoke(result, "testXmlSequenceIteration");
+        BRunUtil.invoke(result, "xmlTypeParamCommentIter");
+        BRunUtil.invoke(result, "xmlTypeParamElementIter");
+        BRunUtil.invoke(result, "xmlTypeParamPIIter");
     }
 
     @Test
     public void testXMLMapOp() {
-        JvmRunUtil.invoke(result, "mapOpTest");
+        BRunUtil.invoke(result, "mapOpTest");
     }
 
     @Test
     public void testXMLFilterOp() {
-        Object returns = JvmRunUtil.invoke(result, "filterOpTest");
+        Object returns = BRunUtil.invoke(result, "filterOpTest");
     }
 
     @Test
     public void testXMLChainedIterableOps() {
-        Object returns = JvmRunUtil.invoke(result, "chainedIterableOps");
+        Object returns = BRunUtil.invoke(result, "chainedIterableOps");
 
         Assert.assertNotNull(returns);
 
@@ -159,7 +159,7 @@ public class XMLIterationTest {
     @Test(groups = {"disableOnOldParser"},
             description = "Test iterating over xml elements where some elements are characters")
     public void testXMLCompoundCharacterSequenceIteration() {
-        Object results = JvmRunUtil.invoke(result, "xmlSequenceIter");
+        Object results = BRunUtil.invoke(result, "xmlSequenceIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results.toString();
         Assert.assertEquals(str, "<book>the book</book>\nbit of text\\u2702\\u2705\n");
@@ -168,7 +168,7 @@ public class XMLIterationTest {
     @Test(groups = {"disableOnOldParser"},
             description = "Test iterating over xml sequence where all elements are character items")
     public void testXMLCharacterSequenceIteration() {
-        Object results = JvmRunUtil.invoke(result, "xmlCharItemIter");
+        Object results = BRunUtil.invoke(result, "xmlCharItemIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results.toString();
         Assert.assertEquals(str, "bit of text\\u2702\\u2705\n");

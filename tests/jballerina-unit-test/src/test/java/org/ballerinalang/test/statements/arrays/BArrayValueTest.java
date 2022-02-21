@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,13 +46,13 @@ public class BArrayValueTest {
     @Test(description = "Test lazy arrays creation", expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testLazyArrayCreation() {
-        JvmRunUtil.invoke(compileResult, "lazyInitThrowArrayIndexOutOfBound", new Object[0]);
+        BRunUtil.invoke(compileResult, "lazyInitThrowArrayIndexOutOfBound", new Object[0]);
     }
 
     @Test(description = "Test lazy arrays initializer. Size should be zero")
     public void lazyInitSizeZero() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "lazyInitSizeZero", args);
+        Object returns = BRunUtil.invoke(compileResult, "lazyInitSizeZero", args);
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -62,7 +62,7 @@ public class BArrayValueTest {
 
     @Test(description = "Test add value operation on int arrays")
     public void addValueToIntegerArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "addValueToIntArray");
+        Object returns = BRunUtil.invoke(compileResult, "addValueToIntArray");
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -78,7 +78,7 @@ public class BArrayValueTest {
 
     @Test(description = "Test add value operation on float arrays")
     public void addValueToFloatArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "addValueToFloatArray");
+        Object returns = BRunUtil.invoke(compileResult, "addValueToFloatArray");
 
         Assert.assertTrue(returns instanceof BArray);
 
@@ -98,7 +98,7 @@ public class BArrayValueTest {
     @Test(description = "test default value of an element in an integer array")
     public void testDefaultValueOfIntArrayElement() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testDefaultValueOfIntArrayElement", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultValueOfIntArrayElement", args);
 
         Assert.assertTrue(returns.get(0) instanceof Long);
         Assert.assertTrue(returns.get(1) instanceof Long);
@@ -112,7 +112,7 @@ public class BArrayValueTest {
     @Test(description = "test default value of an element in an json array")
     public void testDefaultValueOfJsonArrayElement() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testDefaultValueOfJsonArrayElement", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultValueOfJsonArrayElement", args);
 
         Assert.assertNull(returns.get(0));
         Assert.assertNull(returns.get(1));
@@ -123,7 +123,7 @@ public class BArrayValueTest {
     @Test(description = "test default value of an element in an json array")
     public void testArrayGrowth() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testArrayGrowth", args);
+        Object returns = BRunUtil.invoke(compileResult, "testArrayGrowth", args);
 
         long value = (long) returns;
         Assert.assertEquals(value, 2390725);

@@ -20,7 +20,7 @@ package org.ballerinalang.test.query;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,56 +41,56 @@ public class MultipleOrderByClauseTest {
 
     @Test(description = "Test query expression with multiple order by clauses")
     public void testQueryExprWithMultipleOrderByClauses() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple from and order by clauses")
     public void testQueryExprWithMultipleFromAndMultipleOrderByClauses() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithMultipleFromAndMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleFromAndMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with join and multiple order by clauses")
     public void testQueryExprWithJoinAndMultipleOrderByClauses() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithJoinAndMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithJoinAndMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with inner queries and multiple order by clauses")
     public void testQueryExprWithInnerQueriesAndMultipleOrderByClauses() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithInnerQueriesAndMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithInnerQueriesAndMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple limit and multiple order by clauses")
     public void testQueryExprWithMultipleOrderByAndMultipleLimitClauses() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithMultipleOrderByAndMultipleLimitClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByAndMultipleLimitClauses");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query action with multiple order by clauses")
     public void testQueryActionWithMultipleOrderByClauses() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryActionWithMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryActionWithMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple order by clauses returning table")
     public void testQueryExprWithMultipleOrderByClausesReturnTable() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnTable");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnTable");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple order by clauses returning stream")
     public void testQueryExprWithMultipleOrderByClausesReturnStream() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnStream");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }

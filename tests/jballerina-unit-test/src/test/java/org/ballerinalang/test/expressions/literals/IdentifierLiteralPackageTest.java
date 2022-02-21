@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test accessing variable in other packages defined with identifier literal")
     public void testAccessingVarsInOtherPackage() {
-        Object arr = JvmRunUtil.invoke(result, "getVarsInOtherPkg");
+        Object arr = BRunUtil.invoke(result, "getVarsInOtherPkg");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Long);
@@ -63,7 +63,7 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test accessing global vars with identifier literals defined in other packages")
     public void testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage() {
-        Object arr = JvmRunUtil.invoke(result, "accessStructWithIL");
+        Object arr = BRunUtil.invoke(result, "accessStructWithIL");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -76,7 +76,7 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test access fields of record types with type label")
     public void testAccessTypeLabelWithIL() {
-        Object arr = JvmRunUtil.invoke(result, "accessTypeLabelWithIL");
+        Object arr = BRunUtil.invoke(result, "accessTypeLabelWithIL");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -89,7 +89,7 @@ public class IdentifierLiteralPackageTest {
 
     @Test(description = "Test get nested anonymous record arrays with element type of record having quoted identifier")
     public void testGetNestedAnonymousRecordArray() {
-        Object arr = JvmRunUtil.invoke(result, "getAnonFromFoo");
+        Object arr = BRunUtil.invoke(result, "getAnonFromFoo");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 1);
         Assert.assertTrue(returns.get(0) instanceof BMap);

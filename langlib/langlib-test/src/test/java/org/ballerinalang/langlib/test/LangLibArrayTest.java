@@ -25,7 +25,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -52,19 +52,19 @@ public class LangLibArrayTest {
 
     @Test
     public void testLength() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLength");
+        Object returns = BRunUtil.invoke(compileResult, "testLength");
         assertEquals(returns, 4L);
     }
 
     @Test
     public void testIterator() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIterator");
+        Object returns = BRunUtil.invoke(compileResult, "testIterator");
         assertEquals(returns.toString(), "HelloWorld!FromBallerina");
     }
 
     @Test
     public void testEnumerate() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEnumerate");
+        Object returns = BRunUtil.invoke(compileResult, "testEnumerate");
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
         BArray arr = (BArray) returns;
@@ -89,7 +89,7 @@ public class LangLibArrayTest {
 
     @Test
     public void testMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
         BArray arr = (BArray) returns;
@@ -102,13 +102,13 @@ public class LangLibArrayTest {
 
     @Test
     public void testForeach() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testForeach");
+        Object returns = BRunUtil.invoke(compileResult, "testForeach");
         assertEquals(returns.toString(), "HelloWorld!fromBallerina");
     }
 
     @Test
     public void testSlice() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSlice");
+        Object returns = BRunUtil.invoke(compileResult, "testSlice");
         BArray result = (BArray) returns;
 
         BArray arr = (BArray) result.getRefValue(0);
@@ -137,7 +137,7 @@ public class LangLibArrayTest {
 
     @Test(dataProvider = "testSliceOfReadonlyArrays")
     public void testSliceOfReadonlyArray(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @DataProvider(name = "testSliceOfReadonlyArrays")
@@ -156,7 +156,7 @@ public class LangLibArrayTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
                     "\\{\"message\":\"incompatible types: expected '\\(Employee & readonly\\)', found 'Employee'\"}.*")
     public void testModificationAfterSliceOfReadonlyRecordArray() {
-        JvmRunUtil.invoke(compileResult, "testModificationAfterSliceOfReadonlyRecordArray");
+        BRunUtil.invoke(compileResult, "testModificationAfterSliceOfReadonlyRecordArray");
         Assert.fail();
     }
 
@@ -165,13 +165,13 @@ public class LangLibArrayTest {
                     "\\{\"message\":\"incompatible types: expected '\\(map<string> & readonly\\)', " +
                     "found 'map<string>'\"}.*")
     public void testPushAfterSliceOfReadonlyMapArray() {
-        JvmRunUtil.invoke(compileResult, "testPushAfterSliceOfReadonlyMapArray");
+        BRunUtil.invoke(compileResult, "testPushAfterSliceOfReadonlyMapArray");
         Assert.fail();
     }
 
     @Test
     public void testRemove() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemove");
+        Object returns = BRunUtil.invoke(compileResult, "testRemove");
         BArray result = (BArray) returns;
 
         assertEquals(result.get(0).toString(), "FooFoo");
@@ -188,25 +188,25 @@ public class LangLibArrayTest {
 
     @Test
     public void testReduce() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
         assertEquals(returns, 13.8);
     }
 
     @Test
     public void testIterableOpChain() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain");
+        Object returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
         assertEquals(returns, 3.25);
     }
 
     @Test
     public void testIterableOpChain2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain2");
+        Object returns = BRunUtil.invoke(compileResult, "testIterableOpChain2");
         assertEquals(returns, 420L);
     }
 
     @Test
     public void testIndexOf() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIndexOf");
+        Object returns = BRunUtil.invoke(compileResult, "testIndexOf");
         BArray result = (BArray) returns;
         assertEquals(result.get(0), 4L);
         assertNull(result.get(1));
@@ -214,13 +214,13 @@ public class LangLibArrayTest {
 
     @Test
     public void testForEach() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testForEach");
+        Object returns = BRunUtil.invoke(compileResult, "testForEach");
         assertEquals(returns.toString(), "SunMonTues");
     }
 
     @Test(dataProvider = "setLengthDataProvider")
     public void testSetLength(int setLengthTo, long lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});
+        Object returns = BRunUtil.invoke(compileResult, "testSetLength", new Object[] {(setLengthTo)});
         BArray result = (BArray) returns;
         assertEquals(result.get(0), lenAfterSet);
         assertEquals(result.get(1).toString(), arrayAfterSet);
@@ -240,7 +240,7 @@ public class LangLibArrayTest {
 
     @Test
     public void testShift() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testShift");
+        Object returns = BRunUtil.invoke(compileResult, "testShift");
         BArray result = (BArray) returns;
         assertEquals(result.get(0).toString(), "[2,3,4,5]");
         assertEquals(result.get(1).toString(), "1");
@@ -248,20 +248,20 @@ public class LangLibArrayTest {
 
     @Test
     public void testUnshift() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUnshift");
+        Object returns = BRunUtil.invoke(compileResult, "testUnshift");
         assertEquals(returns.toString(), "[8,8,1,2,3,4,5]");
     }
 
     @Test
     public void testUnshiftTypeWithoutFillerValues() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
+        Object returns = BRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
         BArray result = (BArray) returns;
         assertEquals(result.size(), 2);
     }
 
     @Test
     public void testRemoveAll() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveAll");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveAll");
         assertEquals(returns.toString(), "[]");
     }
 
@@ -269,7 +269,7 @@ public class LangLibArrayTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
                     "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"}.*")
     public void testRemoveAllFixedLengthArray() {
-        JvmRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
+        BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
         Assert.fail();
     }
 
@@ -278,7 +278,7 @@ public class LangLibArrayTest {
                     "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
                             + " of a tuple of fixed length '2' to '3'\"}.*")
     public void testTupleResize() {
-        JvmRunUtil.invoke(compileResult, "testTupleResize");
+        BRunUtil.invoke(compileResult, "testTupleResize");
         Assert.fail();
     }
 
@@ -287,7 +287,7 @@ public class LangLibArrayTest {
                     "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the " +
                             "length of a tuple of fixed length '2' to '0'\"}.*")
     public void testTupleRemoveAll() {
-        JvmRunUtil.invoke(compileResult, "testTupleRemoveAll");
+        BRunUtil.invoke(compileResult, "testTupleRemoveAll");
         Assert.fail();
     }
 
@@ -296,25 +296,25 @@ public class LangLibArrayTest {
                     "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
                             + " of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
-        JvmRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
+        BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
         Assert.fail();
     }
 
     @Test
     public void testTupleRemoveAllForTupleWithJustRestMemberType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
+        Object returns = BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthLegal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTupleSetLengthLegal");
+        Object returns = BRunUtil.invoke(compileResult, "testTupleSetLengthLegal");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthToSameAsOriginal() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTupleSetLengthToSameAsOriginal");
+        Object returns = BRunUtil.invoke(compileResult, "testTupleSetLengthToSameAsOriginal");
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -323,13 +323,13 @@ public class LangLibArrayTest {
                   "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length " +
                           "of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")
     public void testTupleSetLengthIllegal() {
-        JvmRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
+        BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();
     }
 
     @Test
     public void testAsyncFpArgsWithArrays() {
-        Object results = JvmRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
+        Object results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
         BArray resultArray = (BArray) results;
         assertTrue(resultArray.get(0) instanceof Long);
         assertTrue(resultArray.get(1) instanceof  BArray);
@@ -466,12 +466,12 @@ public class LangLibArrayTest {
 
     @Test(dataProvider = "FunctionList")
     public void testArrayFunctions(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @Test
     public void testSort3() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSort3");
+        Object returns = BRunUtil.invoke(compileResult, "testSort3");
 
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
         BArray arr = (BArray) returns;

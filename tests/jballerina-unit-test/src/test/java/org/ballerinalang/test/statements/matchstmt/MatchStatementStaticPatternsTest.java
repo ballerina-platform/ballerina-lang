@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test basics of static pattern match statement 1")
     public void testMatchStatementBasics1() {
 
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchPatternsBasic1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic1", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -69,7 +69,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test basics of static pattern match statement 2")
     public void testMatchStatementBasics2() {
 
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchPatternsBasic2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchPatternsBasic2", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -88,7 +88,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test static patterns with or conditions 1")
     public void testStaticMatchOrPatterns1() {
 
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchOrPatterns1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns1", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -112,7 +112,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test static patterns with or conditions 2")
     public void testStaticMatchOrPatterns2() {
 
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchOrPatterns2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns2", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -137,7 +137,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test static patterns with or conditions 3")
     public void testStaticMatchOrPatterns3() {
 
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchOrPatterns3", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns3", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -168,7 +168,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test static patterns with or conditions 4")
     public void testStaticMatchOrPatterns4() {
 
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchOrPatterns4", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStaticMatchOrPatterns4", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -201,7 +201,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test record static match pattern")
     public void testRecordStaticMatch() {
 
-        Object returns = JvmRunUtil.invoke(result, "testRecordStaticMatch");
+        Object returns = BRunUtil.invoke(result, "testRecordStaticMatch");
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -220,7 +220,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test tuple static match pattern")
     public void testTupleStaticMatch() {
 
-        Object returns = JvmRunUtil.invoke(result, "testTupleStaticMatch");
+        Object returns = BRunUtil.invoke(result, "testTupleStaticMatch");
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -240,7 +240,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test complex static match pattern")
     public void testRecordAndTupleComplexStaticMatch() {
 
-        Object returns = JvmRunUtil.invoke(result, "testRecordAndTupleComplexStaticMatch");
+        Object returns = BRunUtil.invoke(result, "testRecordAndTupleComplexStaticMatch");
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -253,49 +253,49 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test matching finite type")
     public void testFiniteType() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteType");
+        Object returns = BRunUtil.invoke(result, "testFiniteType");
         
         Assert.assertEquals(returns.toString(), "Value is '15.2'");
     }
 
     @Test(description = "Test matching finite type")
     public void testFiniteType2() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteType2");
+        Object returns = BRunUtil.invoke(result, "testFiniteType2");
         
         Assert.assertEquals(returns.toString(), "Value is 'true'");
     }
 
     @Test(description = "Test matching non anydata type")
     public void testNonAnyDataType() {
-        Object returns = JvmRunUtil.invoke(result, "testNonAnyDataType");
+        Object returns = BRunUtil.invoke(result, "testNonAnyDataType");
         
         Assert.assertEquals(returns.toString(), "Value is 'Default'");
     }
 
     @Test(description = "Test using string literal in record pattern")
     public void testStringLiteralKeyInRecordMatch() {
-        Object returns = JvmRunUtil.invoke(result, "testStringLiteralKeyInRecordMatch");
+        Object returns = BRunUtil.invoke(result, "testStringLiteralKeyInRecordMatch");
         
         Assert.assertEquals(returns.toString(), "Value is 'Correct'");
     }
 
     @Test(description = "Test using union within parenthesis")
     public void testBracedUnionType() {
-        Object returns = JvmRunUtil.invoke(result, "testBracedUnionType");
+        Object returns = BRunUtil.invoke(result, "testBracedUnionType");
         
         Assert.assertEquals(returns.toString(), "11|12");
     }
 
     @Test(description = "Test using union within parenthesis")
     public void testMatchingConstTypesWithConstPatterns() {
-        Object returns = JvmRunUtil.invoke(result, "testMatchingConstTypesWithConstPatterns");
+        Object returns = BRunUtil.invoke(result, "testMatchingConstTypesWithConstPatterns");
         
         Assert.assertEquals(returns.toString(), "[\"AA\",\"BB\",\"1010\",\"truetrue\"]");
     }
 
     @Test(description = "Test match statement with const expression matching")
     public void testStaticMatchWithConstants() {
-        Object returns = JvmRunUtil.invoke(result, "testStaticMatchWithConstants");
+        Object returns = BRunUtil.invoke(result, "testStaticMatchWithConstants");
         
         Assert.assertTrue(returns instanceof BArray);
 
@@ -313,7 +313,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test structured pattern match with empty tuple")
     public void testStructuredMatchPatternWithEmptyTuple() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyTuple", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyTuple", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
         BArray results = (BArray) returns;
@@ -329,7 +329,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test structured pattern match with empty record")
     public void testStructuredMatchPatternWithEmptyRecord() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new Object[]{});
         
         Assert.assertTrue(returns instanceof BArray);
         BArray results = (BArray) returns;
@@ -345,7 +345,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test error not being match to wildcard match pattern")
     public void testErrorShouldNotMatchWildCardPattern() {
-        Object returns = JvmRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPattern");
+        Object returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPattern");
         Assert.assertEquals(returns.toString(), "no-match");
     }
 

@@ -19,7 +19,7 @@ package org.ballerinalang.test.functions;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,13 +39,13 @@ public class FunctionsAndNilTest {
 
     @Test(description = "Test functions that returns nil type")
     public void testFuncReturnNilImplicit() {
-        Object returns = JvmRunUtil.invoke(result, "funcReturnNilImplicit");
+        Object returns = BRunUtil.invoke(result, "funcReturnNilImplicit");
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void funcReturnNilExplicit() {
-        Object returns = JvmRunUtil.invoke(result, "funcReturnNilExplicit");
+        Object returns = BRunUtil.invoke(result, "funcReturnNilExplicit");
         Assert.assertNull(returns);
     }
 
@@ -53,25 +53,25 @@ public class FunctionsAndNilTest {
     public void funcReturnNilOrError() {
         Object[] params = new Object[1];
         params[0] = (10);
-        JvmRunUtil.invoke(result, "funcReturnNilOrError", params);
+        BRunUtil.invoke(result, "funcReturnNilOrError", params);
 
         params[0] = (30);
-        JvmRunUtil.invoke(result, "funcReturnNilOrError", params);
+        BRunUtil.invoke(result, "funcReturnNilOrError", params);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void funcReturnOptionallyError() {
         Object[] params = new Object[1];
         params[0] = (10);
-        JvmRunUtil.invoke(result, "funcReturnOptionallyError", params);
+        BRunUtil.invoke(result, "funcReturnOptionallyError", params);
 
         params[0] = (30);
-        JvmRunUtil.invoke(result, "funcReturnOptionallyError", params);
+        BRunUtil.invoke(result, "funcReturnOptionallyError", params);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void testNilReturnAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testNilReturnAssignment");
+        Object returns = BRunUtil.invoke(result, "testNilReturnAssignment");
         Assert.assertNull(returns);
     }
 

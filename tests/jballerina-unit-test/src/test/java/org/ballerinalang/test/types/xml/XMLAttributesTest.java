@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,7 +47,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithString() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithString");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithString");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -59,12 +59,12 @@ public class XMLAttributesTest {
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*localname of the attribute cannot be empty.*")
     public void testAddAttributeWithoutLocalname() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithoutLocalname");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithoutLocalname");
     }
 
     @Test
     public void testAddAttributeWithEmptyNamespace() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithEmptyNamespace");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithEmptyNamespace");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -73,7 +73,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddNamespaceAsAttribute1() {
-        BArray returns = (BArray) JvmRunUtil.invoke(xmlAttrProgFile, "testAddNamespaceAsAttribute");
+        BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "testAddNamespaceAsAttribute");
         Assert.assertTrue(returns.get(0) instanceof BXml);
         Assert.assertEquals(returns.get(0).toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -89,7 +89,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithQName");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithQName");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -99,7 +99,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_1() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_1");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_1");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -110,7 +110,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_2() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_2");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_2");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -121,7 +121,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_3() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_3");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_3");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -132,7 +132,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testAddAttributeWithQName_5() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -144,7 +144,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUpdateAttributeWithString() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithString");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithString");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://defaultNs/\" " +
@@ -154,7 +154,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUpdateAttributeWithString_1() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithString_1");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithString_1");
         Assert.assertTrue(returns instanceof BXml);
         String xml = returns.toString();
         int urlPosition = xml.indexOf("http://sample.com/wso2/f/t");
@@ -167,7 +167,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUpdateNamespaceAsAttribute() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testUpdateNamespaceAsAttribute");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateNamespaceAsAttribute");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -176,7 +176,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUpdateAttributeWithQName() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -187,7 +187,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUpdateAttributeWithQName_1() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName_1");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testUpdateAttributeWithQName_1");
         Assert.assertTrue(returns instanceof BXml);
         Assert.assertEquals(returns.toString(),
                 "<root xmlns=\"http://sample.com/wso2/c1\" " +
@@ -199,7 +199,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testGetAttributeWithString() {
-        BArray returns = (BArray) JvmRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithString");
+        BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithString");
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "bar1");
 
@@ -211,20 +211,20 @@ public class XMLAttributesTest {
 
     @Test
     public void testGetAttributeWithoutLocalname() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithoutLocalname");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithoutLocalname");
         Assert.assertNull(returns);
     }
 
     @Test
     public void testGetNamespaceAsAttribute() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testGetNamespaceAsAttribute");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testGetNamespaceAsAttribute");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "http://sample.com/wso2/f");
     }
 
     @Test
     public void testGetAttributeWithQName() {
-        BArray returns = (BArray) JvmRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithQName");
+        BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeWithQName");
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "bar1");
 
@@ -236,7 +236,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testUsingQNameAsString() {
-        BArray returns = (BArray) JvmRunUtil.invoke(xmlAttrProgFile, "testUsingQNameAsString");
+        BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "testUsingQNameAsString");
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertEquals(returns.get(0).toString(), "{http://sample.com/wso2/a1}wso2");
 
@@ -246,14 +246,14 @@ public class XMLAttributesTest {
 
     @Test
     public void testGetAttributeFromSingletonSeq() {
-        Object returns = JvmRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
+        Object returns = BRunUtil.invoke(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "bar");
     }
 
     @Test(description = "Test map operations on xml@ value")
     public void testMapOperations() {
-        BArray returns = (BArray) JvmRunUtil.invoke(xmlAttrProgFile, "mapOperationsOnXmlAttribute");
+        BArray returns = (BArray) BRunUtil.invoke(xmlAttrProgFile, "mapOperationsOnXmlAttribute");
         Assert.assertEquals(returns.get(0).toString(), "2");
         Assert.assertEquals(returns.get(1).toString(),
                 "[\"{http://www.w3.org/2000/xmlns/}xmlns\",\"foo\"]");
@@ -262,7 +262,7 @@ public class XMLAttributesTest {
 
     @Test
     public void testCharacterReferencesInXmlAttributeValue() {
-        JvmRunUtil.invoke(xmlAttrProgFile, "testCharacterReferencesInXmlAttributeValue");
+        BRunUtil.invoke(xmlAttrProgFile, "testCharacterReferencesInXmlAttributeValue");
     }
 
     @Test
@@ -271,7 +271,7 @@ public class XMLAttributesTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            JvmRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
+            BRunUtil.invoke(xmlAttrProgFile, "testPrintAttribMap");
             Assert.assertEquals(outContent.toString(),
                     "{\"{http://www.w3.org/2000/xmlns/}xmlns\":\"http://sample.com/wso2/c1\",\"name\":\"Foo\"}",
                     "Invalid attribute map printed");

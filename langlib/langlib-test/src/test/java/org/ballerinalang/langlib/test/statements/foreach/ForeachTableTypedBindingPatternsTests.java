@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,7 +41,7 @@ public class ForeachTableTypedBindingPatternsTests {
 
     @Test
     public void testTableWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testTableWithoutType");
+        Object returns = BRunUtil.invoke(program, "testTableWithoutType");
         Assert.assertEquals(returns.toString(),
                 "0:{\"id\":1,\"name\":\"Mary\",\"salary\":300.5} 1:{\"id\":2,\"name\":\"John\"," +
                         "\"salary\":200.5} 2:{\"id\":3,\"name\":\"Jim\",\"salary\":330.5} ");
@@ -49,7 +49,7 @@ public class ForeachTableTypedBindingPatternsTests {
 
     @Test
     public void testTableWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testTableWithType");
+        Object returns = BRunUtil.invoke(program, "testTableWithType");
         Assert.assertEquals(returns.toString(),
                 "0:{\"id\":1,\"name\":\"Mary\",\"salary\":300.5} " +
                         "1:{\"id\":2,\"name\":\"John\",\"salary\":200.5} " +
@@ -58,19 +58,19 @@ public class ForeachTableTypedBindingPatternsTests {
 
     @Test
     public void testRecordInTableWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testRecordInTableWithoutType");
+        Object returns = BRunUtil.invoke(program, "testRecordInTableWithoutType");
         Assert.assertEquals(returns.toString(), "0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 ");
     }
 
     @Test
     public void testEmptyTableIteration() {
-        Object returns = JvmRunUtil.invoke(program, "testEmptyTableIteration");
+        Object returns = BRunUtil.invoke(program, "testEmptyTableIteration");
         Assert.assertEquals(returns.toString(), "");
     }
 
     @Test
     public void testIterationOverKeylessTable() {
-        Object returns = JvmRunUtil.invoke(program, "testIterationOverKeylessTable");
+        Object returns = BRunUtil.invoke(program, "testIterationOverKeylessTable");
         Assert.assertTrue((Boolean) returns);
     }
 }

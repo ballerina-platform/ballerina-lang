@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.typecast;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class SimpleTypeCastExprTest {
 
     private void testIntToFloatCast(int input, double expected) {
         Object[] args = { (input) };
-        Object returns = JvmRunUtil.invoke(result, "intToFloatExplicit", args);
+        Object returns = BRunUtil.invoke(result, "intToFloatExplicit", args);
         Assert.assertEquals(returns.getClass(), Double.class);
         Assert.assertEquals(returns, expected);
     }
@@ -65,7 +65,7 @@ public class SimpleTypeCastExprTest {
 
     private void testFloatToIntCast(double input, long expected) {
         Object[] args = {(input)};
-        Object returns = JvmRunUtil.invoke(result, "floatToIntCast", args);
+        Object returns = BRunUtil.invoke(result, "floatToIntCast", args);
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, expected);
     }
@@ -80,7 +80,7 @@ public class SimpleTypeCastExprTest {
 
     private void testDecimalToIntCast(BigDecimal input, long expected) {
         Object[] args = {ValueCreator.createDecimalValue(input)};
-        Object returns = JvmRunUtil.invoke(result, "decimalToIntCast", args);
+        Object returns = BRunUtil.invoke(result, "decimalToIntCast", args);
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, expected);
     }

@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,13 +46,13 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicErrorMatch", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch", new Object[]{});
         Assert.assertEquals(returns.toString(), "Error Code:Msg");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch2() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicErrorMatch2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch2", new Object[]{});
 
         String msg = "Matched with ";
         Assert.assertEquals(returns.toString(), msg + "error : Error Code {\"message\":\"Msg\"}");
@@ -60,14 +60,14 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch3() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicErrorMatch3", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch3", new Object[]{});
         String msg = "Matched with ";
         Assert.assertEquals(returns.toString(), msg + "error : Error Code");
     }
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch4() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicErrorMatch4", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch4", new Object[]{});
 
         BArray results = (BArray) returns;
         int i = -1;
@@ -78,7 +78,7 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch5() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicErrorMatch5", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch5", new Object[]{});
 
         BArray results = (BArray) returns;
         int i = -1;
@@ -92,7 +92,7 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch6() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicErrorMatch6", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch6", new Object[]{});
 
         BArray results = (BArray) returns;
         int i = -1;
@@ -104,7 +104,7 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testErrorWithUnderscore() {
-        Object returns = JvmRunUtil.invoke(result, "testErrorWithUnderscore", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testErrorWithUnderscore", new Object[]{});
 
         BArray results = (BArray) returns;
         int i = -1;
@@ -114,7 +114,7 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testBasicErrorMatch7() {
-        Object returns = JvmRunUtil.invoke(result, "testBasicErrorMatch7", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testBasicErrorMatch7", new Object[]{});
 
         BArray results = (BArray) returns;
         int i = -1;
@@ -126,7 +126,7 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test(description = "Test error pattern matching with union of finite type reason")
     public void testFiniteTypedReasonVariable() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypedReasonVariable");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypedReasonVariable");
 
         BArray results = (BArray) returns;
         int i = -1;
@@ -137,37 +137,37 @@ public class MatchStructuredErrorPatternsTest {
     @Test(description = "TestMatchingErrorRestParameter")
     public void testErrorRestParameterMatch() {
         Long[] args0 = {0L};
-        Object returns0 = JvmRunUtil.invoke(result, "testErrorRestParamMatch", args0);
+        Object returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
         Assert.assertEquals(returns0.toString(), "Error Code{}");
 
         Long[] args1 = {1L};
-        Object returns1 = JvmRunUtil.invoke(result, "testErrorRestParamMatch", args1);
+        Object returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
         Assert.assertEquals(returns1.toString(), "[\"x\",1]");
 
         Long[] args2 = {2L};
-        Object returns2 = JvmRunUtil.invoke(result, "testErrorRestParamMatch", args2);
+        Object returns2 = BRunUtil.invoke(result, "testErrorRestParamMatch", args2);
         Assert.assertEquals(returns2.toString(), "x");
 
         Long[] args3 = {3L};
-        Object returns3 = JvmRunUtil.invoke(result, "testErrorRestParamMatch", args3);
+        Object returns3 = BRunUtil.invoke(result, "testErrorRestParamMatch", args3);
         Assert.assertEquals(returns3.toString(), "Error Code{\"foo\":\"foo\"}");
     }
 
     @Test(description = "Test error match pattern")
     public void testErrorMatchPattern() {
-        Object returns = JvmRunUtil.invoke(result, "testErrorMatchPattern", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testErrorMatchPattern", new Object[]{});
         Assert.assertEquals(returns.toString(), "Error Code:Msg");
     }
 
     @Test(description = "Test error const reason match pattern")
     public void testErrorConstReasonMatchPattern() {
-        Object returns = JvmRunUtil.invoke(result, "testErrorConstReasonMatchPattern", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testErrorConstReasonMatchPattern", new Object[]{});
         Assert.assertEquals(returns.toString(), "Const reason:Msg");
     }
 
     @Test(description = "Test indirect error match pattern")
     public void testIndirectErrorMatchPattern() {
-        Object returns = JvmRunUtil.invoke(result, "testIndirectErrorMatchPattern", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testIndirectErrorMatchPattern", new Object[]{});
         Assert.assertEquals(returns.toString(), "Msg");
     }
 
@@ -222,7 +222,7 @@ public class MatchStructuredErrorPatternsTest {
 
     @Test()
     public void testErrorMatchWihtoutReason() {
-        Object returns = JvmRunUtil.invoke(result, "testErrorMatchWihtoutReason");
+        Object returns = BRunUtil.invoke(result, "testErrorMatchWihtoutReason");
         Assert.assertEquals(returns.toString(), "error detail message");
     }
 

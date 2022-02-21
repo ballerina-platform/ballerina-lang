@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop.primitivetypes;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class FunctionsReturningPrimitivesTest {
         Object[] args = new Object[2];
         args[0] = new HandleValue(receiver);
         args[1] = new HandleValue(strValue);
-        Object returns = JvmRunUtil.invoke(result, "testReturningBBooleanJBoolean", args);
+        Object returns = BRunUtil.invoke(result, "testReturningBBooleanJBoolean", args);
         
         Assert.assertEquals(returns, receiver.contentEquals(strValue));
     }
@@ -56,7 +56,7 @@ public class FunctionsReturningPrimitivesTest {
         Long receiver = 4L;
         Object[] args = new Object[1];
         args[0] = new HandleValue(receiver);
-        Object returns = JvmRunUtil.invoke(result, "testReturningBByteJByte", args);
+        Object returns = BRunUtil.invoke(result, "testReturningBByteJByte", args);
         
         Assert.assertEquals(returns, receiver.intValue());
     }
@@ -66,7 +66,7 @@ public class FunctionsReturningPrimitivesTest {
         Long receiver = 10L;
         Object[] args = new Object[1];
         args[0] = new HandleValue(receiver);
-        Object returns = JvmRunUtil.invoke(result, "testReturningBIntJLong", args);
+        Object returns = BRunUtil.invoke(result, "testReturningBIntJLong", args);
         
         Assert.assertEquals(returns, receiver.longValue());
     }
@@ -76,7 +76,7 @@ public class FunctionsReturningPrimitivesTest {
         Double receiver = 4d;
         Object[] args = new Object[1];
         args[0] = new HandleValue(receiver);
-        Object returns = JvmRunUtil.invoke(result, "testReturningBFloatJDouble", args);
+        Object returns = BRunUtil.invoke(result, "testReturningBFloatJDouble", args);
         
         Assert.assertEquals(returns, receiver);
     }

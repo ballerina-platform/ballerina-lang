@@ -20,7 +20,7 @@ package org.ballerinalang.test.closures;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,160 +39,160 @@ public class ClosureTest {
 
     @Test(description = "Test basic closure operations")
     public void testBasicClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test1");
+        Object returns = BRunUtil.invoke(compileResult, "test1");
         Assert.assertEquals(returns, 18L);
     }
 
     @Test(description = "Test two level closure operations")
     public void testTwoLevelClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test2");
+        Object returns = BRunUtil.invoke(compileResult, "test2");
         Assert.assertEquals(returns, 36L);
     }
 
     @Test(description = "Test three level operations")
     public void testThreeLevelClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test3");
+        Object returns = BRunUtil.invoke(compileResult, "test3");
         Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test with if block")
     public void testClosureWithIfBlock() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test4");
+        Object returns = BRunUtil.invoke(compileResult, "test4");
         Assert.assertEquals(returns, 43L);
     }
 
     @Test(description = "Test multi level function pointer call")
     public void testMultiLevelFPCallWithClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test5");
+        Object returns = BRunUtil.invoke(compileResult, "test5");
         Assert.assertEquals(returns, 10L);
     }
 
     @Test(description = "Test multi function pointer with same closure call")
     public void testMultiFunctionCallWithSameClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test6");
+        Object returns = BRunUtil.invoke(compileResult, "test6");
         Assert.assertEquals(returns, 316L);
     }
 
     @Test(description = "Test closure with different param ordering")
     public void testDifferentParamOrder() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test7");
+        Object returns = BRunUtil.invoke(compileResult, "test7");
         Assert.assertEquals(returns, 22L);
     }
 
     @Test(description = "Test multi level function")
     public void testMultiLevelFunction() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test8");
+        Object returns = BRunUtil.invoke(compileResult, "test8");
         Assert.assertEquals(returns, 50L);
     }
 
     @Test(description = "Test global var access with closure")
     public void testGlobalVarAccessWithClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test9");
+        Object returns = BRunUtil.invoke(compileResult, "test9");
         Assert.assertEquals(returns, 23L);
     }
 
     @Test(description = "Test different type args")
     public void testDifferentTypeArgs1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test10");
+        Object returns = BRunUtil.invoke(compileResult, "test10");
         Assert.assertEquals(returns, 20L);
     }
 
     @Test(description = "Test different type args 2")
     public void testDifferentTypeArgs2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test11");
+        Object returns = BRunUtil.invoke(compileResult, "test11");
         Assert.assertEquals(returns, 10L);
     }
 
     @Test(description = "Test different type args 3")
     public void testDifferentTypeArgs3() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test12");
+        Object returns = BRunUtil.invoke(compileResult, "test12");
         Assert.assertEquals(returns, 10L);
     }
 
     @Test(description = "Test different type args 4")
     public void testDifferentTypeArgs4() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test13");
+        Object returns = BRunUtil.invoke(compileResult, "test13");
         Assert.assertEquals(returns, 9L);
     }
 
     @Test(description = "Test string args with a closure")
     public void testStringArgsWithClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test14");
+        Object returns = BRunUtil.invoke(compileResult, "test14");
         Assert.assertEquals((returns).toString(), "HelloBallerinaWorld!!!");
     }
 
     @Test(description = "Test tuple type as argument")
     public void testTupleArgsWithClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test16");
+        Object returns = BRunUtil.invoke(compileResult, "test16");
         Assert.assertEquals((returns).toString(), "ImBallerina15.0Program !!!Hello11.1World !!!");
     }
 
     @Test(description = "Test tuple type as argument with an order")
     public void testTupleTypesOrderWithClosure() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test17");
+        Object returns = BRunUtil.invoke(compileResult, "test17");
         Assert.assertEquals((returns).toString(),
                 "I'mHello11.1World !!!Ballerina15.0Program!!!HelloInner44.8World Inner!!!");
     }
 
     @Test(description = "Test global var modify and access")
     public void testGlobalVarModifyAndAccess() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test18");
+        Object returns = BRunUtil.invoke(compileResult, "test18");
         Assert.assertEquals(returns, 16L);
     }
 
     @Test(description = "Test closure with object attached function references")
     public void testClosureWithObjectAttachedFuncReferences() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test19");
+        Object returns = BRunUtil.invoke(compileResult, "test19");
         Assert.assertEquals((returns).toString(), "Hello Ballerina7.4K43");
     }
 
     @Test(description = "Test closure with object attached function pointer references")
     public void testClosureWithObjectAttachedFuncPointerReferences() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test20");
+        Object returns = BRunUtil.invoke(compileResult, "test20");
         Assert.assertEquals((returns).toString(), "7.354Ballerina !!!");
     }
 
     @Test(description = "Test closure with different type args references")
     public void testClosureWithDifferentArgsReferences() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test22");
+        Object returns = BRunUtil.invoke(compileResult, "test22");
         Assert.assertEquals((returns).toString(), "7InnerInt41.2InnerFloat4.5Ballerina !!!");
     }
 
     @Test(description = "Test closure with variable shadowing")
     public void testClosureWithVariableShadowing1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test23");
+        Object returns = BRunUtil.invoke(compileResult, "test23");
         Assert.assertEquals((returns).toString(), "Ballerina31");
     }
 
     @Test(description = "Test two level closure with variable shadowing")
     public void testClosureWithVariableShadowing2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test24");
+        Object returns = BRunUtil.invoke(compileResult, "test24");
         Assert.assertEquals((returns).toString(), "Out31In65Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing")
     public void testClosureWithVariableShadowing3() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test25");
+        Object returns = BRunUtil.invoke(compileResult, "test25");
         Assert.assertEquals((returns).toString(), "OutMost31Out46In80Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing another test case")
     public void testClosureWithVariableShadowing4() {
-        Object returns = JvmRunUtil.invoke(compileResult, "test26");
+        Object returns = BRunUtil.invoke(compileResult, "test26");
         Assert.assertEquals((returns).toString(), "OutMost47Out47In36Ballerina!!!");
     }
 
     @Test(description = "Test iterable operations with lambda. This will verify whether local referred vars are " +
             "modified within closure")
     public void testIterableOperationsVarModification() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLocalVarModifyWithinClosureScope");
+        Object returns = BRunUtil.invoke(compileResult, "testLocalVarModifyWithinClosureScope");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 9.9);
     }
 
     @Test(description = "Test byte and boolean")
     public void testByteAndBoolean() {
-        Object result = JvmRunUtil.invoke(compileResult, "test27");
+        Object result = BRunUtil.invoke(compileResult, "test27");
         BArray returns = (BArray) result;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof BArray);
@@ -214,7 +214,7 @@ public class ClosureTest {
 
     @Test(description = "Test multi level block statements with closure test case")
     public void testMultiLevelBlockStatements() {
-        Object result = JvmRunUtil.invoke(compileResult, "test28");
+        Object result = BRunUtil.invoke(compileResult, "test28");
         BArray returns = (BArray) result;
         Assert.assertEquals(returns.get(0), 58L);
         Assert.assertEquals(returns.get(1), 167L);
@@ -223,7 +223,7 @@ public class ClosureTest {
 
     @Test(description = "Test any and var access with closure")
     public void testAnyVarWithClosure() {
-        Object result = JvmRunUtil.invoke(compileResult, "test29");
+        Object result = BRunUtil.invoke(compileResult, "test29");
         BArray returns = (BArray) result;
         Assert.assertTrue((Boolean) returns.get(0));
         Assert.assertFalse((Boolean) returns.get(1));
@@ -237,19 +237,19 @@ public class ClosureTest {
 
     @Test(description = "Test closure capture of variable not initialized at declaration")
     public void testClosureCaptureLaterInitializedVar() {
-        Object returns = JvmRunUtil.invoke(compileResult, "laterInitCapture");
+        Object returns = BRunUtil.invoke(compileResult, "laterInitCapture");
         Assert.assertEquals(returns.toString(), "aa");
     }
 
     @Test(description = "Test closure capture of rest params")
     public void testRestParamsAsClosureVars() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRestParamsAsClosureVars");
+        Object returns = BRunUtil.invoke(compileResult, "testRestParamsAsClosureVars");
         Assert.assertEquals(returns.toString(), "Hello, From, Ballerina");
     }
 
     @Test(description = "Test closure capture of rest params")
     public void testRestParamsAsClosureVars2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRestParamsAsClosureVars2");
+        Object returns = BRunUtil.invoke(compileResult, "testRestParamsAsClosureVars2");
         Assert.assertEquals(returns, 60L);
     }
 
@@ -257,11 +257,11 @@ public class ClosureTest {
     public void testClosureWithinResource() {
         CompileResult result = BCompileUtil.compile("test-src/closures/closures_in_resource.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        JvmRunUtil.invoke(result, "testClosureWithinResource");
+        BRunUtil.invoke(result, "testClosureWithinResource");
     }
 
     @Test(description = "Test error constructor with closure")
     public void errorConstructorWithClosureTest() {
-        JvmRunUtil.invoke(compileResult, "errorConstructorWithClosureTest");
+        BRunUtil.invoke(compileResult, "errorConstructorWithClosureTest");
     }
 }

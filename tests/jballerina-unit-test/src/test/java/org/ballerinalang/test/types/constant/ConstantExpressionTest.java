@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -67,7 +67,7 @@ public class ConstantExpressionTest {
     @Test
     public void getConstAdditions() {
 
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getConstAdditions");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstAdditions");
         Assert.assertEquals(returns.size(), 4);
         Assert.assertNotNull(returns.get(0));
         Assert.assertNotNull(returns.get(1));
@@ -82,7 +82,7 @@ public class ConstantExpressionTest {
     @Test
     public void getConstSubtracts() {
 
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getConstSubtracts");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstSubtracts");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertNotNull(returns.get(0));
         Assert.assertNotNull(returns.get(1));
@@ -95,7 +95,7 @@ public class ConstantExpressionTest {
     @Test
     public void getConstMultiplications() {
 
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getConstMultiplications");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstMultiplications");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertNotNull(returns.get(0));
         Assert.assertNotNull(returns.get(1));
@@ -108,7 +108,7 @@ public class ConstantExpressionTest {
     @Test
     public void getConstDivisions() {
 
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getConstDivisions");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstDivisions");
         Assert.assertEquals(returns.size(), 5);
         Assert.assertNotNull(returns.get(0));
         Assert.assertNotNull(returns.get(1));
@@ -125,7 +125,7 @@ public class ConstantExpressionTest {
     @Test
     public void getConstGrouping() {
 
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "getConstGrouping");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getConstGrouping");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "20");
         Assert.assertEquals(returns.get(1).toString(), "-1");
@@ -135,18 +135,18 @@ public class ConstantExpressionTest {
     @Test
     public void checkMapAccessReference() {
 
-        Object returns = JvmRunUtil.invoke(compileResult, "checkMapAccessReference");
+        Object returns = BRunUtil.invoke(compileResult, "checkMapAccessReference");
         Assert.assertEquals(returns.toString(), "{\"v1\":3.0,\"v2\":5.0}");
     }
 
     @Test
     public void testBitwiseConstExpressions() {
-        JvmRunUtil.invoke(compileResult, "testBitwiseConstExpressions");
+        BRunUtil.invoke(compileResult, "testBitwiseConstExpressions");
     }
 
     @Test
     public void getConstUnaryExpressions() {
-        JvmRunUtil.invoke(compileResult, "testConstUnaryExpressions");
+        BRunUtil.invoke(compileResult, "testConstUnaryExpressions");
     }
 
     @AfterClass

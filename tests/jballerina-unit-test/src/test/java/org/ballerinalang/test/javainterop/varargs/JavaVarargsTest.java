@@ -22,7 +22,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,7 +48,7 @@ public class JavaVarargsTest {
 
     @Test
     public void testIntVarargs_1() {
-        Object val = JvmRunUtil.invoke(result, "testIntVarargs_1");
+        Object val = BRunUtil.invoke(result, "testIntVarargs_1");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0), 10L);
@@ -58,13 +58,13 @@ public class JavaVarargsTest {
 
     @Test
     public void testIntVarargs_2() {
-        Object returns = JvmRunUtil.invoke(result, "testIntVarargs_2");
+        Object returns = BRunUtil.invoke(result, "testIntVarargs_2");
         Assert.assertEquals(returns, 5L);
     }
 
     @Test
     public void testIntVarargs_3() {
-        Object val = JvmRunUtil.invoke(result, "testIntVarargs_3");
+        Object val = BRunUtil.invoke(result, "testIntVarargs_3");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0), 9L);
@@ -73,13 +73,13 @@ public class JavaVarargsTest {
 
     @Test
     public void testIntVarargs_4() {
-        Object returns = JvmRunUtil.invoke(result, "testIntVarargs_4");
+        Object returns = BRunUtil.invoke(result, "testIntVarargs_4");
         Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testLongVarargs() {
-        Object val = JvmRunUtil.invoke(result, "testLongVarargs");
+        Object val = BRunUtil.invoke(result, "testLongVarargs");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0), 10L);
@@ -89,38 +89,38 @@ public class JavaVarargsTest {
 
     @Test
     public void testGetSumOfIntArrays() {
-        Object returns = JvmRunUtil.invoke(result, "testGetSumOfIntArrays");
+        Object returns = BRunUtil.invoke(result, "testGetSumOfIntArrays");
         Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testGetSumOfIntArraysWithAnnot() {
-        Object returns = JvmRunUtil.invoke(result, "testGetSumOfIntArraysWithAnnot");
+        Object returns = BRunUtil.invoke(result, "testGetSumOfIntArraysWithAnnot");
         Assert.assertEquals(returns, 10L);
     }
 
     @Test
     public void testJavaListVarargs() {
-        Object returns = JvmRunUtil.invoke(result, "testJavaListVarargs");
+        Object returns = BRunUtil.invoke(result, "testJavaListVarargs");
         Assert.assertEquals(((HandleValue) returns).getValue().toString(),
                 "[apples, arranges, grapes, pineapple, mangoes]");
     }
 
     @Test
     public void testPrimitiveVarargsWithGenerics() {
-        Object returns = JvmRunUtil.invoke(result, "testPrimitiveVarargsWithGenerics");
+        Object returns = BRunUtil.invoke(result, "testPrimitiveVarargsWithGenerics");
         Assert.assertEquals(((HandleValue) returns).getValue().toString(), "[3, 6, 9]");
     }
 
     @Test
     public void testPasingValueTypeToJavaObject() {
-        Object returns = JvmRunUtil.invoke(result, "testPasingValueTypeToJavaObject");
+        Object returns = BRunUtil.invoke(result, "testPasingValueTypeToJavaObject");
         Assert.assertEquals(returns, 4L);
     }
 
     @Test
     public void testJavaGenericReturnType() {
-        Object val = JvmRunUtil.invoke(result, "testJavaGenericReturnType");
+        Object val = BRunUtil.invoke(result, "testJavaGenericReturnType");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0), 8L);
@@ -130,7 +130,7 @@ public class JavaVarargsTest {
 
     @Test
     public void testRefTypeVarArg() {
-        Object val = JvmRunUtil.invoke(result, "testRefTypeVarArg");
+        Object val = BRunUtil.invoke(result, "testRefTypeVarArg");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(returns.get(0).toString(), "[7, 2, 8]");
@@ -139,13 +139,13 @@ public class JavaVarargsTest {
 
     @Test
     public void testIntArrayTypeVararg() {
-        Object returns = JvmRunUtil.invoke(result, "testIntArrayTypeVararg");
+        Object returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
         Assert.assertEquals(returns.toString(), "[[7,2], [8]]");
     }
 
     @Test
     public void testRefArrayTypeVararg() {
-        Object returns = JvmRunUtil.invoke(result, "testRefArrayTypeVararg");
+        Object returns = BRunUtil.invoke(result, "testRefArrayTypeVararg");
         Assert.assertEquals(returns.toString(), "[[error(\"error one\")], [error(\"error two\")]]");
     }
 

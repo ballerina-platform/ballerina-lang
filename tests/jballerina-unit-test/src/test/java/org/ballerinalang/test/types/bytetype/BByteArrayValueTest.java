@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.bytetype;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class BByteArrayValueTest {
 
     @Test(dataProvider = "byteArrayLiteralContainingWSData")
     public void testByteArrayLiteralContainingWS(String functionName) {
-        JvmRunUtil.invoke(compileResult, functionName);
+        BRunUtil.invoke(compileResult, functionName);
     }
 
     @DataProvider

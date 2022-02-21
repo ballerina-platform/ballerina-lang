@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentStateType() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentStateType");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStateType");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -53,7 +53,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentNumberSetType() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentNumberSetType");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentNumberSetType");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -62,7 +62,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentStringOrIntSetType() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentStringOrIntSetType");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetType");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -71,7 +71,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentStringOrIntSetTypeCaseTwo() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentStringOrIntSetTypeCaseTwo");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetTypeCaseTwo");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -80,7 +80,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentIntSetType() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentIntSetType");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentIntSetType");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -89,7 +89,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentIntArrayType() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentIntArrayType");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentIntArrayType");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -98,7 +98,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentStateSameTypeComparison() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparison");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparison");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -107,7 +107,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentStateSameTypeComparisonCaseTwo() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparisonCaseTwo");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparisonCaseTwo");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -116,7 +116,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentRefValueType() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentRefValueType");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentRefValueType");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BMap);
@@ -124,7 +124,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentRefValueTypeCaseTwo() {
-        Object returns = JvmRunUtil.invoke(result, "finiteAssignmentRefValueTypeCaseTwo");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentRefValueTypeCaseTwo");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -133,7 +133,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testFiniteTypeWithTypeCheck() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeWithTypeCheck");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeWithTypeCheck");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -142,7 +142,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testFiniteTypesWithDefaultValues() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypesWithDefaultValues");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithDefaultValues");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -151,7 +151,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testFiniteTypesWithUnion() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypesWithUnion");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnion");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -160,7 +160,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testFiniteTypesWithUnionCaseOne() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypesWithUnionCaseOne");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseOne");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -169,7 +169,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testFiniteTypesWithUnionCaseTwo() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypesWithUnionCaseTwo");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseTwo");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -178,7 +178,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testFiniteTypesWithUnionCaseThree() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypesWithUnionCaseThree");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseThree");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof Long);
@@ -187,7 +187,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testFiniteTypesWithTuple() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypesWithTuple");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithTuple");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -196,7 +196,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testTypeAliasing() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeAliasing");
+        Object returns = BRunUtil.invoke(result, "testTypeAliasing");
 
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns instanceof BString);
@@ -205,7 +205,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testTypeAliasingCaseOne() {
-        Object val = JvmRunUtil.invoke(result, "testTypeAliasingCaseOne");
+        Object val = BRunUtil.invoke(result, "testTypeAliasingCaseOne");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertNotNull(returns.get(0));
@@ -218,7 +218,7 @@ public class FiniteTypeTest {
 
     @Test()
     public void testTypeDefinitionWithVarArgs() {
-        Object val = JvmRunUtil.invoke(result, "testTypeDefinitionWithVarArgs");
+        Object val = BRunUtil.invoke(result, "testTypeDefinitionWithVarArgs");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertNotNull(returns.get(0));
@@ -231,7 +231,7 @@ public class FiniteTypeTest {
 
     @Test
     public void testFiniteTypeWithConstants() {
-        Object val = JvmRunUtil.invoke(result, "testFiniteTypeWithConstants");
+        Object val = BRunUtil.invoke(result, "testFiniteTypeWithConstants");
         BArray returns = (BArray) val;
         Assert.assertTrue(returns.get(0) instanceof Long, "Type mismatch");
         Assert.assertEquals(returns.get(0), 5L, "Value mismatch");
@@ -241,7 +241,7 @@ public class FiniteTypeTest {
 
     @Test
     public void testFiniteTypeWithNumericConstants() {
-        Object val = JvmRunUtil.invoke(result, "testFiniteTypeWithNumericConstants");
+        Object val = BRunUtil.invoke(result, "testFiniteTypeWithNumericConstants");
         BArray returns = (BArray) val;
         Assert.assertTrue(returns.get(0) instanceof Long, "Type mismatch");
         Assert.assertEquals(returns.get(0), 5L, "Value mismatch");
@@ -251,35 +251,35 @@ public class FiniteTypeTest {
 
     @Test
     public void testAssigningIntLiteralToByteFiniteType() {
-        Object returns = JvmRunUtil.invoke(result, "testAssigningIntLiteralToByteFiniteType");
+        Object returns = BRunUtil.invoke(result, "testAssigningIntLiteralToByteFiniteType");
         Assert.assertTrue(returns instanceof Integer, "Type mismatch");
         Assert.assertEquals(returns, 5, "Value mismatch");
     }
 
     @Test
     public void testAssigningIntLiteralToFloatFiniteType() {
-        Object returns = JvmRunUtil.invoke(result, "testAssigningIntLiteralToFloatFiniteType");
+        Object returns = BRunUtil.invoke(result, "testAssigningIntLiteralToFloatFiniteType");
         Assert.assertTrue(returns instanceof Double, "Type mismatch");
         Assert.assertEquals(returns, 5.0, "Value mismatch");
     }
 
     @Test
     public void testDifferentPrecisionFloatAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testDifferentPrecisionFloatAssignment");
+        Object returns = BRunUtil.invoke(result, "testDifferentPrecisionFloatAssignment");
         Assert.assertTrue(returns instanceof Double, "Type mismatch");
         Assert.assertEquals(returns, 5.0, "Value mismatch");
     }
 
     @Test
     public void testDifferentPrecisionFloatConstantAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testDifferentPrecisionFloatConstantAssignment");
+        Object returns = BRunUtil.invoke(result, "testDifferentPrecisionFloatConstantAssignment");
         Assert.assertTrue(returns instanceof Double, "Type mismatch");
         Assert.assertEquals(returns, 5.0, "Value mismatch");
     }
 
     @Test(dataProvider = "assignmentToBroaderTypeFunctions")
     public void testFiniteTypeAssignmentToBroaderType(String function) {
-        Object returns = JvmRunUtil.invoke(result, function);
+        Object returns = BRunUtil.invoke(result, function);
         Assert.assertTrue((Boolean) returns);
     }
 

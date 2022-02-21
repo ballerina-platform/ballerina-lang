@@ -19,7 +19,7 @@ package org.ballerinalang.test.types.table;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -54,81 +54,81 @@ public class RecordConstraintTableTest {
 
     @Test(description = "Test global table constructor expr")
     public void testGlobalTableConstructExpr() {
-        Object values = JvmRunUtil.invoke(result, "testGlobalTableConstructExpr", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testGlobalTableConstructExpr", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test key specifier and key type constraint options")
     public void testKeySpecifierAndTypeConstraintOptions() {
-        JvmRunUtil.invoke(result, "runKeySpecifierTestCases");
+        BRunUtil.invoke(result, "runKeySpecifierTestCases");
     }
 
     @Test(description = "Test member access")
     public void testMemberAccessExpr() {
-        JvmRunUtil.invoke(result, "runMemberAccessTestCases");
+        BRunUtil.invoke(result, "runMemberAccessTestCases");
     }
 
     @Test(description = "Test keyless table")
     public void testKeylessTable() {
-        JvmRunUtil.invoke(result, "testKeylessTable");
+        BRunUtil.invoke(result, "testKeylessTable");
     }
 
     @Test(description = "Test invalid member access in table with a single key field")
     public void testMemberAccessWithInvalidSingleKey() {
-        JvmRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
     }
 
     @Test(description = "Test invalid member access in table with multiple key fields")
     public void testMemberAccessWithInvalidMultiKey() {
-        JvmRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
     }
 
     @Test(description = "Test table with var type")
     public void testTableWithVarType() {
-        JvmRunUtil.invoke(result, "runTableTestcasesWithVarType");
-        JvmRunUtil.invoke(result, "testTableTypeInferenceWithVarType");
+        BRunUtil.invoke(result, "runTableTestcasesWithVarType");
+        BRunUtil.invoke(result, "testTableTypeInferenceWithVarType");
     }
 
     @Test(description = "Test invalid member access in table")
     public void testVarTypeTableInvalidMemberAccess() {
-        JvmRunUtil.invoke(result, "testVarTypeTableInvalidMemberAccess");
+        BRunUtil.invoke(result, "testVarTypeTableInvalidMemberAccess");
     }
 
     @Test(description = "Test member access in table in store operation")
     public void testTableMemberAccessStore() {
-        Object values = JvmRunUtil.invoke(result, "testTableMemberAccessStore", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testTableMemberAccessStore", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test member access in table in load operation")
     public void testTableMemberAccessLoad() {
-        Object values = JvmRunUtil.invoke(result, "testTableMemberAccessLoad", new Object[]{});
+        Object values = BRunUtil.invoke(result, "testTableMemberAccessLoad", new Object[]{});
         Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test table as record field")
     public void testTableAsRecordField() {
-        JvmRunUtil.invoke(result, "testTableAsRecordField", new Object[]{});
+        BRunUtil.invoke(result, "testTableAsRecordField", new Object[]{});
     }
 
     @Test(description = "Test table equality")
     public void testTableEquality() {
-        JvmRunUtil.invoke(result, "testTableEquality", new Object[]{});
+        BRunUtil.invoke(result, "testTableEquality", new Object[]{});
     }
 
     @Test(description = "Test member access in table having members with nilable/optional fields")
     public void testMemberAccessHavingNilableFields() {
-        JvmRunUtil.invoke(result, "testMemberAccessHavingNilableFields");
+        BRunUtil.invoke(result, "testMemberAccessHavingNilableFields");
     }
 
     @Test(description = "Test table iteration with a union constrained table")
     public void testUnionConstrainedTableIteration() {
-        JvmRunUtil.invoke(result, "testUnionConstrainedTableIteration");
+        BRunUtil.invoke(result, "testUnionConstrainedTableIteration");
     }
 
     @Test(description = "Test using spread field in table constructor")
     public void testSpreadFieldInConstructor() {
-        JvmRunUtil.invoke(result, "testSpreadFieldInConstructor");
+        BRunUtil.invoke(result, "testSpreadFieldInConstructor");
     }
 
     @AfterClass

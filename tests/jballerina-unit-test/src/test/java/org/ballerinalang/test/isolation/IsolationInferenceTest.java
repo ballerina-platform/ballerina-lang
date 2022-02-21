@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BObjectType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -71,7 +71,7 @@ public class IsolationInferenceTest {
 
     @Test(dataProvider = "isolationInferenceTests")
     public void testIsolatedFunctions(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "isolationInferenceTests")
@@ -110,13 +110,13 @@ public class IsolationInferenceTest {
     @Test
     public void testIsolatedInferenceWithObjects() {
         CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_inference_with_objects.bal");
-        JvmRunUtil.invoke(result, "testIsolatedInference");
+        BRunUtil.invoke(result, "testIsolatedInference");
     }
 
     @Test(dataProvider = "testIsolatedInferenceWithObjectsNegativeFiles")
     public void testIsolatedInferenceWithObjectsNegative(String fileName) {
         CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/" + fileName);
-        JvmRunUtil.invoke(result, "testIsolatedInference");
+        BRunUtil.invoke(result, "testIsolatedInference");
     }
 
     @DataProvider
@@ -170,7 +170,7 @@ public class IsolationInferenceTest {
     @Test(dataProvider = "testIsolatedInferenceWithVariablesFiles")
     public void testIsolatedInferenceWithVariables(String fileName) {
         CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/" + fileName);
-        JvmRunUtil.invoke(result, "testIsolatedInference");
+        BRunUtil.invoke(result, "testIsolatedInference");
     }
 
     @DataProvider
@@ -185,7 +185,7 @@ public class IsolationInferenceTest {
     public void testIsolatedInferenceForObjectInitMethod() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolation_inference_for_object_init.bal");
-        JvmRunUtil.invoke(result, "testIsolatedInference");
+        BRunUtil.invoke(result, "testIsolatedInference");
     }
 
     @Test

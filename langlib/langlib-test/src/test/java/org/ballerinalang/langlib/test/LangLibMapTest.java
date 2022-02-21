@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -57,13 +57,13 @@ public class LangLibMapTest {
 
     @Test
     public void testLength() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLength");
+        Object returns = BRunUtil.invoke(compileResult, "testLength");
         assertEquals(returns, 3L);
     }
 
     @Test
     public void testGet() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("lk")});
+        Object returns = BRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("lk")});
         assertEquals(returns.toString(), "Sri Lanka");
     }
 
@@ -71,12 +71,12 @@ public class LangLibMapTest {
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testGetNonExistentKey() {
-        JvmRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("NonExistent")});
+        BRunUtil.invoke(compileResult, "testGet", new Object[]{StringUtils.fromString("NonExistent")});
     }
 
     @Test
     public void testEntries() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEntries");
+        Object returns = BRunUtil.invoke(compileResult, "testEntries");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns;
@@ -89,7 +89,7 @@ public class LangLibMapTest {
 
     @Test
     public void testRemove() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemove", new Object[]{StringUtils.fromString("uk")});
+        Object returns = BRunUtil.invoke(compileResult, "testRemove", new Object[]{StringUtils.fromString("uk")});
         BArray result = (BArray) returns;
         assertEquals(result.get(0).toString(), "United Kingdom");
         assertEquals(getType(result.get(1)).getTag(), TypeTags.MAP_TAG);
@@ -104,12 +104,12 @@ public class LangLibMapTest {
           expectedExceptionsMessageRegExp =
                   ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testRemoveNonExistentKey() {
-        JvmRunUtil.invoke(compileResult, "testRemove", new Object[]{StringUtils.fromString("NonExistent")});
+        BRunUtil.invoke(compileResult, "testRemove", new Object[]{StringUtils.fromString("NonExistent")});
     }
 
     @Test
     public void testRemoveAll() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRemoveAll");
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveAll");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
         assertEquals(returns.toString(), "{}");
         assertEquals(((BMap) returns).size(), 0);
@@ -117,13 +117,13 @@ public class LangLibMapTest {
 
     @Test(dataProvider = "mapKeyProvider")
     public void testHasKey(BString key, boolean expected) {
-        Object returns = JvmRunUtil.invoke(compileResult, "testHasKey", new Object[]{key});
+        Object returns = BRunUtil.invoke(compileResult, "testHasKey", new Object[]{key});
         assertEquals(returns, expected);
     }
 
     @Test
     public void testKeys() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testKeys");
+        Object returns = BRunUtil.invoke(compileResult, "testKeys");
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
         BArray arr = (BArray) returns;
@@ -138,7 +138,7 @@ public class LangLibMapTest {
 
     @Test
     public void testMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns;
@@ -151,13 +151,13 @@ public class LangLibMapTest {
 
     @Test
     public void testForEach() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testForEach");
+        Object returns = BRunUtil.invoke(compileResult, "testForEach");
         assertEquals(returns.toString(), "Sri LankaUSAUnited Kingdom");
     }
 
     @Test
     public void testFilter() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFilter");
+        Object returns = BRunUtil.invoke(compileResult, "testFilter");
         assertEquals(getType(returns).getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns;
@@ -169,13 +169,13 @@ public class LangLibMapTest {
 
     @Test
     public void testReduce() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
         assertEquals(returns, 80.5d);
     }
 
     @Test
     public void testAsyncFpArgsWithMaps() {
-        Object results = JvmRunUtil.invoke(compileResult, "testAsyncFpArgsWithMaps");
+        Object results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithMaps");
         BArray arr = (BArray) results;
         assertTrue(arr.get(0) instanceof Long);
         assertTrue(arr.get(1) instanceof BMap);
@@ -194,7 +194,7 @@ public class LangLibMapTest {
 
     @Test(dataProvider = "FunctionList")
     public void testMapFunctions(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @DataProvider(name = "FunctionList")

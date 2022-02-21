@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.Test;
 
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
@@ -41,7 +41,7 @@ public class InitFunctionTest {
     @SuppressWarnings("unchecked")
     public void testMainFunctionWithUserDefinedInit() {
         CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_main_with_init_function.bal");
-        Object value = JvmRunUtil.invokeAndGetJVMResult(compileResult, "main");
+        Object value = BRunUtil.invokeAndGetJVMResult(compileResult, "main");
 
         assertEquals(getType(value).getTag(), TypeTags.ERROR_TAG);
 
@@ -56,7 +56,7 @@ public class InitFunctionTest {
     @SuppressWarnings("unchecked")
     public void testMainFunctionWithImportsWithUserDefinedInit() {
         CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_proj_with_init_funcs");
-        Object value = JvmRunUtil.invokeAndGetJVMResult(compileResult, "main");
+        Object value = BRunUtil.invokeAndGetJVMResult(compileResult, "main");
 
         assertEquals(getType(value).getTag(), TypeTags.ERROR_TAG);
 

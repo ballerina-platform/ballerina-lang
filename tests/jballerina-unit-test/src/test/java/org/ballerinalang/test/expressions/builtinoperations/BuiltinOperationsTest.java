@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,7 +42,7 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test mathematical operation that returns NaN")
     public void testIsNaN() {
-        Object arr = JvmRunUtil.invoke(result, "testIsNaN", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testIsNaN", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue((Boolean) returns.get(0));
@@ -52,7 +52,7 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test mathematical operation that returns Infinity")
     public void testIsInfinity() {
-        Object arr = JvmRunUtil.invoke(result, "testIsInfinite", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testIsInfinite", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue((Boolean) returns.get(0));
@@ -62,7 +62,7 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test mathematical operation that returns a finite number")
     public void testIsFinite() {
-        Object arr = JvmRunUtil.invoke(result, "testIsFinite", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testIsFinite", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue((Boolean) returns.get(0));
@@ -72,7 +72,7 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test result that is returned from a mathematical operation")
     public void testWithCalc() {
-        Object arr = JvmRunUtil.invoke(result, "testWithCalc", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testWithCalc", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue((Boolean) returns.get(0));
@@ -82,7 +82,7 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test result that is returned from a mod with divisor as zero")
     public void testModWithDivisorAsZero() {
-        Object arr = JvmRunUtil.invoke(result, "testModWithDivisorAsZero", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testModWithDivisorAsZero", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue((Boolean) returns.get(0));
@@ -92,7 +92,7 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test result that is returned from a mod with both dividend and divisor as zero")
     public void testModZeroByZero() {
-        Object arr = JvmRunUtil.invoke(result, "testModZeroByZero", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testModZeroByZero", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue((Boolean) returns.get(0));
@@ -102,7 +102,7 @@ public class BuiltinOperationsTest {
 
     @Test(description = "Test result that is returned from a mod with divisor as a finite number")
     public void testModWithDivisorAsFinite() {
-        Object arr = JvmRunUtil.invoke(result, "testModWithDivisorAsFinite", new Object[0]);
+        Object arr = BRunUtil.invoke(result, "testModWithDivisorAsFinite", new Object[0]);
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertFalse((Boolean) returns.get(0));

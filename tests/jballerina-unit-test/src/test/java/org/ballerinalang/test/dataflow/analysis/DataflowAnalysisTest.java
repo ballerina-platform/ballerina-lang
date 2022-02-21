@@ -20,7 +20,7 @@ package org.ballerinalang.test.dataflow.analysis;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -44,7 +44,7 @@ public class DataflowAnalysisTest {
     @Test(dataProvider = "dataToTestInitializedVarsWithWhile", description = "Test initialized variables with while " +
             "loops")
     public void testInitializedVarsWithWhile(String functionName) {
-        JvmRunUtil.invoke(positiveResult, functionName);
+        BRunUtil.invoke(positiveResult, functionName);
     }
 
     @DataProvider

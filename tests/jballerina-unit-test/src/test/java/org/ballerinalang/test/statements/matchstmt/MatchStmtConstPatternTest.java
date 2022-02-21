@@ -19,7 +19,7 @@ package org.ballerinalang.test.statements.matchstmt;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,97 +44,97 @@ public class MatchStmtConstPatternTest {
 
     @Test
     public void testConstPattern1() {
-        JvmRunUtil.invoke(result, "testConstPattern1");
+        BRunUtil.invoke(result, "testConstPattern1");
     }
 
     @Test
     public void testConstPattern2() {
-        JvmRunUtil.invoke(result, "testConstPattern2");
+        BRunUtil.invoke(result, "testConstPattern2");
     }
 
     @Test
     public void testConstPattern3() {
-        JvmRunUtil.invoke(result, "testConstPattern3");
+        BRunUtil.invoke(result, "testConstPattern3");
     }
 
     @Test
     public void testConstPattern4() {
-        JvmRunUtil.invoke(result, "testConstPattern4");
+        BRunUtil.invoke(result, "testConstPattern4");
     }
 
     @Test
     public void testConstPattern5() {
-        JvmRunUtil.invoke(result, "testConstPattern5");
+        BRunUtil.invoke(result, "testConstPattern5");
     }
 
     @Test
     public void testConstPattern6() {
-        JvmRunUtil.invoke(result, "testConstPattern6");
+        BRunUtil.invoke(result, "testConstPattern6");
     }
 
     @Test
     public void testConstPattern7() {
-        JvmRunUtil.invoke(result, "testConstPattern7");
+        BRunUtil.invoke(result, "testConstPattern7");
     }
 
     @Test
     public void testConstPattern8() {
-        JvmRunUtil.invoke(result, "testConstPattern8");
+        BRunUtil.invoke(result, "testConstPattern8");
     }
 
     @Test
     public void testConstPattern9() {
-        JvmRunUtil.invoke(result, "testConstPattern9");
+        BRunUtil.invoke(result, "testConstPattern9");
     }
 
     @Test
     public void testConstPattern10() {
-        JvmRunUtil.invoke(result, "testConstPattern10");
+        BRunUtil.invoke(result, "testConstPattern10");
     }
 
     @Test
     public void testConstPattern11() {
-        JvmRunUtil.invoke(result, "testConstPattern11");
+        BRunUtil.invoke(result, "testConstPattern11");
     }
 
     @Test
     public void testConstPattern12() {
-        JvmRunUtil.invoke(result, "testConstPattern12");
+        BRunUtil.invoke(result, "testConstPattern12");
     }
 
     @Test
     public void testConstPattern13() {
-        JvmRunUtil.invoke(result, "testConstPattern13");
+        BRunUtil.invoke(result, "testConstPattern13");
     }
 
     @Test
     public void testConstPattern14() {
-        JvmRunUtil.invoke(result, "testConstPattern14");
+        BRunUtil.invoke(result, "testConstPattern14");
     }
 
     @Test
     public void testConstPattern15() {
-        JvmRunUtil.invoke(result, "testConstPattern15");
+        BRunUtil.invoke(result, "testConstPattern15");
     }
 
     @Test
     public void testConstPattern16() {
-        JvmRunUtil.invoke(result, "testConstPattern16");
+        BRunUtil.invoke(result, "testConstPattern16");
     }
 
     @Test
     public void testConstPattern17() {
-        JvmRunUtil.invoke(result, "testConstPattern17");
+        BRunUtil.invoke(result, "testConstPattern17");
     }
 
     @Test
     public void testConstPattern18() {
-        JvmRunUtil.invoke(result, "testConstPattern18");
+        BRunUtil.invoke(result, "testConstPattern18");
     }
 
     @Test
     public void testConstPatternWithNegativeLiteral() {
-        JvmRunUtil.invoke(result, "testConstPatternWithNegativeLiteral");
+        BRunUtil.invoke(result, "testConstPatternWithNegativeLiteral");
     }
 
     @Test(description = "Test pattern will not be matched")

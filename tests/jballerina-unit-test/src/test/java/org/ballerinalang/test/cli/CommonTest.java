@@ -20,7 +20,7 @@ package org.ballerinalang.test.cli;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.Test;
 
 /**
@@ -32,13 +32,13 @@ public class CommonTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/operand_option_rest_param.bal");
         String[] args =
                 {"--name", "Riyafa", "--good", "100", "5", "3"};
-        JvmRunUtil.runMain(compileResult, args);
+        BRunUtil.runMain(compileResult, args);
     }
     @Test
     public void testOptionRestParam() {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_rest_param.bal");
         String[] args =
                 {"--name", "Riyafa", "5", "3"};
-        JvmRunUtil.runMain(compileResult, args);
+        BRunUtil.runMain(compileResult, args);
     }
 }

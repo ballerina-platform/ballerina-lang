@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -69,6 +69,6 @@ public class IsolatedParamTest {
     public void testIsolatedParam() {
         CompileResult result = BCompileUtil.compile("test-src/isolated-param/isolated_param.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
-        JvmRunUtil.invoke(result, "testIsolatedFunctionArgForIsolatedParam");
+        BRunUtil.invoke(result, "testIsolatedFunctionArgForIsolatedParam");
     }
 }

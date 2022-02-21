@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,21 +43,21 @@ public class ReturnStmtTest {
     @Test(description = "Test void return")
     public void testReturn() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturn", args);
+        Object returns = BRunUtil.invoke(compileResult, "testReturn", args);
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test void return")
     public void testReturnOneVarDcl() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnOneVarDcl", args);
+        Object returns = BRunUtil.invoke(compileResult, "testReturnOneVarDcl", args);
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test one return value")
     public void testReturnOneReturnArg() {
         Object[] args = {};
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnOneReturnArg", args);
+        Object returns = BRunUtil.invoke(compileResult, "testReturnOneReturnArg", args);
 
         Assert.assertEquals(5L, returns);
     }
@@ -65,14 +65,14 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter but void return")
     public void testReturnOneParam() {
         Object[] args = {10};
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnOneParam", args);
+        Object returns = BRunUtil.invoke(compileResult, "testReturnOneParam", args);
         Assert.assertNull(returns);
     }
 
     @Test(description = "Test one parameter and one return value")
     public void testReturnOneParamOneReturnArg() {
         Object[] args = {10};
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnOneParamOneReturnArg", args);
+        Object returns = BRunUtil.invoke(compileResult, "testReturnOneParamOneReturnArg", args);
 
         Assert.assertEquals(10L, returns);
     }
@@ -80,7 +80,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testReturnOneParamOneVarDclOneReturnArg() {
         Object[] args = {10};
-        Object returns = JvmRunUtil.invoke(compileResult, "testReturnOneParamOneVarDclOneReturnArg", args);
+        Object returns = BRunUtil.invoke(compileResult, "testReturnOneParamOneVarDclOneReturnArg", args);
 
         Assert.assertEquals(20L, returns);
     }
@@ -88,7 +88,7 @@ public class ReturnStmtTest {
     @Test(description = "Test two return values")
     public void testReturnTwoVarDclsTwoReturnArgs() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testReturnNoParamTwoVarDclsTwoReturnArgs", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testReturnNoParamTwoVarDclsTwoReturnArgs", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals(10L, returns.get(0));
@@ -98,7 +98,7 @@ public class ReturnStmtTest {
     @Test(description = "Test three return values")
     public void testReturnThreeVarDclsThreeReturnArgs() {
         Object[] args = {10, 30};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testReturnThreeVarDclsThreeReturnArgs", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testReturnThreeVarDclsThreeReturnArgs", args);
 
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(50L, returns.get(0));
@@ -109,7 +109,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testSplitString() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testSplitString", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testSplitString", args);
 
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals("section1", returns.get(0).toString());
@@ -120,7 +120,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpperUtil() {
         Object[] args = {StringUtils.fromString("section")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testToUpperUtil", args);
+        Object returns = BRunUtil.invoke(compileResult, "testToUpperUtil", args);
 
         Assert.assertEquals("SECTION", returns.toString());
     }
@@ -128,7 +128,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpperUtilDouble() {
         Object[] args = {StringUtils.fromString("name1"), StringUtils.fromString("name2")};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testToUpperUtilDouble", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testToUpperUtilDouble", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals("NAME1", returns.get(0).toString());
@@ -138,7 +138,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper() {
         Object[] args = {StringUtils.fromString("section")};
-        Object returns = JvmRunUtil.invoke(compileResult, "testToUpper", args);
+        Object returns = BRunUtil.invoke(compileResult, "testToUpper", args);
 
         Assert.assertEquals("SECTION", returns.toString());
     }
@@ -146,7 +146,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper1() {
         Object[] args = {StringUtils.fromString("name1"), StringUtils.fromString("name2")};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testToUpper1", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testToUpper1", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals("SECTION", returns.get(0).toString());
@@ -156,7 +156,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper2() {
         Object[] args = {StringUtils.fromString("name1"), StringUtils.fromString("name2")};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testToUpper2", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testToUpper2", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals("name1", returns.get(0).toString());
@@ -166,7 +166,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper3() {
         Object[] args = {StringUtils.fromString("name1"), StringUtils.fromString("name2")};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testToUpper3", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testToUpper3", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals("SECTION", returns.get(0).toString());
@@ -176,7 +176,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper4() {
         Object[] args = {StringUtils.fromString("name1"), StringUtils.fromString("name2")};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testToUpper4", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testToUpper4", args);
 
         Assert.assertEquals(returns.size(), 2);
         Assert.assertEquals("NAME1", returns.get(0).toString());
@@ -186,7 +186,7 @@ public class ReturnStmtTest {
     @Test(description = "Test return with three return arguments")
     public void testReturnWithThreeArguments() {
         Object[] args = {};
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testReturnWithThreeArguments", args);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testReturnWithThreeArguments", args);
 
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(10L, returns.get(0));

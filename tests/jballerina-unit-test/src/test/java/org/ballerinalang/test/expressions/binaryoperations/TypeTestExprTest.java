@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -189,28 +189,28 @@ public class TypeTestExprTest {
 
     @Test
     public void testValueTypeInUnion() {
-        Object returns = JvmRunUtil.invoke(result, "testValueTypeInUnion");
+        Object returns = BRunUtil.invoke(result, "testValueTypeInUnion");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "string");
     }
 
     @Test
     public void testUnionTypeInUnion() {
-        Object returns = JvmRunUtil.invoke(result, "testUnionTypeInUnion");
+        Object returns = BRunUtil.invoke(result, "testUnionTypeInUnion");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "numeric");
     }
 
     @Test
     public void testSimpleRecordTypes_1() {
-        Object returns = JvmRunUtil.invoke(result, "testSimpleRecordTypes_1");
+        Object returns = BRunUtil.invoke(result, "testSimpleRecordTypes_1");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "a is A1");
     }
 
     @Test
     public void testSimpleRecordTypes_2() {
-        Object arr = JvmRunUtil.invoke(result, "testSimpleRecordTypes_2");
+        Object arr = BRunUtil.invoke(result, "testSimpleRecordTypes_2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -221,7 +221,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleRecordTypes_3() {
-        Object arr = JvmRunUtil.invoke(result, "testSimpleRecordTypes_3");
+        Object arr = BRunUtil.invoke(result, "testSimpleRecordTypes_3");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -232,7 +232,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testNestedRecordTypes() {
-        Object arr = JvmRunUtil.invoke(result, "testNestedRecordTypes");
+        Object arr = BRunUtil.invoke(result, "testNestedRecordTypes");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -243,7 +243,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSealedRecordTypes() {
-        Object arr = JvmRunUtil.invoke(result, "testSealedRecordTypes");
+        Object arr = BRunUtil.invoke(result, "testSealedRecordTypes");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -254,7 +254,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testNestedTypeCheck() {
-        Object arr = JvmRunUtil.invoke(result, "testNestedTypeCheck");
+        Object arr = BRunUtil.invoke(result, "testNestedTypeCheck");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -267,35 +267,35 @@ public class TypeTestExprTest {
 
     @Test
     public void testTypeInAny() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeInAny");
+        Object returns = BRunUtil.invoke(result, "testTypeInAny");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "string value: This is working");
     }
 
     @Test
     public void testNilType() {
-        Object returns = JvmRunUtil.invoke(result, "testNilType");
+        Object returns = BRunUtil.invoke(result, "testNilType");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "nil");
     }
 
     @Test
     public void testTypeChecksWithLogicalAnd() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeChecksWithLogicalAnd");
+        Object returns = BRunUtil.invoke(result, "testTypeChecksWithLogicalAnd");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "string and boolean");
     }
 
     @Test
     public void testTypeCheckInTernary() {
-        Object returns = JvmRunUtil.invoke(result, "testTypeCheckInTernary");
+        Object returns = BRunUtil.invoke(result, "testTypeCheckInTernary");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "An integer");
     }
 
     @Test
     public void testJSONTypeCheck() {
-        Object arr = JvmRunUtil.invoke(result, "testJSONTypeCheck");
+        Object arr = BRunUtil.invoke(result, "testJSONTypeCheck");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 7);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -316,7 +316,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testRecordsWithFunctionType_1() {
-        Object arr = JvmRunUtil.invoke(result, "testRecordsWithFunctionType_1");
+        Object arr = BRunUtil.invoke(result, "testRecordsWithFunctionType_1");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -327,7 +327,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testRecordsWithFunctionType_2() {
-        Object arr = JvmRunUtil.invoke(result, "testRecordsWithFunctionType_2");
+        Object arr = BRunUtil.invoke(result, "testRecordsWithFunctionType_2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -338,7 +338,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testObjectWithUnorderedFields() {
-        Object arr = JvmRunUtil.invoke(result, "testObjectWithUnorderedFields");
+        Object arr = BRunUtil.invoke(result, "testObjectWithUnorderedFields");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -353,7 +353,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testPublicObjectEquivalency() {
-        Object arr = JvmRunUtil.invoke(result, "testPublicObjectEquivalency");
+        Object arr = BRunUtil.invoke(result, "testPublicObjectEquivalency");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -366,7 +366,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testPrivateObjectEquivalency() {
-        Object arr = JvmRunUtil.invoke(result, "testPrivateObjectEquivalency");
+        Object arr = BRunUtil.invoke(result, "testPrivateObjectEquivalency");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -379,7 +379,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testAnonymousObjectEquivalency() {
-        Object arr = JvmRunUtil.invoke(result, "testAnonymousObjectEquivalency");
+        Object arr = BRunUtil.invoke(result, "testAnonymousObjectEquivalency");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -392,7 +392,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testObjectWithSameMembersButDifferentAlias() {
-        Object arr = JvmRunUtil.invoke(result, "testObjectWithSameMembersButDifferentAlias");
+        Object arr = BRunUtil.invoke(result, "testObjectWithSameMembersButDifferentAlias");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -407,7 +407,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleArrays() {
-        Object arr = JvmRunUtil.invoke(result, "testSimpleArrays");
+        Object arr = BRunUtil.invoke(result, "testSimpleArrays");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 5);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -424,7 +424,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testRecordArrays() {
-        Object arr = JvmRunUtil.invoke(result, "testRecordArrays");
+        Object arr = BRunUtil.invoke(result, "testRecordArrays");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -439,7 +439,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleTuples() {
-        Object arr = JvmRunUtil.invoke(result, "testSimpleTuples");
+        Object arr = BRunUtil.invoke(result, "testSimpleTuples");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 5);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -456,7 +456,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testTupleWithAssignableTypes_1() {
-        Object arr = JvmRunUtil.invoke(result, "testTupleWithAssignableTypes_1");
+        Object arr = BRunUtil.invoke(result, "testTupleWithAssignableTypes_1");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -471,14 +471,14 @@ public class TypeTestExprTest {
 
     @Test
     public void testTupleWithAssignableTypes_2() {
-        Object returns = JvmRunUtil.invoke(result, "testTupleWithAssignableTypes_2");
+        Object returns = BRunUtil.invoke(result, "testTupleWithAssignableTypes_2");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testSimpleUnconstrainedMap_1() {
-        Object arr = JvmRunUtil.invoke(result, "testSimpleUnconstrainedMap_1");
+        Object arr = BRunUtil.invoke(result, "testSimpleUnconstrainedMap_1");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -489,7 +489,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleUnconstrainedMap_2() {
-        Object arr = JvmRunUtil.invoke(result, "testSimpleUnconstrainedMap_2");
+        Object arr = BRunUtil.invoke(result, "testSimpleUnconstrainedMap_2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 5);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -506,7 +506,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testSimpleConstrainedMap() {
-        Object arr = JvmRunUtil.invoke(result, "testSimpleConstrainedMap");
+        Object arr = BRunUtil.invoke(result, "testSimpleConstrainedMap");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -521,7 +521,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testJsonArrays() {
-        Object arr = JvmRunUtil.invoke(result, "testJsonArrays");
+        Object arr = BRunUtil.invoke(result, "testJsonArrays");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -534,7 +534,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testFiniteType() {
-        Object arr = JvmRunUtil.invoke(result, "testFiniteType");
+        Object arr = BRunUtil.invoke(result, "testFiniteType");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -547,7 +547,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testFiniteTypeInTuple() {
-        Object arr = JvmRunUtil.invoke(result, "testFiniteTypeInTuple");
+        Object arr = BRunUtil.invoke(result, "testFiniteTypeInTuple");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -562,7 +562,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testFiniteTypeInTuplePoisoning() {
-        Object arr = JvmRunUtil.invoke(result, "testFiniteTypeInTuplePoisoning");
+        Object arr = BRunUtil.invoke(result, "testFiniteTypeInTuplePoisoning");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BString);
@@ -573,28 +573,28 @@ public class TypeTestExprTest {
 
     @Test
     public void testFiniteType_1() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteType_1");
+        Object returns = BRunUtil.invoke(result, "testFiniteType_1");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "a is a fruit");
     }
 
     @Test
     public void testFiniteType_2() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteType_2");
+        Object returns = BRunUtil.invoke(result, "testFiniteType_2");
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "a is an Apple");
     }
 
     @Test
     public void testFiniteTypeAsBroaderType_1() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeAsBroaderType_1");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_1");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFiniteTypeAsBroaderType_2() {
-        Object arr = JvmRunUtil.invoke(result, "testFiniteTypeAsBroaderType_2");
+        Object arr = BRunUtil.invoke(result, "testFiniteTypeAsBroaderType_2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -605,7 +605,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testUnionWithFiniteTypeAsFiniteTypeTrue() {
-        Object arr = JvmRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeTrue");
+        Object arr = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeTrue");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -616,7 +616,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testUnionWithFiniteTypeAsFiniteTypeFalse() {
-        Object arr = JvmRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeFalse");
+        Object arr = BRunUtil.invoke(result, "testUnionWithFiniteTypeAsFiniteTypeFalse");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -627,21 +627,21 @@ public class TypeTestExprTest {
 
     @Test
     public void testFiniteTypeAsFiniteTypeTrue() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeTrue");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeTrue");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFiniteTypeAsFiniteTypeFalse() {
-        Object returns = JvmRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeFalse");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeAsFiniteTypeFalse");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testIntersectingUnionTrue() {
-        Object arr = JvmRunUtil.invoke(result, "testIntersectingUnionTrue");
+        Object arr = BRunUtil.invoke(result, "testIntersectingUnionTrue");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -652,7 +652,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testIntersectingUnionFalse() {
-        Object arr = JvmRunUtil.invoke(result, "testIntersectingUnionFalse");
+        Object arr = BRunUtil.invoke(result, "testIntersectingUnionFalse");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -663,7 +663,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testValueTypeAsFiniteTypeTrue() {
-        Object arr = JvmRunUtil.invoke(result, "testValueTypeAsFiniteTypeTrue");
+        Object arr = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeTrue");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -674,7 +674,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testValueTypeAsFiniteTypeFalse() {
-        Object arr = JvmRunUtil.invoke(result, "testValueTypeAsFiniteTypeFalse");
+        Object arr = BRunUtil.invoke(result, "testValueTypeAsFiniteTypeFalse");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -685,7 +685,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testError_1() {
-        Object arr = JvmRunUtil.invoke(result, "testError_1");
+        Object arr = BRunUtil.invoke(result, "testError_1");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -700,7 +700,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testError_2() {
-        Object arr = JvmRunUtil.invoke(result, "testError_2");
+        Object arr = BRunUtil.invoke(result, "testError_2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 3);
         Assert.assertTrue(returns.get(0) instanceof Boolean);
@@ -713,13 +713,13 @@ public class TypeTestExprTest {
 
     @Test
     public void testClosedArrayAsOpenArray() {
-        Object returns = JvmRunUtil.invoke(result, "testClosedArrayAsOpenArray");
+        Object returns = BRunUtil.invoke(result, "testClosedArrayAsOpenArray");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFunctions1() {
-        Object arr = JvmRunUtil.invoke(result, "testFunctions1");
+        Object arr = BRunUtil.invoke(result, "testFunctions1");
         BArray returns = (BArray) arr;
         Assert.assertTrue((Boolean) returns.get(0));
         Assert.assertTrue((Boolean) returns.get(1));
@@ -729,7 +729,7 @@ public class TypeTestExprTest {
 
     @Test
     public void testFunctions2() {
-        Object arr = JvmRunUtil.invoke(result, "testFunctions2");
+        Object arr = BRunUtil.invoke(result, "testFunctions2");
         BArray returns = (BArray) arr;
         Assert.assertTrue((Boolean) returns.get(0));
         Assert.assertFalse((Boolean) returns.get(1));
@@ -739,15 +739,15 @@ public class TypeTestExprTest {
 
     @Test
     public void testFuture() {
-        Object returns = JvmRunUtil.invoke(result, "testFutureTrue");
+        Object returns = BRunUtil.invoke(result, "testFutureTrue");
         Assert.assertTrue((Boolean) returns);
-        returns = JvmRunUtil.invoke(result, "testFutureFalse");
+        returns = BRunUtil.invoke(result, "testFutureFalse");
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test(dataProvider = "dataToTypeTestExpressions", description = "Test is-expression with types")
     public void testTypeTestExpression(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider

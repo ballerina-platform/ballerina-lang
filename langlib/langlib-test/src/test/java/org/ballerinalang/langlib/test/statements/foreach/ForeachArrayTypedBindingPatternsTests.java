@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.test.statements.foreach;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -41,97 +41,97 @@ public class ForeachArrayTypedBindingPatternsTests {
 
     @Test
     public void testArrayWithSimpleVariableWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithSimpleVariableWithoutType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithSimpleVariableWithoutType");
         Assert.assertEquals(returns.toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testArrayWithSimpleVariableWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithSimpleVariableWithType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithSimpleVariableWithType");
         Assert.assertEquals(returns.toString(), "0:A 1:B 2:C ");
     }
 
     @Test
     public void testArrayWithTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithTupleWithoutType");
         Assert.assertEquals(returns.toString(), "1:A 2:B 3:C ");
     }
 
     @Test
     public void testArrayWithTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithTupleWithType");
         Assert.assertEquals(returns.toString(), "1:A 2:B 3:C ");
     }
 
     @Test
     public void testArrayWithTupleInTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithTupleInTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithTupleInTupleWithoutType");
         Assert.assertEquals(returns.toString(), "1:A:2.0 2:B:3.0 3:C:4.0 ");
     }
 
     @Test
     public void testArrayWithTupleInTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithTupleInTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithTupleInTupleWithType");
         Assert.assertEquals(returns.toString(), "1:A:2.0 2:B:3.0 3:C:4.0 ");
     }
 
     @Test
     public void testArrayWithRecordInTupleWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithRecordInTupleWithoutType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.toString(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
     public void testArrayWithRecordInTupleWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithRecordInTupleWithType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithRecordInTupleWithType");
         Assert.assertEquals(returns.toString(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
     public void testArrayWithRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithRecordWithoutType");
         Assert.assertEquals(returns.toString(), "1:A 2:B 3:C ");
     }
 
     @Test
     public void testArrayWithRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithRecordWithType");
         Assert.assertEquals(returns.toString(), "1:A 2:B 3:C ");
     }
 
     @Test
     public void testArrayWithRecordInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithRecordInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithRecordInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
     public void testArrayWithRecordInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithRecordInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithRecordInRecordWithType");
         Assert.assertEquals(returns.toString(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
     public void testArrayWithTupleInRecordWithoutType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithTupleInRecordWithoutType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithTupleInRecordWithoutType");
         Assert.assertEquals(returns.toString(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
     public void testArrayWithTupleInRecordWithType() {
-        Object returns = JvmRunUtil.invoke(program, "testArrayWithTupleInRecordWithType");
+        Object returns = BRunUtil.invoke(program, "testArrayWithTupleInRecordWithType");
         Assert.assertEquals(returns.toString(), "1:1:A 2:2:B 3:3:C ");
     }
 
     @Test
     public void testEmptyArrayIteration() {
-        Object returns = JvmRunUtil.invoke(program, "testEmptyArrayIteration");
+        Object returns = BRunUtil.invoke(program, "testEmptyArrayIteration");
         Assert.assertEquals(returns.toString(), "");
     }
 
     @Test(dataProvider = "bindingPatternWithVarInForeachStatementForReadOnlyMembersOfLists")
     public void testBindingPatternWithVarInForeachStatementForReadOnlyMembersOfLists(String function) {
-        JvmRunUtil.invoke(program, function);
+        BRunUtil.invoke(program, function);
     }
 
     @DataProvider
@@ -148,7 +148,7 @@ public class ForeachArrayTypedBindingPatternsTests {
 
     @Test(dataProvider = "bindingPatternInForeachStatementForReadOnlyMembersOfLists")
     public void testBindingPatternInForeachStatementForReadOnlyMembersOfLists(String function) {
-        JvmRunUtil.invoke(program, function);
+        BRunUtil.invoke(program, function);
     }
 
     @DataProvider

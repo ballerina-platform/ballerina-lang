@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,7 +39,7 @@ public class UnicodeTest {
 
     @Test(description = "Test the unicode code patterns.")
     public void testUnicode() {
-        JvmRunUtil.invoke(result, "testUnicode");
+        BRunUtil.invoke(result, "testUnicode");
     }
 
     @AfterClass

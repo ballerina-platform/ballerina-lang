@@ -32,7 +32,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -62,7 +62,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToAnydata() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToAnydata");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToAnydata");
         Object anydataValue = results;
 
         Assert.assertEquals(anydataValue.toString(), "3");
@@ -72,7 +72,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToAnydataV2() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampJSONToAnydataV2");
+        Object arr = BRunUtil.invoke(compileResult, "stampJSONToAnydataV2");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 5);
     }
@@ -80,7 +80,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToRecord() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToRecord");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToRecord");
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
@@ -89,7 +89,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToRecordV2() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToRecordV2");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToRecordV2");
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(mapValue0.getType().getName(), "Employee");
@@ -105,7 +105,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToJSON() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToJSON");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToJSON");
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
@@ -117,7 +117,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToMap() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToMap");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToMap");
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertEquals((mapValue0).size(), 4);
@@ -140,7 +140,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToMapV2() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToMapV2");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToMapV2");
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertEquals((mapValue0).size(), 6);
@@ -172,7 +172,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONArrayToConstraintArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampJSONArrayToConstraintArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampJSONArrayToConstraintArray");
         BArray results = (BArray) arr;
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results.get(0);
         BMap<String, Object> mapValue1 = (BMap<String, Object>) results.get(1);
@@ -200,7 +200,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONArrayToAnydataTypeArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampJSONArrayToAnyTypeArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampJSONArrayToAnyTypeArray");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 4);
         Assert.assertEquals(results.get(0).toString(), "1");
@@ -217,14 +217,14 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToUnion() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToUnion");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToUnion");
         Assert.assertEquals(getType(results).getClass(), BMapType.class);
     }
 
     @Test
     public void testStampJSONToAnydataV3() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToAnydataV3");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToAnydataV3");
         Assert.assertEquals(getType(results).getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) getType(results)).getConstrainedType().getClass(), BAnydataType.class);
     }
@@ -232,7 +232,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONArrayWithNullToAnydataArray() {
 
-        Object arr = JvmRunUtil.invoke(compileResult, "stampJSONArrayWithNullToAnydataArray");
+        Object arr = BRunUtil.invoke(compileResult, "stampJSONArrayWithNullToAnydataArray");
         BArray results = (BArray) arr;
         Assert.assertEquals(results.size(), 5);
         Assert.assertEquals(results.get(0).toString(), "1");
@@ -250,7 +250,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToRecordWithArray() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToRecordWithArray");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToRecordWithArray");
         BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
 
         Assert.assertEquals(mapValue0.getType().getClass(), BRecordType.class);
@@ -266,7 +266,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToRecordNegative() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToRecordNegative");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToRecordNegative");
         Object error = results;
 
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
@@ -280,7 +280,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampJSONToMapNegative() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampJSONToMapNegative");
+        Object results = BRunUtil.invoke(compileResult, "stampJSONToMapNegative");
         Object error = results;
 
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);
@@ -294,7 +294,7 @@ public class JSONStampInbuiltFunctionTest {
     @Test
     public void testStampNullJSONToArrayNegative() {
 
-        Object results = JvmRunUtil.invoke(compileResult, "stampNullJSONToArrayNegative");
+        Object results = BRunUtil.invoke(compileResult, "stampNullJSONToArrayNegative");
         Object error = results;
 
         Assert.assertEquals(getType(error).getClass(), BErrorType.class);

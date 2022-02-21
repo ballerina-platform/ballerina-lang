@@ -21,7 +21,7 @@ package org.ballerinalang.test.types.constant;
 import io.ballerina.runtime.api.values.BDecimal;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,105 +41,105 @@ public class ConstantInTypeDefinitionTest {
 
     @Test
     public void testTypeConstants() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTypeConstants");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeConstants");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "GET");
     }
 
     @Test
     public void testConstWithTypeAssignmentToType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToType");
+        Object returns = BRunUtil.invoke(compileResult, "testConstWithTypeAssignmentToType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "GET");
     }
 
     @Test
     public void testConstWithoutTypeAssignmentToType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testConstWithoutTypeAssignmentToType");
+        Object returns = BRunUtil.invoke(compileResult, "testConstWithoutTypeAssignmentToType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "GET");
     }
 
     @Test
     public void testConstAndTypeComparison() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testConstAndTypeComparison");
+        Object returns = BRunUtil.invoke(compileResult, "testConstAndTypeComparison");
         Assert.assertNotNull(returns);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTypeConstAsParam() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testTypeConstAsParam");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeConstAsParam");
         Assert.assertNotNull(returns);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testBooleanTypeWithType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testBooleanTypeWithType");
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithType");
         Assert.assertNotNull(returns);
         Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testBooleanTypeWithoutType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testBooleanTypeWithoutType");
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithoutType");
         Assert.assertNotNull(returns);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testIntTypeWithType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIntTypeWithType");
+        Object returns = BRunUtil.invoke(compileResult, "testIntTypeWithType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 40L);
     }
 
     @Test
     public void testIntTypeWithoutType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIntTypeWithoutType");
+        Object returns = BRunUtil.invoke(compileResult, "testIntTypeWithoutType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 20L);
     }
 
     @Test
     public void testByteTypeWithType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testByteTypeWithType");
+        Object returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 240);
     }
 
     @Test
     public void testFloatTypeWithType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloatTypeWithType");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatTypeWithType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 4.0);
     }
 
     @Test
     public void testFloatTypeWithoutType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testFloatTypeWithoutType");
+        Object returns = BRunUtil.invoke(compileResult, "testFloatTypeWithoutType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns, 2.0);
     }
 
     @Test
     public void testDecimalTypeWithType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testDecimalTypeWithType");
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BDecimal) returns).floatValue(), 4.0);
     }
 
     @Test
     public void testStringTypeWithType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringTypeWithType");
+        Object returns = BRunUtil.invoke(compileResult, "testStringTypeWithType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "Ballerina is awesome");
     }
 
     @Test
     public void testStringTypeWithoutType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testStringTypeWithoutType");
+        Object returns = BRunUtil.invoke(compileResult, "testStringTypeWithoutType");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "Ballerina rocks");
     }

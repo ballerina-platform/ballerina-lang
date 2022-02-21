@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -70,13 +70,13 @@ public class FutureNegativeTests {
 
     @Test(dataProvider = "multipleWait")
     public void testFutureNegatives(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @Test
     public void testStrand() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/future/strand_error.bal");
-        Object result = JvmRunUtil.invoke(compileResult, "testStrand");
+        Object result = BRunUtil.invoke(compileResult, "testStrand");
         var mapResult = (BMap<String, BMap<String, Object>>) result;
         Set<String> set = new HashSet<>();
         set.add(mapResult.get(StringUtils.fromString("f1")).get(StringUtils.fromString("f0")).toString());

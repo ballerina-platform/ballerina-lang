@@ -20,7 +20,7 @@ package org.ballerinalang.test.error;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,7 +34,7 @@ public class ErrorDestructureTest {
     public void testErrorDestructuring() {
         CompileResult destructuringResult = BCompileUtil.
                 compile("test-src/error/error_destructure_binding_pattern.bal");
-        Object arr = JvmRunUtil.invoke(destructuringResult, "testErrorDestructure");
+        Object arr = BRunUtil.invoke(destructuringResult, "testErrorDestructure");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.get(0).toString(), "Sample Error");
         Assert.assertEquals(returns.get(1).toString(), "Detail Info");

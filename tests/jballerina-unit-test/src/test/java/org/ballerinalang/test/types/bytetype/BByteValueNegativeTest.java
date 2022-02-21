@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -99,7 +99,7 @@ public class BByteValueNegativeTest {
 
     @Test(description = "Test int to byte conversion negative")
     public void byteValueRuntimeNegative1() {
-        Object returnValue = JvmRunUtil.invoke(result, "invalidByteLiteral1", new Object[]{});
+        Object returnValue = BRunUtil.invoke(result, "invalidByteLiteral1", new Object[]{});
         Assert.assertTrue(returnValue instanceof BError);
         Assert.assertEquals(returnValue.toString(), "error(\"{ballerina}NumberConversionError\",message=\"'int' value" +
                 " '-12' cannot be converted to 'byte'\")");
@@ -107,7 +107,7 @@ public class BByteValueNegativeTest {
 
     @Test(description = "Test int to byte conversion negative")
     public void byteValueRuntimeNegative2() {
-        Object returnValue = JvmRunUtil.invoke(result, "invalidByteLiteral2", new Object[]{});
+        Object returnValue = BRunUtil.invoke(result, "invalidByteLiteral2", new Object[]{});
         Assert.assertTrue(returnValue instanceof BError);
         Assert.assertEquals(returnValue.toString(), "error(\"{ballerina}NumberConversionError\",message=\"'int' value" +
                 " '-257' cannot be converted to 'byte'\")");
@@ -115,7 +115,7 @@ public class BByteValueNegativeTest {
 
     @Test(description = "Test int to byte conversion negative")
     public void byteValueRuntimeNegative3() {
-        Object returnValue = JvmRunUtil.invoke(result, "invalidByteLiteral3", new Object[]{});
+        Object returnValue = BRunUtil.invoke(result, "invalidByteLiteral3", new Object[]{});
         Assert.assertTrue(returnValue instanceof BError);
         Assert.assertEquals(returnValue.toString(), "error(\"{ballerina}NumberConversionError\",message=\"'int' value" +
                 " '12,345' cannot be converted to 'byte'\")");

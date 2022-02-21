@@ -19,7 +19,7 @@ package org.ballerinalang.test.bala.readonly;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -50,7 +50,7 @@ public class ImmutabilityBalaTest {
 
     @Test(dataProvider = "immutableTypesTestFunctions")
     public void testSelectivelyImmutableTypes(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider(name = "immutableTypesTestFunctions")
@@ -64,7 +64,7 @@ public class ImmutabilityBalaTest {
 
     @Test
     public void testIntersectionOfInherentlyImmutableTypes() {
-        JvmRunUtil.invoke(inherentlyImmutableResult, "testEnumIntersectionWithReadOnly");
+        BRunUtil.invoke(inherentlyImmutableResult, "testEnumIntersectionWithReadOnly");
     }
 
     @Test

@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -61,7 +61,7 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneCyclicMapsArray() {
-        Object arr = JvmRunUtil.invoke(result, "cloneCyclicMapsArray");
+        Object arr = BRunUtil.invoke(result, "cloneCyclicMapsArray");
         BArray results = (BArray) arr;
         Assert.assertNotNull(results);
         Assert.assertNotSame(((BArray) results.get(0)).getRefValue(0), ((BArray) results.get(1)).getRefValue(0));
@@ -70,7 +70,7 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneCyclicRecord() {
-        Object returns = JvmRunUtil.invoke(result, "cloneCyclicRecord");
+        Object returns = BRunUtil.invoke(result, "cloneCyclicRecord");
         BArray results = (BArray) returns;
         Assert.assertNotNull(results);
 
@@ -105,7 +105,7 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneCyclicArray() {
-        Object returns = JvmRunUtil.invoke(result, "cloneCyclicArray");
+        Object returns = BRunUtil.invoke(result, "cloneCyclicArray");
         BArray results = (BArray) returns;
         Assert.assertNotNull(results);
 
@@ -134,7 +134,7 @@ public class CloneOperationTest {
 
     @Test(dataProvider = "function-names-provider")
     public void testCloneValues(String functionName) {
-        JvmRunUtil.invoke(result, functionName);
+        BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider(name = "function-names-provider")

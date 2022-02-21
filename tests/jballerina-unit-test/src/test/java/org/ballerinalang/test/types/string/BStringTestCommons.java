@@ -19,7 +19,7 @@
 package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 
 /**
@@ -29,7 +29,7 @@ public class BStringTestCommons {
     protected CompileResult result;
 
     protected void testAndAssert(String funcName, long length) {
-        Object returns = JvmRunUtil.invoke(result, funcName);
+        Object returns = BRunUtil.invoke(result, funcName);
         Assert.assertEquals(returns.getClass(), Long.class);
         Assert.assertEquals(returns, length);
     }

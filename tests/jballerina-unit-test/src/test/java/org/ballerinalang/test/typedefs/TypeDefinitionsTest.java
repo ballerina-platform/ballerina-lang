@@ -21,7 +21,7 @@ package org.ballerinalang.test.typedefs;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class TypeDefinitionsTest {
 
     @Test
     public void testArray() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testArray");
+        Object returns = BRunUtil.invoke(compileResult, "testArray");
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BArray) returns).getInt(0), 1);
         Assert.assertEquals(((BArray) returns).getInt(1), 2);
@@ -52,44 +52,44 @@ public class TypeDefinitionsTest {
 
     @Test
     public void testSimpleTuple() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testSimpleTuple");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testSimpleTuple");
         Assert.assertEquals(returns.get(0), 10L);
         Assert.assertEquals(returns.get(1).toString(), "Ten");
     }
 
     @Test
     public void testMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
         Assert.assertEquals(returns.toString(), "{\"Five\":5}");
     }
 
     @Test
     public void testValueType() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testValueType");
+        Object returns = BRunUtil.invoke(compileResult, "testValueType");
         Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test
     public void testRecord() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testRecord");
+        Object returns = BRunUtil.invoke(compileResult, "testRecord");
         Assert.assertEquals(returns.toString(), "{\"f\":\"Ballerina\"}");
     }
 
     @Test
     public void testObject() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testObject");
+        Object returns = BRunUtil.invoke(compileResult, "testObject");
         Assert.assertEquals(returns.toString(), "{}");
     }
 
     @Test
     public void testUnion() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testUnion");
+        Object returns = BRunUtil.invoke(compileResult, "testUnion");
         Assert.assertEquals(returns.toString(), "{g:}");
     }
 
     @Test
     public void testComplexTuple() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testComplexTuple");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testComplexTuple");
         Assert.assertEquals(returns.get(0).toString(), "[1,2]");
         Assert.assertEquals(returns.get(1).toString(), "[3,4]");
         Assert.assertEquals(returns.get(2).toString(), "[2,\"Two\"]");
@@ -104,7 +104,7 @@ public class TypeDefinitionsTest {
 
     @Test
     public void testComplexUnion() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testComplexUnion");
+        Object returns = BRunUtil.invoke(compileResult, "testComplexUnion");
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BArray) returns).getInt(0), 4);
         Assert.assertEquals(((BArray) returns).getInt(1), 5);
@@ -113,60 +113,60 @@ public class TypeDefinitionsTest {
 
     @Test
     public void testUnionInTuple() {
-        BArray returns = (BArray) JvmRunUtil.invoke(compileResult, "testUnionInTuple");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testUnionInTuple");
         Assert.assertEquals(returns.get(0).toString(), "[4,5,6]");
         Assert.assertEquals(returns.get(1).toString(), "[10,20]");
     }
 
     @Test
     public void testXml() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testXml");
+        Object returns = BRunUtil.invoke(compileResult, "testXml");
         Assert.assertEquals(returns.toString(), "<name>ballerina</name>");
     }
 
     @Test
     public void testAnonRecordUnionTypeDef() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonRecordUnionTypeDef");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonRecordUnionTypeDef");
     }
 
     @Test
     public void testAnonObjectUnionTypeDef() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonObjectUnionTypeDef");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonObjectUnionTypeDef");
     }
 
     @Test
     public void testAnonExclusiveRecordUnionTypeDef() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testAnonExclusiveRecordUnionTypeDef");
+        Object returns = BRunUtil.invoke(compileResult, "testAnonExclusiveRecordUnionTypeDef");
     }
 
     @Test
     public void testIntArrayTypeDef() {
-        JvmRunUtil.invoke(compileResult, "testIntArrayTypeDef");
+        BRunUtil.invoke(compileResult, "testIntArrayTypeDef");
     }
 
     @Test
     public void testTupleTypeDef() {
-        JvmRunUtil.invoke(compileResult, "testTupleTypeDef");
+        BRunUtil.invoke(compileResult, "testTupleTypeDef");
     }
 
     @Test
     public void testTypeDefReferringToTypeDefDefinedAfter() {
-        JvmRunUtil.invoke(compileResult, "testTypeDefReferringToTypeDefDefinedAfter");
+        BRunUtil.invoke(compileResult, "testTypeDefReferringToTypeDefDefinedAfter");
     }
 
     @Test
     public void testFuncInvocationWithinTypeDef() {
-        JvmRunUtil.invoke(compileResult, "testFuncInvocation");
+        BRunUtil.invoke(compileResult, "testFuncInvocation");
     }
 
     @Test
     public void testClassDefinition() {
-        JvmRunUtil.invoke(compileResult, "testClassDefn");
+        BRunUtil.invoke(compileResult, "testClassDefn");
     }
 
     @Test
     public void testBinaryExprAssignments() {
-        JvmRunUtil.invoke(compileResult, "testBinaryExprAssignments");
+        BRunUtil.invoke(compileResult, "testBinaryExprAssignments");
     }
 
 //    @Test

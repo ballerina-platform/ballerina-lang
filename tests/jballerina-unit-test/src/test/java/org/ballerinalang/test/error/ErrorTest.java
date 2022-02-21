@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -57,12 +57,12 @@ public class ErrorTest {
 
     @Test
     public void testDistinctFooError() {
-        JvmRunUtil.invoke(distinctErrorTestResult, "testFooError");
+        BRunUtil.invoke(distinctErrorTestResult, "testFooError");
     }
 
     @Test
     public void testFunctionCallInDetailArgExpr() {
-        JvmRunUtil.invoke(distinctErrorTestResult, "testFunctionCallInDetailArgExpr");
+        BRunUtil.invoke(distinctErrorTestResult, "testFunctionCallInDetailArgExpr");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ErrorTest {
 
     @Test
     public void testIndirectErrorCtor() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
+        Object returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
         BArray errors = (BArray) returns;
         Assert.assertEquals(errors.size(), 4);
         Assert.assertEquals(errors.get(0).toString(), "error UserDefErrorTwoA (\"arg\",message=\"\",data={})");
@@ -90,26 +90,26 @@ public class ErrorTest {
 
     @Test
     public void errorConstructReasonTest() {
-        JvmRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
+        BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
     }
 
     @Test
     public void errorConstructDetailTest() {
-        JvmRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
+        BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
     }
 
     @Test
     public void errorPanicTest() {
         // Case without panic
         Object[] args = new Object[]{(10)};
-        Object returns = JvmRunUtil.invoke(errorTestResult, "errorPanicTest", args);
+        Object returns = BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
         Assert.assertEquals(returns.toString(), "done");
 
         // Now panic
         args = new Object[]{(15)};
         Exception expectedException = null;
         try {
-            JvmRunUtil.invoke(errorTestResult, "errorPanicTest", args);
+            BRunUtil.invoke(errorTestResult, "errorPanicTest", args);
         } catch (Exception e) {
             expectedException = e;
         }
@@ -126,16 +126,16 @@ public class ErrorTest {
     public void errorTrapTest() {
         // Case without panic
         Object[] args = new Object[]{(10)};
-        JvmRunUtil.invoke(errorTestResult, "errorTrapTest", args);
+        BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
 
         // Now panic
         args = new Object[]{(15)};
-        JvmRunUtil.invoke(errorTestResult, "errorTrapTest", args);
+        BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
     }
 
     @Test
     public void customErrorDetailsTest() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
+        Object returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
         Assert.assertEquals(returns.toString(), "error TrxError (\"trxErr\",message=\"\",data=\"test\")");
         Assert.assertEquals(getType(((BError) returns).getDetails()).getTag(), TypeTags.RECORD_TYPE_TAG);
         Assert.assertEquals(getType(((BError) returns).getDetails()).getName(), "(TrxErrorData & readonly)");
@@ -143,25 +143,25 @@ public class ErrorTest {
 
     @Test
     public void testCustomErrorDetails2() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testCustomErrorDetails2");
+        Object returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails2");
         Assert.assertEquals(returns.toString(), "test");
     }
 
     @Test
     public void testErrorWithErrorConstructor() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
+        Object returns = BRunUtil.invoke(errorTestResult, "testErrorWithErrorConstructor");
         Assert.assertEquals(returns.toString(), "test");
     }
 
     @Test
     public void testConsecutiveTraps() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testConsecutiveTraps");
+        Object returns = BRunUtil.invoke(errorTestResult, "testConsecutiveTraps");
         Assert.assertEquals(returns.toString(), "[\"Error\",\"Error\"]");
     }
 
     @Test
     public void testOneLinePanic() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testOneLinePanic");
+        Object returns = BRunUtil.invoke(errorTestResult, "testOneLinePanic");
         Assert.assertTrue(returns instanceof BArray);
         BArray array = (BArray) returns;
         Assert.assertEquals(array.getString(0), "Error1");
@@ -174,26 +174,26 @@ public class ErrorTest {
 
     @Test
     public void testGenericErrorWithDetailRecord() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
+        Object returns = BRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTrapSuccessScenario() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
+        Object returns = BRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 1L);
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
-        JvmRunUtil.invoke(errorTestResult, testFunction);
+        BRunUtil.invoke(errorTestResult, testFunction);
     }
 
     @Test(dataProvider = "constAsReasonTests")
     public void testErrorWithConstantAsReason(String testFunction) {
-        Object returns = JvmRunUtil.invoke(errorTestResult, testFunction);
+        Object returns = BRunUtil.invoke(errorTestResult, testFunction);
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(((BError) returns).getMessage(), CONST_ERROR_REASON);
         Assert.assertEquals(
@@ -210,19 +210,19 @@ public class ErrorTest {
 
     @Test
     public void testUnspecifiedErrorDetailFrozenness() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testUnspecifiedErrorDetailFrozenness");
+        Object returns = BRunUtil.invoke(errorTestResult, "testUnspecifiedErrorDetailFrozenness");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testLocalErrorTypeWithClosure() {
-        JvmRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithClosure");
     }
 
     @Test
     public void testLocalErrorTypeWithinLambda() {
-        JvmRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
+        BRunUtil.invoke(errorTestResult, "testLocalErrorTypeWithinLambda");
     }
 
     @Test
@@ -292,7 +292,7 @@ public class ErrorTest {
 
     @Test()
     public void errorReasonSubtypeTest() {
-        Object arr = JvmRunUtil.invoke(errorTestResult, "errorReasonSubType");
+        Object arr = BRunUtil.invoke(errorTestResult, "errorReasonSubType");
         BArray returns = (BArray) arr;
         Assert.assertEquals(((BError) returns.get(0)).getMessage(), "ErrNo-1");
         Assert.assertEquals(((BError) returns.get(1)).getMessage(), "ErrorNo-2");
@@ -302,24 +302,24 @@ public class ErrorTest {
 
     @Test()
     public void indirectErrorCtorTest() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "indirectErrorCtor");
+        Object returns = BRunUtil.invoke(errorTestResult, "indirectErrorCtor");
         Assert.assertEquals(returns.toString(), "[\"foo\",true,error FooError (\"foo\",code=3456)]");
     }
 
     @Test()
     public void testUnionLhsWithIndirectErrorRhs() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
+        Object returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
         Assert.assertEquals(((BError) returns).getMessage(), "Foo");
     }
 
     @Test()
     public void testOptionalErrorReturn() {
-        JvmRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
+        BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
     }
 
     @Test()
     public void testIndirectErrorReturn() {
-        Object returns = JvmRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
+        Object returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
         Assert.assertEquals(returns.toString(), "error E1 (\"Foo\",message=\"error msg\")");
     }
 
@@ -327,7 +327,7 @@ public class ErrorTest {
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {
-            JvmRunUtil.invoke(errorTestResult, "testStackTraceInNative");
+            BRunUtil.invoke(errorTestResult, "testStackTraceInNative");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -342,32 +342,32 @@ public class ErrorTest {
     @Test
     public void testPanicOnErrorUnion() {
         Object[] args = new Object[]{(0)};
-        Object result = JvmRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        Object result = BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
         Assert.assertEquals(result.toString(), "str");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: x.*")
     public void testPanicOnErrorUnionCustomError() {
         Object[] args = new Object[]{(1)};
-        JvmRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: y " +
             "\\{\"code\":4\\}.*")
     public void testPanicOnErrorUnionCustomError2() {
         Object[] args = new Object[]{(2)};
-        JvmRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 
     @Test
     public void testErrorUnionPassedToErrorParam() {
-        Object result = JvmRunUtil.invoke(errorTestResult, "testErrorUnionPassedToErrorParam");
+        Object result = BRunUtil.invoke(errorTestResult, "testErrorUnionPassedToErrorParam");
         Assert.assertEquals(result.toString(), "a1");
     }
 
     @Test
     public void testStackOverFlow() {
-        Object result = JvmRunUtil.invoke(errorTestResult, "testStackOverFlow");
+        Object result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         BArray arr = (BArray) result;
         String expected1 = "{callableName:bar, moduleName:null, fileName:error_test.bal, lineNumber:408}";
         String expected2 = "{callableName:bar2, moduleName:null, fileName:error_test.bal, lineNumber:412}";
@@ -379,19 +379,19 @@ public class ErrorTest {
 
     @Test
     public void testErrorTrapVarReuse() {
-        JvmRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
+        BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
     }
 
     @Test
     public void testErrorBindingPattern() {
-        JvmRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
+        BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 
     @Test
     public void testStackTraceWithErrorCauseLocation() {
         Exception expectedException = null;
         try {
-            JvmRunUtil.invoke(errorTestResult, "testStackTraceWithErrorCauseLocation");
+            BRunUtil.invoke(errorTestResult, "testStackTraceWithErrorCauseLocation");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -414,7 +414,7 @@ public class ErrorTest {
     public void testStacktraceWithPanicInsideInitMethod() {
         Exception expectedException = null;
         try {
-            JvmRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideInitMethod");
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideInitMethod");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -430,7 +430,7 @@ public class ErrorTest {
     public void testStacktraceWithPanicInsideAnonymousFunction() {
         Exception expectedException = null;
         try {
-            JvmRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideAnonymousFunction");
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideAnonymousFunction");
         } catch (Exception e) {
             expectedException = e;
         }

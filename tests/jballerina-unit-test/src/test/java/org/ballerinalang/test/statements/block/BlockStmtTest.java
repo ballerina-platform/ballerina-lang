@@ -19,7 +19,7 @@ package org.ballerinalang.test.statements.block;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,35 +47,35 @@ public class BlockStmtTest {
 
     @Test
     public void testVariableShadowingBasic() {
-        Object returns = JvmRunUtil.invoke(result, "test1");
+        Object returns = BRunUtil.invoke(result, "test1");
         Assert.assertEquals(returns, 9L);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope1() {
-        Object returns = JvmRunUtil.invoke(result, "test2");
+        Object returns = BRunUtil.invoke(result, "test2");
         Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope2() {
-        Object returns = JvmRunUtil.invoke(result, "test3");
+        Object returns = BRunUtil.invoke(result, "test3");
         Assert.assertEquals(returns.toString(), "K25");
     }
 
     @Test
     public void testScopeOfBlock() {
-        JvmRunUtil.invoke(result, "testScopeOfBlock");
+        BRunUtil.invoke(result, "testScopeOfBlock");
     }
 
     @Test
     public void testStmtInBlock() {
-        JvmRunUtil.invoke(result, "testStmtInBlock");
+        BRunUtil.invoke(result, "testStmtInBlock");
     }
 
     @Test
     public void testReturnStmtLocationInBlock() {
-        JvmRunUtil.invoke(result, "testReturnStmtLocationInBlock");
+        BRunUtil.invoke(result, "testReturnStmtLocationInBlock");
     }
 
     @Test(description = "Test block statement with errors")

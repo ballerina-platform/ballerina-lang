@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class MultipleFromClauseWithVarTypeTest {
 
     @Test(description = "Test multiple select clauses - simple variable definition statement ")
     public void testMultipleSelectClausesWithSimpleVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleSelectClausesWithSimpleVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleSelectClausesWithSimpleVariable");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 6, "Expected events are not received");
@@ -84,7 +84,7 @@ public class MultipleFromClauseWithVarTypeTest {
 
     @Test(description = "Test multiple select clauses - record variable definition statement ")
     public void testMultipleSelectClausesWithRecordVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariable");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 6, "Expected events are not received");
@@ -123,7 +123,7 @@ public class MultipleFromClauseWithVarTypeTest {
 
     @Test(description = "Test multiple select clauses - record variable definition statement v2")
     public void testMultipleSelectClausesWithRecordVariableV2() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariableV2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariableV2");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.size(), 6, "Expected events are not received");

@@ -21,7 +21,7 @@ package org.ballerinalang.test.record;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -55,44 +55,44 @@ public class ClosedRecordEquivalencyRulesTest {
 
     @Test(description = "Test assigning a closed record to a cloesd record type variable")
     public void testCRToCRClosedToClosedAssignment1() {
-        Object returns = JvmRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment1");
+        Object returns = BRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment1");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS closed with RHS field types which are assignable to LHS field types")
     public void testCRToCRClosedToClosedAssignment2() {
-        Object returns = JvmRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment2");
+        Object returns = BRunUtil.invoke(closedRecToClosedRec, "testClosedToClosedAssignment2");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS closed with RHS required fields corresponding to LHS optional fields")
     public void testCRToCRReqFieldToOptField() {
-        Object returns = JvmRunUtil.invoke(closedRecToClosedRec, "testReqFieldToOptField");
+        Object returns = BRunUtil.invoke(closedRecToClosedRec, "testReqFieldToOptField");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS closed with RHS optional fields corresponding to LHS optional fields")
     public void testCRToCROptFieldToOptField1() {
-        Object returns = JvmRunUtil.invoke(closedRecToClosedRec, "testOptFieldToOptField1");
+        Object returns = BRunUtil.invoke(closedRecToClosedRec, "testOptFieldToOptField1");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS closed with RHS optional fields corresponding to LHS optional fields")
     public void testCRToCROptFieldToOptField2() {
-        BArray returns = (BArray) JvmRunUtil.invoke(closedRecToClosedRec, "testOptFieldToOptField2");
+        BArray returns = (BArray) BRunUtil.invoke(closedRecToClosedRec, "testOptFieldToOptField2");
         assertEquals(returns.get(0).toString(), "{\"name\":\"John Doe\",\"age\":25}");
         assertNull(returns.get(1));
     }
 
     @Test(description = "RHS and LHS closed with RHS type being a public typedesc")
     public void testCRToCRHeterogeneousTypedescEq() {
-        Object returns = JvmRunUtil.invoke(closedRecToClosedRec, "testHeterogeneousTypedescEq");
+        Object returns = BRunUtil.invoke(closedRecToClosedRec, "testHeterogeneousTypedescEq");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 
     @Test(description = "RHS and LHS closed with LHS type being a public typedesc")
     public void testCRToCRHeterogeneousTypedescEq2() {
-        Object returns = JvmRunUtil.invoke(closedRecToClosedRec, "testHeterogeneousTypedescEq2");
+        Object returns = BRunUtil.invoke(closedRecToClosedRec, "testHeterogeneousTypedescEq2");
         assertEquals(returns.toString(), "{\"name\":\"John Doe\",\"age\":25}");
     }
 

@@ -19,7 +19,7 @@ package org.ballerinalang.test.bala.types;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class UnionTypeBalaTest {
 
     @Test(dataProvider = "unionTestFunctions")
     public void testUnionType(String function) {
-        JvmRunUtil.invoke(result, function);
+        BRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "unionTestFunctions")

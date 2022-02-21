@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -46,7 +46,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test int to var assignment.")
     public void testIntToVarAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testIntToVarAssignment",
+        Object returns = BRunUtil.invoke(result, "testIntToVarAssignment",
                 new Object[]{});
 
         Assert.assertSame(returns.getClass(), Long.class);
@@ -56,7 +56,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test multiple int to var assignment.")
     public void testMultipleIntToVarAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testMultipleIntToVarAssignment",
+        BArray returns = (BArray) BRunUtil.invoke(result, "testMultipleIntToVarAssignment",
                 new Object[]{});
         Assert.assertEquals(returns.size(), 4);
 
@@ -73,7 +73,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test multiple int var assignment with underscore.")
     public void testMultipleIntToVarAssignmentWithUnderscore() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testMultipleIntToVarAssignmentWithUnderscore",
+        BArray returns = (BArray) BRunUtil.invoke(result, "testMultipleIntToVarAssignmentWithUnderscore",
                 new Object[]{});
         Assert.assertEquals(returns.size(), 2);
 
@@ -86,7 +86,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test multiple int var assignment with underscore.")
     public void testMultipleIntToVarAssignmentWithUnderscoreCaseOne() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result,
+        BArray returns = (BArray) BRunUtil.invoke(result,
                 "testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne",
                 new Object[]{});
         Assert.assertEquals(returns.size(), 2);
@@ -100,7 +100,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test multiple int var assignment with underscore.")
     public void testMultipleIntToVarAssignmentWithUnderscoreCaseTwo() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result,
+        BArray returns = (BArray) BRunUtil.invoke(result,
                 "testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo",
                 new Object[]{});
         Assert.assertEquals(returns.size(), 2);
@@ -114,14 +114,14 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test string to var assignment.")
     public void testStringToVarAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testStringToVarAssignment",
+        Object returns = BRunUtil.invoke(result, "testStringToVarAssignment",
                 new Object[]{});
         Assert.assertEquals(returns.toString(), "name");
     }
 
     @Test(description = "Test multiple string to var assignment.")
     public void testMultipleStringToVarAssignment() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testMultipleStringToVarAssignment",
+        BArray returns = (BArray) BRunUtil.invoke(result, "testMultipleStringToVarAssignment",
                 new Object[]{});
         Assert.assertEquals(returns.size(), 4);
 
@@ -138,19 +138,19 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test boolean to var assignment.")
     public void testBooleanToVarAssignment() {
-        Object returns = JvmRunUtil.invoke(result, "testBooleanToVarAssignment",
+        Object returns = BRunUtil.invoke(result, "testBooleanToVarAssignment",
                 new Object[]{});
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test(description = "Test object to var assignment.")
     public void testObjectToVarAssignment() {
-        JvmRunUtil.invoke(result, "testObjectToVarAssignment");
+        BRunUtil.invoke(result, "testObjectToVarAssignment");
     }
 
     @Test(description = "Test object to var assignment.")
     public void testObjectToVarAssignment2() {
-        JvmRunUtil.invoke(result, "testObjectToVarAssignment2");
+        BRunUtil.invoke(result, "testObjectToVarAssignment2");
     }
 
     @Test(description = "Test var in variable def.", groups = {"disableOnOldParser"})
@@ -192,13 +192,13 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithAllIgnoredSymbols() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols.bal");
-        Object returns = JvmRunUtil.invoke(res, "testVarDeclarationWithAllIgnoredSymbols");
+        Object returns = BRunUtil.invoke(res, "testVarDeclarationWithAllIgnoredSymbols");
         Assert.assertEquals(returns.toString(), "success");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
     public void testIncompatibleJsonToStructWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testIncompatibleJsonToStructWithErrors",
+        Object returns = BRunUtil.invoke(result, "testIncompatibleJsonToStructWithErrors",
                 new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
@@ -220,7 +220,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test incompatible json to struct with errors.")
     public void testJsonToStructWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testJsonToStructWithErrors",
+        Object returns = BRunUtil.invoke(result, "testJsonToStructWithErrors",
                 new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
@@ -234,7 +234,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test compatible struct with force casting.")
     public void testCompatibleStructForceCasting() {
-        Object returns = JvmRunUtil.invoke(result, "testCompatibleStructForceCasting");
+        Object returns = BRunUtil.invoke(result, "testCompatibleStructForceCasting");
 
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> structC = (BMap<String, Object>) returns;
@@ -246,7 +246,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test incompatible struct with force casting.")
     public void testInCompatibleStructForceCasting() {
-        Object returns = JvmRunUtil.invoke(result, "testInCompatibleStructForceCasting", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -258,7 +258,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to string with errors.")
     public void testAnyToStringWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToStringWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyToStringWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
         Assert.assertEquals(
@@ -269,7 +269,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to string with errors.") //TODO check this
     public void testAnyNullToStringWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToStringWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyNullToStringWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -281,7 +281,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to boolean with errors.")
     public void testAnyToBooleanWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToBooleanWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -293,7 +293,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to boolean with errors.")
     public void testAnyNullToBooleanWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToBooleanWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -305,7 +305,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to int with errors.")
     public void testAnyToIntWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToIntWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyToIntWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -317,7 +317,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to int with errors.")
     public void testAnyNullToIntWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToIntWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -329,7 +329,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to float with errors.")
     public void testAnyToFloatWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToFloatWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyToFloatWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -341,7 +341,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any null to float with errors.")
     public void testAnyNullToFloatWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyNullToFloatWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 
@@ -353,7 +353,7 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test any to map with errors.")
     public void testAnyToMapWithErrors() {
-        Object returns = JvmRunUtil.invoke(result, "testAnyToMapWithErrors", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testAnyToMapWithErrors", new Object[]{});
 
         Assert.assertTrue(returns instanceof BError);
 

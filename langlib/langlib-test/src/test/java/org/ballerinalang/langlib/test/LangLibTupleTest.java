@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,7 +51,7 @@ public class LangLibTupleTest {
 
     @Test
     public void testEnumerate() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testEnumerate");
+        Object returns = BRunUtil.invoke(compileResult, "testEnumerate");
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
         BArray arr = (BArray) returns;
@@ -65,13 +65,13 @@ public class LangLibTupleTest {
 
     @Test
     public void testLength() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testLength");
+        Object returns = BRunUtil.invoke(compileResult, "testLength");
         assertEquals(returns, 4L);
     }
 
     @Test
     public void testMap() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testMap");
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
         BArray arr = (BArray) returns;
@@ -84,13 +84,13 @@ public class LangLibTupleTest {
 
     @Test
     public void testForeach() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testForeach");
+        Object returns = BRunUtil.invoke(compileResult, "testForeach");
         assertEquals(returns, 26L);
     }
 
     @Test
     public void testSlice() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testSlice");
+        Object returns = BRunUtil.invoke(compileResult, "testSlice");
         assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
         BArray arr = (BArray) returns;
@@ -103,30 +103,30 @@ public class LangLibTupleTest {
     @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}OperationNotSupported.*")
     public void testRemove() {
-        JvmRunUtil.invoke(compileResult, "testRemove");
+        BRunUtil.invoke(compileResult, "testRemove");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}OperationNotSupported.*")
     public void testSort() {
-        JvmRunUtil.invoke(compileResult, "testSort");
+        BRunUtil.invoke(compileResult, "testSort");
     }
 
     @Test
     public void testReduce() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testReduce");
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
         assertEquals(returns, 13.8d);
     }
 
     @Test
     public void testIterableOpChain() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIterableOpChain");
+        Object returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
         assertEquals(returns, 3.25d);
     }
 
     @Test
     public void testIndexOf() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testIndexOf");
+        Object returns = BRunUtil.invoke(compileResult, "testIndexOf");
         BArray result = (BArray) returns;
         assertEquals(result.get(0), 4L);
         assertNull(result.get(1));
@@ -134,19 +134,19 @@ public class LangLibTupleTest {
 
     @Test
     public void testPush1() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testPush1");
+        Object returns = BRunUtil.invoke(compileResult, "testPush1");
         assertEquals(returns, 4L);
     }
 
     @Test
     public void testPush2() {
-        Object returns = JvmRunUtil.invoke(compileResult, "testPush2");
+        Object returns = BRunUtil.invoke(compileResult, "testPush2");
         assertEquals(returns, 4L);
     }
 
     @Test(dataProvider = "testToStreamFunctionList")
     public void testToStream(String funcName) {
-        JvmRunUtil.invoke(compileResult, funcName);
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @Test

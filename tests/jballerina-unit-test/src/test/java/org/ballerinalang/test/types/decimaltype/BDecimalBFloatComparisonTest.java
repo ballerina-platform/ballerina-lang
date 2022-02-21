@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,7 +49,7 @@ public class BDecimalBFloatComparisonTest {
 
     @Test(description = "Compare the representations of a very large number in double type and BDecimal type")
     public void testLargeFloatingPointNumber() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testLargeFloatingPointNumber", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testLargeFloatingPointNumber", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
 
         Assert.assertSame(returns.get(0).getClass(), Double.class);
@@ -67,7 +67,7 @@ public class BDecimalBFloatComparisonTest {
     @Test(description = "Check the precision correctness of double and BDecimal types using the boolean expression " +
             "(0.1 + 0.2 == 0.3)")
     public void testPrecisionCorrectness() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testPrecisionCorrectness", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testPrecisionCorrectness", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
 
         Assert.assertSame(returns.get(0).getClass(), Boolean.class);

@@ -20,7 +20,7 @@ package org.ballerinalang.test.types.any;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -48,7 +48,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
 
     @Test(description = "Test json value in any type get casted to string in two steps")
     public void testJsonInAnyCastToString() {
-        Object returns = JvmRunUtil.invoke(result, "successfulXmlCasting", new Object[0]);
+        Object returns = BRunUtil.invoke(result, "successfulXmlCasting", new Object[0]);
         Assert.assertTrue(returns instanceof BString);
         Assert.assertEquals(returns.toString(), "Value", "Invalid xml value returned.");
     }
@@ -59,7 +59,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            JvmRunUtil.invoke(result, "printlnAnyVal", new Object[0]);
+            BRunUtil.invoke(result, "printlnAnyVal", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}\n",
                               "Invalid xml printed");
         } finally {
@@ -73,7 +73,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            JvmRunUtil.invoke(result, "printAnyVal", new Object[0]);
+            BRunUtil.invoke(result, "printAnyVal", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}",
                                 "Invalid xml printed");
         } finally {
@@ -87,7 +87,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            JvmRunUtil.invoke(result, "findBestNativeFunctionPrintln", new Object[0]);
+            BRunUtil.invoke(result, "findBestNativeFunctionPrintln", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "8\n", "Invalid int value printed");
         } finally {
             outContent.close();
@@ -100,7 +100,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            JvmRunUtil.invoke(result, "findBestNativeFunctionPrint", new Object[0]);
+            BRunUtil.invoke(result, "findBestNativeFunctionPrint", new Object[0]);
             Assert.assertEquals(outContent.toString().replace("\r", ""), "7", "Invalid int value printed");
         } finally {
             outContent.close();

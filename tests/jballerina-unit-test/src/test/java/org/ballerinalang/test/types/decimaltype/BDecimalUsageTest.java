@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +53,7 @@ public class BDecimalUsageTest {
 
     @Test(description = "Test decimal array")
     public void testDecimalArray() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalArray", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalArray", new Object[]{});
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof BArray);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -78,7 +78,7 @@ public class BDecimalUsageTest {
 
     @Test(description = "Test decimal map")
     public void testDecimalMap() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalMap", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalMap", new Object[]{});
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof BMap);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -103,7 +103,7 @@ public class BDecimalUsageTest {
 
     @Test(description = "Test record with decimal fields")
     public void testDecimalRecord() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalRecord", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalRecord", new Object[]{});
         Assert.assertEquals(returns.size(), 2);
         Assert.assertTrue(returns.get(0) instanceof BDecimal);
         Assert.assertTrue(returns.get(1) instanceof BDecimal);
@@ -119,7 +119,7 @@ public class BDecimalUsageTest {
 
     @Test(description = "Test object with decimal fields")
     public void testDecimalObject() {
-        BArray returns = (BArray) JvmRunUtil.invoke(result, "testDecimalObject", new Object[]{});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalObject", new Object[]{});
         Assert.assertEquals(returns.size(), 4);
         Assert.assertTrue(returns.get(0) instanceof BString);
         Assert.assertSame(returns.get(1).getClass(), Long.class);
@@ -141,12 +141,12 @@ public class BDecimalUsageTest {
 
     @Test(description = "Test decimal defaultable parameters")
     public void testDecimalDefaultable() {
-        JvmRunUtil.invoke(result, "testDecimalDefaultable");
+        BRunUtil.invoke(result, "testDecimalDefaultable");
     }
 
     @Test(description = "Test decimal values with too many exponents")
     public void testDecimalNegativeLargeExponents() {
-        JvmRunUtil.invoke(result, "testDecimalNegativeLargeExponents");
+        BRunUtil.invoke(result, "testDecimalNegativeLargeExponents");
     }
 
     @AfterClass

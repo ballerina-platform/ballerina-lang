@@ -21,7 +21,7 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -92,6 +92,6 @@ public class DeprecationAnnotationTest {
         Assert.assertEquals(result.getWarnCount(), 1);
         BAssertUtil.validateWarning(result, 0, "usage of construct 'Foo' is deprecated", 23, 1);
 
-        JvmRunUtil.invoke(result, "testDeprecatedConstructUsageAtRuntimeWithWarning");
+        BRunUtil.invoke(result, "testDeprecatedConstructUsageAtRuntimeWithWarning");
     }
 }

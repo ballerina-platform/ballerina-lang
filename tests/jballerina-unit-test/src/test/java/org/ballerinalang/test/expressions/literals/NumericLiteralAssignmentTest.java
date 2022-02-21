@@ -20,7 +20,7 @@ package org.ballerinalang.test.expressions.literals;
 
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "intLiteralsAsSingleNumericTypeFunctions")
     public void testIntLiteralsAsSingleNumericType(String testFunctionName) {
-        Object returns = JvmRunUtil.invoke(result, testFunctionName);
+        Object returns = BRunUtil.invoke(result, testFunctionName);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -59,7 +59,7 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "floatLiteralsAsSingleNumericTypeFunctions")
     public void testFloatLiteralsAsSingleNumericType(String testFunctionName) {
-        Object returns = JvmRunUtil.invoke(result, testFunctionName);
+        Object returns = BRunUtil.invoke(result, testFunctionName);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -73,7 +73,7 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "intLiteralsAsNumericTypeInUnionFunctions")
     public void testIntLiteralsAsNumericTypeInUnion(String testFunctionName) {
-        Object returns = JvmRunUtil.invoke(result, testFunctionName);
+        Object returns = BRunUtil.invoke(result, testFunctionName);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -91,7 +91,7 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "floatLiteralsAsNumericTypeInUnionFunctions")
     public void testFloatLiteralsAsNumericTypeInUnion(String testFunctionName) {
-        Object returns = JvmRunUtil.invoke(result, testFunctionName);
+        Object returns = BRunUtil.invoke(result, testFunctionName);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -106,7 +106,7 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "intLiteralsAsNumericTypeViaFiniteTypeFunctions")
     public void testIntLiteralsAsNumericTypeViaFiniteType(String testFunctionName) {
-        Object returns = JvmRunUtil.invoke(result, testFunctionName);
+        Object returns = BRunUtil.invoke(result, testFunctionName);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -122,7 +122,7 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "floatLiteralsAsNumericTypeViaFiniteTypeFunctions")
     public void testFloatLiteralsAsNumericTypeViaFiniteType(String testFunctionName) {
-        Object returns = JvmRunUtil.invoke(result, testFunctionName);
+        Object returns = BRunUtil.invoke(result, testFunctionName);
         Assert.assertTrue((Boolean) returns);
     }
 
@@ -136,13 +136,13 @@ public class NumericLiteralAssignmentTest {
 
     @Test
     public void testIntLiteralAsIntWithBuiltinUnion() {
-        Object returns = JvmRunUtil.invoke(result, "testIntLiteralAsIntWithBuiltinUnion");
+        Object returns = BRunUtil.invoke(result, "testIntLiteralAsIntWithBuiltinUnion");
         Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFloatLiteralAsIntWithBuiltinUnion() {
-        Object returns = JvmRunUtil.invoke(result, "testFloatLiteralAsFloatWithBuiltinUnion");
+        Object returns = BRunUtil.invoke(result, "testFloatLiteralAsFloatWithBuiltinUnion");
         Assert.assertTrue((Boolean) returns);
     }
 

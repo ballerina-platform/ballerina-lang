@@ -19,7 +19,7 @@ package org.ballerinalang.test.statements.continuestatement;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a while loop.")
     public void testContinueStmtConditionTrue() {
         Object[] args = {(15), (5)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);
@@ -58,7 +58,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a while loop, where continue not in execution path ")
     public void testContinueStmtConditionFalse() {
         Object[] args = {(25), (15)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);
@@ -71,7 +71,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionTrue() {
         Object[] args = {(15), (5)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);
@@ -84,7 +84,7 @@ public class ContinueStmtTest {
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionFalse() {
         Object[] args = {(25), (15)};
-        Object returns = JvmRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
 
         
         Assert.assertSame(returns.getClass(), Long.class);

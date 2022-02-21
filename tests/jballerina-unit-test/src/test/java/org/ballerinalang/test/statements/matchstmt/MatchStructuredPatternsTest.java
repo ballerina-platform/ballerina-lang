@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +50,7 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testMatchStatementBasics1() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new Object[]{});
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -61,7 +61,7 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 2")
     public void testMatchStatementBasics2() {
-        Object returns = JvmRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new Object[]{});
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new Object[]{});
 
         Assert.assertTrue(returns instanceof BString);
 
@@ -72,13 +72,13 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test error not being match to wildcard match pattern using 'var _' pattern")
     public void testErrorShouldNotMatchWildCardPatternVarIgnore() {
-        Object returns = JvmRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPatternVarIgnore");
+        Object returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPatternVarIgnore");
         Assert.assertEquals(returns.toString(), "no-match");
     }
 
     @Test(description = "Test error match fall through '_' to error pattern")
     public void testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() {
-        Object returns = JvmRunUtil.invoke(result, "testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern");
+        Object returns = BRunUtil.invoke(result, "testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern");
         Assert.assertEquals(returns.toString(), "{UserGenError}Error");
     }
 

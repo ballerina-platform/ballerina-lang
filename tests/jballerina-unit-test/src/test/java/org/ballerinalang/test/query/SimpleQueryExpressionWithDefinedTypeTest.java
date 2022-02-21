@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -45,7 +45,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test simple select clause - simple variable definition statement ")
     public void testSimpleSelectQueryWithSimpleVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithSimpleVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithSimpleVariable");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 3, "Expected events are not received");
 
@@ -60,7 +60,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test simple select clause - record variable definition statement ")
     public void testSimpleSelectQueryWithRecordVariable() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariable");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 3, "Expected events are not received");
 
@@ -75,7 +75,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test simple select clause - record variable definition statement v2 ")
     public void testSimpleSelectQueryWithRecordVariableV2() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV2");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 3, "Expected events are not received");
 
@@ -90,7 +90,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test simple select clause - record variable definition statement v3 ")
     public void testSimpleSelectQueryWithRecordVariableV3() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV3");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithRecordVariableV3");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 3, "Expected events are not received");
 
@@ -104,7 +104,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test simple select clause with a where clause")
     public void testSimpleSelectQueryWithWhereClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -119,7 +119,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test Query expression for primitive types ")
     public void testQueryExpressionForPrimitiveType() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExpressionForPrimitiveType");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExpressionForPrimitiveType");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -127,7 +127,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test Query expression with select expression ")
     public void testQueryExpressionWithSelectExpression() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExpressionWithSelectExpression");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExpressionWithSelectExpression");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -135,7 +135,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test filtering null values from query expression")
     public void testFilteringNullElements() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testFilteringNullElements");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testFilteringNullElements");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -150,28 +150,28 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test filtering map with from query expression")
     public void testMapWithArity() {
-        Object returnValues = JvmRunUtil.invoke(result, "testMapWithArity");
+        Object returnValues = BRunUtil.invoke(result, "testMapWithArity");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test selecting values in a JSON array from query expression")
     public void testJSONArrayWithArity() {
-        Object returnValues = JvmRunUtil.invoke(result, "testJSONArrayWithArity");
+        Object returnValues = BRunUtil.invoke(result, "testJSONArrayWithArity");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test filtering values in a tuple from query expression")
     public void testArrayWithTuple() {
-        Object returnValues = JvmRunUtil.invoke(result, "testArrayWithTuple");
+        Object returnValues = BRunUtil.invoke(result, "testArrayWithTuple");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test from clause with a stream")
     public void testFromClauseWithStream() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testFromClauseWithStream");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testFromClauseWithStream");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> person = (BMap<String, Object>) returnValues.get(0);
@@ -182,7 +182,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test let clause with a stream")
     public void testSimpleSelectQueryWithLetClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -200,7 +200,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Use function return value in let clause")
     public void testFunctionCallInVarDeclLetClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testFunctionCallInVarDeclLetClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testFunctionCallInVarDeclLetClause");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
         BMap<String, Object> employee1 = (BMap<String, Object>) returnValues.get(0);
@@ -217,7 +217,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Use value set in let with where clause")
     public void testUseOfLetInWhereClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testUseOfLetInWhereClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testUseOfLetInWhereClause");
         Assert.assertNotNull(returnValues);
 
         BMap<String, Object> employee = (BMap<String, Object>) returnValues.get(0);
@@ -229,20 +229,20 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Use a stream with query expression")
     public void testQueryWithStream() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryWithStream");
+        Object returnValues = BRunUtil.invoke(result, "testQueryWithStream");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Query a stream with error")
     public void testQueryStreamWithError() {
-        JvmRunUtil.invoke(result, "testQueryStreamWithError");
+        BRunUtil.invoke(result, "testQueryStreamWithError");
     }
 
     @Test(description = "Test anonymous record type, record type referencing, optional field, " +
             "changed order of the fields")
     public void testOthersAssociatedWithRecordTypes() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testOthersAssociatedWithRecordTypes");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testOthersAssociatedWithRecordTypes");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -280,7 +280,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test query expressions with tuple typed binding in let")
     public void testQueryExprTupleTypedBinding2() {
-        Object returnValues = JvmRunUtil.invoke(result, "testQueryExprTupleTypedBinding2");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprTupleTypedBinding2");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -288,7 +288,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test query expression with type conversion in select clause")
     public void testQueryExprWithTypeConversion() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testQueryExprWithTypeConversion");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testQueryExprWithTypeConversion");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
@@ -303,7 +303,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test streams with map and filter")
     public void testQueryExprWithStreamMapAndFilter() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testQueryExprWithStreamMapAndFilter");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testQueryExprWithStreamMapAndFilter");
         Assert.assertNotNull(returnValues);
 
         BMap subscription = (BMap) returnValues.get(0);
@@ -315,7 +315,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test Query expression returning a stream ")
     public void testSimpleSelectQueryReturnStream() {
-        Object returnValues = JvmRunUtil.invoke(result, "testSimpleSelectQueryReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryReturnStream");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
@@ -323,7 +323,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test Query expression With Record Variable within let clause ")
     public void testQueryWithRecordVarInLetClause() {
-        BArray returnValues = (BArray) JvmRunUtil.invoke(result, "testQueryWithRecordVarInLetClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testQueryWithRecordVarInLetClause");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
         BMap person1 = (BMap) returnValues.get(0);
@@ -337,24 +337,24 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Test looping a stream with foreach")
     public void testForeachStream() {
-        Object returnValues = JvmRunUtil.invoke(result, "testForeachStream");
+        Object returnValues = BRunUtil.invoke(result, "testForeachStream");
         Assert.assertNotNull(returnValues);
         Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test type test in where clause")
     public void testTypeTestInWhereClause() {
-        JvmRunUtil.invoke(result, "testTypeTestInWhereClause");
+        BRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
     @Test
     public void testWildcardBindingPatternInQueryExpr1() {
-        JvmRunUtil.invoke(result, "testWildcardBindingPatternInQueryExpr1");
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryExpr1");
     }
 
     @Test
     public void testWildcardBindingPatternInQueryExpr2() {
-        JvmRunUtil.invoke(result, "testWildcardBindingPatternInQueryExpr2");
+        BRunUtil.invoke(result, "testWildcardBindingPatternInQueryExpr2");
     }
 
     @AfterClass

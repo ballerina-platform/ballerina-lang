@@ -20,7 +20,7 @@ package org.ballerinalang.test.nativeimpl.functions;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,14 +43,14 @@ public class RuntimeTest {
     @Test
     public void testSleep() {
         long startTime = System.currentTimeMillis();
-        JvmRunUtil.invoke(compileResult, "testSleep");
+        BRunUtil.invoke(compileResult, "testSleep");
         long endTime = System.currentTimeMillis();
         Assert.assertTrue((endTime - startTime) >= 1000);
     }
 
     @Test
     public void testGetCallStack() {
-        Object val = JvmRunUtil.invoke(errorResult, "testGetCallStack");
+        Object val = BRunUtil.invoke(errorResult, "testGetCallStack");
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0).toString(), "{callableName:externGetStackTrace, moduleName:ballerina.lang" +
@@ -67,7 +67,7 @@ public class RuntimeTest {
 
     @Test
     public void testErrorCallStack() {
-        BArray returns = (BArray) JvmRunUtil.invoke(errorResult, "testErrorCallStack");
+        BArray returns = (BArray) BRunUtil.invoke(errorResult, "testErrorCallStack");
         Assert.assertEquals(returns.size(), 3);
         Assert.assertEquals(returns.get(0).toString(), "{callableName:level2Error, moduleName:null, " +
                 "fileName:runtime-error.bal, lineNumber:30}");
