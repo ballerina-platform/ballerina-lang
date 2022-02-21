@@ -34,8 +34,10 @@ function constPattern1(string|int|boolean a) returns string {
         "HelloAgain" => {
             return "HelloAgain";
         }
+        _ => {
+            return "Default";
+        }
     }
-    return "Default";
 }
 
 function testConstPattern1() {

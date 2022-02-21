@@ -85,7 +85,7 @@ public class PerformanceAnalyzerTest {
     }
 
     private void compare(String balFile, String jsonFile) throws IOException, InterruptedException,
-            ExecutionException {
+                                                                 ExecutionException {
 
         Path project = RES_DIR.resolve(BALLERINA).resolve(balFile);
         Path resultJson = RES_DIR.resolve(RESULT).resolve(jsonFile);

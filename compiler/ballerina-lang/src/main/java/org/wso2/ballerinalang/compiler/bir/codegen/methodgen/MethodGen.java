@@ -506,7 +506,16 @@ public class MethodGen {
 
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
                                    BIRTerminator terminator) {
-        if (terminator.kind != InstructionKind.RETURN) {
+        if (terminator.kind == InstructionKind.GOTO &&
+                ((BIRTerminator.GOTO) terminator).targetBB.terminator.kind == InstructionKind.RETURN &&
+                !JvmCodeGenUtil.isExternFunc(func) && func.pos != null &&
+                func.pos.lineRange().endLine().line() != 0x80000000) {
+            // The ending line number of the function is added to the line number table to prevent wrong code
+            // coverage for generated return statements.
+            Label label = new Label();
+            mv.visitLabel(label);
+            mv.visitLineNumber(func.pos.lineRange().endLine().line() + 1, label);
+        } else if (terminator.kind != InstructionKind.RETURN) {
             JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
         }
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
