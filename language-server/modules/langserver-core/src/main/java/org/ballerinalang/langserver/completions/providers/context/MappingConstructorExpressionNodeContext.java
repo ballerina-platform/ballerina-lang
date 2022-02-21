@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -57,10 +59,14 @@ public class MappingConstructorExpressionNodeContext extends
                                                  MappingConstructorExpressionNode node) throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        NonTerminalNode evalNode = getEvalNode(context);
-        if (this.withinValueExpression(context, evalNode)) {
+        Optional<Node> evalNode = getEvalNode(context);
+        if (evalNode.isEmpty()) {
+            return completionItems;
+        }
+
+        if (this.withinValueExpression(context, evalNode.get())) {
             completionItems.addAll(getCompletionsInValueExpressionContext(context));
-        } else if (this.withinComputedNameContext(context, evalNode)) {
+        } else if (this.withinComputedNameContext(context, evalNode.get())) {
             if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
@@ -68,7 +74,7 @@ public class MappingConstructorExpressionNodeContext extends
                 completionItems.addAll(this.getComputedNameCompletions(context));
             }
         } else {
-            completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode));
+            completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode.get()));
         }
         this.sort(context, node, completionItems);
         return completionItems;
@@ -82,7 +88,7 @@ public class MappingConstructorExpressionNodeContext extends
                 && cursor < node.closeBrace().textRange().endOffset();
     }
 
-    private boolean withinComputedNameContext(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    private boolean withinComputedNameContext(BallerinaCompletionContext context, Node evalNodeAtCursor) {
         if (evalNodeAtCursor.kind() != SyntaxKind.COMPUTED_NAME_FIELD) {
             return false;
         }

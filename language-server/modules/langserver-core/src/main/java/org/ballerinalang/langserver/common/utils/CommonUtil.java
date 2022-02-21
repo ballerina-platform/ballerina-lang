@@ -1895,4 +1895,19 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * Given a node (currentNode) start looking up the parent ladder until the given predicate is satisfied.
+     *
+     * @param currentNode Node to start looking
+     * @param predicate   to be satisfied
+     * @return {@link Optional}
+     */
+    public static Optional<Node> getMatchingNode(Node currentNode, Predicate<Node> predicate) {
+        Node evalNode = currentNode;
+        while (evalNode != null && !predicate.test(evalNode)) {
+            evalNode = evalNode.parent();
+        }
+
+        return Optional.ofNullable(evalNode);
+    }
 }

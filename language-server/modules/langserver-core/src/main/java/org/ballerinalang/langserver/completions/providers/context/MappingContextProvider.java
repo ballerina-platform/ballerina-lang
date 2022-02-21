@@ -69,7 +69,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == SymbolKind.CONSTANT);
     }
 
-    protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    protected boolean withinValueExpression(BallerinaCompletionContext context, Node evalNodeAtCursor) {
         Token colon;
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
             Optional<Token> optionalColon = ((SpecificFieldNode) evalNodeAtCursor).colon();
@@ -133,13 +133,13 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return this.getCompletionItemList(moduleContent, context);
     }
 
-    protected boolean hasReadonlyKW(NonTerminalNode evalNodeAtCursor) {
+    protected boolean hasReadonlyKW(Node evalNodeAtCursor) {
         return ((evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD)
                 && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
     }
 
     protected List<LSCompletionItem> getFieldCompletionItems(BallerinaCompletionContext context, Node node,
-                                                             NonTerminalNode evalNode) {
+                                                             Node evalNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (!this.hasReadonlyKW(evalNode)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
@@ -187,12 +187,15 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return this.expressionCompletions(context);
     }
 
-    protected NonTerminalNode getEvalNode(BallerinaCompletionContext context) {
+    protected Optional<Node> getEvalNode(BallerinaCompletionContext context) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
-                ? nodeAtCursor.parent() : nodeAtCursor;
-        return evalNode;
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || (node.kind() == SyntaxKind.SPECIFIC_FIELD || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD);
+        return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
     }
 
     @Override
