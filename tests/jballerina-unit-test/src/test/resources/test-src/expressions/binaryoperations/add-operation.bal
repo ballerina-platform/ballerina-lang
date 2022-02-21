@@ -368,6 +368,9 @@ function testStringXmlSubtypesAddition() {
     string:Char c = "d";
     xml x1 = xml `efg`;
     xml:Text x2 = xml `text`;
+    string:Char|Strings b = "d";
+    Strings|Chars e = "bar";
+    bar d = "B";
 
     assertEquality(s + x2, xml `abctext`);
     assertEquality(x2 + s, xml `textabc`);
@@ -375,6 +378,12 @@ function testStringXmlSubtypesAddition() {
     assertEquality(x1 + c, xml `efgd`);
     assertEquality(c + x2, xml `dtext`);
     assertEquality(x2 + c, xml `textd`);
+    assertEquality(x2 + b, xml `textd`);
+    assertEquality(x2 + e, xml `textbar`);
+    assertEquality(x2 + d, xml `textB`);
+    assertEquality(x1 + b, xml `efgd`);
+    assertEquality(x1 + e, xml `efgbar`);
+    assertEquality(x1 + d, xml `efgB`);
 }
 
 type Chars "B"|"bar";
@@ -396,6 +405,7 @@ function testStringSubtypesAddition() {
     assertEquality(d + e, "Be");
     assertEquality(b + e + b, "ded");
 }
+
 type foo xml<'xml:Text>|xml<'xml:Comment> ;
 type foo2 xml<'xml:Element|'xml:ProcessingInstruction>;
 type foo3 foo|foo2;
