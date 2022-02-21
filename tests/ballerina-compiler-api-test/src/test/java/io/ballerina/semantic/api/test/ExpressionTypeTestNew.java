@@ -328,6 +328,7 @@ public class ExpressionTypeTestNew {
         Optional<TypeSymbol> typeParameter = ((FutureTypeSymbol) type).typeParameter();
         assertTrue(typeParameter.isPresent());
         assertEquals(typeParameter.get().typeKind(), INT);
+        assertType(354, 17, 354, 24, INT);
     }
 
     @Test(dataProvider = "CallExprPosProvider")
