@@ -20,8 +20,8 @@ package org.ballerinalang.test.types.function;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -66,46 +66,46 @@ public class AnyFunctionTypeTest {
 
     @Test
     public void testFunctionWithFunctionReturnType() {
-        BRunUtil.invoke(functionTypeTestResult, "testFunctionWithFunctionReturnType");
+        JvmRunUtil.invoke(functionTypeTestResult, "testFunctionWithFunctionReturnType");
     }
 
     @Test
     public void testRecordWithFunctionTypeField() {
-        BRunUtil.invoke(functionTypeTestResult, "testRecordWithFunctionTypeField");
+        JvmRunUtil.invoke(functionTypeTestResult, "testRecordWithFunctionTypeField");
     }
 
     @Test
     public void testFunctionAsMappingTypeParam() {
-        BRunUtil.invoke(functionTypeTestResult, "testFunctionAsMappingTypeParam");
+        JvmRunUtil.invoke(functionTypeTestResult, "testFunctionAsMappingTypeParam");
     }
 
     @Test
     public void testFunctionWithUnionType() {
-        BRunUtil.invoke(functionTypeTestResult, "testFunctionWithUnionType");
+        JvmRunUtil.invoke(functionTypeTestResult, "testFunctionWithUnionType");
     }
 
     @Test
     public void testObjectWithFunctionTypeField() {
-        BRunUtil.invoke(functionTypeTestResult, "testObjectWithFunctionTypeField");
+        JvmRunUtil.invoke(functionTypeTestResult, "testObjectWithFunctionTypeField");
     }
 
     @Test
     public void testReferringToFunctionWithAnyFunctionReturnType() {
-        BRunUtil.invoke(functionTypeTestResult, "testReferringToFunctionWithAnyFunctionReturnType");
+        JvmRunUtil.invoke(functionTypeTestResult, "testReferringToFunctionWithAnyFunctionReturnType");
     }
 
     @Test
     public void testCastingToFunctionWithAnyFunctionReturnType() {
-        BRunUtil.invoke(functionTypeTestResult, "testCastingToFunctionWithAnyFunctionReturnType");
+        JvmRunUtil.invoke(functionTypeTestResult, "testCastingToFunctionWithAnyFunctionReturnType");
     }
 
     @Test
     public void testRuntimeHashCodeViaFunctionEquality() {
-        BRunUtil.invoke(functionTypeTestResult, "testRuntimeHashCodeViaFunctionEquality");
+        JvmRunUtil.invoke(functionTypeTestResult, "testRuntimeHashCodeViaFunctionEquality");
     }
 
     @Test
     public void testFunctionWithNeverOrNeverEqualReturnType() {
-        BRunUtil.invoke(functionTypeTestResult, "testFunctionWithNeverOrNeverEqualReturnType");
+        JvmRunUtil.invoke(functionTypeTestResult, "testFunctionWithNeverOrNeverEqualReturnType");
     }
 }

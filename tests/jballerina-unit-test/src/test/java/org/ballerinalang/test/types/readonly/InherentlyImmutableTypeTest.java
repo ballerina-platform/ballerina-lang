@@ -20,8 +20,8 @@ package org.ballerinalang.test.types.readonly;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,7 +43,7 @@ public class InherentlyImmutableTypeTest {
 
     @Test
     public void testReadonlyType() {
-        BRunUtil.invoke(result, "testReadonlyType");
+        JvmRunUtil.invoke(result, "testReadonlyType");
     }
 
     @Test

@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,12 +42,12 @@ public class TupleLValueFillTest {
 
     @Test
     public void testBasicLValueFillRead() {
-        BRunUtil.invoke(compileResult, "testBasicLValueFillRead");
+        JvmRunUtil.invoke(compileResult, "testBasicLValueFillRead");
     }
 
     @Test
     public void testRestMemberFill() {
-        BRunUtil.invoke(compileResult, "testRestMemberFill");
+        JvmRunUtil.invoke(compileResult, "testRestMemberFill");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -55,7 +55,7 @@ public class TupleLValueFillTest {
                   "\\{\"message\":\"array of " +
                   "length 0 cannot be expanded into array of length 2 without filler values.*")
     public void testRecordsWithoutFillerValues() {
-        BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
+        JvmRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -63,17 +63,17 @@ public class TupleLValueFillTest {
                   "\\{\"message\":\"tuple of " +
                   "length 1 cannot be expanded into tuple of length 3 without filler values.*")
     public void testRecordsWithoutFillerValues2() {
-        BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
+        JvmRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
     }
 
     @Test
     public void testNillableTupleType() {
-        BRunUtil.invoke(compileResult, "testNillableTupleType");
+        JvmRunUtil.invoke(compileResult, "testNillableTupleType");
     }
 
     @Test
     public void testTupleInUnionTypes() {
-        BRunUtil.invoke(compileResult, "testTupleInUnionTypes");
+        JvmRunUtil.invoke(compileResult, "testTupleInUnionTypes");
     }
 
     @AfterClass

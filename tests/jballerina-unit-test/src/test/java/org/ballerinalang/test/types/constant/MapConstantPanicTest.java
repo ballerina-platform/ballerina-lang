@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,40 +43,40 @@ public class MapConstantPanicTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field.*")
     public void updateNestedConstantBooleanMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantBooleanMapValueWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantBooleanMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'boolean'.*")
     public void updateNestedConstantBooleanMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantBooleanMapValueWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantBooleanMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type .*")
     public void updateReturnedConstantBooleanMapWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMapWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'boolean'.*")
     public void updateReturnedConstantBooleanMap2WithNewKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMap2WithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bm11k' in record of type .*")
     public void updateConstantBooleanMapValueInArrayWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateConstantBooleanMapValueInArrayWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantBooleanMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'boolean'.*")
     public void updateConstantBooleanMapValueInArrayWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateConstantBooleanMapValueInArrayWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantBooleanMapValueInArrayWithNewKey");
     }
 
     // int ---------------------------------------------------
@@ -84,40 +84,40 @@ public class MapConstantPanicTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type .*")
     public void updateNestedConstantIntMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantIntMapValueWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantIntMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'int'.*")
     public void updateNestedConstantIntMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantIntMapValueWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantIntMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type .*")
     public void updateReturnedConstantIntMapWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantIntMapWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantIntMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'int'.*")
     public void updateReturnedConstantIntMap2WithNewKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantIntMap2WithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantIntMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'im11k' in record of type .*")
     public void updateConstantIntMapValueInArrayWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateConstantIntMapValueInArrayWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantIntMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'int'.*")
     public void updateConstantIntMapValueInArrayWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateConstantIntMapValueInArrayWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantIntMapValueInArrayWithNewKey");
     }
 
     // byte --------------------------------------------------
@@ -125,39 +125,39 @@ public class MapConstantPanicTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateNestedConstantByteMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantByteMapValueWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantByteMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'byte'.*")
     public void updateNestedConstantByteMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantByteMapValueWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantByteMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateReturnedConstantByteMapWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantByteMapWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantByteMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'byte'.*")
     public void updateReturnedConstantByteMap2WithNewKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantByteMap2WithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantByteMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateConstantByteMapValueInArrayWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'bytem11k' in record of type .*")
     public void updateConstantByteMapValueInArrayWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantByteMapValueInArrayWithNewKey");
     }
 
     // float -------------------------------------------------
@@ -165,40 +165,40 @@ public class MapConstantPanicTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type .*")
     public void updateNestedConstantFloatMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantFloatMapValueWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantFloatMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'float'.*")
     public void updateNestedConstantFloatMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantFloatMapValueWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantFloatMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type .*")
     public void updateReturnedConstantFloatMapWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantFloatMapWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantFloatMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'float'.*")
     public void updateReturnedConstantFloatMap2WithNewKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantFloatMap2WithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantFloatMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'fm11k' in record of type .*")
     public void updateConstantFloatMapValueInArrayWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateConstantFloatMapValueInArrayWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantFloatMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'float'.*")
     public void updateConstantFloatMapValueInArrayWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateConstantFloatMapValueInArrayWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantFloatMapValueInArrayWithNewKey");
     }
 
     // decimal -----------------------------------------------
@@ -206,41 +206,41 @@ public class MapConstantPanicTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type .*")
     public void updateNestedConstantDecimalMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantDecimalMapValueWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantDecimalMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'decimal'.*")
     public void updateNestedConstantDecimalMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantDecimalMapValueWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantDecimalMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'dm10k': expected value of type " +
                     "'never', found 'decimal'.*")
     public void updateReturnedConstantDecimalMapWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantDecimalMapWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantDecimalMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'decimal'.*")
     public void updateReturnedConstantDecimalMap2WithNewKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantDecimalMap2WithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantDecimalMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'dm11k' in record of type .*")
     public void updateConstantDecimalMapValueInArrayWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateConstantDecimalMapValueInArrayWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantDecimalMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'decimal'.*")
     public void updateConstantDecimalMapValueInArrayWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateConstantDecimalMapValueInArrayWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantDecimalMapValueInArrayWithNewKey");
     }
 
     // string ------------------------------------------------
@@ -248,40 +248,40 @@ public class MapConstantPanicTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type .*")
     public void updateNestedConstantStringMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantStringMapValueWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantStringMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'string'.*")
     public void updateNestedConstantStringMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantStringMapValueWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantStringMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type .*")
     public void updateReturnedConstantStringMapWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantStringMapWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantStringMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'string'.*")
     public void updateReturnedConstantStringMap2WithNewKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantStringMap2WithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantStringMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'sm11k' in record of type .*")
     public void updateConstantStringMapValueInArrayWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateConstantStringMapValueInArrayWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantStringMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found 'string.*")
     public void updateConstantStringMapValueInArrayWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateConstantStringMapValueInArrayWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantStringMapValueInArrayWithNewKey");
     }
 
     // nil ---------------------------------------------------
@@ -289,40 +289,40 @@ public class MapConstantPanicTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type .*")
     public void updateNestedConstantNilMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantNilMapValueWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantNilMapValueWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found.*")
     public void updateNestedConstantNilMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantNilMapValueWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateNestedConstantNilMapValueWithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type .*")
     public void updateReturnedConstantNilMapWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantNilMapWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantNilMapWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found.*")
     public void updateReturnedConstantNilMap2WithNewKey() {
-        BRunUtil.invoke(compileResult, "updateReturnedConstantNilMap2WithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateReturnedConstantNilMap2WithNewKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*cannot update 'readonly' field 'nm11k' in record of type .*")
     public void updateConstantNilMapValueInArrayWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateConstantNilMapValueInArrayWithExistingKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantNilMapValueInArrayWithExistingKey");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'newKey': expected value of type " +
                     "'never', found.*")
     public void updateConstantNilMapValueInArrayWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateConstantNilMapValueInArrayWithNewKey");
+        JvmRunUtil.invoke(compileResult, "updateConstantNilMapValueInArrayWithNewKey");
     }
 
     @AfterClass
