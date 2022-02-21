@@ -1,18 +1,33 @@
 {
   "position": {
     "line": 4,
-    "character": 10
+    "character": 13
   },
-  "source": "expression_context/source/fail_expr_ctx_source2.bal",
+  "source": "statement_context/source/fail_stmt_ctx_source1.bal",
   "items": [
     {
-      "label": "module1",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "filterText": "module1",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet"
+      "filterText": "runtime",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/lang.test",
@@ -35,30 +50,6 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "B",
-      "filterText": "array",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -111,12 +102,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "filterText": "runtime",
-      "insertText": "runtime",
+      "filterText": "module1",
+      "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -130,7 +121,31 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "filterText": "array",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -346,6 +361,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "C",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -418,31 +442,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "C",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject2",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "C",
-      "insertText": "TestObject2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "C",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testNewFunction()",
+      "label": "testFunction()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -452,8 +452,24 @@
         }
       },
       "sortText": "C",
-      "filterText": "testNewFunction",
-      "insertText": "testNewFunction()",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testErr",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "A",
+      "insertText": "testErr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "testInt",
       "insertTextFormat": "Snippet"
     },
     {
@@ -468,11 +484,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "TestObject1",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
       "sortText": "C",
-      "insertText": "obj1",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -532,12 +548,33 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
+      "label": "getIntOrError()",
+      "kind": "Function",
+      "detail": "error|int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error|int`   \n  \n"
+        }
+      },
       "sortText": "C",
-      "filterText": "null",
-      "insertText": "null",
+      "filterText": "getIntOrError",
+      "insertText": "getIntOrError()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getError()",
+      "kind": "Function",
+      "detail": "error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "filterText": "getError",
+      "insertText": "getError()",
       "insertTextFormat": "Snippet"
     }
   ]
