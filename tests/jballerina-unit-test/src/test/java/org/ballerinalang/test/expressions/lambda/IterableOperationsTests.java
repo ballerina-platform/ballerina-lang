@@ -17,7 +17,6 @@
 package org.ballerinalang.test.expressions.lambda;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
@@ -25,6 +24,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.utils.BStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,7 +44,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 public class IterableOperationsTests {
 
     private CompileResult basic, negative;
-    private static BString[] values = StringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
+    private static BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
             "Ballerina.!!!"});
 
     @BeforeClass

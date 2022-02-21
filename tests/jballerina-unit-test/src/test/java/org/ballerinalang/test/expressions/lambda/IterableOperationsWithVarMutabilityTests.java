@@ -17,12 +17,12 @@
 package org.ballerinalang.test.expressions.lambda;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.JvmRunUtil;
+import org.ballerinalang.test.utils.BStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +40,7 @@ import java.util.Locale;
 public class IterableOperationsWithVarMutabilityTests {
 
     private CompileResult compileResult;
-    private static BString[] values = StringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
+    private static BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
             "Ballerina.!!!"});
 
     @BeforeClass
