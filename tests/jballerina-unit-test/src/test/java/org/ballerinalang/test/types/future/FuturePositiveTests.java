@@ -18,8 +18,8 @@
 package org.ballerinalang.test.types.future;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,67 +41,67 @@ public class FuturePositiveTests {
 
     @Test
     public void testBasicTypes() {
-        BRunUtil.invoke(result, "testBasicTypes");
+        JvmRunUtil.invoke(result, "testBasicTypes");
     }
 
     @Test
     public void testBasicTypesWithoutFutureConstraint() {
-        BRunUtil.invoke(result, "testBasicTypesWithoutFutureConstraint");
+        JvmRunUtil.invoke(result, "testBasicTypesWithoutFutureConstraint");
     }
 
     @Test
     public void testRefTypes() {
-        BRunUtil.invoke(result, "testRefTypes");
+        JvmRunUtil.invoke(result, "testRefTypes");
     }
 
     @Test
     public void testRefTypesWithoutFutureConstraint() {
-        BRunUtil.invoke(result, "testRefTypesWithoutFutureConstraint");
+        JvmRunUtil.invoke(result, "testRefTypesWithoutFutureConstraint");
     }
 
     @Test
     public void testArrayTypes() {
-        BRunUtil.invoke(result, "testArrayTypes");
+        JvmRunUtil.invoke(result, "testArrayTypes");
     }
 
     @Test
     public void testArrayTypesWithoutFutureConstraint() {
-        BRunUtil.invoke(result, "testArrayTypesWithoutFutureConstraint");
+        JvmRunUtil.invoke(result, "testArrayTypesWithoutFutureConstraint");
     }
 
     @Test
     public void testRecordTypes() {
-        BRunUtil.invoke(result, "testRecordTypes");
+        JvmRunUtil.invoke(result, "testRecordTypes");
     }
 
     @Test
     public void testRecordTypesWithoutFutureConstraint() {
-        BRunUtil.invoke(result, "testRecordTypesWithoutFutureConstraint");
+        JvmRunUtil.invoke(result, "testRecordTypesWithoutFutureConstraint");
     }
 
     @Test
     public void testObjectTypes() {
-        BRunUtil.invoke(result, "testObjectTypes");
+        JvmRunUtil.invoke(result, "testObjectTypes");
     }
 
     @Test
     public void testObjectTypesWithoutFutureConstraint() {
-        BRunUtil.invoke(result, "testObjectTypesWithoutFutureConstraint");
+        JvmRunUtil.invoke(result, "testObjectTypesWithoutFutureConstraint");
     }
 
     @Test
     public void testCustomErrorFuture() {
-        BRunUtil.invoke(result, "testCustomErrorFuture");
+        JvmRunUtil.invoke(result, "testCustomErrorFuture");
     }
 
     @Test
     public void testCustomErrorFutureWithoutConstraint() {
-        BRunUtil.invoke(result, "testCustomErrorFutureWithoutConstraint");
+        JvmRunUtil.invoke(result, "testCustomErrorFutureWithoutConstraint");
     }
 
     @Test
     public void testFutureTyping() {
-        BRunUtil.invoke(result, "testFutureTyping");
+        JvmRunUtil.invoke(result, "testFutureTyping");
     }
 
     @Test

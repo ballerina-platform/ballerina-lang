@@ -19,8 +19,8 @@
 package org.ballerinalang.test.types.tuples;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,10 +41,10 @@ public class TupleFillMemberTest {
 
     @Test
     public void testTupleFillMember() {
-        BRunUtil.invoke(compileResult, "testTupleFillMemberSimpleTypes");
-        BRunUtil.invoke(compileResult, "testTupleFillMemberSimpleTypesWithRest");
-        BRunUtil.invoke(compileResult, "testTupleFillMemberStructuredTypes");
-        BRunUtil.invoke(compileResult, "testTupleFillMemberStructuredTypesWithRest");
+        JvmRunUtil.invoke(compileResult, "testTupleFillMemberSimpleTypes");
+        JvmRunUtil.invoke(compileResult, "testTupleFillMemberSimpleTypesWithRest");
+        JvmRunUtil.invoke(compileResult, "testTupleFillMemberStructuredTypes");
+        JvmRunUtil.invoke(compileResult, "testTupleFillMemberStructuredTypesWithRest");
     }
 
     @AfterClass

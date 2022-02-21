@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.types.never;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -44,61 +44,60 @@ public class NeverTypeTest {
         runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
     }
 
-
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: Panic occured in function with never return.*")
     public void testNeverReturnTypedFunctionCall() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverReturnTypedFunctionCall");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverReturnTypedFunctionCall");
     }
 
     @Test(description = "Test inclusive record type with 'never' typed field")
     public void testInclusiveRecordTypeWithNeverTypedField() {
-        BRunUtil.invoke(neverTypeTestResult, "testInclusiveRecord");
+        JvmRunUtil.invoke(neverTypeTestResult, "testInclusiveRecord");
     }
 
     @Test(description = "Test exclusive record type with 'never' typed field")
     public void testExclusiveRecordTypeWithNeverTypedField() {
-        BRunUtil.invoke(neverTypeTestResult, "testExclusiveRecord");
+        JvmRunUtil.invoke(neverTypeTestResult, "testExclusiveRecord");
     }
 
     @Test(description = "Test XML with 'never' type constraint")
     public void testXMLWithNeverTypeConstraint() {
-        BRunUtil.invoke(neverTypeTestResult, "testXMLWithNeverType");
+        JvmRunUtil.invoke(neverTypeTestResult, "testXMLWithNeverType");
     }
 
     @Test(description = "Test union type with 'never' type: 1")
     public void testNeverWithUnionType1() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithUnionType1");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithUnionType1");
     }
 
     @Test(description = "Test union type with 'never' type: 2")
     public void testNeverWithUnionType2() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithUnionType1");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithUnionType1");
     }
 
     @Test(description = "Test union type with 'never' type: 3")
     public void testNeverWithUnionType3() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithUnionType3");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithUnionType3");
     }
 
     @Test(description = "Test table's key constraint with 'never' type")
     public void testNeverWithKeyLessTable() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithKeyLessTable");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithKeyLessTable");
     }
 
     @Test(description = "Test table key constraint with 'never' type")
     public void testNeverInUnionTypedKeyConstraints() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverInUnionTypedKeyConstraints");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverInUnionTypedKeyConstraints");
     }
 
     @Test(description = "Test 'never' type as future type param")
     public void testNeverAsFutureTypeParam() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverAsFutureTypeParam");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverAsFutureTypeParam");
     }
 
     @Test(description = "Test 'never' type as mapping type param")
     public void testNeverAsMappingTypeParam() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverAsMappingTypeParam");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverAsMappingTypeParam");
     }
 
     @Test
@@ -156,19 +155,19 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected '(int|string)', found 'xml<never>'", 152, 21);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type " +
-                        "'never' or equivalent to type 'never'", 156, 5);
+                "'never' or equivalent to type 'never'", 156, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 159, 1);
+                "or equivalent to type 'never'", 159, 1);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot declare a constant with type 'never', " +
                 "expected a subtype of 'anydata' that is not 'never'", 161, 7);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'never', found '()'",
                 161, 17);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 164, 5);
+                "or equivalent to type 'never'", 164, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 165, 5);
+                "or equivalent to type 'never'", 165, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
-                        "cannot be of type 'never' or equivalent to type 'never'", 173, 16);
+                "cannot be of type 'never' or equivalent to type 'never'", 173, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
                 "cannot be of type 'never' or equivalent to type 'never'", 176, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
@@ -214,12 +213,12 @@ public class NeverTypeTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: Bad Sad!!.*")
     public void testNeverWithCallStmt() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithCallStmt");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithCallStmt");
     }
 
     @Test(dataProvider = "dataToTestNeverWithExpressions", description = "Test never type with expressions")
     public void testNeverWithExpressions(String functionName) {
-        BRunUtil.invoke(neverTypeTestResult, functionName);
+        JvmRunUtil.invoke(neverTypeTestResult, functionName);
     }
 
     @DataProvider
@@ -240,13 +239,12 @@ public class NeverTypeTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: Bad Sad!!.*")
     public void testNeverWithMethodCallExpr() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithMethodCallExpr");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithMethodCallExpr");
     }
-
 
     @Test(dataProvider = "dataToTestNeverTypeWithIterator", description = "Test never type with iterator")
     public void testNeverTypeWithIterator(String functionName) {
-       BRunUtil.invoke(neverTypeTestResult, functionName);
+        JvmRunUtil.invoke(neverTypeTestResult, functionName);
     }
 
     @DataProvider
@@ -263,7 +261,7 @@ public class NeverTypeTest {
 
     @Test(dataProvider = "dataToTestNeverTypeWithForeach", description = "Test never type with foreach")
     public void testNeverTypeWithForeach(String functionName) {
-        BRunUtil.invoke(neverTypeTestResult, functionName);
+        JvmRunUtil.invoke(neverTypeTestResult, functionName);
     }
 
     @DataProvider
@@ -283,7 +281,7 @@ public class NeverTypeTest {
     @Test(dataProvider = "dataToTestNeverTypeWithFromClauseInQueryExpr", description = "Test never type in from " +
             "clause in query expr")
     public void testNeverTypeWithFromClauseInQueryExpr(String functionName) {
-        BRunUtil.invoke(neverTypeTestResult, functionName);
+        JvmRunUtil.invoke(neverTypeTestResult, functionName);
     }
 
     @DataProvider
@@ -299,23 +297,22 @@ public class NeverTypeTest {
 
     @Test(description = "Test never type in rest params and fields")
     public void testNeverWithRestParams() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithRestParamsAndFields");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithRestParamsAndFields");
     }
-
 
     @Test(description = "Test never type in remote method return type of service object")
     public void testNeverWithServiceObjFunc() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithServiceObjFunc");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverWithServiceObjFunc");
     }
 
     @Test(description = "Test never sub typing")
     public void testNeverSubtyping() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverSubtyping");
+        JvmRunUtil.invoke(neverTypeTestResult, "testNeverSubtyping");
     }
 
     @Test(dataProvider = "dataToTestNeverRuntime", description = "Test never runtime")
     public void testNeverRuntime(String functionName) {
-        BRunUtil.invoke(runtimeResult, functionName);
+        JvmRunUtil.invoke(runtimeResult, functionName);
     }
 
     @DataProvider
