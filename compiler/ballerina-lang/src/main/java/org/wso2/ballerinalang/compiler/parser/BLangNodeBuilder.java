@@ -1351,8 +1351,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
-        BLangExpression literalOrExpression = createLiteralOrExpression(singletonTypeDescriptorNode.simpleContExprNode(),
-                true);
+        BLangExpression literalOrExpression = 
+                createLiteralOrExpression(singletonTypeDescriptorNode.simpleContExprNode(), true);
         bLangFiniteTypeNode.pos = literalOrExpression.pos;
         bLangFiniteTypeNode.valueSpace.add(literalOrExpression);
         return bLangFiniteTypeNode;
