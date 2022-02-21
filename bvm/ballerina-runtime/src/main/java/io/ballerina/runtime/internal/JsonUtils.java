@@ -377,14 +377,14 @@ public class JsonUtils {
                         return convertJSON(jsonValue, inputValueType);
                     }
                     if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem)) {
-                        matchedValues.add(convertJSON(jsonValue, TypeChecker.getType(valueSpaceItem)));
+                        matchedValues.add(valueSpaceItem);
                     }
                 }
                 if (matchedValues.size() != 1) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
                 } else {
-                    return matchedValues.iterator().next();
+                    return convertJSON(jsonValue, TypeChecker.getType(matchedValues.iterator().next()));
                 }
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
