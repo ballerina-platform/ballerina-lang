@@ -24,6 +24,8 @@ import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -92,9 +94,9 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
         List<AnnotationSymbol> annots = new ArrayList<>();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-//        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : bField.symbol.getAnnotations()) {
-//            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationSymbol) annot));
-//        }
+        for (AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        }
 
         this.annots = Collections.unmodifiableList(annots);
         return this.annots;
