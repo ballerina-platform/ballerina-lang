@@ -19,8 +19,8 @@
 package org.ballerinalang.test.types.readonly;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -45,7 +45,7 @@ public class SelectivelyImmutableTypeTest {
 
     @Test(dataProvider = "immutableTypesTestFunctions")
     public void testImmutableTypes(String function) {
-        BRunUtil.invoke(result, function);
+        JvmRunUtil.invoke(result, function);
     }
 
     @DataProvider(name = "immutableTypesTestFunctions")

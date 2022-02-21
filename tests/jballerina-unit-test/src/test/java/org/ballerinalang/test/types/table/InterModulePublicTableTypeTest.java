@@ -17,8 +17,8 @@
 package org.ballerinalang.test.types.table;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.JvmRunUtil;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,7 +39,7 @@ public class InterModulePublicTableTypeTest {
 
     @Test(description = "Test Table constructor with map constraint type")
     public void testPublicTableTypeInDifferentModules() {
-        BRunUtil.invoke(result, "getPublicTableInstance");
+        JvmRunUtil.invoke(result, "getPublicTableInstance");
 
     }
 
