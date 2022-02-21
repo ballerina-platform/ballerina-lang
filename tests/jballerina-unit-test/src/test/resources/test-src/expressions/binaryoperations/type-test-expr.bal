@@ -917,6 +917,31 @@ function testFiniteTypeAsBroaderType_1() returns boolean {
     return a is string;
 }
 
+type IntOne 1;
+type FloatOne 1.0;
+type FloatNaN float:NaN;
+
+function testTypeTestExprWithSingletons() {
+    IntOne intOne = 1;
+    FloatOne floatOne = 1.0;
+
+    any a = intOne;
+    test:assertFalse(a is FloatOne);
+    test:assertFalse(a is 1f);
+    test:assertFalse(a is float);
+    test:assertTrue(a is FloatOne|IntOne);
+
+    any b = floatOne;
+    test:assertFalse(b is IntOne);
+    test:assertFalse(b is 1);
+    test:assertFalse(b is int);
+
+    FloatNaN floatNaN = float:NaN;
+    any c = floatNaN;
+    test:assertTrue(c is FloatNaN);
+    test:assertTrue(c is float:NaN);
+}
+
 type FRUIT_OR_COUNT "apple"|2|"grape"|10;
 
 function testFiniteTypeAsBroaderType_2() returns [boolean, boolean] {
