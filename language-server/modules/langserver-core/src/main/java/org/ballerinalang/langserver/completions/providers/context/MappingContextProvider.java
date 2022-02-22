@@ -189,14 +189,14 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
     }
 
     protected Optional<Node> getEvalNode(BallerinaCompletionContext context) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         Predicate<Node> predicate = node ->
                 node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
                         || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
                         || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
                         || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
-                        || (node.kind() == SyntaxKind.SPECIFIC_FIELD || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD);
-        return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(context.getNodeAtCursor(), predicate);
     }
 
     @Override
