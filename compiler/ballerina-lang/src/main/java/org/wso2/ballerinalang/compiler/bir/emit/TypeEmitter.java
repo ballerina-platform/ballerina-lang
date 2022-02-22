@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -144,6 +145,8 @@ class TypeEmitter {
                 return emitBTypeHandle((BHandleType) bType, tabs);
             case TypeTags.STREAM:
                 return emitBStreamType((BStreamType) bType, tabs);
+            case TypeTags.TYPEREFDESC:
+                return emitTypeRefDesc((BTypeReferenceType) bType, tabs);
             default:
                 throw new IllegalStateException("Invalid type");
         }
@@ -375,6 +378,14 @@ class TypeEmitter {
         String str = "typeDesc";
         str += "<";
         str += emitTypeRef(bType.constraint, 0);
+        str += ">";
+        return str;
+    }
+
+    private static String emitTypeRefDesc(BTypeReferenceType bType, int tabs) {
+        String str = "typeRefDesc";
+        str += "<";
+        str += emitTypeRef(bType.referredType, 0);
         str += ">";
         return str;
     }
