@@ -1,6 +1,37 @@
-name: Daily build
+name: Nightly syncing patch branch with master
 
 on:
   workflow_dispatch:
   schedule:
     - cron:  '0 0 * * *'
+jobs:
+  send_pr_from_patch_branch:
+    name: Send a nightly PR to master
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: '3.x'
+
+      - name: Install Python Packages
+        run: |
+          pip install requests
+          pip install httplib2
+          pip install PyGithub
+
+      - name: Send pull request
+        run: |
+          python3 .github/scripts/pull_request.py
+        env:
+          BALLERINA_BOT_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          BALLERINA_BOT_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          BALLERINA_BOT_EMAIL: ${{ secrets.BALLERINA_BOT_EMAIL }}
+          BALLERINA_REVIEWER_BOT_TOKEN: ${{ secrets.BALLERINA_REVIEWER_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.NOTIFICATIONS_CHAT_ID }}
+          CHAT_KEY: ${{ secrets.NOTIFICATIONS_CHAT_KEY }}
+          CHAT_TOKEN: ${{ secrets.NOTIFICATIONS_CHAT_TOKEN }}
