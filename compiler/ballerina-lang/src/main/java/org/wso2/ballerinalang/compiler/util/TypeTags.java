@@ -159,4 +159,16 @@ public class TypeTags {
         }
     }
 
+    public static boolean isUnionTypeTag(int tag) {
+        switch (tag) {
+            case TypeTags.UNION:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+                return true;
+            default:
+                return false;
+        }
+    }
+
 }
