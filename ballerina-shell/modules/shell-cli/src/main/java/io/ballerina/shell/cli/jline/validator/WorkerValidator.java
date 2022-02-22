@@ -41,6 +41,7 @@ public class WorkerValidator implements Validator {
             return !parsedNode.namedWorkerDeclarator().get().apply(incompleteInputFinder);
         }
 
-        return !parsedNode.hasDiagnostics() || !NodeParser.parseBlockStatement("{" + source + "}").apply(incompleteInputFinder);
+        return !parsedNode.hasDiagnostics()
+                || !NodeParser.parseBlockStatement("{" + source + "}").apply(incompleteInputFinder);
     }
 }
