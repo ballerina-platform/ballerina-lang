@@ -1640,11 +1640,10 @@ public class CommonUtil {
             }
             currentNode = currentNode.parent();
         }
-        if (currentNode != null) {
-            boolean nodeKind = currentNode.kind().equals(SyntaxKind.OBJECT_CONSTRUCTOR);
-            return nodeKind && symbol.getName().isPresent() && symbol.getName().get().equals(SELF_KW);
+        if (currentNode == null || currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
+            return false;
         }
-        return false;
+        return symbol.getName().isPresent() && symbol.getName().get().equals(SELF_KW);
     }
 
     /**
