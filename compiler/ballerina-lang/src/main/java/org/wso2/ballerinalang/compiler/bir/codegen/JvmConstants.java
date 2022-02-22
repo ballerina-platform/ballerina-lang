@@ -210,6 +210,7 @@ public class JvmConstants {
     public static final String LINKED_HASH_MAP = "java/util/LinkedHashMap";
     public static final String ARRAY_LIST = "java/util/ArrayList";
     public static final String LIST = "java/util/List";
+    public static final String STACK = "java/util/Stack";
     public static final String SET = "java/util/Set";
     public static final String LINKED_HASH_SET = "java/util/LinkedHashSet";
     public static final String STRING_BUILDER = "java/lang/StringBuilder";
