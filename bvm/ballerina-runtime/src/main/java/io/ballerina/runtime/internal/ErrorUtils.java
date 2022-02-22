@@ -174,8 +174,4 @@ public class ErrorUtils {
                 .concat(StringUtils.fromString(": " + detailMessage)));
     }
 
-    public static BError createInvalidDecimalError(String value) {
-        throw createError(BallerinaErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_DECIMAL_VALUE, value));
-    }
 }
