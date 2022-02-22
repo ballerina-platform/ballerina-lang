@@ -2505,9 +2505,8 @@ public class TypeChecker {
             }
         }
 
-        int targetTypeSize = targetType.getSize();
         int sourceSize = source.size();
-        if ((targetTypeSize != -1) && (sourceSize != targetTypeSize)) {
+        if ((targetType.getState() != ArrayState.OPEN) && (sourceSize != targetType.getSize())) {
             return false;
         }
         for (int i = 0; i < sourceSize; i++) {
