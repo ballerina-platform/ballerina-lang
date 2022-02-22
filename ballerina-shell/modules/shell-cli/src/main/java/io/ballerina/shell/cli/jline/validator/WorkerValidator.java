@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,33 +18,30 @@
 
 package io.ballerina.shell.cli.jline.validator;
 
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
 
 /**
- * Validates user input as a complete statement.
+ * Validates user input as a worker statement.
  *
  * @since 2.0.0
  */
-public class StatementValidator implements Validator {
-
-    private Validator nextInValidator;
-
-    public StatementValidator() {
-        nextInValidator = null;
-    }
+public class WorkerValidator implements Validator {
 
     @Override
     public void setNextValidator(Validator nextValidator) {
-        this.nextInValidator = nextValidator;
     }
 
     @Override
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
-        Node parsedNode = NodeParser.parseBlockStatement("{" + source + "}");
-        return !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
-                || nextInValidator.evaluate(source);
+        FunctionBodyBlockNode parsedNode = NodeParser.parseFunctionBodyBlock("{" + source + "}");
+        if (parsedNode.namedWorkerDeclarator().isPresent()) {
+            return !parsedNode.namedWorkerDeclarator().get().apply(incompleteInputFinder);
+        }
+
+        return !parsedNode.hasDiagnostics()
+                || !NodeParser.parseBlockStatement("{" + source + "}").apply(incompleteInputFinder);
     }
 }
