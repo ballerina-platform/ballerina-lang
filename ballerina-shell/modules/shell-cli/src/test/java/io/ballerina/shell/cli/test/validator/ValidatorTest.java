@@ -201,5 +201,15 @@ public class ValidatorTest {
                 "        maxAge: 84900\n" +
                 "    }\n" +
                 "}"));
+
+        // Command related testcases
+        Assert.assertTrue(inputValidator.isComplete(" "));
+        Assert.assertTrue(inputValidator.isComplete("/remove a"));
+        Assert.assertTrue(inputValidator.isComplete("/help"));
+        Assert.assertTrue(inputValidator.isComplete("/help topic"));
+        Assert.assertTrue(inputValidator.isComplete("/vars"));
+        Assert.assertTrue(inputValidator.isComplete("/file file.bal"));
+        Assert.assertTrue(inputValidator.isComplete("/remove a b"));
+        Assert.assertTrue(inputValidator.isComplete("/remove a b c d function1"));
     }
 }
