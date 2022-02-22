@@ -2051,7 +2051,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tag == TypeTags.TYPEREFDESC) {
             BType refType = Types.getReferredType(bType);
             BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor);
-            return (refType.tag != TypeTags.UNION && refType.tag != TypeTags.INTERSECTION) ? bType : compatibleType;
+            return (!isUnionType(refType.tag) && refType.tag != TypeTags.INTERSECTION) ? bType : compatibleType;
         }
 
         if (tag == TypeTags.INTERSECTION) {
@@ -2078,6 +2078,11 @@ public class TypeChecker extends BLangNodeVisitor {
         reportIncompatibleMappingConstructorError(mappingConstructor, bType);
         validateSpecifiedFields(mappingConstructor, symTable.semanticError);
         return symTable.semanticError;
+    }
+
+    private boolean isUnionType(int refTypeTag) {
+        return refTypeTag == TypeTags.UNION || refTypeTag == TypeTags.ANY || refTypeTag == TypeTags.ANYDATA ||
+                refTypeTag == TypeTags.JSON;
     }
 
     private BType checkReadOnlyMappingType(BLangRecordLiteral mappingConstructor) {
