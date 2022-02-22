@@ -514,7 +514,7 @@ public class TypeConverter {
         }
     }
 
-    private static boolean isIntegerSubtypeAndConvertible(Object inputValue, Type targetType) {
+    public static boolean isIntegerSubtypeAndConvertible(Object inputValue, Type targetType) {
         Type inputValueType = TypeChecker.getType(inputValue);
         if (!TypeTags.isIntegerTypeTag(inputValueType.getTag()) && inputValueType.getTag() != TypeTags.BYTE_TAG) {
             return false;

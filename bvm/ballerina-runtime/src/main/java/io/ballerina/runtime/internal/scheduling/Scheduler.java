@@ -516,7 +516,7 @@ public class Scheduler {
 
     private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
         FutureValue future = new FutureValue(newStrand, callback, constraint);
-        future.strand.frames = new Object[BALLERINA_MAX_YIELD_DEPTH];
+        future.strand.frames = new Stack<>();
         return future;
     }
 

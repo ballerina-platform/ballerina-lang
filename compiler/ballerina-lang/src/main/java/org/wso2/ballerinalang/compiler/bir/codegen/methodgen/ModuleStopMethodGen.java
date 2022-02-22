@@ -70,6 +70,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
@@ -77,8 +78,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THRO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LISTENER_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PUT_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 
 /**
  * Generates Jvm byte code for the stop method.
@@ -217,9 +218,10 @@ public class ModuleStopMethodGen {
         mv.visitVarInsn(ALOAD, futureIndex);
 
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
-        mv.visitIntInsn(SIPUSH, BALLERINA_MAX_YIELD_DEPTH);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, PUT_FRAMES);
+        mv.visitTypeInsn(NEW, STACK);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, "()V", false);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
         int schedulerIndex = indexMap.get(SCHEDULER_VAR);
         mv.visitVarInsn(ALOAD, schedulerIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
