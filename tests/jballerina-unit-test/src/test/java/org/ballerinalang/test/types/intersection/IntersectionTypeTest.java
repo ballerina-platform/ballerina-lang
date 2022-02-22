@@ -64,6 +64,11 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testTypeCheckingInUnions() {
+        BRunUtil.invoke(readOnlyIntersectionResults, "testTypeCheckingInUnions");
+    }
+
+    @Test
     public void testImmutableTypesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/test_intersection_type_negative.bal");
         int index = 0;
