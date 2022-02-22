@@ -52,10 +52,7 @@ public class ModuleMemberValidator implements Validator {
         ModulePartNode node = tree.rootNode();
         // Ignore code segments including imports
         Node parsedNode = NodeParser.parseModuleMemberDeclaration(source);
-        if (!node.imports().isEmpty() || !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)) {
-            return true;
-        }
-
-        return nextInValidator.evaluate(source);
+        return !node.imports().isEmpty() || !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
+                || nextInValidator.evaluate(source);
     }
 }
