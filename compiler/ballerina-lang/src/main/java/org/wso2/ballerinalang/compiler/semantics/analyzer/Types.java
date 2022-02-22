@@ -3893,8 +3893,7 @@ public class Types {
 
             ((BLangLiteral) expression).isFiniteContext = true;
             if (expType.tag == TypeTags.FINITE) {
-                boolean foundMember = isAssignableToFiniteType(expType, (BLangLiteral) expression);
-                if (!foundMember) {
+                if (!isAssignableToFiniteType(expType, (BLangLiteral) expression)) {
                     return false;
                 }
             } else {
@@ -4018,11 +4017,12 @@ public class Types {
             case TypeTags.DECIMAL:
                 BigDecimal baseDecimalVal = NumericLiteralSupport.parseBigDecimal(baseValue);
                 BigDecimal candidateDecimalVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
+                        !candidateLiteral.isFiniteContext) {
                     candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
-                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
-                        candidateTypeTag == TypeTags.DECIMAL) {
+                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant &&
+                        !candidateLiteral.isFiniteContext || candidateTypeTag == TypeTags.DECIMAL) {
                     if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(candidateValue))) {
                         return false;
                     }
