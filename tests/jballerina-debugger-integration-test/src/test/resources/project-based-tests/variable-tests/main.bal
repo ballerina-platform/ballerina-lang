@@ -319,10 +319,6 @@ public function main() {
         intVar += intVar;
     }
 
-    // variable visibility inside let expression
-    string greeting = let string hello = "Hello ",
-                              string ballerina = "Ballerina!"
-                          in hello + ballerina;
     var foo = basicClosure();
     int result = foo(3);
 }
