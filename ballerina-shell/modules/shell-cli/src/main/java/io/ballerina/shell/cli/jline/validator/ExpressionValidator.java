@@ -44,15 +44,14 @@ public class ExpressionValidator implements Validator {
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
         Node parsedNode = NodeParser.parseExpression(source);
-        if (parsedNode.hasDiagnostics()) {
-            boolean isComplete = !(parsedNode.apply(incompleteInputFinder));
-            if (isComplete) {
-                return true;
-            }
-
-            return nextInValidator.evaluate(source);
+        if (!parsedNode.hasDiagnostics()) {
+            return true;
         }
 
-        return true;
+        if (!parsedNode.apply(incompleteInputFinder)) {
+            return true;
+        }
+
+        return nextInValidator.evaluate(source);
     }
 }

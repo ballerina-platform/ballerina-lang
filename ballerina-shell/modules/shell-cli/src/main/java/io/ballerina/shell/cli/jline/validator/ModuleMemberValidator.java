@@ -56,15 +56,14 @@ public class ModuleMemberValidator implements Validator {
         }
 
         Node parsedNode = NodeParser.parseModuleMemberDeclaration(source);
-        if (parsedNode.hasDiagnostics()) {
-            boolean isComplete = !(parsedNode.apply(incompleteInputFinder));
-            if (isComplete) {
-                return true;
-            }
-
-            return nextInValidator.evaluate(source);
+        if (!parsedNode.hasDiagnostics()) {
+            return true;
         }
 
-        return true;
+        if (!parsedNode.apply(incompleteInputFinder)) {
+            return true;
+        }
+
+        return nextInValidator.evaluate(source);
     }
 }

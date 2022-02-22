@@ -40,14 +40,14 @@ public class WorkerValidator implements Validator {
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
         FunctionBodyBlockNode parsedNode = NodeParser.parseFunctionBodyBlock("{" + source + "}");
-        if (parsedNode.hasDiagnostics()) {
-            if (parsedNode.namedWorkerDeclarator().isPresent()) {
-                return !(parsedNode.namedWorkerDeclarator().get().apply(incompleteInputFinder));
-            }
-
-            return !(NodeParser.parseBlockStatement("{" + source + "}").apply(incompleteInputFinder));
+        if (!parsedNode.hasDiagnostics()) {
+            return true;
         }
 
-        return true;
+        if (parsedNode.namedWorkerDeclarator().isPresent()) {
+            return !parsedNode.namedWorkerDeclarator().get().apply(incompleteInputFinder);
+        }
+
+        return !NodeParser.parseBlockStatement("{" + source + "}").apply(incompleteInputFinder);
     }
 }
