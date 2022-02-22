@@ -1061,8 +1061,7 @@ public class CentralAPIClient {
             if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                 Error error = new Gson().fromJson(body.get().string(), Error.class);
                 throw new CentralClientException("unauthorized access token for organization: '" + org +
-                        "'. reason: " + error.getMessage() +
-                        ". check access token set in 'Settings.toml' file.");
+                        "'. check access token set in 'Settings.toml' file. reason: " + error.getMessage());
             } else {
                 throw new CentralClientException("unauthorized access token for organization: '" + org +
                         "'. check access token set in 'Settings.toml' file.");
@@ -1083,8 +1082,8 @@ public class CentralAPIClient {
             Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
             if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                 Error error = new Gson().fromJson(body.get().string(), Error.class);
-                throw new CentralClientException("unauthorized access token. reason: " + error.getMessage() +
-                        ". check access token set in 'Settings.toml' file.");
+                throw new CentralClientException("unauthorized access token. " +
+                        "check access token set in 'Settings.toml' file. reason: " + error.getMessage());
             } else {
                 throw new CentralClientException("unauthorized access token. " +
                         "check access token set in 'Settings.toml' file.");
