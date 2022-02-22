@@ -46,7 +46,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_MAX_YIELD_DEPTH;
 import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
 
 /**
