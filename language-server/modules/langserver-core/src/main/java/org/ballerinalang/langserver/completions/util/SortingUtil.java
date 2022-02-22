@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -547,17 +548,14 @@ public class SortingUtil {
      */
     public static boolean isSymbolCItemWithinNodeAndCursor(BallerinaCompletionContext context, 
                                                                LSCompletionItem lsCItem, Node startNode) {
-        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
-            return false;
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL 
+                || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
+                return false;
         }
-        
-        SymbolCompletionItem symbolCItem = (SymbolCompletionItem) lsCItem;
-        if (symbolCItem.getSymbol().isEmpty()) {
-            return false;
-        }
-        Symbol symbol = symbolCItem.getSymbol().get();
-        return symbol.getLocation().isPresent() 
-                && (startNode.textRange().startOffset() < symbol.getLocation().get().textRange().startOffset())
-                && (symbol.getLocation().get().textRange().endOffset() < context.getCursorPositionInTree());
+
+        Optional<Location> symbolLocation = ((SymbolCompletionItem) lsCItem).getSymbol().get().getLocation();
+        return symbolLocation.isPresent()
+        && (startNode.textRange().startOffset() < symbolLocation.get().textRange().startOffset())
+        && (symbolLocation.get().textRange().endOffset() < context.getCursorPositionInTree());
     }
 }
