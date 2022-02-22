@@ -20,29 +20,35 @@ Sequence diagram based graphical view shows the most fundamental aspect of the s
 It allows for looser coupling between distributed components and eliminates the friction of data binding.
 
 #### Metadata
-Extensible metadata enables easy integration of Ballerina programs with cloud platforms. 
+Extensible metadata enables easy integration of Ballerina programs with cloud platforms.
+You could directly generate Docker & Kubernetes artifacts straight away from
+the source code.
 
 ## Getting started
 
 You can use one of the following options to try out Ballerina.
 
-* [Quick Tour](https://ballerina.io/learn/quick-tour/)
+* [Setting up Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/)
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
-* [Playground](https://play.ballerina.io/)
+* [Ballerina Online Playground](https://play.ballerina.io/)
 
 ## Downloading and installing
 
-For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/learn/installing-ballerina/).
+For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/downloads/).
 
-## Building from source
+## Installation Options
 
-For prerequisites and instructions on building from source, see [Installing from source](https://ballerina.io/learn/getting-started/installing-ballerina/#building-from-source).
+For more installation options, see [Installation Options](https://ballerina.io/learn/installing-ballerina/installation-options/).
+
+## Get the VS Code Extension
+
+Try out Ballerina's development capabilities using [the Ballerina Extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina).
 
 ## Reporting issues and security flaws
 
 Report an issue in the relevant repo out of the GitHub repos listed below. 
 
->**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack Channel](#https://ballerina-platform.slack.com/).
+>**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack Channel](https://ballerina-platform.slack.com/).
   - Compiler, runtime, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
   - Standard library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-standard-library</a> repo
   - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
@@ -63,6 +69,6 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 ## Useful links
 
 * The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
-* Chat live with us on our [Slack channel](https://ballerina.io/community/slack/).
+* Engage with the [Ballerina Community](https://ballerina.io/community/).
 * Technical questions should be posted on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 * Ballerina performance test results are available [here](performance/benchmarks/summary.md).
