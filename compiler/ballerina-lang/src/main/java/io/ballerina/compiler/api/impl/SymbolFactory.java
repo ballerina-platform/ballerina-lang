@@ -560,23 +560,19 @@ public class SymbolFactory {
         PackageID annotPkgId = annotationAttachmentSymbol.annotPkgID;
         Name annotTagRef = annotationAttachmentSymbol.annotTag;
 
-        BAnnotationSymbol symbol;
-
         if (symTable.rootPkgSymbol.pkgID.equals(annotPkgId)) {
-            symbol = (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(
-                    symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol), annotTagRef);
-        } else {
-            SymbolEnv pkgEnv = null;
-            for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
-                if (entry.getKey().pkgID.equals(annotPkgId)) {
-                    pkgEnv = entry.getValue();
-                    break;
-                }
-            }
-            symbol = (BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(pkgEnv, annotTagRef);
+            return createAnnotationSymbol((BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(
+                    symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol), annotTagRef));
         }
 
-        return createAnnotationSymbol(symbol);
+        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symTable.pkgEnvMap.entrySet()) {
+            if (entry.getKey().pkgID.equals(annotPkgId)) {
+                return createAnnotationSymbol((BAnnotationSymbol) symResolver.lookupSymbolInAnnotationSpace(
+                        entry.getValue(), annotTagRef));
+            }
+        }
+        throw new AssertionError("Cannot lookup annotation symbol: symbol environment not available " +
+                                         "for '" + annotPkgId + "'");
     }
 
     /**
