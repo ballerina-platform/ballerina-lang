@@ -4668,7 +4668,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return basicNumericTypes;
     }
 
-    public BLangNumericLiteral createNumericLiteralFormUnaryExpr(BLangUnaryExpr unaryExpr) {
+    public BLangNumericLiteral createNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
         BLangExpression exprInUnary = unaryExpr.expr;
         BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
         Object objectValueInUnary = numericLiteralInUnary.value;
@@ -4701,7 +4701,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public BType createFiniteTypeForNumericUnaryExpr(BLangUnaryExpr unaryExpr) {
-        BLangNumericLiteral newNumericLiteral = createNumericLiteralFormUnaryExpr(unaryExpr);
+        BLangNumericLiteral newNumericLiteral = createNumericLiteralFromUnaryExpr(unaryExpr);
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 0, Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner,
                 unaryExpr.pos, SOURCE);
@@ -4715,8 +4715,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BType exprType;
         BType actualType = symTable.semanticError;
 
-        //Allow subtraction operators to get expected type
-        boolean isExpTypeAllowed = OperatorKind.SUB.equals(unaryExpr.operator);
+        //Allow subtraction and add (to resolve ex: byte x = +7) operators to get expected type
+        boolean isAddOrSubOperator = OperatorKind.SUB.equals(unaryExpr.operator) ||
+                OperatorKind.ADD.equals(unaryExpr.operator);
 
         BType newExpectedType = expType;
         LinkedHashSet<BType> basicNumericTypes;
@@ -4757,20 +4758,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 newExpectedType = BUnionType.create(null, symTable.intType, symTable.floatType,
                         symTable.decimalType);
             }
-//            else {
-//                dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-//                        expType, unaryExpr.expr);
-//                resultType = symTable.semanticError;
-//            }
         }
 
         newExpectedType = clonedExprChecker(unaryExpr.expr, newExpectedType);
 
         if (newExpectedType != symTable.semanticError) {
-            exprType = isExpTypeAllowed ? checkExpr(unaryExpr.expr, env, newExpectedType) :
+            exprType = isAddOrSubOperator ? checkExpr(unaryExpr.expr, env, newExpectedType) :
                     checkExpr(unaryExpr.expr, env);
         } else {
-            exprType = isExpTypeAllowed ? checkExpr(unaryExpr.expr, env, expType) :
+            exprType = isAddOrSubOperator ? checkExpr(unaryExpr.expr, env, expType) :
                     checkExpr(unaryExpr.expr, env);
         }
 
@@ -4789,8 +4785,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Explicitly set actual type
-        if (exprType != symTable.semanticError && unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL &&
-                (referredType.tag == TypeTags.FINITE || referredType.tag == TypeTags.UNION)) {
+        if (isAddOrSubOperator && exprType != symTable.semanticError &&
+                unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && (referredType.tag == TypeTags.FINITE ||
+                referredType.tag == TypeTags.UNION)) {
             if (referredType.tag == TypeTags.FINITE) {
                 actualType = createFiniteTypeForNumericUnaryExpr(unaryExpr);
             } else {
@@ -4807,8 +4804,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
             }
-        } else if (exprType != symTable.semanticError && TypeTags.isIntegerTypeTag(referredType.tag) &&
-                referredType.tag != TypeTags.INT) {
+        } else if (isAddOrSubOperator && exprType != symTable.semanticError &&
+                TypeTags.isIntegerTypeTag(referredType.tag) && referredType.tag != TypeTags.INT) {
             BType tempActualType = checkCompatibilityWithConstructedNumericLiteral(unaryExpr, referredType);
             if (tempActualType != symTable.semanticError) {
                 return  tempActualType;
@@ -4818,7 +4815,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public BType checkCompatibilityWithConstructedNumericLiteral(BLangUnaryExpr unaryExpr, BType referredType) {
-        BLangNumericLiteral numericLiteral = createNumericLiteralFormUnaryExpr(unaryExpr);
+        if (unaryExpr.expr.getKind() != NodeKind.NUMERIC_LITERAL) {
+            return clonedExprTypeChecker(unaryExpr.expr, referredType);
+        }
+        BLangNumericLiteral numericLiteral = createNumericLiteralFromUnaryExpr(unaryExpr);
         // To check value with sign against expected type
         return clonedExprTypeChecker(numericLiteral, referredType);
     }
@@ -4864,6 +4864,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangUnaryExpr unaryExpr) {
         BType exprType;
+
         BType actualType = symTable.semanticError;
         if (OperatorKind.UNTAINT.equals(unaryExpr.operator)) {
             exprType = checkExpr(unaryExpr.expr, env);
