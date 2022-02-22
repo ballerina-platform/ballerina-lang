@@ -57,9 +57,7 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
-import io.ballerina.tools.diagnostics.Diagnostic;
 
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
@@ -90,11 +88,8 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(FunctionDefinitionNode node) {
-        if (node.functionKeyword().isMissing()) {
-            return true;
-        }
-
-        return  node.functionSignature().apply(this) || node.functionBody().apply(this);
+        return  node.functionKeyword().isMissing() || node.functionSignature().apply(this)
+                || node.functionBody().apply(this);
     }
 
     @Override
@@ -129,29 +124,20 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(IfElseStatementNode node) {
-        if (node.ifKeyword().isMissing()) {
-            return true;
-        }
-
-        return node.ifBody().openBraceToken().isMissing() || node.ifBody().closeBraceToken().isMissing();
+        return node.ifKeyword().isMissing() || node.ifBody().openBraceToken().isMissing()
+                || node.ifBody().closeBraceToken().isMissing();
     }
 
     @Override
     public Boolean transform(WhileStatementNode node) {
-        if (node.whileKeyword().isMissing()) {
-            return true;
-        }
-
-        return node.whileBody().openBraceToken().isMissing() || node.whileBody().closeBraceToken().isMissing();
+        return node.whileKeyword().isMissing() || node.whileBody().openBraceToken().isMissing()
+                || node.whileBody().closeBraceToken().isMissing();
     }
 
     @Override
     public Boolean transform(ForEachStatementNode node) {
-        if (node.forEachKeyword().isMissing() || node.inKeyword().isMissing()) {
-            return true;
-        }
-
-        return node.blockStatement().openBraceToken().isMissing()
+        return node.forEachKeyword().isMissing() || node.inKeyword().isMissing()
+                || node.blockStatement().openBraceToken().isMissing()
                 || node.blockStatement().closeBraceToken().isMissing();
     }
 
@@ -177,11 +163,9 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
     @Override
     public Boolean transform(ModuleVariableDeclarationNode node) {
         // Diagnostic check to avoid case : annotation not attached to construct
-        for (Diagnostic diagnostic : StreamSupport.stream(node.diagnostics().spliterator(), false)
-                .collect(Collectors.toList())) {
-            if (diagnostic.diagnosticInfo().code().equals("BCE0524")) {
-                return false;
-            }
+        if (StreamSupport.stream(node.diagnostics().spliterator(), false).
+                anyMatch(diagnostic -> diagnostic.diagnosticInfo().code().equals("BCE0524"))) {
+            return false;
         }
 
         if (node.initializer().isPresent()) {
@@ -240,11 +224,8 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(QueryExpressionNode node) {
-        if (node.queryPipeline().fromClause().fromKeyword().isMissing()) {
-            return true;
-        }
-
-        return node.selectClause().expression().apply(this);
+        return node.queryPipeline().fromClause().fromKeyword().isMissing()
+                || node.selectClause().expression().apply(this);
     }
 
     @Override

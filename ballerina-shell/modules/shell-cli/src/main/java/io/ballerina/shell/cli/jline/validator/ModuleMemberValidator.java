@@ -51,16 +51,8 @@ public class ModuleMemberValidator implements Validator {
         SyntaxTree tree = SyntaxTree.from(document);
         ModulePartNode node = tree.rootNode();
         // Ignore code segments including imports
-        if (node.imports().size() > 0) {
-            return true;
-        }
-
         Node parsedNode = NodeParser.parseModuleMemberDeclaration(source);
-        if (!parsedNode.hasDiagnostics()) {
-            return true;
-        }
-
-        if (!parsedNode.apply(incompleteInputFinder)) {
+        if (!node.imports().isEmpty() || !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)) {
             return true;
         }
 

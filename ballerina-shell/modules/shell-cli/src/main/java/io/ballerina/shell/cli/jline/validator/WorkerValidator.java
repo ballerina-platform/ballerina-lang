@@ -29,9 +29,6 @@ import io.ballerina.shell.cli.utils.IncompleteInputFinder;
  */
 public class WorkerValidator implements Validator {
 
-    public WorkerValidator() {
-    }
-
     @Override
     public void setNextValidator(Validator nextValidator) {
     }

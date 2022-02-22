@@ -44,11 +44,7 @@ public class StatementValidator implements Validator {
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
         Node parsedNode = NodeParser.parseBlockStatement("{" + source + "}");
-        if (!parsedNode.hasDiagnostics()) {
-            return true;
-        }
-
-        if (!parsedNode.apply(incompleteInputFinder)) {
+        if (!parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)) {
             return true;
         }
 
