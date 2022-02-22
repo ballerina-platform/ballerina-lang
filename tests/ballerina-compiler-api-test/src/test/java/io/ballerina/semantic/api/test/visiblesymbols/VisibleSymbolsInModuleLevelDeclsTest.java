@@ -69,7 +69,9 @@ public class VisibleSymbolsInModuleLevelDeclsTest extends BaseVisibleSymbolsTest
                         from("RED", ENUM_MEMBER),
                         from("GREEN", ENUM_MEMBER),
                         from("BLUE", ENUM_MEMBER),
-                        from("exprBodyScope", FUNCTION)
+                        from("exprBodyScope", FUNCTION),
+                        from("fn3", VARIABLE)
+
                 );
         return new Object[][]{
                 {15, 0, expModuleSymbols},
@@ -115,6 +117,7 @@ public class VisibleSymbolsInModuleLevelDeclsTest extends BaseVisibleSymbolsTest
                                 from("get", RESOURCE_METHOD)
                 )},
                 {61, 56, concat(expModuleSymbols, from("myStr", PARAMETER))},
+                {63, 50, concat(expModuleSymbols, from("intParam", PARAMETER))},
         };
     }
 }

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -101,7 +102,7 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
         // Get field symbols which are not already specified
         List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
                 .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
-                        && CommonUtil.isValidIdentifier(recordFieldSymbol.getName().get())
+                        && SyntaxInfo.isIdentifier(recordFieldSymbol.getName().get())
                         && !fieldNames.contains(recordFieldSymbol.getName().get()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(symbols, context));

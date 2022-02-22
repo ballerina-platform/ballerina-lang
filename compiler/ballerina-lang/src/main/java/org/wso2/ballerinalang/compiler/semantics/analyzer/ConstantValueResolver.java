@@ -78,6 +78,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -210,7 +211,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        Map<String, BLangConstantValue> mapConstVal = new HashMap<>();
+        Map<String, BLangConstantValue> mapConstVal = new LinkedHashMap<>();
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             String key;
             BLangConstantValue value;
