@@ -88,6 +88,4 @@
 
 @v1 public type otherType (byteType);
 
-@v1 public type TypeName table<>;
-
 public annotation v1 on type;
