@@ -29,6 +29,8 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.Symbol;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -43,12 +45,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_LOADING_FAILED;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
  * Debug expression evaluation utils.
@@ -452,6 +457,35 @@ public class EvaluationUtils {
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
         return fromStringMethod.invokeSafely();
+    }
+
+    /**
+     * Returns the fully-qualified generated java class name for the source file, which includes the given symbol.
+     *
+     * @param symbol source symbol
+     * @return the fully-qualified generated java class name for the source file, which includes the given symbol
+     */
+    public static String constructQualifiedClassName(Symbol symbol) {
+        String className = symbol.getLocation().orElseThrow().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
+        if (symbol.getModule().isEmpty()) {
+            return className;
+        }
+
+        ModuleID moduleMeta = symbol.getModule().get().id();
+        // for ballerina single source files, the package name will be "." and therefore,
+        // qualified class name ::= <file_name>
+        if (moduleMeta.packageName().equals(".")) {
+            return className;
+        }
+
+        // for ballerina package source files,
+        // qualified class name ::= <package_name>.<module_name>.<package_major_version>.<file_name>
+        return new StringJoiner(".")
+                .add(encodeModuleName(moduleMeta.orgName()))
+                .add(encodeModuleName(moduleMeta.moduleName()))
+                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
+                .add(className)
+                .toString();
     }
 
     /**

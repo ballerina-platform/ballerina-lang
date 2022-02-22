@@ -924,3 +924,34 @@ function f31() {
         }
     }
 }
+
+function f32() {
+    any x = 1;
+
+    error? m = from int i in 0 ..< 2
+    do {
+        if x is int {
+            int _ = x;
+            x = "str";
+        }
+    };
+    boolean _ = m is error;
+}
+
+function f33() {
+    error? m = from int i in 0 ..< 2
+    do {
+        int? j = 2;
+        if j is int {
+            int _ = j;
+            j = ();
+        }
+
+        int? k = 2;
+        if k is int {
+            k = ();
+            int? _ = k;
+        }
+    };
+    boolean _ = m is error;
+}

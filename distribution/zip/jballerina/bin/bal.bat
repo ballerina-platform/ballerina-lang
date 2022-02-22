@@ -148,11 +148,11 @@ if not "%BALLERINA_CLASSPATH_EXT%" == "" set BALLERINA_CLASSPATH=!BALLERINA_CLAS
 
 set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=""  -Dcom.sun.management.jmxremote -classpath "%BALLERINA_CLASSPATH%" %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version}
 
-set jar=%2
+set jar=%~2
 if "%1" == "run" if "%jar:~-4%" == ".jar" goto runJar
 
-set jar=%4
-if "%1" == "run" if "%2" == "--debug" if "%jar:~-4%" == ".jar" goto debugJar
+set jar=%~4
+if "%1" == "run" if "%~2" == "--debug" if "%jar:~-4%" == ".jar" goto debugJar
 
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% io.ballerina.cli.launcher.Main %CMD%

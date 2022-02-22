@@ -23,6 +23,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -131,9 +132,13 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-        compUnit.getTopLevelNodes().stream().filter(
-                node -> !(node instanceof BLangFunction && ((BLangFunction) node).flagSet.contains(Flag.WORKER)))
-                .forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode, this.symbolEnv));
+        for (TopLevelNode node : compUnit.getTopLevelNodes()) {
+            if (isWorkerOrLambdaFunction(node) || isAnonClass(node)) {
+                continue;
+            }
+
+            this.acceptNode((BLangNode) node, this.symbolEnv);
+        }
     }
 
     @Override
@@ -522,7 +527,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        this.acceptNode(bLangLambdaFunction.function, this.symbolEnv);
+        this.acceptNode(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
     }
 
     @Override
@@ -746,5 +751,15 @@ public class EnvironmentResolver extends BaseVisitor {
         }
 
         return PositionUtil.isRangeWithinNode(nodePosition.lineRange(), this.scope.node.getPosition());
+    }
+
+    private boolean isWorkerOrLambdaFunction(TopLevelNode node) {
+        return node.getKind() == NodeKind.FUNCTION && (((BLangFunction) node).flagSet.contains(Flag.WORKER)
+                || ((BLangFunction) node).flagSet.contains(Flag.LAMBDA));
+    }
+
+    private boolean isAnonClass(TopLevelNode node) {
+        return node.getKind() == NodeKind.CLASS_DEFN
+                && ((BLangClassDefinition) node).getFlags().contains(Flag.ANONYMOUS);
     }
 }

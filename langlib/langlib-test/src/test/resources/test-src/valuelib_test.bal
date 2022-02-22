@@ -508,25 +508,6 @@ public function xmlSequenceFragmentToString() returns string {
    return (x/*).toString();
 }
 
-type AssertionError distinct error;
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error AssertionError(ASSERTION_ERROR_REASON,
-            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
-}
-
 type Person2 record {
     string name;
     int age;
@@ -2456,3 +2437,82 @@ function testUsingCloneableReturnType() {
     assertEquality("dummyVal", caller.getAttribute("dummy"));
 }
 
+function testDecimalZeroToString() {
+    decimal d1 = 0.0d;
+    decimal d2 = 0d;
+
+    assertTrue(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+
+    d1 = 0.00000000d;
+    d2 = 0.0d;
+
+    assertTrue(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+    
+    d1 = 0.0000d;
+    d2 = 0.0000d;
+
+    assertEquality(d1.toString(), d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertTrue(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+}
+
+function testDecimalNonZeroToString() {
+    decimal d1 = 1.0d;
+    decimal d2 = 1.00d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+
+    d1 = 10.0d;
+    d2 = 10.0000d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+
+    d1 = 0.1d;
+    d2 = 0.10d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+
+    d1 = 0.110d;
+    d2 = 0.11000000d;
+
+    assertFalse(d1.toString() == d2.toString());
+    assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
+    assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+}
+
+type AssertionError distinct error;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error AssertionError(ASSERTION_ERROR_REASON,
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

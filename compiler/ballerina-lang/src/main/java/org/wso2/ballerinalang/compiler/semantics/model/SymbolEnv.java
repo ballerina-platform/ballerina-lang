@@ -150,6 +150,16 @@ public class SymbolEnv {
         return objectEnv;
     }
 
+    public static SymbolEnv createObjectConstructorObjectEnv(BLangClassDefinition node, SymbolEnv env) {
+        SymbolEnv nodeEnv = env.shallowClone();
+        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, nodeEnv.scope, nodeEnv);
+        objectEnv.enclEnv = env;
+        objectEnv.enclPkg = env.enclPkg;
+        objectEnv.envCount = env.envCount + 1;
+        objectEnv.enclInvokable = env.enclInvokable;
+        return objectEnv;
+    }
+
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
         SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
@@ -193,6 +203,12 @@ public class SymbolEnv {
 
     public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env) {
         SymbolEnv symbolEnv = cloneSymbolEnvForClosure(node, env);
+        Scope scope = node.body.scope;
+        if (scope == null) {
+            node.body.scope = symbolEnv.scope;
+        } else {
+            symbolEnv.scope = scope;
+        }
         symbolEnv.enclEnv = env.enclEnv != null ? env.enclEnv.createClone() : null;
         symbolEnv.enclPkg = env.enclPkg;
         return symbolEnv;

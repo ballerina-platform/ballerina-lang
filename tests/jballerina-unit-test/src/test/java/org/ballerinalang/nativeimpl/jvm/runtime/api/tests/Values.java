@@ -37,6 +37,7 @@ import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -237,5 +238,9 @@ public class Values {
         values[0] = 1;
         values[1] = "abc";
         return ValueCreator.createRecordValue(map, values);
+    }
+
+    public static BString decodeIdentifier(BString identifier) {
+        return StringUtils.fromString(IdentifierUtils.decodeIdentifier(identifier.getValue()));
     }
 }

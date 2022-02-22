@@ -104,7 +104,7 @@ public class JDIEventProcessor {
             if (!context.isTerminateRequestReceived()) {
                 // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
                 // dead by now.
-                context.getAdapter().terminateServer(false);
+                context.getAdapter().terminateDebugServer(false, true);
             }
         });
     }
@@ -291,7 +291,9 @@ public class JDIEventProcessor {
             Location currentLocation = balStackFrame.getJStackFrame().location();
             ReferenceType referenceType = currentLocation.declaringType();
             List<Location> allLocations = currentLocation.method().allLineLocations();
-            Optional<Location> firstLocation = allLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
+            Optional<Location> firstLocation = allLocations.stream()
+                    .filter(location -> location.lineNumber() > 0)
+                    .min(Comparator.comparingInt(Location::lineNumber));
             Optional<Location> lastLocation = allLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
             if (firstLocation.isEmpty()) {
                 return;

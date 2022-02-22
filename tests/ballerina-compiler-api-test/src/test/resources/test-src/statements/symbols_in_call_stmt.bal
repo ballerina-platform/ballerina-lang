@@ -27,7 +27,7 @@ function test() returns error? {
     checkpanic bar(name, val);
 
     dog.eat();
-    dog.bark(val, j = name);
+    dog.bark(val, j = "Snowy");
     dog.bark(val, name, ...ints);
     check dog.walk();
     checkpanic dog.walk();

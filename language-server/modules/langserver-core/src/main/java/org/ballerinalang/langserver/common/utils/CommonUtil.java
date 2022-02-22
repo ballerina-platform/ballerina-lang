@@ -57,6 +57,7 @@ import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -74,7 +75,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.common.constants.PatternConstants;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -104,7 +104,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -172,7 +171,7 @@ public class CommonUtil {
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
-    public static final List<String> BALLERINA_KEYWORDS;
+    public static final List<String> BALLERINA_KEYWORDS = SyntaxInfo.keywords();
 
     public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
@@ -182,7 +181,7 @@ public class CommonUtil {
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
-    private static final int MAX_DEPTH = 1;
+    private static final int MAX_DEPTH = 2;
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -190,7 +189,6 @@ public class CommonUtil {
         COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
-        BALLERINA_KEYWORDS = getBallerinaKeywords();
     }
 
     private CommonUtil() {
@@ -262,7 +260,7 @@ public class CommonUtil {
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName);
         if (!alias.isEmpty()) {
-            builder.append(" as ").append(alias).append(" ");
+            builder.append(" as ").append(alias);
         }
         builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
 
@@ -380,16 +378,22 @@ public class CommonUtil {
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
-                if (errorType.typeKind() == TypeDescKind.RECORD) {
-                    errorString.append(", ");
-                    errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
-                            .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
-                                    .orElse(""))
-                            .collect(Collectors.joining(", ")));
+                if (errorType.typeKind() == TypeDescKind.RECORD && depth <= MAX_DEPTH) {
+                    List<RecordFieldSymbol> mandatoryFields = getMandatoryRecordFields((RecordTypeSymbol) errorType);
+                    if (!mandatoryFields.isEmpty()) {
+                        errorString.append(", ");
+                        errorString.append(mandatoryFields.stream()
+                                .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
+                                        + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
+                                        .orElse(""))
+                                .collect(Collectors.joining(", ")));
+                    }
                 }
                 errorString.append(")");
                 typeString = errorString.toString();
+                break;
+            case SINGLETON:
+                typeString = rawType.signature();
                 break;
             case MAP:
             case FLOAT:
@@ -886,7 +890,7 @@ public class CommonUtil {
      */
     public static String generateParameterName(String arg, int position, TypeSymbol type, Set<String> visibleNames) {
         String newName;
-        if (arg.isEmpty() || !isValidIdentifier(arg)) {
+        if (arg.isEmpty() || !SyntaxInfo.isIdentifier(arg)) {
             String typeName = type != null ? type.typeKind().getName() : "";
             if (!typeName.isEmpty()) {
                 newName = typeName.substring(0, 1).toLowerCase(Locale.getDefault());
@@ -1007,20 +1011,6 @@ public class CommonUtil {
     }
 
     /**
-     * Checks if the provided identifier is valid as per the ballerina specification.
-     *
-     * @param identifier Identifier to be checked for validity
-     * @return True, if the identifier is valid as per the ballerina specification
-     */
-    public static boolean isValidIdentifier(String identifier) {
-        if (identifier == null || identifier.isEmpty()) {
-            return false;
-        }
-
-        return identifier.matches(PatternConstants.IDENTIFIER_PATTERN);
-    }
-
-    /**
      * Escapes the escape characters present in an identifier.
      *
      * @param identifier Identifier
@@ -1045,12 +1035,12 @@ public class CommonUtil {
         if (!moduleID.equals(currentModuleId)) {
             boolean preDeclaredLangLib = moduleID.orgName().equals(BALLERINA_ORG_NAME) &&
                     PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
-            String moduleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
-            String[] moduleParts = moduleName.split("/");
+            String escapeModuleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
+            String[] moduleParts = escapeModuleName.split("/");
             String orgName = moduleParts[0];
-            String alias = moduleParts[1];
+            String moduleName = moduleParts[1];
 
-            pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
+            pkgPrefix = moduleName.replaceAll(".*\\.", "");
             pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
@@ -1062,13 +1052,17 @@ public class CommonUtil {
             if (existingModuleImports.size() == 1) {
                 ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
                 if (importDeclarationNode.prefix().isPresent()) {
-                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
+            } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
+                pkgPrefix = getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
             }
-
+            CodeActionModuleId codeActionModuleId =
+                    CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());
             if (importsAcceptor != null && !preDeclaredLangLib) {
-                importsAcceptor.getAcceptor(context).accept(orgName, alias);
+                importsAcceptor.getAcceptor(context).accept(orgName, codeActionModuleId);
             }
+            return pkgPrefix + ":";
         }
         return pkgPrefix;
     }
@@ -1085,7 +1079,7 @@ public class CommonUtil {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(aliasLastPart) && !preDeclaredLangLib) {
                     aliasLastPart = "'" + aliasLastPart;
                 }
-                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining());
+                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining("."));
                 alias = aliasPart + "." + aliasLastPart;
             } else {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(alias) && !preDeclaredLangLib) {
@@ -1171,7 +1165,7 @@ public class CommonUtil {
      * Returns the URI with bala scheme for the provided file path.
      *
      * @param filePath File path
-     * @param scheme URI Scheme
+     * @param scheme   URI Scheme
      * @return URI with the given scheme
      * @throws URISyntaxException URI parsing errors
      */
@@ -1394,10 +1388,6 @@ public class CommonUtil {
         return modNameComponents[modNameComponents.length - 1];
     }
 
-    public static boolean isKeyword(String token) {
-        return CommonUtil.BALLERINA_KEYWORDS.contains(token);
-    }
-
     /**
      * Escape a given value.
      *
@@ -1405,7 +1395,7 @@ public class CommonUtil {
      * @return {@link String}
      */
     public static String escapeReservedKeyword(String value) {
-        if (isKeyword(value)) {
+        if (SyntaxInfo.isKeyword(value)) {
             return "'" + value;
         }
 
@@ -1432,28 +1422,6 @@ public class CommonUtil {
             return module.moduleName().packageName().value();
         }
         return module.moduleName().packageName().value() + Names.DOT.getValue() + module.moduleName().moduleNamePart();
-    }
-
-    private static List<String> getBallerinaKeywords() {
-        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we come up with a proper api.
-        // Related discussion can be found in https://github.com/ballerina-platform/ballerina-lang/discussions/28827
-        try {
-            Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");
-            return Arrays.stream(aClass.getDeclaredFields())
-                    .filter(field -> field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)
-                            && (field.getType() == String.class))
-                    .map(field -> {
-                        try {
-                            return field.get(null).toString();
-                        } catch (IllegalAccessException e) {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        } catch (ClassNotFoundException e) {
-            return Collections.emptyList();
-        }
     }
 
     /**
@@ -1808,7 +1776,7 @@ public class CommonUtil {
      * Check whether the completion item type belongs to the types list passed.
      *
      * @param lsCItem   Completion item
-     * @param typesList List of types           
+     * @param typesList List of types
      * @return {@link Boolean}
      */
     public static boolean isCompletionItemOfType(LSCompletionItem lsCItem, List<TypeDescKind> typesList) {
@@ -1819,7 +1787,7 @@ public class CommonUtil {
 
         Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().orElse(null);
         Optional<TypeSymbol> typeDesc = SymbolUtil.getTypeDescriptor(symbol);
-        
+
         if (typeDesc.isPresent()) {
             TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
             return typesList.contains(rawType.typeKind());
@@ -1873,7 +1841,7 @@ public class CommonUtil {
         }
         return true;
     }
-    
+
     public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
         URI original = URI.create(uri);
         try {
@@ -1884,4 +1852,5 @@ public class CommonUtil {
             return uri;
         }
     }
+
 }

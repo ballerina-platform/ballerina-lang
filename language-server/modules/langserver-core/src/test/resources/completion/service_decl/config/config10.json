@@ -498,6 +498,15 @@
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "init function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "init_function",
+      "insertText": "function init(${1}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

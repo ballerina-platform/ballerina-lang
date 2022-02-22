@@ -8,7 +8,8 @@ on:
       - release-stage
       - stage
       - ballerina-1.2.x
-      - runtime-swanlake-update-fixes
+      - stage-swan-lake
+      - 2201.[0-9]+.x
 
 jobs:
   ubuntu_build:
