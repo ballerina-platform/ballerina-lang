@@ -290,7 +290,7 @@ public class BuildOptions {
         }
 
         public BuildOptionsBuilder setSemType(Boolean value) {
-            compilationOptionsBuilder.setSemType(value);
+            compilationOptionsBuilder.setSemtype(value);
             return this;
         }
 

@@ -106,7 +106,7 @@ public class BCompileUtil {
     }
 
     public static BLangPackage compileSemType(String sourceFilePath) {
-        Project project = loadProject(sourceFilePath, (new BuildOptionsBuilder()).semType(true).build());
+        Project project = loadProject(sourceFilePath, BuildOptions.builder().setSemType(true).build());
         return project.currentPackage().getCompilation().defaultModuleBLangPackage();
     }
 

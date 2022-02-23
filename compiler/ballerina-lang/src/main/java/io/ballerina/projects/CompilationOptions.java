@@ -186,9 +186,9 @@ public class CompilationOptions {
             compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
         }
         if (theirOptions.semtype != null) {
-            compilationOptionsBuilder.semtype(theirOptions.semtype);
+            compilationOptionsBuilder.setSemtype(theirOptions.semtype);
         } else {
-            compilationOptionsBuilder.semtype(this.semtype);
+            compilationOptionsBuilder.setSemtype(this.semtype);
         }
         return compilationOptionsBuilder.build();
     }
@@ -308,7 +308,7 @@ public class CompilationOptions {
             return this;
         }
 
-        CompilationOptionsBuilder setSemType(Boolean value) {
+        public CompilationOptionsBuilder setSemtype(Boolean value) {
             semtype = value;
             return this;
         }

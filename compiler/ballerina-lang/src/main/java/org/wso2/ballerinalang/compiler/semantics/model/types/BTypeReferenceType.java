@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.ReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -42,6 +43,11 @@ public class BTypeReferenceType extends BType implements ReferenceType {
     public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags, boolean nilable) {
         this(referredType, tsymbol, flags);
         this.nilable = nilable;
+    }
+
+    @Override
+    public SemType getSemtype() {
+        return referredType.getSemtype();
     }
 
     @Override

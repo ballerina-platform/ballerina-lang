@@ -506,7 +506,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         modTable = Collections.unmodifiableMap(modTable);
 
-        constResolver.resolve(pkgEnv.enclPkg.constants, pkgEnv.enclPkg.packageID);
+        constResolver.resolve(pkgEnv.enclPkg.constants, pkgEnv.enclPkg.packageID, pkgEnv);
 
         for (BLangNode def : moduleDefs) {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
