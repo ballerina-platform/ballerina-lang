@@ -32,7 +32,6 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
@@ -66,246 +65,208 @@ public class CreateFunctionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(VariableDeclarationNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-
-            if (node.equalsToken().get().isMissing()) {
-                return false;
-            }
-            return node.typedBindingPattern().apply(this)
-                    && node.initializer().get().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
-    }
-    
-    @Override
-    public Boolean transform(TypedBindingPatternNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            return node.bindingPattern().apply(this) 
-                    && node.typeDescriptor().apply(this);
-        }
-        return true;
-    }
-
-    @Override
-    public Boolean transform(CaptureBindingPatternNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            return !node.variableName().isMissing();
-        }
-        return true;
-    }
-    
-    @Override
-    public Boolean transform(CheckExpressionNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.checkKeyword().isMissing()) {
-                return false;
-            }
-            if (visited.contains(node.expression())) {
-                return node.parent().apply(this);
-            } else {
-                return node.expression().apply(this);
-            }
-        }
-        return true;
-    }
-    
-    @Override
-    public Boolean transform(TableTypeDescriptorNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.tableKeywordToken().isMissing()) {
-                return false;
-            }
-            return node.rowTypeParameterNode().apply(this)
-                    && node.keyConstraintNode().get().apply(this);
-        }
-        return true;
-    }
-
-    @Override
-    public Boolean transform(SpreadFieldNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.ellipsis().isMissing()) {
-                return false;
-            }
-            if (visited.contains(node.valueExpr())) {
-                return node.parent().apply(this);
-            } else {
-                return node.valueExpr().apply(this);
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public Boolean transform(TypeParameterNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.ltToken().isMissing() || node.gtToken().isMissing()) {
-                return false;
-            }
-            return node.typeNode().apply(this);
-        }
-        return true;
-    }
-
-    @Override
-    public Boolean transform(KeySpecifierNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.keyKeyword().isMissing() || node.openParenToken().isMissing()
-                    || node.closeParenToken().isMissing()) {
-                return false;
-            }
-            return node.fieldNames().stream().allMatch(arg -> arg.apply(this));
-        }
-        return true;
+        visited.add(node);
+        
+        return !node.equalsToken().get().isMissing()
+                && node.typedBindingPattern().apply(this)
+                && node.initializer().isPresent()
+                && node.initializer().get().apply(this);
     }
 
     @Override
     public Boolean transform(FunctionCallExpressionNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.functionName().isMissing() || node.openParenToken().isMissing() 
-                    || node.closeParenToken().isMissing() 
-                    || !node.arguments().stream().allMatch(arg -> arg.apply(this))) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        if (node.functionName().isMissing() || node.openParenToken().isMissing()
+                || node.closeParenToken().isMissing()
+                || !node.arguments().stream().allMatch(arg -> arg.apply(this))) {
+            return false;
+        }
+        // Check for missing commas
+        for (int i = 0; i < node.arguments().separatorSize(); i++) {
+            if (node.arguments().getSeparator(i).isMissing()) {
                 return false;
             }
-            // Check for missing commas
-            for (int i = 0 ; i < node.arguments().separatorSize() ; i++) {
-                if (node.arguments().getSeparator(i).isMissing()) {
-                    return false;
-                }
-            }
-            return node.parent().apply(this);
         }
-        return true;
+        return node.parent().apply(this);
+    }
+    
+    @Override
+    public Boolean transform(TypedBindingPatternNode node) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        return node.bindingPattern().apply(this)
+                && node.typeDescriptor().apply(this);
+    }
+
+    @Override
+    public Boolean transform(CaptureBindingPatternNode node) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        return !node.variableName().isMissing();
+    }
+    
+    @Override
+    public Boolean transform(CheckExpressionNode node) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        return !node.checkKeyword().isMissing()
+            && node.expression().apply(this);
+    }
+    
+    @Override
+    public Boolean transform(TableTypeDescriptorNode node) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        return !node.tableKeywordToken().isMissing()
+                && node.rowTypeParameterNode().apply(this)
+                && node.keyConstraintNode().isPresent() 
+                && node.keyConstraintNode().get().apply(this);
+    }
+    
+    @Override
+    public Boolean transform(TypeParameterNode node) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        return !node.ltToken().isMissing()
+            && !node.gtToken().isMissing()
+            && node.typeNode().apply(this);
+    }
+
+    @Override
+    public Boolean transform(KeySpecifierNode node) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        return !node.keyKeyword().isMissing() 
+                && !node.openParenToken().isMissing()
+                && !node.closeParenToken().isMissing()
+                && node.fieldNames().stream().allMatch(arg -> arg.apply(this));
     }
 
     @Override
     public Boolean transform(SimpleNameReferenceNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.name().isMissing()) {
-                return false;
-            }
-            return node.parent().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.name().isMissing()
+            && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(AssignmentStatementNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.equalsToken().isMissing() || node.expression().isMissing()) {
-                return false;
-            }
-            return node.varRef().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.equalsToken().isMissing()
+            && node.expression().apply(this)
+            && node.varRef().apply(this);
     }
 
     @Override
     public Boolean transform(BinaryExpressionNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            
-            if (node.operator().isMissing()) {
-                return false;
-            }
-            return node.lhsExpr().apply(this) && node.rhsExpr().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.operator().isMissing()
+                && node.lhsExpr().apply(this) 
+                && node.rhsExpr().apply(this);
     }
 
     @Override
     public Boolean transform(LetExpressionNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.letKeyword().isMissing() || node.inKeyword().isMissing()
-                || !node.letVarDeclarations().stream().allMatch(arg -> arg.apply(this))) {
-                return false;
-            }
-            return node.expression().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        if (node.letKeyword().isMissing() || node.inKeyword().isMissing()
+                || !node.letVarDeclarations().stream().allMatch(arg -> arg.apply(this))) {
+            return false;
+        }
+        return node.expression().apply(this);
     }
 
     @Override
     public Boolean transform(LetVariableDeclarationNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.equalsToken().isMissing()) {
-                return false;
-            }
-            return node.typedBindingPattern().apply(this)
-                    && node.expression().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.equalsToken().isMissing()
+                && node.typedBindingPattern().apply(this)
+                && node.expression().apply(this);
     }
 
     @Override
     public Boolean transform(PositionalArgumentNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (visited.contains(node.expression())) {
-                return node.parent().apply(this);
-            }
-            return node.expression().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        if (visited.contains(node.expression())) {
+            return node.parent().apply(this);
+        }
+        return node.expression().apply(this);
     }
 
     @Override
     public Boolean transform(BasicLiteralNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.literalToken().isMissing()) {
-                return false;
-            }
-            return node.parent().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.literalToken().isMissing()
+            && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(NamedArgumentNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.equalsToken().isMissing()) {
-                return false;
-            }
-            return node.argumentName().apply(this) && node.expression().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.equalsToken().isMissing()
+                && node.argumentName().apply(this) 
+                && node.expression().apply(this);
     }
     
     @Override
     public Boolean transform(RestArgumentNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.ellipsis().isMissing()) {
-                return false;
-            }
-            return node.expression().apply(this);
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.ellipsis().isMissing()
+                && node.expression().apply(this);
     }
 
     @Override
     public Boolean transform(ListConstructorExpressionNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            return !node.openBracket().isMissing() && !node.closeBracket().isMissing()
-                    && node.expressions().stream().allMatch(arg -> arg.apply(this));
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.openBracket().isMissing() && !node.closeBracket().isMissing()
+                && node.expressions().stream().allMatch(arg -> arg.apply(this));
     }
     
     public Boolean validate(NonTerminalNode node) {
