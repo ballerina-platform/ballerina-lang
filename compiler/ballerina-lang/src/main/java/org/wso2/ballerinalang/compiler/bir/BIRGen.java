@@ -63,7 +63,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -412,7 +414,8 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
         BType type = getDefinedType(astTypeDefinition);
-        Name displayName = astTypeDefinition.symbol.name;
+        BSymbol symbol = astTypeDefinition.symbol;
+        Name displayName = symbol.name;
         if (type.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) type;
             if (recordType.shouldPrintShape()) {
@@ -421,19 +424,19 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
-                                                          astTypeDefinition.symbol.name,
-                                                          astTypeDefinition.symbol.flags,
+                                                          symbol.name,
+                                                          symbol.flags,
                                                           astTypeDefinition.isBuiltinTypeDef,
                                                           type,
                                                           new ArrayList<>(),
-                                                          astTypeDefinition.symbol.origin.toBIROrigin(),
+                                                          symbol.origin.toBIROrigin(),
                                                           displayName,
-                                                          astTypeDefinition.symbol.originalName);
-        if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
-            BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) astTypeDefinition.symbol).referenceType;
+                                                          symbol.originalName);
+        if (symbol.tag == SymTag.TYPE_DEF) {
+            BTypeReferenceType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
             typeDef.referenceType = referenceType;
-            BTypeSymbol typeSymbol = astTypeDefinition.symbol.type.tsymbol;
-            if (type.tsymbol.owner == astTypeDefinition.symbol.owner
+            BTypeSymbol typeSymbol = symbol.type.tsymbol;
+            if (type.tsymbol.owner == symbol.owner
                     && !(Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS))) {
                 typeDefs.put(typeSymbol, typeDef);
             } else {
@@ -441,16 +444,23 @@ public class BIRGen extends BLangNodeVisitor {
                     typeDef.type = referenceType;
                 }
             }
+            typeDef.annotAttachments.addAll(getBIRAnnotAttachments(((BTypeDefinitionSymbol) symbol).annAttachments));
         } else {
+            // TODO: 2022-02-23 not necessarily enums
             //enum symbols
-            typeDefs.put(astTypeDefinition.symbol, typeDef);
+            typeDefs.put(symbol, typeDef);
+
+            if (astTypeDefinition.flagSet.contains(Flag.ENUM)) {
+                typeDef.annotAttachments.addAll(getBIRAnnotAttachments(((BEnumSymbol) symbol).getAnnotations()));
+            } else {
+                typeDef.annotAttachments.addAll(
+                        getBIRAnnotAttachmentsForASTAnnotAttachments(astTypeDefinition.annAttachments));
+            }
         }
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
 
-        typeDef.setMarkdownDocAttachment(astTypeDefinition.symbol.markdownDocumentation);
-        populateBIRAnnotAttachmentsForASTAttachments(astTypeDefinition.annAttachments, typeDef.annotAttachments,
-                                                     this.env);
+        typeDef.setMarkdownDocAttachment(symbol.markdownDocumentation);
 
         if (astTypeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE ||
                 astTypeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
@@ -460,8 +470,8 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        BSymbol typeSymbol = astTypeDefinition.symbol.tag == SymTag.TYPE_DEF
-                ? astTypeDefinition.symbol.type.tsymbol : astTypeDefinition.symbol;
+        BSymbol typeSymbol = symbol.tag == SymTag.TYPE_DEF
+                ? symbol.type.tsymbol : symbol;
         // Write referenced functions, if this is an abstract-object
         if (typeSymbol.tag != SymTag.OBJECT || !Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS)) {
             return;
@@ -530,8 +540,8 @@ public class BIRGen extends BLangNodeVisitor {
             typeDef.referencedTypes.add(typeRef.getBType());
         }
 
-        populateBIRAnnotAttachments(((BClassSymbol) classDefinition.symbol).getAnnotations(), typeDef.annotAttachments,
-                                    this.env);
+        typeDef.annotAttachments.addAll(getBIRAnnotAttachments(
+                ((BClassSymbol) classDefinition.symbol).getAnnotations()));
 
         for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
             BInvokableSymbol funcSymbol = func.symbol;
@@ -673,15 +683,17 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Populate annotation attachments on external in BIRFunction node
         if (astFunc.hasBody() && astFunc.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
-            populateBIRAnnotAttachmentsForASTAttachments(((BLangExternalFunctionBody) astFunc.body).annAttachments,
-                                                         birFunc.annotAttachments, this.env);
+            birFunc.annotAttachments.addAll(getBIRAnnotAttachmentsForASTAnnotAttachments(
+                    ((BLangExternalFunctionBody) astFunc.body).annAttachments));
         }
         // Populate annotation attachments on function in BIRFunction node
-        populateBIRAnnotAttachmentsForASTAttachments(astFunc.annAttachments, birFunc.annotAttachments, this.env);
+        birFunc.annotAttachments.addAll(getBIRAnnotAttachments(astFunc.symbol.annAttachments));
 
         // Populate annotation attachments on return type
-        populateBIRAnnotAttachmentsForASTAttachments(astFunc.returnTypeAnnAttachments, birFunc.returnTypeAnnots,
-                                                     this.env);
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) astFunc.symbol.type.tsymbol;
+        if (invokableTypeSymbol != null) {
+            birFunc.returnTypeAnnots.addAll(getBIRAnnotAttachments(invokableTypeSymbol.returnTypeAnnots));
+        }
 
         birFunc.argsCount = astFunc.requiredParams.size()
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
@@ -808,25 +820,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = blockEndBB;
     }
 
-    private BIRAnnotationAttachment createBIRAnnotationAttachment(
-            BAnnotationAttachmentSymbol annotationAttachmentSymbol) {
-        BIRAnnotationAttachment annotAttachment;
-
-        if (annotationAttachmentSymbol instanceof BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) {
-            BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAnnotationAttachmentSymbol =
-                    (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol;
-            annotAttachment = new BIRNode.BIRConstAnnotationAttachment(
-                    annotationAttachmentSymbol.pos, annotationAttachmentSymbol.annotTag, getBIRConstantVal(
-                            constAnnotationAttachmentSymbol.attachmentValueSymbol.value));
-        } else {
-            annotAttachment = new BIRAnnotationAttachment(annotationAttachmentSymbol.pos,
-                                                          annotationAttachmentSymbol.annotTag);
-        }
-
-        annotAttachment.packageID = annotationAttachmentSymbol.annotPkgID;
-        return annotAttachment;
-    }
-
     @Override
     public void visit(BLangAnnotation astAnnotation) {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
@@ -940,7 +933,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.Return(birFunc.pos);
         }
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
-        populateParamAnnotationAttachmentSymbols(parameter, annots);
+        parameter.annotAttachmentSymbols.addAll(getBIRAnnotAttachments(annots));
         birFunc.requiredParams.add(parameter);
         birFunc.parameters.put(birVarDcl, bbsOfDefaultValueExpr);
 
@@ -957,19 +950,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRParameter restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.restParam = restParam;
-        populateParamAnnotationAttachmentSymbols(restParam, paramSymbol.getAnnotations());
+        restParam.annotAttachmentSymbols.addAll(getBIRAnnotAttachments(paramSymbol.getAnnotations()));
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
-    }
-
-    private void populateParamAnnotationAttachmentSymbols(BIRParameter parameter,
-                                                          List<? extends AnnotationAttachmentSymbol> annotations) {
-        List<BIRAnnotationAttachment> annotAttachmentSymbols = parameter.annotAttachmentSymbols;
-        for (AnnotationAttachmentSymbol annot : annotations) {
-            annotAttachmentSymbols.add(createBIRAnnotationAttachment((BAnnotationAttachmentSymbol) annot));
-        }
     }
 
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
@@ -1367,17 +1352,16 @@ public class BIRGen extends BLangNodeVisitor {
                     fp, args, lhsOp, invocationExpr.async, transactional, thenBB, this.currentScope);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
-            List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments);
+            List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.annAttachments);
 
-            // TODO: 2022-02-14 replace?
             List<BIRAnnotationAttachment> annots =
-                    getStatementAnnotationsForAttachmentNodes(invocationExpr.annAttachments);
+                    getBIRAnnotAttachmentsForASTAnnotAttachments(invocationExpr.annAttachments);
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
                     args, lhsOp, thenBB, annots, calleeAnnots, bInvokableSymbol.getFlags(), this.currentScope);
         } else {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
-            List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments);
+            List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.annAttachments);
 
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
@@ -2716,53 +2700,11 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
     }
 
-    // TODO: 2022-02-15 remove using direct access from symbols
-    private void populateBIRAnnotAttachmentsForASTAttachments(List<BLangAnnotationAttachment> astAnnotAttachments,
-                                                              List<BIRAnnotationAttachment> birAnnotAttachments,
-                                                              BIRGenEnv currentEnv) {
-        currentEnv.enclAnnotAttachments = birAnnotAttachments;
-        for (BLangAnnotationAttachment astAnnotAttachment : astAnnotAttachments) {
-            this.env.enclAnnotAttachments.add(createBIRAnnotationAttachment(
-                    astAnnotAttachment.annotationAttachmentSymbol));
-        }
-        currentEnv.enclAnnotAttachments = null;
-    }
-
-    private void populateBIRAnnotAttachments(List<? extends AnnotationAttachmentSymbol> astAnnotAttachments,
-                                             List<BIRAnnotationAttachment> birAnnotAttachments,
-                                             BIRGenEnv currentEnv) {
-        currentEnv.enclAnnotAttachments = birAnnotAttachments;
-        for (AnnotationAttachmentSymbol annotationAttachmentSymbol : astAnnotAttachments) {
-            this.env.enclAnnotAttachments.add(
-                    createBIRAnnotationAttachment((BAnnotationAttachmentSymbol) annotationAttachmentSymbol));
-        }
-        currentEnv.enclAnnotAttachments = null;
-    }
-
     private void addToTrapStack(BIRBasicBlock birBasicBlock) {
         if (this.env.trapBlocks.isEmpty()) {
             return;
         }
         this.env.trapBlocks.peek().add(birBasicBlock);
-    }
-
-    private List<BIRAnnotationAttachment> getStatementAnnotationsForAttachmentNodes(
-            List<BLangAnnotationAttachment> astAnnotAttachments) {
-        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>();
-        for (BLangAnnotationAttachment astAnnotAttachment : astAnnotAttachments) {
-            annotationAttachments.add(createBIRAnnotationAttachment(astAnnotAttachment.annotationAttachmentSymbol));
-        }
-        return annotationAttachments;
-    }
-
-    private List<BIRAnnotationAttachment> getStatementAnnotations(
-            List<? extends AnnotationAttachmentSymbol> astAnnotAttachments) {
-        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>();
-        for (AnnotationAttachmentSymbol annotationAttachmentSymbol : astAnnotAttachments) {
-            annotationAttachments.add(createBIRAnnotationAttachment(
-                    (BAnnotationAttachmentSymbol) annotationAttachmentSymbol));
-        }
-        return annotationAttachments;
     }
 
     private List<BIRNode.BIRMappingConstructorEntry> generateMappingConstructorEntries(
@@ -2788,5 +2730,46 @@ public class BIRGen extends BLangNodeVisitor {
             initialValues.add(new BIRNode.BIRMappingConstructorSpreadFieldEntry(this.env.targetOperand));
         }
         return initialValues;
+    }
+
+
+    // For invocation expressions, there is no symbol to attach the annotation annotation symbols to. So we
+    // add the attachments symbols to the attachment expression and extract them here.
+    private List<BIRAnnotationAttachment> getBIRAnnotAttachmentsForASTAnnotAttachments(
+            List<BLangAnnotationAttachment> astAnnotAttachments) {
+        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>();
+        for (BLangAnnotationAttachment astAnnotAttachment : astAnnotAttachments) {
+            annotationAttachments.add(createBIRAnnotationAttachment(astAnnotAttachment.annotationAttachmentSymbol));
+        }
+        return annotationAttachments;
+    }
+
+    private List<BIRAnnotationAttachment> getBIRAnnotAttachments(
+            List<? extends AnnotationAttachmentSymbol> astAnnotAttachments) {
+        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>();
+        for (AnnotationAttachmentSymbol annotationAttachmentSymbol : astAnnotAttachments) {
+            annotationAttachments.add(createBIRAnnotationAttachment(
+                    (BAnnotationAttachmentSymbol) annotationAttachmentSymbol));
+        }
+        return annotationAttachments;
+    }
+
+    private BIRAnnotationAttachment createBIRAnnotationAttachment(
+            BAnnotationAttachmentSymbol annotationAttachmentSymbol) {
+        BIRAnnotationAttachment annotAttachment;
+
+        if (annotationAttachmentSymbol instanceof BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) {
+            BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAnnotationAttachmentSymbol =
+                    (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol;
+            annotAttachment = new BIRNode.BIRConstAnnotationAttachment(
+                    annotationAttachmentSymbol.pos, annotationAttachmentSymbol.annotTag, getBIRConstantVal(
+                    constAnnotationAttachmentSymbol.attachmentValueSymbol.value));
+        } else {
+            annotAttachment = new BIRAnnotationAttachment(annotationAttachmentSymbol.pos,
+                                                          annotationAttachmentSymbol.annotTag);
+        }
+
+        annotAttachment.packageID = annotationAttachmentSymbol.annotPkgID;
+        return annotAttachment;
     }
 }

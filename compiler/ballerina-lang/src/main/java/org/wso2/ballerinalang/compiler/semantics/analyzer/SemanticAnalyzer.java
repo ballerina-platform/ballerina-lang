@@ -457,6 +457,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             });
             validateAnnotationAttachmentCount(funcNode.annAttachments);
         }
+        funcNode.symbol.annAttachments.addAll(getAnnotationAttachmentSymbols(funcNode.annAttachments));
 
         BLangType returnTypeNode = funcNode.returnTypeNode;
         boolean hasReturnType = returnTypeNode != null;
@@ -466,6 +467,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 this.analyzeDef(annotationAttachment, funcEnv);
             });
             validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
+            ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol).returnTypeAnnots.addAll(
+                    getAnnotationAttachmentSymbols(funcNode.returnTypeAnnAttachments));
         }
 
         boolean inIsolatedFunction = funcNode.flagSet.contains(Flag.ISOLATED);
@@ -509,10 +512,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (funcNode.anonForkName != null) {
             funcNode.symbol.enclForkName = funcNode.anonForkName;
         }
-
-        funcNode.symbol.annAttachments.addAll(getAnnotationAttachmentSymbols(funcNode.annAttachments));
-        ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol).returnTypeAnnots.addAll(
-                getAnnotationAttachmentSymbols(funcNode.returnTypeAnnAttachments));
     }
 
     @Override
@@ -596,8 +595,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BSymbol typeDefSym = typeDefinition.symbol;
         if (typeDefSym != null && typeDefSym.kind == SymbolKind.TYPE_DEF) {
-            ((BTypeDefinitionSymbol) typeDefSym).annAttachments.addAll(
-                    getAnnotationAttachmentSymbols(typeDefinition.annAttachments));
+            ((BTypeDefinitionSymbol) typeDefSym).annAttachments.addAll(annotSymbols);
         }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {

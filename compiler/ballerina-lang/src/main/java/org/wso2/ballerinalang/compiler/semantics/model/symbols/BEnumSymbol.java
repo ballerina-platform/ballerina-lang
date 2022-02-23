@@ -62,9 +62,7 @@ public class BEnumSymbol extends BTypeSymbol implements Annotatable {
     }
 
     public void addAnnotations(List<BAnnotationAttachmentSymbol> annotSymbols) {
-        for (BAnnotationAttachmentSymbol symbol : annotSymbols) {
-            addAnnotation(symbol);
-        }
+        this.annotationAttachments.addAll(annotSymbols);
     }
 
     @Override

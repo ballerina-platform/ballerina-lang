@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -357,6 +358,7 @@ public class AnnotationDesugar {
 
         // add generated annotation to the service definition
         serviceClass.addAnnotationAttachment(annoAttachment);
+        ((BClassSymbol) serviceClass.symbol).addAnnotation(annoAttachment.annotationAttachmentSymbol);
     }
 
     private String generateServiceHashCode(BLangClassDefinition serviceClass) {
@@ -750,6 +752,7 @@ public class AnnotationDesugar {
         }
 
         symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
+        mainFunc.symbol.annAttachments.add(annoAttachment.annotationAttachmentSymbol);
     }
 
     private BLangFunction defineFunction(Location pos, PackageID pkgID, BSymbol owner) {
