@@ -7,7 +7,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
-//    implementation project(':ballerina-http')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang-test')
     implementation project(':ballerina-runtime')
@@ -17,7 +16,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
-description = 'JBallerina Semtyp - Unit Test Module'
+description = 'JBallerina Semtyp port - Unit Test Module'
 
 test {
     useTestNG() {
