@@ -514,7 +514,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, InitStatus> prevUninitializedVars = null;
         boolean visitedOCE = false;
         if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null &&
-                classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
+                        classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
             env = classDef.oceEnvData.capturedClosureEnv.enclEnv;
             prevUnusedLocalVariables = this.unusedLocalVariables;
             prevUninitializedVars = this.uninitializedVars;
@@ -566,8 +566,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Stream.concat(classDef.fields.stream(), classDef.referencedFields.stream())
                 .map(field -> {
                     addTypeDependency(classDef.symbol, field.getBType(), new HashSet<>());
-                    return field;
-                })
+                    return field; })
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
                     if (this.uninitializedVars.containsKey(field.symbol)) {
@@ -857,7 +856,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (isNotRangeExpr(collection)) {
             populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                    (BLangVariable) foreach.variableDefinitionNode.getVariable());
+                                                (BLangVariable) foreach.variableDefinitionNode.getVariable());
         }
 
         analyzeNode(collection, env);
@@ -956,7 +955,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        /* ignore */
+         /* ignore */
     }
 
     @Override
@@ -971,7 +970,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        // todo
+       // todo
     }
 
     @Override
@@ -1499,7 +1498,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (isNotRangeExpr(collection)) {
             populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                    (BLangVariable) fromClause.variableDefinitionNode.getVariable());
+                                                (BLangVariable) fromClause.variableDefinitionNode.getVariable());
         }
 
         analyzeNode(collection, env);
@@ -1508,7 +1507,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                (BLangVariable) joinClause.variableDefinitionNode.getVariable());
+                                            (BLangVariable) joinClause.variableDefinitionNode.getVariable());
         analyzeNode(joinClause.collection, env);
         if (joinClause.onClause != null) {
             analyzeNode((BLangNode) joinClause.onClause, env);
@@ -1672,7 +1671,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * Let func foo() { returns b + 1; }, where b is a global var, then foo depends on b.
      *
      * @param dependent dependent.
-     * @param provider  object which provides a value.
+     * @param provider object which provides a value.
      */
     private void addDependency(BSymbol dependent, BSymbol provider) {
         if (provider == null || dependent == null || dependent.pkgID != provider.pkgID) {
@@ -1898,7 +1897,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BSymbol symbol = closureVarSymbol.bSymbol;
             if (this.uninitializedVars.containsKey(symbol)) {
                 this.dlog.error(closureVarSymbol.diagnosticLocation,
-                        DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol);
+                                DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol);
             }
 
             this.unusedErrorVarsDeclaredWithVar.remove(symbol);
@@ -2218,7 +2217,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * This method will not update the current uninitialized variables set.
      *
      * @param node Branch node to be analyzed
-     * @param env  Symbol environment
+     * @param env Symbol environment
      * @return Result of the branch.
      */
     private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
@@ -2300,7 +2299,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.
         if (isInPkgLevel && (globalVarSymbol || symbol instanceof BTypeSymbol)
-                || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
+            || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
             BSymbol dependent = this.currDependentSymbolDeque.peek();
             addDependency(dependent, symbol);
         } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbol) {
@@ -2477,7 +2476,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkUnusedErrorVarsDeclaredWithVar() {
         for (Map.Entry<BSymbol, Location> entry : this.unusedErrorVarsDeclaredWithVar.entrySet()) {
             this.dlog.error(entry.getValue(), DiagnosticErrorCode.UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR,
-                    entry.getKey().name);
+                            entry.getKey().name);
         }
     }
 
@@ -2490,7 +2489,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
         BType typeIntersection =
                 types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
-                        variable.getBType(), symTable.errorType, env);
+                                          variable.getBType(), symTable.errorType, env);
         if (typeIntersection != null &&
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
