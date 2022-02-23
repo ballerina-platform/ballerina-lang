@@ -1631,19 +1631,13 @@ public class CommonUtil {
      * @param nodeAtCursor         Node
      * @return {@link Boolean} whether the symbol is a self object symbol.
      */
-
     public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
         Node currentNode = nodeAtCursor;
-        while (currentNode != null) {
-            if (currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
-                break;
-            }
+        while (currentNode != null && currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
             currentNode = currentNode.parent();
         }
-        if (currentNode == null || currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
-            return false;
-        }
-        return symbol.getName().isPresent() && symbol.getName().get().equals(SELF_KW);
+        return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                && symbol.getName().isPresent() && symbol.getName().get().equals(SELF_KW);
     }
 
     /**
