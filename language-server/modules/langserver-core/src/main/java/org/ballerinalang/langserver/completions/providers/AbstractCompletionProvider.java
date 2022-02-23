@@ -741,7 +741,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         
         String functionName = "";
         String snippet = FunctionGenerator.generateFunction(context, false, functionName, args, 
-                returnTypeSymbol.get());
+                returnTypeSymbol.get(), false);
         SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
                 ItemResolverConstants.FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET);
         snippetBlock.setId(ItemResolverConstants.ANON_FUNCTION);

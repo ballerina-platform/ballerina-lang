@@ -99,11 +99,12 @@ public class FunctionGenerator {
      * @param functionName       Name of the function
      * @param args               Function parameters
      * @param returnTypeDescKind {@link TypeDescKind} of the return type
+     * @param isolated           Whether the created function should be prefixed with isolated qualifier
      * @return Created function
-     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol)
+     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol, boolean)
      */
     public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
-                                          List<String> args, TypeDescKind returnTypeDescKind) {
+                                          List<String> args, TypeDescKind returnTypeDescKind, boolean isolated) {
         String returnType = null;
         if (returnTypeDescKind != TypeDescKind.COMPILATION_ERROR) {
             returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeDescKind.getName());
@@ -121,7 +122,7 @@ public class FunctionGenerator {
             }
         }
 
-        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart);
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart, isolated);
     }
 
     /**
@@ -132,10 +133,11 @@ public class FunctionGenerator {
      * @param functionName     Name of the created function
      * @param args             Function arguments as a string list
      * @param returnTypeSymbol return type of the function
+     * @param isolated         Whether the created function should be prefixed with isolated qualifier
      * @return Created function as a string
      */
     public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
-                                          List<String> args, TypeSymbol returnTypeSymbol) {
+                                          List<String> args, TypeSymbol returnTypeSymbol, boolean isolated) {
         String returnType = null;
         if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
             returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.signature());
@@ -153,7 +155,7 @@ public class FunctionGenerator {
             }
         }
 
-        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart);
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart, isolated);
     }
 
     /**
@@ -164,10 +166,11 @@ public class FunctionGenerator {
      * @param returnsClause  Returns clause
      * @param returnStmt     Return statement
      * @param newLineAtStart Whether to add a new line at the start of the function
+     * @param isolated       Whether the created function should be prefixed with isolated qualifier
      * @return Created function
      */
     private static String generateFunction(String functionName, List<String> args, String returnsClause,
-                                           String returnStmt, boolean newLineAtStart) {
+                                           String returnStmt, boolean newLineAtStart, boolean isolated) {
         // padding
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
@@ -188,7 +191,11 @@ public class FunctionGenerator {
         if (!functionName.isEmpty()) {
             fnBuilder.append(CommonUtil.LINE_SEPARATOR);
         }
-        
+
+        if (isolated) {
+            fnBuilder.append("isolated ");
+        }
+
         fnBuilder.append("function").append(" ").append(functionName)
                 .append(CommonKeys.OPEN_PARENTHESES_KEY)
                 .append(String.join(", ", args))
