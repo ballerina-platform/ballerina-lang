@@ -684,7 +684,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/module1 as module11 ;\n"
+          "newText": "import ballerina/module1 as module11;\n"
         }
       ]
     },

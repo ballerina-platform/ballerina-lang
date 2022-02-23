@@ -133,7 +133,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
                 LineRange range = resource.getLineRange();
                 Range lineRange = new Range(new Position(range.startLine().line(), range.startLine().offset()),
-                        new Position(range.endLine().line(), range.endLine().offset()));
+                                            new Position(range.endLine().line(), range.endLine().offset()));
 
                 PerformanceAnalyzerResponse response = new PerformanceAnalyzerResponse();
                 response.setName(resource.getName());

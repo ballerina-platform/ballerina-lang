@@ -73,7 +73,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     public BExpressionValue evaluate() throws EvaluationException {
         try {
             FunctionSymbol functionDef = resolveFunctionDefinitionSymbol();
-            String className = constructQualifiedClassName(context, functionDef);
+            String className = constructQualifiedClassName(functionDef);
             GeneratedStaticMethod jvmMethod = EvaluationUtils.getGeneratedMethod(context, className, functionName);
             FunctionTypeSymbol functionTypeDesc = functionDef.typeDescriptor();
             Map<String, Value> argValueMap = generateNamedArgs(context, functionName, functionTypeDesc, argEvaluators);
