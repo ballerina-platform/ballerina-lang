@@ -32,7 +32,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
-import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
@@ -113,8 +112,7 @@ public class VisibleSymbolsInModuleLevelDeclsTest extends BaseVisibleSymbolsTest
                 {58, 32, concat(expModuleSymbols,
                                 from("self", VARIABLE),
                                 from("greet", CLASS_FIELD),
-                                from("x", CLASS_FIELD),
-                                from("get", RESOURCE_METHOD)
+                                from("x", CLASS_FIELD)
                 )},
                 {61, 56, concat(expModuleSymbols, from("myStr", PARAMETER))},
                 {63, 50, concat(expModuleSymbols, from("intParam", PARAMETER))},
