@@ -2398,8 +2398,7 @@ public class Types {
         return false;
     }
 
-    private boolean isAllErrorMembers(BUnionType actualType) {
-
+    public boolean isAllErrorMembers(BUnionType actualType) {
         return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
