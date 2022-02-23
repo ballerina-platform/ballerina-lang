@@ -224,6 +224,8 @@ public class ErrorConstructorExpressionNodeContext extends
 
         fields.entrySet().forEach(field -> {
             Optional<String> fieldName = field.getValue().getName();
+            TypeSymbol fieldType = field.getValue().typeDescriptor();
+            String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("\"\"");
             if (fieldName.isEmpty() || fieldName.get().isEmpty() || existingNamedArgs.contains(fieldName.get())) {
                 return;
             }
