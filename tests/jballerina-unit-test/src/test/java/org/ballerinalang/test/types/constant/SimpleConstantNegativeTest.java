@@ -66,7 +66,7 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 46, 7);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 47, 7);
         BAssertUtil.validateError(compileResult, index++, "symbol 'abc' is already initialized with 'abc'", 47, 7);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ACTION', found 'XYZ'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ACTION', found '\"XYZ\"'",
                 64, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 73, 12);

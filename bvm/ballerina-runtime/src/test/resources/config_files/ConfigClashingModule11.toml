@@ -1,0 +1,10 @@
+intVar = 12
+
+[user.userPortal]
+stringVar = "Tom"
+
+[userPortal.users]
+intVar = 21
+
+[user.userPortal.users]
+stringVar = "Paul"

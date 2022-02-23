@@ -246,3 +246,17 @@ function testNeverFieldTypeBinding() {
     record {} a = {"x": 11};
     record {never x?;} y2 = a;
 }
+
+function testNeverRestFieldType() {
+    record {|never...; |} a = {};
+    record {|int x;|} copy = a;
+
+    record {|int x?;|} a1 = {};
+    record {|never...; |} copy2 = a1;
+
+    record {|int x;never?...; |} a2 = {x: 12};
+    record {||} copy3 = a2;
+
+    record {||} a3 = {};
+    record {|int x;never...; |} copy4 = a3;
+}

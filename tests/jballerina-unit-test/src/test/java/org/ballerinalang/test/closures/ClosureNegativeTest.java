@@ -67,7 +67,7 @@ public class ClosureNegativeTest {
     public void testTypeNarrowingWithClosure() {
         CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure_negative_02.bal");
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Ballerina', found " +
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '\"Ballerina\"', found " +
                 "'string?'", 22, 31);
         BAssertUtil.validateError(compileResult, index++, "operator '>' not defined for '(int|string)' and 'int'",
                 30, 25);

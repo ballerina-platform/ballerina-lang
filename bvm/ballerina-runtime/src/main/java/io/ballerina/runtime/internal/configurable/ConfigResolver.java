@@ -116,6 +116,9 @@ public class ConfigResolver {
             case TypeTags.XML_TEXT_TAG:
                 return getConfigValue(key, configProvider -> configProvider
                         .getAsXmlAndMark(module, key));
+            case TypeTags.FINITE_TYPE_TAG:
+                return getConfigValue(key, configProvider -> configProvider
+                        .getAsFiniteAndMark(module, key));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 switch (effectiveType.getTag()) {
@@ -142,6 +145,9 @@ public class ConfigResolver {
                     case TypeTags.UNION_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                     .getAsUnionAndMark(module, key));
+                    case TypeTags.FINITE_TYPE_TAG:
+                        return getConfigValue(key, configProvider -> configProvider
+                                .getAsFiniteAndMark(module, key));
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
                                             Utils.decodeIdentifier(effectiveType.toString()));
