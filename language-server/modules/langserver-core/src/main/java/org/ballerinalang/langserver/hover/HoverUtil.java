@@ -85,6 +85,15 @@ public class HoverUtil {
     }
 
     /**
+     * returns the default hover object.
+     *
+     * @return {@link Hover} hover object.
+     */
+    protected static Hover getHoverObject() {
+        return getHoverObject("");
+    }
+
+    /**
      * Get a Hover object given the content.
      *
      * @return {@link Hover} hover object.

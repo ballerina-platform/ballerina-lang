@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.hover;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -43,6 +58,11 @@ public class HoverObjectResolver {
         this.context = context;
     }
 
+    /**
+     * Provides the corresponding hover object for a given symbol.
+     * @param symbol Symbol.
+     * @return {@link Hover} hover object.
+     */
     public Hover getHoverObjectForSymbol(Symbol symbol) {
         switch (symbol.kind()) {
             case FUNCTION:
@@ -63,7 +83,7 @@ public class HoverObjectResolver {
                 if (symbol instanceof TypeReferenceTypeSymbol) {
                     return getHoverObjectForSymbol(((TypeReferenceTypeSymbol) symbol).definition());
                 }
-                return HoverUtil.getHoverObject("");
+                return HoverUtil.getHoverObject();
             default:
                 return HoverUtil.getDescriptionOnlyHoverObject(symbol);
         }
@@ -101,7 +121,7 @@ public class HoverObjectResolver {
     private Hover getHoverObjectForSymbol(ClassSymbol symbol) {
         Optional<Documentation> documentation = symbol.documentation();
         if (documentation.isEmpty()) {
-            return HoverUtil.getHoverObject("");
+            return HoverUtil.getHoverObject();
         }
 
         return getHoverObjectForSymbol(symbol, documentation.get());
@@ -112,7 +132,7 @@ public class HoverObjectResolver {
         Optional<Documentation> documentation = symbol.documentation();
 
         if (documentation.isEmpty()) {
-            return HoverUtil.getHoverObject("");
+            return HoverUtil.getHoverObject();
         }
         if (rawType.typeKind() == TypeDescKind.RECORD) {
             return getHoverObjectForSymbol((RecordTypeSymbol) rawType, documentation.get());
@@ -126,7 +146,7 @@ public class HoverObjectResolver {
     private Hover getHoverObjectForSymbol(FunctionSymbol functionSymbol) {
         Optional<Documentation> documentation = functionSymbol.documentation();
         if (documentation.isEmpty()) {
-            return HoverUtil.getHoverObject("");
+            return HoverUtil.getHoverObject();
         }
         List<String> hoverContent = new ArrayList<>();
         documentation.get().description().ifPresent(desc -> hoverContent.add(desc));
@@ -302,7 +322,7 @@ public class HoverObjectResolver {
                     return getHoverObjectForSymbol(initMethodSymbol);
                 }
         }
-        return HoverUtil.getHoverObject("");
+        return HoverUtil.getHoverObject();
     }
 
 }
