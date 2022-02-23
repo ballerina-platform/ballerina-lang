@@ -90,8 +90,8 @@ public class SymbolLookupTest {
                 {18, 0, 10, moduleLevelSymbols},
 //                {22, 20, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
 //                {28, 22, 6, moduleLevelSymbols}, // TODO: Filter out field symbols
-                {30, 65, 18, getSymbolNames(moduleLevelSymbols, "parent", "pParent", "name", "pName", "age", "pAge",
-                                            "self", "init")},
+                {30, 65, 20, getSymbolNames(moduleLevelSymbols, "parent", "pParent", "name", "pName", "age", "pAge",
+                                            "self", "init", "getName", "getAge")},
                 {39, 8, 17, getSymbolNames(moduleLevelSymbols, "parent", "name", "age", "self", "getAge", "getName",
                                            "init")},
                 {46, 9, 11, getSymbolNames(moduleLevelSymbols, "x")},

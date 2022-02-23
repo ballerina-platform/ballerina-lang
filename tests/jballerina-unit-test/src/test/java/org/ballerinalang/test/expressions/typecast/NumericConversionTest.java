@@ -319,48 +319,6 @@ public class NumericConversionTest {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
-    @Test(dataProvider = "naNDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'NaN' cannot be converted to 'byte'.*")
-    public void testNaNDecimalAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "positiveInfiniteDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'Infinity' cannot be converted to 'byte'.*")
-    public void testPositiveInfiniteDecimalAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "negativeInfiniteDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '-Infinity' cannot be converted to 'byte'.*")
-    public void testNegativeInfiniteDecimalAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "naNDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'NaN' cannot be converted to 'int'.*")
-    public void testNaNDecimalAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "positiveInfiniteDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'Infinity' cannot be converted to 'int'.*")
-    public void testPositiveInfiniteDecimalAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "negativeInfiniteDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '-Infinity' cannot be converted to 'int'.*")
-    public void testNegativeInfiniteDecimalAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
     @Test
     public void testExplicitlyTypedExprForExactValues() {
         BValue[] returns = BRunUtil.invoke(result, "testExplicitlyTypedExprForExactValues", new BValue[0]);
@@ -653,59 +611,12 @@ public class NumericConversionTest {
 
     @DataProvider
     public Object[][] outOfRangeDecimalAsIntTests() {
+
         return new Object[][]{
                 {"testOutOfIntRangePositiveDecimalAsInt"},
                 {"testOutOfIntRangeNegativeDecimalAsInt"},
                 {"testOutOfIntRangePositiveDecimalInUnionAsInt"},
                 {"testOutOfIntRangeNegativeDecimalInUnionAsInt"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] naNDecimalAsByteTests() {
-        return new Object[][]{
-                {"testNaNDecimalAsByte"},
-                {"testNaNDecimalInUnionAsByte"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] positiveInfiniteDecimalAsByteTests() {
-        return new Object[][]{
-                {"testPositiveInfiniteDecimalAsByte"},
-                {"testPositiveInfiniteDecimalInUnionAsByte"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] negativeInfiniteDecimalAsByteTests() {
-        return new Object[][]{
-                {"testNegativeInfiniteDecimalAsByte"},
-                {"testNegativeInfiniteDecimalInUnionAsByte"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] naNDecimalAsIntTests() {
-        return new Object[][]{
-                {"testNaNDecimalAsInt"},
-                {"testNaNDecimalInUnionAsInt"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] positiveInfiniteDecimalAsIntTests() {
-        return new Object[][]{
-                {"testPositiveInfiniteDecimalAsInt"},
-                {"testPositiveInfiniteDecimalInUnionAsInt"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] negativeInfiniteDecimalAsIntTests() {
-        return new Object[][]{
-                {"testNegativeInfiniteDecimalAsInt"},
-                {"testNegativeInfiniteDecimalInUnionAsInt"}
         };
     }
 
