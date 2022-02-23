@@ -55,7 +55,6 @@ public class BUnionType extends BType implements UnionType {
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
     public boolean isCyclic = false;
-    public Boolean isAllErrorType = null;
 
 
     private LinkedHashSet<BType> originalMemberTypes;

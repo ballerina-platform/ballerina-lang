@@ -2398,12 +2398,7 @@ public class Types {
     }
 
     public boolean isAllErrorMembers(BUnionType actualType) {
-        if (actualType.isAllErrorType != null) {
-            return actualType.isAllErrorType;
-        }
-        actualType.isAllErrorType = actualType.getMemberTypes().stream()
-                                                               .allMatch(t -> isAssignable(t, symTable.errorType));
-        return actualType.isAllErrorType;
+        return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType targetType) {
