@@ -1308,7 +1308,7 @@ public class Types {
 
     public static BType getReferredType(BType type) {
         BType constraint = type;
-        if (type.tag == TypeTags.TYPEREFDESC) {
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
             constraint = getReferredType(((BTypeReferenceType) type).referredType);
         }
         return constraint;
