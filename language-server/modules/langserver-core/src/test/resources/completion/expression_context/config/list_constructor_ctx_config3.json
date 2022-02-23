@@ -10,6 +10,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "ARR",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -33,6 +34,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "ARR",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -56,6 +58,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "ARR",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -79,6 +82,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "ARR",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -102,6 +106,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "ARR",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -236,7 +241,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -245,7 +250,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
@@ -254,7 +259,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -263,7 +268,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
@@ -272,7 +277,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -281,7 +286,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -290,7 +295,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
@@ -299,7 +304,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
@@ -308,7 +313,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
@@ -317,7 +322,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -326,7 +331,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -335,7 +340,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
@@ -344,7 +349,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
@@ -353,7 +358,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
@@ -362,7 +367,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "ARP",
+      "sortText": "ATP",
       "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
@@ -371,7 +376,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "ARP",
+      "sortText": "ATP",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -380,7 +385,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "ARP",
+      "sortText": "ATP",
       "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
@@ -389,7 +394,7 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "ARP",
+      "sortText": "ATP",
       "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
@@ -398,7 +403,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
@@ -421,7 +426,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "AEC",
+      "sortText": "AGC",
       "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
@@ -467,7 +472,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "AEC",
+      "sortText": "AGC",
       "filterText": "doTask",
       "insertText": "doTask()",
       "insertTextFormat": "Snippet"
@@ -476,7 +481,7 @@
       "label": "numberList",
       "kind": "Variable",
       "detail": "int[]",
-      "sortText": "ADB",
+      "sortText": "AFB",
       "insertText": "numberList",
       "insertTextFormat": "Snippet"
     },
@@ -552,6 +557,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "ARR",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -574,7 +580,7 @@
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "ASQ",
+      "sortText": "AUQ",
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"

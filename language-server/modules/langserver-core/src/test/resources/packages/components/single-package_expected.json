@@ -5,37 +5,57 @@
       "name": "project",
       "modules": [
         {
-          "name": "services",
-          "functions": [],
-          "services": [
-            {
-              "name": "hello",
-              "filePath": "hello.bal",
-              "resources": [
-                {
-                  "name": "get satyHello",
-                  "filePath": "hello.bal",
-                  "startLine": 8,
-                  "startColumn": 22,
-                  "endLine": 8,
-                  "endColumn": 25
-                }
-              ]
-            }
-          ]
-        },
-        {
           "functions": [
             {
               "name": "main",
               "filePath": "main.bal",
               "startLine": 3,
-              "startColumn": 16,
-              "endLine": 3,
-              "endColumn": 20
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 1
             }
           ],
-          "services": []
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": []
+        },
+        {
+          "functions": [],
+          "services": [
+            {
+              "name": "/hello ",
+              "resources": [
+                {
+                  "name": "get",
+                  "filePath": "hello.bal",
+                  "startLine": 8,
+                  "startColumn": 4,
+                  "endLine": 10,
+                  "endColumn": 5
+                }
+              ],
+              "filePath": "hello.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 11,
+              "endColumn": 1
+            }
+          ],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "name": "services"
         }
       ]
     }

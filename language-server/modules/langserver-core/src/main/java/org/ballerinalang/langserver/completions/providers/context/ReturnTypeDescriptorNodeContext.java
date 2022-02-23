@@ -46,8 +46,8 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (this.onQualifiedNameIdentifier(context, node.type())) {
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.type();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             /*
             Covers the following cases.
             (1) function test() returns moduleName:<cursor>
@@ -62,6 +62,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
             (2) function test() returns i<cursor>
             */
             completionItems.addAll(this.getTypeDescContextItems(context));
+            completionItems.addAll(this.getTypeQualifierItems(context));
         }
         this.sort(context, node, completionItems);
         return completionItems;

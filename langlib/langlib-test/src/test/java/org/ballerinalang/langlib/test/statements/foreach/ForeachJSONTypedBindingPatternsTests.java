@@ -92,7 +92,7 @@ public class ForeachJSONTypedBindingPatternsTests {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'random' not found in JSON " +
+                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"key 'random' not found in JSON " +
                             "mapping\"\\}\n" +
                             "\tat foreach-json-typed-binding-patterns" +
                             ":testDirectAccessInvalidElementWithoutType\\(foreach-json-typed-binding-patterns.bal" +
@@ -103,7 +103,7 @@ public class ForeachJSONTypedBindingPatternsTests {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'random' not found in JSON " +
+                    "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"key 'random' not found in JSON " +
                             "mapping\"\\}\n" +
                             "\tat foreach-json-typed-binding-patterns" +
                             ":testDirectAccessInvalidElementWithType\\(foreach-json-typed-binding-patterns.bal:133\\)")

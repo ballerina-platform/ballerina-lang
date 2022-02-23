@@ -21,6 +21,7 @@ function testQuery() returns error?{
         i = i + 1;
     }
     i = 7;
+    return;
 }
 
 function getError() returns error {

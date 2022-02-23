@@ -276,4 +276,9 @@ public class ForeachArrayTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
     }
+
+    @Test
+    public void testWildcardBindingPatternInForeachStatement() {
+        BRunUtil.invoke(program, "testWildcardBindingPatternInForeachStatement");
+    }
 }

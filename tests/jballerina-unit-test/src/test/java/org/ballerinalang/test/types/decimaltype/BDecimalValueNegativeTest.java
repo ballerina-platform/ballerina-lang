@@ -33,38 +33,39 @@ public class BDecimalValueNegativeTest {
     @Test
     public void testDecimalValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 18);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 21, 1);
         BAssertUtil.validateError(compileResult, index++, "missing binary operator", 23, 21);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'g'", 23, 21);
         BAssertUtil.validateError(compileResult, index++, "leading zeros in numeric literals", 26, 17);
         BAssertUtil.validateError(compileResult, index++, "Hexadecimal '-0x' too small", 29, 17);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'decimal', found 'int'", 29,
-                17);
+        BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 29, 18);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "missing pipe token", 29, 25);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 32, 20);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 32, 20);
         BAssertUtil.validateError(compileResult, index++, "missing pipe token", 32, 25);
+        BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 35, 17);
+        BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 36, 17);
+        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0x' too large", 39, 17);
+        BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 39, 17);
+        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0X' too large", 40, 17);
+        BAssertUtil.validateError(compileResult, index, "missing hex number after hex indicator", 40, 17);
     }
 
     @Test
     void testDecimalValueNegativeLiteral() {
         CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative_literal.bal");
-        Assert.assertEquals(negative.getErrorCount(), 17);
+        Assert.assertEquals(negative.getErrorCount(), 13);
         int i = 0;
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 20, 17);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 21, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 22, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 23, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 24, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'int'", 25, 17);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 26, 22);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 27, 22);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 27, 31);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 28, 23);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|decimal)', found 'float'", 28, 23);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 34, 23);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 35, 23);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 36, 24);

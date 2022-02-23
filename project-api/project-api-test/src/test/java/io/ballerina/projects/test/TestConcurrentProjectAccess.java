@@ -45,7 +45,7 @@ public class TestConcurrentProjectAccess {
     public void testConcurrentProjectBuild() {
         // package_a --> package_b --> package_c
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_a");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
         // Check whether there are any diagnostics

@@ -227,3 +227,18 @@ isolated function testIsolationAnalysisWithOnFailStatement() {
         }
     }
 }
+
+isolated int[] intArray = [];
+
+function testRangeExprBeingAnIsolatedExpression1() returns object {} {
+    lock {
+        return intArray[0] ... intArray[1] + 1;
+    }
+}
+
+function testRangeExprBeingAnIsolatedExpression2() returns object {} {
+    lock {
+        int m = intArray[0];
+        return m + 1 ..< m * 2;
+    }
+}

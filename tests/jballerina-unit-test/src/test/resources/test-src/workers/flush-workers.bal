@@ -67,7 +67,7 @@ function flushAll() returns string {
         }
         @strand{thread:"any"}
         worker w2 returns error?{
-            if(false){
+            if(0 > 1){
                  error err = error("err", message = "err msg");
                  return err;
             }
@@ -112,7 +112,7 @@ function errorTest() {
             }
             @strand{thread:"any"}
             worker w2 returns error?{
-                if(false){
+                if(0 > 1){
                      error err = error("err", message = "err msg");
                      return err;
                 }
@@ -167,7 +167,7 @@ function panicTest() returns error? {
         }
         @strand{thread:"any"}
         worker w2 returns error?{
-            if(false){
+            if(0 > 1){
                  error err = error("err", message = "err msg");
                  return err;
             }
@@ -209,7 +209,7 @@ function flushInDefaultError() {
         worker w2 returns error? {
             int a = 0;
             int b = 15;
-            if (true) {
+            if (0 < 1) {
                 error err = error("err", message = "err msg");
                 return err;
             }

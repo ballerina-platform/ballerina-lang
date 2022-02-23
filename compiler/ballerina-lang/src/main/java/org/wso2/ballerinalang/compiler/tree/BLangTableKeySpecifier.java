@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class BLangTableKeySpecifier extends BLangNode implements TableKeySpecifierNode {
 
+    // BLangNodes
     public List<IdentifierNode> fieldNameIdentifierList = new ArrayList<>();
 
     @Override
@@ -44,6 +45,16 @@ public class BLangTableKeySpecifier extends BLangNode implements TableKeySpecifi
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

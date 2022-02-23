@@ -166,3 +166,12 @@ const LENGTH = 5;
 function testConstArrLen() {
     int[LENGTH] a;
 }
+
+function testFunction() {
+    string l = "";
+    var [fName, fBody] = parseField(l);
+}
+
+function parseField(string val) returns [string, int] {
+    return [val, 10];
+}

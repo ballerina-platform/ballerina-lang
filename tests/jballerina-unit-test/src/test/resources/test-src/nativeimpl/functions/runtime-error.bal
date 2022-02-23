@@ -12,10 +12,10 @@ function level2Function () returns (runtime:StackFrame[]) {
     return runtime:getStackTrace();
 }
 
-function testErrorCallStack() returns error:CallStackElement[]? {
+function testErrorCallStack() returns error:StackFrame[]? {
     var e = trap level1Error(-10);
     if (e is error) {
-        return e.stackTrace().callStack;
+        return e.stackTrace();
     } else {
         return ();
     }

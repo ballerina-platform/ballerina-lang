@@ -24,8 +24,9 @@ dependencies {
     implementation project(':toml-parser')
     implementation project(':central-client')
     implementation project(':maven-resolver')
+    implementation project(':identifier-util')
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation 'org.apache.commons:commons-compress:1.21'
+    implementation "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
     implementation 'commons-io:commons-io'
@@ -34,8 +35,8 @@ dependencies {
         because("We use this library to execute package resolution tests")
     }
     testCompile 'org.testng:testng'
-    testCompile "org.mockito:mockito-core:2.1.0"
-    testImplementation 'org.mockito:mockito-core:2.1.0'
+    testCompile "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
 }
 
 description = 'Ballerina - Lang'
@@ -68,8 +69,7 @@ processResources {
     include 'old-dependencies-toml-schema.json'
     include 'settings-toml-schema.json'
     filter { String line -> line.replace('${project.version}', "${project.version}")}
-    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
-    filter { String line -> line.replace('${display.text}', "${project.versionDisplayText}")}
+    filter { String line -> line.replace('${short.version}', "${project.version}")}
     filter { String line -> line.replace('${spec.version}', "${project.specVersion}")}
 }
 

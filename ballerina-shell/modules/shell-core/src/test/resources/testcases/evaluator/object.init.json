@@ -9,22 +9,38 @@
   },
   {
     "description": "Create a new object I.",
-    "code": "Person|error p1 = new(\"John\", 25); p1 is Person",
+    "code": "Person|error p1 = new(\"John\", 25);"
+  },
+  {
+    "description": "Create a new object I - get value.",
+    "code": "p1 is Person",
     "expr": "true"
   },
   {
     "description": "Verify object I.",
-    "code": "Person p1_p = <Person> checkpanic p1; p1_p.name",
+    "code": "Person p1_p = <Person> checkpanic p1;"
+  },
+  {
+    "description": "Verify object I - get value.",
+    "code": "p1_p.name",
     "expr": "\"John\""
   },
   {
     "description": "Create a new object II.",
-    "code": "Person|error p2 = new(\"Sam\", -20); p2 is Person",
+    "code": "Person|error p2 = new(\"Sam\", -20);"
+  },
+  {
+    "description": "Create a new object II - get value.",
+    "code": "p2 is Person",
     "expr": "false"
   },
   {
     "description": "Verify object II.",
-    "code": "error p2_e = <error> p2; p2_e.message()",
+    "code": "error p2_e = <error> p2;"
+  },
+  {
+    "description": "Verify object II - get value.",
+    "code": "p2_e.message()",
     "expr": "\"The age should be between 0-100\""
   }
 ]

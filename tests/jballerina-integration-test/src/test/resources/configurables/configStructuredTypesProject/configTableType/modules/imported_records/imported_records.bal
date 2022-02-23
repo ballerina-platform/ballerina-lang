@@ -16,6 +16,7 @@
 
 import configTableType.type_defs;
 import testOrg/configLib.mod1 as configLib;
+import testOrg/configLib.util;
 import ballerina/test;
 
 public type Doctor record {|
@@ -49,4 +50,17 @@ public function testTables() {
     test:assertEquals(personTable.toString(), "[{\"name\":\"gabilan\",\"id\":133," + 
         "\"address\":{\"city\":\"Berlin\",\"country\":{\"name\":\"Germany\"}}},{\"name\":\"riyafa\"," + 
         "\"id\":144,\"address\":{\"city\":\"Madrid\",\"country\":{\"name\":\"Spain\"}}}]");
+}
+
+public function testTableIteration() {
+    util:testTableIterator(doctorTable);
+    util:testTableIterator(studentTable);
+    util:testTableIterator(employeeTable);
+    util:testTableIterator(employeeTable1);
+    util:testTableIterator(officerTable);
+    util:testTableIterator(officerTable1);
+    util:testTableIterator(managerTable);
+    util:testTableIterator(teacherTable);
+    util:testTableIterator(farmerTable);
+    util:testTableIterator(personTable);
 }

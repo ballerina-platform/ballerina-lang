@@ -21,6 +21,8 @@ import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 
@@ -34,6 +36,11 @@ import java.util.StringJoiner;
  * @since 1.2.0
  */
 public class BLangLetClause extends BLangNode implements LetClauseNode {
+
+    // BLangNodes
+    public List<BLangLetVariable> letVarDeclarations = new ArrayList<>();
+
+    // Semantic Data
     public SymbolEnv env;
 
     public List<BLangLetVariable> getLetVarDeclarations() {
@@ -44,7 +51,6 @@ public class BLangLetClause extends BLangNode implements LetClauseNode {
         this.letVarDeclarations = letVarDeclarations;
     }
 
-    public List<BLangLetVariable> letVarDeclarations = new ArrayList<>();
 
     public BLangLetClause() {
     }
@@ -57,6 +63,16 @@ public class BLangLetClause extends BLangNode implements LetClauseNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

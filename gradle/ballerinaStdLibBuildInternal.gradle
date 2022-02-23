@@ -1,0 +1,201 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations {
+    dist {
+        transitive false
+    }
+    distributionBala {
+        transitive false
+    }
+
+    balDoc {
+        transitive false
+    }
+
+    distributionBirJar {
+        transitive false
+    }
+    interopImports
+    balaCreat {
+        transitive false
+    }
+}
+
+dependencies {
+    dist project(':ballerina-rt')
+    balaCreat project(':lib-creator')
+
+
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:decimal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:future', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:integer', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:stream', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:table', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:string', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:typedesc', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:bool', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:runtime', configuration: 'distributionBala')
+    //distributionBala project(path: ':ballerina-lang-test', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:query', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
+}
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath
+        ]
+        classpath = files()
+    }
+}
+
+class BallerinaLangLibBuildTask extends JavaExec {
+    def projectDir = ''
+    def distCache = ''
+    def pkgName = project.name
+    def skipBootstrap = 'false'
+
+    BallerinaLangLibBuildTask() {
+        setMain('org.ballerinalang.stdlib.utils.BuildLangLib')
+    }
+
+    @Override
+    void exec() {
+        def args = []
+        args << projectDir
+        args << distCache
+        args << pkgName
+        args << skipBootstrap
+
+        super.setArgs(args)
+        super.exec()
+    }
+
+    @Override
+    JavaExec args(Object... args) {
+        throw new UnsupportedOperationException()
+    }
+
+    @Override
+    JavaExecSpec args(Iterable<?> args) {
+        throw new UnsupportedOperationException()
+    }
+
+}
+
+task createDistributionCache() {
+    dependsOn configurations.distributionBala
+    doLast {
+        configurations.distributionBala.each { artifact ->
+            copy {
+                from zipTree( artifact.getPath() )
+                into "$buildDir/repo"
+            }
+        }
+    }
+}
+
+task copyRuntime() {
+    dependsOn configurations.dist
+    doFirst {
+        configurations.dist.each { artifact ->
+            copy {
+                from artifact.getPath()
+                into "$buildDir/bre/lib"
+            }
+        }
+    }
+}
+
+task copyInteropImports(type: Copy) {
+    into "$buildDir/libs"
+    from configurations.interopImports
+}
+
+ext {
+    if (project.projectDir.name == "testerina-core") {
+        modName = "test"
+    } else if (project.projectDir.name == 'langserver-stdlib'){
+        modName = 'module1'
+    } else if (project.projectDir.name == 'observability-test-utils'){
+        modName = 'testobserve'
+    } else if (project.projectDir.name == 'observe-internal') {
+        modName = 'observe'
+    } else {
+        modName = project.projectDir.name
+    }
+}
+
+def ballerinaConfigFile = new File("${project.projectDir}/src/main/ballerina/Ballerina.toml")
+def ballerinaConfigFileContent = ballerinaConfigFile.text
+def modOrg = (ballerinaConfigFileContent =~ /org = "(.+)"/)[0][1]
+def modVersion = "0.0.0"
+def jarFileName = modOrg + "-" + modName + "-" + modVersion
+
+
+task copyBallerinaProject(type: Copy) {
+    from project.projectDir.toString() + "/src/main/ballerina/"
+    into project.buildDir.toString() + "/ballerina-src"
+}
+
+task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
+    standardOutput = System.out
+    errorOutput = System.err
+    projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
+    distCache = project.buildDir.toString()
+    classpath = project.configurations.balaCreat
+    skipBootstrap = 'true'
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
+    dependsOn copyRuntime
+    dependsOn copyInteropImports
+    dependsOn copyBallerinaProject
+    dependsOn createDistributionCache
+    dependsOn jar
+    inputs.files("src/main/ballerina")
+    outputs.file("$buildDir/ballerina-src/target/" + modName + ".zip")
+    outputs.file("$buildDir/ballerina-src/target/${jarFileName}.jar")
+    outputs.cacheIf { true }
+    classpath += files(jar.archivePath)
+}
+
+artifacts {
+    distributionBala file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
+        builtBy(ballerinaLangLibBuild)
+    }
+    distributionBirJar file("$buildDir/ballerina-src/target/${jarFileName}.jar"), {
+        builtBy(ballerinaLangLibBuild)
+    }
+    balDoc file("$buildDir/ballerina-src/target/apidocs/"), {
+        builtBy(ballerinaLangLibBuild)
+    }
+}
+
+build.dependsOn ballerinaLangLibBuild

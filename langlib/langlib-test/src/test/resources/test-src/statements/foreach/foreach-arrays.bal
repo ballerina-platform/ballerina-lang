@@ -324,3 +324,28 @@ function testArrayWithNullElements() returns string {
     }
     return output;
 }
+
+function testWildcardBindingPatternInForeachStatement() {
+    int m = 0;
+
+    int[] x1 = [1, 2, 3];
+    foreach int _ in x1 {
+        m += 1;
+    }
+
+    int[] x2 = [1, 2];
+    foreach var _ in x2 {
+        m += 1;
+    }
+
+    assertEquality(5, m);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+

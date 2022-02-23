@@ -211,7 +211,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
 
         throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+                                       BLangExceptionHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
     }
 
     /**

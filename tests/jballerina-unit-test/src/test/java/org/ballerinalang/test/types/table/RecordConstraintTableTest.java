@@ -44,12 +44,14 @@ public class RecordConstraintTableTest {
 
     @Test
     public void testDuplicateKeysInTableConstructorExpr() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeResult, 0, "duplicate key found in table row key('name') : 'AAA'", 18, 5);
         BAssertUtil.validateError(negativeResult, 1, "duplicate key found in table row key('id, name') : '13, Foo'",
                 23, 5);
         BAssertUtil.validateError(negativeResult, 2, "duplicate key found in table row key('m') : ' {AAA: DDDD}'",
                 36, 7);
+        BAssertUtil.validateError(negativeResult, 3, "duplicate key found in table row key('idNum') : 'idNum'",
+                46, 9);
     }
 
     @Test(description = "Test global table constructor expr")
@@ -83,9 +85,10 @@ public class RecordConstraintTableTest {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
     }
 
-    @Test(description = "Test Table with var type")
+    @Test(description = "Test table with var type")
     public void testTableWithVarType() {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
+        BRunUtil.invoke(result, "testTableTypeInferenceWithVarType");
     }
 
     @Test(description = "Test invalid member access in table")
@@ -123,6 +126,11 @@ public class RecordConstraintTableTest {
     @Test(description = "Test table iteration with a union constrained table")
     public void testUnionConstrainedTableIteration() {
         BRunUtil.invoke(result, "testUnionConstrainedTableIteration");
+    }
+
+    @Test(description = "Test using spread field in table constructor")
+    public void testSpreadFieldInConstructor() {
+        BRunUtil.invoke(result, "testSpreadFieldInConstructor");
     }
 
     @AfterClass

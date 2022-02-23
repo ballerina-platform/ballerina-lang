@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -68,7 +69,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
-        if (typeSymbol.isEmpty()) {
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE) {
             return actions;
         }
 

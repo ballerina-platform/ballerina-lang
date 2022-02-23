@@ -1,0 +1,37 @@
+{
+  "line": 1,
+  "character": 9,
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 15
+            },
+            "end": {
+              "line": 1,
+              "character": 15
+            }
+          },
+          "newText": "\n    if tuple is [int, string...] {\n\n    }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "[int, string...]|error tuple \u003d "
+        }
+      ]
+    }
+  ]
+}

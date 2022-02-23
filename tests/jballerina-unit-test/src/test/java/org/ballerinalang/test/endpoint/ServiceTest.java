@@ -42,7 +42,7 @@ public class ServiceTest {
         Assert.assertTrue(output.errorOutput.contains("error: startError"));
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testServiceWithTransactionalKeyword() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_transactional_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 3);

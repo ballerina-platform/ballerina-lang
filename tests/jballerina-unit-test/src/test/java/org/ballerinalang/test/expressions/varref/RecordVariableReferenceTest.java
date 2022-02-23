@@ -217,6 +217,14 @@ public class RecordVariableReferenceTest {
                         "found 'record {| never name?; boolean married; Object...; |}'",
                 164, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 220, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 226, 18);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 237, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid field binding pattern; can only bind required fields", 243, 6);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
@@ -225,25 +233,34 @@ public class RecordVariableReferenceTest {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/record_variable_reference_assignment_to_final_var_negative.bal");
         int i = -1;
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's'", 27, 16);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'i'", 27, 19);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'f'", 27, 22);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 's'", 28, 6);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'i'", 28, 9);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'f'", 28, 12);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 's2'", 45, 16);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'iv'", 45, 29);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'b3'", 45, 33);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'm2'", 45, 38);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 's2'", 46, 6);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'iv'", 46, 19);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'b3'", 46, 23);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'm2'", 46, 31);
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i + 1);
     }
 
     @Test
     public void testNegativeRecordVariables() {
-        int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+        int i = 0;
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'x'", 28, 5);
+        BAssertUtil.validateError(resultNegative, i++, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'x'", 30, 16);
-        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'x'", 34, 5);
+        BAssertUtil.validateError(resultNegative, i++, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'x'", 36, 21);
-        BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
+        BAssertUtil.validateError(resultNegative, i++, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'x'", 36, 27);
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, i);
     }
 }

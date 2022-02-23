@@ -25,6 +25,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -65,11 +66,15 @@ public class CompletionUtil {
         Here we skip auto completion for the cases where the token at cursor is `>`. `>` is added as a trigger 
         character, in order to trigger completions for `->`. This leads to completion trigger for un wanted cases.
          */
-        String triggerCharacter = ctx.getCompletionParams().getContext().getTriggerCharacter();
-        CompletionTriggerKind triggerKind = ctx.getCompletionParams().getContext().getTriggerKind();
+        boolean contextSupport = Boolean.TRUE.equals(ctx.getCapabilities().getContextSupport());
+        String triggerCharacter = contextSupport ?
+                ctx.getCompletionParams().getContext().getTriggerCharacter() : "";
+        CompletionTriggerKind triggerKind = contextSupport ? 
+                ctx.getCompletionParams().getContext().getTriggerKind() : null;
         if (triggerKind == CompletionTriggerKind.TriggerCharacter
                 && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
                 && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN
+                && ctx.getTokenAtCursor().kind() != SyntaxKind.SYNC_SEND_TOKEN
                 || isWithinComment(ctx)) {
             return Collections.emptyList();
         }
@@ -78,7 +83,17 @@ public class CompletionUtil {
 
         return items.stream()
                 .map(LSCompletionItem::getCompletionItem)
+                .peek(CompletionUtil::processCompletionItems)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Process an perform generic modification to the provided completion item before it's sent to the LS client.
+     *
+     * @param completionItem Completion item
+     */
+    private static void processCompletionItems(CompletionItem completionItem) {
+        completionItem.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(completionItem.getInsertText()));
     }
 
     /**

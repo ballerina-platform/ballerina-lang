@@ -26,7 +26,8 @@ function f1() {
 }
 
 function f2() {
-    if false {
+    int? a = 10;
+    if a is () {
         _ = f1();
     }
 }

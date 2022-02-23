@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 /**
  * Constants related to {@link org.eclipse.lsp4j.Command}.
+ *
  * @since v0.964.0
  */
 public class CommandConstants {
@@ -138,4 +139,12 @@ public class CommandConstants {
 
     public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION = 
             "Convert module variable '%s' to listener declaration";
+
+    public static final String CONVERT_TO_READONLY_CLONE = "Convert to Readonly Clone";
+    
+    public static final String ADD_EXPLICIT_RETURN_STATEMENT = "Add Explicit Return Statement";
+
+    public static final String REMOVE_UNREACHABLE_CODE_TITLE = "Remove unreachable code";
+
+    public static final String IGNORE_UNUSED_VAR_TITLE = "Ignore unused variable";
 }

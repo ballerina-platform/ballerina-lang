@@ -53,6 +53,7 @@ public class PackageCompilation {
 
     private final PackageContext rootPackageContext;
     private final PackageResolution packageResolution;
+    private final CompilationOptions compilationOptions;
     private CompilerContext compilerContext;
     private Map<TargetPlatform, CompilerBackend> compilerBackends;
     private List<Diagnostic> pluginDiagnostics;
@@ -64,12 +65,14 @@ public class PackageCompilation {
     private PackageCompilation(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = rootPackageContext.getResolution();
+        this.compilationOptions = rootPackageContext.compilationOptions();
         setupCompilation(rootPackageContext.compilationOptions());
     }
 
     private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = rootPackageContext.getResolution(compilationOptions);
+        this.compilationOptions = compilationOptions;
         setupCompilation(compilationOptions);
     }
 
@@ -91,7 +94,7 @@ public class PackageCompilation {
         options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
-        options.put(DUMP_BIR_FILE, compilationOptions.getBirDumpFile());
+        options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
     }
 
@@ -114,6 +117,11 @@ public class PackageCompilation {
         CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
         compilation.setCompilerPluginManager(compilerPluginManager);
 
+        // Do not run code analyzers, if the code generators are enabled.
+        if (compilation.compilationOptions().withCodeGenerators()) {
+            return compilation;
+        }
+
         // Run the CodeAnalyzer tasks.
         CodeAnalyzerManager codeAnalyzerManager = compilerPluginManager.getCodeAnalyzerManager();
         // At the moment, we run SyntaxNodeAnalysis and CompilationAnalysis tasks at the same time.
@@ -123,11 +131,15 @@ public class PackageCompilation {
         return compilation;
     }
 
-    public List<Diagnostic> notifyCompilationCompletion(Path filePath) {
+    List<Diagnostic> notifyCompilationCompletion(Path filePath) {
         CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
         List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath);
         this.pluginDiagnostics.addAll(diagnostics);
         return diagnostics;
+    }
+
+    CompilationOptions compilationOptions() {
+        return compilationOptions;
     }
 
     public PackageResolution getResolution() {
@@ -192,8 +204,10 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         // add resolution diagnostics
         diagnostics.addAll(packageResolution.diagnosticResult().allDiagnostics);
-        // add manifest diagnostics
+        // add package manifest diagnostics
         diagnostics.addAll(packageContext().packageManifest().diagnostics().allDiagnostics);
+        // add dependency manifest diagnostics
+        diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);

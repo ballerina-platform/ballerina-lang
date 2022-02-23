@@ -1,0 +1,15 @@
+[package]
+org = "samjs"
+name = "fee"
+version = "0.1.0"
+
+[[dependency]]
+org = "testOrg"
+name = "functionsLib"
+version = "0.1.0"
+
+[[dependency]]
+org="ccc"
+name="ddd"
+version="1.2.3"
+repository="local"

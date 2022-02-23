@@ -88,8 +88,6 @@ function testWhileStmtWithDefaultValues() returns [int, string, float] {
 function testNestedWhileWithBreak1() returns string {
     string result = "";
     while (true) {
-        while (false) {
-        }
         result = result + "inner";
         break;
     }
@@ -101,8 +99,6 @@ function testNestedWhileWithBreak2() returns string {
     while (true) {
         while (true) {
             while (true) {
-                while (false) {
-                }
                 result = result + "level3";
                 break;
             }
@@ -135,24 +131,25 @@ function testNestedWhileWithContinue() returns string {
     string result = "";
     int a = 2;
     while (a > 0) {
-        if (a == 5) {
+        if (a == 3) {
             break;
         }
+        // type narrowed here.
         while (a > 1) {
             while (a > 2) {
                 if (a == 4) {
                     break;
                 }
                 result = result + "level3";
-                a += 1;
-            }
-            if (a == 4) {
-                break;
+                // a += 1; // cannot assign a value to a variable narrowed outside the loop
             }
             result = result + "level2";
-            a += 1;
+            if (a == 2) {
+                break;
+            }
+            // a += 1; // cannot assign a value to a variable narrowed outside the loop
         }
-        if (a == 4) {
+        if (a == 2) {
             a += 1;
             result = result + "level1";
             continue;

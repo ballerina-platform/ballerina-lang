@@ -55,7 +55,7 @@ public function receiveWithTrap() {
    @strand{thread:"any"}
    worker w1 {
      int i = 2;
-     if(true) {
+     if(0 < 1) {
           error err = error("err", message = "err msg");
           panic err;
      }
@@ -74,23 +74,23 @@ public function receiveWithTrap() {
 }
 
 public function syncSendReceiveWithTrap() {
-    var f = function () returns int|error {
+    var f = function () returns int|string|error {
         @strand{thread:"any"}
         worker w1 {
-            int i = 2;
-            if true {
+            int|string i = 2;
+            if i is int {
                 panic error("sync send err", message = "err msg");
             }
             i ->> w2;
        }
 
         @strand{thread:"any"}
-        worker w2 returns error|int {
-            int|error  j = trap <- w1;
+        worker w2 returns error|int|string {
+            int|string|error  j = trap <- w1;
             return j;
         }
 
-       int|error ret = wait w2;
+       int|string|error ret = wait w2;
        return ret;
     };
 
@@ -101,7 +101,7 @@ public function receiveWithCheck() {
     @strand{thread:"any"}
     worker w1 returns boolean|error{
       int i = 2;
-      if(true){
+      if(0 < 1){
            error err = error("err", message = "err msg");
            return err;
       }
@@ -123,7 +123,7 @@ public function syncSendReceiveWithCheck() {
     @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
-        if (true) {
+        if (0 < 1) {
             return error("sync send err", message = "err msg");
         }
         i -> w2;
@@ -143,7 +143,7 @@ public function receiveWithCheckpanic() {
     @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
-        if (true) {
+        if (0 < 1) {
             error err = error("err", message = "err msg");
             return err;
         }
@@ -163,7 +163,7 @@ public function syncSendReceiveWithCheckpanic() {
     @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;
-        if (true) {
+        if (0 < 1) {
             error err = error("err", message = "sync send err msg");
             return err;
         }
@@ -183,7 +183,7 @@ public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        if(true) {
+        if(0 < 1) {
             error err = error("error: err from panic");
             panic err;
         }
@@ -200,7 +200,7 @@ public function sendToDefaultWithPanicBeforeSendInDefault() returns int {
         int i = 2;
         i ->> function;
     }
-    if(true) {
+    if(0 < 1) {
         error err = error("error: err from panic");
         panic err;
     }
@@ -215,7 +215,7 @@ public function sendToDefaultWithPanicAfterSendInWorker() returns int {
         int i = 2;
         error err = error("error: err from panic");
         i -> function;
-        if(true) {
+        if(0 < 1) {
             panic err;
         }
         i -> function;
@@ -233,7 +233,7 @@ public function sendToDefaultWithPanicAfterSendInDefault() returns int {
         i -> function;
     }
     int res = <- w1;
-    if(true) {
+    if(0 < 1) {
         error err = error("error: err from panic");
         panic err;
     }
@@ -248,7 +248,7 @@ public function receiveFromDefaultWithPanicAfterSendInDefault() {
     }
     int sq = 16;
     sq -> w1;
-    if(true) {
+    if(0 < 1) {
         error err = error("error: err from panic");
         panic err;
     }
@@ -260,7 +260,7 @@ public function receiveFromDefaultWithPanicBeforeSendInDefault() {
         int i = 2;
         i = <- function;
     }
-    if(true) {
+    if(0 < 1) {
         error err = error("error: err from panic");
         panic err;
     }
@@ -272,7 +272,7 @@ public function receiveFromDefaultWithPanicBeforeReceiveInWorker() {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        if(true) {
+        if(0 < 1) {
             error err = error("error: err from panic");
             panic err;
         }
@@ -288,7 +288,7 @@ public function receiveFromDefaultWithPanicAfterReceiveInWorker() {
     worker w1 {
         int i = 2;
         i = <- function;
-        if(true) {
+        if(0 < 1) {
             error err = error("error: err from panic");
             panic err;
         }
@@ -302,7 +302,7 @@ public function receiveWithCheckAndTrap() {
    @strand{thread:"any"}
    worker w1 {
        int i = 2;
-       if(true) {
+       if(0 < 1) {
            error err = error("error: err from panic");
            panic err;
        }
@@ -324,7 +324,7 @@ public function receiveWithCheckForDefault() {
         @strand{thread:"any"}
         worker w1 returns boolean|error {
             int i = 2;
-            if(true){
+            if(0 < 1){
                 error err = error("err from panic");
                 return err;
             }
@@ -343,7 +343,7 @@ public function receiveWithTrapForDefault() {
         @strand{thread:"any"}
         worker w1 returns int {
            int i = 2;
-           if(true) {
+           if(0 < 1) {
                error err = error("error: err from panic");
                panic err;
            }
@@ -362,7 +362,7 @@ public function receiveDefaultWithCheckAndTrap() {
        @strand{thread:"any"}
        worker w1 {
            int i = 2;
-           if(true) {
+           if(0 < 1) {
                error err = error("error: err from panic");
                panic err;
            }
@@ -547,7 +547,7 @@ function innerWorkerPanicTest() {
 function panicFunc() {
     @strand{thread:"any"}
     worker w5 {
-       if (true) {
+       if (0 < 1) {
            error e = error("worker w5 panic");
            panic e;
        }

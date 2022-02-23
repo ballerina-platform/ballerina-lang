@@ -25,9 +25,15 @@ package io.ballerina.converters;
 public class JsonToRecordRequest {
 
     private String jsonString;
+    private String recordName;
+    private boolean isRecordTypeDesc;
+    private boolean isClosed;
 
-    public JsonToRecordRequest(String jsonString) {
+    public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed) {
         this.jsonString = jsonString;
+        this.recordName = recordName;
+        this.isRecordTypeDesc = isRecordTypeDesc;
+        this.isClosed = isClosed;
     }
 
     public String getJsonString() {
@@ -36,5 +42,29 @@ public class JsonToRecordRequest {
 
     public void setJsonString(String jsonString) {
         this.jsonString = jsonString;
+    }
+
+    public String getRecordName() {
+        return recordName;
+    }
+
+    public void setRecordName(String recordName) {
+        this.recordName = recordName;
+    }
+
+    public boolean getIsRecordTypeDesc() {
+        return isRecordTypeDesc;
+    }
+
+    public void setIsRecordTypeDesc(boolean isRecordTypeDesc) {
+        this.isRecordTypeDesc = isRecordTypeDesc;
+    }
+
+    public boolean getIsClosed() {
+        return isClosed;
+    }
+
+    public void setIsClosed(boolean isClosed) {
+        this.isClosed = isClosed;
     }
 }

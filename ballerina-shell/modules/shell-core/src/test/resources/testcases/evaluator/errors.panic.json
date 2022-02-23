@@ -9,7 +9,11 @@
   },
   {
     "description": "Successful pass.",
-    "code": "Record r1 = { id: 1, name: \"record1\" }; readRecord(r1);",
+    "code": "Record r1 = { id: 1, name: \"record1\" };"
+  },
+  {
+    "description": "Successful pass - get value.",
+    "code": "readRecord(r1);",
     "stdout": "Record ID: 1, value: record1\n"
   },
   {

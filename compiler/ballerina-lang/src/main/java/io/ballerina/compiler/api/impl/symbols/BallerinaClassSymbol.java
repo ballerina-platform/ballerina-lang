@@ -103,7 +103,8 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
         if (this.initMethod == null && this.internalSymbol.initializerFunc != null) {
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
             this.initMethod = symbolFactory.createMethodSymbol(internalSymbol.initializerFunc.symbol,
-                                                               internalSymbol.initializerFunc.funcName.value);
+                                                               internalSymbol.initializerFunc.symbol
+                                                                       .getOriginalName().value);
         }
 
         return Optional.ofNullable(this.initMethod);
@@ -144,6 +145,12 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
     @Override
     public boolean assignableTo(TypeSymbol targetType) {
+        Types types = Types.getInstance(this.context);
+        return types.isAssignable(this.internalSymbol.type, getTargetBType(targetType));
+    }
+
+    @Override
+    public boolean subtypeOf(TypeSymbol targetType) {
         Types types = Types.getInstance(this.context);
         return types.isAssignable(this.internalSymbol.type, getTargetBType(targetType));
     }

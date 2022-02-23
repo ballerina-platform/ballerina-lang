@@ -323,8 +323,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PARAM_END =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
-            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.SEMICOLON, 
+            ParserRuleContext.ASSIGN_OP, ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
 
     private static final ParserRuleContext[] EXPR_STMT_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP,
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
@@ -565,7 +565,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.EXPRESSION, ParserRuleContext.BINDING_PATTERN };
 
     private static final ParserRuleContext[] LIST_BINDING_MEMBER_OR_ARRAY_LENGTH =
-            { ParserRuleContext.BINDING_PATTERN, ParserRuleContext.ARRAY_LENGTH };
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINDING_PATTERN, 
+                    ParserRuleContext.ARRAY_LENGTH_START };
 
     private static final ParserRuleContext[] BRACKETED_LIST_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS,
@@ -2860,11 +2861,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         ParserRuleContext.CLOSE_BRACKET };
                 break;
             case LET_EXPR_LET_VAR_DECL:
-                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
-                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.IN_KEYWORD };
+                alternatives = new ParserRuleContext[] { ParserRuleContext.IN_KEYWORD, ParserRuleContext.COMMA, 
+                        ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT, 
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN, 
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR, 
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
                 break;
             case LET_CLAUSE_LET_VAR_DECL:
                 alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
@@ -3726,6 +3727,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BLOCK_STMT;
             case BRACED_EXPRESSION:
                 return ParserRuleContext.OPEN_PARENTHESIS;
+            case ARRAY_LENGTH_START:
+                switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                startContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
+                return ParserRuleContext.ARRAY_LENGTH; 
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }

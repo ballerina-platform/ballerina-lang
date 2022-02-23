@@ -50,6 +50,7 @@ public class ImplementFunctionsTest extends AbstractCodeActionTest {
                 {"implementFuncObj3.json", "implementFuncObj.bal"},
                 {"implementFunctionInService1.json", "implementFunctionInService.bal"},
                 {"implementFuncInObjConstructorExpr1.json", "implementFuncInObjConstructorExpr1.bal"},
+                {"implementFuncInObjConstructorExpr2.json", "implementFuncInObjConstructorExpr2.bal"},
         };
     }
 }

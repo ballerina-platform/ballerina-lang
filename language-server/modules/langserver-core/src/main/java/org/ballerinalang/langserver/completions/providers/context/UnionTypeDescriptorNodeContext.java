@@ -108,6 +108,6 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
           }
           This will recover as <code>i MISSING[|] int value5 = 12;</code>
          */
-        return !pipeToken.isMissing();
+        return !pipeToken.isMissing() && cursor > pipeToken.textRange().startOffset();
     }
 }

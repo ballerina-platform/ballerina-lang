@@ -103,7 +103,6 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-        outStream.println("\nNote: This is an experimental tool.");
         //Help flag check
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());

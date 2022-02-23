@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -108,8 +109,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                         Snippet.KW_TYPE, Snippet.KW_ISOLATED,
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
-                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION,
-                        Snippet.DEF_SERVICE, Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
+                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, 
+                        Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
                         Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                         Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                         Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
@@ -159,7 +160,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
         completionItems.addAll(this.getTypeDescContextItems(context));
-
+        completionItems.addAll(ServiceTemplateGenerator.getInstance(context.languageServercontext())
+                .getServiceTemplates(context));
         return completionItems;
     }
 

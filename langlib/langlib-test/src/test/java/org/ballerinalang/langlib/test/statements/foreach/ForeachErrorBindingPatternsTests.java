@@ -87,4 +87,12 @@ public class ForeachErrorBindingPatternsTests {
                 131, 17);
         BAssertUtil.validateError(negative, i++, "undefined symbol 'otherVar'", 134, 17);
     }
+
+    @Test
+    public void testForeachScopeWithErrorBinding() {
+        negative = BCompileUtil.compile("test-src/statements/foreach/foreach_errors_scope_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'c'", 23, 13);
+        Assert.assertEquals(negative.getErrorCount(), i);
+    }
 }

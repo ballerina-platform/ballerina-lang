@@ -36,3 +36,6 @@ type Person record {|
 type T8 map<string>|Person;
 
 type T9 int[]|T8;
+
+type Keyword KEY | boolean | "string" | 100 | "200" | true;
+const KEY = "int";

@@ -201,7 +201,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, AnnotationNode node) {
-        return !node.atToken().isMissing();
+            return !node.atToken().isMissing() 
+                    && context.getCursorPositionInTree() <= node.annotReference().textRange().endOffset();
     }
 
     private boolean addAlias(BallerinaCompletionContext context, AnnotationNode node, ModuleID annotationOwner) {

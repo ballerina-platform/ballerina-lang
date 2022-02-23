@@ -1033,11 +1033,11 @@ function testBitwiseOr() {
     int v = f | d;
     test:assertValueEqual(6429485, v);
 
-    ints:Unsigned16 w = g | h;
-    test:assertValueEqual(39869, w);
+    ints:Unsigned32 w = g | h;
+    test:assertValueEqual(5741501, w);
 
-    ints:Unsigned8 x = h | f;
-    test:assertValueEqual(156, x);
+    ints:Unsigned32 x = h | f;
+    test:assertValueEqual(5739420, x);
 
     int y = a | h;
     test:assertValueEqual(5739413, y);
@@ -1101,11 +1101,11 @@ function testBitwiseXor() {
     int v = f ^ d;
     test:assertValueEqual(6429473, v);
 
-    ints:Unsigned16 w = g ^ h;
-    test:assertValueEqual(39613, w);
+    ints:Unsigned32 w = g ^ h;
+    test:assertValueEqual(5741245, w);
 
-    ints:Unsigned8 x = h ^ f;
-    test:assertValueEqual(152, x);
+    ints:Unsigned32 x = h ^ f;
+    test:assertValueEqual(5739416, x);
 
     int y = a ^ h;
     test:assertValueEqual(5739413, y);
@@ -1151,4 +1151,41 @@ function testFiniteTypeAsIntSubType() {
     test:assertValueEqual(true, i is (string|int:Signed8)[]);
     test:assertValueEqual(true, i is (float|string|int:Signed8)[]);
     test:assertValueEqual(true, j is (string|int:Signed8)[]);
+}
+
+type IntType1 ints:Signed16|ints:Signed32;
+type IntType2 ints:Unsigned16|ints:Unsigned32;
+type IntType3 byte|ints:Signed8;
+type IntFiniteType1 -1|-2|-3;
+
+public function testLanglibFunctionsForUnionIntSubtypes() {
+    IntType1 intVal1 = -4;
+    IntFiniteType1 intVal2 = -1;
+    ints:Signed16|ints:Signed32 intVal3 = -4;
+
+    test:assertValueEqual(4, ints:abs(intVal1));
+    test:assertValueEqual(1, ints:abs(intVal2));
+    test:assertValueEqual(4, ints:abs(intVal3));
+
+    test:assertValueEqual(4, intVal1.abs());
+    test:assertValueEqual(1, intVal2.abs());
+    test:assertValueEqual(4, intVal3.abs());
+
+    IntType2 intVal4 = 2;
+    ints:Unsigned16|ints:Unsigned32 intVal5 = 3;
+
+    test:assertValueEqual("2", ints:toHexString(intVal4));
+    test:assertValueEqual("3", ints:toHexString(intVal5));
+
+    test:assertValueEqual("2", intVal4.toHexString());
+    test:assertValueEqual("3", intVal5.toHexString());
+
+    IntType3 intVal6 = 23;
+    byte|ints:Signed8 intVal7 = 23;
+
+    test:assertValueEqual("17", intVal6.toHexString());
+    test:assertValueEqual("17", intVal7.toHexString());
+
+    test:assertValueEqual("17", ints:toHexString(intVal6));
+    test:assertValueEqual("17", ints:toHexString(intVal7));
 }

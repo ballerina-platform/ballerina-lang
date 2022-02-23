@@ -21,6 +21,8 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
+import java.util.Objects;
+
 /**
  * The {@code NodeLocation} represent the location of a {@code Node} in source code.
  * <p>
@@ -41,5 +43,25 @@ public class NodeLocation implements Location {
 
     public TextRange textRange() {
         return node.textRange();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        
+        NodeLocation that = (NodeLocation) o;
+        return Objects.equals(node.lineRange(), that.node.lineRange()) &&
+                Objects.equals(node.textRange(), that.node.textRange());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(node.textRange(), node.lineRange());
     }
 }

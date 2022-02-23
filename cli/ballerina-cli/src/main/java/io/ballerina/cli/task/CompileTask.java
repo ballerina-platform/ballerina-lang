@@ -19,12 +19,14 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.central.client.CentralClientConstants;
 
@@ -72,6 +74,17 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
+
+            // run built-in code generator compiler plugins
+            DiagnosticResult codeGenDiagnosticResult = null;
+            if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
+                // SingleFileProject cannot hold additional sources or resources
+                // and BalaProjects is a read-only project.
+                // Hence we run the code generators only for BuildProject
+                CodeGeneratorResult codeGeneratorResult = project.currentPackage().runCodeGeneratorPlugins();
+                codeGenDiagnosticResult = codeGeneratorResult.reportedDiagnostics();
+            }
+
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
@@ -81,9 +94,16 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
+            // Report code generator diagnostics
+            if (codeGenDiagnosticResult != null) {
+                codeGenDiagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
+            }
+
+            // Report package compilation and backend diagnostics
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
             diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
-            if (diagnosticResult.hasErrors()) {
+            if (diagnosticResult.hasErrors() ||
+                    (codeGenDiagnosticResult != null && codeGenDiagnosticResult.hasErrors())) {
                 throw createLauncherException("compilation contains errors");
             }
             project.save();

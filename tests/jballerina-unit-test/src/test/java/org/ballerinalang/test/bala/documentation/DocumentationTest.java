@@ -74,13 +74,13 @@ public class DocumentationTest {
         Assert.assertEquals(personSymbol.markdownDocumentation.parameters.get(0).description
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "name of the person.");
 
-        BSymbol personNameSymbol = personSymbol.scope.lookup(new Name("name")).symbol;
+        BSymbol personNameSymbol = personSymbol.type.tsymbol.scope.lookup(new Name("name")).symbol;
         Assert.assertNotNull(personNameSymbol.markdownDocumentation);
         Assert.assertNull(personNameSymbol.markdownDocumentation.description);
         Assert.assertEquals(personNameSymbol.markdownDocumentation.parameters.size(), 0);
         Assert.assertNull(personNameSymbol.markdownDocumentation.returnValueDescription);
 
-        BObjectTypeSymbol personObjSymbol = (BObjectTypeSymbol) personSymbol;
+        BObjectTypeSymbol personObjSymbol = (BObjectTypeSymbol) personSymbol.type.tsymbol;
 
         BSymbol getNameFuncSymbol = personObjSymbol.scope.lookup(new Name("Person.getName")).symbol;
         Assert.assertNotNull(getNameFuncSymbol.markdownDocumentation);

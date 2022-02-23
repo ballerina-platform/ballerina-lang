@@ -69,7 +69,7 @@ public class TestBirAndJarCache {
             testCompCacheFactory = new TestCompilationCacheFactory(cacheDirPath);
             ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
             environmentBuilder.addCompilationCacheFactory(testCompCacheFactory);
-            project = BuildProject.load(environmentBuilder, projectPath);
+            project = TestUtils.loadBuildProject(environmentBuilder, projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -81,7 +81,7 @@ public class TestBirAndJarCache {
 
         int numOfModules = currentPackage.moduleIds().size();
         TestCompilationCache testCompilationCache = testCompCacheFactory.compilationCache();
-        Assert.assertEquals(testCompilationCache.birCachedCount, numOfModules);
+        Assert.assertEquals(testCompilationCache.birCachedCount, 0);
         // numOfModules * 2 : This includes testable jars as well
         Assert.assertEquals(testCompilationCache.jarCachedCount, numOfModules * 2);
 
@@ -99,7 +99,6 @@ public class TestBirAndJarCache {
             String jarName = getThinJarFileName(module.descriptor().org(),
                                                 moduleName.toString(),
                                                 module.descriptor().version());
-            Assert.assertTrue(foundPaths.contains(moduleName + ".bir"));
             Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
         }
     }

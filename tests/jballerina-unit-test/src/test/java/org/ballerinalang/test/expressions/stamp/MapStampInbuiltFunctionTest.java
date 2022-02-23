@@ -532,34 +532,8 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<string>' value cannot be converted to 'EmployeeClosedRecord'");
-    }
-
-    @Test(description = "Test stamping to record when value has cyclic reference.")
-    public void testStampRecordToRecordWithCyclicValueReferences() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToRecordWithCyclicValueReferences");
-        BValue error = results[0];
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Person' value has cyclic reference");
-    }
-
-    @Test(description = "Test stamping to map when value has cyclic reference.")
-    public void testStampRecordToMapWithCyclicValueReferences() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToMapWithCyclicValueReferences");
-        BValue error = results[0];
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Person' value has cyclic reference");
-    }
-
-    @Test(description = "Test stamping to json when value has cyclic reference.")
-    public void testStampRecordToJsonWithCyclicValueReferences() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testStampRecordToJsonWithCyclicValueReferences");
-        BValue error = results[0];
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Person' value has cyclic reference");
+                            "'map<string>' value cannot be converted to 'EmployeeClosedRecord': " +
+                "\n\t\tfield 'school' cannot be added to the closed record 'EmployeeClosedRecord'");
     }
 
     @AfterClass

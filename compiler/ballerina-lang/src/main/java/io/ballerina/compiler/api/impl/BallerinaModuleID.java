@@ -33,9 +33,15 @@ public class BallerinaModuleID implements ModuleID {
 
     private static final String ANON_ORG = "$anon";
     private PackageID moduleID;
+    private Name prefix;
 
     public BallerinaModuleID(PackageID moduleID) {
         this.moduleID = moduleID;
+    }
+
+    public BallerinaModuleID(PackageID moduleID, Name prefix) {
+        this.moduleID = moduleID;
+        this.prefix = prefix;
     }
 
     @Override
@@ -65,8 +71,12 @@ public class BallerinaModuleID implements ModuleID {
 
     @Override
     public String modulePrefix() {
+        if (this.prefix != null) {
+            return prefix.getValue();
+        }
         List<Name> nameComps = this.moduleID.getNameComps();
-        return nameComps.get(nameComps.size() - 1).getValue();
+        this.prefix = nameComps.get(nameComps.size() - 1);
+        return this.prefix.getValue();
     }
 
     @Override

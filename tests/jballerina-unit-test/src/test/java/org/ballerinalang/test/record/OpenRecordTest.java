@@ -484,11 +484,11 @@ public class OpenRecordTest {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_key_expr_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "invalid key 's2': identifiers cannot be used as rest field keys, " +
-                "expected a string literal or an expression", 27, 26);
+                "expected a string literal or an expression", 27, 25);
         BAssertUtil.validateError(result, 1, "invalid key 'i2': identifiers cannot be used as rest field keys, " +
-                "expected a string literal or an expression", 27, 39);
+                "expected a string literal or an expression", 27, 38);
         BAssertUtil.validateError(result, 2, "invalid key 's2': identifiers cannot be used as rest field keys, " +
-                "expected a string literal or an expression", 28, 26);
+                "expected a string literal or an expression", 28, 25);
     }
 
     @Test

@@ -57,7 +57,7 @@ public class XMLAttributeAccessTest {
     public void testGetAttrOfASequence() {
         BValue[] result = BRunUtil.invoke(compileResult, "getAttrOfASequence");
         Assert.assertEquals(result[0].stringValue(),
-                "{ballerina/lang.xml}XMLOperationError {\"message\":\"Invalid xml attribute access on xml sequence\"}");
+                "{ballerina/lang.xml}XMLOperationError {\"message\":\"invalid xml attribute access on xml sequence\"}");
     }
 
     @Test
@@ -97,6 +97,11 @@ public class XMLAttributeAccessTest {
         Assert.assertTrue(((BBoolean) result[0]).booleanValue());
         Assert.assertTrue(((BBoolean) result[0]).booleanValue());
         Assert.assertTrue(((BBoolean) result[0]).booleanValue());
+    }
+
+    @Test
+    public void testXMLAfterRemoveAttribute() {
+        BRunUtil.invoke(compileResult, "testXMLAfterRemoveAttribute");
     }
 
 }

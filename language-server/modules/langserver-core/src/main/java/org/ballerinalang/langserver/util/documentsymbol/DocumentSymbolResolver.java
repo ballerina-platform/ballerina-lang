@@ -162,6 +162,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(MethodDeclarationNode methodDeclarationNode) {
         String name = methodDeclarationNode.methodName().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Method;
         Range range = DocumentSymbolUtil.generateNodeRange(methodDeclarationNode);
         Optional<MetadataNode> metadata = methodDeclarationNode.metadata();
@@ -173,6 +176,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(ClassDefinitionNode classDefinitionNode) {
         String name = classDefinitionNode.className().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Class;
         Range range = DocumentSymbolUtil.generateNodeRange(classDefinitionNode);
         Optional<MetadataNode> metadata = classDefinitionNode.metadata();
@@ -199,6 +205,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(TypeDefinitionNode typeDefinitionNode) {
         String name = typeDefinitionNode.typeName().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         Node typeDescriptor = typeDefinitionNode.typeDescriptor();
         SymbolKind symbolKind;
         List<DocumentSymbol> children = new ArrayList<>();
@@ -235,6 +244,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
             return Optional.empty();
         }
         String name = bindingPatternNode.toSourceCode();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Variable;
         Range range = DocumentSymbolUtil.generateNodeRange(moduleVariableDeclarationNode);
         Optional<MetadataNode> metadata = moduleVariableDeclarationNode.metadata();
@@ -247,6 +259,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(ConstantDeclarationNode constantDeclarationNode) {
         String name = constantDeclarationNode.variableName().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Constant;
         Range range = DocumentSymbolUtil.generateNodeRange(constantDeclarationNode);
         Optional<MetadataNode> metadata = constantDeclarationNode.metadata();
@@ -259,6 +274,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(EnumDeclarationNode enumDeclarationNode) {
         String name = enumDeclarationNode.identifier().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Enum;
         Range range = DocumentSymbolUtil.generateNodeRange(enumDeclarationNode);
         Optional<MetadataNode> metadata = enumDeclarationNode.metadata();
@@ -273,6 +291,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<IdentifierToken> prefix = moduleXMLNamespaceDeclarationNode.namespacePrefix();
         String name = prefix.isPresent() ? prefix.get().text() : SyntaxKind.XMLNS_KEYWORD.stringValue() + " "
                 + moduleXMLNamespaceDeclarationNode.namespaceuri().toSourceCode();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Namespace;
         Range range = DocumentSymbolUtil.generateNodeRange(moduleXMLNamespaceDeclarationNode);
         return Optional.of(createDocumentSymbol(name, symbolKind, range, range, Collections.emptyList()));
@@ -281,6 +302,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(ListenerDeclarationNode listenerDeclarationNode) {
         String name = listenerDeclarationNode.variableName().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Object;
         Range range = DocumentSymbolUtil.generateNodeRange(listenerDeclarationNode);
         Optional<MetadataNode> metadata = listenerDeclarationNode.metadata();
@@ -293,6 +317,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(AnnotationDeclarationNode annotationDeclarationNode) {
         String name = annotationDeclarationNode.annotationTag().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Property;
         Range range = DocumentSymbolUtil.generateNodeRange(annotationDeclarationNode);
         Optional<MetadataNode> metadata = annotationDeclarationNode.metadata();
@@ -305,6 +332,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(ObjectFieldNode objectFieldNode) {
         String name = objectFieldNode.fieldName().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Field;
         Range range = DocumentSymbolUtil.generateNodeRange(objectFieldNode);
         Optional<MetadataNode> metadata = objectFieldNode.metadata();
@@ -317,6 +347,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(RecordFieldNode recordFieldNode) {
         String name = recordFieldNode.fieldName().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Field;
         Range range = DocumentSymbolUtil.generateNodeRange(recordFieldNode);
         Optional<MetadataNode> metadata = recordFieldNode.metadata();
@@ -329,6 +362,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
         String name = recordFieldWithDefaultValueNode.fieldName().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Field;
         Range range = DocumentSymbolUtil.generateNodeRange(recordFieldWithDefaultValueNode);
         Optional<MetadataNode> metadata = recordFieldWithDefaultValueNode.metadata();
@@ -342,6 +378,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     public Optional<DocumentSymbol> transform(RecordRestDescriptorNode recordRestDescriptorNode) {
         String name = recordRestDescriptorNode.ellipsisToken().text() +
                 recordRestDescriptorNode.typeName().toSourceCode().trim();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.Field;
         Range range = DocumentSymbolUtil.generateNodeRange(recordRestDescriptorNode);
         return Optional.of(createDocumentSymbol(name, symbolKind, range, range, Collections.emptyList()));
@@ -350,6 +389,9 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(EnumMemberNode enumMemberNode) {
         String name = enumMemberNode.identifier().text();
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
         SymbolKind symbolKind = SymbolKind.EnumMember;
         Range range = DocumentSymbolUtil.generateNodeRange(enumMemberNode);
         Optional<MetadataNode> metadata = enumMemberNode.metadata();

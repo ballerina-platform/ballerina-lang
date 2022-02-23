@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.servicetests;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -24,7 +25,6 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -47,7 +47,7 @@ import java.util.Optional;
 /**
  * Helper methods to test properties of service values.
  *
- * @since 2.0
+ * @since 2.0.0
  */
 public class ServiceValue {
     private static BObject service;
@@ -58,8 +58,8 @@ public class ServiceValue {
 
     public static BFuture callMethod(Environment env, BObject l, BString name) {
 
-        return env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
-                                                  PredefinedTypes.TYPE_ANY);
+        return env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null, new HashMap<>(),
+                                                              PredefinedTypes.TYPE_ANY);
     }
 
     public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
@@ -68,8 +68,9 @@ public class ServiceValue {
             args[j] = arrayValue.get(i);
             args[j + 1] = true;
         }
-        BFuture k = env.getRuntime().invokeMethodAsync(l, name.getValue(), null, null, null, new HashMap<>(),
-                PredefinedTypes.TYPE_ANY, args);
+        BFuture k = env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null,
+                                                                   new HashMap<>(),
+                                                                   PredefinedTypes.TYPE_ANY, args);
 
         return k;
     }
@@ -167,7 +168,7 @@ public class ServiceValue {
         for (int i = 0; i < path.size(); i++) {
             funcName.append("$").append(path.getBString(i).getValue());
         }
-        return IdentifierUtils.encodeFunctionIdentifier(funcName.toString());
+        return Utils.encodeFunctionIdentifier(funcName.toString());
     }
 
     public static BArray getServicePath() {

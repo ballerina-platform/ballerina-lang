@@ -87,8 +87,7 @@ public class NumericLiteralAssignmentTest {
                 {"testIntLiteralAsByteInUnion_2"},
                 {"testIntLiteralAsFloatInUnion"},
                 {"testIntLiteralAsFloatInUnion_2"},
-                {"testIntLiteralAsDecimalInUnion"},
-                {"testIntLiteralAsDecimalInUnion_2"}
+                {"testIntLiteralAsDecimalInUnion"}
         };
     }
 

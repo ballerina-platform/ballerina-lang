@@ -40,6 +40,15 @@ public class DebugUtils {
         }
     }
 
+    public static boolean isInteger(String input) {
+        try {
+            Integer.parseInt(input);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Ballerina command options to be run in debug mode.
      */

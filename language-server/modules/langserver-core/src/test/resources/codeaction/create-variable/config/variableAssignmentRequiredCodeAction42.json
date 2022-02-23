@@ -16,7 +16,7 @@
               "character": 4
             }
           },
-          "newText": "object {public isolated function next() returns record {| int value; |}? ;} iterator = "
+          "newText": "object {public isolated function next() returns record {| int value; |}?;} iterator = "
         }
       ]
     }

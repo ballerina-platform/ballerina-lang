@@ -68,6 +68,24 @@ function testTables() {
 
 public function main() {
     testTables();
+    testTableIteration();
     imported_records:testTables();
+    imported_records:testTableIteration();
     util:print("Tests passed");    
+}
+
+function testTableIteration() {
+    util:testTableIterator(engineerTable);
+    util:testTableIterator(studentTable);
+    util:testTableIterator(employeeTable);
+    util:testTableIterator(employeeTable1);
+    util:testTableIterator(officerTable);
+    util:testTableIterator(officerTable1);
+    util:testTableIterator(managerTable);
+    util:testTableIterator(teacherTable);
+    util:testTableIterator(farmerTable);
+    util:testTableIterator(personTable);
+    util:testTableIterator(staffTable);
+    util:testTableIterator(staffTable1);
+    util:testTableIterator(staffTable2);
 }

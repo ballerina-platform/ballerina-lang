@@ -16,8 +16,8 @@
 
 import largePackage.records as r;
 
-public r:MyRecordV11 | r:MyRecordV10	v1 = {};
-public r:MyRecordV12 | r:MyRecordV10 | r:MyRecordV11	v2 = {};
+public int | r:MyRecordV10	v1 = {};
+public r:MyRecordV12 | r:MyRecordV10 | string	v2 = {};
 public r:MyRecordV13 | r:MyRecordV10 | r:MyRecordV12	v3 = {};
 public r:MyRecordV14 | r:MyRecordV10 | r:MyRecordV13	v4 = {};
 public r:MyRecordV15 | r:MyRecordV10 | r:MyRecordV14	v5 = {};

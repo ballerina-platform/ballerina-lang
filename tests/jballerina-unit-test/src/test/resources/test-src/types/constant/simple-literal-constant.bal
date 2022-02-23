@@ -141,7 +141,6 @@ function testConstWithTypeInCondition() returns boolean {
     if (conditionWithType) {
         return true;
     }
-    return false;
 }
 
 // -----------------------------------------------------------
@@ -152,7 +151,6 @@ function testConstWithoutTypeInCondition() returns boolean {
     if (conditionWithoutType) {
         return true;
     }
-    return false;
 }
 
 // -----------------------------------------------------------
@@ -427,4 +425,27 @@ const decimal aDecimal = 25.5;
 
 function testDecimalConcat() returns string {
     return aDecimal.toString() + " rocks";
+}
+
+type Seconds decimal;
+
+const Seconds ZERO = 0;
+const Seconds ONE = 1.0;
+
+function testDecimalConstsWithTypeReferenceTypeDescriptorsDefinedWithNumericLiterals() {
+    Seconds a = ZERO;
+    Seconds b = ONE;
+    assertEquality(0d, a);
+    assertEquality(1d, b);
+
+    0d _ = ZERO;
+    1d _ = ONE;
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(string `expected '${expected.toBalString()}', found '${actual.toBalString()}'`);
 }

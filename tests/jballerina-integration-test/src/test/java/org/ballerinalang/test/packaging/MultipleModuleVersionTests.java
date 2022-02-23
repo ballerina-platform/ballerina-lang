@@ -27,8 +27,6 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 
-import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
-
 /**
  * Tests usage of multiple package versions.
  */
@@ -50,8 +48,8 @@ public class MultipleModuleVersionTests extends BaseTest {
     private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                "'local' repository.", ERROR);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+                "'local' repository.");
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                 packagePath);
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},

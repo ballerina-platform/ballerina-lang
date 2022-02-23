@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.constant;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -40,5 +41,22 @@ public class MapConstantNegativeTest {
         validateError(compileResult, 2, "expression is not a constant expression", 20, 27);
         validateError(compileResult, 3, "expression is not a constant expression", 20, 38);
         validateError(compileResult, 4, "cannot update constant value", 34, 5);
+    }
+
+    @Test
+    public void constMapSpreadFieldNegative() {
+        CompileResult compileResult1 = BCompileUtil.compile(
+                "test-src/types/constant/constant_map_spread_field_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'b' via " +
+                "spread operator '...CMS2'", 21, 46);
+        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'b' via " +
+                "spread operator '...CMS1'", 22, 36);
+        BAssertUtil.validateError(compileResult1, i++, "invalid usage of map literal: duplicate key 'b'", 23, 33);
+        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'b' via " +
+                "spread operator '...CMS2'", 24, 36);
+        BAssertUtil.validateError(compileResult1, i++, "invalid usage of record literal: duplicate key 'c' via " +
+                "spread operator '...CMS2'", 24, 36);
+        Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 }

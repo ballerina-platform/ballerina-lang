@@ -44,7 +44,7 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
     protected BallerinaEnumSymbol(String name, List<ConstantSymbol> members, List<Qualifier> qualifiers,
                                   List<AnnotationSymbol> annots, TypeSymbol typeDescriptor, BSymbol bSymbol,
                                   CompilerContext context) {
-        super(name, qualifiers, typeDescriptor, bSymbol, context);
+        super(name, qualifiers, annots, typeDescriptor, bSymbol, context);
         this.members = Collections.unmodifiableList(members);
         this.annots = annots;
     }

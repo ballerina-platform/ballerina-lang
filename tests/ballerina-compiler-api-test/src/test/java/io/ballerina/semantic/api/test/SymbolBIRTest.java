@@ -296,6 +296,11 @@ public class SymbolBIRTest {
         public int hashCode() {
             return Objects.hash(this.name, this.kind);
         }
+
+        @Override
+        public String toString() {
+            return "Symbol {name='" + name + '\'' + ", kind=" + kind + '}';
+        }
     }
 
     @DataProvider(name = "hasDefaultTestProvider")

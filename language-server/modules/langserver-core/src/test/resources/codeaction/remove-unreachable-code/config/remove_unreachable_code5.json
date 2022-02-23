@@ -1,0 +1,24 @@
+{
+  "line": 3,
+  "character": 9,
+  "expected": [
+    {
+      "title": "Remove unreachable code",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 30
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

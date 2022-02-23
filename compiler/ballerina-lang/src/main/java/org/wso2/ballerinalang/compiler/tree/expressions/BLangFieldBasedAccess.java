@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 
@@ -33,10 +35,14 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
  */
 public class BLangFieldBasedAccess extends BLangAccessExpression implements FieldBasedAccessNode {
 
+    // BLangNodes
     public BLangIdentifier field;
-    public FieldKind fieldKind;
-    public BVarSymbol varSymbol;
 
+    // Parser Flags and Data
+    public FieldKind fieldKind;
+
+    // Semantic Data
+    public BVarSymbol varSymbol;
     // Only used at Desugar and after.
     public boolean isStoreOnCreation = false;
 
@@ -66,6 +72,16 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.FIELD_BASED_ACCESS_EXPR;
     }
@@ -84,6 +100,16 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
     }
 
     /**
@@ -92,11 +118,31 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
      * @since 1.2.0
      */
     public static class BLangNSPrefixedFieldBasedAccess extends BLangFieldBasedAccess {
+
+        // BLangNodes
         public BLangIdentifier nsPrefix;
+
+        // Semantic Data
         public BXMLNSSymbol nsSymbol;
 
-        public String toString() {
-            return String.valueOf(expr) + "." + String.valueOf(nsPrefix) + ":" + String.valueOf(field);
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
         }
+
+        public String toString() {
+            return expr + "." + nsPrefix + ":" + field;
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
+
     }
 }

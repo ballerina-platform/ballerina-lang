@@ -108,6 +108,10 @@ public class ParameterSymbolTest {
                 {67, 42, "abc", FUNCTION, REQUIRED, "function (int) returns () abc"},
                 {67, 66, "pqr", FUNCTION, DEFAULTABLE, "function (boolean) returns () pqr"},
                 {67, 102, "xyz", ARRAY, REST, "function (string) returns ()... xyz"},
+                {71, 43, "aVal", INT, REQUIRED, "int aVal"},
+                {74, 48, "value", STRING, REQUIRED, "string value"},
+                {77, 90, "funcParam", FUNCTION, REQUIRED,
+                        "function (function (int) returns string) returns string funcParam"},
         };
     }
 

@@ -556,7 +556,8 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Teacher' value cannot be converted to 'map<string>'");
+                "'Teacher' value cannot be converted to 'map<string>': " +
+                        "\n\t\tmap field 'age' should be of type 'string', found '25'");
     }
 
     @Test
@@ -566,7 +567,8 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Teacher' value cannot be converted to 'NonAcademicStaff'");
+                "'Teacher' value cannot be converted to 'NonAcademicStaff': \n\t\tvalue of field 'postalCode' " +
+                        "adding to the record 'NonAcademicStaff' should be of type 'string', found '600'");
     }
 
     @Test
@@ -576,7 +578,9 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'Teacher'");
+                            "'Employee' value cannot be converted to 'Teacher': " +
+                "\n\t\tmissing required field 'school' of type 'string' in record 'Teacher'" +
+                "\n\t\tmissing required field 'age' of type 'int' in record 'Teacher'");
     }
 
     @Test
@@ -586,7 +590,8 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'Teacher'");
+                "'Employee' value cannot be converted to 'Teacher': " +
+                        "\n\t\tfield 'school' in record 'Teacher' should be of type 'string', found '789'");
     }
 
     @AfterClass

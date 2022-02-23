@@ -9,6 +9,7 @@
       "label": "a2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "a2",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "functionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "functionAnnotation1",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "functionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
+      "sortText": "AR",
       "insertText": "functionAnnotation2",
       "insertTextFormat": "Snippet"
     }

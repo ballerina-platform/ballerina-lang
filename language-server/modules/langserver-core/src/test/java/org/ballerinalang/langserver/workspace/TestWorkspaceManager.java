@@ -56,7 +56,7 @@ public class TestWorkspaceManager {
     @BeforeMethod
     void initWorkspaceManager() {
         // Need to get a clean workspace manager before each test method
-        workspaceManager = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
+        workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
     }
 
     @Test(dataProvider = "fileOpenUpdateTestDataProvider")
