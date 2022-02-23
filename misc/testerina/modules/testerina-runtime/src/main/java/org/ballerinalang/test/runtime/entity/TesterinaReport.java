@@ -65,11 +65,6 @@ public class TesterinaReport {
                 outStream.println("\n\t\t    " + TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
-        if (!testSummary.passedTests.isEmpty()) {
-            for (TesterinaResult passedResult : testSummary.passedTests) {
-                outStream.println("\t\t[pass] " + passedResult.getTestFunctionName());
-            }
-        }
 
         printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
                 .size());
