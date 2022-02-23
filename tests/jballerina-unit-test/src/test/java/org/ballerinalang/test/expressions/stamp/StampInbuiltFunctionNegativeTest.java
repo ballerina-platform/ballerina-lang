@@ -439,7 +439,8 @@ public class StampInbuiltFunctionNegativeTest {
         Assert.assertEquals(
                 ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
                         .toString(),
-                "'int' value cannot be converted to '(float|decimal|[string,int])': ambiguous target type");
+                "'int' value cannot be converted to '(float|decimal|[string,int])': \n" +
+                        "\t\tvalue '2' cannot be converted to '(float|decimal|[string,int])': ambiguous target type");
     }
 
     @AfterClass
