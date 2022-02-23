@@ -24,12 +24,13 @@ import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
+import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.ListAtomicType;
+import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.types.PredefinedType.TOP;
@@ -64,22 +65,22 @@ public class ListCommonOps {
     }
 
     static boolean listFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
-        List<SemType> members;
+        FixedLengthArray members;
         SemType rest;
         if (pos == null) {
-            members = new ArrayList<>();
+            members = FixedLengthArray.from(new ArrayList<>(), 0);
             rest = TOP;
         } else {
             // combine all the positive tuples using intersection
             ListAtomicType lt = cx.listAtomType(pos.atom);
-            members = Arrays.asList(lt.members);
+            members = lt.members;
             rest = lt.rest;
             Conjunction p = pos.next;
             // the neg case is in case we grow the array in listInhabited
             if (p != null || neg != null) {
-                // Jbal note: we don't need this as we alredy created copies when converting from array to list.
+                // Jbal note: we don't need this as we already created copies when converting from array to list.
                 // Just keeping this for the sake of source similarity between Bal code and Java.
-                members = Common.shallowCopyTypes(members);
+                members = fixedArrayShallowCopy(members);
             }
             while (true) {
                 if (p == null) {
@@ -88,59 +89,71 @@ public class ListCommonOps {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    int newLen = Integer.max(members.size(), lt.members.length);
-                    if (members.size() < newLen) {
-                        if (Core.isNever(rest)) {
-                            return true;
-                        }
-                        for (int i = members.size(); i < newLen; i++) {
-                            members.add(rest);
-                        }
+                    FixedLengthArraySemtype intersected = listIntersectWith(members, rest, lt);
+                    if (intersected == null) {
+                        return true;
                     }
-                    for (int i = 0; i < lt.members.length; i++) {
-                        members.set(i, Core.intersect(members.get(i), lt.members[i]));
-                    }
-                    if (lt.members.length < newLen) {
-                        if (Core.isNever(lt.rest)) {
-                            return true;
-                        }
-                        for (int i = lt.members.length; i < newLen; i++) {
-                            members.set(i, Core.intersect(members.get(i), lt.rest));
-                        }
-                    }
-                    rest = Core.intersect(rest, lt.rest);
+                    members = intersected.members;
+                    rest = intersected.rest;
                 }
             }
-            for (var m : members) {
-                if (Core.isEmpty(cx, m)) {
-                    return true;
-                }
+            if (fixedArrayAnyEmpty(cx, members)) {
+                return true;
+            }
+            // Ensure that we can use isNever on rest in listInhabited
+            if (!PredefinedType.NEVER.equals(rest) && Core.isEmpty(cx, rest)) {
+                rest = PredefinedType.NEVER;
             }
         }
         return !listInhabited(cx, members, rest, neg);
     }
 
+    private static FixedLengthArraySemtype listIntersectWith(FixedLengthArray members,
+                                                             SemType rest, ListAtomicType lt) {
+        int ltLen = lt.members.fixedLength;
+        int newLen = Integer.max(members.fixedLength, ltLen);
+        // We can specifically handle the case where length of `initial` and `fixedLength` are the same
+        if (members.fixedLength < newLen) {
+            if (Core.isNever(rest)) {
+                return null;
+            }
+            fixedArrayFill(members, newLen, rest);
+        }
+        int nonRepeatedLen = Integer.max(members.initial.size(), lt.members.initial.size());
+        for (int i = 0; i < nonRepeatedLen; i++) {
+            fixedArraySet(members, i,
+                    Core.intersect(listMemberAt(members, rest, i), listMemberAt(lt.members, lt.rest, i)));
+        }
+        if (ltLen < newLen) {
+            if (Core.isNever(lt.rest)) {
+                return null;
+            }
+            for (int i = ltLen; i < newLen; i++) {
+                fixedArraySet(members, i, Core.intersect(listMemberAt(members, rest, i), lt.rest));
+            }
+        }
+        return FixedLengthArraySemtype.from(members, Core.intersect(rest, lt.rest));
+    }
+
     // This function returns true if there is a list shape v such that
-// is in the type described by `members` and `rest`, and
-// for each tuple t in `neg`, v is not in t.
-// `neg` represents a set of negated list types.
-// Precondition is that each of `members` is not empty.
-// This is formula Phi' in section 7.3.1 of Alain Frisch's PhD thesis,
-// generalized to tuples of arbitrary length.
-    static boolean listInhabited(Context cx, List<SemType> members, SemType rest, Conjunction neg) {
+    // is in the type described by `members` and `rest`, and
+    // for each tuple t in `neg`, v is not in t.
+    // `neg` represents a set of negated list types.
+    // Precondition is that each of `members` is not empty.
+    // This is formula Phi' in section 7.3.1 of Alain Frisch's PhD thesis,
+    // generalized to tuples of arbitrary length.
+    static boolean listInhabited(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
         if (neg == null) {
             return true;
         } else {
-            int len = members.size();
+            int len = members.fixedLength;
             ListAtomicType nt = cx.listAtomType(neg.atom);
-            int negLen = nt.members.length;
+            int negLen = nt.members.fixedLength;
             if (len < negLen) {
                 if (Core.isNever(rest)) {
                     return listInhabited(cx, members, rest, neg.next);
                 }
-                for (int i = len; i < negLen; i++) {
-                    members.add(rest);
-                }
+                fixedArrayFill(members, negLen, rest);
                 len = negLen;
             } else if (negLen < len && Core.isNever(nt.rest)) {
                 return listInhabited(cx, members, rest, neg.next);
@@ -167,11 +180,10 @@ public class ListCommonOps {
             // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
             for (int i = 0; i < len; i++) {
-                SemType ntm = i < negLen ? nt.members[i] : nt.rest;
-                SemType d = Core.diff(members.get(i), ntm);
+                SemType d = Core.diff(fixedArrayGet(members, i), listMemberAt(nt.members, nt.rest, i));
                 if (!Core.isEmpty(cx, d)) {
-                    List<SemType> s = Common.shallowCopyTypes(members);
-                    s.set(i, d);
+                    FixedLengthArray s = fixedArrayShallowCopy(members);
+                    fixedArraySet(s, i, d);
                     if (listInhabited(cx, s, rest, neg.next)) {
                         return true;
                     }
@@ -184,5 +196,70 @@ public class ListCommonOps {
             // negative is 0, and [] - [] is empty.
             return false;
         }
+    }
+
+    private static SemType listMemberAt(FixedLengthArray fixedArray, SemType rest, int index) {
+        if (index < fixedArray.fixedLength) {
+            return fixedArrayGet(fixedArray, index);
+        }
+        return rest;
+    }
+
+    private static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
+        for (var t : array.initial) {
+            if (Core.isEmpty(cx, t)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static SemType fixedArrayGet(FixedLengthArray members, int index) {
+        int memberLen = members.initial.size();
+        int i = Integer.min(index, memberLen - 1);
+        return members.initial.get(i);
+    }
+
+    private static void fixedArraySet(FixedLengthArray members, int setIndex, SemType m) {
+        int initCount = members.initial.size();
+        boolean lastMemberRepeats = members.fixedLength > initCount;
+
+        // No need to expand
+        if (setIndex < initCount - (lastMemberRepeats ? 1 : 0)) {
+            members.initial.set(setIndex, m);
+            return;
+        }
+
+        SemType lastMember = members.initial.get(initCount - 1);
+        for (int i = initCount; i < setIndex - 1; i++) {
+            members.initial.add(lastMember);
+        }
+        members.initial.set(setIndex, m);
+    }
+
+    private static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
+        return FixedLengthArray.from(Common.shallowCopyTypes(array.initial), array.fixedLength);
+    }
+
+    private static void fixedArrayFill(FixedLengthArray arr, int newLen, SemType filler) {
+        List<SemType> initial = arr.initial;
+        if (arr.fixedLength == 0 || initial.get(initial.size() - 1) != filler) {
+            initial.add(filler);
+        }
+        arr.fixedLength = newLen;
+    }
+}
+
+class FixedLengthArraySemtype {
+    FixedLengthArray members;
+    SemType rest;
+
+    private FixedLengthArraySemtype(FixedLengthArray members, SemType rest) {
+        this.members = members;
+        this.rest = rest;
+    }
+
+    public static FixedLengthArraySemtype from(FixedLengthArray members, SemType rest) {
+        return new FixedLengthArraySemtype(members, rest);
     }
 }
