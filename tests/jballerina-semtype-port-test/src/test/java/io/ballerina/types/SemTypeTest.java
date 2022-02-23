@@ -61,6 +61,8 @@ public class SemTypeTest {
         // https://github.com/ballerina-platform/ballerina-lang/issues/32722
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "int-singleton.bal");
+        // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
+        ignore(testFiles, "function.bal");
 
         // due to https://github.com/ballerina-platform/ballerina-lang/issues/35203
         ignore(testFiles, "int-singleton2.bal");
