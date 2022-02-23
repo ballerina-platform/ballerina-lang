@@ -1,7 +1,29 @@
-type MyType record {|
-    string field1;
+type ClientConfig record {|
+    string host;
+    int port;
+    string scheme;
+
+    int timeout;
 |};
 
-function testFunction(string name) {
-    MyType var1 = {field1: "Hello" + n}
+public type Error distinct error;
+
+client class Client {
+
+    private ClientConfig config;
+
+    public function init(ClientConfig config) returns error? {
+        self.config = config;
+    }
+
+    remote function findByName(string name) returns json|Error {
+        return {
+            id: "123",
+            name: "Test"
+        };
+    }
+}
+
+public function main() returns error? {
+    Client cl = check new ({});
 }

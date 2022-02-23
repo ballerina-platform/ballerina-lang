@@ -57,6 +57,7 @@ import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -74,7 +75,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.common.constants.PatternConstants;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -104,7 +104,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -172,7 +171,7 @@ public class CommonUtil {
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
-    public static final List<String> BALLERINA_KEYWORDS;
+    public static final List<String> BALLERINA_KEYWORDS = SyntaxInfo.keywords();
 
     public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
@@ -190,7 +189,6 @@ public class CommonUtil {
         COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
-        BALLERINA_KEYWORDS = getBallerinaKeywords();
     }
 
     private CommonUtil() {
@@ -262,7 +260,7 @@ public class CommonUtil {
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName);
         if (!alias.isEmpty()) {
-            builder.append(" as ").append(alias).append(" ");
+            builder.append(" as ").append(alias);
         }
         builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
 
@@ -885,7 +883,7 @@ public class CommonUtil {
      */
     public static String generateParameterName(String arg, int position, TypeSymbol type, Set<String> visibleNames) {
         String newName;
-        if (arg.isEmpty() || !isValidIdentifier(arg)) {
+        if (arg.isEmpty() || !SyntaxInfo.isIdentifier(arg)) {
             String typeName = type != null ? type.typeKind().getName() : "";
             if (!typeName.isEmpty()) {
                 newName = typeName.substring(0, 1).toLowerCase(Locale.getDefault());
@@ -1006,20 +1004,6 @@ public class CommonUtil {
     }
 
     /**
-     * Checks if the provided identifier is valid as per the ballerina specification.
-     *
-     * @param identifier Identifier to be checked for validity
-     * @return True, if the identifier is valid as per the ballerina specification
-     */
-    public static boolean isValidIdentifier(String identifier) {
-        if (identifier == null || identifier.isEmpty()) {
-            return false;
-        }
-
-        return identifier.matches(PatternConstants.IDENTIFIER_PATTERN);
-    }
-
-    /**
      * Escapes the escape characters present in an identifier.
      *
      * @param identifier Identifier
@@ -1088,7 +1072,7 @@ public class CommonUtil {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(aliasLastPart) && !preDeclaredLangLib) {
                     aliasLastPart = "'" + aliasLastPart;
                 }
-                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining());
+                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining("."));
                 alias = aliasPart + "." + aliasLastPart;
             } else {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(alias) && !preDeclaredLangLib) {
@@ -1397,10 +1381,6 @@ public class CommonUtil {
         return modNameComponents[modNameComponents.length - 1];
     }
 
-    public static boolean isKeyword(String token) {
-        return CommonUtil.BALLERINA_KEYWORDS.contains(token);
-    }
-
     /**
      * Escape a given value.
      *
@@ -1408,7 +1388,7 @@ public class CommonUtil {
      * @return {@link String}
      */
     public static String escapeReservedKeyword(String value) {
-        if (isKeyword(value)) {
+        if (SyntaxInfo.isKeyword(value)) {
             return "'" + value;
         }
 
@@ -1435,28 +1415,6 @@ public class CommonUtil {
             return module.moduleName().packageName().value();
         }
         return module.moduleName().packageName().value() + Names.DOT.getValue() + module.moduleName().moduleNamePart();
-    }
-
-    private static List<String> getBallerinaKeywords() {
-        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we come up with a proper api.
-        // Related discussion can be found in https://github.com/ballerina-platform/ballerina-lang/discussions/28827
-        try {
-            Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");
-            return Arrays.stream(aClass.getDeclaredFields())
-                    .filter(field -> field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)
-                            && (field.getType() == String.class))
-                    .map(field -> {
-                        try {
-                            return field.get(null).toString();
-                        } catch (IllegalAccessException e) {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        } catch (ClassNotFoundException e) {
-            return Collections.emptyList();
-        }
     }
 
     /**

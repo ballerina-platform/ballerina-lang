@@ -755,7 +755,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module1 as module11 ;\n"
+          "newText": "import lsproject.module1 as module11;\n"
         }
       ]
     },

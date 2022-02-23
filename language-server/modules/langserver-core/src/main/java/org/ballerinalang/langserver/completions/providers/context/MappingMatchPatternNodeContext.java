@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FieldMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -28,9 +26,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,21 +61,12 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
     }
 
     @Override
-    protected Map<String, RecordFieldSymbol> getValidFields(MappingMatchPatternNode node,
-                                                            RecordTypeSymbol recordTypeSymbol) {
-        List<String> missingFields = node.fieldMatchPatterns().stream()
+    protected List<String> getFields(MappingMatchPatternNode node) {
+        return node.fieldMatchPatterns().stream()
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.FIELD_MATCH_PATTERN
                         && ((FieldMatchPatternNode) field).fieldNameNode().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((FieldMatchPatternNode) field).fieldNameNode().text())
                 .collect(Collectors.toList());
-        Map<String, RecordFieldSymbol> fieldSymbols = new HashMap<>();
-        recordTypeSymbol.fieldDescriptors().forEach((name, symbol) -> {
-            if (!missingFields.contains(name)) {
-                fieldSymbols.put(name, symbol);
-            }
-        });
-
-        return fieldSymbols;
     }
 
     @Override

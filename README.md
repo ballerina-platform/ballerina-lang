@@ -1,4 +1,5 @@
   [![Ballerina daily build](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/daily_build.yml/badge.svg)](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/daily_build.yml)
+  [![Trivy](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/trivy-scan.yml)
   [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)

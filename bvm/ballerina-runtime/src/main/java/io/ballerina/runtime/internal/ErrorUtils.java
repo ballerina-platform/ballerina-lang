@@ -134,6 +134,11 @@ public class ErrorUtils {
                 getErrorMessage(RuntimeErrors.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
     }
 
+    public static BError createJToBTypeCastError(Object value) {
+        throw createError(BLangExceptionHelper.
+                getErrorMessage(RuntimeErrors.J_TYPE_ASSIGNABLE_ERROR, value));
+    }
+
     public static BError createNumericConversionError(Object inputValue, Type targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                           BLangExceptionHelper.getErrorDetails(
@@ -169,9 +174,8 @@ public class ErrorUtils {
                 .concat(StringUtils.fromString(": " + detailMessage)));
     }
 
-    public static BError createAmbiguousConversionError(Object inputValue, Type targetType) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION_AMBIGUOUS_TARGET,
-                        TypeChecker.getType(inputValue), targetType));
+    public static BError createInvalidDecimalError(String value) {
+        throw createError(BallerinaErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_DECIMAL_VALUE, value));
     }
 }

@@ -545,6 +545,22 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "constructor",
+      "kind": "Variable",
+      "detail": "object {public int field1;}",
+      "sortText": "F",
+      "insertText": "constructor",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -26,5 +26,16 @@ service /test on helloEp4 {
     resource function get v1/[int id]/v2/[string name]() returns string {
         return (id.toString()) + name;
     }
-}
+    resource function post .(http:Request req) returns string|error {
 
+        if (true) {
+            int x = 5;
+            int[] y = [10, 12, 19, 33];
+            foreach var item in y {
+                x = x + item;
+            }
+        }
+
+        return "";
+    }
+}
