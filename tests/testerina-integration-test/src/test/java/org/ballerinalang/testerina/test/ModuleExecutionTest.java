@@ -56,11 +56,10 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_DefaultModule_SingleTest() throws BallerinaTestException {
         String msg1 = "1 passing";
-        String msg2 = "[pass] main_test1";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_test1"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
+        if (!output.contains(msg1)) {
             throw new BallerinaTestException("Test failed due to default module single test failure.");
         }
     }
@@ -68,11 +67,10 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_DefaultModule_StartWildCardTest() throws BallerinaTestException {
         String msg1 = "1 passing";
-        String msg2 = "[pass] commonTest";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*Test"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
+        if (!output.contains(msg1)) {
             throw new BallerinaTestException("Test failed due to default module wild card test failure.");
         }
     }
@@ -80,13 +78,10 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_DefaultModule_MiddleWildCardTest() throws BallerinaTestException {
         String msg1 = "3 passing";
-        String msg2 = "[pass] main_test1";
-        String msg3 = "[pass] main_test2";
-        String msg4 = "[pass] main_test3";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*test*"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3) || !output.contains(msg4)) {
+        if (!output.contains(msg1)) {
             throw new BallerinaTestException("Test failed due to default module wild card test failure.");
         }
     }
@@ -94,13 +89,10 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_DefaultModule_EndWildCardTest() throws BallerinaTestException {
         String msg1 = "3 passing";
-        String msg2 = "[pass] main_test1";
-        String msg3 = "[pass] main_test2";
-        String msg4 = "[pass] main_test3";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_*"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3) || !output.contains(msg4)) {
+        if (!output.contains(msg1)) {
             throw new BallerinaTestException("Test failed due to default module wild card test failure.");
         }
     }
@@ -116,12 +108,11 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_Module1_SingleTest() throws BallerinaTestException {
         String msg1 = "1 passing";
-        String msg2 = "[pass] module1_test1";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests",
                 "moduleExecution.Module1:module1_test1"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
+        if (!output.contains(msg1)) {
             throw new BallerinaTestException("Test failed due to module wise single test failure.");
         }
     }
@@ -129,12 +120,10 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_Module1_WildCardTest() throws BallerinaTestException {
         String msg1 = "2 passing";
-        String msg2 = "[pass] module1_test1";
-        String msg3 = "[pass] module1_test2";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:module1_*"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+        if (!output.contains(msg1)) {
             throw new BallerinaTestException("Test failed due to module wise wild card test failure.");
         }
     }
@@ -142,12 +131,10 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_WildCardTest() throws BallerinaTestException {
         String msg1 = "1 passing";
-        String msg2 = "[pass] commonTest_Module1";
-        String msg3 = "[pass] commonTest";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "common*"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+        if (!output.contains(msg1)) {
             throw new BallerinaTestException("Test failed due to wild card test failure.");
         }
     }
@@ -155,12 +142,11 @@ public class ModuleExecutionTest extends BaseTestCase {
     @Test()
     public void test_Module1_WithGroups() throws BallerinaTestException {
         String msg1 = "1 passing";
-        String msg2 = "[pass] module1_test2";
 
         String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
 
-        if (!output.contains(msg1) || !output.contains(msg2)) {
+        if (!output.contains(msg1)) {
             Assert.fail("Test failed due to module with groups failure.");
         }
     }

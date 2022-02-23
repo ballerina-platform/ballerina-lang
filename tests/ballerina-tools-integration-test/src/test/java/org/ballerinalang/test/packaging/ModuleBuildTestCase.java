@@ -312,7 +312,6 @@ public class ModuleBuildTestCase extends BaseTest {
                 "I'm in test function!\n" +
                 "I'm the after function!\n" +
                 "I'm the after suite function!\n" +
-                "\t[pass] testFunction\n" +
                 "\n" +
                 "\t1 passing\n" +
                 "\t0 failing\n" +

@@ -69,7 +69,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "I'm in test function!\n" +
                 "I'm the after function!\n" +
                 "I'm the after suite function!\n" +
-                "\t[pass] testFunction\n" +
                 "\n" +
                 "\t1 passing\n" +
                 "\t0 failing\n" +
@@ -93,7 +92,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "I'm the before suite service function!\n" +
                 "Do your service Tests!\n" +
                 "I'm the after suite service function!\n" +
-                "\t[pass] testServiceFunction\n" +
                 "\n" +
                 "\t1 passing\n" +
                 "\t0 failing\n" +
@@ -118,7 +116,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "I'm in test function!\n" +
                 "I'm the after function!\n" +
                 "I'm the after suite function!\n" +
-                "\t[pass] testFunction\n" +
                 "\n" +
                 "\t1 passing\n" +
                 "\t0 failing\n" +
@@ -129,7 +126,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "I'm the before suite service function!\n" +
                 "Do your service Tests!\n" +
                 "I'm the after suite service function!\n" +
-                "\t[pass] testServiceFunction\n" +
                 "\n" +
                 "\t1 passing\n" +
                 "\t0 failing\n" +
@@ -158,7 +154,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "I'm in test function!\n" +
                 "I'm the after function!\n" +
                 "I'm the after suite function!\n" +
-                "\t[pass] testFunction\n" +
                 "\n" +
                 "\t1 passing\n" +
                 "\t0 failing\n" +
@@ -184,7 +179,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "I'm the before suite service function!\n" +
                 "Do your service Tests!\n" +
                 "I'm the after suite service function!\n" +
-                "\t[pass] testServiceFunction\n" +
                 "\n" +
                 "\t1 passing\n" +
                 "\t0 failing\n" +
@@ -333,8 +327,6 @@ public class TestExecutionTestCase extends BaseTest {
                     "    main_test.bal\n" +
                     "I'm in test belonging to g1 and g2!\n" +
                     "I'm in test belonging to g1!\n" +
-                    "\t  [pass] testFunction2\n" +
-                    "\t  [pass] testFunction1\n" +
                     "\t  2 passing\n" +
                     "\t  0 failing\n" +
                     "\t  0 skipped";
@@ -350,7 +342,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "Running tests\n" +
                 "    main_test.bal\n" +
                 "I'm the ungrouped test\n" +
-                "\t  [pass] testFunction3\n" +
                 "\t  1 passing\n" +
                 "\t  0 failing\n" +
                 "\t  0 skipped";
@@ -367,8 +358,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "    main_test.bal\n" +
                 "I'm the ungrouped test\n" +
                 "I'm in test belonging to g1!\n" +
-                "\t  [pass] testFunction3\n" +
-                "\t  [pass] testFunction1\n" +
                 "\t  2 passing\n" +
                 "\t  0 failing\n" +
                 "\t  0 skipped";
@@ -419,8 +408,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "    main_test.bal\n" +
                 "I'm in test belonging to g1 and g2!\n" +
                 "I'm in test belonging to g1!\n" +
-                "\t  [pass] testFunction2\n" +
-                "\t  [pass] testFunction1\n" +
                 "\t  2 passing\n" +
                 "\t  0 failing\n" +
                 "\t  0 skipped";
@@ -436,7 +423,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "Running tests\n" +
                 "    main_test.bal\n" +
                 "I'm the ungrouped test\n" +
-                "\t  [pass] testFunction3\n" +
                 "\t  1 passing\n" +
                 "\t  0 failing\n" +
                 "\t  0 skipped";
@@ -496,10 +482,6 @@ public class TestExecutionTestCase extends BaseTest {
                 "Input : [1,2,3]\n" +
                 "Input : [10,20,30]\n" +
                 "Input : [5,6,11]\n" +
-                "\t  [pass] testJsonObjects\n" +
-                "\t  [pass] testAddingValues\n" +
-                "\t  [pass] testAddingValues\n" +
-                "\t  [pass] testAddingValues\n" +
                 "\t  4 passing\n" +
                 "\t  0 failing\n" +
                 "\t  0 skipped";
@@ -550,9 +532,6 @@ public class TestExecutionTestCase extends BaseTest {
                     "I'm in test function 3!\n" +
                     "I'm in test function 1!\n" +
                     "I'm in test function 2!\n" +
-                    "\t  [pass] testFunction3\n" +
-                    "\t  [pass] testFunction1\n" +
-                    "\t  [pass] testFunction2\n" +
                     "\t  3 passing\n" +
                     "\t  0 failing\n" +
                     "\t  0 skipped";
@@ -601,7 +580,6 @@ public class TestExecutionTestCase extends BaseTest {
                     "    main_test.bal\n" +
                     "I'm the mock function!\n" +
                     "Function mocking test\n" +
-                    "\t  [pass] testAssertIntEquals\n" +
                     "\t  1 passing\n" +
                     "\t  0 failing\n" +
                     "\t  0 skipped";
