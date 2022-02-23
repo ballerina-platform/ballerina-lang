@@ -8,7 +8,16 @@
 
 # The Ballerina Programming Language
 
-Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
+[Ballerina](https://ballerina.io/) is a statically typed, open-source cloud-native programming language developed
+and supported by [WSO2](https://wso2.com/).
+
+With Ballerina, you could easily develop microservices, API endpoints & integrations,
+and any other application for the cloud. Additionally, Ballerina has all the general-purpose
+functionalities you could expect from a modern programming language.
+
+With Ballerina's compiler level built-in support for widely used data types such
+as JSON & XML, your focus on handling structured data, network service interactions,
+and dealing with concurrency is made much more effective.
 
 #### Providing and consuming services
 It has inherently concurrent first-class language constructs for providing and consuming services.
