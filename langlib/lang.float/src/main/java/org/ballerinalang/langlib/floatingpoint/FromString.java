@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.floatingpoint;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -46,13 +47,22 @@ public class FromString {
                                                                         NUMBER_PARSING_ERROR_IDENTIFIER);
 
     public static Object fromString(BString s) {
+        String decimalFloatingPointNumber = s.getValue();
+        String upperCaseValue = decimalFloatingPointNumber.toUpperCase();
+        if (upperCaseValue.endsWith("F") || upperCaseValue.endsWith("D")) {
+            return getTypeConversionError(decimalFloatingPointNumber);
+        }
+
         try {
             return TypeConverter.stringToFloat(s.getValue());
         } catch (NumberFormatException e) {
-            return ErrorCreator.createError(ERROR_REASON,
-                                            BLangExceptionHelper.getErrorMessage(
-                                                    RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                    PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_FLOAT));
+            return getTypeConversionError(decimalFloatingPointNumber);
         }
+    }
+
+    private static BError getTypeConversionError(String value) {
+        return ErrorCreator.createError(ERROR_REASON, BLangExceptionHelper.getErrorDetails(
+                        RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                        PredefinedTypes.TYPE_STRING, value, PredefinedTypes.TYPE_FLOAT));
     }
 }

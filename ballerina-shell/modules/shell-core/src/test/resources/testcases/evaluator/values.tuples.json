@@ -1,7 +1,11 @@
 [
   {
     "description": "Defines the type of `a` as a pair.",
-    "code": "[int, string] a = [10, \"John\"]; a",
+    "code": "[int, string] a = [10, \"John\"];"
+  },
+  {
+    "description": "Defines the type of `a` as a pair.",
+    "code": "a",
     "expr": "[10,\"John\"]"
   },
   {
@@ -14,17 +18,29 @@
   },
   {
     "description": "Invokes a function that returns a tuple.",
-    "code": "[q, r] = divideBy10(6); {q, r}",
+    "code": "[q, r] = divideBy10(6);"
+  },
+  {
+    "description": "Invokes a function that returns a tuple - get value.",
+    "code": "{q, r}",
     "expr": "{\"q\":0,\"r\":6}"
   },
   {
     "description": "Invokes a function that returns a tuple.",
-    "code": "[int, int] returnValue = divideBy10(9); returnValue",
+    "code": "[int, int] returnValue = divideBy10(9);"
+  },
+  {
+    "description": "Invokes a function that returns a tuple.",
+    "code": "returnValue",
     "expr": "[0,9]"
   },
   {
     "description": "To ignore a value in a tuple, use `_`.",
-    "code": "[_, r] = returnValue; r",
+    "code": "[_, r] = returnValue;"
+  },
+  {
+    "description": "To ignore a value in a tuple, use `_`.",
+    "code": "r",
     "expr": "9"
   }
 ]

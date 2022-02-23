@@ -23,3 +23,7 @@ public type UserError distinct GenericError;
 public function getError(string errorName) returns error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
 } external;
+
+public function getTypeIds(error errorVal) returns string[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;

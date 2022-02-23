@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
  */
 public class BLangTupleVariable extends BLangVariable implements TupleVariableNode {
 
+    // BLangNodes
     public List<BLangVariable> memberVariables;
     public BLangVariable restVariable;
 
@@ -54,6 +55,16 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

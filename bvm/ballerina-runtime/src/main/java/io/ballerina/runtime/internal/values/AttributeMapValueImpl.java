@@ -56,7 +56,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     public BString put(BString keyBStr, BString value) {
         if (isFrozen()) {
             throw ErrorCreator.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                           BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+                                           BLangExceptionHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
         }
 
         return insertValue(keyBStr, value, false);

@@ -39,6 +39,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -116,7 +117,7 @@ public class SymbolsInAccessExprsTest {
         return new Object[][]{
                 {47, 23, VARIABLE, "x"},
                 {47, 26, null, null},
-//                {51, 12, XMLNS, "ns"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32800
+                {51, 12, XMLNS, "ns"},
                 {51, 15, null, null},
                 {53, 27, VARIABLE, "x"},
                 {53, 30, null, null},

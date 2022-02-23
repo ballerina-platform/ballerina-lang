@@ -39,7 +39,7 @@ public class DebugOutputLogger {
     }
 
     /**
-     * Processes messages which should treated as the program output.
+     * Processes messages that should be treated as the program output.
      *
      * @param output string output produced in the debugger/target VM.
      */

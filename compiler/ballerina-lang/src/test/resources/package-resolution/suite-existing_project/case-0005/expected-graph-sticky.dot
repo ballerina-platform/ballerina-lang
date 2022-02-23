@@ -1,0 +1,6 @@
+digraph "example1" {
+    "myOrg/app:0.1.0" -> "myOrg/bazz:1.0.0"
+    "myOrg/bazz:1.0.0" -> "myOrg/bar:1.3.1"
+    "myOrg/bar:1.3.1" -> "ballerinai/foo:0.0.0"
+    "ballerinai/foo:0.0.0" -> "ballerina/cache:1.3.2"
+}

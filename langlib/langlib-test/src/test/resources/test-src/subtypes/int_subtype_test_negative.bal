@@ -326,4 +326,32 @@ function testInvalidFiniteTypeAsIntSubType() {
     (float|string|int:Unsigned8)[] l = j;
 }
 
+type InvalidIntType int:Signed32|int:Signed16|string;
+type InvalidIntFiniteType 1|2|3|"R";
+
+function testInvalidIntSubtypesInLangLibFunctions() {
+    InvalidIntType intVal1 = "FOO";
+    int:Signed32|int:Signed16|string intVal2 = "FOO";
+    InvalidIntFiniteType intVal3 = 1;
+
+    _ = int:toHexString(intVal1);
+    _ = int:toHexString(intVal2);
+
+    _ = intVal1.toHexString();
+    _ = intVal2.toHexString();
+
+    _ = int:toHexString(intVal3);
+    _ = intVal3.toHexString();
+}
+
+function testOutOfBoundValueAssignment(){
+     int:Signed16 _ = 21474803712;
+     int:Signed16 _ = 9223372036854775807;
+     int:Signed8 _ = -9223372036854775681;
+     int:Signed8 _ = 9223372036854775807;
+     int:Unsigned16 _ = -21474770945;
+     int:Unsigned16 _ = -21474836480;
+     int:Unsigned8 _ = -9223372036854775553;
+     int:Unsigned8 _ = -9223372036854775808;
+}
 // TODO : Add more test cases.

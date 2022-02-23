@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.bindingpattern.ErrorCauseBindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.ErrorFieldBindingPatternsNode;
 import org.ballerinalang.model.tree.bindingpattern.ErrorMessageBindingPatternNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
@@ -33,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
  */
 public class BLangErrorBindingPattern extends BLangBindingPattern implements ErrorBindingPatternNode {
 
+    // BLangNodes
     public BLangUserDefinedType errorTypeReference;
     public BLangErrorMessageBindingPattern errorMessageBindingPattern;
     public BLangErrorCauseBindingPattern errorCauseBindingPattern;
@@ -41,6 +44,16 @@ public class BLangErrorBindingPattern extends BLangBindingPattern implements Err
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

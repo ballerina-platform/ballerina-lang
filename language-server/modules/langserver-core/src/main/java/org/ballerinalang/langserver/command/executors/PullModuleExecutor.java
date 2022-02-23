@@ -15,28 +15,27 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.util.DependencyUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.codeaction.providers.imports.PullModuleCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.task.BackgroundTaskService;
-import org.ballerinalang.langserver.task.Task;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
@@ -46,8 +45,11 @@ import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.nio.file.Path;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Command executor for pulling a package from central.
@@ -58,6 +60,8 @@ import java.util.concurrent.CompletionException;
 public class PullModuleExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "PULL_MODULE";
+    
+    private static final String TITLE_PULL_MODULE = "Pull Module";
 
     /**
      * {@inheritDoc}
@@ -80,28 +84,98 @@ public class PullModuleExecutor implements LSCommandExecutor {
             }
         }
 
+        // TODO Prevent running parallel tasks for the same project in future
+        String taskId = UUID.randomUUID().toString();
         Path filePath = CommonUtil.getPathFromURI(fileUri)
                 .orElseThrow(() -> new UserErrorException("Couldn't determine file path"));
 
         Project project = context.workspace().project(filePath)
                 .orElseThrow(() -> new UserErrorException("Couldn't find project to pull modules"));
 
-        BackgroundTaskService taskService = BackgroundTaskService.getInstance(context.languageServercontext());
-        if (taskService.isRunning(project.currentPackage().packageId(), PullModuleTask.NAME)) {
-            CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Info,
-                    "A pull modules operation is already running for this project");
-        }
-        taskService.submit(project.currentPackage().packageId(),
-                new PullModuleTask(fileUri, project.sourceRoot(), context));
+        ExtendedLanguageClient languageClient = context.getLanguageClient();
+        LSClientLogger clientLogger = LSClientLogger.getInstance(context.languageServercontext());
+        String finalFileUri = fileUri;
+        CompletableFuture
+                .runAsync(() -> {
+                    clientLogger.logTrace("Started pulling modules for project: " + project.sourceRoot().toString());
+
+                    // Initialize progress notification
+                    WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+                    workDoneProgressCreateParams.setToken(taskId);
+                    languageClient.createProgress(workDoneProgressCreateParams);
+
+                    // Start progress
+                    WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
+                    beginNotification.setTitle(TITLE_PULL_MODULE);
+                    beginNotification.setCancellable(false);
+                    beginNotification.setMessage("pulling missing ballerina modules");
+                    languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                            Either.forLeft(beginNotification)));
+                })
+                .thenRunAsync(() -> DependencyUtils.pullMissingDependencies(project))
+                .thenRunAsync(() -> {
+                    try {
+                        // Refresh project
+                        ((BallerinaWorkspaceManager) context.workspace()).refreshProject(filePath);
+                    } catch (WorkspaceDocumentException e) {
+                        throw new UserErrorException("Failed to refresh project");
+                    }
+                })
+                .thenRunAsync(() -> {
+                    DocumentServiceContext docContext = ContextBuilder.buildDocumentServiceContext(finalFileUri,
+                            context.workspace(), LSContextOperation.TXT_DID_CHANGE,
+                            context.languageServercontext());
+                    DiagnosticsHelper.getInstance(context.languageServercontext())
+                            .schedulePublishDiagnostics(languageClient, docContext);
+                })
+                .thenRunAsync(() -> {
+                    Optional<List<String>> missingModules = context.workspace()
+                            .waitAndGetPackageCompilation(filePath)
+                            .map(compilation -> compilation.diagnosticResult().diagnostics().stream()
+                                    .filter(diagnostic -> DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId()
+                                            .equals(diagnostic.diagnosticInfo().code()))
+                                    .map(PullModuleCodeAction::getMissingModuleNameFromDiagnostic)
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .collect(Collectors.toList())
+                            );
+                    if (missingModules.isEmpty()) {
+                        throw new UserErrorException("Failed to pull modules!");
+                    } else if (!missingModules.get().isEmpty()) {
+                        String moduleNames = String.join(", ", missingModules.get());
+                        throw new UserErrorException(String.format("Failed to pull modules: %s", moduleNames));
+                    }
+                })
+                .whenComplete((missingModules, t) -> {
+                    boolean failed = true;
+                    if (t != null) {
+                        clientLogger.logError(LSContextOperation.WS_EXEC_CMD,
+                                "Pull modules failed for project: " + project.sourceRoot().toString(),
+                                t, null, (Position) null);
+                        if (t.getCause() instanceof UserErrorException) {
+                            String errorMessage = t.getCause().getMessage();
+                            CommandUtil.notifyClient(languageClient, MessageType.Error, errorMessage);
+                        } else {
+                            CommandUtil.notifyClient(languageClient, MessageType.Error, "Failed to pull modules!");
+                        }
+                    } else {
+                        failed = false;
+                        CommandUtil.notifyClient(languageClient, MessageType.Info, "Module(s) pulled successfully!");
+                        clientLogger
+                                .logTrace("Finished pulling modules for project: " + project.sourceRoot().toString());
+                    }
+
+                    WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+                    if (failed) {
+                        endNotification.setMessage("Failed to pull unresolved modules!");
+                    } else {
+                        endNotification.setMessage("Modules pulled successfully!");
+                    }
+                    languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                            Either.forLeft(endNotification)));
+                });
 
         return new Object();
-    }
-
-    protected static boolean isCancellation(Throwable t) {
-        if (t instanceof CompletionException) {
-            return isCancellation(t.getCause());
-        }
-        return (t instanceof CancellationException);
     }
 
     /**
@@ -110,106 +184,5 @@ public class PullModuleExecutor implements LSCommandExecutor {
     @Override
     public String getCommand() {
         return COMMAND;
-    }
-
-    /**
-     * Task to perform pull module operation. This task will show a progress at vscode side and show success/error
-     * messages accordingly.
-     */
-    static class PullModuleTask extends Task {
-
-        static final String NAME = "PullModule";
-
-        private final String fileUri;
-        private final Path sourceRoot;
-        private final ExecuteCommandContext context;
-
-        public PullModuleTask(String fileUri, Path sourceRoot, ExecuteCommandContext context) {
-            this.fileUri = fileUri;
-            this.sourceRoot = sourceRoot;
-            this.context = context;
-        }
-
-        @Override
-        public void onStart() {
-            LSClientLogger.getInstance(context.languageServercontext())
-                    .logTrace("Started pulling modules for project: " + sourceRoot.toString());
-
-            // Initialize progress notification
-            WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
-            workDoneProgressCreateParams.setToken(getTaskId());
-            context.getLanguageClient().createProgress(workDoneProgressCreateParams);
-
-            // Start progress
-            WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-            beginNotification.setTitle("Pull Module");
-            // TODO: Implement cancellation support in the future
-            beginNotification.setCancellable(false);
-            beginNotification.setMessage("pulling missing ballerina modules");
-            context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(getTaskId()),
-                    Either.forLeft(beginNotification)));
-        }
-
-        @Override
-        public void execute() throws Exception {
-            // Build the project in online mode
-            BuildOptions options = new BuildOptionsBuilder().offline(false).build();
-            Project project = ProjectLoader.loadProject(sourceRoot, options);
-            // Pull modules and compile
-            project.currentPackage().getCompilation();
-
-            Path filePath = CommonUtil.getPathFromURI(fileUri)
-                    .orElseThrow(() -> new ProjectException("Couldn't determine the project path"));
-            // Reload project
-            ((BallerinaWorkspaceManager) context.workspace()).refreshProject(filePath);
-
-            DocumentServiceContext documentServiceContext = ContextBuilder.buildDocumentServiceContext(fileUri,
-                    context.workspace(), LSContextOperation.TXT_DID_CHANGE,
-                    context.languageServercontext());
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(context.languageServercontext());
-            diagnosticsHelper.compileAndSendDiagnostics(context.getLanguageClient(), documentServiceContext);
-        }
-
-        @Override
-        public void onSuccess() {
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Modules pulled successfully!");
-            context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(getTaskId()),
-                    Either.forLeft(endNotification)));
-
-            CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Info,
-                    "Module(s) pulled successfully!");
-
-            LSClientLogger.getInstance(context.languageServercontext())
-                    .logTrace("Finished pulling modules for project: " + sourceRoot.toString());
-        }
-
-        @Override
-        public void onFail(Throwable t) {
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Unable to pull modules. Aborted!");
-            context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(getTaskId()),
-                    Either.forLeft(endNotification)));
-
-            LSClientLogger.getInstance(context.languageServercontext()).logError(LSContextOperation.WS_EXEC_CMD,
-                    "Pull modules failed for project: " + sourceRoot.toString(),
-                    t, null, (Position) null);
-
-            if (isCancellation(t)) {
-                CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error,
-                        "Pull modules operation cancelled");
-            } else if (t instanceof ProjectException) {
-                CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error,
-                        "Error occurred while pulling modules");
-            } else {
-                CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error,
-                        "Failed to pull modules!");
-            }
-        }
-
-        @Override
-        public String name() {
-            return NAME;
-        }
     }
 }

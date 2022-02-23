@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
+
 type Person record {|
    string firstName;
    string lastName;
@@ -291,6 +293,57 @@ function testTypeNarrowingVarDefinedWithLet() {
 
 function getErrorOrString() returns error|string {
     return error("Dummy error");
+}
+
+function testWildcardBindingPatternInQueryAction1() {
+    int[] x = [1, 2, 3];
+
+    int m = 0;
+
+    error? res = from int _ in x
+        do {
+            m += 1;
+        };
+
+    res = from var _ in x
+        do {
+            m += 1;
+        };
+
+    assertEquality(6, m);
+    assertEquality(true, res is ());
+}
+
+function testWildcardBindingPatternInQueryAction2() {
+    map<boolean> x = {
+        a: true,
+        b: false
+    };
+
+    int m = 0;
+
+    error? res = from boolean _ in x
+        do {
+            m += 1;
+        };
+
+    res = from var _ in x
+        do {
+            m += 1;
+        };
+
+    assertEquality(4, m);
+    assertEquality(true, res is ());
+}
+
+function testQueryActionWithAsyncCalls() returns error? {
+    int sum = 0;
+    check from var x in [1, 2, 3]
+    do {
+         runtime:sleep(0.1);
+         sum = sum + x;
+    };
+    assertEquality(sum, 6);
 }
 
 function assertEquality(any|error expected, any|error actual) {

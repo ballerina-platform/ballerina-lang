@@ -137,7 +137,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
         Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData & readonly");
+        Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "(TrxErrorData & readonly)");
     }
 
     @Test
@@ -230,16 +230,16 @@ public class ErrorTest {
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'map<any>', expected a subtype of " +
-                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 41, 28);
+                        "'map<ballerina/lang.value:0.0.0:Cloneable>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of '" +
-                        "map<ballerina/lang.value:1.0.0:Cloneable>'", 42, 28);
+                        "map<ballerina/lang.value:0.0.0:Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "error constructor does not accept additional detail args 'one' when error detail type 'Foo' " +
                         "contains individual field descriptors", 45, 58);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of " +
-                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 48, 11);
+                        "'map<ballerina/lang.value:0.0.0:Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found 'boolean'", 48, 30);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
@@ -261,13 +261,13 @@ public class ErrorTest {
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
-                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 139, 11);
+                " of 'map<ballerina/lang.value:0.0.0:Cloneable>'", 139, 11);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 17);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 19);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
-                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 140, 11);
+                " of 'map<ballerina/lang.value:0.0.0:Cloneable>'", 140, 11);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'int', expected a subtype of" +
-                " 'map<ballerina/lang.value:1.0.0:Cloneable>'", 141, 11);
+                " 'map<ballerina/lang.value:0.0.0:Cloneable>'", 141, 11);
         BAssertUtil.validateError(negativeCompileResult, i++, "unknown error detail arg 'id' passed to closed error " +
                 "detail type 'CloseDetail'", 143, 47);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
@@ -335,7 +335,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1:slice(array.bal:128)\n\t" +
+                "at ballerina.lang.array.0:slice(array.bal:128)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:339)");
     }
 
@@ -368,10 +368,8 @@ public class ErrorTest {
     @Test
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
-        String expected1 = "{callableName:\"bar\", fileName:\"error_test.bal\", " +
-                "lineNumber:408}";
-        String expected2 = "{callableName:\"bar2\", fileName:\"error_test.bal\", " +
-                "lineNumber:412}";
+        String expected1 = "{callableName:\"bar\", moduleName:(), fileName:\"error_test.bal\", lineNumber:408}";
+        String expected2 = "{callableName:\"bar2\", moduleName:(), fileName:\"error_test.bal\", lineNumber:412}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);

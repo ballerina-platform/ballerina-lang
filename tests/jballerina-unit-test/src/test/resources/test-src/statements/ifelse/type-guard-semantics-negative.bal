@@ -357,7 +357,7 @@ function testErrorDestructuringAssignmentTypeResetting() {
 }
 
 type Detail record {
-    string message?;
+    string message;
     error cause?;
     int? code;
 };
@@ -488,7 +488,7 @@ function jsonIntersectionNegative(json j) {
 public type Bar record {|
     record {|
         string s;
-    |} baz?;
+    |}? baz?;
 |};
 
 function testIntersectionWithIntersectionTypeNegative() {

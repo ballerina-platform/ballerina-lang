@@ -1,6 +1,6 @@
 {
   "source": {
-    "file": "repo/bala/ballerina/lang.map/1.1.0/any/modules/lang.map/internal.bal"
+    "file": "repo/bala/ballerina/lang.map/0.0.0/any/modules/lang.map/internal.bal"
   },
   "position": {
     "line": 34,
@@ -18,7 +18,7 @@
           "character": 17
         }
       },
-      "uri": "repo/bala/ballerina/lang.map/1.1.0/any/modules/lang.map/internal.bal"
+      "uri": "repo/bala/ballerina/lang.map/0.0.0/any/modules/lang.map/internal.bal"
     }
   ]
 }

@@ -9,8 +9,24 @@
       "label": "recId",
       "kind": "Field",
       "detail": "int",
-      "sortText": "G",
+      "sortText": "AG",
       "insertText": "recId",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "BG",
+      "insertText": "name",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "BG",
+      "insertText": "age",
       "insertTextFormat": "Snippet"
     }
   ]

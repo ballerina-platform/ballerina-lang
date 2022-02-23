@@ -24,7 +24,7 @@ function functionAccessingIsolatedVarWithInferredFunctionAsTransferExpr() return
 }
 
 function f1() returns int[] {
-    if false {
+    if 0 > 1 {
         _ = functionAccessingIsolatedVarWithInferredFunctionAsTransferExpr();
     }
 

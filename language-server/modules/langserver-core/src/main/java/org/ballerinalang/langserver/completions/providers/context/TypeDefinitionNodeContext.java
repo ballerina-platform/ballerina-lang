@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -80,14 +79,6 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
             completionItems.addAll(this.getTypeQualifierItems(context));
         }
         return completionItems;
-    }
-
-    private List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
-        // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
-        return Arrays.asList(
-                new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()),
-                new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()),
-                new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
     }
 
     @Override

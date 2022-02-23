@@ -23,14 +23,12 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.ErrorUtils;
 
 import java.util.HashMap;
+import java.util.List;
 
-import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.TypeConverter.MAX_CONVERSION_ERROR_COUNT;
 
 /**
  * This class contains the functions related to cloning Ballerina values.
@@ -81,9 +79,19 @@ public class CloneUtils {
         return refValue.frozenCopy(new HashMap<>());
     }
 
-    public static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType));
+    public static BError createConversionError(Object value, Type targetType, List<String> errors) {
+        if (errors.isEmpty()) {
+            return ErrorUtils.createConversionError(value, targetType);
+        } else {
+            if (errors.size() == MAX_CONVERSION_ERROR_COUNT + 1) {
+                errors.remove(MAX_CONVERSION_ERROR_COUNT);
+                errors.add("...");
+            }
+            StringBuilder errorMsg = new StringBuilder();
+            for (String error : errors) {
+                errorMsg.append("\n\t\t").append(error);
+            }
+            return ErrorUtils.createConversionError(value, targetType, errorMsg.toString());
+        }
     }
 }

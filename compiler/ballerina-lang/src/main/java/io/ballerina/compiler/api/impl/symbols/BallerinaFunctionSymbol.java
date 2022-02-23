@@ -55,7 +55,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(invokableSymbol);
         this.typeDescriptor = typeDescriptor;
-        this.isExternal = Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE);
+        this.isExternal = Symbols.isNative(invokableSymbol);
         this.deprecated = Symbols.isFlagOn(invokableSymbol.flags, Flags.DEPRECATED);
     }
 

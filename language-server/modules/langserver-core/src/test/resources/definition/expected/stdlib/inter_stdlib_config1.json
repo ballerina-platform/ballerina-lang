@@ -1,6 +1,6 @@
 {
   "source": {
-    "file": "repo/bala/ballerina/lang.array/1.1.0/any/modules/lang.array/array.bal"
+    "file": "repo/bala/ballerina/lang.array/0.0.0/any/modules/lang.array/array.bal"
   },
   "position": {
     "line": 56,
@@ -18,7 +18,7 @@
           "character": 29
         }
       },
-      "uri": "repo/bala/ballerina/lang.array/1.1.0/any/modules/lang.array/array.bal"
+      "uri": "repo/bala/ballerina/lang.array/0.0.0/any/modules/lang.array/array.bal"
     }
   ]
 }

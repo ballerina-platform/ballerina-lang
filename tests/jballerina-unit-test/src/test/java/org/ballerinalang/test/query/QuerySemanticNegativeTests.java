@@ -31,6 +31,8 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  * @since 1.2.0
  */
 public class QuerySemanticNegativeTests {
+    private static final String INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE =
+            "a wildcard binding pattern can be used only with a value that belong to type 'any'";
 
     @Test
     public void testMultipleFromClauseStreamType() {
@@ -39,5 +41,17 @@ public class QuerySemanticNegativeTests {
         validateError(compileResult, 0, "type stream not allowed here; to use from on a " +
                         "type stream, it should be the first from clause in the query.",
                 40, 36);
+    }
+
+    @Test
+    public void testWildcardBindingPatternInQueryExprNegative() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/query/query_wildcard_binding_pattern_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 20, 20);
+        validateError(compileResult, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 25, 20);
+        validateError(compileResult, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 32, 23);
+        validateError(compileResult, index++, INVALID_USAGE_OF_WILDCARD_WITH_NON_ANY_TYPE, 38, 16);
+        Assert.assertEquals(index, compileResult.getErrorCount());
     }
 }

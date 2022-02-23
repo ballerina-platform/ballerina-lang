@@ -50,15 +50,13 @@ public class Foreach {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
+        Object[] values = tbl.values().toArray();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{parentStrand,
-                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
+                                values[index.incrementAndGet()], true},
                         result -> {
                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 
-    public static void forEach_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
-        forEach(tbl, func);
-    }
 }

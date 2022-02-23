@@ -30,11 +30,14 @@ public class ModuleContextDataHolder {
     private final boolean exported;
     private final ModuleDescriptor descriptor;
     private final ProjectKind projectKind;
+    private final boolean skipTests;
 
-    public ModuleContextDataHolder(boolean exported, ModuleDescriptor descriptor, ProjectKind projectKind) {
+    public ModuleContextDataHolder(boolean exported, ModuleDescriptor descriptor, ProjectKind projectKind,
+                                   boolean skipTests) {
         this.exported = exported;
         this.descriptor = descriptor;
         this.projectKind = projectKind;
+        this.skipTests = skipTests;
     }
 
     public boolean isExported() {
@@ -47,5 +50,9 @@ public class ModuleContextDataHolder {
 
     public ProjectKind projectKind() {
         return projectKind;
+    }
+
+    public boolean skipTests() {
+        return skipTests;
     }
 }

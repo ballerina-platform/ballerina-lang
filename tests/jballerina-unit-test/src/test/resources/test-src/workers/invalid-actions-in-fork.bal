@@ -5,7 +5,7 @@ function testInvalidActionsFromFork() {
             i -> w3;
             fork {
                 worker w3 {
-                    int j = <- w1;
+                    int _ = <- w1;
                 }
             }
         }

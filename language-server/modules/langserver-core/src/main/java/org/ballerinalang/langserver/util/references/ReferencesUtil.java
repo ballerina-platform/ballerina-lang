@@ -80,16 +80,28 @@ public class ReferencesUtil {
         }
         
         Symbol symbol = symbolAtCursor.get();
-        project.get().currentPackage().moduleIds().forEach(moduleId -> {
-            List<Location> references = project.get().currentPackage()
+        moduleLocationMap.putAll(getReferences(project.get(), symbol));
+        return moduleLocationMap;
+    }
+
+    /**
+     * Given a project and a symbol, returns references to that symbol within the project.
+     *
+     * @param project Project
+     * @param symbol  Symbol to be searched for references
+     * @return Map of module and list of reference locations.
+     */
+    public static Map<Module, List<Location>> getReferences(Project project, Symbol symbol) {
+        Map<Module, List<Location>> moduleLocationMap = new HashMap<>();
+        project.currentPackage().moduleIds().forEach(moduleId -> {
+            List<Location> references = project.currentPackage()
                     .getCompilation().getSemanticModel(moduleId).references(symbol);
             if (references.isEmpty()) {
                 return;
             }
-            Module module = project.get().currentPackage().module(moduleId);
+            Module module = project.currentPackage().module(moduleId);
             moduleLocationMap.put(module, references);
         });
-
         return moduleLocationMap;
     }
     

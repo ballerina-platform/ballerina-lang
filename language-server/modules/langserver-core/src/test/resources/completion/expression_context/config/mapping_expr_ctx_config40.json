@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "rec1Field3",
       "kind": "Field",
       "detail": "Rec1.rec1Field3",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec1Field3: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -35,7 +35,7 @@
       "label": "rec2Field2",
       "kind": "Field",
       "detail": "Rec2.rec2Field2",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec2Field2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
       "label": "rec2Field3",
       "kind": "Field",
       "detail": "Rec2.rec2Field3",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec2Field3: ${2:0}",
       "insertTextFormat": "Snippet"
     },
@@ -51,7 +51,7 @@
       "label": "rec2Field1",
       "kind": "Field",
       "detail": "Rec2.rec2Field1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec2Field1: ${3:0}",
       "insertTextFormat": "Snippet"
     },

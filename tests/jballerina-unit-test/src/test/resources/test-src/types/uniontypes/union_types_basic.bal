@@ -314,6 +314,17 @@ function foo2() returns string:Char|object{} {
     return "A";
 }
 
+const A = 1.0f;
+const B = 2.0d;
+
+type Decimals A|B|2;
+
+function testUnionWithDecimalFiniteTypes() {
+    Decimals value = 2.0d;
+    assertEquality(true, value is decimal);
+    assertEquality(4.3d, <decimal>value + 2.3d);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

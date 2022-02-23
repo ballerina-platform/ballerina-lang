@@ -17,11 +17,12 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.util.StringJoiner;
 
@@ -60,8 +61,8 @@ public class BMethodType extends BFunctionType implements MethodType {
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(parentObjectType.getAnnotationKey()) + "." +
-                IdentifierUtils.decodeIdentifier(funcName);
+        return Utils.decodeIdentifier(parentObjectType.getAnnotationKey()) + "." +
+                Utils.decodeIdentifier(funcName);
     }
 
     @Override
@@ -75,5 +76,10 @@ public class BMethodType extends BFunctionType implements MethodType {
 
     public <T extends MethodType> MethodType duplicate() {
         return new BMethodType(funcName, parentObjectType, type, flags);
+    }
+
+    @Override
+    public boolean isIsolated() {
+        return SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED);
     }
 }

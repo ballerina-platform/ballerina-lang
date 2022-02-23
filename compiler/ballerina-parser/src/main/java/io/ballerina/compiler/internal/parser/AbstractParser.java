@@ -172,8 +172,8 @@ public abstract class AbstractParser {
      * Returns a clone of the given STNode with the given diagnostic if the nodeList is empty,
      * otherwise returns the original STNode.
      *
-     * @param nodeList the node list instance
-     * @param target the STNode instance
+     * @param nodeList       the node list instance
+     * @param target         the STNode instance
      * @param diagnosticCode the DiagnosticCode to be added to the node
      * @return a clone of the given STNode
      */
@@ -182,26 +182,6 @@ public abstract class AbstractParser {
             return SyntaxErrors.addDiagnostic(target, diagnosticCode);
         }
         return target;
-    }
-
-    /**
-     * Clones the last node in list with the invalid node as minutiae and update the list if the nodeList is not empty.
-     * Otherwise adds the invalid node as minutiae to the next consumed token.
-     *
-     * @param nodeList       node list to be updated if not empty
-     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
-     * @param diagnosticCode diagnostic code related to the invalid node
-     * @param args           additional arguments used in diagnostic message
-     */
-    protected void updateLastNodeInListOrAddInvalidNodeToNextToken(List<STNode> nodeList,
-                                                             STNode invalidParam,
-                                                             DiagnosticCode diagnosticCode,
-                                                             Object... args) {
-        if (nodeList.isEmpty()) {
-            addInvalidNodeToNextToken(invalidParam, diagnosticCode, args);
-        } else {
-            updateLastNodeInListWithInvalidNode(nodeList, invalidParam, diagnosticCode, args);
-        }
     }
 
     /**
@@ -239,11 +219,11 @@ public abstract class AbstractParser {
     }
 
     /**
-     * Clones the a node in list with the invalid node as leading minutiae and update the list.
+     * Clones the node at the given index of the list, with the invalid node as leading minutiae, and update the list.
      *
      * @param nodeList       node list to be updated
      * @param indexOfTheNode index of the node in list to be updated
-     * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
+     * @param invalidParam   the invalid node to be attached to the node at the given index of the list, as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
      * @param args           additional arguments used in diagnostic message
      */
@@ -255,6 +235,40 @@ public abstract class AbstractParser {
         STNode node = nodeList.get(indexOfTheNode);
         STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam, diagnosticCode, args);
         nodeList.set(indexOfTheNode, newNode);
+    }
+
+    /**
+     * Marks all remaining tokens as invalid and attach them as trailing minutiae of the given node.
+     *
+     * @param node the node to attach the invalid tokens as trailing minutiae.
+     * @return Parsed node
+     */
+    protected STNode invalidateRestAndAddToTrailingMinutiae(STNode node) {
+        node = addInvalidNodeStackToTrailingMinutiae(node);
+
+        while (peek().kind != SyntaxKind.EOF_TOKEN) {
+            STToken invalidToken = consume();
+            node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidToken,
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+        }
+
+        return node;
+    }
+
+    /**
+     * Clones the node with invalid nodes in the invalid node stack, as trailing minutiae.
+     *
+     * @param node node to be cloned
+     * @return a cloned node with invalid node minutiae
+     */
+    private STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
+        while (!invalidNodeInfoStack.isEmpty()) {
+            InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
+            node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidNodeInfo.node,
+                    invalidNodeInfo.diagnosticCode, invalidNodeInfo.args);
+        }
+
+        return node;
     }
 
     /**

@@ -34,5 +34,14 @@
     "description": "Ignore return value.",
     "code": "_ = printAndReturnValue(\"World\");",
     "stdout": "Hello World\n"
+  },
+  {
+    "description": "Define function.",
+    "code": "function subtract(int m, int n) returns int { \n    return m - n;\n\n}\n\npublic function test() returns int{  \n    int x = subtract(2, 1);\n    return x;\n}"
+  },
+  {
+    "description": "Test functions",
+    "code": "test();",
+    "expr": "1"
   }
 ]

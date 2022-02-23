@@ -62,4 +62,10 @@ public class QualifiedIdentifierTest extends AbstractExpressionsTest {
     public void testIncompleteQualifiedIdent() {
         test("pkg:", "qualified-identifier/qualified_identifier_assert_07.json");
     }
+
+    @Test
+    public void testInterveningWSNotAllowed() {
+        testFile("qualified-identifier/qualified_identifier_assert_08.bal", 
+                "qualified-identifier/qualified_identifier_assert_08.json");
+    }
 }

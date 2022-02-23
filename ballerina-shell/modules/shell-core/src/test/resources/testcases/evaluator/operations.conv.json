@@ -40,7 +40,7 @@
   {
     "description": "Convert anydata to person with error",
     "code": "convertAnydataMapToPerson(n);",
-    "stdout": "Error occurred on conversion: {\"message\":\"'map<anydata>' value cannot be converted to 'Person'\"}\n"
+    "stdout": "Error occurred on conversion: {\"message\":\"'map<anydata>' value cannot be converted to 'Person': \n\t\tmissing required field 'age' of type 'int' in record 'Person'\"}\n"
   },
   {
     "description": "Attempt to convert strings to numeric types",

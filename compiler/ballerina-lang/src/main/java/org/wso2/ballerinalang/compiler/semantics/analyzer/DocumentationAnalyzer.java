@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -35,26 +34,21 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -79,16 +73,15 @@ import java.util.Map;
  *
  * @since 0.981.0
  */
-public class DocumentationAnalyzer extends BLangNodeVisitor {
+public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<DocumentationAnalyzer.AnalyzerData> {
 
     private static final CompilerContext.Key<DocumentationAnalyzer> DOCUMENTATION_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLog dlog;
     private final SymbolResolver symResolver;
     private final SymbolTable symTable;
-    private SymbolEnv env;
-    private Names names;
+    private final Names names;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
@@ -107,57 +100,49 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        this.dlog.setCurrentPackageId(pkgNode.packageID);
-        this.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
-        pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
-        pkgNode.getTestablePkgs().forEach(this::analyze);
+        final AnalyzerData data = new AnalyzerData();
+        visitNode(pkgNode, data);
         return pkgNode;
     }
 
-    private void analyzeNode(BLangNode node) {
-        node.accept(this);
+    @Override
+    public void analyzeNode(BLangNode node, AnalyzerData data) {
+        // Ignore
     }
 
     @Override
-    public void visit(BLangImportPackage importPkgNode) {
-
+    public void visit(BLangPackage pkgNode, AnalyzerData data) {
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
+        data.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        pkgNode.topLevelNodes.forEach(topLevelNode -> visitNode((BLangNode) topLevelNode, data));
+        pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
+        pkgNode.getTestablePkgs().forEach(t -> visitNode(t, data));
     }
 
     @Override
-    public void visit(BLangAnnotation annotationNode) {
-
-    }
-
-    @Override
-    public void visit(BLangLetExpression letExpression) {
-
-    }
-
-    @Override
-    public void visit(BLangConstant constant) {
+    public void visit(BLangConstant constant, AnalyzerData data) {
         validateNoParameters(constant);
         validateReturnParameter(constant, null, false);
-        validateReferences(constant);
+        validateReferences(constant, data);
         validateDeprecationDocumentation(constant.markdownDocumentationAttachment,
                 Symbols.isFlagOn(constant.symbol.flags, Flags.DEPRECATED), constant.pos);
         validateDeprecatedParametersDocumentation(constant.markdownDocumentationAttachment, constant.pos);
     }
 
     @Override
-    public void visit(BLangSimpleVariable varNode) {
+    public void visit(BLangSimpleVariable varNode, AnalyzerData data) {
         validateNoParameters(varNode);
         validateReturnParameter(varNode, null, false);
-        validateReferences(varNode);
+        validateReferences(varNode, data);
         validateDeprecationDocumentation(varNode.markdownDocumentationAttachment, false, varNode.pos);
         validateDeprecatedParametersDocumentation(varNode.markdownDocumentationAttachment, varNode.pos);
     }
 
     @Override
-    public void visit(BLangTupleVariable tupleVariableNode) {
+    public void visit(BLangTupleVariable tupleVariableNode, AnalyzerData data) {
         validateNoParameters(tupleVariableNode);
         validateReturnParameter(tupleVariableNode, null, false);
-        validateReferences(tupleVariableNode);
+        validateReferences(tupleVariableNode, data);
         validateDeprecationDocumentation(tupleVariableNode.markdownDocumentationAttachment, false,
                 tupleVariableNode.pos);
         validateDeprecatedParametersDocumentation(tupleVariableNode.markdownDocumentationAttachment,
@@ -165,15 +150,15 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResourceFunction funcNode) {
-        visit((BLangFunction) funcNode);
+    public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
+        visit((BLangFunction) funcNode, data);
     }
 
     @Override
-    public void visit(BLangRecordVariable bLangRecordVariable) {
+    public void visit(BLangRecordVariable bLangRecordVariable, AnalyzerData data) {
         validateNoParameters(bLangRecordVariable);
         validateReturnParameter(bLangRecordVariable, null, false);
-        validateReferences(bLangRecordVariable);
+        validateReferences(bLangRecordVariable, data);
         validateDeprecationDocumentation(bLangRecordVariable.markdownDocumentationAttachment, false,
                 bLangRecordVariable.pos);
         validateDeprecatedParametersDocumentation(bLangRecordVariable.markdownDocumentationAttachment,
@@ -181,10 +166,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangErrorVariable bLangErrorVariable) {
+    public void visit(BLangErrorVariable bLangErrorVariable, AnalyzerData data) {
         validateNoParameters(bLangErrorVariable);
         validateReturnParameter(bLangErrorVariable, null, false);
-        validateReferences(bLangErrorVariable);
+        validateReferences(bLangErrorVariable, data);
         validateDeprecationDocumentation(bLangErrorVariable.markdownDocumentationAttachment, false,
                 bLangErrorVariable.pos);
         validateDeprecatedParametersDocumentation(bLangErrorVariable.markdownDocumentationAttachment,
@@ -192,16 +177,15 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFunction funcNode) {
+    public void visit(BLangFunction funcNode, AnalyzerData data) {
         validateParameters(funcNode, funcNode.getParameters(),
                 funcNode.restParam, DiagnosticWarningCode.UNDOCUMENTED_PARAMETER,
                 DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                 DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED);
 
-        validateDeprecatedParameters(funcNode, funcNode.getParameters(), funcNode.restParam,
-                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED,
-                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER);
-        validateReferences(funcNode);
+        validateDeprecatedParameters(funcNode, funcNode.getParameters(), funcNode.restParam
+        );
+        validateReferences(funcNode, data);
 
         boolean hasReturn = true;
         if (funcNode.returnTypeNode.getKind() == NodeKind.VALUE_TYPE) {
@@ -213,45 +197,40 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLNS xmlnsNode) {
-
-    }
-
-    @Override
-    public void visit(BLangService serviceNode) {
+    public void visit(BLangService serviceNode, AnalyzerData data) {
         validateNoParameters(serviceNode);
         validateReturnParameter(serviceNode, null, false);
-        validateReferences(serviceNode);
+        validateReferences(serviceNode, data);
         validateDeprecationDocumentation(serviceNode.markdownDocumentationAttachment, false, serviceNode.pos);
         validateDeprecatedParametersDocumentation(serviceNode.markdownDocumentationAttachment, serviceNode.pos);
     }
 
     @Override
-    public void visit(BLangTypeDefinition typeDefinition) {
+    public void visit(BLangTypeDefinition typeDefinition, AnalyzerData data) {
         BLangType typeNode = typeDefinition.getTypeNode();
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             List<BLangSimpleVariable> fields = ((BLangObjectTypeNode) typeNode).fields;
             validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
                     DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
-            validateReferences(typeDefinition);
-            for (SimpleVariableNode field : fields) {
-                validateReferences(field);
+            validateReferences(typeDefinition, data);
+            for (BLangSimpleVariable field : fields) {
+                validateReferences(field, data);
                 validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
-                        Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
+                        Symbols.isFlagOn(field.symbol.flags, Flags.DEPRECATED),
                         field.getPosition());
             }
 
-            ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
+            ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(t -> visitNode(t, data));
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             List<BLangSimpleVariable> fields = ((BLangRecordTypeNode) typeNode).fields;
             validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
                     DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
-            validateReferences(typeDefinition);
+            validateReferences(typeDefinition, data);
 
             for (SimpleVariableNode field : fields) {
-                validateReferences(field);
+                validateReferences(field, data);
             }
         }
         if (typeDefinition.symbol != null) {
@@ -262,35 +241,24 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangClassDefinition classDefinition) {
+    public void visit(BLangClassDefinition classDefinition, AnalyzerData data) {
         validateParameters(classDefinition, classDefinition.fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
                 DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
         validateReturnParameter(classDefinition, null, false);
-        validateReferences(classDefinition);
-        for (SimpleVariableNode field : classDefinition.fields) {
-            validateReferences(field);
+        validateReferences(classDefinition, data);
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            validateReferences(field, data);
             validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
-                    Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
+                    Symbols.isFlagOn(field.symbol.flags, Flags.DEPRECATED),
                     field.getPosition());
         }
 
-        classDefinition.functions.forEach(this::analyzeNode);
+        classDefinition.functions.forEach(t -> visitNode(t, data));
 
         validateDeprecationDocumentation(classDefinition.markdownDocumentationAttachment,
                 Symbols.isFlagOn(classDefinition.symbol.flags, Flags.DEPRECATED), classDefinition.pos);
         validateDeprecatedParametersDocumentation(classDefinition.markdownDocumentationAttachment, classDefinition.pos);
 
-    }
-
-    @Override
-    public void visit(BLangResource resourceNode) {
-        validateParameters(resourceNode, resourceNode.getParameters(),
-                resourceNode.restParam, DiagnosticWarningCode.UNDOCUMENTED_PARAMETER,
-                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
-                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED);
-
-        validateReturnParameter(resourceNode, null, false);
-        validateReferences(resourceNode);
     }
 
     private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
@@ -303,15 +271,13 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangMarkDownDeprecationDocumentation deprecationDocumentation =
                 documentation.getDeprecationDocumentation();
 
-        boolean isDeprecationDocumentationAvailable = false;
-        if (deprecationDocumentation != null && deprecationDocumentation.isCorrectDeprecationLine) {
-            isDeprecationDocumentationAvailable = true;
-        }
+        boolean isDeprecationDocumentationAvailable = deprecationDocumentation != null
+                && deprecationDocumentation.isCorrectDeprecationLine;
 
         if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
-            dlog.error(deprecationDocumentation.pos, DiagnosticErrorCode.INVALID_DEPRECATION_DOCUMENTATION);
+            dlog.warning(deprecationDocumentation.pos, DiagnosticWarningCode.INVALID_DEPRECATION_DOCUMENTATION);
         } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
-            dlog.error(pos, DiagnosticErrorCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+            dlog.warning(pos, DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
         }
     }
 
@@ -324,11 +290,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
                 documentation.getDeprecatedParametersDocumentation();
         if (deprecatedParametersDocumentation != null) {
-            dlog.error(location, DiagnosticErrorCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
+            dlog.warning(location, DiagnosticWarningCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
         }
     }
 
-    private void validateReferences(DocumentableNode documentableNode) {
+    private void validateReferences(DocumentableNode documentableNode, AnalyzerData data) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
         if (documentation == null) {
             return;
@@ -339,7 +305,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             if (reference.hasParserWarnings) {
                 continue;
             }
-            DocReferenceErrorType status = validateIdentifier(reference, documentableNode);
+            DocReferenceErrorType status = validateIdentifier(reference, documentableNode, data);
             if (status != DocReferenceErrorType.NO_ERROR) {
                 if (status == DocReferenceErrorType.REFERENCE_ERROR) {
                     dlog.warning(reference.pos, DiagnosticWarningCode.INVALID_DOCUMENTATION_REFERENCE,
@@ -353,16 +319,16 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     private DocReferenceErrorType validateIdentifier(BLangMarkdownReferenceDocumentation reference,
-                                                     DocumentableNode documentableNode) {
+                                                     DocumentableNode documentableNode, AnalyzerData data) {
         int tag = -1;
-        SymbolEnv env = this.env;
+        SymbolEnv env = data.env;
         // Lookup namespace to validate the identifier.
         switch (reference.getType()) {
             case PARAMETER:
                 // Parameters are only available for function nodes.
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
-                    env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
+                    env = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, data.env);
                     tag = SymTag.VARIABLE;
                     break;
                 } else {
@@ -473,19 +439,19 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             BLangMarkdownParameterDocumentation param = documentedParameterMap.get(name);
             if (param != null) {
                 // Set the symbol in the documentation node.
-                param.setSymbol(((BLangSimpleVariable) parameter).symbol);
+                param.setSymbol(parameter.symbol);
                 documentedParameterMap.remove(name);
             } else {
                 // Check whether the g is public and whether there is no field documentation.
                 // It is mandatory to document only if it is public.
-                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC) &&
-                        ((BLangSimpleVariable) parameter).markdownDocumentationAttachment == null) {
+                if (Symbols.isFlagOn(parameter.symbol.flags, Flags.PUBLIC) &&
+                        parameter.markdownDocumentationAttachment == null) {
                     // Add warnings for undocumented parameters.
-                    dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
+                    dlog.warning(parameter.pos, undocumentedParameter, name);
                 }
 
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
-                    dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
+                    dlog.warning(parameter.pos, undocumentedParameter, name);
                 }
             }
         });
@@ -520,7 +486,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
         parameterDocumentations.forEach((parameter, parameterDocumentation) ->
                 dlog.warning(parameterDocumentation.pos,
-                             DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER, parameter));
+                        DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER, parameter));
     }
 
     private void validateReturnParameter(DocumentableNode documentableNode, BLangNode node, boolean isExpected) {
@@ -571,10 +537,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateDeprecatedParameters(DocumentableNode documentableNode,
-                                             List<BLangSimpleVariable> actualParameters,
-                                             BLangSimpleVariable restParam,
-                                             DiagnosticCode parameterAlreadyDefined,
-                                             DiagnosticCode noSuchParameter) {
+                                              List<BLangSimpleVariable> actualParameters,
+                                              BLangSimpleVariable restParam) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
         if (documentation == null) {
             return;
@@ -584,7 +548,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         if (documentation.deprecatedParametersDocumentation != null) {
             documentedDeprecatedParameterMap =
                     getDocumentedParameters(documentation.deprecatedParametersDocumentation.parameters,
-                            new ArrayList<>(), parameterAlreadyDefined);
+                            new ArrayList<>(), DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED);
         }
 
         for (BLangSimpleVariable parameter : actualParameters) {
@@ -595,7 +559,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             validateDeprecatedParameter(documentedDeprecatedParameterMap, restParam);
         }
 
-        documentedDeprecatedParameterMap.forEach((name, node) -> dlog.warning(node.pos, noSuchParameter, name));
+        documentedDeprecatedParameterMap.forEach((name, node) -> dlog.warning(node.pos,
+                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER, name));
     }
 
     private void validateDeprecatedParameter(
@@ -604,15 +569,22 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         String name = parameter.getName().value;
         if (!documentedDeprecatedParameterMap.containsKey(name)) {
             if (Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                dlog.error(parameter.annAttachments.get(0).pos,
-                        DiagnosticErrorCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+                dlog.warning(parameter.annAttachments.get(0).pos,
+                        DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
             }
         } else {
             if (!Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                dlog.error(documentedDeprecatedParameterMap.get(name).pos,
-                        DiagnosticErrorCode.INVALID_DEPRECATION_DOCUMENTATION);
+                dlog.warning(documentedDeprecatedParameterMap.get(name).pos,
+                        DiagnosticWarningCode.INVALID_DEPRECATION_DOCUMENTATION);
             }
             documentedDeprecatedParameterMap.remove(name);
         }
+    }
+
+    /**
+     * @since 2.0.0
+     */
+    public static class AnalyzerData {
+        SymbolEnv env;
     }
 }

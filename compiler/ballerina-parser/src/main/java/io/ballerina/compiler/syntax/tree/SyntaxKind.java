@@ -131,7 +131,7 @@ public enum SyntaxKind {
     FAIL_KEYWORD(320, "fail"),
 
     // Separators
-    OPEN_BRACE_TOKEN(500, "{"),
+    OPEN_BRACE_TOKEN(500, "{"), // Any kind above this is considered as a keyword
     CLOSE_BRACE_TOKEN(501, "}"),
     OPEN_PAREN_TOKEN(502, "("),
     CLOSE_PAREN_TOKEN(503, ")"),

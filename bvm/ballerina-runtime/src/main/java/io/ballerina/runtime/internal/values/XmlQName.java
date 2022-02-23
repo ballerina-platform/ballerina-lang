@@ -60,7 +60,7 @@ public final class XmlQName implements RefValue, BXmlQName {
 
     @Deprecated
     public XmlQName(String qNameStr) {
-        int parenEndIndex = qNameStr.indexOf('}');
+        int parenEndIndex = qNameStr.lastIndexOf('}');
         if (qNameStr.startsWith("{") && parenEndIndex > 0) {
             localName = qNameStr.substring(parenEndIndex + 1);
             uri = qNameStr.substring(1, parenEndIndex);
@@ -79,6 +79,12 @@ public final class XmlQName implements RefValue, BXmlQName {
         if (prefix != null) {
             this.prefix = prefix.getValue();
         }
+    }
+
+    @Deprecated
+    public XmlQName(String qNameStr, String prefix) {
+        this(qNameStr);
+        this.prefix = prefix;
     }
 
     @Deprecated

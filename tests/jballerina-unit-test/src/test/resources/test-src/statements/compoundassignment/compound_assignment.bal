@@ -1142,8 +1142,8 @@ function testCompoundAssignmentBitwiseOROperation() {
     a7 |= b;
     assertEqual(a7, 13);
 
-    int:Unsigned32 a8 = 5;
-    int:Unsigned16 a9 = 12;
+    int:Unsigned16 a8 = 5;
+    int:Unsigned32 a9 = 12;
     a9 |= a8;
     assertEqual(a9, 13);
 }
@@ -1190,8 +1190,8 @@ function testCompoundAssignmentBitwiseXOROperation() {
     a9 ^= d;
     assertEqual(a9, 9);
 
-    int:Unsigned32 e = 5;
-    int:Unsigned16 a10 = 12;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 a10 = 12;
     a10 ^= e;
     assertEqual(a10, 9);
 

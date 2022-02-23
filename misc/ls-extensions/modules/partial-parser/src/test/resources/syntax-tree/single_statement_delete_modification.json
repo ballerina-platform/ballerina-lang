@@ -1,0 +1,129 @@
+{
+  "annotations": [],
+  "typedBindingPattern": {
+    "kind": "TypedBindingPattern",
+    "typeDescriptor": {
+      "kind": "StringTypeDesc",
+      "name": {
+        "kind": "StringKeyword",
+        "isToken": true,
+        "value": "string",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 0,
+          "endLine": 0,
+          "endColumn": 6
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "string ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 0,
+        "endLine": 0,
+        "endColumn": 6
+      },
+      "typeData": {}
+    },
+    "bindingPattern": {
+      "kind": "CaptureBindingPattern",
+      "variableName": {
+        "kind": "IdentifierToken",
+        "isToken": true,
+        "value": "fullName",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 7,
+          "endLine": 0,
+          "endColumn": 15
+        },
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ]
+      },
+      "source": "fullName ",
+      "syntaxDiagnostics": [],
+      "leadingMinutiae": [],
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "minutiae": " ",
+          "isInvalid": false
+        }
+      ],
+      "position": {
+        "startLine": 0,
+        "startColumn": 7,
+        "endLine": 0,
+        "endColumn": 15
+      },
+      "typeData": {}
+    },
+    "source": "string fullName ",
+    "syntaxDiagnostics": [],
+    "leadingMinutiae": [],
+    "trailingMinutiae": [
+      {
+        "kind": "WHITESPACE_MINUTIAE",
+        "minutiae": " ",
+        "isInvalid": false
+      }
+    ],
+    "position": {
+      "startLine": 0,
+      "startColumn": 0,
+      "endLine": 0,
+      "endColumn": 15
+    },
+    "typeData": {}
+  },
+  "semicolonToken": {
+    "kind": "SemicolonToken",
+    "isToken": true,
+    "value": ";",
+    "isMissing": false,
+    "position": {
+      "startLine": 0,
+      "startColumn": 16,
+      "endLine": 0,
+      "endColumn": 17
+    },
+    "leadingMinutiae": [],
+    "trailingMinutiae": []
+  },
+  "source": "string fullName ;",
+  "kind": "LocalVarDecl",
+  "syntaxDiagnostics": [],
+  "leadingMinutiae": [],
+  "trailingMinutiae": [],
+  "position": {
+    "startLine": 0,
+    "startColumn": 0,
+    "endLine": 0,
+    "endColumn": 17
+  },
+  "typeData": {}
+}

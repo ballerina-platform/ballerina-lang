@@ -3,7 +3,7 @@
 public function main() {
     worker w1{
       int i = 20;
-      if(false){
+      if (0 > 1) {
           i -> w2;
       }
     }

@@ -362,3 +362,11 @@ function testDependentlyTypedFunctionWithIncludedRecordParamNegative() {
     int p22 = cl2->post(string, {});
     string p23 = cl2->post(int, {});
 }
+
+function functionWithInferredArgForParamOfTypeReferenceType(TargetType t = <>) returns t = external;
+
+function testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceTypeNegative() {
+    boolean _ = functionWithInferredArgForParamOfTypeReferenceType();
+
+    var _ = functionWithInferredArgForParamOfTypeReferenceType(boolean);
+}

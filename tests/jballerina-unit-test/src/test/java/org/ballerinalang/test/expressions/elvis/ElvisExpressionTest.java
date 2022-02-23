@@ -200,13 +200,64 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testElvisAsArgumentPositive");
     }
 
+    @Test(description = "Test Elvis as a configurable variable.")
+    public void testElvisWithConfigurableVar() {
+        BRunUtil.invoke(compileResult, "testElvisWithConfigurableVar");
+    }
+
+    @Test(description = "Test Elvis with lang:value method calls in module level.")
+    public void testElvisWithLangValueMethodCallsModuleLevel() {
+        BRunUtil.invoke(compileResult, "testElvisWithLangValueMethodCallsModuleLevel");
+    }
+
+    @Test(description = "Test Elvis with lang:value method calls.")
+    public void testElvisWithLangValueMethodCalls() {
+        BRunUtil.invoke(compileResult, "testElvisWithLangValueMethodCalls");
+    }
+
+    @Test(description = "Test nested Elvis expressions without parenthesis in module level.")
+    public void testNestedElvisWithoutParenthesisModuleLevel() {
+        BRunUtil.invoke(compileResult, "testNestedElvisWithoutParenthesisModuleLevel");
+    }
+
+    @Test(description = "Test nested Elvis expressions without parenthesis.")
+    public void testNestedElvisWithoutParenthesis() {
+        BRunUtil.invoke(compileResult, "testNestedElvisWithoutParenthesis");
+    }
+
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int?'", 5, 14);
+        Assert.assertEquals(negativeResult.getErrorCount(), 17);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int?'", 5, 19);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 12, 14);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'string'", 19, 9);
         BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'string'", 26, 17);
         BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'byte', found 'int'", 30, 17);
+        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'int', found '(int|byte)?'", 37,
+                10);
+        BAssertUtil.validateError(negativeResult, 6,
+                "incompatible types: expected 'int', found '(int|int:Unsigned8|int:Signed8)?'", 44, 10);
+        BAssertUtil.validateError(negativeResult, 7,
+                "incompatible types: expected 'int', found '(int|byte|int:Signed8)?'", 45, 10);
+        BAssertUtil.validateError(negativeResult, 8,
+                "incompatible types: expected 'int', found '(decimal|float|int:Signed16)?'", 52, 10);
+        BAssertUtil.validateError(negativeResult, 9,
+                "incompatible types: expected 'int', found '(decimal|float|int|int:Unsigned8|byte|int:Signed16)?'", 53,
+                10);
+        BAssertUtil.validateError(negativeResult, 10,
+                "incompatible types: expected 'int', found '(int|string|string:Char|string[])'", 60, 10);
+        BAssertUtil.validateError(negativeResult, 11, "incompatible types: expected 'int', found '(int|byte)?'", 67,
+                14);
+        BAssertUtil.validateError(negativeResult, 12,
+                "incompatible types: expected 'int', found '(int|int:Unsigned8|int:Signed8)?'", 74, 14);
+        BAssertUtil.validateError(negativeResult, 13, "incompatible types: expected 'int', found '(int|byte)?'", 75,
+                14);
+        BAssertUtil.validateError(negativeResult, 14,
+                "incompatible types: expected 'int', found '(decimal|float|int:Signed8)?'", 82, 15);
+        BAssertUtil.validateError(negativeResult, 15,
+                "incompatible types: expected 'int', found '(decimal|float|int|int:Unsigned8|byte|int:Signed8)?'", 83,
+                15);
+        BAssertUtil.validateError(negativeResult, 16,
+                "incompatible types: expected 'int', found '(int|string|string:Char|string[])'", 90, 15);
     }
 }

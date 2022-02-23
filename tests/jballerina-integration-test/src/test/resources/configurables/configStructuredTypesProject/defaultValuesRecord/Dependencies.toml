@@ -1,4 +1,0 @@
-[[package]]
-org = "ballerina"
-name = "test"
-version = "0.8.0"

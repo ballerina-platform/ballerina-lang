@@ -1,0 +1,337 @@
+{
+  "position": {
+    "line": 18,
+    "character": 45
+  },
+  "source": "expression_context/source/annotation_access_ctx_source12.bal",
+  "items": [
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "annotationCommon",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "a1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "a2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeAnnotation3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "classAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "classAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "classAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "classAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "classAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "classAnnotation3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "functionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "functionAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "functionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "functionAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "objectFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "objectFunctionAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "objectFunctionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "objectFunctionAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "parameterAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "parameterAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "parameterAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "parameterAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "returnAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "returnAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "returnAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "serviceAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "serviceAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "serviceAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "serviceAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "fieldAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "fieldAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "objectFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "objectFieldAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "objectFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "objectFieldAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "recordFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "recordFieldAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "recordFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "recordFieldAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceAnnotationAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceAnnotationAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceAnnotationAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceAnnotationAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceExternalAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceExternalAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceExternalAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceExternalAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceVarAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceVarAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceVarAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceVarAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceConstAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceConstAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceConstAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceConstAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceListenerAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceListenerAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceListenerAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceListenerAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceWorkerAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceWorkerAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceWorkerAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "sourceWorkerAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "commonAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "serviceRemoteFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "serviceRemoteFunctionAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "serviceRemoteFunctionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "serviceRemoteFunctionAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "position": {
+    "line": 12,
+    "character": 21
+  },
+  "source": "statement_context/source/match_stmt_ctx_source12.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "MyRecord.field2",
+      "sortText": "K",
+      "insertText": "field2: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill MyRecord Required Fields",
+      "kind": "Property",
+      "detail": "MyRecord",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "field2: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -162,24 +162,6 @@ public class CompilerPhaseRunner {
         birEmit(pkgNode);
     }
 
-    public void performLangLibTypeCheckPhases(BLangPackage pkgNode) {
-        if (this.stopCompilation(pkgNode, CompilerPhase.TYPE_CHECK)) {
-            return;
-        }
-
-        typeCheck(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_ANALYZE)) {
-            return;
-        }
-
-        codeAnalyze(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
-            return;
-        }
-
-        documentationAnalyze(pkgNode);
-    }
-
     public void performLangLibBirGenPhases(BLangPackage pkgNode) {
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
@@ -251,8 +233,9 @@ public class CompilerPhaseRunner {
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
-                nextPhase == CompilerPhase.COMPILER_PLUGIN ||
-                nextPhase == CompilerPhase.DESUGAR;
+                nextPhase == CompilerPhase.COMPILER_PLUGIN || nextPhase == CompilerPhase.DESUGAR ||
+                nextPhase == CompilerPhase.BIR_GEN;
+                // only added BIR_GEN temporary until we fully support closures for OCE
     }
 
     public void addDiagnosticForUnhandledException(BLangPackage pkgNode, Throwable throwable) {

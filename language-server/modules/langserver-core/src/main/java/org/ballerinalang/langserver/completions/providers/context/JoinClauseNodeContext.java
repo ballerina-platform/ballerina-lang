@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -27,10 +29,12 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,8 +96,12 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(exprEntries, context));
-        } else {
+        } else if (!isMissingVarName(node.typedBindingPattern())
+                && context.getCursorPositionInTree() >
+                node.typedBindingPattern().bindingPattern().textRange().endOffset()) {
             completionItems.addAll(this.expressionCompletions(context));
+        } else {
+            return Collections.emptyList();
         }
         this.sort(context, node, completionItems);
 
@@ -113,22 +121,23 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
     private boolean onSuggestBindingPattern(BallerinaCompletionContext context, JoinClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
-        if (typedBindingPattern.isMissing()) {
-            return true;
-        }
+        CompleteExpressionValidator validator = new CompleteExpressionValidator();
 
-        return cursor <= typedBindingPattern.textRange().endOffset()
-                && cursor >= typedBindingPattern.textRange().startOffset();
+        return !typedBindingPattern.typeDescriptor().apply(validator)
+                || (cursor <= typedBindingPattern.typeDescriptor().textRange().endOffset()
+                && cursor > node.joinKeyword().textRange().endOffset()
+                && cursor < typedBindingPattern.bindingPattern().textRange().startOffset());
     }
 
     private boolean onSuggestInKeyword(BallerinaCompletionContext context, JoinClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
 
-        if (!node.inKeyword().isMissing() || typedBindingPattern.isMissing()) {
+        if (!node.inKeyword().isMissing()) {
             return false;
         } else if (cursor > typedBindingPattern.textRange().endOffset() &&
-                cursor <= node.expression().textRange().startOffset()) {
+                cursor <= node.expression().textRange().startOffset()
+                && !isMissingVarName(typedBindingPattern)) {
             /*
              * Captures:
              * (1) join var varName <cursor>
@@ -173,7 +182,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
              * (1) join var varName in expr o<cursor>
              * (2) join var varName in expr o<cursor> expr
              */
-            if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && !nodeAtCursor.equals(node.expression())) {
                 SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
                 return node.expression().textRange().endOffset() <= cursor &&
                         nameReferenceNode.textRange().endOffset() == cursor;
@@ -181,5 +190,11 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
         }
 
         return false;
+    }
+
+    private boolean isMissingVarName(TypedBindingPatternNode node) {
+        BindingPatternNode bindingPattern = node.bindingPattern();
+        return bindingPattern.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN
+                && ((CaptureBindingPatternNode) bindingPattern).variableName().isMissing();
     }
 }

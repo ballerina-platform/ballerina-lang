@@ -77,4 +77,12 @@ public class InitFunctionTest {
         validateError(negativeResult, 2, "invalid module 'init()' function return type 'error', expected a subtype " +
                 "of 'error?' containing '()'", 17, 65);
     }
+
+    @Test
+    public void testInitFunctionWithNilUnionReturnType() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/functions/test_init_function_nil_union_return.bal");
+        assertEquals(negativeResult.getErrorCount(), 0);
+        assertEquals(negativeResult.getWarnCount(), 0);
+    }
 }

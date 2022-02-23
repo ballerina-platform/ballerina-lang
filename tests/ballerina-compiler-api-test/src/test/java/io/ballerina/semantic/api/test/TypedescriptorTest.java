@@ -344,8 +344,29 @@ public class TypedescriptorTest {
         return new Object[][]{
                 {204, 11, "int?"},
                 {205, 17, "int|float|()"},
-                {206, 11, "A?"},
+                {206, 11, "\"A\"?"},
 //                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+        };
+    }
+
+    @Test(dataProvider = "UnionWithFunctionTypePos")
+    public void testUnionTypeWithFunctionType(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithFunctionTypePos")
+    public Object[][] getUnionWithFunctionTypePos() {
+        return new Object[][]{
+                {259, 34, "(function () returns int)|10|20"},
+                {260, 37, "(function () returns int)|string"},
+                {261, 35, "string|function () returns int"},
+                {262, 36, "(function () returns int)|10|20"},
+                {263, 37, "(function () returns int|string)|3"},
+                {264, 34, "ReturnIntFunctionType?|string"},
+                {265, 57, "(function () returns string)|function () returns int"},
         };
     }
 
@@ -375,7 +396,7 @@ public class TypedescriptorTest {
     public Object[][] getFiniteTypePos() {
         return new Object[][]{
                 {60, 10, "Digit", List.of("0", "1", "2", "3")},
-                {62, 11, "Format", List.of("default", "csv", "tdf")}
+                {62, 11, "Format", List.of("\"default\"", "\"csv\"", "\"tdf\"")}
         };
     }
 
@@ -895,12 +916,20 @@ public class TypedescriptorTest {
         assertList(symbolList, expectedSymbolList);
     }
 
+    @Test
+    public void testObjectTypeSignature() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(255, 6));
+        assertEquals(((VariableSymbol) symbol.get()).typeDescriptor().signature(),
+                     "client object {int a; int b; function testFunc(); remote function testRFunc(); " +
+                             "function getA() returns int;}");
+    }
+
     public Object[][] getSymbolModuleInfo() {
         return new Object[][]{
                 {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
                         "symbolowner/testprojmodules:0.1.0"},
                 {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
-                        "ballerina/lang.annotations:1.0.0"},
+                        "symbolowner/testprojmodules.module1:0.1.0"},
                 {9, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType1",
                         "symbolowner/testprojmodules.module1:0.1.0"},
                 {11, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType2",

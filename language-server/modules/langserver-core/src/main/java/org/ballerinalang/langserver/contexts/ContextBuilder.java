@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.DidChangeWatchedFilesContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
@@ -275,6 +276,20 @@ public class ContextBuilder {
         return new ExecuteCommandContextImpl.ExecuteCommandContextBuilder(serverContext,
                 arguments, clientCapabilities, languageServer)
                 .withWorkspaceManager(workspaceManager)
+                .build();
+    }
+
+    /**
+     * Build DidChangeWatchedFiles context.
+     *
+     * @param workspaceManager workspace manager instance
+     * @param serverContext language server context
+     * @return {@link DidChangeWatchedFilesContext}
+     */
+    public static DidChangeWatchedFilesContext buildDidChangeWatchedFilesContext(WorkspaceManager workspaceManager,
+                                                                                 LanguageServerContext serverContext) {
+        return new DidChangeWatchedFilesContextImpl
+                .DidChangeWatchedFilesContextBuilder(workspaceManager, serverContext)
                 .build();
     }
 

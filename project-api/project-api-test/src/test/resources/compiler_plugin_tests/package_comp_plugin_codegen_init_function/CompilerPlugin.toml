@@ -1,0 +1,8 @@
+[plugin]
+class = "io.samjs.plugins.init.codegen.CodegenFunctionPlugin"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/init-function-codegen-compiler-plugin-1.0.0.jar"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/diagnostic-utils-lib-1.0.0.jar"

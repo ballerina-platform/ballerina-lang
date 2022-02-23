@@ -50,6 +50,7 @@ public class ShadowingNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 78, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'f'", 79, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 91, 16);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'x'", 93, 28);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'param'", 105, 12);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Person'", 111, 8);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Student'", 117, 1);

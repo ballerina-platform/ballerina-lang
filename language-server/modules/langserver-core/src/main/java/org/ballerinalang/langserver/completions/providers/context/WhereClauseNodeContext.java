@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -25,6 +26,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +48,10 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, WhereClauseNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        if (cursorAtTheEndOfClause(context, node)) {
+        ExpressionNode expression = node.expression();
+        CompleteExpressionValidator expressionValidator = new CompleteExpressionValidator();
+        
+        if (expression.apply(expressionValidator) && cursorAtTheEndOfClause(context, node)) {
             completionItems.addAll(this.getKeywordCompletions(context, node));
         } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*

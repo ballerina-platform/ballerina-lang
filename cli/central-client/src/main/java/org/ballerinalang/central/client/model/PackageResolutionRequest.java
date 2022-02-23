@@ -27,6 +27,8 @@ import com.google.gson.stream.JsonWriter;
 
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,26 +48,26 @@ public class PackageResolutionRequest {
      * Package resolution request package model.
      */
     static class Package {
-        private String orgName;
+        private String org;
         private String name;
 
         @JsonAdapter(EmptyStringTypeAdapter.class)
         private String version;
         Mode mode;
 
-        public Package(String orgName, String name, String version, Mode mode) {
-            this.orgName = orgName;
+        public Package(String org, String name, String version, Mode mode) {
+            this.org = org;
             this.name = name;
             this.version = version;
             this.mode = mode;
         }
 
-        public String getOrgName() {
-            return orgName;
+        public String org() {
+            return org;
         }
 
-        public void setOrgName(String orgName) {
-            this.orgName = orgName;
+        public void setOrg(String org) {
+            this.org = org;
         }
 
         public String getName() {
@@ -129,7 +131,8 @@ public class PackageResolutionRequest {
     }
 
     public void addPackage(String orgName, String name, String version, Mode mode) {
-        packages.add(new Package(orgName, name, version, mode));
+        // The version is encoded to avoid issue handling the dash in pre-release version tag
+        packages.add(new Package(orgName, name, URLEncoder.encode(version, StandardCharsets.UTF_8), mode));
     }
 
     static class EmptyStringTypeAdapter

@@ -365,62 +365,64 @@ function testMappingBindingPattern17() {
     assertEquals((), mappingBindingPattern17(1));
 }
 
-type UnaryExpr record {|
-    string operand;
+type Foo record {|
+    int x;
+    int y = 1;
 |};
 
-type TypeCastExpr record {|
-    string oprd;
-|};
+function fn1() returns string {
+    Foo v = {x: 0, y: 1};
+    string matched = "";
 
-type Expr UnaryExpr|TypeCastExpr;
-
-function testTypeNarrowingInMatchStmt1(Expr expr) {
-    match expr {
-        var {oprd: o} => {
-            TypeCastExpr c = expr;
-            assertEquals("sample", c.oprd);
+    match v {
+        var {x, y} => {
+            matched = "Matched";
         }
     }
+    return matched;
 }
 
-function testTypeNarrowingInMatchStmt2(Expr expr) {
-    match expr {
-        var {operand : o} => {
-            UnaryExpr c = expr;
-        }
-        var {oprd: o} => {
-            TypeCastExpr c = expr;
-            assertEquals("sample", c.oprd);
-        }
-    }
-}
+function fn2() returns string {
+    Foo v = {x: 0};
+    string matched = "";
 
-function testTypeNarrowingInMatchStmt3(Expr expr) {
-    Expr x = {oprd : "sample"};
-    match x {
-        {oprd: "sample"} => {
-            TypeCastExpr c = x;
-            assertEquals("sample", c.oprd);
+    match v {
+        var {x, y} => {
+            matched = "Matched";
         }
     }
+    return matched;
 }
 
-function testTypeNarrowingInMatchStmt4(Expr expr) {
-    match expr {
-        {oprd: var o} => {
-            TypeCastExpr c = expr;
-            assertEquals("sample", c.oprd);
+function fn3() returns string {
+    Foo v = {x: 0, y: 1};
+    string matched = "";
+
+    match v {
+        {x: var a, y: var b} => {
+            matched = "Matched";
         }
     }
+    return matched;
 }
 
-public function testTypeNarrowingInMatchStmt() {
-    Expr expr = {oprd : "sample"};
-    testTypeNarrowingInMatchStmt1(expr);
-    testTypeNarrowingInMatchStmt2(expr);
-    testTypeNarrowingInMatchStmt3(expr);
-    testTypeNarrowingInMatchStmt4(expr);
+function fn4() returns string {
+    Foo v = {x: 0};
+    string matched = "";
+
+    match v {
+        {x: var a, y: var b} => {
+            matched = "Matched";
+        }
+    }
+    return matched;
+}
+
+function testMappingBindingToRecordWithDefaultValue() {
+    assertEquals("Matched", fn1());
+    assertEquals("Matched", fn2());
+    assertEquals("Matched", fn3());
+    assertEquals("Matched", fn4());
 }
 
 function assertEquals(anydata expected, anydata actual) {
