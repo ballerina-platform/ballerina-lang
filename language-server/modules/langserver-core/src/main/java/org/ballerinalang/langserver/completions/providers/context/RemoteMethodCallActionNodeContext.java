@@ -114,10 +114,13 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     public void sort(BallerinaCompletionContext context,
                      RemoteMethodCallActionNode node,
                      List<LSCompletionItem> completionItems) {
-        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
-            SortingUtil.toDefaultSorting(context, completionItems);
+        if (CommonUtil.isInMethodCallParameterContext(context, node)) {
+            super.sort(context, node, completionItems);
             return;
         }
-        super.sort(context, node, completionItems);
+
+        for (LSCompletionItem item : completionItems) {
+            sortByAssignability(context, item, SortingUtil.toRank(context, item));
+        }
     }
 }

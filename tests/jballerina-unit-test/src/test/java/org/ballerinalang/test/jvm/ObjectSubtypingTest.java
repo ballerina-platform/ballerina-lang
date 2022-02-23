@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import static java.lang.String.format;
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -115,9 +116,10 @@ public class ObjectSubtypingTest {
     public void testObjSubtypingNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object-subtype-negative.bal");
         int i = 0;
+        validateWarning(result, i++, "unused variable 'mt'", 22, 5);
         validateError(result, i++, "uninitialized field 'intField1'", 27, 5);
         validateError(result, i++, "uninitialized field 'intField2'", 28, 5);
-        assertEquals(result.getErrorCount(), i);
+        assertEquals(result.getDiagnostics().length, i);
     }
 
     @AfterClass

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "recMap",
       "kind": "Variable",
       "detail": "map<map<RecordName>>",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "recMap",
       "insertTextFormat": "Snippet"
     }

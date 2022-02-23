@@ -1,24 +1,24 @@
 {
-    "line": 1,
-    "character": 12,
-    "expected": [
+  "line": 59,
+  "character": 15,
+  "expected": [
+    {
+      "title": "Add type cast to assignment",
+      "edits": [
         {
-            "title": "Add type cast to assignment",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 1,
-                            "character": 12
-                        },
-                        "end": {
-                            "line": 1,
-                            "character": 12
-                        }
-                    },
-                    "newText": "\u003cint\u003e "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 15
+            },
+            "end": {
+              "line": 59,
+              "character": 15
+            }
+          },
+          "newText": "<string> "
         }
-    ]
+      ]
+    }
+  ]
 }

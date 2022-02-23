@@ -45,9 +45,15 @@ public class ExistingProjectTests extends AbstractPackageResolutionTest {
                 // 9. Package uses a module available in the newer minor version of an existing dependency
                 {"suite-existing_project", "case-0009", true},
                 {"suite-existing_project", "case-0009", false},
-                // 8. package contains dependencies with pre-release versions
-                // 9. use a module added in the new version of a dependency
-
+                // 10. package contains dependencies with pre-release versions
+                {"suite-existing_project", "case-0010", true},
+                {"suite-existing_project", "case-0010", false},
+                // 11. package contains dependencies with pre-release versions specified from local repo
+                {"suite-existing_project", "case-0011", true},
+                {"suite-existing_project", "case-0011", false},
+                // 12. package contains dependencies which only has pre-release versions published
+                {"suite-existing_project", "case-0012", true},
+                {"suite-existing_project", "case-0012", false}
         };
     }
 }

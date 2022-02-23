@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.evaluation.BImport;
 
 import java.util.HashMap;
@@ -29,10 +30,12 @@ import java.util.Map;
 public class EvaluationContext {
 
     private final SuspendedContext suspendedContext;
-    private Map<String, BImport> resolvedImports = new HashMap<>();
+    private Map<String, BImport> resolvedImports;
+    private String expression;
 
     public EvaluationContext(SuspendedContext suspendedContext) {
         this.suspendedContext = suspendedContext;
+        this.resolvedImports = new HashMap<>();
     }
 
     public SuspendedContext getSuspendedContext() {
@@ -45,5 +48,18 @@ public class EvaluationContext {
 
     public void setResolvedImports(Map<String, BImport> resolvedImports) {
         this.resolvedImports = resolvedImports;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        expression = expression.trim();
+        if (expression.endsWith(SyntaxKind.SEMICOLON_TOKEN.stringValue())) {
+            this.expression = expression.substring(0, expression.length() - 1);
+        } else {
+            this.expression = expression;
+        }
     }
 }

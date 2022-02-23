@@ -151,6 +151,8 @@ public class MatchStmtErrorMatchPatternTest {
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 42, 20);
         BAssertUtil.validateError(resultNegative, i++, "all match patterns should contain the same set of variables",
                 43, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'a'", 43, 9);
+        BAssertUtil.validateWarning(resultNegative, i++, "unused variable 'b'", 43, 9);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 43, 24);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 44, 42);
         BAssertUtil.validateWarning(resultNegative, i++, unreachablePattern, 45, 49);

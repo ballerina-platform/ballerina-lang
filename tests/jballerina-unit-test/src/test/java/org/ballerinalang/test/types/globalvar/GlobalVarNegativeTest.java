@@ -50,7 +50,6 @@ public class GlobalVarNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/global_variable_init_negative" +
                 ".bal");
 
-        Assert.assertEquals(result.getErrorCount(), 8);
         int i = 0;
         BAssertUtil.validateError(result, i++, "uninitialized variable 'i'", 17, 1);
         BAssertUtil.validateError(result, i++, "uninitialized variable 's'", 18, 1);
@@ -59,7 +58,8 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 25, 5);
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 31, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 39, 13);
-        BAssertUtil.validateError(result, i, "variable 's' is not initialized", 40, 18);
+        BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 40, 16);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test

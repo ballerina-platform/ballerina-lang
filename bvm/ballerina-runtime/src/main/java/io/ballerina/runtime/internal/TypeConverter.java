@@ -57,6 +57,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
@@ -85,11 +86,12 @@ import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinI
  */
 public class TypeConverter {
 
-    private static final String NaN = "NaN";
+    private static final String NAN = "NaN";
     private static final String POSITIVE_INFINITY = "Infinity";
     private static final String NEGATIVE_INFINITY = "-Infinity";
 
     public static final byte MAX_CONVERSION_ERROR_COUNT = 20;
+    public static final byte MAX_DISPLAYED_SOURCE_VALUE_LENGTH = 20;
 
     public static Object convertValues(Type targetType, Object inputValue) {
         Type inputType = TypeChecker.getType(inputValue);
@@ -119,7 +121,7 @@ public class TypeConverter {
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                               BLangExceptionHelper.getErrorMessage(
+                                               BLangExceptionHelper.getErrorDetails(
                                                           RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));
         }
@@ -280,12 +282,12 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.ARRAY_TAG:
-                if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues)) {
+                if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
             case TypeTags.TUPLE_TAG:
-                if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues)) {
+                if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues, varName, errors)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -302,7 +304,7 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.MAP_TAG:
-                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues)) {
+                if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -407,6 +409,9 @@ public class TypeConverter {
             if (SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.REQUIRED)) {
                 addErrorMessage(0, errors, "missing required field '" + fieldNameLong + "' of type '" +
                         targetField.getFieldType().toString() + "' in record '" + targetType + "'");
+                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                    return false;
+                }
                 returnVal = false;
             }
         }
@@ -423,7 +428,8 @@ public class TypeConverter {
                             fieldNameLong, unresolvedValues, errors).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
                                 fieldNameLong + "' in record '" + targetType + "' should be of type '" +
-                                targetFieldTypes.get(fieldName) + "'");
+                                targetFieldTypes.get(fieldName) + "', found '" +
+                                getShortSourceValue(valueEntry.getValue()) + "'");
                         returnVal = false;
                     }
                 } else if (!targetType.sealed) {
@@ -431,7 +437,8 @@ public class TypeConverter {
                             unresolvedValues, errors).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
                                 valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "'");
+                                targetType + "' should be of type '" + restFieldType + "', found '" +
+                                getShortSourceValue(valueEntry.getValue()) + "'");
                         returnVal = false;
                     }
                 } else {
@@ -445,7 +452,8 @@ public class TypeConverter {
                             fieldNameLong, false, unresolvedValues, errors).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
                                 fieldNameLong + "' in record '" + targetType + "' should be of type '" +
-                                targetFieldTypes.get(fieldName) + "'");
+                                targetFieldTypes.get(fieldName) + "', found '" +
+                                getShortSourceValue(valueEntry.getValue()) + "'");
                         returnVal = false;
                     }
                 } else if (!targetType.sealed) {
@@ -453,7 +461,8 @@ public class TypeConverter {
                             false, unresolvedValues, errors).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
                                 valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "'");
+                                targetType + "' should be of type '" + restFieldType + "', found '" +
+                                getShortSourceValue(valueEntry.getValue()) + "'");
                         returnVal = false;
                     }
                 } else {
@@ -462,8 +471,25 @@ public class TypeConverter {
                     returnVal = false;
                 }
             }
+            if ((!returnVal) && (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1)) {
+                return false;
+            }
         }
         return returnVal;
+    }
+
+    protected static String getShortSourceValue(Object sourceValue) {
+        if (sourceValue == null) {
+            return "()";
+        }
+        String sourceValueName = sourceValue.toString();
+        if (TypeChecker.getType(sourceValue) == TYPE_STRING) {
+            sourceValueName = "\"" + sourceValueName + "\"";
+        }
+        if (sourceValueName.length() > MAX_DISPLAYED_SOURCE_VALUE_LENGTH) {
+            sourceValueName = sourceValueName.substring(0, MAX_DISPLAYED_SOURCE_VALUE_LENGTH).concat("...");
+        }
+        return sourceValueName;
     }
 
     protected static String getLongFieldName(String varName, String fieldName) {
@@ -492,21 +518,34 @@ public class TypeConverter {
     }
 
     private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
-                                                  List<TypeValuePair> unresolvedValues) {
+                                                  List<TypeValuePair> unresolvedValues, String varName,
+                                                  List<String> errors) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
-        for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
-            if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), null, false,
-                    unresolvedValues, new ArrayList<>()).size() != 1) {
-                return false;
+
+        boolean returnVal = true;
+        for (Object object : ((MapValueImpl) sourceValue).entrySet()) {
+            Map.Entry valueEntry = (Map.Entry) object;
+            String fieldNameLong = getLongFieldName(varName, valueEntry.getKey().toString());
+            int initialErrorCount = errors.size();
+            if (getConvertibleTypes(valueEntry.getValue(), targetType.getConstrainedType(), fieldNameLong, false,
+                    unresolvedValues, errors).size() != 1) {
+                addErrorMessage(errors.size() - initialErrorCount, errors, "map field '" +
+                        fieldNameLong + "' should be of type '" + targetType.getConstrainedType() + "', found '"
+                        + getShortSourceValue(valueEntry.getValue()) + "'");
+                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                    return false;
+                }
+                returnVal = false;
             }
         }
-        return true;
+        return returnVal;
     }
 
     private static boolean isConvertibleToArrayType(Object sourceValue, BArrayType targetType,
-                                                    List<TypeValuePair> unresolvedValues) {
+                                                    List<TypeValuePair> unresolvedValues, String varName,
+                                                    List<String> errors) {
         if (!(sourceValue instanceof ArrayValue)) {
             return false;
         }
@@ -519,16 +558,29 @@ public class TypeConverter {
             }
         }
 
+        int initialErrorCount;
+        String elementIndex;
+        boolean returnVal = true;
         for (int i = 0; i < source.size(); i++) {
-            if (!isConvertibleToArrayInstance(source.get(i), targetTypeElementType, unresolvedValues)) {
-                return false;
+            initialErrorCount = errors.size();
+            elementIndex = getElementIndex(varName, i);
+            if (!isConvertibleToArrayInstance(source.get(i), targetTypeElementType, unresolvedValues, elementIndex,
+                    errors)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors, "array element '" +
+                        elementIndex + "' should be of type '" + targetTypeElementType.toString() + "', found '" +
+                        getShortSourceValue(source.get(i)) + "'");
+                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                    return false;
+                }
+                returnVal = false;
             }
         }
-        return true;
+        return returnVal;
     }
 
     private static boolean isConvertibleToTupleType(Object sourceValue, BTupleType targetType,
-                                                    List<TypeValuePair> unresolvedValues) {
+                                                    List<TypeValuePair> unresolvedValues, String varName,
+                                                    List<String> errors) {
         if (!(sourceValue instanceof ArrayValue)) {
             return false;
         }
@@ -543,36 +595,60 @@ public class TypeConverter {
             return false;
         }
 
+        int initialErrorCount;
+        String elementIndex;
+        boolean returnVal = true;
         for (int i = 0; i < targetTypeSize; i++) {
-            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetTypes.get(i), unresolvedValues)) {
-                return false;
+            initialErrorCount = errors.size();
+            elementIndex = getElementIndex(varName, i);
+            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetTypes.get(i), unresolvedValues,
+                    elementIndex, errors)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
+                        elementIndex + "' should be of type '" + targetTypes.get(i).toString() + "', found '" +
+                        getShortSourceValue(source.getRefValue(i)) + "'");
+                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                    return false;
+                }
+                returnVal = false;
             }
         }
 
         for (int i = targetTypeSize; i < sourceTypeSize; i++) {
-            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetRestType, unresolvedValues)) {
-                return false;
+            initialErrorCount = errors.size();
+            elementIndex = getElementIndex(varName, i);
+            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetRestType, unresolvedValues,
+                    elementIndex, errors)) {
+                addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
+                        elementIndex + "' should be of type '" + targetRestType + "', found '" +
+                        getShortSourceValue(source.getRefValue(i)) + "'");
+                if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                    return false;
+                }
+                returnVal = false;
             }
         }
-        return true;
+        return returnVal;
+    }
+
+    private static String getElementIndex(String varName, int index) {
+        if (varName == null) {
+            return "[" + index + "]";
+        } else {
+            return varName + "[" + index + "]";
+        }
     }
 
     private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
-                                                        List<TypeValuePair> unresolvedValues) {
-        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, null, false,
-                unresolvedValues, new ArrayList<>());
-        if (convertibleTypes.isEmpty() || !isConvertible(convertibleTypes, sourceElement)) {
-            return false;
-        }
-        return true;
+                                                        List<TypeValuePair> unresolvedValues, String varName,
+                                                        List<String> errors) {
+        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, varName, false,
+                unresolvedValues, errors);
+        return !convertibleTypes.isEmpty() && isConvertible(convertibleTypes, sourceElement);
     }
 
     private static boolean isConvertible(Set<Type> convertibleTypes, Object sourceElement) {
-        if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(sourceElement))
-                && !hasIntegerSubTypes(convertibleTypes)) {
-            return false;
-        }
-        return true;
+        return convertibleTypes.size() <= 1 || convertibleTypes.contains(TypeChecker.getType(sourceElement))
+                || hasIntegerSubTypes(convertibleTypes);
     }
 
     public static boolean hasIntegerSubTypes(Set<Type> convertibleTypes) {
@@ -624,15 +700,12 @@ public class TypeConverter {
         long value = anyToIntCast(sourceVal, errorFunc);
         if (type == PredefinedTypes.TYPE_INT_SIGNED_32 && isSigned32LiteralValue(value)) {
             return value;
-        } else if (type == PredefinedTypes.TYPE_INT_SIGNED_16 && isSigned16LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_SIGNED_8 && isSigned8LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_32 && isUnsigned32LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_16 && isUnsigned16LiteralValue(value)) {
-            return value;
-        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_8 && isUnsigned8LiteralValue(value)) {
+        }
+        if ((type == PredefinedTypes.TYPE_INT_SIGNED_16 && isSigned16LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_SIGNED_8 && isSigned8LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_UNSIGNED_32 && isUnsigned32LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_UNSIGNED_16 && isUnsigned16LiteralValue(value)) ||
+                (type == PredefinedTypes.TYPE_INT_UNSIGNED_8 && isUnsigned8LiteralValue(value))) {
             return value;
         }
         throw errorFunc.get();
@@ -846,7 +919,7 @@ public class TypeConverter {
 
     private static void checkIsValidFloat(double sourceVal, Type targetType) {
         if (Double.isNaN(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(NaN, PredefinedTypes.TYPE_FLOAT, targetType);
+            throw ErrorUtils.createNumericConversionError(NAN, PredefinedTypes.TYPE_FLOAT, targetType);
         }
 
         if (Double.isInfinite(sourceVal)) {
@@ -1082,7 +1155,7 @@ public class TypeConverter {
             return PredefinedTypes.TYPE_DECIMAL;
         }
 
-        Type anydataArrayType = new BArrayType(type);
+        Type anydataArrayType = new BArrayType(type, type.isReadOnly());
         if (checkIsLikeType(value, anydataArrayType)) {
             return anydataArrayType;
         }
@@ -1091,7 +1164,7 @@ public class TypeConverter {
             return PredefinedTypes.TYPE_XML;
         }
 
-        Type anydataMapType = new BMapType(type);
+        Type anydataMapType = new BMapType(type, type.isReadOnly());
         if (checkIsLikeType(value, anydataMapType)) {
             return anydataMapType;
         }
@@ -1128,4 +1201,6 @@ public class TypeConverter {
         return true;
     }
 
+    private TypeConverter() {
+    }
 }

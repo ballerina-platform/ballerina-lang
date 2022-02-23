@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +47,9 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = ctx.getCursorPositionInTree();
 
-        if (this.onKeySpecifier(ctx, node)) {
+        if (withinBrackets(ctx, node)) {
+            return Collections.emptyList();
+        } else if (this.onKeySpecifier(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_KEY.get()));
         } else if (node.keySpecifier().isPresent() && node.keySpecifier().get().textRange().endOffset() < cursor) {
             /*
@@ -60,6 +63,15 @@ public class TableConstructorExpressionNodeContext extends AbstractCompletionPro
         }
         this.sort(ctx, node, completionItems);
         return completionItems;
+    }
+
+    private boolean withinBrackets(BallerinaCompletionContext context, TableConstructorExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token openBracketToken = node.openBracket();
+        Token closeBracketToken = node.closeBracket();
+        boolean isBracketMissing = openBracketToken.isMissing() || closeBracketToken.isMissing();
+        return !isBracketMissing && (cursor >= openBracketToken.textRange().endOffset() 
+                && cursor <= closeBracketToken.textRange().startOffset());
     }
 
     private boolean onKeySpecifier(BallerinaCompletionContext context, TableConstructorExpressionNode node) {

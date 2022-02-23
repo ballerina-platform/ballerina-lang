@@ -66,6 +66,16 @@ public class TupleLValueFillTest {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
     }
 
+    @Test
+    public void testNillableTupleType() {
+        BRunUtil.invoke(compileResult, "testNillableTupleType");
+    }
+
+    @Test
+    public void testTupleInUnionTypes() {
+        BRunUtil.invoke(compileResult, "testTupleInUnionTypes");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

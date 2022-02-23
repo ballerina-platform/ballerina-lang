@@ -83,4 +83,8 @@ public class ForeachMapTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
+    @Test
+    public void testWildcardBindingPatternInForeachStatement() {
+        BRunUtil.invoke(program, "testWildcardBindingPatternInForeachStatement");
+    }
 }

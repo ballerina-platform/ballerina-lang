@@ -133,6 +133,110 @@ function testNeverWithAnyAndAnydataRuntime() {
     assertEquality(true, c4);
 }
 
+type NeverUnion (never|string);
+
+function testNeverFieldTypeCheck() {
+
+    // Check checkIsType type-checker method
+    record {} r1 = {"x": 2, "color": "blue"};
+    assertEquality(false, r1 is record {never x?;});
+
+    record {int x;} r2 = {x: 2, "color": "blue"};
+    assertEquality(false, r2 is record {never x?;});
+
+    record {never? x;} r3 = {x: (), "color": "blue"};
+    assertEquality(false, r3 is record {never x?;});
+
+    record {int? x;} r4 = {x: 2, "color": "blue"};
+    assertEquality(false, r4 is record {never x?;});
+
+    record {} r5 = {};
+    assertEquality(false, r5 is record {never x?;});
+
+    record {} r6 = {"color": "blue"};
+    assertEquality(false, r6 is record {never x?;});
+
+    record {|never...; |} r7 = {};
+    assertEquality(true, r7 is record {never x?;});
+
+    record {|never?...; |} r8 = {};
+    assertEquality(true, r8 is record {never x?;});
+
+    record {|int?...; |} r9 = {};
+    assertEquality(false, r9 is record {never x?;});
+
+    record {||} r10 = {};
+    assertEquality(true, r10 is record {never x?;}); 
+
+    record {|int|(never|string)...; |} r11 = {};
+    assertEquality(false, r11 is record {never x?;});
+
+    record {|int|NeverUnion...; |} r12 = {};
+    assertEquality(false, r12 is record {never x?;});
+
+    record {never x?;} r13 = {};
+    assertEquality(false, r13 is record {|int|(never|string)...; |});
+
+    record {|never x?;|} r14 = {};
+    assertEquality(true, r14 is record {|int|(never|string)...; |});
+
+    record {never x?;} r15 = {};
+    assertEquality(false, r15 is record {|int|NeverUnion...; |});
+
+    record {|never x?;|} r16 = {};
+    assertEquality(true, r16 is record {|int|NeverUnion...; |});
+
+    // Check compilation of never field binding
+    record {|never...; |} x1 = {};
+    record {never i?;} y1 = x1;
+    assertEquality(true, y1 is record {|never...; |});
+
+    record {|never?...; |} x2 = {};
+    record {never i?;} y2 = x2;
+    assertEquality(true, y2 is record {|never?...; |});
+
+    record {||} x3 = {};
+    record {never i?;} y3 = x3;
+    assertEquality(true, y3 is record {||});
+
+    record {|int j;|} x4 = {j: 1};
+    record {never i?; int j;} y4 = x4;
+    assertEquality(true, y4 is record {|int j;|});
+
+    // Check checkIsLikeType type-checker method
+    record {} & readonly v1 = {"x": 2, "color": "blue"};
+    assertEquality(false, v1 is record {never x?;});
+
+    record {} & readonly v2 = {"x": 2};
+    assertEquality(false, v2 is record {never x?;});
+
+    record {int x;} & readonly v3 = {x: 2, "color": "blue"};
+    assertEquality(false, v3 is record {never x?;});
+
+    record {never? x;} & readonly v4 = {x: (), "color": "blue"};
+    assertEquality(false, v4 is record {never x?;});
+
+    record {never? x;} & readonly v5 = {x: (), "color": "blue"};
+    assertEquality(true, v5 is record {never? x;});
+
+    record {never? x;} & readonly v6 = {x: (), "color": "blue"};
+    assertEquality(true, v6 is record {never? x;});
+
+    record {} & readonly v7 = {};
+    assertEquality(true, v7 is record {never x?;});
+
+    record {} & readonly v8 = {"color": "blue"};
+    assertEquality(true, v8 is record {never x?;});
+
+    record {never x?;} v9 = {};
+    anydata result = (<anydata>v9).cloneReadOnly();
+    assertEquality(true, result is record {|int|(never|string)...; |});
+
+    record {never x?;} v10 = {};
+    result = (<anydata>v10).cloneReadOnly();
+    assertEquality(true, result is record {|int|NeverUnion...; |});
+}
+
 function baz1() returns map<never> {
     return {};
 }

@@ -300,6 +300,12 @@ public class OptionTest {
                     "invalid argument 'name' for parameter 'val', expected " + typeStr + " value");
     }
 
+    @Test()
+    public void testInvalidDecimal() {
+        testInvalid(PredefinedTypes.TYPE_DECIMAL, new String[]{"--val=99999999.9e9999999999"},
+                "invalid argument '99999999.9e9999999999' for parameter 'val', expected decimal value");
+    }
+
     @DataProvider(name = "invalid")
     public Object[][] testInvalidOption() {
         return new Object[][]{{PredefinedTypes.TYPE_STRING, new String[]{"-val"}, "undefined CLI argument: '-val'"},

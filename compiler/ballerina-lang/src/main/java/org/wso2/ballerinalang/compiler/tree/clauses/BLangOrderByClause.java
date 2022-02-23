@@ -22,6 +22,8 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -34,8 +36,12 @@ import java.util.StringJoiner;
  * @since Swan Lake
  */
 public class BLangOrderByClause extends BLangNode implements OrderByClauseNode {
-    public SymbolEnv env;
+
+    // BLangNodes
     public List<OrderKeyNode> orderByKeyList = new ArrayList<>();
+
+    // Semantic Data
+    public SymbolEnv env;
 
     public BLangOrderByClause() {
     }
@@ -48,6 +54,16 @@ public class BLangOrderByClause extends BLangNode implements OrderByClauseNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

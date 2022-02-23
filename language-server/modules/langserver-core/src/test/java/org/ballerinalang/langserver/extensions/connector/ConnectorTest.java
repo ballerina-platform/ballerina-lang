@@ -18,16 +18,11 @@
 
 package org.ballerinalang.langserver.extensions.connector;
 
-import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorResponse;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 
@@ -35,50 +30,51 @@ import java.nio.file.Path;
  * Test for connector API.
  */
 public class ConnectorTest {
-
     private Endpoint serviceEndpoint;
-
-    private Path connectorToml = FileUtils.RES_DIR.resolve("extensions")
-            .resolve("connector")
-            .resolve("connector.toml");
+    private Path testConnectorFilePath = FileUtils.RES_DIR.resolve("extensions").resolve("connector")
+            .resolve("TestConnector").resolve("main.bal");
 
     @BeforeClass
     public void startLangServer() {
-        System.setProperty(BallerinaConnectorService.DEFAULT_CONNECTOR_FILE_KEY, connectorToml.toString());
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
-//
+
+    // TODO: Need to add mock server.
 //    @Test(description = "Test getting all connectors.")
 //    public void getConnectors() {
-//        BallerinaConnectorsResponse connectorsResponse = LSExtensionTestUtil
-//                .getConnectors(this.serviceEndpoint);
-//        Assert.assertEquals(connectorsResponse.getConnectors().size(), 4);
-//        Assert.assertEquals(connectorsResponse.getConnectors().get(0).getModule(), "nats");
-//        Assert.assertEquals(connectorsResponse.getConnectors().get(0).getName(), "Producer");
+//        BallerinaConnectorListResponse connectorsResponse = LSExtensionTestUtil
+//                .getConnectors(testConnectorFilePath.toString(), "", this.serviceEndpoint);
+//
+//        Assert.assertNotEquals(connectorsResponse.getCentralConnectors().size(), 0);
+//        Assert.assertNotEquals(connectorsResponse.getLocalConnectors().size(), 0);
 //    }
 
-    @Test(description = "Test getting HTTP connectors.")
-    public void getHTTPConnector() {
-        String org = "ballerina";
-        String module = "http";
-        String version = "1.0.0";
-        String name = "Client";
-        String displayName = "http:Client";
-        BallerinaConnectorResponse connectorsResponse = LSExtensionTestUtil
-                .getConnector(org, module, version, name,
-                        displayName, true, this.serviceEndpoint);
-        Assert.assertNotNull(connectorsResponse);
-        Assert.assertEquals(org, connectorsResponse.getOrg());
-        Assert.assertEquals(module, connectorsResponse.getModule());
-    }
+//     @Test(description = "Test search twilio connectors.")
+//     public void searchConnectors() {
+//         BallerinaConnectorListResponse connectorsResponse = LSExtensionTestUtil
+//                 .getConnectors(testConnectorFilePath.toString(), "twilio", this.serviceEndpoint);
+//
+//         Assert.assertNotEquals(connectorsResponse.getCentralConnectors().size(), 0);
+//         Assert.assertNotEquals(connectorsResponse.getLocalConnectors().size(), 0);
+//     }
 
-//    @Test(description = "Test getting twitter connectors.")
-//    public void getTwitterConnector() {
-//        BallerinaConnectorResponse connectorsResponse = LSExtensionTestUtil
-//                .getConnector("wso2", "twitter", "0.9.26", "Client", this.serviceEndpoint);
-//        Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("name")).
-//                get("value").getAsString(), "Client");
-//    }
+//     @Test(description = "Test fetch central connector by Id.")
+//     public void getConnectorById() {
+//         JsonObject connector = LSExtensionTestUtil.getConnectorById("152", this.serviceEndpoint);
+//
+//         Assert.assertEquals(connector.isJsonObject(), true);
+//         Assert.assertEquals(connector.get("id").toString(), "152");
+//     }
+//
+//     @Test(description = "Test fetch central connector by FQN.")
+//     public void getConnectorByFQN() {
+//         JsonObject connector = LSExtensionTestUtil
+//                 .getConnectorByFqn("ballerinax", "sfdc", "sfdc", "3.0.0", "Client", this.serviceEndpoint);
+//
+//         Assert.assertEquals(connector.isJsonObject(), true);
+//         Assert.assertEquals(connector.get("moduleName").getAsString(), "sfdc");
+//         Assert.assertEquals(connector.get("name").getAsString(), "Client");
+//     }
 
     @AfterClass
     public void stopLangServer() {

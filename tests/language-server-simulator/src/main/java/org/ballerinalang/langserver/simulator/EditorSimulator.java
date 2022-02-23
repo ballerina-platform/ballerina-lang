@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,7 +67,7 @@ public class EditorSimulator {
         }
 
         Path path = Paths.get(projectPath);
-        logger.info("Using project: {}", path.toString());
+        logger.info("Using project: {}, path: {}", path.toString(), projectPath);
 
         List<Path> balFiles = Files.list(path)
                 .filter(Files::isRegularFile)
@@ -121,9 +122,22 @@ public class EditorSimulator {
             String content = getRandomNode();
             logger.info("Typing in editor tab: {} -> {}", editorTab, content);
 
-            editorTab.type(content);
-            editorTab.completions();
-
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                editorTab.type(content);
+                editorTab.completions();
+            });
+            
+            // While the snippet is being typed, check if we have reached a timeout
+            while (!future.isDone() && Instant.now().getEpochSecond() < endTime) {
+                logger.info("Remaining time: {}", endTime - Instant.now().getEpochSecond());
+                try {
+                    Thread.sleep(60 * 1000L);
+                } catch (InterruptedException e) {
+                    logger.warn("Interrupted editing", e);
+                    break;
+                }
+            }
+            
             try {
                 int sleepSecs = 1 + random.nextInt(5);
                 Thread.sleep(sleepSecs * 1000L);
@@ -133,7 +147,9 @@ public class EditorSimulator {
             }
         }
 
+        logger.info("Exiting...");
         editor.close();
+        System.exit(0);
     }
 
     /**

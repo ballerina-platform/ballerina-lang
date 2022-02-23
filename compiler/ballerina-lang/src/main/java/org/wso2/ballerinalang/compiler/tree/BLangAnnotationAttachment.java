@@ -33,11 +33,16 @@ import java.util.Set;
  */
 public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangIdentifier annotationName;
-    public Set<AttachPoint.Point> attachPoints;
     public BLangIdentifier pkgAlias;
+
+    // Parser Flags and Data
+
+    // Semantic Data
     public BAnnotationSymbol annotationSymbol;
+    public Set<AttachPoint.Point> attachPoints;
 
     public BLangAnnotationAttachment() {
         attachPoints = new LinkedHashSet<>();
@@ -69,10 +74,20 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transformNode(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.ANNOTATION_ATTACHMENT;
     }
-    
+
     @Override
     public String toString() {
         return "BLangAnnotationAttachment: " + annotationName;

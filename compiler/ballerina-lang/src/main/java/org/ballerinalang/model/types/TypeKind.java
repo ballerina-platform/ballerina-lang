@@ -59,6 +59,7 @@ public enum TypeKind {
     BLOB("blob"),
 
     TYPEDESC("typedesc"),
+    TYPEREFDESC("typerefdesc"),
     STREAM("stream"),
     TABLE("table"),
     JSON("json"),

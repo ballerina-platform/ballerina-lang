@@ -9,7 +9,11 @@
   },
   {
     "description": "Check panic on a valid value.",
-    "code": "int y = checkpanic parse(\"120\"); y",
+    "code": "int y = checkpanic parse(\"120\");"
+  },
+  {
+    "description": "Check panic on a valid value - get value.",
+    "code": "y",
     "expr": "120"
   },
   {

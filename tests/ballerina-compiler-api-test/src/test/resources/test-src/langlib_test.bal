@@ -69,4 +69,16 @@ function test() {
     'xml:Element xm2 = xml `<Greeting>Hola</Greeting>`;
 
     int[] & readonly iarr = [1, 2];
+
+    T1 t1 = 2;
+
+    T2 t2 = "a";
+
+    'xml:ProcessingInstruction pi = xml `<?target data?>`;
+    'xml:Comment cmnt;
+    'xml:Text txt;
 }
+
+type T1 1|2|3;
+
+type T2 "a"|"b";

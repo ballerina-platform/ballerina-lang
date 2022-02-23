@@ -13,12 +13,20 @@
   },
   {
     "description": "Define variables - john.",
-    "code": "Employee john = {name: \"John Doe\", designation: \"Software Engineer\"}; john",
+    "code": "Employee john = {name: \"John Doe\", designation: \"Software Engineer\"};"
+  },
+  {
+    "description": "Define variables - john - get value.",
+    "code": "john",
     "expr": "{\"designation\":\"Software Engineer\",\"name\":\"John Doe\",\"age\":25}"
   },
   {
     "description": "Define variables - jane.",
-    "code": "Employee jane = {name: \"Jane Doe\", designation: \"UX Engineer\"}; jane",
+    "code": "Employee jane = {name: \"Jane Doe\", designation: \"UX Engineer\"};"
+  },
+  {
+    "description": "Define variables - jane - get value.",
+    "code": "jane",
     "expr": "{\"designation\":\"UX Engineer\",\"name\":\"Jane Doe\",\"age\":25}"
   },
   {
@@ -27,7 +35,11 @@
   },
   {
     "description": "Access field.",
-    "code": "mgr.team = [john, jane]; mgr.company = \"XYZ Inc.\"; mgr",
+    "code": "mgr.team = [john, jane]; mgr.company = \"XYZ Inc.\";"
+  },
+  {
+    "description": "Access field - get value.",
+    "code": "mgr",
     "expr": "{\"team\":[{\"designation\":\"Software Engineer\",\"name\":\"John Doe\",\"age\":25},{\"designation\":\"UX Engineer\",\"name\":\"Jane Doe\",\"age\":25}],\"company\":\"XYZ Inc.\",\"designation\":\"Engineering Manager\",\"name\":\"Mark\",\"age\":35}"
   }
 ]

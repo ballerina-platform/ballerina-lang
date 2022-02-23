@@ -32,6 +32,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -409,18 +410,14 @@ public class XMLLiteralTest {
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }
 
-    @Test
-    public void testXMLSequenceValueAssignment() {
-        BRunUtil.invoke(result, "testXMLSequenceValueAssignment");
+    @Test(dataProvider = "function-name-provider")
+    public void testXMLValue(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void testXMLTextValueAssignment() {
-        BRunUtil.invoke(result, "testXMLTextValueAssignment");
-    }
-
-    @Test
-    public void testXMLCDATASection() {
-        BRunUtil.invoke(result, "testXMLCDATASection");
+    @DataProvider(name = "function-name-provider")
+    public Object[] provideFunctionNames() {
+        return new String[]{"testXMLSequenceValueAssignment", "testXMLTextValueAssignment", "testXMLCDATASection",
+                "testXMLReturnUnion"};
     }
 }

@@ -6,24 +6,16 @@
   "source": "expression_context/source/mapping_expr_ctx_source54.bal",
   "items": [
     {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "CONST1",
       "kind": "Variable",
-      "detail": "Test",
+      "detail": "\"Test\"",
       "documentation": {
         "right": {
           "kind": "markdown",
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -31,7 +23,7 @@
       "label": "param2",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "param2",
       "insertTextFormat": "Snippet"
     },
@@ -39,7 +31,7 @@
       "label": "param1",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "param1",
       "insertTextFormat": "Snippet"
     },
@@ -47,7 +39,7 @@
       "label": "b",
       "kind": "Variable",
       "detail": "map<any>",
-      "sortText": "B",
+      "sortText": "F",
       "insertText": "b",
       "insertTextFormat": "Snippet"
     }

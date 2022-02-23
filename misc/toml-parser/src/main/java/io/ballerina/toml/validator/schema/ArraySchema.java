@@ -40,8 +40,9 @@ public class ArraySchema extends AbstractSchema {
 
     private final AbstractSchema items;
 
-    public ArraySchema(Type type, Map<String, String> message, AbstractSchema items, CompositionSchema comps) {
-        super(type, message, comps);
+    public ArraySchema(Type type, Map<String, String> message, AbstractSchema items, CompositionSchema comps,
+                       String description) {
+        super(type, message, comps, description);
         this.items = items;
     }
 

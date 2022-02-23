@@ -86,6 +86,11 @@ public class ForeachIterableObjectTest {
     }
 
     @Test
+    public void testNextIsNotInvokedTwiseBeforeInvokingBody() {
+        BRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
+    }
+
+    @Test
     public void testIterableObjectErrors() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public isolated " +

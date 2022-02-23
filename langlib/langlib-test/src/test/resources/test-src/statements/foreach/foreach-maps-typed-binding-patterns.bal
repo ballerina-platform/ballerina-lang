@@ -694,3 +694,99 @@ function testEmptyMapIteration() returns string {
     }
     return output;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+function testForeachIterationOverReadOnlyTupleMembersOfNonReadOnlyRecordWithVar() {
+    record {| readonly & [int, string] a; readonly & [boolean, int] b; |} x = {"a": [1, "foo"], "b": [false, 2]};
+
+    (int|boolean|string)[] arr = [];
+
+    foreach var [a, b] in x {
+        int|boolean c = a;
+        int|string d = b;
+        arr.push(c, d);
+    }
+
+    assertEquality(4, arr.length());
+    assertTrue(arr.indexOf(1) != ());
+    assertTrue(arr.indexOf("foo") != ());
+    assertTrue(arr.indexOf(false) != ());
+    assertTrue(arr.indexOf(2) != ());
+}
+
+function testForeachIterationOverReadOnlyArrayMembersOfReadOnlyMapWithVar() {
+    readonly & map<int[2]|string[3]|boolean[2]> x = {m: [1, 2], n: ["foo", "bar", "baz"], o: [true, false]};
+
+    (int|boolean|string)[] arr = [];
+
+    foreach var [a, b, ...c] in x {
+        int|boolean|string d = a;
+        int|boolean|string e = b;
+        arr.push(d, e);
+
+        if c.length() != 0 {
+            int|boolean|string f = c[0];
+            arr.push(f);
+        }
+    }
+
+    assertEquality(7, arr.length());
+    assertTrue(arr.indexOf(1) != ());
+    assertTrue(arr.indexOf(2) != ());
+    assertTrue(arr.indexOf("foo") != ());
+    assertTrue(arr.indexOf("bar") != ());
+    assertTrue(arr.indexOf("baz") != ());
+    assertTrue(arr.indexOf(true) != ());
+    assertTrue(arr.indexOf(false) != ());
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfNonReadOnlyRecord() {
+    record {| readonly & [int, string] a; readonly & [boolean, int] b; |} x = {"a": [1, "foo"], "b": [false, 2]};
+
+    (int|boolean|string)[] arr = [];
+
+    foreach [int|boolean, string|int] & readonly [a, b] in x {
+        int|boolean c = a;
+        int|string d = b;
+        arr.push(a, b);
+    }
+
+    assertEquality(4, arr.length());
+    assertTrue(arr.indexOf(1) != ());
+    assertTrue(arr.indexOf("foo") != ());
+    assertTrue(arr.indexOf(false) != ());
+    assertTrue(arr.indexOf(2) != ());
+}
+
+function testForeachIterationOverReadOnlyTupleMembersOfReadOnlyMap() {
+    readonly & map<[int, string, boolean...]|[boolean, int]> x = {a: [1, "foo"], b: [true, 2], c: [3, "bar", false]};
+
+    (int|boolean|string)[] arr = [];
+
+    foreach [int|boolean, string|int, boolean...] [a, b, ...c] in x {
+        arr.push(a, b);
+        arr.push(...c);
+    }
+
+    assertEquality(7, arr.length());
+    assertTrue(arr.indexOf(1) != ());
+    assertTrue(arr.indexOf("foo") != ());
+    assertTrue(arr.indexOf(true) != ());
+    assertTrue(arr.indexOf(2) != ());
+    assertTrue(arr.indexOf(3) != ());
+    assertTrue(arr.indexOf("bar") != ());
+    assertTrue(arr.indexOf(false) != ());
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

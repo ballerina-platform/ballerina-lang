@@ -20,7 +20,6 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -48,7 +47,6 @@ public class AddCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private boolean exitWhenFinish;
-//    private Path homeCache;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -63,20 +61,14 @@ public class AddCommand implements BLauncherCmd {
         this.userDir = Paths.get(System.getProperty("user.dir"));
         this.errStream = System.err;
         this.exitWhenFinish = true;
-//        homeCache = RepoUtils.createAndGetHomeReposPath();
         CommandUtil.initJarFs();
     }
 
     public AddCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
-        this(userDir, errStream, exitWhenFinish, RepoUtils.createAndGetHomeReposPath());
-    }
-
-    public AddCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish, Path homeCache) {
         this.userDir = userDir;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         CommandUtil.initJarFs();
-//        this.homeCache = homeCache;
     }
 
     @Override
@@ -87,20 +79,6 @@ public class AddCommand implements BLauncherCmd {
             errStream.println(commandUsageInfo);
             return;
         }
-
-        // TODO: 11/13/20 to be enabled once it gets finalised.
-//        if (list) {
-//            errStream.println("Available templates:");
-//            for (String template : getTemplates()) {
-//                errStream.println("    - " + template);
-//            }
-//            // Get templates from balas
-//            for (String template : getBalaTemplates()) {
-//                errStream.println("    - " + template);
-//            }
-//            return;
-//        }
-
         // Check if inside a project repo
         Path projectPath = ProjectUtils.findProjectRoot(userDir);
         if (null == projectPath) {
@@ -148,6 +126,16 @@ public class AddCommand implements BLauncherCmd {
             CommandUtil.printError(errStream,
                                    "invalid module name : '" + moduleName + "' :\n" +
                                            "Maximum length of module name is 256 characters.",
+                                   null,
+                                   false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!ProjectUtils.validateUnderscoresOfName(moduleName)) {
+            CommandUtil.printError(errStream,
+                                   "invalid module name : '" + moduleName + "' :\n" +
+                                           ProjectUtils.getValidateUnderscoreError(moduleName, "Module"),
                                    null,
                                    false);
             CommandUtil.exitError(this.exitWhenFinish);

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "optionalInt",
       "kind": "Field",
       "detail": "module1:TestRecord1.optionalInt",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "optionalInt: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "rec1Field1",
       "kind": "Field",
       "detail": "module1:TestRecord1.rec1Field1",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec1Field1: ${2:0}",
       "insertTextFormat": "Snippet"
     },
@@ -34,7 +34,7 @@
       "label": "rec1Field2",
       "kind": "Field",
       "detail": "module1:TestRecord1.rec1Field2",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "rec1Field2: \"${3}\"",
       "insertTextFormat": "Snippet"
     },

@@ -35,12 +35,12 @@ public function main() {
     }
 
     worker w2 returns error? {
-        int lw = <- w1;
+        int _ = <- w1;
 
         if (0 < 1) {
             return error("w2 err");
         }
-        string s = <- w1;
+        string _ = <- w1;
         return;
     }
 

@@ -1,0 +1,10 @@
+[
+  {
+    "description": "Define final variable",
+    "input": "final int t = 0"
+  },
+  {
+    "description": "Try to declare function that assigns to t",
+    "input": "function f() { t = 10; }"
+  }
+]

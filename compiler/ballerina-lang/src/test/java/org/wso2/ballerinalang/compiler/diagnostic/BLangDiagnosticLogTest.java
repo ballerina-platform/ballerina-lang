@@ -74,7 +74,8 @@ public class BLangDiagnosticLogTest {
         Location location = new BLangDiagnosticLocation("test.bal", 1, 1, 1, 1);
         dlog.logDiagnostic(DiagnosticSeverity.ERROR, moduleDescriptor, location, "Diagnostic Error Message");
         List<Diagnostic> diagnosticList = pkgNode.getDiagnostics();
-        assertDiagnosticEqual(diagnosticList.get(0), "Diagnostic Error Message", DiagnosticSeverity.ERROR, location);
+        Location expLocation = new BLangDiagnosticLocation("test.bal", 0, 0, 0, 0);
+        assertDiagnosticEqual(diagnosticList.get(0), "Diagnostic Error Message", DiagnosticSeverity.ERROR, expLocation);
     }
 
     @Test
@@ -115,8 +116,11 @@ public class BLangDiagnosticLogTest {
         return ModuleDescriptor.from(moduleName, packageDescriptor);
     }
 
-    private void assertDiagnosticEqual(Diagnostic diag, String msg, DiagnosticSeverity severity, Location location) {
-        Diagnostic diagFromArgs = DiagnosticFactory.createDiagnostic(new DiagnosticInfo(null, msg, severity), location);
-        Assert.assertEquals(diagFromArgs.toString(), diag.toString());
+    private void assertDiagnosticEqual(Diagnostic diag, String expMsg, DiagnosticSeverity expSeverity,
+                                       Location expLocation) {
+        Diagnostic expDiag =
+                DiagnosticFactory.createDiagnostic(new DiagnosticInfo(null, expMsg, expSeverity), expLocation);
+        Assert.assertEquals(diag.toString(), expDiag.toString());
     }
+
 }

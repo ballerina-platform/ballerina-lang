@@ -16,7 +16,7 @@
 
 public type Tuple [string, string, string, string];
 
-public function getLargeTupleArray() returns Tuple[] {
+public function getLargeTupleArray() returns int {
     string s = "Hindu";
     Tuple[] arr = [
         [s, "1", s, "1"],
@@ -441,5 +441,5 @@ public function getLargeTupleArray() returns Tuple[] {
         [s, "1", s, "420"],
         ["w", "3", s, "b"]
     ];
-    return arr;
+    return arr.length();
 }

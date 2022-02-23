@@ -70,7 +70,7 @@ public class ReturnTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(ExplicitAnonymousFunctionExpressionNode
                                                       explicitAnonymousFunctionExpressionNode) {
 
-        Optional<TypeSymbol> type = semanticModel.type(explicitAnonymousFunctionExpressionNode);
+        Optional<TypeSymbol> type = semanticModel.typeOf(explicitAnonymousFunctionExpressionNode);
         if (type.isPresent() && type.get().typeKind() == TypeDescKind.FUNCTION) {
             FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) type.get();
             return functionTypeSymbol.returnTypeDescriptor();

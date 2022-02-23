@@ -59,7 +59,31 @@ class RetryMgr {
     public function init(int count = 3) {
         self.count = count;
     }
-    public function shouldRetry(error? e) returns boolean {
+    public function shouldRetry(error e) returns boolean {
         return true;
+    }
+}
+
+function testWhileOnFail(){
+    int iter = 0;
+    while (iter < 3) {
+
+    } on fail error ee { 
+
+    }
+}
+
+function testForEachOnFail() {
+    int[] arr = [1,2,3];
+    foreach int item in arr {
+        fail getError();
+    } on fail error ee {
+    }
+}
+
+function testLockOnFail(){
+    lock {
+        fail getError();
+    } on fail error ee {
     }
 }

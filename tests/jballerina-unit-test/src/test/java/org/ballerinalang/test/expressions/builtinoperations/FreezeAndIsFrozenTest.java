@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * This class tests the freeze() and isFrozen() builtin functions.
@@ -209,7 +210,7 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"Failed " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"failed " +
                     "to remove element from map: modification not allowed on readonly value.*")
     public void testRemovalFromFrozenJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenJson", new BValue[0]);
@@ -231,7 +232,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Failed to remove element from map: modification not allowed on readonly value\".*")
+                    "\"failed to remove element from map: modification not allowed on readonly value\".*")
     public void testRemovalFromFrozenInnerJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenInnerJson", new BValue[0]);
     }
@@ -260,7 +261,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
-                    "Failed to remove element from map: modification not allowed on readonly value\".*")
+                    "failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenMapRemoval() {
         BRunUtil.invoke(result, "testFrozenMapRemoval", new BValue[0]);
     }
@@ -281,7 +282,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Failed to remove element from map: modification not allowed on readonly value\".*")
+                    "\"failed to remove element from map: modification not allowed on readonly value\".*")
     public void testFrozenInnerMapRemoval() {
         BRunUtil.invoke(result, "testFrozenInnerMapRemoval", new BValue[0]);
     }
@@ -589,5 +590,15 @@ public class FreezeAndIsFrozenTest {
                 {"testFrozenFloatArrayModification"},
                 {"testFrozenStringArrayModification"}
         };
+    }
+
+    @Test
+    public void testDeprecatedWarningForIsReadOnly() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/builtinoperations/is_readonly_deprecated_warning.bal");
+        int index = 0;
+        validateWarning(result, index++, "usage of construct 'x.isReadOnly(x)' is deprecated", 22, 9);
+        validateWarning(result, index++, "usage of construct 'value:isReadOnly(x)' is deprecated", 24, 17);
+        Assert.assertEquals(result.getDiagnostics().length, index);
     }
 }

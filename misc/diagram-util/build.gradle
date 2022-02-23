@@ -32,6 +32,8 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
+    implementation project(':docerina')
+    implementation project(':central-client')
 
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.code.gson:gson'

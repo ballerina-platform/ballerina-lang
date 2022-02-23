@@ -18,7 +18,18 @@ enum Colour {
     RED, GREEN, BLUE
 }
 
+const VAN_CONST = "van";
+
+enum Vehicle {
+    CAR = "toyota",
+    VAN = VAN_CONST,
+    BUS = "bus"
+}
+
+type Vehicle2 Vehicle;
+
 function test() returns Colour {
     Colour clr = RED;
+    Vehicle2 vehicle = VAN;
     return RED;
 }

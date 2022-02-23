@@ -23,7 +23,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("name.valery1707.kaitai:kaitai-gradle-plugin:0.1.1")
+        classpath("name.valery1707.kaitai:kaitai-gradle-plugin:${project.kaitaiGradlePluginVersion}")
     }
 }
 
@@ -35,8 +35,8 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
 
-    implementation 'io.kaitai:kaitai-struct-runtime:0.9'
-    implementation 'org.yaml:snakeyaml:1.26'
+    implementation "io.kaitai:kaitai-struct-runtime:${project.kaitaiStructRuntimeVersion}"
+    implementation "org.yaml:snakeyaml:${project.snakeyamlVersion}"
     implementation 'com.github.jknack:handlebars'
 
     testCompile 'org.testng:testng'
@@ -47,9 +47,10 @@ kaitai {
     packageName = 'org.ballerinalang.build.kaitai'
     cacheDir = new File("${project.gradle.gradleUserHomeDir}/kaitai-cache")
     executionTimeout = 10_000
-    version = "0.9"
-    url = new URL("https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/0.9/kaitai-struct-compiler-0" +
-            ".9.zip")
+    version = "${project.kaitaiStructCompilerVersion}"
+    url = new URL("https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/"+
+            "${project.kaitaiStructCompilerVersion}"+"/kaitai-struct-compiler-" +
+            "${project.kaitaiStructCompilerVersion}"+".zip")
 }
 
 sourceSets.main.java.srcDirs += 'build/generated/kaitai'

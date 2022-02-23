@@ -1,0 +1,4 @@
+[package]
+name = "lang.__internal"
+org = "ballerina"
+version = "1.0.0"

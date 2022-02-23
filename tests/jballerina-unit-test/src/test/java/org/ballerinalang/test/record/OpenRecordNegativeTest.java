@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -51,9 +52,9 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++, "unknown type 'Animal'", 22, 5);
         validateError(result, indx++, "incompatible types: expected '(anydata|json)', found 'Bar'", 31, 21);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 49, 17);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 50, 17);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'MyError'", 50, 17);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 53, 15);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 54, 15);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'MyError'", 54, 15);
         validateError(result, indx++,
                       "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
                       59, 26);
@@ -120,11 +121,13 @@ public class OpenRecordNegativeTest {
     public void testUninitRecordAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_uninit_access.bal");
         int index = 0;
+        validateWarning(compileResult, index++, "unused variable 'name'", 24, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 24, 19);
         validateError(compileResult, index++, "variable 'p' is not initialized", 27, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 28, 5);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 42);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 41);
         validateError(compileResult, index++, "variable 'p4' is not initialized", 52, 12);
-        assertEquals(compileResult.getErrorCount(), index);
+        assertEquals(compileResult.getErrorCount(), index - 1);
+        assertEquals(compileResult.getWarnCount(), 1);
     }
 }

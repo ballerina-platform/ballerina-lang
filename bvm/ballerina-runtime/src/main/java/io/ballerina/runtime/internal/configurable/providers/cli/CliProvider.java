@@ -18,11 +18,11 @@
 
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -162,7 +162,7 @@ public class CliProvider implements ConfigProvider {
         }
         try {
             return getCliConfigValue(TypeConverter.stringToDecimal(cliArg.value));
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | BError e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
@@ -230,7 +230,7 @@ public class CliProvider implements ConfigProvider {
             }
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
-                                  IdentifierUtils.decodeIdentifier(unionType.toString()), cliArg.value);
+                                  Utils.decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
     @Override
@@ -255,7 +255,7 @@ public class CliProvider implements ConfigProvider {
             return;
         }
         for (String key : varKeySet) {
-            diagnosticLog.warn(CONFIG_CLI_UNUSED_CLI_ARGS, null, key + "=" + cliVarKeyValueMap.get(key));
+            diagnosticLog.error(CONFIG_CLI_UNUSED_CLI_ARGS, null, key + "=" + cliVarKeyValueMap.get(key));
         }
     }
 

@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -26,13 +27,17 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,6 +112,31 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, FromClauseNode node) {
         return !node.fromKeyword().isMissing();
+    }
+    
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     FromClauseNode node,
+                     List<LSCompletionItem> completionItems) {
+
+        List<TypeDescKind> iterables = Arrays.asList(
+                TypeDescKind.STRING, TypeDescKind.ARRAY,
+                TypeDescKind.MAP, TypeDescKind.TABLE,
+                TypeDescKind.STREAM, TypeDescKind.XML);
+        
+        completionItems.forEach(lsCItem -> {
+            if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+                return;
+            } else if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL &&
+                    lsCItem.getCompletionItem().getKind() == CompletionItemKind.Function) {
+                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2));
+                return;
+            }
+            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(3) +
+                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+        });
     }
 
     private boolean onTypedBindingPatternContext(BallerinaCompletionContext context, FromClauseNode node) {

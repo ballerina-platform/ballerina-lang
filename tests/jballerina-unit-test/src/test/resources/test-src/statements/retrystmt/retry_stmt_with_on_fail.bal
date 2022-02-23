@@ -5,7 +5,7 @@ public class MyRetryManager {
     public function init(int count = 3) {
         self.count = count;
     }
-    public function shouldRetry(error? e) returns boolean {
+    public function shouldRetry(error e) returns boolean {
         if e is error && self.count >  0 {
             self.count -= 1;
             return true;

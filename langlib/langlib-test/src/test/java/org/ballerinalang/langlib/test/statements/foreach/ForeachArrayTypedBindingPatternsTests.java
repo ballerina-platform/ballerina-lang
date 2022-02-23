@@ -23,6 +23,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -142,5 +143,39 @@ public class ForeachArrayTypedBindingPatternsTests {
         BValue[] returns = BRunUtil.invoke(program, "testEmptyArrayIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "");
+    }
+
+    @Test(dataProvider = "bindingPatternWithVarInForeachStatementForReadOnlyMembersOfLists")
+    public void testBindingPatternWithVarInForeachStatementForReadOnlyMembersOfLists(String function) {
+        BRunUtil.invoke(program, function);
+    }
+
+    @DataProvider
+    public Object[] bindingPatternWithVarInForeachStatementForReadOnlyMembersOfLists() {
+        return new String[] {
+                "testForeachIterationOverReadOnlyArrayMembersOfReadOnlyArrayWithVar",
+                "testForeachIterationOverReadOnlyArrayMembersOfNonReadOnlyArrayWithVar",
+                "testForeachIterationOverReadOnlyTupleMembersOfReadOnlyArrayWithVar",
+                "testForeachIterationOverReadOnlyTupleMembersOfReadOnlyTupleWithVar",
+                "testForeachIterationOverReadOnlyArrayMembersOfReadOnlyTupleWithVar",
+                "testForeachIterationOverReadOnlyMapOfReadOnlyTupleWithVar"
+        };
+    }
+
+    @Test(dataProvider = "bindingPatternInForeachStatementForReadOnlyMembersOfLists")
+    public void testBindingPatternInForeachStatementForReadOnlyMembersOfLists(String function) {
+        BRunUtil.invoke(program, function);
+    }
+
+    @DataProvider
+    public Object[] bindingPatternInForeachStatementForReadOnlyMembersOfLists() {
+        return new String[] {
+                "testForeachIterationOverReadOnlyArrayMembersOfReadOnlyArray",
+                "testForeachIterationOverReadOnlyArrayMembersOfNonReadOnlyArray",
+                "testForeachIterationOverReadOnlyTupleMembersOfReadOnlyArray",
+                "testForeachIterationOverReadOnlyTupleMembersOfReadOnlyTuple",
+                "testForeachIterationOverReadOnlyArrayMembersOfReadOnlyTuple",
+                "testForeachIterationOverReadOnlyRecordOfNonReadOnlyArray"
+        };
     }
 }

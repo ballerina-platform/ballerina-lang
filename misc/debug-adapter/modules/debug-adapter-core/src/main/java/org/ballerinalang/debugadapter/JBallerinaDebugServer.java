@@ -30,8 +30,8 @@ import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.identifier.Utils;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.completion.CompletionContext;
 import org.ballerinalang.debugadapter.completion.FieldAccessCompletionResolver;
@@ -47,9 +47,9 @@ import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.ballerinalang.debugadapter.runner.BFileRunner;
 import org.ballerinalang.debugadapter.runner.BPackageRunner;
 import org.ballerinalang.debugadapter.runner.BProgramRunner;
+import org.ballerinalang.debugadapter.runner.BSingleFileRunner;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
@@ -159,7 +159,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
-    private static final String PARENTHESIS = "()";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -240,7 +239,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             String sourceProjectRoot = context.getSourceProjectRoot();
             BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
-                    new BFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
+                    new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
                     new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
             context.setLaunchedProcess(programRunner.start());
@@ -275,6 +274,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             LOGGER.error(e.getMessage());
             outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                     host, portName));
+            terminateDebugServer(context.getDebuggeeVM() != null, false);
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -557,18 +557,24 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
         context.setTerminateRequestReceived(true);
         boolean terminateDebuggee = Objects.requireNonNullElse(args.getTerminateDebuggee(), true);
-        terminateServer(terminateDebuggee);
+        terminateDebugServer(terminateDebuggee, true);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
         context.setTerminateRequestReceived(true);
-        terminateServer(true);
+        terminateDebugServer(true, true);
         return CompletableFuture.completedFuture(null);
     }
 
-    void terminateServer(boolean terminateDebuggee) {
+    /**
+     * Terminates the debug server.
+     *
+     * @param terminateDebuggee indicates whether the remote VM should also be terminated
+     * @param logsEnabled       indicates whether the debug server logs should be sent to the client
+     */
+    void terminateDebugServer(boolean terminateDebuggee, boolean logsEnabled) {
         // Destroys launched process, if presents.
         if (context.getLaunchedProcess().isPresent() && context.getLaunchedProcess().get().isAlive()) {
             killProcessWithDescendants(context.getLaunchedProcess().get());
@@ -595,7 +601,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
 
         // Notifies user.
-        if (executionManager != null) {
+        if (executionManager != null && logsEnabled) {
             String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
                     executionManager.getHost().get() + ":" + executionManager.getPort().get() : VALUE_UNKNOWN;
             outputLogger.sendDebugServerOutput(String.format(System.lineSeparator() + "Disconnected from the target " +
@@ -676,7 +682,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         ArrayList<Variable> globalVars = new ArrayList<>();
         ReferenceType initClassReference = cls.get(0);
         for (Field field : initClassReference.allFields()) {
-            String fieldName = IdentifierUtils.decodeIdentifier(field.name());
+            String fieldName = Utils.decodeIdentifier(field.name());
             if (!field.isPublic() || !field.isStatic() || fieldName.startsWith(GENERATED_VAR_PREFIX)) {
                 continue;
             }
@@ -944,7 +950,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     //  the STDOUT stream.
                     outputLogger.sendConsoleOutput(line);
                     if (context.getDebuggeeVM() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
-                        terminateServer(false);
+                        terminateDebugServer(false, true);
                     }
                 }
             } catch (IOException ignored) {
@@ -964,7 +970,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     if (line.contains("Listening for transport dt_socket")) {
                         attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                     } else if (context.getDebuggeeVM() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
-                        terminateServer(false);
+                        terminateDebugServer(false, true);
                     }
                     outputLogger.sendProgramOutput(line);
                 }
@@ -980,7 +986,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 LOGGER.error(e.getMessage());
                 outputLogger.sendDebugServerOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                         host, portName));
-                terminateServer(context.getDebuggeeVM() != null);
+                terminateDebugServer(context.getDebuggeeVM() != null, false);
             }
         });
     }

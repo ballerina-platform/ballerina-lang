@@ -1,0 +1,75 @@
+{
+  "packages": [
+    {
+      "org": "asmaj",
+      "name": "package_refresh_bala",
+      "version": "0.1.0",
+      "transitive": false,
+      "dependencies": [
+        {
+          "org": "asmaj",
+          "name": "package_refresh_two_v3",
+          "version": "0.1.0",
+          "transitive": false,
+          "dependencies": [],
+          "modules": []
+        }
+      ],
+      "modules": []
+    },
+    {
+      "org": "asmaj",
+      "name": "package_refresh_two_v3",
+      "version": "0.1.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "asmaj",
+      "package_name": "package_refresh_bala",
+      "version": "0.1.0",
+      "module_name": "package_refresh_bala.mod1",
+      "dependencies": [
+        {
+          "org": "asmaj",
+          "package_name": "package_refresh_two_v3",
+          "version": "0.1.0",
+          "module_name": "package_refresh_two_v3",
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "org": "asmaj",
+      "package_name": "package_refresh_bala",
+      "version": "0.1.0",
+      "module_name": "package_refresh_bala.mod2",
+      "dependencies": []
+    },
+    {
+      "org": "asmaj",
+      "package_name": "package_refresh_bala",
+      "version": "0.1.0",
+      "module_name": "package_refresh_bala",
+      "dependencies": [
+        {
+          "org": "asmaj",
+          "package_name": "package_refresh_bala",
+          "version": "0.1.0",
+          "module_name": "package_refresh_bala.mod2",
+          "dependencies": []
+        },
+        {
+          "org": "asmaj",
+          "package_name": "package_refresh_bala",
+          "version": "0.1.0",
+          "module_name": "package_refresh_bala.mod1",
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

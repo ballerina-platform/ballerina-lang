@@ -29,7 +29,6 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.PrintStream;
-import java.util.Optional;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -146,9 +145,7 @@ public class RuntimeUtils {
     public static void handleRuntimeReturnValues(Object returnValue) {
         if (returnValue instanceof ErrorValue) {
             ErrorValue errorValue = (ErrorValue) returnValue;
-            errStream.println("error: " + errorValue.getMessage() +
-                                      Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details)
-                                              .orElse(""));
+            errStream.println("error: " + errorValue.getPrintableError());
             Runtime.getRuntime().exit(1);
         }
     }

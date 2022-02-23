@@ -1033,11 +1033,11 @@ function testBitwiseOr() {
     int v = f | d;
     test:assertValueEqual(6429485, v);
 
-    ints:Unsigned16 w = g | h;
-    test:assertValueEqual(39869, w);
+    ints:Unsigned32 w = g | h;
+    test:assertValueEqual(5741501, w);
 
-    ints:Unsigned8 x = h | f;
-    test:assertValueEqual(156, x);
+    ints:Unsigned32 x = h | f;
+    test:assertValueEqual(5739420, x);
 
     int y = a | h;
     test:assertValueEqual(5739413, y);
@@ -1101,11 +1101,11 @@ function testBitwiseXor() {
     int v = f ^ d;
     test:assertValueEqual(6429473, v);
 
-    ints:Unsigned16 w = g ^ h;
-    test:assertValueEqual(39613, w);
+    ints:Unsigned32 w = g ^ h;
+    test:assertValueEqual(5741245, w);
 
-    ints:Unsigned8 x = h ^ f;
-    test:assertValueEqual(152, x);
+    ints:Unsigned32 x = h ^ f;
+    test:assertValueEqual(5739416, x);
 
     int y = a ^ h;
     test:assertValueEqual(5739413, y);

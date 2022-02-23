@@ -6,6 +6,7 @@ function runKeySpecifierTestCases() {
     testTableTypeWithKeyTypeConstraint();
     testTableTypeWithCompositeKeyTypeConstraint();
     testTableTypeWithMultiFieldKeys();
+    testVariableNameFieldAsKeyField();
 }
 
 type Customer record {
@@ -187,6 +188,17 @@ function testInferTableTypeV2() {
 
     tb.put({id: 3, name: "Pope", salary: 200.0, age: 19, address: {no: 12, road: "Sea street"}});
     assertEquality(3, tb.length());
+}
+
+const int id = 1;
+
+function testVariableNameFieldAsKeyField() {
+    string expected = "[{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Amy\"}]";
+    table<record {readonly int id; string name;}> key (id) tb = table [
+        {id, name: "Jo"},
+        {id: 2, name: "Amy"}
+    ];
+    assertEquality(expected, tb.toString());
 }
 
 function assertTrue(any|error actual) {

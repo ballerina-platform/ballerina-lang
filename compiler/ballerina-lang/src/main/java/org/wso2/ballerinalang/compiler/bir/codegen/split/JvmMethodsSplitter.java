@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 
 import java.util.Map;
 
@@ -39,12 +40,12 @@ public class JvmMethodsSplitter {
     private final String moduleInitClass;
 
     public JvmMethodsSplitter(JvmPackageGen jvmPackageGen, JvmConstantsGen jvmConstantsGen,
-                              BIRNode.BIRPackage module, String moduleInitClass) {
+                              BIRNode.BIRPackage module, String moduleInitClass, TypeHashVisitor typeHashVisitor) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.moduleInitClass = moduleInitClass;
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
-        this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
+        this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID, typeHashVisitor);
         this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
         this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID);
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);

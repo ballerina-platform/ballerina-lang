@@ -137,7 +137,7 @@ public class ObjectTypeReferenceTest {
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");
@@ -164,18 +164,16 @@ public class ObjectTypeReferenceTest {
                 BCompileUtil.compile("test-src/object/object_inclusion_with_qualifiers_negative.bal");
 
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
-                                  26, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                "descriptor in a 'class' that is not 'readonly'", 26, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
                                   27, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
-                                  33, 6);
+        BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
+                                          "descriptor in an 'object' type descriptor", 33, 6);
         BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
                                   34, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
                 "(s) in the referencing object", 58, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS,
-                                  58, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
                 "in the referencing object", 59, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
@@ -186,8 +184,6 @@ public class ObjectTypeReferenceTest {
                                   68, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'isolated' qualifier" +
                 "(s) in the referencing object", 74, 6);
-        BAssertUtil.validateError(negativeResult, i++, ERROR_INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPEDESC,
-                                  74, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'client' qualifier(s) " +
                 "in the referencing object", 75, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid object type inclusion: missing 'service' qualifier(s)" +
@@ -367,14 +363,14 @@ public class ObjectTypeReferenceTest {
                                           "(string aString, int anInt, AnotherBar... bars) returns string'",
                                   66, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test5(ON|OFF... status) returns" +
-                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 71, 5);
+                "mismatched function signatures: expected 'function test5(Status... status) returns Bar',"
+                        + " found 'function test5(Status... stat) returns Bar'", 71, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test6([string,ON|OFF]... tup)'," +
-                                          " found 'function test6([string,ON|OFF]... tupl)'", 76, 5);
+                                  "mismatched function signatures: expected 'function test6([string,Status]... tup)'," +
+                                          " found 'function test6([string,Status]... tupl)'", 76, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test7() returns ON|OFF', found " +
-                                          "'function test7(int x) returns ON|OFF'", 79, 5);
+                                  "mismatched function signatures: expected 'function test7() returns Status', found " +
+                                          "'function test7(int x) returns Status'", 79, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test8(int:Signed16 anInt, Bar.." +
                                           ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
@@ -396,14 +392,14 @@ public class ObjectTypeReferenceTest {
 
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, index++,
-                                  "incompatible type reference 'abc:Foo': a referenced object cannot have non-public " +
-                                          "fields or methods", 20, 6);
+                                  "incompatible type reference 'abc:Foo': a referenced type across modules " +
+                                          "cannot have non-public fields or methods", 20, 6);
         BAssertUtil.validateError(result, index++,
-                                  "incompatible type reference 'abc:Bar': a referenced object cannot have non-public " +
-                                          "fields or methods", 21, 6);
+                                  "incompatible type reference 'abc:Bar': a referenced type across modules " +
+                                          "cannot have non-public fields or methods", 21, 6);
         BAssertUtil.validateError(result, index,
-                                  "incompatible type reference 'abc:Baz': a referenced object cannot have non-public " +
-                                          "fields or methods", 22, 6);
+                                  "incompatible type reference 'abc:Baz': a referenced type across modules " +
+                                          "cannot have non-public fields or methods", 22, 6);
     }
 
     @Test

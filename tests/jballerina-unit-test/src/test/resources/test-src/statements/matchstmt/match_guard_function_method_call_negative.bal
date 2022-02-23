@@ -56,7 +56,7 @@ function f1() {
 function f2() {
     int[] arr = [1, 2, 3];
     anydata[] anydataArr = [1, arr.cloneReadOnly(), value:cloneReadOnly(arr)];
-    int m = 2;
+    int _ = 2;
 
     match arr {
         [1, 2] if isolatedFn2(1, arr, arr) => {
@@ -146,7 +146,7 @@ function f4() {
 
     int[] arr = [1, 2, 3];
     anydata[] anydataArr = [1, arr.cloneReadOnly(), value:cloneReadOnly(arr)];
-    int m = 2;
+    int _ = 2;
 
     match arr {
         [1, 2] if c1.isolatedFn2(1, arr, value:clone(arr)) => {

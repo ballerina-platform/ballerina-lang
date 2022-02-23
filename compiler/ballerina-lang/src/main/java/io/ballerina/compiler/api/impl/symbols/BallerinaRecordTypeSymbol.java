@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,8 +70,11 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     @Override
     public Optional<TypeSymbol> restTypeDescriptor() {
         if (this.restTypeDesc == null) {
-            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.restTypeDesc = typesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
+            BType restFieldType = ((BRecordType) this.getBType()).restFieldType;
+            if (restFieldType.tag != TypeTags.NONE) {
+                TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+                this.restTypeDesc = typesFactory.getTypeDescriptor(restFieldType);
+            }
         }
 
         return Optional.ofNullable(this.restTypeDesc);

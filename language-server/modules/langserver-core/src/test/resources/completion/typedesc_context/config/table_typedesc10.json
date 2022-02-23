@@ -229,6 +229,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BBO",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -237,6 +238,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCE",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -260,6 +262,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCE",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -283,6 +286,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCE",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -306,6 +310,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCF",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -329,6 +334,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCE",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

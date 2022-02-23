@@ -306,3 +306,18 @@ const int CONST1 = CONST1;
 // Redeclared constant.
 const abc2 = 1;
 const abc2 = "1";
+
+type Byte byte;
+
+const Byte V1 = 256;
+
+type Ints int;
+
+const Ints V2 = 1.0;
+
+// Test the types of Langlib constants
+type Ints2 -1|int:MIN_VALUE;
+Ints2 ints2 = 2;
+
+float:NaN floatNan = 1.0;
+float:Infinity floatInf = 1.0;

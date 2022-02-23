@@ -17,10 +17,7 @@
  */
 package org.ballerinalang.test.util;
 
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -120,26 +117,6 @@ public class BFileUtil {
         } catch (IOException e) {
             throw new BLangRuntimeException("error occurred while deleting '" + path + "'", e);
         }
-    }
-
-    /**
-     * Provides Qualified Class Name.
-     *
-     * @param packageID Package id
-     * @param className Class name
-     * @return Qualified class name
-     */
-    public static String getQualifiedClassName(PackageID packageID, String className) {
-        if (!IdentifierUtils.encodeNonFunctionIdentifier(Names.DEFAULT_PACKAGE.value).equals(
-                packageID.name.getValue())) {
-            className = packageID.name + "." + packageID.version.getValue().replace('.', '_') + "." + className;
-        }
-
-        if (!Names.ANON_ORG.value.equals(packageID.orgName.getValue())) {
-            className = packageID.orgName.getValue() + "." + className;
-        }
-
-        return className;
     }
 
     /**

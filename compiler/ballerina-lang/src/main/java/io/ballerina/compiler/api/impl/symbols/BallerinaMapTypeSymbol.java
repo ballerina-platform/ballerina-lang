@@ -33,6 +33,7 @@ import java.util.Optional;
 public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTypeSymbol {
 
     private TypeSymbol memberTypeDesc;
+    private String signature;
 
     public BallerinaMapTypeSymbol(CompilerContext context, ModuleID moduleID, BMapType mapType) {
         super(context, TypeDescKind.MAP, mapType);
@@ -60,7 +61,11 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
 
     @Override
     public String signature() {
-        TypeSymbol memberTypeDescriptor = this.typeParam();
-        return "map<" + memberTypeDescriptor.signature() + ">";
+        if (this.signature == null) {
+            TypeSymbol memberTypeDescriptor = this.typeParam();
+            this.signature = "map<" + memberTypeDescriptor.signature() + ">";
+        }
+
+        return this.signature;
     }
 }

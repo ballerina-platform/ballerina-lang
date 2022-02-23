@@ -45,7 +45,7 @@ public class AsyncFunctionsTest extends BaseTest {
         bMainInstance.runMain(testFileLocation + "/", "functionsLib", null, new String[]{}, null, null,
                 new LogLeecher[]{runLeecher});
         runLeecher.waitForText(5000);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                 testFileLocation + "/functionsLib");
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},

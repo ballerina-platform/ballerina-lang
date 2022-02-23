@@ -32,7 +32,6 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -64,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
@@ -284,7 +284,7 @@ public class Utils {
         if (!isAnyDataType(restFieldType)) {
             return TypeCreator.createField(restFieldType, fieldName, SymbolFlags.READONLY);
         } else {
-            return TypeCreator.createField(Utils.getTypeFromTomlValue(value), fieldName, SymbolFlags.READONLY);
+            return TypeCreator.createField(getTypeFromTomlValue(value), fieldName, SymbolFlags.READONLY);
         }
     }
 
@@ -335,7 +335,7 @@ public class Utils {
                                                   String variableName, TomlNode tomlNode) {
         invalidTomlLines.add(tomlNode.location().lineRange());
         throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlNode), variableName,
-                IdentifierUtils.decodeIdentifier(unionType.toString()));
+                decodeIdentifier(unionType.toString()));
     }
 
     private static boolean containsType(BUnionType unionType, int tag) {
