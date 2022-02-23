@@ -498,13 +498,13 @@ public class SignatureHelpUtil {
         }
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor().get();
         if (nodeAtCursor.kind() == SyntaxKind.FUNCTION_CALL) {
-            return getFunctionSymbol(((FunctionCallExpressionNode) nodeAtCursor), context);
+            return getFunctionSymbol(nodeAtCursor, context);
         }
         return getFunctionSymbol(nodeAtCursor, context);
 
     }
 
-    private static Optional<? extends Symbol> getFunctionSymbol(FunctionCallExpressionNode node, 
+    private static Optional<? extends Symbol> getFunctionSymbol(FunctionCallExpressionNode node,
                                                                 SignatureContext context) {
         NameReferenceNode nameReferenceNode = node.functionName();
         String funcName;
@@ -522,7 +522,7 @@ public class SignatureHelpUtil {
             funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             filteredContent = visibleSymbols.stream()
-                    .filter(symbolPredicate.and(symbol -> symbol.getName().get().equals(funcName)))
+                    .filter(symbolPredicate.and(symbol -> symbol.getName().isPresent() && symbol.getName().get().equals(funcName)))
                     .collect(Collectors.toList());
         }
 
