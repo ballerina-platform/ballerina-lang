@@ -228,7 +228,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * Responsible for performing data flow analysis.
  * <p>
  * The following validations are done here:-
@@ -514,8 +513,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, Location> prevUnusedLocalVariables = null;
         Map<BSymbol, InitStatus> prevUninitializedVars = null;
         boolean visitedOCE = false;
-        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null && 
-                        classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null &&
+                classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
             env = classDef.oceEnvData.capturedClosureEnv.enclEnv;
             prevUnusedLocalVariables = this.unusedLocalVariables;
             prevUninitializedVars = this.uninitializedVars;
@@ -567,7 +566,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Stream.concat(classDef.fields.stream(), classDef.referencedFields.stream())
                 .map(field -> {
                     addTypeDependency(classDef.symbol, field.getBType(), new HashSet<>());
-                    return field; })
+                    return field;
+                })
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
                     if (this.uninitializedVars.containsKey(field.symbol)) {
@@ -857,7 +857,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (isNotRangeExpr(collection)) {
             populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                                                (BLangVariable) foreach.variableDefinitionNode.getVariable());
+                    (BLangVariable) foreach.variableDefinitionNode.getVariable());
         }
 
         analyzeNode(collection, env);
@@ -956,7 +956,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-         /* ignore */
+        /* ignore */
     }
 
     @Override
@@ -971,7 +971,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-       // todo
+        // todo
     }
 
     @Override
@@ -1034,7 +1034,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     public boolean equality(Node nodeA, Node nodeB) {
         if (nodeA == null || nodeB == null) {
-            return false;
+            return nodeA == nodeB;
         }
 
         if (nodeA.getKind() != nodeB.getKind()) {
@@ -1046,10 +1046,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteralA = (BLangRecordLiteral) nodeA;
                 BLangRecordLiteral recordLiteralB = (BLangRecordLiteral) nodeB;
-                for (int i = 0; i < recordLiteralA.fields.size(); i++) {
+                for (int i = 0; isEqual && i < recordLiteralA.fields.size(); i++) {
                     RecordLiteralNode.RecordField exprA = recordLiteralA.fields.get(i);
                     RecordLiteralNode.RecordField exprB = recordLiteralB.fields.get(i);
-                    isEqual = isEqual && equality(exprA, exprB);
+                    isEqual = equality(exprA, exprB);
                 }
                 return isEqual;
             case RECORD_LITERAL_KEY_VALUE:
@@ -1058,18 +1058,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangRecordLiteral.BLangRecordKeyValueField fieldB =
                         (BLangRecordLiteral.BLangRecordKeyValueField) nodeB;
                 return equality(fieldA.valueExpr, fieldB.valueExpr);
-            case ARRAY_LITERAL_EXPR:
-                BLangListConstructorExpr.BLangArrayLiteral arrayLiteralA =
-                        (BLangListConstructorExpr.BLangArrayLiteral) nodeA;
-                BLangListConstructorExpr.BLangArrayLiteral arrayLiteralB =
-                        (BLangListConstructorExpr.BLangArrayLiteral) nodeB;
-
-                for (int i = 0; i < arrayLiteralA.exprs.size(); i++) {
-                    BLangExpression exprA = arrayLiteralA.exprs.get(i);
-                    BLangExpression exprB = arrayLiteralB.exprs.get(i);
-                    isEqual = isEqual && equality(exprA, exprB);
-                }
-                return isEqual;
             case LITERAL:
             case NUMERIC_LITERAL:
                 BLangLiteral literalA = (BLangLiteral) nodeA;
@@ -1079,39 +1067,55 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangXMLTextLiteral textLiteralA = (BLangXMLTextLiteral) nodeA;
                 BLangXMLTextLiteral textLiteralB = (BLangXMLTextLiteral) nodeB;
                 isEqual = equality(textLiteralA.concatExpr, textLiteralB.concatExpr);
-                for (int i = 0; i < textLiteralA.textFragments.size(); i++) {
+                for (int i = 0; isEqual && i < textLiteralA.textFragments.size(); i++) {
                     BLangExpression exprA = textLiteralA.textFragments.get(i);
                     BLangExpression exprB = textLiteralB.textFragments.get(i);
-                    isEqual = isEqual && equality(exprA, exprB);
+                    isEqual = equality(exprA, exprB);
                 }
                 return isEqual;
             case XML_ATTRIBUTE:
                 BLangXMLAttribute attributeA = (BLangXMLAttribute) nodeA;
                 BLangXMLAttribute attributeB = (BLangXMLAttribute) nodeB;
-                return equality(attributeA.value, attributeB.value);
+                return equality(attributeA.name, attributeB.name) && equality(attributeA.value, attributeB.value);
             case XML_QNAME:
                 BLangXMLQName xmlqNameA = (BLangXMLQName) nodeA;
                 BLangXMLQName xmlqNameB = (BLangXMLQName) nodeA;
                 return equality(xmlqNameA.localname, xmlqNameB.localname)
                         && equality(xmlqNameA.prefix, xmlqNameB.prefix);
+            case XML_ELEMENT_LITERAL:
+                BLangXMLElementLiteral eleLiteralA = (BLangXMLElementLiteral) nodeA;
+                BLangXMLElementLiteral eleLiteralB = (BLangXMLElementLiteral) nodeB;
+                isEqual = equality(eleLiteralA.startTagName, eleLiteralB.startTagName)
+                        && equality(eleLiteralA.endTagName, eleLiteralB.endTagName);
+                for (int i = 0; isEqual && i < eleLiteralA.attributes.size(); i++) {
+                    BLangExpression exprA = eleLiteralA.attributes.get(i);
+                    BLangExpression exprB = eleLiteralB.attributes.get(i);
+                    isEqual = equality(exprA, exprB);
+                }
+                for (int i = 0; isEqual && i < eleLiteralA.children.size(); i++) {
+                    BLangExpression exprA = eleLiteralA.children.get(i);
+                    BLangExpression exprB = eleLiteralB.children.get(i);
+                    isEqual = equality(exprA, exprB);
+                }
+                return isEqual;
             case XML_COMMENT_LITERAL:
                 BLangXMLCommentLiteral commentliteralA = (BLangXMLCommentLiteral) nodeA;
                 BLangXMLCommentLiteral commentliteralB = (BLangXMLCommentLiteral) nodeB;
                 isEqual = equality(commentliteralA.concatExpr, commentliteralB.concatExpr);
-                for (int i = 0; i < commentliteralA.textFragments.size(); i++) {
+                for (int i = 0; isEqual && i < commentliteralA.textFragments.size(); i++) {
                     BLangExpression exprA = commentliteralA.textFragments.get(i);
                     BLangExpression exprB = commentliteralB.textFragments.get(i);
-                    isEqual = isEqual && equality(exprA, exprB);
+                    isEqual = equality(exprA, exprB);
                 }
                 return isEqual;
             case XML_QUOTED_STRING:
                 BLangXMLQuotedString quotedLiteralA = (BLangXMLQuotedString) nodeA;
                 BLangXMLQuotedString quotedLiteralB = (BLangXMLQuotedString) nodeB;
                 isEqual = equality(quotedLiteralA.concatExpr, quotedLiteralB.concatExpr);
-                for (int i = 0; i < quotedLiteralA.textFragments.size(); i++) {
+                for (int i = 0; isEqual && i < quotedLiteralA.textFragments.size(); i++) {
                     BLangExpression exprA = quotedLiteralA.textFragments.get(i);
                     BLangExpression exprB = quotedLiteralB.textFragments.get(i);
-                    isEqual = isEqual && equality(exprA, exprB);
+                    isEqual = equality(exprA, exprB);
                 }
                 return isEqual;
             case XMLNS:
@@ -1123,10 +1127,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangXMLProcInsLiteral insLiteralB = (BLangXMLProcInsLiteral) nodeB;
                 isEqual = equality(insLiteralA.target, insLiteralB.target)
                         && equality(insLiteralA.dataConcatExpr, insLiteralB.dataConcatExpr);
-                for (int i = 0; i < insLiteralA.dataFragments.size(); i++) {
+                for (int i = 0; isEqual && i < insLiteralA.dataFragments.size(); i++) {
                     BLangExpression exprA = insLiteralA.dataFragments.get(i);
                     BLangExpression exprB = insLiteralB.dataFragments.get(i);
-                    isEqual = isEqual && equality(exprA, exprB);
+                    isEqual = equality(exprA, exprB);
                 }
                 return isEqual;
             case IDENTIFIER:
@@ -1140,28 +1144,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case STRING_TEMPLATE_LITERAL:
                 BLangStringTemplateLiteral stringTemplateLiteralA = (BLangStringTemplateLiteral) nodeA;
                 BLangStringTemplateLiteral stringTemplateLiteralB = (BLangStringTemplateLiteral) nodeB;
-                for (int i = 0; i < stringTemplateLiteralA.exprs.size(); i++) {
+                for (int i = 0; isEqual && i < stringTemplateLiteralA.exprs.size(); i++) {
                     BLangExpression exprA = stringTemplateLiteralA.exprs.get(i);
                     BLangExpression exprB = stringTemplateLiteralB.exprs.get(i);
-                    isEqual = isEqual && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                    isEqual = getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
                 }
                 return isEqual;
             case LIST_CONSTRUCTOR_EXPR:
                 BLangListConstructorExpr listConstructorExprA = (BLangListConstructorExpr) nodeA;
                 BLangListConstructorExpr listConstructorExprB = (BLangListConstructorExpr) nodeB;
-                for (int i = 0; i < listConstructorExprA.exprs.size(); i++) {
+                for (int i = 0; isEqual && i < listConstructorExprA.exprs.size(); i++) {
                     BLangExpression exprA = listConstructorExprA.exprs.get(i);
                     BLangExpression exprB = listConstructorExprB.exprs.get(i);
-                    isEqual = isEqual && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                    isEqual = getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
                 }
                 return isEqual;
             case TABLE_CONSTRUCTOR_EXPR:
                 BLangTableConstructorExpr tableConstructorExprA = (BLangTableConstructorExpr) nodeA;
                 BLangTableConstructorExpr tableConstructorExprB = (BLangTableConstructorExpr) nodeB;
-                for (int i = 0; i < tableConstructorExprA.recordLiteralList.size(); i++) {
+                for (int i = 0; isEqual && i < tableConstructorExprA.recordLiteralList.size(); i++) {
                     BLangExpression exprA = tableConstructorExprA.recordLiteralList.get(i);
                     BLangExpression exprB = tableConstructorExprB.recordLiteralList.get(i);
-                    isEqual = isEqual && getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
+                    isEqual = getTypeEquality(exprA.getBType(), exprB.getBType()) && equality(exprA, exprB);
                 }
                 return isEqual;
             case TYPE_CONVERSION_EXPR:
@@ -1495,7 +1499,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (isNotRangeExpr(collection)) {
             populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                                                (BLangVariable) fromClause.variableDefinitionNode.getVariable());
+                    (BLangVariable) fromClause.variableDefinitionNode.getVariable());
         }
 
         analyzeNode(collection, env);
@@ -1504,7 +1508,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         populateUnusedVariableMapForMembers(this.unusedLocalVariables,
-                                            (BLangVariable) joinClause.variableDefinitionNode.getVariable());
+                (BLangVariable) joinClause.variableDefinitionNode.getVariable());
         analyzeNode(joinClause.collection, env);
         if (joinClause.onClause != null) {
             analyzeNode((BLangNode) joinClause.onClause, env);
@@ -1668,7 +1672,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * Let func foo() { returns b + 1; }, where b is a global var, then foo depends on b.
      *
      * @param dependent dependent.
-     * @param provider object which provides a value.
+     * @param provider  object which provides a value.
      */
     private void addDependency(BSymbol dependent, BSymbol provider) {
         if (provider == null || dependent == null || dependent.pkgID != provider.pkgID) {
@@ -1894,7 +1898,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BSymbol symbol = closureVarSymbol.bSymbol;
             if (this.uninitializedVars.containsKey(symbol)) {
                 this.dlog.error(closureVarSymbol.diagnosticLocation,
-                                DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol);
+                        DiagnosticErrorCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol);
             }
 
             this.unusedErrorVarsDeclaredWithVar.remove(symbol);
@@ -2214,7 +2218,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      * This method will not update the current uninitialized variables set.
      *
      * @param node Branch node to be analyzed
-     * @param env Symbol environment
+     * @param env  Symbol environment
      * @return Result of the branch.
      */
     private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
@@ -2296,7 +2300,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.
         if (isInPkgLevel && (globalVarSymbol || symbol instanceof BTypeSymbol)
-            || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
+                || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
             BSymbol dependent = this.currDependentSymbolDeque.peek();
             addDependency(dependent, symbol);
         } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbol) {
@@ -2473,7 +2477,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkUnusedErrorVarsDeclaredWithVar() {
         for (Map.Entry<BSymbol, Location> entry : this.unusedErrorVarsDeclaredWithVar.entrySet()) {
             this.dlog.error(entry.getValue(), DiagnosticErrorCode.UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR,
-                            entry.getKey().name);
+                    entry.getKey().name);
         }
     }
 
@@ -2486,7 +2490,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
         BType typeIntersection =
                 types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
-                                          variable.getBType(), symTable.errorType, env);
+                        variable.getBType(), symTable.errorType, env);
         if (typeIntersection != null &&
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
