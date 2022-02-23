@@ -213,19 +213,19 @@ public class XMLTest {
 
     @Test
     public void testXMLWithNumericEscapes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLWithNumericEscapes");
-        Assert.assertEquals(returns.length, 10);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "\\u{61}");
-        Assert.assertEquals(returns[1].stringValue(), "\\u{61}ppl\\\\u{65}");
-        Assert.assertEquals(returns[2].stringValue(), "A \\u{5C} B");
-        Assert.assertEquals(returns[3].stringValue(), "A \\\\u{5C} B");
-        Assert.assertEquals(returns[4].stringValue(), "&quot;\\u{D800}&quot;");
-        Assert.assertEquals(returns[5].stringValue(), "\\u{DFFF}&quot;\\u{DFFF}&quot;");
-        Assert.assertEquals(returns[6].stringValue(), "&quot;\\u{12FFFF} ABC \\u{DFFF} DEF \\u{DAFF}&quot;");
-        Assert.assertEquals(returns[7].stringValue(), "\\u{12FFFF} ABC \\u{DFFFAAA} DEF \\u{FFFFFFF}");
-        Assert.assertEquals(returns[8].stringValue(), "\\u{001B[");
-        Assert.assertEquals(returns[9].stringValue(), "&quot;\\u{001B[&quot;");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testXMLWithNumericEscapes");
+        Assert.assertEquals(returns.size(), 10);
+        Assert.assertTrue(returns.get(0) instanceof BXml);
+        Assert.assertEquals(returns.get(0).toString(), "\\u{61}");
+        Assert.assertEquals(returns.get(1).toString(), "\\u{61}ppl\\\\u{65}");
+        Assert.assertEquals(returns.get(2).toString(), "A \\u{5C} B");
+        Assert.assertEquals(returns.get(3).toString(), "A \\\\u{5C} B");
+        Assert.assertEquals(returns.get(4).toString(), "\"\\u{D800}\"");
+        Assert.assertEquals(returns.get(5).toString(), "\\u{DFFF}\"\\u{DFFF}\"");
+        Assert.assertEquals(returns.get(6).toString(), "\"\\u{12FFFF} ABC \\u{DFFF} DEF \\u{DAFF}\"");
+        Assert.assertEquals(returns.get(7).toString(), "\\u{12FFFF} ABC \\u{DFFFAAA} DEF \\u{FFFFFFF}");
+        Assert.assertEquals(returns.get(8).toString(), "\\u{001B[");
+        Assert.assertEquals(returns.get(9).toString(), "\"\\u{001B[\"");
     }
 
     @AfterClass
