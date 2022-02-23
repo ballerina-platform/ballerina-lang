@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -271,10 +272,34 @@ class JMethodResolver {
 
         if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
                 (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
+            BType returnType = jMethodRequest.bReturnType;
+            String expectedRetTypeName;
+            if (returnType.tag == TypeTags.NIL || returnType instanceof BTypeReferenceType &&
+                    ((BTypeReferenceType) returnType).referredType.tag == TypeTags.ERROR) {
+                expectedRetTypeName = "error";
+            } else if (returnType instanceof BUnionType) {
+                BUnionType bUnionReturnType = (BUnionType) returnType;
+                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+                expectedRetTypeName = modifiedRetType + "|error";
+            } else {
+                expectedRetTypeName = returnType + "|error";
+            }
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
-                    "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
-                            "found in class '" + jMethodRequest.declaringClass + "'");
+                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
+                            "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
+                            "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
         }
+    }
+
+    private LinkedHashSet<BType> getNonErrorMembers(BUnionType bUnionReturnType) {
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
+        for (BType bType : bUnionReturnType.getMemberTypes()) {
+            if (!(bType instanceof BTypeReferenceType &&
+                    ((BTypeReferenceType) bType).referredType.tag == TypeTags.ERROR)) {
+                memTypes.add(bType);
+            }
+        }
+        return memTypes;
     }
 
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
