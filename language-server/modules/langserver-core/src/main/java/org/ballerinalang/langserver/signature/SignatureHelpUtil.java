@@ -522,7 +522,8 @@ public class SignatureHelpUtil {
             funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             filteredContent = visibleSymbols.stream()
-                    .filter(symbolPredicate.and(symbol -> symbol.getName().isPresent() && symbol.getName().get().equals(funcName)))
+                    .filter(symbolPredicate.and(symbol -> symbol.getName().isPresent() 
+                            && symbol.getName().get().equals(funcName)))
                     .collect(Collectors.toList());
         }
 
