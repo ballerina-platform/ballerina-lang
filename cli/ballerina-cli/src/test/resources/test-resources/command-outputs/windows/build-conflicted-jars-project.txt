@@ -12,4 +12,4 @@ Generating executable
 		'netty-common-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
 		'netty-resolver-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
 		'netty-buffer-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-	target/bin/conflictedJarsProject.jar
+	target\bin\conflictedJarsProject.jar
