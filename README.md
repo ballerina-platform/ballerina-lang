@@ -43,7 +43,7 @@ You can use one of the following options to try out Ballerina.
 
 ## Downloading and installing
 
-For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/downloads/).
+For instructions on downloading and installing, see [Ballerina Downloads](https://ballerina.io/downloads/).
 
 ## Installation Options
 
