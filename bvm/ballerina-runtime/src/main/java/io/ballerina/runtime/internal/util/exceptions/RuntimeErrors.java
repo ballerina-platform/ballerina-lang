@@ -66,7 +66,7 @@ public enum RuntimeErrors implements DiagnosticCode {
     CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0038"),
     CANNOT_CONVERT_NIL("cannot.convert.nil", "RUNTIME_0039"),
     INCOMPATIBLE_CONVERT_OPERATION("incompatible.convert.operation", "RUNTIME_0040"),
-    J_TYPE_ASSIGNABLE_ERROR("incompatible.java.object.type.assignment", "RUNTIME_0041"),
+
     INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION("incompatible.simple.type.convert.operation", "RUNTIME_0042"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range", "RUNTIME_0043"),
     ILLEGAL_ARRAY_INSERTION("illegal.array.insertion", "RUNTIME_0044"),
