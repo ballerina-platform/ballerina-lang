@@ -61,9 +61,9 @@ public class TypedescTests {
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', " +
                 "found 'typedesc<ImmutableIntArray>'", 23, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string[]>', found " +
-                "'typedesc<foo>'", 24, 28);
+                "'typedesc<\"foo\">'", 24, 28);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', found " +
-                "'typedesc<foo|1>'", 25, 26);
+                "'typedesc<\"foo\"|1>'", 25, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', found " +
                 "'typedesc<function (int) returns (string)>'", 26, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<function (int) returns (string)" +

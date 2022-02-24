@@ -44,7 +44,7 @@ public class Errors {
 
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
-        errorDetails.put(StringUtils.fromString("cause"), "Person age cannot be negative");
+        errorDetails.put(StringUtils.fromString("cause"), StringUtils.fromString("Person age cannot be negative"));
         return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("Invalid age"),
                                         ErrorCreator.createError(StringUtils.fromString("Invalid data given")),
                                         errorDetails);

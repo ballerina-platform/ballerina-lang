@@ -5968,8 +5968,6 @@ public class BallerinaParser extends AbstractParser {
             if (isInMatchGuard && tokenKind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
                 return true;
             }
-
-            return !isValidExprRhsStart(tokenKind, precedingNodeKind);
         }
 
         switch (tokenKind) {

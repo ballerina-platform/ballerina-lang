@@ -59,6 +59,7 @@ public class ItemResolverConstants {
     public static final String DESCENDING = "descending";
     public static final String DEFAULT = "default";
     public static final String ROLLBACK = "rollback";
+    public static final String INIT = "init";
 
     public static final String ANON_FUNCTION = "function (..) {..}";
     public static final String FUNCTION = "function";
