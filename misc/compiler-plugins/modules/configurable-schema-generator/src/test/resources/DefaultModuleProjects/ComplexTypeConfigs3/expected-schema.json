@@ -1,0 +1,749 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "dilhashanazeer": {
+      "type": "object",
+      "properties": {
+        "complexconfigs3": {
+          "type": "object",
+          "properties": {
+            "sheetOAuthConfig": {
+              "type": "object",
+              "properties": {
+                "refreshUrl": {
+                  "type": "string"
+                },
+                "refreshToken": {
+                  "type": "string"
+                },
+                "clientId": {
+                  "type": "string"
+                },
+                "clientSecret": {
+                  "type": "string"
+                },
+                "scopes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "defaultTokenExpTime": {
+                  "type": "number"
+                },
+                "clockSkew": {
+                  "type": "number"
+                },
+                "optionalParams": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "credentialBearer": {
+                  "enum": [
+                    "POST_BODY_BEARER",
+                    "AUTH_HEADER_BEARER"
+                  ]
+                },
+                "clientConfig": {
+                  "type": "object",
+                  "properties": {
+                    "httpVersion": {
+                      "enum": [
+                        "HTTP_2",
+                        "HTTP_1_1"
+                      ]
+                    },
+                    "customHeaders": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "customPayload": {
+                      "type": "string"
+                    },
+                    "auth": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tokenUrl": {
+                              "type": "string"
+                            },
+                            "clientId": {
+                              "type": "string"
+                            },
+                            "clientSecret": {
+                              "type": "string"
+                            },
+                            "scopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "defaultTokenExpTime": {
+                              "type": "number"
+                            },
+                            "clockSkew": {
+                              "type": "number"
+                            },
+                            "optionalParams": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            },
+                            "credentialBearer": {
+                              "enum": [
+                                "POST_BODY_BEARER",
+                                "AUTH_HEADER_BEARER"
+                              ]
+                            },
+                            "clientConfig": {
+                              "type": "null"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "tokenUrl",
+                            "clientId",
+                            "clientSecret",
+                            "defaultTokenExpTime",
+                            "clockSkew",
+                            "credentialBearer",
+                            "clientConfig"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tokenUrl": {
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "password": {
+                              "type": "string"
+                            },
+                            "clientId": {
+                              "type": "string"
+                            },
+                            "clientSecret": {
+                              "type": "string"
+                            },
+                            "scopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "refreshConfig": {
+                              "type": "object",
+                              "properties": {
+                                "refreshUrl": {
+                                  "type": "string"
+                                },
+                                "scopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "optionalParams": {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "string"
+                                  }
+                                },
+                                "credentialBearer": {
+                                  "enum": [
+                                    "POST_BODY_BEARER",
+                                    "AUTH_HEADER_BEARER"
+                                  ]
+                                },
+                                "clientConfig": {
+                                  "type": "null"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "refreshUrl",
+                                "credentialBearer",
+                                "clientConfig"
+                              ]
+                            },
+                            "defaultTokenExpTime": {
+                              "type": "number"
+                            },
+                            "clockSkew": {
+                              "type": "number"
+                            },
+                            "optionalParams": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            },
+                            "credentialBearer": {
+                              "enum": [
+                                "POST_BODY_BEARER",
+                                "AUTH_HEADER_BEARER"
+                              ]
+                            },
+                            "clientConfig": {
+                              "type": "null"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "tokenUrl",
+                            "username",
+                            "password",
+                            "defaultTokenExpTime",
+                            "clockSkew",
+                            "credentialBearer",
+                            "clientConfig"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "refreshUrl": {
+                              "type": "string"
+                            },
+                            "refreshToken": {
+                              "type": "string"
+                            },
+                            "clientId": {
+                              "type": "string"
+                            },
+                            "clientSecret": {
+                              "type": "string"
+                            },
+                            "scopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "defaultTokenExpTime": {
+                              "type": "number"
+                            },
+                            "clockSkew": {
+                              "type": "number"
+                            },
+                            "optionalParams": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            },
+                            "credentialBearer": {
+                              "enum": [
+                                "POST_BODY_BEARER",
+                                "AUTH_HEADER_BEARER"
+                              ]
+                            },
+                            "clientConfig": {
+                              "type": "null"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "refreshUrl",
+                            "refreshToken",
+                            "clientId",
+                            "clientSecret",
+                            "defaultTokenExpTime",
+                            "clockSkew",
+                            "credentialBearer",
+                            "clientConfig"
+                          ]
+                        }
+                      ]
+                    },
+                    "secureSocket": {
+                      "type": "object",
+                      "properties": {
+                        "disable": {
+                          "type": "boolean"
+                        },
+                        "cert": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "type": "string"
+                                },
+                                "password": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "path",
+                                "password"
+                              ]
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "key": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "type": "string"
+                                },
+                                "password": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "path",
+                                "password"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "certFile": {
+                                  "type": "string"
+                                },
+                                "keyFile": {
+                                  "type": "string"
+                                },
+                                "keyPassword": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "certFile",
+                                "keyFile"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "disable"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "httpVersion"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "refreshUrl",
+                "refreshToken",
+                "clientId",
+                "clientSecret",
+                "defaultTokenExpTime",
+                "clockSkew",
+                "credentialBearer",
+                "clientConfig"
+              ],
+              "description": "Set Up Gmail Connection"
+            },
+            "spreadsheetId": {
+              "type": "string",
+              "description": "Spreadsheet Name"
+            },
+            "worksheetName": {
+              "type": "string",
+              "description": "Worksheet Name"
+            },
+            "gmailOauthConfig": {
+              "type": "object",
+              "properties": {
+                "refreshUrl": {
+                  "type": "string"
+                },
+                "refreshToken": {
+                  "type": "string"
+                },
+                "clientId": {
+                  "type": "string"
+                },
+                "clientSecret": {
+                  "type": "string"
+                },
+                "scopes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "defaultTokenExpTime": {
+                  "type": "number"
+                },
+                "clockSkew": {
+                  "type": "number"
+                },
+                "optionalParams": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "credentialBearer": {
+                  "enum": [
+                    "POST_BODY_BEARER",
+                    "AUTH_HEADER_BEARER"
+                  ]
+                },
+                "clientConfig": {
+                  "type": "object",
+                  "properties": {
+                    "httpVersion": {
+                      "enum": [
+                        "HTTP_2",
+                        "HTTP_1_1"
+                      ]
+                    },
+                    "customHeaders": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "customPayload": {
+                      "type": "string"
+                    },
+                    "auth": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tokenUrl": {
+                              "type": "string"
+                            },
+                            "clientId": {
+                              "type": "string"
+                            },
+                            "clientSecret": {
+                              "type": "string"
+                            },
+                            "scopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "defaultTokenExpTime": {
+                              "type": "number"
+                            },
+                            "clockSkew": {
+                              "type": "number"
+                            },
+                            "optionalParams": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            },
+                            "credentialBearer": {
+                              "enum": [
+                                "POST_BODY_BEARER",
+                                "AUTH_HEADER_BEARER"
+                              ]
+                            },
+                            "clientConfig": {
+                              "type": "null"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "tokenUrl",
+                            "clientId",
+                            "clientSecret",
+                            "defaultTokenExpTime",
+                            "clockSkew",
+                            "credentialBearer",
+                            "clientConfig"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "tokenUrl": {
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "password": {
+                              "type": "string"
+                            },
+                            "clientId": {
+                              "type": "string"
+                            },
+                            "clientSecret": {
+                              "type": "string"
+                            },
+                            "scopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "refreshConfig": {
+                              "type": "object",
+                              "properties": {
+                                "refreshUrl": {
+                                  "type": "string"
+                                },
+                                "scopes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "optionalParams": {
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "string"
+                                  }
+                                },
+                                "credentialBearer": {
+                                  "enum": [
+                                    "POST_BODY_BEARER",
+                                    "AUTH_HEADER_BEARER"
+                                  ]
+                                },
+                                "clientConfig": {
+                                  "type": "null"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "refreshUrl",
+                                "credentialBearer",
+                                "clientConfig"
+                              ]
+                            },
+                            "defaultTokenExpTime": {
+                              "type": "number"
+                            },
+                            "clockSkew": {
+                              "type": "number"
+                            },
+                            "optionalParams": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            },
+                            "credentialBearer": {
+                              "enum": [
+                                "POST_BODY_BEARER",
+                                "AUTH_HEADER_BEARER"
+                              ]
+                            },
+                            "clientConfig": {
+                              "type": "null"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "tokenUrl",
+                            "username",
+                            "password",
+                            "defaultTokenExpTime",
+                            "clockSkew",
+                            "credentialBearer",
+                            "clientConfig"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "refreshUrl": {
+                              "type": "string"
+                            },
+                            "refreshToken": {
+                              "type": "string"
+                            },
+                            "clientId": {
+                              "type": "string"
+                            },
+                            "clientSecret": {
+                              "type": "string"
+                            },
+                            "scopes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "defaultTokenExpTime": {
+                              "type": "number"
+                            },
+                            "clockSkew": {
+                              "type": "number"
+                            },
+                            "optionalParams": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            },
+                            "credentialBearer": {
+                              "enum": [
+                                "POST_BODY_BEARER",
+                                "AUTH_HEADER_BEARER"
+                              ]
+                            },
+                            "clientConfig": {
+                              "type": "null"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "refreshUrl",
+                            "refreshToken",
+                            "clientId",
+                            "clientSecret",
+                            "defaultTokenExpTime",
+                            "clockSkew",
+                            "credentialBearer",
+                            "clientConfig"
+                          ]
+                        }
+                      ]
+                    },
+                    "secureSocket": {
+                      "type": "object",
+                      "properties": {
+                        "disable": {
+                          "type": "boolean"
+                        },
+                        "cert": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "type": "string"
+                                },
+                                "password": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "path",
+                                "password"
+                              ]
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "key": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "type": "string"
+                                },
+                                "password": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "path",
+                                "password"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "certFile": {
+                                  "type": "string"
+                                },
+                                "keyFile": {
+                                  "type": "string"
+                                },
+                                "keyPassword": {
+                                  "type": "string"
+                                }
+                              },
+                              "additionalProperties": false,
+                              "required": [
+                                "certFile",
+                                "keyFile"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "disable"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "httpVersion"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "refreshUrl",
+                "refreshToken",
+                "clientId",
+                "clientSecret",
+                "defaultTokenExpTime",
+                "clockSkew",
+                "credentialBearer",
+                "clientConfig"
+              ],
+              "description": "Set Up Gmail Connection"
+            },
+            "recipientAddress": {
+              "type": "string",
+              "description": "Recipient\u0027s Email"
+            },
+            "senderAddress": {
+              "type": "string",
+              "description": "Sender\u0027s Email"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "sheetOAuthConfig",
+            "spreadsheetId",
+            "worksheetName",
+            "gmailOauthConfig",
+            "recipientAddress",
+            "senderAddress"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

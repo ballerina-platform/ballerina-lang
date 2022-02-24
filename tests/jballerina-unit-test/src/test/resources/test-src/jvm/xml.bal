@@ -55,3 +55,18 @@ function testDollarSignOnXMLLiteralTemplate() returns [xml, xml, xml] {
 function testGetGlobalXML() returns xml {
     return globalXML;
 }
+
+function testXMLWithNumericEscapes() returns xml[10] {
+    xml x1 = xml `\u{61}`;
+    xml x2 = xml `\u{61}ppl\\u{65}`;
+    xml x3 = xml `A \u{5C} B`;
+    xml x4 = xml `A \\u{5C} B`;
+    xml x5 = xml `"\u{D800}"`;
+    xml x6 = xml `\u{DFFF}"\u{DFFF}"`;
+    xml x7 = xml `"\u{12FFFF} ABC \u{DFFF} DEF \u{DAFF}"`;
+    xml x8 = xml `\u{12FFFF} ABC \u{DFFFAAA} DEF \u{FFFFFFF}`;
+    xml x9 = xml `\u{001B[`;
+    xml x10 = xml `"\u{001B["`;
+
+    return [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10];
+}

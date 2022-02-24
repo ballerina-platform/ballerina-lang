@@ -16,7 +16,39 @@
 
 import testorg/typereftypes as tr;
 
+type ImmutableIntOrStringArray tr:Strings2[]|tr:ImmutableIntArray2;
+type FunctionType1 function (tr:Integer2 i) returns tr:Decimal2;
+
+type MapFooBar map<tr:FooBar2>;
+
+record {|
+    tr:ImmutableIntArray2 a;
+|} X = {a : [1]};
+
+record {|
+    *tr:Bar2;
+|} Y = {b : {}};
+
 function testFn() {
     tr:Baz baz = {c: ()};
     tr:Corge corge = ();
+
+    boolean b1 = true;
+    if b1 {
+        tr:FooBar2 b = "foo";
+    } else {
+        tr:FooBar2 b = 1;
+    }
+
+    tr:IntArray2 array = [1, 2];
+    foreach tr:Integer2 i in array {
+        tr:Integer2 b = i;
+    }
+}
+
+function getImmutable(ImmutableIntOrStringArray x) returns tr:ImmutableIntArray2 {
+    if x is tr:ImmutableIntArray2 {
+        return <tr:ImmutableIntArray2> x;
+    }
+    return [];
 }

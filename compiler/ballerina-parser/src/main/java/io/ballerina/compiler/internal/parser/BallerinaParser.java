@@ -5968,8 +5968,6 @@ public class BallerinaParser extends AbstractParser {
             if (isInMatchGuard && tokenKind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
                 return true;
             }
-
-            return !isValidExprRhsStart(tokenKind, precedingNodeKind);
         }
 
         switch (tokenKind) {
@@ -8512,6 +8510,7 @@ public class BallerinaParser extends AbstractParser {
             annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
         } else {
             annotReference = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            annotReference = STNodeFactory.createSimpleNameReferenceNode(annotReference);
         }
 
         STNode annotValue;

@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,8 +63,13 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         super(attachmentPoint);
     }
 
-    protected abstract Map<String, RecordFieldSymbol> getValidFields(T node,
-                                                                     RecordTypeSymbol recordTypeSymbol);
+    /**
+     * Returns the fields that have already been as keys in the given node.
+     *
+     * @param node Node
+     * @return List of fields already written in the node.
+     */
+    protected abstract List<String> getFields(T node);
 
     protected Predicate<Symbol> getVariableFilter() {
         return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == SymbolKind.CONSTANT);
@@ -145,9 +151,11 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
         }
         List<Pair<TypeSymbol, TypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
+        List<RecordFieldSymbol> validFields = new ArrayList<>();
         for (Pair<TypeSymbol, TypeSymbol> recordTypeSymbol : recordTypeDesc) {
             RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol.getLeft()));
             Map<String, RecordFieldSymbol> fields = this.getValidFields((T) node, rawType);
+            validFields.addAll(fields.values());
             // TODO: Revamp the implementation
             // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
@@ -157,22 +165,26 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             }
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }
-        if (recordTypeDesc.isEmpty()) {
-                /*
-                This means that we are within a mapping constructor for a map. Therefore, we suggest the variables
-                Eg: 
-                1. function init() {
-                    int test = 12;
-                    map<string> myVar = {<cursor>};
-                   }
-                2. function init() {
-                    match map<string> {
-                          {<cursor>} => {}
-                    }
-                   }
-                 */
+        
+        if (recordTypeDesc.isEmpty() || validFields.isEmpty()) {
+            List<String> existingFields = getFields((T) node);
+            /*
+            This means that we are within a mapping constructor for a map. Therefore, we suggest the variables
+            Eg: 
+            1. function init() {
+                int test = 12;
+                map<string> myVar = {<cursor>};
+               }
+            2. function init() {
+                match map<string> {
+                      {<cursor>} => {}
+                }
+               }
+            */
             List<Symbol> variables = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(this.getVariableFilter())
+                    .filter(varSymbol -> varSymbol.getName().isPresent())
+                    .filter(varSymbol -> !existingFields.contains(varSymbol.getName().get()))
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(variables, context));
         }
@@ -193,6 +205,18 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                 || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
                 ? nodeAtCursor.parent() : nodeAtCursor;
         return evalNode;
+    }
+
+    protected Map<String, RecordFieldSymbol> getValidFields(T node, RecordTypeSymbol recordTypeSymbol) {
+        List<String> existingFields = getFields(node);
+        Map<String, RecordFieldSymbol> fieldSymbols = new HashMap<>();
+        recordTypeSymbol.fieldDescriptors().forEach((name, symbol) -> {
+            if (!existingFields.contains(name)) {
+                fieldSymbols.put(name, symbol);
+            }
+        });
+
+        return fieldSymbols;
     }
 
     @Override

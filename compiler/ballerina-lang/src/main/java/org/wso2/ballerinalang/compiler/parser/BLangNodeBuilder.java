@@ -5385,10 +5385,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 }
             }
 
-            Location pos = getPosition(literal);
-            validateUnicodePoints(text, pos);
-
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
+                Location pos = getPosition(literal);
+                validateUnicodePoints(text, pos);
+
                 try {
                     text = Utils.unescapeBallerina(text);
                 } catch (Exception e) {
@@ -5451,13 +5451,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     || decimalCodePoint > Constants.MAX_UNICODE) {
 
                 int offset = matcher.end(1);
-                String numericEscape = "\\u{" + hexCodePoint + "}";
+                offset += "\\u{".length();
                 BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
                         pos.lineRange().startLine().line(),
                         pos.lineRange().endLine().line(),
                         pos.lineRange().startLine().offset() + offset,
-                        pos.lineRange().startLine().offset() + offset + numericEscape.length());
-                dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, numericEscape);
+                        pos.lineRange().startLine().offset() + offset + hexCodePoint.length());
+                dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, hexCodePoint);
             }
         }
     }

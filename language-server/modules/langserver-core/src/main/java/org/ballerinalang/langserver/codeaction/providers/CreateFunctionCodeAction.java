@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
@@ -23,6 +26,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
+import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -58,17 +62,14 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
+        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION)) || positionDetails.matchedNode() == null) {
             return Collections.emptyList();
         }
 
-        if (positionDetails.matchedNode() == null) {
-            return Collections.emptyList();
-        }
-
-        Optional<FunctionCallExpressionNode> callExpr = 
+        Optional<FunctionCallExpressionNode> callExpr =
                 checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
-        if (callExpr.isEmpty()) {
+
+        if (callExpr.isEmpty() || isInvalidReturnType(context, callExpr.get())) {
             return Collections.emptyList();
         }
 
@@ -125,5 +126,26 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         }
 
         return Optional.ofNullable(functionCallExpressionNode);
+    }
+
+    private boolean isInvalidReturnType(CodeActionContext context, FunctionCallExpressionNode callExpr) {
+        SemanticModel semanticModel = context.currentSemanticModel().get();
+        FunctionCallExpressionTypeFinder typeFinder = new FunctionCallExpressionTypeFinder(semanticModel);
+        typeFinder.findTypeOf(callExpr);
+        Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
+        Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
+        
+        /*
+        Check for the parent being `CALL_STATEMENT` to suggest the code action for the following
+        eg: 
+            function testF() {
+                addTwoIntegers(a, b);
+            }
+         */
+        return callExpr.parent().kind() != SyntaxKind.CALL_STATEMENT
+                && ((returnTypeSymbol.isPresent()
+                && returnTypeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR)
+                || (returnTypeDescKind.isPresent() && (returnTypeDescKind.get() == TypeDescKind.COMPILATION_ERROR
+                || returnTypeDescKind.get() == TypeDescKind.NONE)));
     }
 }

@@ -277,6 +277,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             LOGGER.error(e.getMessage());
             outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                     host, portName));
+            terminateDebugServer(context.getDebuggeeVM() != null, false);
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -559,18 +560,24 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
         context.setTerminateRequestReceived(true);
         boolean terminateDebuggee = Objects.requireNonNullElse(args.getTerminateDebuggee(), true);
-        terminateServer(terminateDebuggee);
+        terminateDebugServer(terminateDebuggee, true);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
         context.setTerminateRequestReceived(true);
-        terminateServer(true);
+        terminateDebugServer(true, true);
         return CompletableFuture.completedFuture(null);
     }
 
-    void terminateServer(boolean terminateDebuggee) {
+    /**
+     * Terminates the debug server.
+     *
+     * @param terminateDebuggee indicates whether the remote VM should also be terminated
+     * @param logsEnabled       indicates whether the debug server logs should be sent to the client
+     */
+    void terminateDebugServer(boolean terminateDebuggee, boolean logsEnabled) {
         // Destroys launched process, if presents.
         if (context.getLaunchedProcess().isPresent() && context.getLaunchedProcess().get().isAlive()) {
             killProcessWithDescendants(context.getLaunchedProcess().get());
@@ -597,7 +604,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
 
         // Notifies user.
-        if (executionManager != null) {
+        if (executionManager != null && logsEnabled) {
             String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
                     executionManager.getHost().get() + ":" + executionManager.getPort().get() : VALUE_UNKNOWN;
             outputLogger.sendDebugServerOutput(String.format(System.lineSeparator() + "Disconnected from the target " +
@@ -958,7 +965,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     //  the STDOUT stream.
                     outputLogger.sendConsoleOutput(line);
                     if (context.getDebuggeeVM() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
-                        terminateServer(false);
+                        terminateDebugServer(false, true);
                     }
                 }
             } catch (IOException ignored) {
@@ -978,7 +985,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     if (line.contains("Listening for transport dt_socket")) {
                         attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                     } else if (context.getDebuggeeVM() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
-                        terminateServer(false);
+                        terminateDebugServer(false, true);
                     }
                     outputLogger.sendProgramOutput(line);
                 }
@@ -994,7 +1001,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 LOGGER.error(e.getMessage());
                 outputLogger.sendDebugServerOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                         host, portName));
-                terminateServer(context.getDebuggeeVM() != null);
+                terminateDebugServer(context.getDebuggeeVM() != null, false);
             }
         });
     }
