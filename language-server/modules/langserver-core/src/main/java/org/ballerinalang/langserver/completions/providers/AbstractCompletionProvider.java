@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -48,12 +49,14 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.common.utils.AnnotationUtil;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
@@ -93,6 +96,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
@@ -237,6 +241,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 ObjectFieldSymbol objectFieldSymbol = (ObjectFieldSymbol) symbol;
                 CompletionItem objFieldItem = FieldCompletionItemBuilder.build(objectFieldSymbol, false);
                 completionItems.add(new ObjectFieldCompletionItem(ctx, objectFieldSymbol, objFieldItem));
+            } else if (symbol.kind() == ANNOTATION) {
+                LSCompletionItem completionItem = AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, ctx);
+                completionItems.add(completionItem);
             }
 
             processedSymbols.add(symbol);
@@ -390,7 +397,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @param node    node to evaluate upon
      * @return {@link Boolean}
-     * @deprecated Use {@link QNameReferenceUtil#onQualifiedNameIdentifier(BallerinaCompletionContext, Node)} instead
+     * @deprecated Use {@link org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)} instead
      */
     @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {

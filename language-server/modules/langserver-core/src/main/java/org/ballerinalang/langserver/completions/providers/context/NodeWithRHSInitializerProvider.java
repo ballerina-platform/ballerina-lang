@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Generic completion resolver for the Block Nodes.
@@ -105,6 +107,14 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));
         completionItems.addAll(getNewExprCompletionItems(context));
+
+        // Check if the cursor is on an annotation
+        if (onAnnotation(context, initializer)) {
+            List<Symbol> annotations = context.visibleSymbols(context.getCursorPosition()).stream()
+                    .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION)
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(annotations, context));
+        }
         if (withinTransactionStatementNode(context)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
         }
@@ -127,6 +137,20 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
         }
         return completionItems;
+    }
+
+    private boolean onAnnotation(BallerinaCompletionContext context, Node initializer) {
+        if (initializer.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return false;
+        }
+
+        Token name = ((SimpleNameReferenceNode) initializer).name();
+        if (name.textRangeWithMinutiae().startOffset() >= context.getCursorPositionInTree() ||
+                context.getCursorPositionInTree() > name.textRangeWithMinutiae().endOffset()) {
+            return false;
+        }
+
+        return name.toSourceCode().strip().startsWith("@");
     }
 
     private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context) {
