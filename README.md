@@ -78,6 +78,6 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 ## Useful links
 
 * The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
-* Engage with the [Ballerina Community](https://ballerina.io/community/).
+* Chat live with us on our [Slack channel](https://ballerina.io/community/slack/) and Engage with the [Ballerina Community](https://ballerina.io/community/).
 * Technical questions should be posted on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 * Ballerina performance test results are available [here](performance/benchmarks/summary.md).
