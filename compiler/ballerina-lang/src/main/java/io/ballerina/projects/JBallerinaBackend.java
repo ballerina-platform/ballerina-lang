@@ -372,7 +372,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
             // Sort jar libraries list to avoid inconsistent jar reporting
             List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
-                    .sorted(Comparator.comparing(JarLibrary::path))
+                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
                     .collect(Collectors.toList());
 
             // Copy all the jars

@@ -3,7 +3,6 @@ Compiling source
 
 Generating executable
 	warning: Detected conflicting jar files:
-		'io-native-1.2.1.jar' dependency of 'ballerina/io' conflict with 'io-native-1.2.0.jar' dependency of 'ballerina/os'
 		'netty-handler-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
 		'netty-handler-proxy-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
 		'netty-codec-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
