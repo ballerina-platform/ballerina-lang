@@ -151,7 +151,7 @@ function test13(int|string|float x) {
     int|float _ = x; // OK
 }
 
-function test14(int|string|float x) {
+function test14_1(int|string|float x) {
     if !(x is string) && !(x is int) {
         float _ = x;
     } else {
@@ -162,7 +162,18 @@ function test14(int|string|float x) {
     int|string _ = x; // error incompatible types: expected '(int|string)', found '(int|string|float)'
 }
 
-function test15(int|string|float x) {
+function test14_2(int|string|float x) {
+    if x !is string && x !is int {
+        float _ = x;
+    } else {
+        int _ = x; // error incompatible types: expected 'int', found '(string|int)'
+        string|int _ = x; // OK
+    }
+
+    int|string _ = x; // error incompatible types: expected '(int|string)', found '(int|string|float)'
+}
+
+function test15_1(int|string|float x) {
     if !(x is string) && !(x is int) {
         float _ = x;
         return;
@@ -171,8 +182,27 @@ function test15(int|string|float x) {
     int|string _ = x; // OK
 }
 
-function test16(int|string|float x) {
+function test15_2(int|string|float x) {
+    if x !is string && x !is int {
+        float _ = x;
+        return;
+    }
+
+    int|string _ = x; // OK
+}
+
+function test16_1(int|string|float x) {
     if !(x is string) && x is any {
+        string _ = x; // error incompatible types: expected 'string', found '(int|float)'
+        int|float _ = x; // OK
+        return;
+    }
+
+    string _ = x; // OK
+}
+
+function test16_2(int|string|float x) {
+    if x !is string && x is any {
         string _ = x; // error incompatible types: expected 'string', found '(int|float)'
         int|float _ = x; // OK
         return;
@@ -319,7 +349,7 @@ function test28() {
     string _ = x; // Type not narrowed. issue #34307
 }
 
-function test29(int|string|float x) {
+function test29_1(int|string|float x) {
     if x is int || !(x is string)  {
         int|float _ = x; // OK
     } else {
@@ -329,8 +359,27 @@ function test29(int|string|float x) {
     string _ = x; // error incompatible types: expected 'string', found '(int|string|float)'
 }
 
-function test30(int|string|float x) {
+function test29_2(int|string|float x) {
+    if x is int || x !is string  {
+        int|float _ = x; // OK
+    } else {
+        string _ = x; // OK
+    }
+
+    string _ = x; // error incompatible types: expected 'string', found '(int|string|float)'
+}
+
+function test30_1(int|string|float x) {
     if x is int || !(x is string) {
+        int|float _ = x; // OK
+        return;
+    }
+
+    string _ = x; // OK
+}
+
+function test30_2(int|string|float x) {
+    if x is int || x !is string {
         int|float _ = x; // OK
         return;
     }

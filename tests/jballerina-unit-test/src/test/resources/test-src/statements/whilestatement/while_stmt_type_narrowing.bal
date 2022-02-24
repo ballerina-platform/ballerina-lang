@@ -159,7 +159,6 @@ type C A|B;
 function test8(C v) {
     while v !is B {
         A _ = v; // error incompatible types: expected 'A', found 'C'
-
     }
 }
 

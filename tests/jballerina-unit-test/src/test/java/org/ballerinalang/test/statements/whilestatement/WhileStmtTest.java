@@ -290,19 +290,19 @@ public class WhileStmtTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found '(A|B)'", 153, 15);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'A', found 'C'", 161, 15);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '(X|Y)', found '(W|X|Y)'", 262, 17);
+                "incompatible types: expected '(X|Y)', found '(W|X|Y)'", 261, 17);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '[string]', found '([int]|[string])'", 272, 22);
+                "incompatible types: expected '[string]', found '([int]|[string])'", 271, 22);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '[int]', found '([string] & readonly)'", 283, 19);
+                "incompatible types: expected '[int]', found '([string] & readonly)'", 282, 19);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'string[]', found '(int[]|string[])'", 289, 22);
+                "incompatible types: expected 'string[]', found '(int[]|string[])'", 288, 22);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'int[]', found '(string[] & readonly)'", 299, 19);
+                "incompatible types: expected 'int[]', found '(string[] & readonly)'", 298, 19);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'string', found '(boolean|string)'", 315, 20); // issue #34307
+                "incompatible types: expected 'string', found '(boolean|string)'", 314, 20); // issue #34307
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'string', found '(boolean|string)'", 328, 20); // issue #34307
+                "incompatible types: expected 'string', found '(boolean|string)'", 327, 20); // issue #34307
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }
