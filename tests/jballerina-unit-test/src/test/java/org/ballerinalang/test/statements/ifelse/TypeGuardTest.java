@@ -960,41 +960,42 @@ public class TypeGuardTest {
         int index = 0;
         BAssertUtil.validateError(result, index++, "incompatible types: expected '1', found 'int'", 21, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '1', found 'int'", 28, 15);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '3|foo|false'", 43, 13);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3', found '3|foo|false'", 47, 15); // issue #34928
+                "incompatible types: expected 'int', found '3|\"foo\"|false'", 43, 13);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3', found '3|foo|false'", 48, 16); // issue #34928
+                "incompatible types: expected '3', found '3|\"foo\"|false'", 47, 15); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3', found '3|foo|false'", 49, 18); // issue #34928
+                "incompatible types: expected '3', found '3|\"foo\"|false'", 48, 16); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3.0f', found '3|foo|false'", 50, 17); // issue #34928
+                "incompatible types: expected '3', found '3|\"foo\"|false'", 49, 18); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3.0ff', found '3|foo|false'", 51, 18); // issue #34928
+                "incompatible types: expected '3.0f', found '3|\"foo\"|false'", 50, 17); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3.0dd', found '3|foo|false'", 52, 18); // issue #34928
+                "incompatible types: expected '3.0ff', found '3|\"foo\"|false'", 51, 18); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'foo', found '3|foo|false'", 55, 19); // issue #34928
+                "incompatible types: expected '3.0dd', found '3|\"foo\"|false'", 52, 18); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'foo', found '3|foo|false'", 56, 21); // issue #34928
+                "incompatible types: expected '\"foo\"', found '3|\"foo\"|false'", 55, 19); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'foo', found '3|foo|false'", 57, 23); // issue #34928
+                "incompatible types: expected '\"foo\"', found '3|\"foo\"|false'", 56, 21); // issue #34928
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'false', found '3|foo|false'", 60, 19); // issue #34928
+                "incompatible types: expected '\"foo\"', found '3|\"foo\"|false'", 57, 23); // issue #34928
+        BAssertUtil.validateError(result, index++,
+                "incompatible types: expected 'false', found '3|\"foo\"|false'", 60, 19); // issue #34928
         BAssertUtil.validateError(result, index++, "incompatible types: expected '1', found '1?'", 80, 15);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'int', found '(false|1|foo)?'", 84, 13);
+                "incompatible types: expected 'int', found '(false|1|\"foo\")?'", 84, 13);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected '3', found '3?'", 130, 11); // issue #34307
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'baz', found 'foo|bar|baz'", 142, 15); // issue #34307
+                "incompatible types: expected '\"baz\"', found '\"foo\"|\"bar\"|\"baz\"'", 142, 15); // issue #34307
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'foo', found '(baz|foo|bar)?'", 154, 15);
+                "incompatible types: expected '\"foo\"', found '(\"baz\"|\"foo\"|\"bar\")?'", 154, 15);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'foo?', found '(baz|foo|bar)?'", 155, 16); // issue #34307
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'c', found 'a'", 166, 17);
+                "incompatible types: expected '\"foo\"?', found '(\"baz\"|\"foo\"|\"bar\")?'", 155, 16); // issue #34307
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '\"c\"', found '\"a\"'", 166, 17);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '(c|b)?', found '(c|a|b)?'", 170, 18); // issue #34307
+                "incompatible types: expected '(\"c\"|\"b\")?', found '(\"c\"|\"a\"|\"b\")?'", 170, 18); // issue #34307
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected '()', found 'boolean?'", 181, 16); // issue #30598, #33217
         BAssertUtil.validateError(result, index++,
@@ -1096,9 +1097,12 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|string)'", 405, 17);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'float', found '(float|boolean)'", 408, 19);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'foo', found '(foo|bar)'", 420, 19);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'bar', found '(foo|bar)'", 421, 19);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(bar|2|foo)?'", 430, 13);
+        BAssertUtil.validateError(result, index++,
+                "incompatible types: expected '\"foo\"', found '(\"foo\"|\"bar\")'", 420, 19);
+        BAssertUtil.validateError(result, index++,
+                "incompatible types: expected '\"bar\"', found '(\"foo\"|\"bar\")'", 421, 19);
+        BAssertUtil.validateError(result, index++,
+                "incompatible types: expected 'int', found '(\"bar\"|2|\"foo\")?'", 430, 13);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
