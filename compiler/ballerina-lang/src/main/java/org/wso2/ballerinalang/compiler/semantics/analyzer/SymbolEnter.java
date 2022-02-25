@@ -889,17 +889,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         td.defn = d;
         SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
 
-        BArrayType type = ((BArrayType) td.getBType());
         for (BLangExpression t : td.sizes) {
-            int size = type.getSize();
+            // todo: We need to constFold this expression.
+            int size = (Integer) ((BLangLiteral) t).value;
             if (size >= 0) {
                 elementType = d.define(semtypeEnv, new ArrayList<>(List.of(elementType)), size);
             } else {
                 elementType = d.define(semtypeEnv, elementType);
-            }
-
-            if (type.getElementType() instanceof BArrayType) {
-                type = (BArrayType) type.getElementType();
             }
         }
 
