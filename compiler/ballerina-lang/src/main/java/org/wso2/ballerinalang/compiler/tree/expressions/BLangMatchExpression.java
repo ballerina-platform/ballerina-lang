@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
@@ -39,6 +41,7 @@ import java.util.StringJoiner;
 @Deprecated
 public class BLangMatchExpression extends BLangExpression implements MatchExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public List<BLangMatchExprPatternClause> patternClauses = new ArrayList<>();
 
@@ -62,16 +65,27 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         visitor.visit(this);
     }
 
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
     /**
      * {@code BLangMatchExprPatternClause} represents a pattern inside a type switch expression.
      *
      * @since 0.970.0
      */
     public static class BLangMatchExprPatternClause extends BLangNode implements MatchExpressionPatternNode {
-
+        // BLangNodes
         public BLangSimpleVariable variable;
         public BLangExpression expr;
 
+        // Semantic Data
         // This field is used to capture types that are matched to this pattern.
         public Set<BType> matchedTypesDirect = new LinkedHashSet<>();
         public Set<BType> matchedTypesIndirect = new LinkedHashSet<>();
@@ -94,6 +108,16 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
         
         @Override

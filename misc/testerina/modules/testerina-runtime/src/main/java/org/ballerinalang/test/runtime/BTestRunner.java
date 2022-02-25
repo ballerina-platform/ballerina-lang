@@ -102,6 +102,7 @@ public class BTestRunner {
     private PrintStream errStream;
     private PrintStream outStream;
     private TesterinaReport tReport;
+    private Path targetPath;
 
     private List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t",
             "\"", "\\", "!", "`"));
@@ -114,10 +115,11 @@ public class BTestRunner {
      * @param outStream The info log stream.
      * @param errStream The error log strem.
      */
-    public BTestRunner(PrintStream outStream, PrintStream errStream) {
+    public BTestRunner(PrintStream outStream, PrintStream errStream, Path targetPath) {
         this.outStream = outStream;
         this.errStream = errStream;
         tReport = new TesterinaReport(this.outStream);
+        this.targetPath = targetPath;
     }
 
     /**
@@ -613,8 +615,7 @@ public class BTestRunner {
         }
 
         if (!packageName.equals(TesterinaConstants.DOT)) {
-            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME);
-            Path jsonPath = Paths.get(sourceRootPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+            Path jsonPath = Paths.get(this.targetPath.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
             File jsonFile = new File(jsonPath.toString());
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
         }

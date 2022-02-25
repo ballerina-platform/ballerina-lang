@@ -57,7 +57,7 @@ public class DefaultAddress {
 }
 
 public function createObj() returns (FooPerson) {
-    map<any> address1 = {};
+    map<any> _ = {};
     map<any> address = {"country":"USA", "state":"CA"};
     FooPerson emp = new("Jack", address, 25);
     return emp;

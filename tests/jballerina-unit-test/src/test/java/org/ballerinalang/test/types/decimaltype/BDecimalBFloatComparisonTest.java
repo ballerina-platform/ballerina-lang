@@ -56,7 +56,7 @@ public class BDecimalBFloatComparisonTest {
 
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         BFloat bFloatVal = (BFloat) returns[0];
-        Assert.assertEquals(bFloatVal.floatValue(), Double.POSITIVE_INFINITY, "Invalid float value returned.");
+        Assert.assertEquals(bFloatVal.floatValue(), 4.3534534534534643E92, "Invalid float value returned.");
 
         Assert.assertSame(returns[1].getClass(), BDecimal.class);
         BDecimal bDecimalVal = (BDecimal) returns[1];

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.debugger.test.utils;
 
-import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.client.DAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
@@ -40,12 +40,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DebugHitListener extends TimerTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugHitListener.class);
-    private final TestDAPClientConnector connector;
+    private final DAPClientConnector connector;
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
     private boolean debugHitFound;
 
-    public DebugHitListener(TestDAPClientConnector connector) {
+    public DebugHitListener(DAPClientConnector connector) {
         this.connector = connector;
         this.debugHitFound = false;
     }
@@ -119,7 +119,7 @@ public class DebugHitListener extends TimerTask {
         }
     }
 
-    public TestDAPClientConnector getConnector() {
+    public DAPClientConnector getConnector() {
         return connector;
     }
 }

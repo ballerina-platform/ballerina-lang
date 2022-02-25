@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli.jline;
 
 import io.ballerina.shell.cli.jline.parser.ParserStateMachine;
+import io.ballerina.shell.cli.jline.validator.InputValidator;
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
 import org.jline.reader.Parser;
@@ -35,6 +36,7 @@ import java.util.List;
 public class JlineBallerinaParser implements Parser {
     private static final char SPACE = ' ';
     private static final char NEW_LINE = '\n';
+    private static final InputValidator inputValidator = new InputValidator();
 
 
     @Override
@@ -78,7 +80,7 @@ public class JlineBallerinaParser implements Parser {
 
         // Feed additional newline to the parser to submit all data
         stateMachine.feed(NEW_LINE);
-        if (context != ParseContext.COMPLETE && stateMachine.isIncomplete()) {
+        if (context != ParseContext.COMPLETE && inputValidator.isIncomplete(line)) {
             throw new EOFError(-1, -1, "incomplete line");
         }
         return new JlineParsedLine(line, words, wordIndex, wordCursor, cursor);

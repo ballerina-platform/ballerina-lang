@@ -30,7 +30,7 @@
                     </And>
                     <And>
                         <Bug pattern="DE_MIGHT_IGNORE"/>
-                        <Method name="terminateServer"/>
+                        <Method name="terminateDebugServer"/>
                     </And>
                     <And>
                         <Bug pattern="BC_UNCONFIRMED_CAST"/>

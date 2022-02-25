@@ -10,6 +10,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BR",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -33,6 +34,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BR",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -56,6 +58,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BR",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -79,6 +82,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BR",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -102,6 +106,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BR",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -125,6 +130,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BR",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

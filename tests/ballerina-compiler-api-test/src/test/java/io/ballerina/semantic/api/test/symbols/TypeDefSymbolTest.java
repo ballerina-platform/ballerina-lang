@@ -67,9 +67,8 @@ public class TypeDefSymbolTest {
         assertFalse(symbol.qualifiers().isEmpty());
         assertEquals(symbol.qualifiers().get(0), Qualifier.PUBLIC);
 
-        // Todo: Fix https://github.com/ballerina-platform/ballerina-lang/issues/32662
-//        assertFalse(symbol.annotations().isEmpty());
-//        assertEquals(symbol.annotations().get(0).getName().get(), "v1");
+        assertFalse(symbol.annotations().isEmpty());
+        assertEquals(symbol.annotations().get(0).getName().get(), "v1");
     }
 
     @DataProvider(name = "TypeDefPosProvider")
@@ -103,7 +102,7 @@ public class TypeDefSymbolTest {
                 {61, 16, "streamtype", TypeDescKind.STREAM},
 
                 // Other
-                {64, 16, "typeRefType", TypeDescKind.OBJECT},
+                {64, 16, "typeRefType", TypeDescKind.TYPE_REFERENCE},
                 {66, 16, "anyType", TypeDescKind.ANY},
                 {68, 16, "neverType", TypeDescKind.NEVER},
                 {70, 16, "readonlyType", TypeDescKind.READONLY},
@@ -114,7 +113,7 @@ public class TypeDefSymbolTest {
                 {82, 16, "anyDataType", TypeDescKind.ANYDATA},
                 {84, 16, "jsonType", TypeDescKind.JSON},
                 {86, 16, "byteType", TypeDescKind.BYTE},
-                {88, 16, "otherType", TypeDescKind.BYTE},
+                {88, 16, "otherType", TypeDescKind.TYPE_REFERENCE},
         };
     }
 }

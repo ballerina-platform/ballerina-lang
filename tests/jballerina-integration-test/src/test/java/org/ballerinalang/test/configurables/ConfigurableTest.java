@@ -57,7 +57,7 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
                                                         "'local' repository.");
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               packagPath);
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
@@ -218,7 +218,7 @@ public class ConfigurableTest extends BaseTest {
     public void testMapVariableAndModuleAmbiguitySubModule() throws BallerinaTestException {
         LogLeecher errorLog = new LogLeecher("[subModuleClash.bal:(19:26,19:30)] configurable variable name 'test' " +
                 "creates an ambiguity with module 'testOrg/subModuleClash.test:0.1.0'", ERROR);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+        bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
                 Paths.get(testFileLocation, "testAmbiguousCases", "subModuleClash").toString());
         errorLog.waitForText(5000);
@@ -231,7 +231,7 @@ public class ConfigurableTest extends BaseTest {
                 "ambiguity with module 'testOrg/test:0.1.0'", ERROR);
         compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
                 "testOrg-test-any-0.1.0");
-        bMainInstance.runMain("build", new String[]{"-c", "main"}, null, new String[]{},
+        bMainInstance.runMain("pack", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
         errorLog.waitForText(5000);
     }
@@ -240,7 +240,7 @@ public class ConfigurableTest extends BaseTest {
     public void testMapVariableAndModuleAmbiguityMultipleSubModule() throws BallerinaTestException {
         LogLeecher errorLog = new LogLeecher("[mod1.bal:(17:26,17:30)] configurable variable name 'test' creates an " +
                 "ambiguity with module 'testOrg/multipleSubModuleClash.mod1.test:0.1.0'", ERROR);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+        bMainInstance.runMain("pack", new String[]{}, null, new String[]{},
                 new LogLeecher[]{errorLog},
                 Paths.get(testFileLocation, "testAmbiguousCases", "multipleSubModuleClash").toString());
         errorLog.waitForText(5000);
@@ -271,6 +271,11 @@ public class ConfigurableTest extends BaseTest {
                 {"configMapType", "Config_maps.toml"},
                 {"configComplexXml", "Config_xml.toml"}
         };
+    }
+
+    @Test
+    public void testLargeNoOfConfigVariables() throws BallerinaTestException {
+        executeBalCommand("/largeProject", "main", null);
     }
 
     /**

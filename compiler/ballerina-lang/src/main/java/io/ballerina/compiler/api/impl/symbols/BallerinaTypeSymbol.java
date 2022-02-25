@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.ModuleID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Represents type descriptors which do not fall in to any other type descriptor.
@@ -31,7 +32,9 @@ public class BallerinaTypeSymbol extends AbstractTypeSymbol {
 
     public BallerinaTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
         super(context, TypesFactory.getTypeDescKind(bType.getKind()), bType);
-        this.typeName = bType.getKind().typeName();
+        // In an unlikely event if the `BNoType` get exposed, this would ensure that the user would know that this is
+        // not a typical condition.
+        this.typeName = bType.tag == TypeTags.NONE ? "$UndefinedType$" : bType.getKind().typeName();
     }
 
     @Override

@@ -24,11 +24,11 @@ package io.ballerina.compiler.internal.parser;
  */
 public enum TypePrecedence {
 
-    DISTINCT(0),         // distinct T
-    ARRAY(1),            // T[]
-    INTERSECTION(2),     // T1 & T2
-    UNION(3),            // T1 | T2
-    DEFAULT(4);          // function(args) returns T   
+    DISTINCT(0),          // distinct T
+    ARRAY_OR_OPTIONAL(1), // T[], T?
+    INTERSECTION(2),      // T1 & T2
+    UNION(3),             // T1 | T2
+    DEFAULT(4);           // function(args) returns T
 
     private final int level;
 

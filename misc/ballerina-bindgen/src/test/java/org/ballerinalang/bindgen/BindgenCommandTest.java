@@ -81,7 +81,7 @@ public class BindgenCommandTest extends CommandTest {
         bindgenCommand.execute();
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina package detected at:"));
-        Assert.assertTrue(output.contains("Following jars were added to the classpath:"));
+        Assert.assertTrue(output.contains("The following JARs were added to the classpath:"));
         Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
         Assert.assertTrue(output.contains("commons-logging-1.1.1.jar"));
         Assert.assertTrue(output.contains("log4j-1.2.17.jar"));

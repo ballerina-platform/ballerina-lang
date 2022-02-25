@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -27,10 +28,11 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.utils.StringUtils;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -75,7 +77,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(this.typeName);
+        return Utils.decodeIdentifier(this.typeName);
     }
 
     @Override
@@ -100,9 +102,6 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public boolean isIsolated(String methodName) {
-        if (!isIsolated()) {
-            return false;
-        }
         for (MethodType method : this.getMethods()) {
             if (method.getName().equals(methodName)) {
                 return method.isIsolated();
@@ -211,5 +210,10 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public boolean hasAnnotations() {
         return !annotations.isEmpty();
+    }
+
+    @Override
+    public TypeIdSet getTypeIdSet() {
+        return new BTypeIdSet(new ArrayList<>(typeIdSet.ids));
     }
 }

@@ -45,12 +45,15 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
     @JsonRequest
     public CompletableFuture<JsonToRecordResponse> convert(JsonToRecordRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            JsonToRecordResponse response = new JsonToRecordResponse();
+            JsonToRecordResponse response;
             try {
                 String jsonString = request.getJsonString();
-                String codeBlock = JsonToRecordConverter.convert(jsonString);
-                response.setCodeBlock(codeBlock);
+                String recordName = request.getRecordName();
+                boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
+                boolean isClosed = request.getIsClosed();
+                response = JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
             } catch (IOException | JsonToRecordConverterException | FormatterException e) {
+                response = new JsonToRecordResponse();
                 response.setCodeBlock("");
             }
             return response;

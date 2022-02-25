@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 10,
+    "character": 23
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source60.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Pet.name",
+      "sortText": "K",
+      "insertText": "name: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type",
+      "kind": "Field",
+      "detail": "Pet.type",
+      "sortText": "K",
+      "insertText": "'type: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Pet Required Fields",
+      "kind": "Property",
+      "detail": "Pet",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "name: \"\",\ntype: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

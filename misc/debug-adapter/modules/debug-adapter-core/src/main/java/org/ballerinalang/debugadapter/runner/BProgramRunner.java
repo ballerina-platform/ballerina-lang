@@ -37,7 +37,11 @@ public abstract class BProgramRunner {
     private static final String BAL_TEST_CMD = "test";
     private static final String CMD_OPTION_DEBUG = "--debug";
     private static final String CMD_OPTION_TESTS = "--tests";
+    protected static final String ENV_JAVA_OPTS = "JAVA_OPTS";
     protected static final String ENV_OPTION_BAL_JAVA_DEBUG = "BAL_JAVA_DEBUG";
+    protected static final String ENV_DEBUGGER_TEST_MODE = "BAL_DEBUGGER_TEST";
+    protected static final String DEBUGGER_CORE_TEST_FILE = "debugger-core-test.exec";
+    protected static final String DEBUGGER_RUNTIME_TEST_FILE = "debugger-runtime-test.exec";
 
     protected BProgramRunner(ClientLaunchConfigHolder configHolder, String projectRoot) {
         this.configHolder = configHolder;

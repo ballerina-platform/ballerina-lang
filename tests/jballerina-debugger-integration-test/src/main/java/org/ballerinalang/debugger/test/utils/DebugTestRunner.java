@@ -19,7 +19,7 @@ package org.ballerinalang.debugger.test.utils;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.client.DAPClientConnector;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -75,20 +75,21 @@ public class DebugTestRunner {
     public List<BallerinaTestDebugPoint> testBreakpoints = new ArrayList<>();
     public Path testProjectPath;
     public Path testEntryFilePath;
-
     private static Path testProjectBaseDir;
     private static Path testSingleFileBaseDir;
     private static BalServer balServer;
-    private TestDAPClientConnector debugClientConnector;
+    private DAPClientConnector debugClientConnector;
     private boolean isConnected = false;
     private int port;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
-    private static final int MAX_RETRY_COUNT = 3;
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener hitListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
+
+    private static final int MAX_RETRY_COUNT = 3;
+    private static final int SCHEDULER_INTERVAL_MS = 1000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
 
     public DebugTestRunner(String testProjectName, String testModuleFileName, boolean isProjectBasedTest) {
         if (isProjectBasedTest) {
@@ -127,7 +128,7 @@ public class DebugTestRunner {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient = new BMainInstance(balServer);
-        debuggeeProcess = balClient.debugMain("build", new String[]{"--with-tests", "--debug", String.valueOf(port)},
+        debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 20, true);
         clientLeecher.waitForText(20000);
     }
@@ -186,45 +187,19 @@ public class DebugTestRunner {
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind,
                                  int port, Map<String, Object> launchArgs) throws BallerinaTestException {
 
-        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath,
-                testEntryFilePath, port);
-
+        debugClientConnector = new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
+                port);
+        debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {
             isConnected = true;
-            LOGGER.info("Connection is already created.");
-            return;
-        }
-
-        final int[] retryAttempt = {0};
-        // Else, tries to initiate the socket connection.
-        while (!isConnected && (++retryAttempt[0] <= MAX_RETRY_COUNT)) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            if (!debugClientConnector.isConnected()) {
-                LOGGER.debug("Not connected. Retrying...");
-                debugClientConnector.createConnection();
-                if (debugClientConnector.isConnected()) {
-                    isConnected = true;
-                    LOGGER.info(String.format("Connected to the remote server at %s.%n%n",
-                        debugClientConnector.getAddress()), false);
-                    break;
-                }
-            } else {
-                LOGGER.debug("Connection is already created.");
-                isConnected = true;
-                break;
-            }
-        }
-        if (!debugClientConnector.isConnected()) {
-            throw new BallerinaTestException(String.format("Connection to debug server at %s could not be " +
-                "established%n", debugClientConnector.getAddress()));
+            LOGGER.info(String.format("Connected to the remote server at %s.%n%n", debugClientConnector.getAddress()),
+                    false);
+        } else {
+            throw new BallerinaTestException(String.format("Failed to connect to the debug server at %s%n",
+                    debugClientConnector.getAddress()));
         }
 
         setBreakpoints(testBreakpoints);
-
         if (executionKind == DebugUtils.DebuggeeExecutionKind.BUILD) {
             attachToDebuggee();
         } else {
@@ -396,10 +371,17 @@ public class DebugTestRunner {
 
         hitListener = new DebugHitListener(debugClientConnector);
         Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(hitListener, 0, 1000);
-        try {
-            Thread.sleep(timeoutMillis);
-        } catch (InterruptedException ignored) {
+        timer.scheduleAtFixedRate(hitListener, 0, SCHEDULER_INTERVAL_MS);
+
+        long retries = 2 * timeoutMillis / SCHEDULER_INTERVAL_MS;
+        for (int i = 0; i < retries; i++) {
+            try {
+                Thread.sleep(SCHEDULER_INTERVAL_MS / 2);
+                if (hitListener.isDebugHitFound()) {
+                    break;
+                }
+            } catch (InterruptedException ignored) {
+            }
         }
         timer.cancel();
 
@@ -832,7 +814,7 @@ public class DebugTestRunner {
         debugClientConnector = null;
 
         if (balClient != null) {
-            balClient.terminateProcess(debuggeeProcess, String.valueOf(port));
+            balClient.terminateProcessWithDescendants(debuggeeProcess);
             balClient = null;
         }
     }

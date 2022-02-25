@@ -15,13 +15,17 @@
  */
 package org.ballerinalang.langserver.util.rename;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
@@ -36,6 +40,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.RenameContext;
+import org.ballerinalang.langserver.contexts.BallerinaContextUtils;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -89,7 +94,8 @@ public class RenameUtil {
                 })
                 .orElse(null);
         // Check if token at cursor is an identifier
-        if (!(tokenAtCursor instanceof IdentifierToken) || CommonUtil.isKeyword(tokenAtCursor.text())) {
+        if (!(tokenAtCursor instanceof IdentifierToken) || SyntaxInfo.isKeyword(tokenAtCursor.text()) 
+                || isSelfClassSymbol(context)) {
             return Optional.empty();
         }
         Optional<Document> document = context.currentDocument();
@@ -103,6 +109,16 @@ public class RenameUtil {
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Optional.empty();
         }
+        
+        // If the node at cursor is qualified name reference with no matching import, we don't allow it to be renamed
+        if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
+            Optional<ImportDeclarationNode> importDeclaration =
+                    getImportDeclarationNodeForQNameReference(document.get(), qNameRefNode);
+            if (importDeclaration.isEmpty()) {
+                return Optional.empty();
+            }
+        }
 
         return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
     }
@@ -112,7 +128,8 @@ public class RenameUtil {
 
         fillTokenInfoAtCursor(context);
         String newName = context.getParams().getNewName();
-        if (!CommonUtil.isValidIdentifier(newName)) {
+        // We don't allow invalid identifiers. But allow annotated text edits for keywords.
+        if (!SyntaxInfo.isIdentifier(newName) && !SyntaxInfo.isKeyword(newName)) {
             throw new UserErrorException("Invalid identifier provided");
         }
 
@@ -125,7 +142,8 @@ public class RenameUtil {
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
 
         // For clients that doesn't support prepare rename, we do this check here as well
-        if (onImportDeclarationNode(context, nodeAtCursor)) {
+        if (onImportDeclarationNode(context, nodeAtCursor) 
+                || (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isSelfClassSymbol(context))) {
             return Collections.emptyMap();
         }
 
@@ -146,7 +164,7 @@ public class RenameUtil {
                 String uri = ReferencesUtil.getUriFromLocation(module, location);
                 List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
                 Range editRange = ReferencesUtil.getRange(location);
-                if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
+                if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
                     String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
                     textEdits.add(new AnnotatedTextEdit(editRange,
                             escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
@@ -168,8 +186,7 @@ public class RenameUtil {
         Map<String, ChangeAnnotation> changeAnnotationMap = new HashMap<>();
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         Map<String, List<TextEdit>> changes = getChanges(context);
-
-        if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(context.getParams().getNewName())) {
+        if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(context.getParams().getNewName())) {
             changeAnnotationMap.put(RenameChangeAnnotation.QUOTED_KEYWORD.getID(),
                     RenameChangeAnnotation.QUOTED_KEYWORD.getChangeAnnotation());
             changeAnnotationMap.put(RenameChangeAnnotation.UNQUOTED_KEYWORD.getID(),
@@ -229,10 +246,30 @@ public class RenameUtil {
                                                                           Document document,
                                                                           NonTerminalNode nodeAtCursor) {
         QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
+        Optional<ImportDeclarationNode> importDeclarationNode =
+                getImportDeclarationNodeForQNameReference(document, qNameRefNode);
+
+        if (importDeclarationNode.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        return handleImportDeclarationRename(context, document, importDeclarationNode.get());
+    }
+
+    /**
+     * Given the document and a qualified name reference node, this method returns the matching import declaration
+     * node.
+     *
+     * @param document     Document
+     * @param qNameRefNode Qualified name reference node
+     * @return Optional import declaration node
+     */
+    private static Optional<ImportDeclarationNode> getImportDeclarationNodeForQNameReference(
+            Document document, QualifiedNameReferenceNode qNameRefNode) {
         String moduleOrAlias = qNameRefNode.modulePrefix().text();
 
         ModulePartNode modulePartNode = document.syntaxTree().rootNode();
-        Optional<ImportDeclarationNode> importDeclarationNode = modulePartNode.imports().stream()
+        return modulePartNode.imports().stream()
                 .filter(importDeclaration -> {
                     CodeActionModuleId moduleId = CodeActionModuleId.from(importDeclaration);
                     if (!StringUtils.isEmpty(moduleId.modulePrefix())) {
@@ -243,12 +280,6 @@ public class RenameUtil {
                     return moduleId.moduleName().endsWith(moduleOrAlias);
                 })
                 .findFirst();
-
-        if (importDeclarationNode.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        return handleImportDeclarationRename(context, document, importDeclarationNode.get());
     }
 
     private static Map<String, List<TextEdit>> handleImportDeclarationRename(RenameContext context,
@@ -278,7 +309,7 @@ public class RenameUtil {
                             LinePosition endPos = moduleNames.get(moduleNames.size() - 1).lineRange().endLine();
                             Range range = new Range(CommonUtil.toPosition(endPos), CommonUtil.toPosition(endPos));
                             List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                            if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
+                            if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
                                 String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
                                 textEdits.add(new AnnotatedTextEdit(editRange,
                                         "as " + escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
@@ -289,7 +320,7 @@ public class RenameUtil {
                             }
                         } else {
                             List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                            if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
+                            if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
                                 String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
                                 textEdits.add(new AnnotatedTextEdit(editRange, escapedNewName,
                                         RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
@@ -326,7 +357,7 @@ public class RenameUtil {
                         }
                         List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
                         Range editRange = ReferencesUtil.getRange(location);
-                        if (context.getHonorsChangeAnnotations() && CommonUtil.isKeyword(newName)) {
+                        if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
                             String escapedNewName = CommonUtil.escapeModuleName(newName);
                             textEdits.add(new AnnotatedTextEdit(editRange,
                                     escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
@@ -350,6 +381,26 @@ public class RenameUtil {
         Position position = context.getCursorPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         context.setCursorPositionInTree(txtPos);
+    }
+    
+    private static boolean isSelfClassSymbol(ReferencesContext context) {
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (srcFile.isEmpty() || semanticModel.isEmpty() || context.currentSyntaxTree().isEmpty()) {
+            return false;
+        }
+        Position position = context.getCursorPosition();
+        LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
+        Optional<Symbol> symbol = semanticModel.get().symbol(srcFile.get(), linePosition);
+        if (symbol.isEmpty()) {
+            return false;
+        }
+        Optional<ModuleMemberDeclarationNode> enclosingNode = BallerinaContextUtils.
+                getEnclosingModuleMember(context.currentSyntaxTree().get(), context.getCursorPositionInTree());
+        if (enclosingNode.isEmpty()) {
+            return false;
+        }
+        return CommonUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode.get());
     }
 
     private enum RenameChangeAnnotation {

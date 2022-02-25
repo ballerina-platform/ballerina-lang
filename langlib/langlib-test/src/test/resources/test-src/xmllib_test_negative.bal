@@ -74,3 +74,26 @@ function tesXMLStrip() returns xml {
    xml<'xml:Element> x21 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
    xml<'xml:Element> x22 = x21.strip();
 }
+
+type attributesRecord record {
+    string x;
+};
+
+function testCreateElement() {
+    xml children1 = xml `<ele>hello</ele><ele>world</ele>`;
+
+    record {string x;} attributes1 = {
+                x: "https://ballerina.io"
+    };
+
+    attributesRecord attributes2 = {x:"https://ballerina.io"};
+
+    map<string> attributes3 = {
+        "href" : "https://ballerina.io"
+    };
+
+    xml:Element r1 = 'xml:createElement("elem", attributes1, children1);
+    xml:Element r2 = 'xml:createElement("elem", attributes2, children1);
+    xml:Element r3 = 'xml:createElement("elem", attributes3, "<ele>hello</ele>");
+    xml:Element r4 = 'xml:createElement(xml `<ele/>`, attributes3, children1);
+}

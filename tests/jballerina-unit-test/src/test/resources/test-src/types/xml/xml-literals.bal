@@ -1,64 +1,82 @@
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/test;
+
 function testXMLSequence() {
     string v1 = "interpolation1";
     string v2 = "interpolation2";
     xml x1 = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
-    assert(x1.toString(), "<foo>foo</foo><?foo ?>text1<!--comment-->");
+    test:assertEquals(x1.toString(), "<foo>foo</foo><?foo ?>text1<!--comment-->");
     xml x2 = xml `text1 text2 <foo>foo</foo>text2<!--comment-->text3 text4`;
-    assert(x2.toString(), "text1 text2 <foo>foo</foo>text2<!--comment-->text3 text4");
+    test:assertEquals(x2.toString(), "text1 text2 <foo>foo</foo>text2<!--comment-->text3 text4");
     xml x3 = xml `text1${v1}<foo>foo</foo>text2${v2}<!--comment ${v2}-->text3`;
-    assert(x3.toString(), "text1interpolation1<foo>foo</foo>text2interpolation2<!--comment interpolation2-->text3");
+    test:assertEquals(x3.toString(), "text1interpolation1<foo>foo</foo>text2interpolation2<!--comment interpolation2-->text3");
     xml x4 = xml `<!--comment--><?foo ${v1}?>text1${v1}<root>text2 ${v2}${v1} text3!<foo>12</foo><bar></bar></root>text2${v2}`;
-    assert(x4.toString(), "<!--comment--><?foo interpolation1?>text1interpolation1<root>text2 "+
+    test:assertEquals(x4.toString(), "<!--comment--><?foo interpolation1?>text1interpolation1<root>text2 "+
     "interpolation2interpolation1 text3!<foo>12</foo><bar></bar></root>text2interpolation2");
     xml x5 = xml `<!--comment-->text1`;
-    assert(x5.toString(), "<!--comment-->text1");
+    test:assertEquals(x5.toString(), "<!--comment-->text1");
     xml x6 = xml `<!--comment-->`;
-    assert(x6.toString(), "<!--comment-->");
+    test:assertEquals(x6.toString(), "<!--comment-->");
 
     xml<'xml:Element> x23 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
-    assert(x23.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    test:assertEquals(x23.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
     xml<xml<'xml:Element>> x24 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
-    assert(x24.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    test:assertEquals(x24.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
 
     xml<'xml:ProcessingInstruction> x17 = xml `<?foo?><?faa?>`;
-    assert(x17.toString(), "<?foo ?><?faa ?>");
+    test:assertEquals(x17.toString(), "<?foo ?><?faa ?>");
     xml<xml<'xml:ProcessingInstruction>> x18 = xml `<?foo?><?faa?>`;
-    assert(x18.toString(), "<?foo ?><?faa ?>");
+    test:assertEquals(x18.toString(), "<?foo ?><?faa ?>");
 
     xml<'xml:Text> x7 = xml `text1 text2`;
-    assert(x7.toString(), "text1 text2");
+    test:assertEquals(x7.toString(), "text1 text2");
     'xml:Text x26 = x7;
-    assert(x26.toString(), "text1 text2");
+    test:assertEquals(x26.toString(), "text1 text2");
     xml<xml<'xml:Text>> x19 = xml `text1 text2`;
-    assert(x19.toString(), "text1 text2");
+    test:assertEquals(x19.toString(), "text1 text2");
     'xml:Text x20 = xml `text1 text2`;
-    assert(x20.toString(), "text1 text2");
+    test:assertEquals(x20.toString(), "text1 text2");
     'xml:Text x25 = xml `text1 ${v1}`;
-    assert(x25.toString(), "text1 interpolation1");
+    test:assertEquals(x25.toString(), "text1 interpolation1");
     'xml:Text x8 = xml `text1`;
-    assert(x8.toString(), "text1");
+    test:assertEquals(x8.toString(), "text1");
 
     xml<'xml:Comment> x21 = xml `<!--comment1--><!--comment2-->`;
-    assert(x21.toString(), "<!--comment1--><!--comment2-->");
+    test:assertEquals(x21.toString(), "<!--comment1--><!--comment2-->");
     xml<xml<'xml:Comment>> x22 = xml `<!--comment1--><!--comment2-->`;
-    assert(x22.toString(), "<!--comment1--><!--comment2-->");
+    test:assertEquals(x22.toString(), "<!--comment1--><!--comment2-->");
 
     xml<'xml:Text|'xml:Comment> x9 = xml `<!--comment-->`;
-    assert(x9.toString(), "<!--comment-->");
+    test:assertEquals(x9.toString(), "<!--comment-->");
     xml<'xml:Text>|xml<'xml:Comment> x12 = xml `<!--comment-->`;
-    assert(x12.toString(), "<!--comment-->");
+    test:assertEquals(x12.toString(), "<!--comment-->");
     xml<'xml:Text|'xml:Comment> x10 = xml `<!--comment-->text1`;
-    assert(x10.toString(), "<!--comment-->text1");
+    test:assertEquals(x10.toString(), "<!--comment-->text1");
     xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
-    assert(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo ?>");
+    test:assertEquals(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo ?>");
     xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
-    assert(x13.toString(), "<!--comment-->text1");
+    test:assertEquals(x13.toString(), "<!--comment-->text1");
     xml<xml<'xml:Text>>|xml<xml<'xml:Comment>> x14 = xml `<!--comment-->text1`;
-    assert(x14.toString(), "<!--comment-->text1");
+    test:assertEquals(x14.toString(), "<!--comment-->text1");
     xml<'xml:Element>|'xml:Text x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
-    assert(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
+    test:assertEquals(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
     'xml:Text x16 = xml `text ${v1}`;
-    assert(x16.toString(), "text interpolation1");
+    test:assertEquals(x16.toString(), "text interpolation1");
 }
 
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
@@ -215,7 +233,7 @@ function testXMLWithLeadingWhiteSpace() {
         </book>
     </books>`;
 
-   assert(temp1[0] is 'xml:Text, true);
+   test:assertTrue(temp1[0] is 'xml:Text);
 
    xml temp2 = xml `
 
@@ -227,72 +245,121 @@ function testXMLWithLeadingWhiteSpace() {
            </book>
        </books>`;
 
-   assert(temp2[1] is 'xml:Text, false);
+   test:assertFalse(temp2[1] is 'xml:Text);
 }
 
 function testXMLSequenceValueAssignment(){
     xml<xml<xml<'xml:Element>>> x1 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
     xml<'xml:Element> x2 = x1;
-    assert(x2.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    test:assertEquals(x2.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
     xml<xml<'xml:Element>> x3 = x1;
-    assert(x3.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    test:assertEquals(x3.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
 
     xml<xml<xml<'xml:Comment>>> x4 = xml `<!--some comment--><!--some comment-->`;
     xml<'xml:Comment> x5 = x4;
-    assert(x5.toString(), "<!--some comment--><!--some comment-->");
+    test:assertEquals(x5.toString(), "<!--some comment--><!--some comment-->");
     xml<xml<'xml:Comment>> x6 = x4;
-    assert(x6.toString(), "<!--some comment--><!--some comment-->");
+    test:assertEquals(x6.toString(), "<!--some comment--><!--some comment-->");
 
     xml<xml<xml<'xml:ProcessingInstruction>>> x7 = xml `<?foo?><?faa?>`;
     xml<'xml:ProcessingInstruction> x8 = x7;
-    assert(x8.toString(), "<?foo ?><?faa ?>");
+    test:assertEquals(x8.toString(), "<?foo ?><?faa ?>");
     xml<xml<'xml:ProcessingInstruction>> x9 = x7;
-    assert(x9.toString(), "<?foo ?><?faa ?>");
+    test:assertEquals(x9.toString(), "<?foo ?><?faa ?>");
 }
 
 function testXMLTextValueAssignment(){
     xml<xml<xml<'xml:Text>>> x1 = xml `abcd`;
     xml:Text x2 = x1;
-    assert(x2.toString(), "abcd");
+    test:assertEquals(x2.toString(), "abcd");
     xml<'xml:Text> x3 = x1;
-    assert(x3.toString(), "abcd");
+    test:assertEquals(x3.toString(), "abcd");
 }
 
 function testXMLCDATASection() {
     xml x1 = xml `<![CDATA[some text]]>`;
-    assert(x1.toString(), "some text");
-    assert(x1 is xml:Text, true);
+    test:assertEquals(x1.toString(), "some text");
+    test:assertTrue(x1 is xml:Text);
 
     int intVar = 5;
     xml:Text x2 = xml `<![CDATA[${intVar}]]>`;
-    assert(x2.toString(), "5");
+    test:assertEquals(x2.toString(), "5");
 
     xml:Text x3 = xml `XML stands for <![CDATA[eXtensible]]> Markup Language`;
-    assert(x3.toString(), "XML stands for eXtensible Markup Language");
+    test:assertEquals(x3.toString(), "XML stands for eXtensible Markup Language");
 
     float floatVar = 3.2;
     xml:Element x4 = xml `<element>some text <![CDATA[example of a flaot ${floatVar} some other text]]></element>`;
-    assert(x4.toString(), "<element>some text example of a flaot 3.2 some other text</element>");
+    test:assertEquals(x4.toString(), "<element>some text example of a flaot 3.2 some other text</element>");
 
     xml x5 = x4/*;
-    assert(x5.toString(), "some text example of a flaot 3.2 some other text");
+    test:assertEquals(x5.toString(), "some text example of a flaot 3.2 some other text");
 
     xml x6 = xml `<![CDATA[]]>`;
-    assert(x6.toString(), "");
-    assert(x6 is xml:Text, true);
+    test:assertEquals(x6.toString(), "");
+    test:assertTrue(x6 is xml:Text);
 
    xml x7 = xml `<![CDATA[ abc --> <!-- --> some more text ]]>`;
-   assert(x7.toString(), " abc --&gt; &lt;!-- --&gt; some more text ");
-   assert(x7 is xml:Text, true);
+   test:assertEquals(x7.toString(), " abc --&gt; &lt;!-- --&gt; some more text ");
+   test:assertTrue(x7 is xml:Text);
 }
 
-function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+service class Service {
+    function getXmlSequence() returns xml|error {
+        return xml `<grand_total>${1d}</grand_total>`;
     }
+
+    function getNestedXmlSequence() returns xml|error {
+        return getResult();
+    }
+}
+
+function getResult() returns xml {
+    return xml `<grand_total>${2d}</grand_total>`;
+}
+
+function getXmlSequence() returns xml|error {
+    return xml `<grand_total>${3d}</grand_total>`;
+}
+
+function getNestedXmlSequence() returns xml|error {
+    return getResult();
+}
+
+class XmlError {
+    function getXmlSequence() returns xml|error {
+        return xml `<grand_total>${4d}</grand_total>`;
+    }
+
+    function getNestedXmlSequence() returns xml|error {
+        return getResult();
+    }
+}
+
+function testXMLReturnUnion() returns error? {
+    Service testService = new();
+    xml|error xmlSequence = testService.getXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>1</grand_total>");
+
+    xmlSequence = testService.getNestedXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
+
+    xmlSequence = getXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>3</grand_total>");
+
+    xmlSequence = getNestedXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
+
+    XmlError obj = new();
+    xmlSequence = obj.getXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>4</grand_total>");
+
+    xmlSequence = obj.getNestedXmlSequence();
+    test:assertTrue(xmlSequence is xml);
+    test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
 }

@@ -80,10 +80,17 @@ public class ForeachCompletionUtil {
                                                                               FieldAccessExpressionNode expr,
                                                                               TypeSymbol typeSymbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!isInBlockContext(expr) || !ITERABLES.contains(CommonUtil.getRawType(typeSymbol).typeKind())
+        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        if (!isInBlockContext(expr) || !ITERABLES.contains(rawType.typeKind())
                 || !(expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                 expr.expression().kind() == SyntaxKind.FUNCTION_CALL ||
                 expr.expression().kind() == SyntaxKind.FIELD_ACCESS)) {
+            return completionItems;
+        }
+
+        //Skip stream types which have specified the completion type.
+        if (rawType.typeKind() == TypeDescKind.STREAM &&
+                ((StreamTypeSymbol) rawType).completionValueTypeParameter().typeKind() != TypeDescKind.NIL) {
             return completionItems;
         }
         completionItems.addAll(getForEachCompletionItems(ctx, expr, typeSymbol));
@@ -122,8 +129,12 @@ public class ForeachCompletionUtil {
 
         completionItems.add(new StaticCompletionItem(ctx,
                 getIteratingCompletionItem(ctx, symbolName, symbol, textEdits), StaticCompletionItem.Kind.OTHER));
-        completionItems.add(new StaticCompletionItem(ctx,
-                getRangeExprCompletionItem(ctx, symbolName, textEdits), StaticCompletionItem.Kind.OTHER));
+
+        //Skip foreach range statement for stream type
+        if (CommonUtil.getRawType(symbol).typeKind() != TypeDescKind.STREAM) {
+            completionItems.add(new StaticCompletionItem(ctx,
+                    getRangeExprCompletionItem(ctx, symbolName, textEdits), StaticCompletionItem.Kind.OTHER));
+        }
         return completionItems;
     }
 

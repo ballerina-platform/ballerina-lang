@@ -1,7 +1,11 @@
 [
   {
     "description": "Define complex xml literal.",
-    "code": "xml x1 = xml `<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`; x1",
+    "code": "xml x1 = xml `<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`;"
+  },
+  {
+    "description": "Define complex xml literal - get value.",
+    "code": "x1",
     "expr": "xml`<book> <name>Sherlock Holmes</name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`"
   },
   {
@@ -10,12 +14,20 @@
   },
   {
     "description": "Define complex xml literal using namespaces.",
-    "code": "xml x2 = xml `<book ns0:status=\"available\"> <ns0:name>Sherlock Holmes</ns0:name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`; x2",
+    "code": "xml x2 = xml `<book ns0:status=\"available\"> <ns0:name>Sherlock Holmes</ns0:name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`;"
+  },
+  {
+    "description": "Define complex xml literal using namespaces - get value.",
+    "code": "x2",
     "expr": "xml`<book xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/aa\" ns0:status=\"available\"> <ns0:name>Sherlock Holmes</ns0:name> <author>Sir Arthur Conan Doyle</author> <!--Price: $10--> </book>`"
   },
   {
     "description": "Define complex xml literal using ${} notation.",
-    "code": "string title = \"(Sir)\"; xml x3 = xml `<ns0:newBook> <name>Sherlock Holmes</name> <author>${title} Arthur Conan Doyle</author> <!--Price: $${ 40 / 5 + 4 }--> </ns0:newBook>`; x3",
+    "code": "string title = \"(Sir)\"; xml x3 = xml `<ns0:newBook> <name>Sherlock Holmes</name> <author>${title} Arthur Conan Doyle</author> <!--Price: $${ 40 / 5 + 4 }--> </ns0:newBook>`"
+  },
+  {
+    "description": "Define complex xml literal using ${} notation - get value.",
+    "code": "x3",
     "expr": "xml`<ns0:newBook xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/aa\"> <name>Sherlock Holmes</name> <author>(Sir) Arthur Conan Doyle</author> <!--Price: $12--> </ns0:newBook>`"
   }
 ]

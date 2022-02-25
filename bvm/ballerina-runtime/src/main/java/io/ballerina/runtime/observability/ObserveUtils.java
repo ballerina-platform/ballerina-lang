@@ -291,12 +291,14 @@ public class ObserveUtils {
      * @param observerContext Observer context
      */
     public static void stopObservationWithContext(ObserverContext observerContext) {
-        if (observerContext.isServer()) {
-            observers.forEach(observer -> observer.stopServerObservation(observerContext));
-        } else {
-            observers.forEach(observer -> observer.stopClientObservation(observerContext));
+        if (!observerContext.isFinished()) {
+            if (observerContext.isServer()) {
+                observers.forEach(observer -> observer.stopServerObservation(observerContext));
+            } else {
+                observers.forEach(observer -> observer.stopClientObservation(observerContext));
+            }
+            observerContext.setFinished();
         }
-        observerContext.setFinished();
     }
 
     /**

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "last",
       "kind": "Field",
       "detail": "(record {| readonly string first; readonly string last; anydata & readonly...; |}).last",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "last: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "first",
       "kind": "Field",
       "detail": "(record {| readonly string first; readonly string last; anydata & readonly...; |}).first",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "first: \"${2}\"",
       "insertTextFormat": "Snippet"
     },

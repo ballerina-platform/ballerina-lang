@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
+import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
@@ -35,7 +36,14 @@ public class RecordFieldCompletionItem extends AbstractLSCompletionItem {
                                      CompletionItem completionItem) {
         super(context, completionItem, CompletionItemType.RECORD_FIELD);
         this.fieldSymbol = fieldSymbol;
-        completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldSymbol.typeDescriptor()));
+
+        // If the field type doesn't contain nil type and the field is optional, since we allow direct field access,
+        // we have to set the "?" to the field type manually
+        if (!FieldCompletionItemBuilder.hasNilType(fieldSymbol) && fieldSymbol.isOptional()) {
+            completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldSymbol.typeDescriptor()) + "?");
+        } else {
+            completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldSymbol.typeDescriptor()));
+        }
     }
 
     public RecordFieldCompletionItem(BallerinaCompletionContext context, RecordFieldSymbol fieldSymbol,

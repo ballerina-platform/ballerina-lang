@@ -85,12 +85,13 @@ public class TypeCastExprTest {
     }
 
     @Test
-    public void testStringToFloat() {
+    public void testIncompatibleStringToFloat() {
         BValue[] args = {new BString("2222.333f")};
         BValue[] returns = BRunUtil.invoke(result, "stringtofloat", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        double expected = 2222.333;
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
+        Assert.assertEquals(errorMsg, "'string' value '2222.333f' cannot be converted to 'float'");
     }
 
     @Test

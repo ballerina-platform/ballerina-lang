@@ -27,7 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.MODULE_DIR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getDefaultModuleName;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getOrgName;

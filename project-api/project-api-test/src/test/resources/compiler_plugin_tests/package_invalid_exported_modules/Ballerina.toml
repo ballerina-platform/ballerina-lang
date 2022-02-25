@@ -11,4 +11,4 @@ artifactId = "runtime"
 version = "0.5.0"
 
 [build-options]
-observabilityIncluded = true
+observabilityIncluded = false

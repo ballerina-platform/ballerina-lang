@@ -853,6 +853,36 @@ function testListMatchPattern30() {
     assertEquals("Pattern2", result);
 }
 
+type T readonly & S;
+type S [INT, int]|[STRING, string];
+
+const INT = 1;
+const STRING = 2;
+
+function testListMatchPattern31() {
+    T t1 = [STRING, "hello"];
+    T t2 = [INT, 1234];
+
+    assertEquals(["hello", ()], listMatchPattern31(t1));
+    assertEquals([(), 1234], listMatchPattern31(t2));
+}
+
+function listMatchPattern31(T t) returns [string?, int?] {
+    string? s = ();
+    int? i = ();
+
+    match t {
+        [STRING, var val] => {
+            s = val;
+        }
+        [INT, var val] => {
+            i = val;
+        }
+    }
+
+    return [s, i];
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

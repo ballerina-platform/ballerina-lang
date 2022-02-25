@@ -19,6 +19,8 @@ package io.ballerina.types;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.ValueComparisonUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -59,13 +61,18 @@ public class SemTypeTest {
         // https://github.com/ballerina-platform/ballerina-lang/issues/32722
         ignore(testFiles, "float-singleton2.bal");
         ignore(testFiles, "int-singleton.bal");
+        // due to https://github.com/ballerina-platform/ballerina-lang/issues/35204
         ignore(testFiles, "function.bal");
+
+        // due to https://github.com/ballerina-platform/ballerina-lang/issues/35203
+        ignore(testFiles, "int-singleton2.bal");
 
         include(testFiles,
                 "test-src/simple-type/type-test.bal",
                 "test-src/simple-type/list-type-test.bal",
                 "test-src/simple-type/map-type-test.bal",
-                "test-src/simple-type/int-singleton-altered.bal",
+               // due to https://github.com/ballerina-platform/ballerina-lang/issues/35203
+               // "test-src/simple-type/int-singleton-altered.bal",
                 "test-src/simple-type/function-altered.bal",
                 "test-src/simple-type/float-altered.bal");
 
@@ -179,10 +186,13 @@ public class SemTypeTest {
     }
 
     private void ensureNoErrors(BLangPackage bLangPackage) {
-        if (!bLangPackage.getDiagnostics().isEmpty()) {
-            Assert.fail(bLangPackage.getDiagnostics().stream()
-                    .map(d -> d.toString())
-                    .reduce("", (a, b) -> a + "\n" + b));
+        List<Diagnostic> errors = bLangPackage.getDiagnostics().stream()
+                .filter(d -> d.diagnosticInfo().severity() == DiagnosticSeverity.ERROR)
+                .collect(Collectors.toList());
+        if (!errors.isEmpty()) {
+            Assert.fail(errors.stream()
+                            .map(d -> d.toString())
+                            .reduce("", (a, b) -> a + "\n" + b));
         }
     }
 

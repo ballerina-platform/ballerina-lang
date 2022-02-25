@@ -51,4 +51,5 @@ public class SymTag {
     public static final int CONSTRUCTOR = 1 << 26 | INVOKABLE;
     public static final int LET = 1 << 27;
     public static final int ENUM = 1 << 28 | TYPE_DEF;
+    public static final int TYPE_REF = 1 << 29;
 }

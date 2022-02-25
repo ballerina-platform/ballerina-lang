@@ -56,6 +56,8 @@ function testIntCastFloatStmt (int a) returns float {
     return x;
 }
 
+public type CustomError error<record {|value:Cloneable failedAttempts;|}>;
+
 public client class Client {
     remote function foo() returns [int, int] {
         return [0, 0];
@@ -69,7 +71,7 @@ public client class Client {
         return error("the error reason");
     }
 
-    remote function foo3() returns error {
+    remote function foo3() returns CustomError {
         return error("foo3 error", failedAttempts = 3);
     }
 }

@@ -58,12 +58,12 @@ readonly class Listener {
 const MyConstant = "const";
 
 public isolated function main() {
-    typedesc t1 = MyRecord;
-    typedesc t2 = MyClass;
-    typedesc t3 = MyObject;
-    typedesc t4 = MyError;
+    typedesc _ = MyRecord;
+    typedesc _ = MyClass;
+    typedesc _ = MyObject;
+    typedesc _ = MyError;
 
-    function () f = MyFunction;
-    Listener l = lstnr;
-    MyConstant mc = MyConstant;
+    function () _ = MyFunction;
+    Listener _ = lstnr;
+    MyConstant _ = MyConstant;
 }

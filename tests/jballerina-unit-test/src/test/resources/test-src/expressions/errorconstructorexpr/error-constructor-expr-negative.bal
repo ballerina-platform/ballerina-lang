@@ -62,3 +62,6 @@ type ErrorU3 map<int>|map<Blah>|map<string>;
 error uc1 = error ErrorU1("Hello");
 error uc2 = error ErrorU2("Hello");
 error uc3 = error ErrorU3("Hello");
+
+int|string uc4 = error ErrorA("msg");
+int|string b = error("err");

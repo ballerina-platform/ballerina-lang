@@ -427,8 +427,10 @@ public class ObjectTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_semantics_negative" +
                 ".bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "variable 'p' is not initialized", 5, 13);
-        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 5, 20);
+        Assert.assertEquals(result.getWarnCount(), 1);
+        BAssertUtil.validateWarning(result, 0, "unused variable 'e'", 4, 5);
+        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 5, 13);
+        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 5, 20);
     }
 
     @Test(description = "Negative test to test uninitialized object variables")
@@ -836,6 +838,7 @@ public class ObjectTest {
     public void testInvalidUsageOfCheckInObjectFieldInitializer() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_field_initializer_with_check_negative.bal");
         int i = 0;
+        BAssertUtil.validateWarning(result, i++, "unused variable 'q'", 20, 9);
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 23, 13);
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 24, 21);
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 25, 23);
@@ -896,7 +899,10 @@ public class ObjectTest {
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 226, 29);
         BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 226, 51);
-        Assert.assertEquals(result.getErrorCount(), i);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 233, 5);
+        BAssertUtil.validateWarning(result, i++, "unused variable 'b'", 234, 5);
+        Assert.assertEquals(result.getErrorCount(), i - 3);
+        Assert.assertEquals(result.getWarnCount(), 3);
     }
 
     @Test(dataProvider = "checkInObjectFieldInitializerTests")

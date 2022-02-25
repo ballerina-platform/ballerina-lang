@@ -122,6 +122,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "B",
+      "insertText": "TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

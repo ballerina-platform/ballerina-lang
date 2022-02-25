@@ -306,30 +306,28 @@ function f16() {
     }
 }
 
-// To be uncommented after https://github.com/ballerina-platform/ballerina-lang/issues/33216 is fixed.
-// function f17() {
-//     int[] x = [1, 2];
-//
-//     match x {
-//         [1, 2] if function () { _ = nonIsolatedFn(1); } is isolated function () => {
-//         }
-//     }
-// }
+function f17() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function () { _ = nonIsolatedFn(1); } is isolated function () => {
+        }
+    }
+}
 
 function f18() {
     int[] x = [1, 2];
 
     match x {
-        // To be uncommented after https://github.com/ballerina-platform/ballerina-lang/issues/33216 is fixed.
-        // [1, 2] if function () {
-        //                 int y = nonIsolatedFn("") ? 1 : 2;
-        //                 NonIsolatedClass c = new;
-        //                 match y {
-        //                     1 if nonIsolatedFn("") || c.nonIsolatedFn(2) => {
-        //                     }
-        //                 }
-        //             } is isolated function () => {
-        // }
+         [1, 2] if function () {
+                         int y = nonIsolatedFn("") ? 1 : 2;
+                         NonIsolatedClass c = new;
+                         match y {
+                             1 if nonIsolatedFn("") || c.nonIsolatedFn(2) => {
+                             }
+                         }
+                     } is isolated function () => {
+         }
         [1, 2] if service object {
                         boolean b = isolatedFn([]);
 
@@ -406,5 +404,56 @@ function f20() {
                                 int i = 1;
                             } is isolated object { int i; } => {
         }
+    }
+}
+
+function f21() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function (int a) returns boolean { return nonIsolatedFn(a); } is isolated function (int a) returns
+        boolean => {
+        }
+    }
+}
+
+function f22() {
+    int[] x = [1, 2];
+
+    match x {
+        [1, 2] if function () returns boolean { return nonIsolatedFn(1); } is isolated function () returns boolean => {
+        }
+    }
+}
+
+function f23() {
+    int[] x = [1, 2];
+
+    match x {
+         [1, 2] if function () {
+                         int y = nonIsolatedFn("") ? 1 : 2;
+                         match y {
+                             1 if function (int a) returns boolean { return nonIsolatedFn(a); } is isolated function
+                             (int a) returns boolean => {
+                             }
+                         }
+                     } is isolated function () => {
+         }
+    }
+}
+
+function f24() {
+    int[] x = [1, 2];
+
+    match x {
+         [1, 2] if function () {
+                         int y = nonIsolatedFn("") ? 1 : 2;
+                         match y {
+                             1 if function () returns boolean { return nonIsolatedFn(1); } is isolated function ()
+                             returns boolean => {
+                             }
+                         }
+                     } is isolated function () => {
+         }
     }
 }

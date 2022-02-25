@@ -60,7 +60,8 @@ public class ReadonlyRecordFieldTest {
                 {"testReadOnlyFieldsOfClassTypes"},
                 {"testTypeReadOnlynessNegativeWithNonReadOnlyFieldsViaInclusion"},
                 {"testTypeReadOnlynessWithReadOnlyFieldsViaInclusion"},
-                {"testRecordWithFunctionTypeField"}
+                {"testRecordWithFunctionTypeField"},
+                {"testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstructor"}
         };
     }
 

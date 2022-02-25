@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -38,9 +39,9 @@ public class DebugAdapterLauncher {
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugAdapterLauncher.class);
 
     public static void main(String[] args) {
+        // Configures debug server port.
+        int debugServerPort = args.length != 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
         try {
-            // Configures debug server port.
-            int debugServerPort = args.length != 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
             ServerSocket serverSocket = new ServerSocket(debugServerPort);
             PrintStream out = System.out;
             out.println("Debug server started on " + debugServerPort);
@@ -57,6 +58,9 @@ public class DebugAdapterLauncher {
             IDebugProtocolClient client = serverLauncher.getRemoteProxy();
             debugServer.connect(client);
             serverLauncher.startListening();
+        } catch (IOException e) {
+            LOGGER.error(String.format("Failed to create debug server socket connection with port: %d, due to: %s",
+                    debugServerPort, e.getMessage()), e);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }

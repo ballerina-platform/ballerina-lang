@@ -64,9 +64,11 @@ public class SymbolsInFailRetryStatements {
                 {35, 8, "func", SymbolKind.FUNCTION},
                 {36, 13, "func2", SymbolKind.FUNCTION},
                 {42, 12, "value", SymbolKind.VARIABLE},
-                // TODO: Uncomment after fixing #33118
-//                {44, 20, "e", SymbolKind.VARIABLE},
-//                {45, 13, "func2", SymbolKind.FUNCTION},
+                {44, 20, "e", SymbolKind.VARIABLE},
+                {45, 13, "func2", SymbolKind.FUNCTION},
+                {70, 21, "ee", SymbolKind.VARIABLE},
+                {79, 21, "ee", SymbolKind.VARIABLE},
+                {86, 21, "ee", SymbolKind.VARIABLE},
         };
     }
 }

@@ -20,13 +20,13 @@ type MyError error<record {int code;}>;
 
 function foo() returns boolean {
     value:Cloneable x = error("error!");
-    any y = check x;
+    any _ = check x;
     return true;
 }
 
 function bar() returns MyError|boolean {
     value:Cloneable x = error("error!");
-    any y = check x;
+    any _ = check x;
     return true;
 }
 
@@ -34,5 +34,5 @@ type CyclicUnion readonly|boolean[]|CyclicUnion[];
 
 function baz() returns MyError? {
     CyclicUnion x = <boolean[]> [true, false];
-    any y = check x;
+    any _ = check x;
 }

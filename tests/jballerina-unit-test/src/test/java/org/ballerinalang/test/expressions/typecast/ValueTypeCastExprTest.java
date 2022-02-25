@@ -18,8 +18,10 @@
 package org.ballerinalang.test.expressions.typecast;
 
 import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
@@ -102,12 +104,13 @@ public class ValueTypeCastExprTest {
     }
 
     @Test
-    public void testStringToFloat() {
+    public void testIncompatibleStringToFloat() {
         BValue[] args = {new BString("2222.333f")};
         BValue[] returns = BRunUtil.invoke(result, "stringToFloat", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        double expected = 2222.333;
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
+        Assert.assertEquals(errorMsg, "'string' value '2222.333f' cannot be converted to 'float'");
     }
 
     @Test

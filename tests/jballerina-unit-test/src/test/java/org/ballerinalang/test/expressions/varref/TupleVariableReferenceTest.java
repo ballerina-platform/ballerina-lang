@@ -366,8 +366,14 @@ public class TupleVariableReferenceTest {
         resultSemanticsNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/tuple_variable_reference_dataflow_negative.bal");
         int i = 0;
+        BAssertUtil.validateWarning(resultSemanticsNegative, i++, "unused variable 's1'", 19, 16);
+        BAssertUtil.validateWarning(resultSemanticsNegative, i++, "unused variable 'f1'", 19, 20);
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 's1'", 20, 6);
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'f1'", 20, 10);
+        BAssertUtil.validateWarning(resultSemanticsNegative, i++, "unused variable 's2'", 23, 48);
+        BAssertUtil.validateWarning(resultSemanticsNegative, i++, "unused variable 'f2'", 23, 53);
+        BAssertUtil.validateWarning(resultSemanticsNegative, i++, "unused variable 'b2'", 23, 57);
+        BAssertUtil.validateWarning(resultSemanticsNegative, i++, "unused variable 'n2'", 23, 62);
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 's2'", 24, 6);
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'f2'", 24, 11);
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'b2'", 24, 15);
@@ -375,7 +381,7 @@ public class TupleVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 's2'", 25, 5);
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'f2'", 26, 6);
         BAssertUtil.validateError(resultSemanticsNegative, i++, "cannot assign a value to final 'b2'", 26, 10);
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i);
+        Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, i);
     }
 
     @Test

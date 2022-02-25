@@ -17,7 +17,7 @@
 type Foo record {|
     function a = function () returns error? {
         // OK, since it is enclosed in the function, and not directly used in the default value.
-        int q = check int:fromString("invalid");
+        int _ = check int:fromString("invalid");
         return;
     };
     int b = check int:fromString("invalid"); // error.
@@ -32,10 +32,10 @@ isolated function f1() returns int[]|error => [];
 isolated function f2() returns MyError|record {|
         function a = function () returns error? {
             // OK, since it is enclosed in the function, and not directly used in the default value.
-            int q = check int:fromString("invalid");
+            int _ = check int:fromString("invalid");
             record {|
                 any x = check f1(); // error.
-            |} r = {};
+            |} _ = {};
             return;
         };
         int b = check int:fromString("invalid"); // error.
@@ -49,7 +49,7 @@ record {|
     record {|
         function a = function () returns error? {
             // OK, since it is enclosed in the function, and not directly used in the default value.
-            int q = check int:fromString("invalid");
+            int _ = check int:fromString("invalid");
             return;
         };
         int b = check int:fromString("invalid"); // error.
@@ -64,7 +64,7 @@ isolated function func() {
         record {|
             function a = function () returns error? {
                 // OK, since it is enclosed in the function, and not directly used in the default value.
-                int q = check int:fromString("invalid");
+                int _ = check int:fromString("invalid");
                 return;
             };
             int b = check int:fromString("invalid"); // error.
@@ -73,13 +73,13 @@ isolated function func() {
         object {} rec2 = object {
             any|error a = check f1(); // error.
         };
-    |} rec2 = {a: 1};
+    |} _ = {a: 1};
 }
 
 type Baz record {
     any a = check new Qux(function () returns error? { // error
                               // OK, since it is enclosed in the function, and not directly used in the default value.
-                              int q = check int:fromString("invalid");
+                              int _ = check int:fromString("invalid");
                               return;
                           });
     any b = check new Qux(() => check int:fromString("invalid")); // error for outer check

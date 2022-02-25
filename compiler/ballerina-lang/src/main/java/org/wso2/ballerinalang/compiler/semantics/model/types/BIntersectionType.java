@@ -93,6 +93,10 @@ public class BIntersectionType extends BType implements IntersectionType {
         return visitor.visit(this, t);
     }
 
+    public void setConstituentTypes(LinkedHashSet<BType> constituentTypes) {
+        this.constituentTypes =  toFlatTypeSet(constituentTypes);
+    }
+
     @Override
     public String toString() {
         Name name = this.tsymbol.name;

@@ -91,6 +91,8 @@ public class LetExpressionTest {
                 76, 55);
         BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a8'", 76, 55);
         BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a11'", 76, 74);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'(int|float|decimal|string|boolean|xml)', found 'A'", 92, 41);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -141,7 +143,10 @@ public class LetExpressionTest {
 //                {"testLetExprInObj"},
                 {"testAnonymousRecordWithLetExpression"},
                 {"testRecordWithLetExpression"},
-                {"testLetWithClass"}
+                {"testLetWithClass"},
+                {"testLetWithBLangXMLTextLiteral"},
+                {"testLetExprWithBLangXMLCommentLiteral"},
+                {"testLetExprWithBLangXMLQuotedString"}
         };
     }
 
