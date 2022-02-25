@@ -4162,7 +4162,7 @@ public class BallerinaParser extends AbstractParser {
                 return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
         }
     }
-    
+
     private STNode createQualifiedNameReferenceNode(STNode identifier, STNode colon, STNode varOrFuncName) {
         if (hasTrailingMinutiae(identifier) || hasTrailingMinutiae(colon)) {
             colon = SyntaxErrors.addDiagnostic(colon,
@@ -14286,10 +14286,6 @@ public class BallerinaParser extends AbstractParser {
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case STRING_LITERAL_TOKEN:
                 return parseSimpleConstExpr();
-            case IDENTIFIER_TOKEN:
-                // If it is an identifier it can be error match pattern with missing error keyword or const pattern
-                STNode typeRefOrConstExpr = parseQualifiedIdentifier(ParserRuleContext.MATCH_PATTERN);
-                return parseErrorMatchPatternOrConsPattern(typeRefOrConstExpr);
             case VAR_KEYWORD:
                 return parseVarTypedBindingPattern();
             case OPEN_BRACKET_TOKEN:
@@ -14299,6 +14295,12 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseErrorMatchPattern();
             default:
+                if (isPredeclaredIdentifier(nextToken.kind)) {
+                    // This can be const-pattern or error-match-pattern with missing error keyword.
+                    STNode typeRefOrConstExpr = parseQualifiedIdentifier(ParserRuleContext.MATCH_PATTERN);
+                    return parseErrorMatchPatternOrConsPattern(typeRefOrConstExpr);
+                }
+
                 recover(nextToken, ParserRuleContext.MATCH_PATTERN_START);
                 return parseMatchPattern();
         }
@@ -14828,7 +14830,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseRestMatchPattern();
             case IDENTIFIER_TOKEN:
                 // Identifier can means two things: either its a named-arg, or its simple match pattern.
-                return parseNamedOrSimpleMatchPattern();
+                return parseNamedOrSimpleMatchPattern(); // TODO: fix qualified-identifier
             case OPEN_PAREN_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
