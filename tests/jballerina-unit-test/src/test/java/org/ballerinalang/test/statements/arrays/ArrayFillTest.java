@@ -613,6 +613,11 @@ public class ArrayFillTest {
         }
     }
 
+    @Test
+    public void testXMLSubtypesArrayFill() {
+        BRunUtil.invokeFunction(compileResult, "testXMLSubtypesArrayFill");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
