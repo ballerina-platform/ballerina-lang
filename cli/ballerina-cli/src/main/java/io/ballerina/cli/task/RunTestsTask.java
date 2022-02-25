@@ -30,6 +30,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
@@ -69,6 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
@@ -486,7 +488,7 @@ public class RunTestsTask implements Task {
             InterruptedException {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
-        String classPath = getClassPath(jBallerinaBackend);
+        String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
@@ -601,20 +603,49 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private String getClassPath(JBallerinaBackend jBallerinaBackend) {
+    private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         List<Path> dependencies = new ArrayList<>();
-        List<JarLibrary> jarLibraries = ProjectUtils.testDependencies();
-        // Add all jar paths for test dependencies
-        for (JarLibrary jarLibrary : jarLibraries) {
-            dependencies.add(jarLibrary.path());
-        }
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
 
-        Path runtimeLibraryPath = jBallerinaBackend.runtimeLibrary().path();
-        dependencies.add(runtimeLibraryPath);
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip getting file paths for execution if module doesnt contain a testable jar
+            if (!module.testDocumentIds().isEmpty() || module.project().kind()
+                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                    dependencies.add(jarLibs.path());
+                }
+            }
+        }
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+
+        List<Path> jarList = getExclusionPathList(jBallerinaBackend, currentPackage);
+        dependencies.removeAll(jarList);
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().map(Path::toString).forEach(classPath::add);
         return classPath.toString();
+    }
+
+    private List<Path> getExclusionPathList(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> exclusionPathList = new ArrayList<>();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
+                    module.moduleName());
+            exclusionPathList.add(generatedJarLibrary.path());
+
+            if (!module.testDocumentIds().isEmpty()) {
+                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                exclusionPathList.add(codeGeneratedTestLibrary.path());
+            }
+        }
+
+        return exclusionPathList.stream().distinct().collect(Collectors.toList());
     }
 
 }
