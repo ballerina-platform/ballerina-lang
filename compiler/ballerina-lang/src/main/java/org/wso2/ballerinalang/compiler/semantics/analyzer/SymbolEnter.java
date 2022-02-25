@@ -889,9 +889,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         td.defn = d;
         SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
 
-        for (BLangExpression t : td.sizes) {
+        ArrayList<BLangExpression> reversed = new ArrayList<>(td.sizes);
+        Collections.reverse(reversed);
+        for (BLangExpression t : reversed) {
             // todo: We need to constFold this expression.
-            int size = (Integer) ((BLangLiteral) t).value;
+            int size = constExprToInt(t);
             if (size >= 0) {
                 elementType = d.define(semtypeEnv, new ArrayList<>(List.of(elementType)), size);
             } else {
@@ -900,6 +902,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         return elementType;
+    }
+
+    private int constExprToInt(BLangExpression t) {
+        if (t.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BConstantSymbol symbol = (BConstantSymbol) ((BLangSimpleVarRef) t).symbol;
+            return ((Long) symbol.value.value).intValue();
+        }
+        return (int) ((BLangLiteral) t).value;
     }
 
     private SemType resolveTypeDesc(BLangTupleTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
