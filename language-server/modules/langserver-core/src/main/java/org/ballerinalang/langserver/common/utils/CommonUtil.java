@@ -1637,7 +1637,7 @@ public class CommonUtil {
             currentNode = currentNode.parent();
         }
         return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
-                && symbol.getName().isPresent() && symbol.getName().get().equals(SELF_KW);
+                && symbol.getName().orElse("").equals(SELF_KW);
     }
 
     /**
