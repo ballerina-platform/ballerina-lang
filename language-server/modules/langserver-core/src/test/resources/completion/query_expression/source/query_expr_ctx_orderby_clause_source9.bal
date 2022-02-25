@@ -27,5 +27,4 @@ function testFunction() {
                  where x>0
                  let boolean y = !bool
                  order by 
-
 }

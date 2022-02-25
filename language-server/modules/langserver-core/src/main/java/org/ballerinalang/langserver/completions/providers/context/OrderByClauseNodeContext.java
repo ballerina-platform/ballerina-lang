@@ -97,13 +97,11 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
         QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent().parent();
 
         completionItems.forEach(lsCItem -> {
-            int rank;
+            int rank = 3;
             if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode)) {
                 rank = 1;
             } else if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
                 rank = 2;
-            } else {
-                rank = 3;
             }
             lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
                     SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));

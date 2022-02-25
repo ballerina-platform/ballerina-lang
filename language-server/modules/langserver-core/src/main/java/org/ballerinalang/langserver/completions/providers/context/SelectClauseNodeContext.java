@@ -72,11 +72,9 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
         QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent();
         
         completionItems.forEach(lsCItem -> {
-            int rank;
+            int rank = 2;
             if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode)) {
                 rank = 1;
-            } else {
-                rank = 2;
             }
             lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
                     SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));

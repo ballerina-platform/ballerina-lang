@@ -34,7 +34,6 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Project;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -552,10 +551,9 @@ public class SortingUtil {
                 || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
                 return false;
         }
-
-        Optional<Location> symbolLocation = ((SymbolCompletionItem) lsCItem).getSymbol().get().getLocation();
-        return symbolLocation.isPresent()
-        && (startNode.textRange().startOffset() < symbolLocation.get().textRange().startOffset())
-        && (symbolLocation.get().textRange().endOffset() < context.getCursorPositionInTree());
+        return ((SymbolCompletionItem) lsCItem).getSymbol().get().getLocation()
+                .filter(location -> startNode.textRange().startOffset() < location.textRange().startOffset())
+                .filter(location -> location.textRange().endOffset() < context.getCursorPositionInTree())
+                .isPresent();
     }
 }
