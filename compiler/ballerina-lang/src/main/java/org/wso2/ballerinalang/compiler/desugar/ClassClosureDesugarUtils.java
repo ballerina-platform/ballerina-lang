@@ -15,6 +15,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * This class contains static util methods commonly used to desugar class closure access desugaring.
@@ -51,6 +52,7 @@ public class ClassClosureDesugarUtils {
                                                       BLangClassDefinition classDef, SymbolEnv env) {
         classDef.hasClosureVars = true;
         resolvedSymbol.closure = true;
+        resolvedSymbol.flags |= Flags.OBJECT_CTOR;
         if (enclosedF != null) {
             enclosedF.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             // TODO: can identify if attached here
