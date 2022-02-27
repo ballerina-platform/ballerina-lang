@@ -1387,6 +1387,9 @@ function testCloneWithTypeImmutableStructuredTypes() {
     assert(person4.id, 14);
 }
 
+type IntOne 1;
+type FloatOne 1.0;
+type DecimalOne 1d;
 type IntOneOrTwo 1|2;
 type IntTwoOrThree 2|3;
 type IntThreeOrFour 3|4;
@@ -1395,6 +1398,7 @@ type FloatTwoOrThree 2.0|3.0;
 type FloatThreeOrFour 3.0|4.0;
 type IntOneOrFloatTwo 1|2.0;
 type IntTwoOrFloatTwo 2|2.0;
+type DecimalOneOrTwo 1d|2d;
 
 function testCloneWithTypeWithFiniteType() {
     int x = 2;
@@ -1419,6 +1423,34 @@ function testCloneWithTypeWithFiniteType() {
     assert(g is error, false);
     IntTwoOrFloatTwo h = checkpanic g;
     assert(h, 2.0);
+
+    int z = 1;
+    float w = 1.0;
+    decimal v = 1d;
+
+    DecimalOne|error i = z.cloneWithType();
+    assert(checkpanic i, 1.0d);
+    DecimalOneOrTwo|error j = z.cloneWithType();
+    assert(checkpanic j, 1.0d);
+    DecimalOne|error k = w.cloneWithType();
+    assert(checkpanic k, 1.0d);
+    DecimalOneOrTwo|error l = w.cloneWithType();
+    assert(checkpanic l, 1.0d);
+
+    IntOne|error m = v.cloneWithType();
+    assert(checkpanic m, 1);
+    FloatOne|error n = v.cloneWithType();
+    assert(checkpanic n, 1.0);
+    IntOneOrTwo|error p = v.cloneWithType();
+    assert(checkpanic p, 1);
+
+    DecimalOneOrTwo decimalOneOrTwo = 2d;
+    IntTwoOrFloatTwo|error q = decimalOneOrTwo.cloneWithType();
+    assert(q is error, true);
+    error err = <error> q;
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(<string> checkpanic err.detail()["message"],
+            "'decimal' value cannot be converted to 'IntTwoOrFloatTwo': ambiguous target type");
 }
 
 function testCloneWithTypeWithUnionOfFiniteType() {
@@ -1439,6 +1471,9 @@ function testCloneWithTypeWithUnionOfFiniteType() {
     assert(e is error, false);
     IntOneOrFloatTwo|IntTwoOrThree f = checkpanic e;
     assert(f, 2);
+
+    (DecimalOneOrTwo|FloatThreeOrFour)|error g = y.cloneWithType();
+    assert(checkpanic g, 2d);
 }
 
 function testCloneWithTypeWithFiniteArrayTypeFromIntArray() {
