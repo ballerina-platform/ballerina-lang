@@ -42,7 +42,6 @@ import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BFutureType;
-import io.ballerina.runtime.internal.types.BIntegerType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
