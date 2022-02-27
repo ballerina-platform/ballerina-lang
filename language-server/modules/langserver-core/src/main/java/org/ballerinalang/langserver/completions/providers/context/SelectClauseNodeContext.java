@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link SelectClauseNode} context.
@@ -69,11 +70,13 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
     @Override
     public void sort(BallerinaCompletionContext context, SelectClauseNode node, 
                      List<LSCompletionItem> completionItems) {
-        QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent();
-        
+        Optional<QueryExpressionNode> queryExprNode =  SortingUtil.getTheOutermostQueryExpressionNode(node);
+        if (queryExprNode.isEmpty()) {
+            return;
+        }        
         completionItems.forEach(lsCItem -> {
             int rank = 2;
-            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode)) {
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
                 rank = 1;
             }
             lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +

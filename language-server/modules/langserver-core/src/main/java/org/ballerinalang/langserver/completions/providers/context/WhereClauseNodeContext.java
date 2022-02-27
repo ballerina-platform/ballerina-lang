@@ -77,11 +77,13 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
 
     @Override
     public void sort(BallerinaCompletionContext context, WhereClauseNode node, List<LSCompletionItem> completionItems) {
-        QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent().parent();
-        
+        Optional<QueryExpressionNode> queryExprNode =  SortingUtil.getTheOutermostQueryExpressionNode(node);
+        if (queryExprNode.isEmpty()) {
+            return;
+        }        
         completionItems.forEach(lsCItem -> {
             int rank = 2;
-            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode)) {
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
                 rank = 1;
             }
             lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +

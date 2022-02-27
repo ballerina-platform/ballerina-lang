@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -555,5 +556,26 @@ public class SortingUtil {
                 .filter(location -> startNode.textRange().startOffset() < location.textRange().startOffset())
                 .filter(location -> location.textRange().endOffset() < context.getCursorPositionInTree())
                 .isPresent();
+    }
+    
+    /**
+     * Loop through the parent clauseNode to find the outermost Query Expression Node if exists.
+     *
+     * @param clauseNode           clauseNode
+     * @return {@link Optional}    outermost QueryExpressionNode related to the clause node
+     */
+    public static Optional<QueryExpressionNode> getTheOutermostQueryExpressionNode(Node clauseNode) {
+        Node evalNode1 = clauseNode;
+        Node evalNode2 = clauseNode;
+        while (evalNode1.parent() != null) {
+            if (evalNode1.kind() == SyntaxKind.QUERY_EXPRESSION) {
+                evalNode2 = evalNode1;
+            }
+            evalNode1 = evalNode1.parent();
+        }
+        if (evalNode2.kind() == SyntaxKind.QUERY_EXPRESSION) {
+            return Optional.of((QueryExpressionNode) evalNode2);
+        }
+        return Optional.empty();
     }
 }

@@ -94,11 +94,13 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
                 TypeDescKind.BOOLEAN, TypeDescKind.FLOAT,
                 TypeDescKind.DECIMAL);
 
-        QueryExpressionNode queryExprNode = (QueryExpressionNode) node.parent().parent();
-
+        Optional<QueryExpressionNode> queryExprNode =  SortingUtil.getTheOutermostQueryExpressionNode(node);
+        if (queryExprNode.isEmpty()) {
+            return;
+        }
         completionItems.forEach(lsCItem -> {
             int rank = 3;
-            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode)) {
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
                 rank = 1;
             } else if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
                 rank = 2;
