@@ -6702,7 +6702,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         restType = this.resultType;
                     }
                 }
-            } else {
+            } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
                 List<BType> tupleMemberTypes = tupleType.tupleTypes;
                 BType tupleRestType = tupleType.restType;
