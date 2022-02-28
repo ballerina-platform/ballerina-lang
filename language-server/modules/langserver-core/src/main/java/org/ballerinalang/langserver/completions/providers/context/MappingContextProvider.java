@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +43,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,14 +62,19 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         super(attachmentPoint);
     }
 
-    protected abstract Map<String, RecordFieldSymbol> getValidFields(T node,
-                                                                     RecordTypeSymbol recordTypeSymbol);
+    /**
+     * Returns the fields that have already been as keys in the given node.
+     *
+     * @param node Node
+     * @return List of fields already written in the node.
+     */
+    protected abstract List<String> getFields(T node);
 
     protected Predicate<Symbol> getVariableFilter() {
         return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == SymbolKind.CONSTANT);
     }
 
-    protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    protected boolean withinValueExpression(BallerinaCompletionContext context, Node evalNodeAtCursor) {
         Token colon;
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
             Optional<Token> optionalColon = ((SpecificFieldNode) evalNodeAtCursor).colon();
@@ -133,46 +138,53 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return this.getCompletionItemList(moduleContent, context);
     }
 
-    protected boolean hasReadonlyKW(NonTerminalNode evalNodeAtCursor) {
+    protected boolean hasReadonlyKW(Node evalNodeAtCursor) {
         return ((evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD)
                 && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
     }
 
     protected List<LSCompletionItem> getFieldCompletionItems(BallerinaCompletionContext context, Node node,
-                                                             NonTerminalNode evalNode) {
+                                                             Node evalNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (!this.hasReadonlyKW(evalNode)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
         }
         List<Pair<TypeSymbol, TypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
+        List<RecordFieldSymbol> validFields = new ArrayList<>();
         for (Pair<TypeSymbol, TypeSymbol> recordTypeSymbol : recordTypeDesc) {
             RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol.getLeft()));
             Map<String, RecordFieldSymbol> fields = this.getValidFields((T) node, rawType);
+            validFields.addAll(fields.values());
             // TODO: Revamp the implementation
             // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
             if (!fields.values().isEmpty()) {
-                completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields,
-                        recordTypeSymbol));
+                Optional<LSCompletionItem> fillAllStructFieldsItem =
+                        CommonUtil.getFillAllStructFieldsItem(context, fields, recordTypeSymbol);
+                fillAllStructFieldsItem.ifPresent(completionItems::add);
             }
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }
-        if (recordTypeDesc.isEmpty()) {
-                /*
-                This means that we are within a mapping constructor for a map. Therefore, we suggest the variables
-                Eg: 
-                1. function init() {
-                    int test = 12;
-                    map<string> myVar = {<cursor>};
-                   }
-                2. function init() {
-                    match map<string> {
-                          {<cursor>} => {}
-                    }
-                   }
-                 */
+        
+        if (recordTypeDesc.isEmpty() || validFields.isEmpty()) {
+            List<String> existingFields = getFields((T) node);
+            /*
+            This means that we are within a mapping constructor for a map. Therefore, we suggest the variables
+            Eg: 
+            1. function init() {
+                int test = 12;
+                map<string> myVar = {<cursor>};
+               }
+            2. function init() {
+                match map<string> {
+                      {<cursor>} => {}
+                }
+               }
+            */
             List<Symbol> variables = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(this.getVariableFilter())
+                    .filter(varSymbol -> varSymbol.getName().isPresent())
+                    .filter(varSymbol -> !existingFields.contains(varSymbol.getName().get()))
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(variables, context));
         }
@@ -187,12 +199,27 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return this.expressionCompletions(context);
     }
 
-    protected NonTerminalNode getEvalNode(BallerinaCompletionContext context) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
-                ? nodeAtCursor.parent() : nodeAtCursor;
-        return evalNode;
+    protected Optional<Node> getEvalNode(BallerinaCompletionContext context) {
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(context.getNodeAtCursor(), predicate);
+    }
+
+    protected Map<String, RecordFieldSymbol> getValidFields(T node, RecordTypeSymbol recordTypeSymbol) {
+        List<String> existingFields = getFields(node);
+        Map<String, RecordFieldSymbol> fieldSymbols = new HashMap<>();
+        recordTypeSymbol.fieldDescriptors().forEach((name, symbol) -> {
+            if (!existingFields.contains(name)) {
+                fieldSymbols.put(name, symbol);
+            }
+        });
+
+        return fieldSymbols;
     }
 
     @Override

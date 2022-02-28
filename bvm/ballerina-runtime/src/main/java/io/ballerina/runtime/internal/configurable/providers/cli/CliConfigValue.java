@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.configurable.ConfigValue;
  *  @since 2.0.0
  */
 public class CliConfigValue implements ConfigValue {
-    private Object value;
+    private final Object value;
 
     public CliConfigValue(Object value) {
         this.value = value;

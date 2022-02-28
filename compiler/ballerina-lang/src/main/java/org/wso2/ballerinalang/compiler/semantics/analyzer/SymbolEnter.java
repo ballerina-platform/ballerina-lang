@@ -1649,7 +1649,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
 
-        if (isIntersectionType) {
+        boolean isIntersectionTypeWithNonNullEffectiveTypeSymbol =
+                isIntersectionType && effectiveDefinedType.tsymbol != null;
+
+        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.name = typeDefSymbol.name;
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
@@ -1682,7 +1685,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         definedType.flags |= typeDefSymbol.flags;
 
-        if (isIntersectionType) {
+        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
             effectiveTypeSymbol.origin = VIRTUAL;

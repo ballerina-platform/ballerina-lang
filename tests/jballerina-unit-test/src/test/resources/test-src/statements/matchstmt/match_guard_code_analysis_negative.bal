@@ -79,3 +79,19 @@ function fn6() {
         }
     }
 }
+
+type Type_T "P1"|"P2"|"P3"|"P4";
+
+function matchTest(Type_T e) returns string {
+    match e {
+        "P1"|"P2" if e is "P2" => {
+            if (e is "P3") { // L = "P1"|"P2", withing block L & "P2"
+                return "P3";
+            }
+            return "p1p2p3p4";
+        }
+        _ => {
+            return "P4";
+        }
+    }
+}

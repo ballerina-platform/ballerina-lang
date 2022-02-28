@@ -710,7 +710,7 @@ public class LargeMethodOptimizer {
      * @return The generated operand for the variable declaration
      */
     private BIROperand generateTempLocalVariable(BIRFunction func, BType variableType) {
-        Name variableName = new Name("$split$tempVar$" + splitTempVarNum++);
+        Name variableName = new Name("$split$tempVar$_" + splitTempVarNum++);
         BIRVariableDcl variableDcl = new BIRVariableDcl(variableType, variableName, VarScope.FUNCTION, VarKind.TEMP);
         func.localVars.add(variableDcl);
         return new BIROperand(variableDcl);

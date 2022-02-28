@@ -745,7 +745,9 @@ public class SnippetGenerator {
     public static SnippetBlock getTableWithKeyTypeDescSnippet() {
         String snippet = "type ${1:TypeName} table<${2}> key${3}";
 
-        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE, ItemResolverConstants.TABLE,
+        return new SnippetBlock(ItemResolverConstants.TABLE_WITH_KEY_TYPE,
+                generateFilterText(Arrays.asList(ItemResolverConstants.TYPE_TYPE,
+                        ItemResolverConstants.TABLE, ItemResolverConstants.KEY)),
                 snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
@@ -1069,7 +1071,7 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.RETURN_SC, ItemResolverConstants.RETURN_SC, "return;",
                 ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
     }
-    
+
     /**
      * Get Service Variable Snippet Block.
      *
@@ -1567,7 +1569,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getInitFunctionSnippet() {
-        String snippet = "function init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+        String snippet = "function init(${1}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
                 CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE,
                 generateFilterText(Arrays.asList("init", ItemResolverConstants.FUNCTION)), snippet,

@@ -235,7 +235,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "table",
+      "filterText": "type_table_key",
       "insertText": "type ${1:TypeName} table<${2}> key${3}",
       "insertTextFormat": "Snippet"
     },
@@ -755,7 +755,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module1 as module11 ;\n"
+          "newText": "import lsproject.module1 as module11;\n"
         }
       ]
     },

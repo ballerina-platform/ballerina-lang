@@ -46,14 +46,20 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -154,6 +160,37 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    void clearStacks() {
+        this.loopAndDoClauseEnvs.clear();
+        this.potentiallyInvalidAssignmentInLoopsInfo.clear();
+    }
+
+    private void analyzeReachabilityInExpressionIfApplicable(BLangExpression expr, SymbolEnv env) {
+        if (expr == null) {
+            return;
+        }
+        NodeKind exprKind = expr.getKind();
+        switch (exprKind) {
+            case DO_ACTION:
+                analyzeReachability(expr, env);
+                return;
+            case CHECK_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangCheckedExpr) expr).expr, env);
+                return;
+            case CHECK_PANIC_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangCheckPanickedExpr) expr).expr, env);
+                return;
+            case TRAP_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangTrapExpr) expr).expr, env);
+                return;
+            case TYPE_CONVERSION_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangTypeConversionExpr) expr).expr, env);
+                return;
+            case GROUP_EXPR:
+                analyzeReachabilityInExpressionIfApplicable(((BLangGroupExpr) expr).expression, env);
+        }
+    }
+
     @Override
     public void visit(BLangBlockStmt blockNode) {
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
@@ -184,14 +221,13 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         checkStatementExecutionValidity(varDefNode);
 
         BLangExpression expr = varDefNode.var.expr;
-        if (expr != null && expr.getKind() == NodeKind.DO_ACTION) {
-            analyzeReachability(expr, env);
-        }
+        analyzeReachabilityInExpressionIfApplicable(expr, env);
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
         checkStatementExecutionValidity(assignNode);
+        analyzeReachabilityInExpressionIfApplicable(assignNode.expr, env);
         validateAssignmentToNarrowedVariable(assignNode.varRef, assignNode.pos, env);
     }
 
@@ -217,6 +253,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnStmt) {
         checkStatementExecutionValidity(returnStmt);
+        analyzeReachabilityInExpressionIfApplicable(returnStmt.expr, env);
         this.statementReturnsPanicsOrFails = true;
     }
 
@@ -234,8 +271,10 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         checkStatementExecutionValidity(exprStmtNode);
-        if (exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
+        BLangExpression expr = exprStmtNode.expr;
+        analyzeReachabilityInExpressionIfApplicable(expr, env);
+        if (expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
             this.statementReturnsPanicsOrFails = true;
         }
     }
@@ -303,11 +342,15 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorDestructure errorDestructureStmt) {
         checkStatementExecutionValidity(errorDestructureStmt);
+        analyzeReachabilityInExpressionIfApplicable(errorDestructureStmt.expr, env);
         validateAssignmentToNarrowedVariables(getVarRefs(errorDestructureStmt.varRef), errorDestructureStmt.pos, env);
     }
 
     @Override
-    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+    public void visit(BLangErrorVariableDef errorVariableDef) {
+        checkStatementExecutionValidity(errorVariableDef);
+        BLangExpression expr = errorVariableDef.errorVariable.expr;
+        analyzeReachabilityInExpressionIfApplicable(expr, env);
     }
 
     @Override
@@ -365,7 +408,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatchStatement matchStatement) {
         checkStatementExecutionValidity(matchStatement);
-
+        analyzeReachabilityInExpressionIfApplicable(matchStatement.expr, env);
         if (!this.failureHandled) {
             this.failureHandled = matchStatement.onFailClause != null;
         }
@@ -420,7 +463,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+    public void visit(BLangRecordVariableDef recordVariableDef) {
+        checkStatementExecutionValidity(recordVariableDef);
     }
 
     @Override
@@ -552,6 +596,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef tupleVariableDef) {
+        checkStatementExecutionValidity(tupleVariableDef);
     }
 
     @Override
@@ -615,6 +660,16 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        for (BLangNode queryClause : queryAction.queryClauseList) {
+            if (queryClause.getKind() == NodeKind.WHERE) {
+                BLangWhereClause whereClause = (BLangWhereClause) queryClause;
+                this.unreachableBlock = ConditionResolver.checkConstCondition(types, symTable,
+                        whereClause.expression) == symTable.falseType;
+                if (this.unreachableBlock) {
+                    break;
+                }
+            }
+        }
         analyzeReachability(queryAction.getDoClause(), env);
     }
 
@@ -628,13 +683,13 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                                                                                               env.enclInvokable));
 
         BLangBlockStmt body = doClause.body;
-        checkStatementExecutionValidity(body);
         analyzeReachability(body, doEnv);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                 this.statementReturnsPanicsOrFails, true,
                 DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION);
         this.loopAndDoClauseCount--;
+        this.loopAndDoClauseEnvs.pop();
     }
 
     @Override
