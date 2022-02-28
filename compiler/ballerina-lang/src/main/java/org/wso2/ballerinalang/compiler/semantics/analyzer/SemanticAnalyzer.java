@@ -279,7 +279,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        final AnalyzerData data = new AnalyzerData();
+        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        final AnalyzerData data = new AnalyzerData(pkgEnv);
         visitNode(pkgNode, data);
         return pkgNode;
     }
@@ -292,7 +293,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return;
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        data.env = pkgEnv;
 
         // Visit constants first.
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
@@ -481,7 +481,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (funcNode.hasBody()) {
             data.newEnv = funcEnv;
-            analyzeNode(funcNode.body, funcEnv, returnTypeNode.getBType(), null, data);
+            analyzeNode(funcNode.body, returnTypeNode.getBType(), null, data);
         }
 
         if (funcNode.anonForkName != null) {
@@ -4065,20 +4065,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     public void analyzeNode(BLangNode node, SymbolEnv env) {
-        AnalyzerData data = new AnalyzerData();
-        data.env = env;
+        AnalyzerData data = new AnalyzerData(env);
         analyzeNode(node, data);
     }
 
     public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs) {
-        AnalyzerData data = new AnalyzerData();
-        data.env = env;
+        AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
         analyzeNode(node, data);
     }
 
     public void analyzeNode(BLangNode node,  AnalyzerData data) {
-        analyzeNode(node, data.env, symTable.noType, null, data);
+        analyzeNode(node, symTable.noType, null, data);
     }
 
     @Override
@@ -4098,7 +4096,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.notCompletedNormally = true;
     }
 
-    void analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode, AnalyzerData data) {
+    void analyzeNode(BLangNode node, BType expType, DiagnosticCode diagCode, AnalyzerData data) {
         data.prevEnvs.push(data.env);
         BType preExpType = data.expType;
         DiagnosticCode preDiagCode = data.diagCode;
@@ -4741,7 +4739,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
      * @since 2.0.0
      */
     public static class AnalyzerData {
-        public SymbolEnv env;
+        SymbolEnv env;
         SymbolEnv newEnv;
         BType expType;
         DiagnosticCode diagCode;
@@ -4749,5 +4747,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         boolean notCompletedNormally;
         boolean breakFound;
         Stack<SymbolEnv> prevEnvs = new Stack<>();
+
+        public AnalyzerData(SymbolEnv env) {
+            this.env = env;
+        }
     }
 }

@@ -500,8 +500,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                 tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData();
-        data.env = env;
+        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
         this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
         classDefinition.generatedInitFunction = tempGeneratedInitFunction;
 
@@ -7569,8 +7568,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDef, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                                                                           tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData();
-        data.env = env;
+        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
         this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
         classDef.generatedInitFunction = tempGeneratedInitFunction;
         env.enclPkg.functions.add(classDef.generatedInitFunction);
