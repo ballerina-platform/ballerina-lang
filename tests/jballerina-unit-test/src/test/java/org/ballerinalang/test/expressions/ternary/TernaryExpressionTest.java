@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.expressions.ternary;
 
+import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
@@ -390,7 +391,7 @@ public class TernaryExpressionTest {
         BRunUtil.invoke(compileResult, "testTernaryInModuleLevel");
     }
 
-    @Test
+    @Test(description = "Test type narrowing for ternary expression")
     public void testTernaryTypeNarrow() {
         CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow.bal");
         int index = 0;
@@ -417,6 +418,14 @@ public class TernaryExpressionTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '(R|T)', found '(Q|R|T)'",
                 291, 32);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Test type narrowing for ternary expression with no errors")
+    public void testTernaryTypeNarrowPositive() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow_positive.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTernaryTypeNarrow");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @AfterClass

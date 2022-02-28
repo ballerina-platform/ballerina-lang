@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.statements.whilestatement;
 
+import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
@@ -271,7 +272,7 @@ public class WhileStmtTest {
     }
 
     @Test(description = "Test type narrowing for while statement")
-    public void testTernaryTypeNarrow() {
+    public void testWhileStmtTypeNarrowing() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/whilestatement/while_stmt_type_narrowing.bal");
         int index = 0;
@@ -304,5 +305,13 @@ public class WhileStmtTest {
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'string', found '(boolean|string)'", 327, 20); // issue #34307
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Test type narrowing for while statement with no errors")
+    public void testWhileStmtTypeNarrowPositive() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/statements/whilestatement/while_stmt_type_narrowing_positive.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testWhileStmtTypeNarrow");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

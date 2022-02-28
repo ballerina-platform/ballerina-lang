@@ -1119,6 +1119,14 @@ public class TypeGuardTest {
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
+    @Test(description = "Test type guard type narrowing with no errors")
+    public void testTypeGuardTypeNarrowPositive() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_type_narrow_positive.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardTypeNarrow");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
