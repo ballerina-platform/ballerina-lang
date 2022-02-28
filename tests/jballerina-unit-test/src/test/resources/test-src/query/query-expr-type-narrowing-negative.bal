@@ -419,3 +419,78 @@ function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
         where item !is Q
         select rtFn(item); // error incompatible types: expected '(R|T)', found '(Q|R|T)'
 }
+
+type Integers 1|2|3;
+
+type Chars "A"|"B"|"C";
+
+function test11(Integers[] numbers, Chars[] chars) returns error? {
+    int[] _ = from int item in numbers
+        where item == 1
+        select item * 2;
+
+    int[] _ = from int item in numbers
+        where item == 1 || item == 2
+        select item * 2;
+
+    check from Integers item in numbers
+        where item == 1 || item == 2
+        do {
+            1 _ = item; // error incompatible types: expected '1', found '(1|2)'
+        };
+
+    int[] _ = from int item in numbers
+        where item is 1
+        select item * 2;
+
+    string[] _ = from Chars item in chars
+        where item == "C"
+        select item;
+
+    check from Chars item in chars
+        where item == "C"
+        do {
+            "C" _ = item;
+        };
+
+    int?[] a = [1, 2, 3];
+    var _ = from var item in a
+        where item == 1
+        let () varName = item // error incompatible types: expected '()', found '1'
+        select item;
+
+    1[] _ = from var item in 1 ... 3
+        let int? one = 1
+        where one == 1
+        select one;
+
+    check from var item in 1 ... 3
+        let int? one = 1
+        where one == 1
+        do {
+            2 two = one; // error incompatible types: expected '2', found '1'
+        };
+
+    (int|string)[] arr = [1,2,3];
+    check from int|string item in arr
+        where item is int
+        let int num = item
+        do {
+            int _ = num * 2;
+        };
+
+    //    Should be enabled once issue #35264 is fixed
+    //    check from Chars item in chars
+    //        where item == "C"
+    //        do {
+    //            item = "B";
+    //        };
+
+    IntStrOrBoolean[] intArr = [1, 2, 3, 4];
+
+    check from var item in intArr
+        where item is int && item == 2
+        do {
+            2 _ = item;
+        };
+}

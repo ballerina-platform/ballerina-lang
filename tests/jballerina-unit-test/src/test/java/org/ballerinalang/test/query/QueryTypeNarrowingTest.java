@@ -65,7 +65,7 @@ public class QueryTypeNarrowingTest {
     @Test
     public void testNegativeTypeNarrowing() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-expr-type-narrowing-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 14);
+        Assert.assertEquals(compileResult.getErrorCount(), 17);
         int i = 0;
         validateError(compileResult, i++, "incompatible types: expected 'B', found 'AorB'",
                 117, 20);
@@ -93,8 +93,14 @@ public class QueryTypeNarrowingTest {
                 411, 18);
         validateError(compileResult, i++, "incompatible types: expected 'R', found '(Q|R)'",
                 416, 21);
-        validateError(compileResult, i, "incompatible types: expected '(R|T)', found '(Q|R|T)'",
+        validateError(compileResult, i++, "incompatible types: expected '(R|T)', found '(Q|R|T)'",
                 420, 21);
+        validateError(compileResult, i++, "incompatible types: expected '1', found '(1|2)'",
+                439, 19);
+        validateError(compileResult, i++, "incompatible types: expected '()', found '1'",
+                459, 26);
+        validateError(compileResult, i, "incompatible types: expected '2', found '1'",
+                471, 21);
     }
 
     @AfterClass
