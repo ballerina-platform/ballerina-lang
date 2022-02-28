@@ -435,6 +435,8 @@ class ModuleContext {
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
             compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         } catch (Throwable t) {
+            assert false : "Compilation failed due to" +
+                    (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
             compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
         moduleContext.bLangPackage = pkgNode;
@@ -452,6 +454,8 @@ class ModuleContext {
             try {
                 compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
             } catch (Throwable t) {
+                assert false : "Compilation failed due to" +
+                        (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
                 compilerPhaseRunner.addDiagnosticForUnhandledException(moduleContext.bLangPackage, t);
                 return;
             }

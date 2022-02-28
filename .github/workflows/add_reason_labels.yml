@@ -1,0 +1,19 @@
+on:
+  issues:
+    types: [closed]
+jobs:
+  check-resolution-label:
+    runs-on: ubuntu-latest
+    if:
+      ${{ contains(github.event.issue.labels.*.name, 'Type/Bug') && !(contains(github.event.issue.labels.*.name, 'Reason/EngineeringMistake') ||
+      contains(github.event.issue.labels.*.name, 'Reason/Complex') ||
+      contains(github.event.issue.labels.*.name, 'Reason/Regression') ||
+      contains(github.event.issue.labels.*.name, 'Reason/Other') ||
+      contains(github.event.issue.labels.*.name, 'Reason/Invalid') ||
+      contains(github.event.issue.labels.*.name, 'Reason/MultipleComponentInteraction')) }}
+    steps:
+      - run: echo Resolution label is not set
+      - run: gh issue comment $ISSUE --body "This issue is **NOT** closed with a proper **Reason/** label. Make sure to add proper reason label before closing. Please add or leave a comment with the proper reason label now.<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Reason/EngineeringMistake** - The issue occurred due to a mistake made in the past.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Reason/Regression** - The issue has introduced a regression.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Reason/MultipleComponentInteraction** - Issue occured due to interactions in multiple components.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Reason/Complex** - Issue occurred due to complex scenario.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Reason/Invalid** - Issue is invalid.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Reason/Other** - None of the above cases."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.html_url }}
