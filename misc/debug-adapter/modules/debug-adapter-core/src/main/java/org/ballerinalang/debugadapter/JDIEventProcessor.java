@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
@@ -140,7 +141,7 @@ public class JDIEventProcessor {
 
     void sendStepRequest(int threadId, int stepType) {
         if (stepType == StepRequest.STEP_OVER) {
-            breakpointProcessor.configureDynamicBreakPoints(threadId, BreakpointProcessor.DynamicBreakpointMode.CURRENT);
+            breakpointProcessor.configureDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
         } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }

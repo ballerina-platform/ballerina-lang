@@ -349,15 +349,15 @@ public class BreakpointProcessor {
      */
     enum DynamicBreakpointMode {
         /**
-         * Configures dynamic breakpoints only for the current method (active stack frame)
+         * Configures dynamic breakpoints only for the current method (active stack frame).
          */
         CURRENT,
         /**
-         * Configures dynamic breakpoints only for the caller method (parent stack frame)
+         * Configures dynamic breakpoints only for the caller method (parent stack frame).
          */
         CALLER,
         /**
-         * Configures dynamic breakpoints only for both the current and caller methods.
+         * Configures dynamic breakpoints for both the current and caller methods.
          */
         BOTH
     }
