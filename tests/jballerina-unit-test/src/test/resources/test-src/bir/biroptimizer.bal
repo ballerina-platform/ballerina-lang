@@ -76,3 +76,43 @@ function mapInits() returns [string?, int?] {
     emp["jack"] = jack;
     return [emp["jack"]["name"], emp["jack"]["age"]];
 }
+
+function failWithinOnFail() returns string|error {
+    int i = 0;
+    string str = "";
+    while (i < 2) {
+        do {
+            str += "-> Within do statement";
+            i = i + 1;
+            fail error("custom error", message = "error value");
+        } on fail error e {
+            str += "-> Error caught in inner on fail";
+            fail e;
+        }
+        str += "-> After do statement";
+    }
+    str += "-> Execution completed.";
+    return str;
+}
+
+int lockWithinLockInt = 0;
+string lockWithinLockString = "";
+function failLockWithinLock() returns [int, string] {
+    lock {
+        lockWithinLockInt = 50;
+        lockWithinLockString = "sample value";
+        lock {
+            lockWithinLockString = "second sample value";
+            lockWithinLockInt = 99;
+            lock {
+                lockWithinLockInt = 90;
+            }
+            error err = error("custom error", message = "error value");
+            fail err;
+        }
+    } on fail error e {
+        lockWithinLockInt = 100;
+        lockWithinLockString = "Error caught";
+    }
+    return [lockWithinLockInt, lockWithinLockString];
+}
