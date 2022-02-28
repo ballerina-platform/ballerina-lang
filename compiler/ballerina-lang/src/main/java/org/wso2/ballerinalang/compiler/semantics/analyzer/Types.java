@@ -4691,7 +4691,7 @@ public class Types {
                     return symTable.semanticError;
                 }
 
-                return ImmutableTypeCloner.getEffectiveImmutableType(symTable.builtinPos, this, bType,
+                return ImmutableTypeCloner.getEffectiveImmutableType(bType.tsymbol.pos, this, bType,
                                                                      env, symTable, anonymousModelHelper, names);
             }
         }
