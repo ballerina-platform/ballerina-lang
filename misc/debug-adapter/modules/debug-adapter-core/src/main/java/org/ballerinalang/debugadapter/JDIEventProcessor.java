@@ -104,7 +104,7 @@ public class JDIEventProcessor {
         if (event instanceof ClassPrepareEvent) {
             if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
                 ClassPrepareEvent evt = (ClassPrepareEvent) event;
-                breakpointProcessor.configureUserBreakPoints(evt.referenceType());
+                breakpointProcessor.activateUserBreakPoints(evt.referenceType());
             }
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
@@ -135,13 +135,13 @@ public class JDIEventProcessor {
         if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
-            context.getDebuggeeVM().allClasses().forEach(breakpointProcessor::configureUserBreakPoints);
+            context.getDebuggeeVM().allClasses().forEach(breakpointProcessor::activateUserBreakPoints);
         }
     }
 
     void sendStepRequest(int threadId, int stepType) {
         if (stepType == StepRequest.STEP_OVER) {
-            breakpointProcessor.configureDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
+            breakpointProcessor.activateDynamicBreakPoints(threadId, DynamicBreakpointMode.CURRENT);
         } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }

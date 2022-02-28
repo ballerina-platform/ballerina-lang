@@ -54,8 +54,9 @@ import java.util.concurrent.TimeoutException;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
- * Implementation of Ballerina breakpoint processor. The existing implementation is capable of switching in-between
- * user breakpoints and dynamic breakpoints based on the debug instruction.
+ * Implementation of Ballerina breakpoint processor. The existing implementation is capable of processing advanced
+ * breakpoint types (conditional breakpoints and log-points) and, switching in-between user breakpoints and dynamic
+ * breakpoints based on the debug instruction.
  *
  * @since 2201.0.1
  */
@@ -91,7 +92,7 @@ public class BreakpointProcessor {
         // need to internally step out if we are at the last line of a function, in order to ignore having debug hits
         // on the last line.
         if (requireStepOut(bpEvent)) {
-            configureDynamicBreakPoints((int) bpEvent.thread().uniqueID(), DynamicBreakpointMode.CALLER);
+            activateDynamicBreakPoints((int) bpEvent.thread().uniqueID(), DynamicBreakpointMode.CALLER);
             context.getDebuggeeVM().resume();
         } else if (context.getLastInstruction() != null && context.getLastInstruction() != DebugInstruction.CONTINUE) {
             jdiEventProcessor.notifyStopEvent(bpEvent);
@@ -149,6 +150,12 @@ public class BreakpointProcessor {
         }
     }
 
+    /**
+     * Responsible for clearing dynamic(temporary) breakpoints used for step over instruction and for restoring the
+     * original user breakpoints before proceeding with the other debug instructions.
+     *
+     * @param instruction debug instruction
+     */
     void restoreUserBreakpoints(DebugInstruction instruction) {
         if (context.getDebuggeeVM() == null) {
             return;
@@ -156,11 +163,16 @@ public class BreakpointProcessor {
 
         context.getEventManager().deleteAllBreakpoints();
         if (instruction == DebugInstruction.CONTINUE || instruction == DebugInstruction.STEP_OVER) {
-            context.getDebuggeeVM().allClasses().forEach(this::configureUserBreakPoints);
+            context.getDebuggeeVM().allClasses().forEach(this::activateUserBreakPoints);
         }
     }
 
-    void configureUserBreakPoints(ReferenceType referenceType) {
+    /**
+     * Activates user-configured source breakpoints via Java Debug Interface(JDI).
+     *
+     * @param referenceType represent the type of an object in the remote VM
+     */
+    void activateUserBreakPoints(ReferenceType referenceType) {
         try {
             // Avoids setting break points if the server is running in 'no-debug' mode.
             ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
@@ -189,7 +201,14 @@ public class BreakpointProcessor {
         }
     }
 
-    void configureDynamicBreakPoints(int threadId, DynamicBreakpointMode mode) {
+    /**
+     * Activates dynamic/temporary breakpoints (which will be used to process the STEP-OVER instruction) via Java Debug
+     * Interface(JDI).
+     *
+     * @param threadId ID of the active java thread in oder to configure dynamic breakpoint on the active stack trace
+     * @param mode     dynamic breakpoint mode
+     */
+    void activateDynamicBreakPoints(int threadId, DynamicBreakpointMode mode) {
         ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         try {
             List<StackFrameProxyImpl> jStackFrames = threadReference.frames();
@@ -214,6 +233,8 @@ public class BreakpointProcessor {
     /**
      * Configures temporary(dynamic) breakpoints for all the lines within the method, which encloses the given stack
      * frame location. This strategy is used when processing STEP_OVER requests.
+     *
+     * @param balStackFrame stack frame which contains the method information
      */
     private void configureBreakpointsForMethod(BallerinaStackFrame balStackFrame) {
         try {
@@ -280,6 +301,13 @@ public class BreakpointProcessor {
         });
     }
 
+    /**
+     * Sends the logpoint message to the client's debug console.
+     *
+     * @param event      breakpoint event
+     * @param logMessage logpoint message
+     * @param lineNumber source line number of the configured logpoint
+     */
     void printLogMessage(BreakpointEvent event, LogMessage logMessage, int lineNumber) {
         try {
             if (logMessage instanceof TemplateLogMessage) {
