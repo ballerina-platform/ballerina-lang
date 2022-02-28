@@ -662,7 +662,7 @@ public class JvmPackageGen {
         } catch (MethodTooLargeException e) {
             String funcName = e.getMethodName();
             BIRFunction func = findFunction(node, funcName);
-            if (func != null) {
+            if (func != null && func.pos != null) {
                 dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
                         Utils.decodeIdentifier(func.name.value));
             } else {
