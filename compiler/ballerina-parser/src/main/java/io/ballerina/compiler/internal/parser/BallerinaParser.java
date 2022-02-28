@@ -9263,7 +9263,7 @@ public class BallerinaParser extends AbstractParser {
             // e.g. annotation name on source object f<cursor>
             STToken nextNonVirtualToken = this.tokenReader.read();
             updateLastNodeInListWithInvalidNode(attachPoints, nextNonVirtualToken,
-                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN, nextNonVirtualToken.text());
         }
 
         endContext();
@@ -14273,6 +14273,12 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseMatchPattern() {
         STToken nextToken = peek();
+        if (isPredeclaredIdentifier(nextToken.kind)) {
+            // This can be const-pattern or error-match-pattern with missing error keyword.
+            STNode typeRefOrConstExpr = parseQualifiedIdentifier(ParserRuleContext.MATCH_PATTERN);
+            return parseErrorMatchPatternOrConsPattern(typeRefOrConstExpr);
+        }
+
         switch (nextToken.kind) {
             case OPEN_PAREN_TOKEN:
             case NULL_KEYWORD:
@@ -14295,12 +14301,6 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_KEYWORD:
                 return parseErrorMatchPattern();
             default:
-                if (isPredeclaredIdentifier(nextToken.kind)) {
-                    // This can be const-pattern or error-match-pattern with missing error keyword.
-                    STNode typeRefOrConstExpr = parseQualifiedIdentifier(ParserRuleContext.MATCH_PATTERN);
-                    return parseErrorMatchPatternOrConsPattern(typeRefOrConstExpr);
-                }
-
                 recover(nextToken, ParserRuleContext.MATCH_PATTERN_START);
                 return parseMatchPattern();
         }
@@ -14747,6 +14747,7 @@ public class BallerinaParser extends AbstractParser {
         switch (matchPatternKind) {
             case IDENTIFIER_TOKEN:
             case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
             case NUMERIC_LITERAL:
             case STRING_LITERAL:
             case NULL_LITERAL:
@@ -14825,12 +14826,13 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseErrorArgListMatchPattern(ParserRuleContext context) {
         STToken nextToken = peek();
+        if (isPredeclaredIdentifier(nextToken.kind)) {
+            return parseNamedArgOrSimpleMatchPattern();
+        }
+
         switch (nextToken.kind) {
             case ELLIPSIS_TOKEN:
                 return parseRestMatchPattern();
-            case IDENTIFIER_TOKEN:
-                // Identifier can means two things: either its a named-arg, or its simple match pattern.
-                return parseNamedOrSimpleMatchPattern(); // TODO: fix qualified-identifier
             case OPEN_PAREN_TOKEN:
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
@@ -14859,17 +14861,14 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseNamedOrSimpleMatchPattern() {
-        STNode identifier = consume(); // We only approach here by seeing identifier.
-        STToken secondToken = peek();
-        switch (secondToken.kind) {
-            case EQUAL_TOKEN:
-                return parseNamedArgMatchPattern(identifier);
-            case COMMA_TOKEN:
-            case CLOSE_PAREN_TOKEN:
-            default:
-                return identifier;
+    private STNode parseNamedArgOrSimpleMatchPattern() {
+        STNode constRefExpr = parseQualifiedIdentifier(ParserRuleContext.MATCH_PATTERN);
+        if (constRefExpr.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE || peek().kind != SyntaxKind.EQUAL_TOKEN) {
+            return constRefExpr;
         }
+
+        // We reach here for identifier followed by '=' token.
+        return parseNamedArgMatchPattern(((STSimpleNameReferenceNode) constRefExpr).name);
     }
 
     /**
