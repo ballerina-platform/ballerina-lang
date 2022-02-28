@@ -115,13 +115,21 @@ function testEnumInRecursiveArray() {
     Keyword u = "union";
     assert(u, "union");
 
-    ApproxType b = "'boolean";
-    assert(b, 'boolean);
+    ApproxType b = "boolean";
+    assert(b, "boolean");
 
-    Keyword i = "'int";
-    assert(i, "'int");
+    Keyword i = "int";
+    assert(i, "int");
 }
 
+public enum CallState {
+    'new\u{5C}
+}
+
+function testEnumMemberContainingNumericEscape() {
+    CallState state = "new\\";
+    assert(state, "new\\");
+}
 
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
