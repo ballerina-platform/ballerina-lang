@@ -60,10 +60,6 @@ public class RecursiveDebugTest extends BaseTestCase {
 
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
-
-        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
-        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 26));
 
         // tries STEP_OVER request on the recursive function call line, which should results in a debug hit on the

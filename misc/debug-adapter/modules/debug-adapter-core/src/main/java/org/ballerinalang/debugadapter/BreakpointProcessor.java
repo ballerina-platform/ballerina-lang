@@ -252,7 +252,7 @@ public class BreakpointProcessor {
             int nextStepPoint = firstLocation.get().lineNumber();
             do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
-                if (!locations.isEmpty() && (locations.get(0).lineNumber() >= firstLocation.get().lineNumber())) {
+                if (!locations.isEmpty() && (locations.get(0).lineNumber() > firstLocation.get().lineNumber())) {
                     // Checks whether there are any user breakpoint configured for the same location, before adding the
                     // dynamic breakpoint.
                     boolean bpAlreadyExist = context.getEventManager().breakpointRequests().stream()
