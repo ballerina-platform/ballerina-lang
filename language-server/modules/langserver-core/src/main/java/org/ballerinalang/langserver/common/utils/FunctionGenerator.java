@@ -99,6 +99,37 @@ public class FunctionGenerator {
      * @param functionName       Name of the function
      * @param args               Function parameters
      * @param returnTypeDescKind {@link TypeDescKind} of the return type
+     * @return Created function
+     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol, boolean)
+     */
+    public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
+                                          List<String> args, TypeDescKind returnTypeDescKind) {
+        return generateFunction(context, newLineAtStart, functionName, args, returnTypeDescKind, false);
+    }
+
+    /**
+     * Generates a function with the provided parameters.
+     *
+     * @param context          Document service context
+     * @param newLineAtStart   Whether to add an additional newline at the beginning of the function.
+     * @param functionName     Name of the created function
+     * @param args             Function arguments as a string list
+     * @param returnTypeSymbol return type of the function
+     * @return Created function as a string
+     */
+    public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
+                                          List<String> args, TypeSymbol returnTypeSymbol) {
+        return generateFunction(context, newLineAtStart, functionName, args, returnTypeSymbol, false);
+    }
+
+    /**
+     * Generate a function once function name, arguments and return type descriptor kind is provided.
+     *
+     * @param context            Document service context
+     * @param newLineAtStart     Whether to add a new line at the beginning
+     * @param functionName       Name of the function
+     * @param args               Function parameters
+     * @param returnTypeDescKind {@link TypeDescKind} of the return type
      * @param isolated           Whether the created function should be prefixed with isolated qualifier
      * @return Created function
      * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol, boolean)
