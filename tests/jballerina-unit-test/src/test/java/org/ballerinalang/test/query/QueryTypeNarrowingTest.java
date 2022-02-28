@@ -57,6 +57,11 @@ public class QueryTypeNarrowingTest {
         BRunUtil.invoke(result, "testTernaryWithinQueryExpression");
     }
 
+    @Test(description = "Test type narrowing with where in queries")
+    public void testTypeNarrowingWithinQueries() {
+        BRunUtil.invoke(result, "testTypeNarrowing");
+    }
+
     @Test
     public void testNegativeTypeNarrowing() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-expr-type-narrowing-negative.bal");

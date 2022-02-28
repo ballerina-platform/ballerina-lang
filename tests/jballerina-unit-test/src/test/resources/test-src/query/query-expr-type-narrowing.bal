@@ -114,6 +114,54 @@ function filterCommonLabels(Data[] dataList) returns Data[] {
     return newData;
 }
 
+type IntOrStr int|string;
+type IntStrOrBoolean IntOrStr|boolean;
+
+function testTypeNarrowing() returns error? {
+    IntOrStr[] data1 = [1,2,3,4, "5"];
+
+    int[] res1 = from IntOrStr i in data1
+        where i is int
+        select i * 2;
+    int[] expectedRes1 = [2, 4, 6, 8];
+    assertEquality(expectedRes1, res1);
+
+    string[] res2 = from IntOrStr i in data1
+        where i !is int
+        select i;
+    string[] expectedRes2 = ["5"];
+    assertEquality(expectedRes2, res2);
+
+    int[] res3 = [];
+    int[] expectedRes3 = [1,2,3,4];
+    check from IntOrStr i in data1
+        where i is int
+        do {
+            res3.push(i);
+        };
+    assertEquality(expectedRes3, res3);
+
+    string[] res4 = [];
+    string[] expectedRes4 = ["5"];
+    check from IntOrStr i in data1
+        where i !is int
+        do {
+            res4.push(i);
+        };
+    assertEquality(expectedRes4, res4);
+}
+
+// Should be enabled once issue #33709 is fixed
+//function testTypeNarrowingWithTypeGuard2() {
+//    IntStrOrBoolean[] data2 = [1,2, true, "4", 5];
+//
+//    int[][] _ = from IntStrOrBoolean i in data
+//    where i !is boolean
+//    select from int ii in 1...3
+//    where i is int
+//    select i * ii;
+//}
+
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";
 
