@@ -5,13 +5,10 @@
 // IRIT<:L
 // IRIT<:L1
 // IRIT<:RIT
-// L1<:IRIT
 // L1<:L
 // L1<:RIT
-// L<:IRIT
 // L<:L1
 // L<:RIT
-// RIT<:IRIT
 // RIT<:L
 // RIT<:L1
 
