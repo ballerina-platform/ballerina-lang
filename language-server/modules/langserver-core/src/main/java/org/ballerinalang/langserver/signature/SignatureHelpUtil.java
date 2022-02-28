@@ -498,7 +498,7 @@ public class SignatureHelpUtil {
         }
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor().get();
         if (nodeAtCursor.kind() == SyntaxKind.FUNCTION_CALL) {
-            return getFunctionSymbol(nodeAtCursor, context);
+            return getFunctionSymbol((FunctionCallExpressionNode) nodeAtCursor, context);
         }
         return getFunctionSymbol(nodeAtCursor, context);
 

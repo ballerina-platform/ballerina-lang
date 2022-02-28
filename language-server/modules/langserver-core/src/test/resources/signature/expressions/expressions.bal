@@ -303,7 +303,7 @@ public client class Stub {
     public Child obj = new Child();
 
     # Create a new Stub
-    public function init(any arg1,string arg2) returns error?{
+    public function init(any arg1, string arg2) returns error? {
         
     }
 
