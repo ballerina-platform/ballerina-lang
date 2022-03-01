@@ -370,7 +370,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env) {
-        logErrorsForInferredArrays(node);
         SymbolEnv prevEnv = this.env;
         this.env = env;
         BLangNode myParent = parent;
@@ -488,28 +487,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
 
         validateNamedWorkerUniqueReferences();
-    }
-
-    private void logErrorsForInferredArrays(BLangNode bLangNode) {
-        BLangNode node;
-        switch (bLangNode.getKind()) {
-            case FUNCTION:
-                node = ((BLangFunction) bLangNode).returnTypeNode;
-                break;
-            case FUNCTION_TYPE:
-                node = ((BLangFunctionTypeNode) bLangNode).returnTypeNode;
-                break;
-            default:
-                return;
-        }
-        if (node == null) {
-            return;
-        }
-        List<Location> posArray = new ArrayList<>();
-        getPositionsOfInferredArrays(node, posArray);
-        for (Location pos : posArray) {
-            dlog.error(pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
-        }
     }
 
     private void validateNamedWorkerUniqueReferences() {
