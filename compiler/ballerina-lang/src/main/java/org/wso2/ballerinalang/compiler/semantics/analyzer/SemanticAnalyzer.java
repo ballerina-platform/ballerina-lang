@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.projects.ModuleDescriptor;
-import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -330,7 +329,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
             BLangFunction function = lambdaFunction.function;
             lambdaFunction.setBType(function.symbol.type);
-            data.newEnv = lambdaFunction.capturedClosureEnv;
+            data.env = lambdaFunction.capturedClosureEnv;
             analyzeDef(lambdaFunction.function, data);
         }
 
@@ -426,7 +425,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 }
                 annotationAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
-                data.newEnv = funcEnv;
+                data.env = funcEnv;
                 this.analyzeDef(annotationAttachment, data);
             });
             validateAnnotationAttachmentCount(funcNode.annAttachments);
@@ -437,7 +436,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (hasReturnType) {
             funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RETURN);
-                data.newEnv = funcEnv;
+                data.env = funcEnv;
                 this.analyzeDef(annotationAttachment, data);
             });
             validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
@@ -452,7 +451,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, clonedEnv);
-            data.newEnv = clonedEnv;
+            data.env = clonedEnv;
             this.analyzeDef(param, data);
 
             BLangExpression expr = param.expr;
@@ -468,7 +467,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BLangSimpleVariable restParam = funcNode.restParam;
         if (restParam != null) {
             symbolEnter.defineExistingVarSymbolInEnv(restParam.symbol, clonedEnv);
-            data.newEnv = clonedEnv;
+            data.env = clonedEnv;
             this.analyzeDef(restParam, data);
             validateIsolatedParamUsage(inIsolatedFunction, restParam, true, data);
         }
@@ -480,8 +479,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateObjectAttachedFunction(funcNode, data);
 
         if (funcNode.hasBody()) {
-            data.newEnv = funcEnv;
-            analyzeNode(funcNode.body, returnTypeNode.getBType(), null, data);
+            data.env = funcEnv;
+            analyzeNode(funcNode.body, returnTypeNode.getBType(), data);
         }
 
         if (funcNode.anonForkName != null) {
@@ -505,7 +504,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if (analyzedStmt) {
                 continue;
             }
-            data.newEnv = funcBodyEnv;
+            data.env = funcBodyEnv;
             analyzeStmt(stmt, data);
         }
         // Remove explicitly added function body env if exists
@@ -527,7 +526,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
             // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
             SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
-            data.newEnv = narrowedBlockEnv;
+            data.env = narrowedBlockEnv;
             analyzeStmt(currentStmt, data);
             return true;
         }
@@ -626,10 +625,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv env = data.env;
         SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
         for (BLangSimpleVariable field : classDefinition.fields) {
-            data.newEnv = classEnv;
+            data.env = classEnv;
             analyzeDef(field, data);
         }
-
+        data.env = env;
         // Visit functions as they are not in the same scope/env as the object fields
         for (BLangFunction function : classDefinition.functions) {
             analyzeDef(function, data);
@@ -708,7 +707,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, data.env);
 
         objectTypeNode.fields.forEach(field -> {
-            data.newEnv = objectEnv;
+            data.env = objectEnv;
             analyzeDef(field, data);
             if (field.flagSet.contains(Flag.PRIVATE)) {
                 this.dlog.error(field.pos, DiagnosticErrorCode.PRIVATE_FIELD_ABSTRACT_OBJECT, field.symbol.name);
@@ -798,7 +797,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 allReadOnlyFields = false;
             }
 
-            data.newEnv = recordEnv;
+            data.env = recordEnv;
             analyzeDef(field, data);
         }
 
@@ -1218,7 +1217,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // defined record type.
         if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE &&
                 !((BLangRecordTypeNode) varNode.typeNode).analyzed) {
-            data.newEnv = env;
+            data.env = env;
             analyzeDef(varNode.typeNode, data);
         }
 
@@ -1888,7 +1887,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
         SymbolEnv symbolEnv = SymbolEnv.createBlockEnv(blockNode, data.env);
         data.env = symbolEnv;
-        data.newEnv = symbolEnv;
         int stmtCount = -1;
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
@@ -1899,7 +1897,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
             analyzeStmt(stmt, data);
         }
-        data.newEnv = null;
     }
 
     public void visit(BLangSimpleVariableDef varDefNode, AnalyzerData data) {
@@ -2505,7 +2502,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         data.narrowedTypeInfo = new HashMap<>();
 
-        data.newEnv = ifEnv;
+        data.env = ifEnv;
         analyzeStmt(ifNode.body, data);
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
@@ -2535,7 +2532,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             resetNotCompletedNormally(data);
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env, false);
             BLangStatement elseStmt = ifNode.elseStmt;
-            data.newEnv = elseEnv;
+            data.env = elseEnv;
             analyzeStmt(elseStmt, data);
             if (elseStmt.getKind() == NodeKind.IF) {
                 data.notCompletedNormally = ifCompletionStatus && data.notCompletedNormally;
@@ -2590,7 +2587,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangMatchClause currentMatchClause = matchClauses.get(i);
             matchClauseEnv = typeNarrower.evaluateTruth(matchStatement.expr, prevMatchClause.patternsType,
                     currentMatchClause, matchClauseEnv);
-            data.newEnv = matchClauseEnv;
+            data.env = matchClauseEnv;
             analyzeNode(currentMatchClause, data);
         }
 
@@ -2611,7 +2608,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         for (BLangMatchPattern matchPattern : matchPatterns) {
             SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
-            data.newEnv = patternEnv;
+            data.env = patternEnv;
             analyzeNode(matchPattern, data);
             resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
             if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
@@ -2626,7 +2623,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         BLangMatchGuard matchGuard = matchClause.matchGuard;
         if (matchGuard != null) {
-            data.newEnv = blockEnv;
+            data.env = blockEnv;
             analyzeNode(matchGuard, data);
             blockEnv = typeNarrower.evaluateTruth(matchGuard.expr, matchClause.blockStmt, blockEnv);
 
@@ -2639,7 +2636,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
             evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchGuard.expr, blockEnv);
         }
-        data.newEnv = blockEnv;
+        data.env = blockEnv;
         analyzeStmt(matchClause.blockStmt, data);
     }
 
@@ -3620,16 +3617,16 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, data.env);
 
         if (patternClause.typeGuardExpr != null) {
-            data.newEnv = blockEnv;
+            data.env = blockEnv;
             analyzeDef(patternClause.bindingPatternVariable, data);
             typeChecker.checkExpr(patternClause.typeGuardExpr, blockEnv, symTable.noType, data.prevEnvs);
             blockEnv = typeNarrower.evaluateTruth(patternClause.typeGuardExpr, patternClause.body, blockEnv);
         } else {
-            data.newEnv = blockEnv;
+            data.env = blockEnv;
             analyzeDef(patternClause.bindingPatternVariable, data);
         }
 
-        data.newEnv = blockEnv;
+        data.env = blockEnv;
         analyzeStmt(patternClause.body, data);
     }
 
@@ -3655,7 +3652,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                                          false, blockEnv);
         boolean prevBreakFound = data.breakFound;
         // Analyze foreach node's statements.
-        data.newEnv = blockEnv;
+        data.env = blockEnv;
         analyzeStmt(foreach.body, data);
 
         if (foreach.onFailClause != null) {
@@ -3676,7 +3673,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Check onfail node's variables and set types.
         handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
                                          onFailClause.isDeclaredWithVar, true, onFailEnv);
-        data.newEnv = onFailEnv;
+        data.env = onFailEnv;
         analyzeStmt(onFailClause.body, data);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         if (!types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
@@ -3701,7 +3698,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         boolean prevBreakFound = data.breakFound;
         SymbolEnv whileEnv = typeNarrower.evaluateTruth(whileNode.expr, whileNode.body, env);
-        data.newEnv = whileEnv;
+        data.env = whileEnv;
         analyzeStmt(whileNode.body, data);
         data.notCompletedNormally =
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
@@ -3713,10 +3710,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangDo doNode, AnalyzerData data) {
         SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(doNode, data.env);
         if (doNode.onFailClause != null) {
-            data.newEnv = narrowedEnv;
+            data.env = narrowedEnv;
             this.analyzeNode(doNode.onFailClause, data);
         }
-        data.newEnv = narrowedEnv;
+        data.env = narrowedEnv;
         analyzeStmt(doNode.body, data);
     }
 
@@ -3735,10 +3732,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangLock lockNode, AnalyzerData data) {
         SymbolEnv lockEnv = SymbolEnv.createLockEnv(lockNode, data.env);
-        data.newEnv = lockEnv;
+        data.env = lockEnv;
         analyzeStmt(lockNode.body, data);
         if (lockNode.onFailClause != null) {
-            data.newEnv = lockEnv;
+            data.env = lockEnv;
             this.analyzeNode(lockNode.onFailClause, data);
         }
     }
@@ -3947,10 +3944,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, data.env);
 
         if (transactionNode.onFailClause != null) {
-            data.newEnv = transactionEnv;
+            data.env = transactionEnv;
             this.analyzeNode(transactionNode.onFailClause, data);
         }
-        data.newEnv = transactionEnv;
+        data.env = transactionEnv;
         analyzeStmt(transactionNode.transactionBody, data);
     }
 
@@ -3977,7 +3974,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             retryNode.retrySpec.accept(this, data);
         }
         SymbolEnv retryEnv = SymbolEnv.createRetryEnv(retryNode, data.env);
-        data.newEnv = retryEnv;
+        data.env = retryEnv;
         analyzeStmt(retryNode.retryBody, data);
 
         if (retryNode.onFailClause != null) {
@@ -4076,7 +4073,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     public void analyzeNode(BLangNode node,  AnalyzerData data) {
-        analyzeNode(node, symTable.noType, null, data);
+        analyzeNode(node, symTable.noType, data);
     }
 
     @Override
@@ -4096,22 +4093,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.notCompletedNormally = true;
     }
 
-    void analyzeNode(BLangNode node, BType expType, DiagnosticCode diagCode, AnalyzerData data) {
+    void analyzeNode(BLangNode node, BType expType, AnalyzerData data) {
         data.prevEnvs.push(data.env);
         BType preExpType = data.expType;
-        DiagnosticCode preDiagCode = data.diagCode;
-
-        // TODO Check the possibility of using a try/finally here
-        if (data.newEnv != null) {
-            data.env = data.newEnv;
-            data.newEnv = null;
-        }
         data.expType = expType;
-        data.diagCode = diagCode;
         node.accept(this, data);
         data.env = data.prevEnvs.pop();
         data.expType = preExpType;
-        data.diagCode = preDiagCode;
     }
 
     @Override
@@ -4740,9 +4728,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
      */
     public static class AnalyzerData {
         SymbolEnv env;
-        SymbolEnv newEnv;
         BType expType;
-        DiagnosticCode diagCode;
         Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
         boolean notCompletedNormally;
         boolean breakFound;
