@@ -61,7 +61,7 @@ type XYZ "XYZ";
 const xyz = "XYZ";
 
 function testInvalidTypes() returns ACTION {
-    ACTION action = xyz; // Incompatibel types.
+    ACTION action = xyz; // Incompatible types.
     return action;
 }
 

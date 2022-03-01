@@ -169,9 +169,8 @@ public class ErrorUtils {
                 .concat(StringUtils.fromString(": " + detailMessage)));
     }
 
-    public static BError createAmbiguousConversionError(Object inputValue, Type targetType) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION_AMBIGUOUS_TARGET,
-                        TypeChecker.getType(inputValue), targetType));
+    public static BError createInvalidDecimalError(String value) {
+        throw createError(BallerinaErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_DECIMAL_VALUE, value));
     }
 }
