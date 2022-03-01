@@ -163,7 +163,7 @@ public class ListCommonOps {
                     return true;
                 }
                 // Check list types with fixedLength >= `len` and  < `negLen`
-                for (int i = 0; i < Integer.min(negLen, neg.maxInitialLen + 1); i++) {
+                for (int i = len; i < Integer.min(negLen, neg.maxInitialLen + 1); i++) {
                     FixedLengthArray s = fixedArrayShallowCopy(members);
                     fixedArrayFill(s, i, rest);
                     if (listInhabited(cx, s, NEVER, neg.next)) {
