@@ -14520,13 +14520,7 @@ public class BallerinaParser extends AbstractParser {
             fieldMatchPatterns.add(fieldMatchPatternRhs);
             STNode fieldMatchPatternMember = parseFieldMatchPatternMember();
             if (fieldMatchPatternMember == null) {
-                STNode fieldName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-                STNode colon = SyntaxErrors.createMissingToken(SyntaxKind.COLON_TOKEN);
-                STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-                STNode matchPattern = STNodeFactory.createSimpleNameReferenceNode(identifier);
-                fieldMatchPatternMember = STNodeFactory.createFieldMatchPatternNode(fieldName, colon, matchPattern);
-                fieldMatchPatternMember = SyntaxErrors.addDiagnostic(fieldMatchPatternMember,
-                        DiagnosticErrorCode.ERROR_MISSING_FIELD_MATCH_PATTERN_MEMBER);
+                fieldMatchPatternMember = createMissingFieldMatchPattern();
             }
 
             fieldMatchPatterns.add(fieldMatchPatternMember);
@@ -14537,6 +14531,17 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return STNodeFactory.createNodeList(fieldMatchPatterns);
+    }
+
+    private STNode createMissingFieldMatchPattern() {
+        STNode fieldName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        STNode colon = SyntaxErrors.createMissingToken(SyntaxKind.COLON_TOKEN);
+        STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        STNode matchPattern = STNodeFactory.createSimpleNameReferenceNode(identifier);
+        STNode fieldMatchPatternMember = STNodeFactory.createFieldMatchPatternNode(fieldName, colon, matchPattern);
+        fieldMatchPatternMember = SyntaxErrors.addDiagnostic(fieldMatchPatternMember,
+                DiagnosticErrorCode.ERROR_MISSING_FIELD_MATCH_PATTERN_MEMBER);
+        return fieldMatchPatternMember;
     }
 
     /**
