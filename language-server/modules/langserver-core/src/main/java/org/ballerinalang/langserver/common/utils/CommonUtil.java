@@ -1618,6 +1618,22 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the symbol is an object symbol with self as the name.
+     *
+     * @param symbol               Symbol
+     * @param nodeAtCursor         Node
+     * @return {@link Boolean} whether the symbol is a self object symbol.
+     */
+    public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
+        Node currentNode = nodeAtCursor;
+        while (currentNode != null && currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
+            currentNode = currentNode.parent();
+        }
+        return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                && symbol.getName().orElse("").equals(SELF_KW);
+    }
+
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
