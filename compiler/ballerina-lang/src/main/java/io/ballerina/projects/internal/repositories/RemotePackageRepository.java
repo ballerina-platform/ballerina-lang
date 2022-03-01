@@ -163,7 +163,7 @@ public class RemotePackageRepository implements PackageRepository {
         try {
             PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(requests);
             PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
-                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion(), true);
+                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion());
             List<ImportModuleResponse> remote = toImportModuleResponses(requests, response);
             return mergeNameResolution(filesystem, remote);
         } catch (ConnectionErrorException e) {
@@ -263,7 +263,7 @@ public class RemotePackageRepository implements PackageRepository {
                 PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
                 PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
                         packageResolutionRequest, JvmTarget.JAVA_11.code(),
-                        RepoUtils.getBallerinaVersion(), true);
+                        RepoUtils.getBallerinaVersion());
 
                 Collection<PackageMetadataResponse> remotePackages =
                         fromPackageResolutionResponse(updatedRequests, packageResolutionResponse);
