@@ -453,6 +453,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         validateParams(funcNode);
+        analyzeNode(funcNode.returnTypeNode, env);
 
         boolean isLambda = funcNode.flagSet.contains(Flag.LAMBDA);
         if (isLambda) {
