@@ -66,9 +66,9 @@ public class AnnotationTests {
         BAssertUtil.validateWarning(result, i++, "usage of construct 'foo:DummyObject1' is deprecated", 3, 23);
         BAssertUtil.validateWarning(result, i++, "usage of construct 'foo:Bar' is deprecated", 3, 45);
         BAssertUtil.validateWarning(result, i++, "usage of construct 'foo:C1' is deprecated", 3, 69);
-        BAssertUtil.validateWarning(result, i++, "usage of construct 'obj.doThatOnObject()' is deprecated", 8
+        BAssertUtil.validateWarning(result, i++, "usage of construct 'doThatOnObject' is deprecated", 8
                 , 5);
-        BAssertUtil.validateWarning(result, i, "usage of construct 'foo:deprecated_func()' is deprecated", 9, 16);
+        BAssertUtil.validateWarning(result, i, "usage of construct 'deprecated_func' is deprecated", 9, 16);
     }
 
     @Test

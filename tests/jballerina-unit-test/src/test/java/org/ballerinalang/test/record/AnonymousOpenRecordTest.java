@@ -93,7 +93,7 @@ public class AnonymousOpenRecordTest {
 
     @Test(description = "Test Code analyzer execution on Anonymous records")
     public void testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotation() {
-        BAssertUtil.validateWarning(result, 0, "usage of construct 'Test()' is deprecated", 3, 17);
+        BAssertUtil.validateWarning(result, 0, "usage of construct 'Test' is deprecated", 3, 17);
     }
 
     @AfterClass

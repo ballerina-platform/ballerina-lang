@@ -597,8 +597,8 @@ public class FreezeAndIsFrozenTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/builtinoperations/is_readonly_deprecated_warning.bal");
         int index = 0;
-        validateWarning(result, index++, "usage of construct 'x.isReadOnly(x)' is deprecated", 22, 9);
-        validateWarning(result, index++, "usage of construct 'value:isReadOnly(x)' is deprecated", 24, 17);
+        validateWarning(result, index++, "usage of construct 'isReadOnly' is deprecated", 22, 9);
+        validateWarning(result, index++, "usage of construct 'isReadOnly' is deprecated", 24, 17);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 }

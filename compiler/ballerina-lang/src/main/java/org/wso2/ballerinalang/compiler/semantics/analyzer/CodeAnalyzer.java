@@ -3172,7 +3172,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(fieldAccessExpr.expr);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, 
+                    fieldAccessExpr.field);
         }
     }
 
@@ -3200,7 +3201,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
                 dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
-                             invocationExpr);
+                             invocationExpr.name);
             }
         }
     }
@@ -3234,7 +3235,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (actionInvocation.symbol != null && actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
+            dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, 
+                    actionInvocation.name);
         }
 
         if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !withinTransactionScope) {
