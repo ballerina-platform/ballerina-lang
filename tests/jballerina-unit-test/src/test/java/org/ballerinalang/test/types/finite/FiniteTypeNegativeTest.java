@@ -46,7 +46,7 @@ public class FiniteTypeNegativeTest {
     public void testInvalidLiteralAssignment() {
 
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 17, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 28, "Error count mismatch");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Finite', found 'string'", 33, 16);
         validateError(result, i++, "incompatible types: expected 'ByteType', found '5'", 40, 18);
@@ -64,6 +64,18 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'Foo', found 'int'", 116, 14);
         validateError(result, i++, "incompatible types: expected 'Foo2', found 'int'", 117, 15);
         validateError(result, i++, "incompatible types: expected 'Foo4', found 'int'", 118, 15);
-        validateError(result, i, "incompatible types: expected '\"chiran\"', found 'int'", 119, 18);
+        validateError(result, i++, "incompatible types: expected '\"chiran\"', found 'int'", 119, 18);
+        validateError(result, i++, "incompatible types: expected '1f', found 'int'", 123, 13);
+        validateError(result, i++, "incompatible types: expected '1.0f', found 'int'", 124, 14);
+        validateError(result, i++, "incompatible types: expected '1.121f', found 'int'", 125, 16);
+        validateError(result, i++, "incompatible types: expected '1.2e12f', found 'float'", 126, 17);
+        validateError(result, i++, "incompatible types: expected '0x1p-1f', found 'float'", 127, 17);
+        validateError(result, i++, "incompatible types: expected '0x.12p12f', found 'decimal'", 128, 19);
+        validateError(result, i++, "incompatible types: expected '1.2e12f', found 'decimal'", 129, 17);
+        validateError(result, i++, "incompatible types: expected '1.2d', found 'float'", 132, 15);
+        validateError(result, i++, "incompatible types: expected '1.21d', found 'float'", 133, 16);
+        validateError(result, i++, "incompatible types: expected '0.1219e-1f', found 'decimal'", 134, 20);
+        validateError(result, i, "incompatible types: expected '12.1d', found 'float'", 135, 16);
+
     }
 }
