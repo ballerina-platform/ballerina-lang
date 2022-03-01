@@ -5350,7 +5350,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     value = textValue.replaceAll("[fd+]", "");
                     originalValue = textValue.replace("+", "");
                 } else {
-                    value = textValue;
+                    value = textValue.replaceAll("[fd+]", "");
                     originalValue = textValue;
                 }
             } else {
