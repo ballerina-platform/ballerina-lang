@@ -29,15 +29,24 @@ import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.ListConjunction;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
+import io.ballerina.types.subtypedata.BddAllOrNothing;
+import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.Range;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.types.Common.shallowCopyTypes;
 import static io.ballerina.types.Core.diff;
+import static io.ballerina.types.Core.intersect;
 import static io.ballerina.types.Core.isEmpty;
+import static io.ballerina.types.Core.union;
 import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.TOP;
+import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
+import static io.ballerina.types.typeops.IntOps.intSubtypeMax;
+import static io.ballerina.types.typeops.IntOps.intSubtypeOverlapRange;
 
 /**
  * Operations Common to ListRo and ListRw.
@@ -93,7 +102,7 @@ public class ListCommonOps {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    FixedLengthArraySemtype intersected = listIntersectWith(members, rest, lt);
+                    FixedLengthArraySemtypePair intersected = listIntersectWith(members, rest, lt);
                     if (intersected == null) {
                         return true;
                     }
@@ -112,31 +121,41 @@ public class ListCommonOps {
         return !listInhabited(cx, members, rest, listConjunction(cx, neg));
     }
 
-    private static FixedLengthArraySemtype listIntersectWith(FixedLengthArray members,
-                                                             SemType rest, ListAtomicType lt) {
-        int ltLen = lt.members.fixedLength;
-        int newLen = Integer.max(members.fixedLength, ltLen);
+    static FixedLengthArraySemtypePair listIntersectWith(FixedLengthArray members,
+                                                         SemType rest, ListAtomicType newType) {
+        int newTypeLen = newType.members.fixedLength;
+        int intersectedLen = Integer.max(members.fixedLength, newTypeLen);
         // We can specifically handle the case where length of `initial` and `fixedLength` are the same
-        if (members.fixedLength < newLen) {
+        if (members.fixedLength < intersectedLen) {
             if (Core.isNever(rest)) {
                 return null;
             }
-            fixedArrayFill(members, newLen, rest);
+            fixedArrayFill(members, intersectedLen, rest);
         }
-        int nonRepeatedLen = Integer.max(members.initial.size(), lt.members.initial.size());
-        for (int i = 0; i < nonRepeatedLen; i++) {
-            fixedArraySet(members, i,
-                    Core.intersect(listMemberAt(members, rest, i), listMemberAt(lt.members, lt.rest, i)));
+        int maxInitialLen = Integer.max(members.initial.size(), newType.members.initial.size());
+        for (int i = 0; i < maxInitialLen; i++) {
+            fixedArraySet(members,
+                          i,
+                          intersect(listMemberAt(members, rest, i), listMemberAt(newType.members, newType.rest, i)));
         }
-        if (ltLen < newLen) {
-            if (Core.isNever(lt.rest)) {
+        // If the last member is repeating we need to intersect the repeating member as it will have pushed backed
+        // in `initial` array
+        if (maxInitialLen < members.fixedLength) {
+            SemType repeatingMember = intersect(listMemberAt(members, rest, maxInitialLen),
+                                                listMemberAt(newType.members, newType.rest, maxInitialLen));
+            if (!repeatingMember.equals(members.initial.get(maxInitialLen))) {
+                members.initial.set(maxInitialLen, repeatingMember);
+            }
+        }
+        if (newTypeLen < intersectedLen) {
+            if (Core.isNever(newType.rest)) {
                 return null;
             }
-            for (int i = ltLen; i < newLen; i++) {
-                fixedArraySet(members, i, Core.intersect(listMemberAt(members, rest, i), lt.rest));
+            for (int i = newTypeLen; i < intersectedLen; i++) {
+                fixedArraySet(members, i, intersect(listMemberAt(members, rest, i), newType.rest));
             }
         }
-        return FixedLengthArraySemtype.from(members, Core.intersect(rest, lt.rest));
+        return FixedLengthArraySemtypePair.from(members, intersect(rest, newType.rest));
     }
 
     // This function returns true if there is a list shape v such that
@@ -224,14 +243,14 @@ public class ListCommonOps {
         }
     }
 
-    private static SemType listMemberAt(FixedLengthArray fixedArray, SemType rest, int index) {
+    static SemType listMemberAt(FixedLengthArray fixedArray, SemType rest, int index) {
         if (index < fixedArray.fixedLength) {
             return fixedArrayGet(fixedArray, index);
         }
         return rest;
     }
 
-    private static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
+    static boolean fixedArrayAnyEmpty(Context cx, FixedLengthArray array) {
         for (var t : array.initial) {
             if (isEmpty(cx, t)) {
                 return true;
@@ -240,7 +259,7 @@ public class ListCommonOps {
         return false;
     }
 
-    private static void fixedArrayFill(FixedLengthArray arr, int newLen, SemType filler) {
+    static void fixedArrayFill(FixedLengthArray arr, int newLen, SemType filler) {
         List<SemType> initial = arr.initial;
         if (newLen <= initial.size()) {
             return;
@@ -285,18 +304,18 @@ public class ListCommonOps {
         members.initial.set(setIndex, m);
     }
 
-    private static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
+    static FixedLengthArray fixedArrayShallowCopy(FixedLengthArray array) {
         return FixedLengthArray.from(shallowCopyTypes(array.initial), array.fixedLength);
     }
 
-    private static FixedLengthArray fixedArrayReplace(FixedLengthArray array, int index, SemType t, SemType rest) {
+    static FixedLengthArray fixedArrayReplace(FixedLengthArray array, int index, SemType t, SemType rest) {
         FixedLengthArray copy = fixedArrayShallowCopy(array);
         fixedArrayFill(copy, index + 1, rest);
         fixedArraySet(copy, index, t);
         return copy;
     }
 
-    private static ListConjunction listConjunction(Context cx, Conjunction con) {
+    static ListConjunction listConjunction(Context cx, Conjunction con) {
         if (con != null) {
             ListAtomicType listType = cx.listAtomType(con.atom);
             int len = listType.members.initial.size();
@@ -307,17 +326,65 @@ public class ListCommonOps {
         return null;
     }
 
-    static class FixedLengthArraySemtype {
+
+    static SemType listAtomicMemberType(ListAtomicType atomic, SubtypeData key) {
+        return listAtomicMemberTypeAt(atomic.members, atomic.rest, key);
+    }
+
+    static SemType listAtomicMemberTypeAt(FixedLengthArray fixedArray, SemType rest, SubtypeData key) {
+        if (key instanceof IntSubtype) {
+            SemType m = NEVER;
+            int initLen = fixedArray.initial.size();
+            int fixedLen = fixedArray.fixedLength;
+            if (fixedLen != 0) {
+                for (int i = 0; i < initLen; i++) {
+                    if (intSubtypeContains(key, i)) {
+                        m = union(m, fixedArrayGet(fixedArray, i));
+                    }
+                }
+                if (intSubtypeOverlapRange((IntSubtype) key, Range.from(initLen, fixedLen - 1))) {
+                    m = union(m, fixedArrayGet(fixedArray, fixedLen - 1));
+                }
+            }
+            if (fixedLen == 0 || intSubtypeMax((IntSubtype) key) > fixedLen - 1) {
+                m = union(m, rest);
+            }
+            return m;
+        }
+        SemType m = rest;
+        if (fixedArray.fixedLength > 0) {
+            for (SemType ty : fixedArray.initial) {
+                m = union(m, ty);
+            }
+        }
+        return m;
+    }
+
+    public static SemType bddListMemberType(Context cx, Bdd b, SubtypeData key, SemType accum) {
+        if (b instanceof BddAllOrNothing) {
+            return ((BddAllOrNothing) b).isAll() ? accum : NEVER;
+        } else {
+            BddNode bddNode = (BddNode) b;
+            return union(bddListMemberType(cx,
+                                           bddNode.left,
+                                           key,
+                                           intersect(listAtomicMemberType(cx.listAtomType(bddNode.atom), key), accum)),
+                         union(bddListMemberType(cx, bddNode.middle, key, accum),
+                               bddListMemberType(cx, bddNode.right, key, accum)));
+        }
+    }
+
+    static class FixedLengthArraySemtypePair {
         FixedLengthArray members;
         SemType rest;
 
-        private FixedLengthArraySemtype(FixedLengthArray members, SemType rest) {
+        private FixedLengthArraySemtypePair(FixedLengthArray members, SemType rest) {
             this.members = members;
             this.rest = rest;
         }
 
-        public static FixedLengthArraySemtype from(FixedLengthArray members, SemType rest) {
-            return new FixedLengthArraySemtype(members, rest);
+        public static FixedLengthArraySemtypePair from(FixedLengthArray members, SemType rest) {
+            return new FixedLengthArraySemtypePair(members, rest);
         }
     }
 }

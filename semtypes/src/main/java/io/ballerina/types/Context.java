@@ -26,7 +26,7 @@ import java.util.Map;
  * @since 3.0.0
  */
 public class Context {
-    private final Env env;
+    public final Env env;
     public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();

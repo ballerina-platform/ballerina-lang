@@ -33,6 +33,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.types.Common.isListBitsSet;
+import static io.ballerina.types.Common.isNothingSubtype;
+import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_TOP;
+import static io.ballerina.types.PredefinedType.MAPPING;
+import static io.ballerina.types.PredefinedType.MAPPING_RW;
+import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.PredefinedType.TOP;
+import static io.ballerina.types.UniformTypeCode.UT_BOOLEAN;
+import static io.ballerina.types.UniformTypeCode.UT_DECIMAL;
+import static io.ballerina.types.UniformTypeCode.UT_FLOAT;
+import static io.ballerina.types.UniformTypeCode.UT_INT;
+import static io.ballerina.types.UniformTypeCode.UT_LIST_RO;
+import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
+import static io.ballerina.types.UniformTypeCode.UT_MAPPING_RO;
+import static io.ballerina.types.UniformTypeCode.UT_MAPPING_RW;
+import static io.ballerina.types.UniformTypeCode.UT_STRING;
+import static io.ballerina.types.typeops.ListCommonOps.bddListMemberType;
+import static io.ballerina.types.typeops.MappingCommonOps.bddMappingMemberRequired;
+import static io.ballerina.types.typeops.MappingCommonOps.bddMappingMemberType;
+
 /**
  * Contain functions defined in `core.bal` file.
  */
@@ -303,7 +323,7 @@ public class Core {
     }
 
     public static SemType complement(SemType t) {
-        return diff(PredefinedType.TOP, t);
+        return diff(TOP, t);
     }
 
     public static boolean isNever(SemType t) {
@@ -352,13 +372,35 @@ public class Core {
             if (!isSubtypeSimple(t, PredefinedType.INT)) {
                 return t;
             }
-            SubtypeData data = IntSubtype.intSubtypeWidenUnsigned(subtypeData(t, UniformTypeCode.UT_INT));
+            SubtypeData data = IntSubtype.intSubtypeWidenUnsigned(subtypeData(t, UT_INT));
             if (data instanceof AllOrNothingSubtype) {
                 return PredefinedType.INT;
             } else {
-                return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, (ProperSubtypeData) data);
+                return PredefinedType.uniformSubtype(UT_INT, (ProperSubtypeData) data);
             }
         }
+    }
+
+    public static SubtypeData booleanSubtype(SemType t) {
+        return subtypeData(t, UT_BOOLEAN);
+    }
+
+    // Describes the subtype of int included in the type: true/false mean all or none of string
+    public static SubtypeData intSubtype(SemType t) {
+        return subtypeData(t, UT_INT);
+    }
+
+    public static SubtypeData floatSubtype(SemType t) {
+        return subtypeData(t, UT_FLOAT);
+    }
+
+    public static SubtypeData decimalSubtype(SemType t) {
+        return subtypeData(t, UT_DECIMAL);
+    }
+
+    // Describes the subtype of string included in the type: true/false mean all or none of string
+    public static SubtypeData stringSubtype(SemType t) {
+        return subtypeData(t, UT_STRING);
     }
 
     // default strict = false
@@ -373,16 +415,16 @@ public class Core {
         if (t instanceof UniformTypeBitSet) {
             return (((UniformTypeBitSet) t).bitset == PredefinedType.LIST.bitset ||
                     (((UniformTypeBitSet) t).bitset == PredefinedType.LIST_RW.bitset && !strict)) ?
-                    Optional.of(PredefinedType.TOP) : Optional.empty();
+                    Optional.of(TOP) : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, PredefinedType.LIST)) {
                 return Optional.empty();
             }
             Optional<UniformTypeBitSet> rw = bddListSimpleMemberType(env,
-                    (Bdd) getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_LIST_RW));
+                    (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW));
             if (rw.isPresent() && strict) {
                 Optional<UniformTypeBitSet> ro = bddListSimpleMemberType(env,
-                        (Bdd) getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_LIST_RO));
+                        (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RO));
                 if (ro.isEmpty() || ro.get().bitset != (rw.get().bitset & UniformTypeCode.UT_READONLY)) {
                     return Optional.empty();
                 }
@@ -393,7 +435,7 @@ public class Core {
     public static Optional<UniformTypeBitSet> bddListSimpleMemberType(Env env, Bdd bdd) {
         if (bdd instanceof BddAllOrNothing) {
             if (((BddAllOrNothing) bdd).isAll()) {
-                return Optional.of(PredefinedType.TOP);
+                return Optional.of(TOP);
             }
         } else {
             BddNode bn = (BddNode) bdd;
@@ -412,6 +454,98 @@ public class Core {
         return Optional.empty();
     }
 
+    // This computes the spec operation called "member type of K in T",
+    // for the case when T is a subtype of list, and K is either `int` or a singleton int.
+    // This is what Castagna calls projection.
+    // We will extend this to allow `key` to be a SemType, which will turn into an IntSubtype.
+    // If `t` is not a list, NEVER is returned
+    public static SemType listMemberType(Context cx, SemType t, SemType k) {
+        if (t instanceof UniformTypeBitSet) {
+            return isListBitsSet((UniformTypeBitSet) t) ? TOP : NEVER;
+        } else {
+            SubtypeData keyData = intSubtype(k);
+            if (isNothingSubtype(keyData)) {
+                return NEVER;
+            }
+            return union(bddListMemberType(cx,
+                                           (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RO),
+                                           keyData,
+                                           TOP),
+                         bddListMemberType(cx,
+                                           (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW),
+                                           keyData,
+                                           TOP));
+        }
+    }
+
+    public static MappingAtomicType mappingAtomicTypeRw(Context cx, SemType t) {
+        if (t instanceof UniformTypeBitSet) {
+            if (((UniformTypeBitSet) t).bitset == MAPPING.bitset
+                    || ((UniformTypeBitSet) t).bitset == MAPPING_RW.bitset) {
+                return MAPPING_ATOMIC_TOP;
+            }
+            return null;
+        } else {
+            Env env = cx.env;
+            if (!isSubtypeSimple(t, MAPPING)) {
+                return null;
+            }
+            return bddMappingAtomicType(env,
+                                       (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
+                                       MAPPING_ATOMIC_TOP);
+        }
+    }
+
+    private static MappingAtomicType bddMappingAtomicType(Env env, Bdd bdd, MappingAtomicType top) {
+        if (bdd instanceof BddAllOrNothing) {
+            if (((BddAllOrNothing) bdd).isAll()) {
+                return top;
+            }
+            return null;
+        }
+        BddNode bddNode = (BddNode) bdd;
+        if (bddNode.left.equals(BddAllOrNothing.bddAll())
+                && bddNode.middle.equals(BddAllOrNothing.bddNothing())
+                && bddNode.right.equals(BddAllOrNothing.bddNothing())) {
+            return env.mappingAtomType(bddNode.atom);
+        }
+        return null;
+    }
+
+    // This computes the spec operation called "member type of K in T",
+    // for when T is a subtype of mapping, and K is either `string` or a singleton string.
+    // This is what Castagna calls projection.
+    public static SemType mappingMemberType(Context cx, SemType t, SemType k) {
+        if (t instanceof UniformTypeBitSet) {
+            return (((UniformTypeBitSet) t).bitset & MAPPING.bitset) != 0 ? TOP : NEVER;
+        } else {
+            SubtypeData keyData = stringSubtype(k);
+            if (isNothingSubtype(keyData)) {
+                return NEVER;
+            }
+            return union(bddMappingMemberType(cx,
+                                             (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
+                                             keyData, TOP),
+                         bddMappingMemberType(cx,
+                                             (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
+                                              keyData, TOP));
+        }
+    }
+
+    public static boolean mappingMemberRequired(Context cx, SemType t, SemType k) {
+        if (t instanceof UniformTypeBitSet || !(k instanceof ComplexSemType)) {
+            return false;
+        } else {
+            StringSubtype stringSubType = (StringSubtype) getComplexSubtypeData((ComplexSemType) k, UT_STRING);
+            return bddMappingMemberRequired(cx,
+                                            (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
+                                            stringSubType, false)
+                    && bddMappingMemberRequired(cx,
+                                                (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
+                                                stringSubType, false);
+        }
+    }
+
     // default strict = false
     public static Optional<UniformTypeBitSet> simpleMapMemberType(Env env, SemType t) {
         return simpleMapMemberType(env, t, false);
@@ -421,18 +555,19 @@ public class Core {
     // where T is a union of complete basic types.
     public static Optional<UniformTypeBitSet> simpleMapMemberType(Env env, SemType t, boolean strict) {
         if (t instanceof UniformTypeBitSet) {
-            return (((UniformTypeBitSet) t).bitset == PredefinedType.MAPPING.bitset ||
-                    (((UniformTypeBitSet) t).bitset == PredefinedType.MAPPING_RW.bitset && !strict)) ?
-                    Optional.of(PredefinedType.TOP) : Optional.empty();
+            int bitset = ((UniformTypeBitSet) t).bitset;
+            return (bitset == MAPPING.bitset || (bitset == MAPPING_RW.bitset && !strict))
+                    ? Optional.of(TOP)
+                    : Optional.empty();
         } else {
-            if (!isSubtypeSimple(t, PredefinedType.MAPPING)) {
+            if (!isSubtypeSimple(t, MAPPING)) {
                 return Optional.empty();
             }
-            Optional<UniformTypeBitSet> rw = bddMappingSimpleMemberType(env,
-                    (Bdd) getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_MAPPING_RW));
+            Optional<UniformTypeBitSet> rw =
+                    bddMappingSimpleMemberType(env, (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW));
             if (rw.isPresent() && strict) {
-                Optional<UniformTypeBitSet> ro = bddMappingSimpleMemberType(env,
-                        (Bdd) getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_MAPPING_RO));
+                Optional<UniformTypeBitSet> ro =
+                        bddMappingSimpleMemberType(env, (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO));
                 if (ro.isEmpty() || ro.get().bitset != (rw.get().bitset & UniformTypeCode.UT_READONLY)) {
                     return Optional.empty();
                 }
@@ -444,7 +579,7 @@ public class Core {
     public static Optional<UniformTypeBitSet> bddMappingSimpleMemberType(Env env, Bdd bdd) {
         if (bdd instanceof BddAllOrNothing) {
             if (((BddAllOrNothing) bdd).isAll()) {
-                return Optional.of(PredefinedType.TOP);
+                return Optional.of(TOP);
             }
         } else {
             BddNode bn = (BddNode) bdd;
@@ -469,19 +604,19 @@ public class Core {
         } else if (t instanceof UniformTypeBitSet) {
             return Optional.empty();
         } else if (isSubtypeSimple(t, PredefinedType.INT)) {
-            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_INT);
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_INT);
             Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         } else if (isSubtypeSimple(t, PredefinedType.FLOAT)) {
-            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_FLOAT);
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_FLOAT);
             Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.STRING)) {
-            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_STRING);
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_STRING);
             Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         } else if (isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
-            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_BOOLEAN);
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UT_BOOLEAN);
             Optional<Boolean> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         }
@@ -544,44 +679,44 @@ public class Core {
 
     public static boolean containsConstString(SemType t, String s) {
         if (t instanceof UniformTypeBitSet) {
-            return (((UniformTypeBitSet) t).bitset & (1 << UniformTypeCode.UT_STRING.code)) != 0;
+            return (((UniformTypeBitSet) t).bitset & (1 << UT_STRING.code)) != 0;
         } else {
             return StringSubtype.stringSubtypeContains(
-                    getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_STRING), s);
+                    getComplexSubtypeData((ComplexSemType) t, UT_STRING), s);
         }
     }
 
     public static boolean containsConstInt(SemType t, long n) {
         if (t instanceof UniformTypeBitSet) {
-            return (((UniformTypeBitSet) t).bitset & (1 << UniformTypeCode.UT_INT.code)) != 0;
+            return (((UniformTypeBitSet) t).bitset & (1 << UT_INT.code)) != 0;
         } else {
             return IntSubtype.intSubtypeContains(
-                    getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_INT), n);
+                    getComplexSubtypeData((ComplexSemType) t, UT_INT), n);
         }
     }
 
     public static boolean containsConstFloat(SemType t, double n) {
         if (t instanceof UniformTypeBitSet) {
-            return (((UniformTypeBitSet) t).bitset & (1 << UniformTypeCode.UT_FLOAT.code)) != 0;
+            return (((UniformTypeBitSet) t).bitset & (1 << UT_FLOAT.code)) != 0;
         } else {
             return FloatSubtype.floatSubtypeContains(
-                    getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_FLOAT), EnumerableFloat.from(n));
+                    getComplexSubtypeData((ComplexSemType) t, UT_FLOAT), EnumerableFloat.from(n));
         }
     }
 
     public static boolean containsConstBoolean(SemType t, boolean b) {
         if (t instanceof UniformTypeBitSet) {
-            return (((UniformTypeBitSet) t).bitset & (1 << UniformTypeCode.UT_BOOLEAN.code)) != 0;
+            return (((UniformTypeBitSet) t).bitset & (1 << UT_BOOLEAN.code)) != 0;
         } else {
             return BooleanSubtype.booleanSubtypeContains(
-                    getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_BOOLEAN), b);
+                    getComplexSubtypeData((ComplexSemType) t, UT_BOOLEAN), b);
         }
     }
 
     public static Optional<UniformTypeBitSet> singleNumericType(SemType semType) {
         SemType numType = intersect(semType, PredefinedType.NUMBER);
         if (numType instanceof UniformTypeBitSet) {
-            if (((UniformTypeBitSet) numType).bitset == PredefinedType.NEVER.bitset) {
+            if (((UniformTypeBitSet) numType).bitset == NEVER.bitset) {
                 return Optional.empty();
             }
         }

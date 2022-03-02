@@ -38,6 +38,9 @@ import static java.lang.Long.MIN_VALUE;
  * @since 3.0.0
  */
 public class IntOps implements UniformTypeOps {
+
+    private static IntOps intOpsInstance = new IntOps();
+
     @Override
     public SubtypeData union(SubtypeData d1, SubtypeData d2) {
         IntSubtype v1 = (IntSubtype) d1;
@@ -75,6 +78,19 @@ public class IntOps implements UniformTypeOps {
     public SubtypeData complement(SubtypeData d) {
         IntSubtype v = (IntSubtype) d;
         return IntSubtype.createIntSubtype(rangeListComplement(v.ranges));
+    }
+
+    static boolean intSubtypeOverlapRange(IntSubtype subtype, Range range) {
+        SubtypeData subtypeData = intOpsInstance.intersect(subtype, IntSubtype.createIntSubtype(range));
+        return !(subtypeData instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) subtypeData).isNothingSubtype());
+    }
+
+    public static long intSubtypeMax(IntSubtype subtype) {
+        return subtype.ranges[subtype.ranges.length - 1].max;
+    }
+
+    public static long intSubtypeMin(IntSubtype subtype) {
+        return subtype.ranges[0].min;
     }
 
     @Override

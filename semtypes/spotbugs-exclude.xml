@@ -42,6 +42,8 @@
             <Class name="io.ballerina.types.typeops.MappingRoOps"/>
             <Class name="io.ballerina.types.typeops.ListTypeRoOps"/>
             <Class name="io.ballerina.types.typeops.StringOps"/>
+            <Class name="io.ballerina.types.typeops.ListCommonOps"/>
+            <Class name="io.ballerina.types.typeops.ListProj"/>
             <Class name="io.ballerina.types.typeops.ListTypeRoOps"/>
             <Class name="io.ballerina.types.typeops.BooleanOps"/>
             <Class name="io.ballerina.types.Context"/>
@@ -80,6 +82,7 @@
             <Class name="io.ballerina.types.definition.Field"/>
             <Class name="io.ballerina.types.Value"/>
             <Class name="io.ballerina.types.TypeAtom"/>
+            <Class name="io.ballerina.types.IntSubtypeConstraints"/>
             <Class name="io.ballerina.types.typeops.FieldPair"/>
             <Class name="io.ballerina.types.MappingAlternative"/>
         </Or>
