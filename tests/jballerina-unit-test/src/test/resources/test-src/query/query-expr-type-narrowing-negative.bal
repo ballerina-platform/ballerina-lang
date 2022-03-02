@@ -15,6 +15,7 @@
 // under the License.
 
 type IntOrStr int|string;
+
 type IntStrOrBoolean IntOrStr|boolean;
 
 function test1(IntOrStr[] data) returns error? {
@@ -39,7 +40,7 @@ function test1(IntOrStr[] data) returns error? {
         };
 }
 
-function test2(IntOrStr[] data1, IntOrStr[] data2) {
+function test2(IntOrStr[] data1, IntOrStr[] data2) returns error? {
     int[] _ = from IntOrStr i in data1
         from IntOrStr j in data2
         where i is int && j is int
@@ -58,7 +59,7 @@ function test2(IntOrStr[] data1, IntOrStr[] data2) {
         };
 }
 
-function test3(IntStrOrBoolean[] data) {
+function test3(IntStrOrBoolean[] data) returns error? {
     string[] _ = from IntStrOrBoolean i in data
         where i !is boolean && i !is int
         select i;
@@ -199,7 +200,7 @@ function eFn(E x) {
 function fFn(F x) {
 }
 
-function test5(DorE[] x, DorF[] y, EorF[] z) {
+function test5(DorE[] x, DorF[] y, EorF[] z) returns error? {
     _ = from var item in x
         where item is D
         select dFn(item);
@@ -398,7 +399,7 @@ type T record {
 function qFn(Q x) {
 }
 
-function r2Fn(R x) {
+function rFn(R x) {
 }
 
 function rtFn(R|T x) {
@@ -433,13 +434,13 @@ type Integers 1|2|3;
 type Chars "A"|"B"|"C";
 
 function test11(Integers[] numbers, Chars[] chars) returns error? {
-    int[] _ = from int item in numbers
+    1[] _ = from int item in numbers
         where item == 1
-        select item * 2;
+        select item;
 
-    int[] _ = from int item in numbers
+    (1|2)[] _ = from int item in numbers
         where item == 1 || item == 2
-        select item * 2;
+        select item;
 
     check from Integers item in numbers
         where item == 1 || item == 2
@@ -487,7 +488,7 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
             int _ = num * 2;
         };
 
-    //    Should be enabled once issue #35264 is fixed
+    //    Should be enabled once issue #32271 is fixed
     //    check from Chars item in chars
     //        where item == "C"
     //        do {
