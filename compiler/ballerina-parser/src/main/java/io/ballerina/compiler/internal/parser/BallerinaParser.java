@@ -14492,9 +14492,6 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseFieldMatchPatternList() {
         List<STNode> fieldMatchPatterns = new ArrayList<>();
-        if (isEndOfMappingMatchPattern()) {
-            return STNodeFactory.createEmptyNodeList();
-        }
 
         STNode fieldMatchPatternMember = parseFieldMatchPatternMember();
         if (fieldMatchPatternMember == null) {
@@ -14576,6 +14573,7 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN:
                 return parseRestMatchPattern();
             case CLOSE_BRACE_TOKEN:
+            case EOF_TOKEN:
                 // null marks the end of field-match-patterns
                 return null;
             default:
