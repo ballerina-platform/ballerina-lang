@@ -175,6 +175,8 @@ public class StringOps implements UniformTypeOps {
                     case GT:
                         i2 += 1;
                         break;
+                    default:
+                        throw new AssertionError("Invalid comparison value!");
                 }
             }
         }

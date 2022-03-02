@@ -155,7 +155,6 @@ public class ListProj {
                     return listProjExclude(cx, k, members, rest, neg.next);
                 }
                 fixedArrayFill(members, negLen, rest);
-                len = negLen;
             } else if (negLen < len && isNever(nt.rest)) {
                 return listProjExclude(cx, k, members, rest, neg.next);
             }
