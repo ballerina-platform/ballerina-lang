@@ -153,7 +153,12 @@ public class SemTypeTest {
 
     private List<String> getSubtypeRels(String sourceFilePath) {
         BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath);
-        ensureNoErrors(bLangPackage);
+        // xxxx-e.bal pattern is used to test bal files where jBallerina type checking doesn't support type operations
+        // such as intersection. Make sure not to use nBallerina type negation (!) with this as jBallerina compiler
+        // front end doesn't generate AST from those.
+        if (!sourceFilePath.endsWith("-e.bal")) {
+            ensureNoErrors(bLangPackage);
+        }
         Context typeCheckContext = Context.from(bLangPackage.semtypeEnv);
         Map<String, SemType> typeMap = bLangPackage.semtypeEnv.getTypeNameSemTypeMap();
 
