@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.types.Common.isListBitsSet;
+import static io.ballerina.types.Common.isNothingSubtype;
 import static io.ballerina.types.MappingAtomicType.MAPPING_ATOMIC_TOP;
 import static io.ballerina.types.PredefinedType.MAPPING;
 import static io.ballerina.types.PredefinedType.MAPPING_RW;
@@ -48,7 +49,6 @@ import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
 import static io.ballerina.types.UniformTypeCode.UT_MAPPING_RO;
 import static io.ballerina.types.UniformTypeCode.UT_MAPPING_RW;
 import static io.ballerina.types.UniformTypeCode.UT_STRING;
-import static io.ballerina.types.Common.isNothingSubtype;
 import static io.ballerina.types.typeops.ListCommonOps.bddListMemberType;
 import static io.ballerina.types.typeops.MappingCommonOps.bddMappingMemberRequired;
 import static io.ballerina.types.typeops.MappingCommonOps.bddMappingMemberType;
@@ -381,25 +381,25 @@ public class Core {
         }
     }
 
-    public static SubtypeData booleanSubtype(SemType t){
+    public static SubtypeData booleanSubtype(SemType t) {
         return subtypeData(t, UT_BOOLEAN);
     }
 
     // Describes the subtype of int included in the type: true/false mean all or none of string
-    public static SubtypeData intSubtype(SemType t){
+    public static SubtypeData intSubtype(SemType t) {
         return subtypeData(t, UT_INT);
     }
 
-    public static SubtypeData floatSubtype(SemType t){
+    public static SubtypeData floatSubtype(SemType t) {
         return subtypeData(t, UT_FLOAT);
     }
 
-    public static SubtypeData decimalSubtype(SemType t){
+    public static SubtypeData decimalSubtype(SemType t) {
         return subtypeData(t, UT_DECIMAL);
     }
 
     // Describes the subtype of string included in the type: true/false mean all or none of string
-    public static SubtypeData stringSubtype(SemType t){
+    public static SubtypeData stringSubtype(SemType t) {
         return subtypeData(t, UT_STRING);
     }
 
@@ -468,11 +468,11 @@ public class Core {
                 return NEVER;
             }
             return union(bddListMemberType(cx,
-                                           (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_LIST_RO),
+                                           (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RO),
                                            keyData,
                                            TOP),
                          bddListMemberType(cx,
-                                           (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW),
+                                           (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW),
                                            keyData,
                                            TOP));
         }
@@ -491,7 +491,7 @@ public class Core {
                 return null;
             }
             return bddMappingAtomicType(env,
-                                       (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
+                                       (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
                                        MAPPING_ATOMIC_TOP);
         }
     }
@@ -524,10 +524,10 @@ public class Core {
                 return NEVER;
             }
             return union(bddMappingMemberType(cx,
-                                             (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
+                                             (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
                                              keyData, TOP),
                          bddMappingMemberType(cx,
-                                             (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
+                                             (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
                                               keyData, TOP));
         }
     }
@@ -538,10 +538,10 @@ public class Core {
         } else {
             StringSubtype stringSubType = (StringSubtype) getComplexSubtypeData((ComplexSemType) k, UT_STRING);
             return bddMappingMemberRequired(cx,
-                                            (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
+                                            (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW),
                                             stringSubType, false)
                     && bddMappingMemberRequired(cx,
-                                                (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
+                                                (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO),
                                                 stringSubType, false);
         }
     }
@@ -555,18 +555,19 @@ public class Core {
     // where T is a union of complete basic types.
     public static Optional<UniformTypeBitSet> simpleMapMemberType(Env env, SemType t, boolean strict) {
         if (t instanceof UniformTypeBitSet) {
-            return (((UniformTypeBitSet) t).bitset == MAPPING.bitset ||
-                    (((UniformTypeBitSet) t).bitset == MAPPING_RW.bitset && !strict)) ?
-                    Optional.of(TOP) : Optional.empty();
+            int bitset = ((UniformTypeBitSet) t).bitset;
+            return (bitset == MAPPING.bitset || (bitset == MAPPING_RW.bitset && !strict))
+                    ? Optional.of(TOP)
+                    : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, MAPPING)) {
                 return Optional.empty();
             }
-            Optional<UniformTypeBitSet> rw = bddMappingSimpleMemberType(env,
-                    (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW));
+            Optional<UniformTypeBitSet> rw =
+                    bddMappingSimpleMemberType(env, (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RW));
             if (rw.isPresent() && strict) {
-                Optional<UniformTypeBitSet> ro = bddMappingSimpleMemberType(env,
-                        (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO));
+                Optional<UniformTypeBitSet> ro =
+                        bddMappingSimpleMemberType(env, (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_MAPPING_RO));
                 if (ro.isEmpty() || ro.get().bitset != (rw.get().bitset & UniformTypeCode.UT_READONLY)) {
                     return Optional.empty();
                 }

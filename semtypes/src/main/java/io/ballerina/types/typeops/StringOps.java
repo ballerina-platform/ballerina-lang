@@ -158,7 +158,7 @@ public class StringOps implements UniformTypeOps {
         int len1 = values.length;
         int len2 = target.length;
         while (true) {
-            if( i1 >= len1 || i2 >= len2) {
+            if (i1 >= len1 || i2 >= len2) {
                 break;
             } else {
                 int comp = EnumerableSubtype.compareEnumerable(EnumerableString.from(values[i1]),

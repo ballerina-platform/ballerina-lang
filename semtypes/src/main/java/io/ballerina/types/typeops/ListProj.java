@@ -76,7 +76,7 @@ public class ListProj {
                                      null, null),
                          listProjBdd(cx,
                                      keyData,
-                                     (Bdd)getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW),
+                                     (Bdd) getComplexSubtypeData((ComplexSemType) t, UT_LIST_RW),
                                      null, null));
         }
     }
@@ -87,7 +87,7 @@ public class ListProj {
             return ((BddAllOrNothing) b).isAll() ? listProjPath(cx, k, pos, neg) : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
-            return union(listProjBdd(cx, k,bddNode.left, and(bddNode.atom, pos), neg),
+            return union(listProjBdd(cx, k, bddNode.left, and(bddNode.atom, pos), neg),
                          union(listProjBdd(cx, k, bddNode.middle, pos, neg),
                                listProjBdd(cx, k, bddNode.right, pos, and(bddNode.atom, neg))));
         }
@@ -111,7 +111,7 @@ public class ListProj {
                 members = fixedArrayShallowCopy(members);
             }
 
-            while (true){
+            while (true) {
                 if (p == null) {
                     break;
                 } else {
@@ -146,8 +146,7 @@ public class ListProj {
                                    ListConjunction neg) {
         if (neg == null) {
             return listAtomicMemberTypeAt(members, rest, k);
-        }
-    else {
+        } else {
             int len = members.fixedLength;
             ListAtomicType nt = neg.listType;
             int negLen = nt.members.fixedLength;
@@ -157,8 +156,7 @@ public class ListProj {
                 }
                 fixedArrayFill(members, negLen, rest);
                 len = negLen;
-            }
-        else if (negLen < len && isNever(nt.rest)) {
+            } else if (negLen < len && isNever(nt.rest)) {
                 return listProjExclude(cx, k, members, rest, neg.next);
             }
             // now we have nt.members.length() <= len

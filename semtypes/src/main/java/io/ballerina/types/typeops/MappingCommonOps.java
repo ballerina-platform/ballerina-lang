@@ -210,7 +210,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
 
     static SemType mappingAtomicMemberType(MappingAtomicType atomic, SubtypeData key) {
         SemType memberType = NEVER;
-        for(SemType ty : mappingAtomicApplicableMemberTypes(atomic, key)) {
+        for (SemType ty : mappingAtomicApplicableMemberTypes(atomic, key)) {
             memberType = Core.union(memberType, ty);
         }
         return memberType;
@@ -226,7 +226,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
         } else {
             StringSubtype.StringSubtypeListCoverage coverage = stringSubtypeListCoverage((StringSubtype) key,
                                                                                          atomic.names);
-            for(int index : coverage.indices) {
+            for (int index : coverage.indices) {
                 memberTypes.add(atomic.types[index]);
             }
             if (!coverage.isSubtype) {

@@ -362,7 +362,7 @@ public class ListCommonOps {
 
     public static SemType bddListMemberType(Context cx, Bdd b, SubtypeData key, SemType accum) {
         if (b instanceof BddAllOrNothing) {
-            return ((BddAllOrNothing)b).isAll() ? accum : NEVER;
+            return ((BddAllOrNothing) b).isAll() ? accum : NEVER;
         } else {
             BddNode bddNode = (BddNode) b;
             return union(bddListMemberType(cx,
