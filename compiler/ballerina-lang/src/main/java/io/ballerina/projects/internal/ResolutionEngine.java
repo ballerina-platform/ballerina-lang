@@ -22,7 +22,6 @@ import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageLockingMode;
@@ -33,6 +32,9 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder.NodeStatus;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Responsible for creating the dependency graph with automatic version updates.
@@ -56,6 +59,7 @@ public class ResolutionEngine {
     private final PackageDependencyGraphBuilder graphBuilder;
 
     private final PrintStream console = System.out;
+    private final List<Diagnostic> diagnostics;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
                             BlendedManifest blendedManifest,
@@ -69,6 +73,11 @@ public class ResolutionEngine {
         this.resolutionOptions = resolutionOptions;
 
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
+        this.diagnostics = new ArrayList<>();
+    }
+
+    public List<Diagnostic> diagnostics() {
+        return diagnostics;
     }
 
     public DependencyGraph<DependencyNode> resolveDependencies(Collection<ModuleLoadRequest> moduleLoadRequests) {
@@ -103,11 +112,15 @@ public class ResolutionEngine {
         for (ModuleResolver.DirectPackageDependency directPkgDependency : directDepsContainer.getAll()) {
             PackageVersion depVersion;
             String repository;
+            boolean errorNode = false;
             PackageDescriptor depPkgDesc = directPkgDependency.pkgDesc();
             if (directPkgDependency.dependencyKind() == ModuleResolver.DirectPackageDependencyKind.NEW) {
                 // This blendedDep may be resolved from the local repository as well.
                 Optional<BlendedManifest.Dependency> blendedDepOptional = blendedManifest.dependency(
                         depPkgDesc.org(), depPkgDesc.name());
+                if (blendedDepOptional.isPresent()) {
+                    errorNode = blendedDepOptional.get().origin().equals(BlendedManifest.DependencyOrigin.ERROR);
+                }
 
                 // If the package version is not null, use it
                 if (directPkgDependency.pkgDesc().version() != null) {
@@ -128,26 +141,34 @@ public class ResolutionEngine {
                         depPkgDesc.org(), depPkgDesc.name());
                 depVersion = blendedDep.version();
                 repository = blendedDep.repository();
+                errorNode = blendedDep.origin().equals(BlendedManifest.DependencyOrigin.ERROR);
             } else {
                 throw new IllegalStateException("Unsupported direct dependency kind: " +
                         directPkgDependency.dependencyKind());
             }
             directDeps.add(new ResolutionEngine.DependencyNode(
                     PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
-                    directPkgDependency.scope(), directPkgDependency.resolutionType()));
+                    directPkgDependency.scope(), directPkgDependency.resolutionType(), errorNode));
         }
 
         return directDeps;
     }
 
     private void populateStaticDependencyGraph(Collection<DependencyNode> directDependencies) {
+        List<DependencyNode> errorNodes = directDependencies.stream()
+                .filter(DependencyNode::errorNode).collect(Collectors.toList());
+        for (DependencyNode errorNode : errorNodes) {
+            graphBuilder.addErroneousDependency(
+                    rootPkgDesc, errorNode.pkgDesc, errorNode.scope, errorNode.resolutionType);
+        }
+        directDependencies.removeAll(errorNodes);
+
         Collection<PackageMetadataResponse> pkgMetadataResponses = resolveDirectDependencies(directDependencies);
         for (PackageMetadataResponse resolutionResp : pkgMetadataResponses) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
                 continue;
             }
-
             ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
             PackageDescriptor resolvedPkgDesc = resolutionResp.resolvedDescriptor();
             DependencyResolutionType resolutionType = resolutionReq.resolutionType();
@@ -159,7 +180,8 @@ public class ResolutionEngine {
             if (nodeStatus == NodeStatus.ACCEPTED) {
                 mergeGraph(resolvedPkgDesc,
                         resolutionResp.dependencyGraph().orElseThrow(
-                                () -> new IllegalStateException("Graph cannot be null in a resolved dependency")),
+                                () -> new IllegalStateException("Graph cannot be null in the resolved dependency: " +
+                                        resolvedPkgDesc.toString())),
                         scope, resolutionType);
             }
         }
@@ -172,6 +194,7 @@ public class ResolutionEngine {
         PackageLockingMode defaultLockingMode = resolutionOptions.sticky() ?
                 PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
+
         for (DependencyNode directDependency : directDeps) {
             PackageLockingMode lockingMode = defaultLockingMode;
             PackageDescriptor pkgDesc = directDependency.pkgDesc();
@@ -185,7 +208,6 @@ public class ResolutionEngine {
                 // look up Ballerina central repository for the latest version which is in the same compatible range.
                 lockingMode = PackageLockingMode.SOFT;
             }
-
             resolutionRequests.add(ResolutionRequest.from(pkgDesc, directDependency.scope(),
                     directDependency.resolutionType(), lockingMode));
         }
@@ -233,23 +255,40 @@ public class ResolutionEngine {
                 packageMetadataResponse.dependencyGraph();
 
         return packageDescriptorDependencyGraph
-                .orElseThrow(() -> new IllegalStateException("Graph cannot be null in a built-in package"));
+                .orElseThrow(() -> new IllegalStateException(
+                        "Graph cannot be null in the built-in package: " + directDep.toString()));
     }
 
     private void updateDependencyVersions() {
         // Remove all dangling nodes in the graph builder.
         graphBuilder.removeDanglingNodes();
-        // Get unresolved nodes. This list is based on the sticky option
+        // Get unresolved nodes. This list is based on the sticky option.
         Collection<DependencyNode> unresolvedNodes = getUnresolvedNode();
+        List<DependencyNode> errorNodes = new ArrayList<>();
 
         // Create ResolutionRequests for all unresolved nodes by looking at the blended nodes
-        List<ResolutionRequest> unresolvedRequests = new ArrayList<>(unresolvedNodes.size());
+        List<ResolutionRequest> unresolvedRequests = new ArrayList<>();
+//        Collection<PackageMetadataResponse> pkgMetadataResponses = new ArrayList<>();
         for (DependencyNode unresolvedNode : unresolvedNodes) {
+            if (unresolvedNode.errorNode) {
+                errorNodes.add(unresolvedNode);
+                continue;
+            }
             PackageDescriptor unresolvedPkgDes = unresolvedNode.pkgDesc();
             Optional<BlendedManifest.Dependency> blendedDepOptional =
                     blendedManifest.dependency(unresolvedPkgDes.org(), unresolvedPkgDes.name());
             ResolutionRequest resolutionRequest = getRequestForUnresolvedNode(unresolvedNode,
                     blendedDepOptional.orElse(null));
+            if (resolutionRequest == null) {
+                // There is a version incompatibility.
+                // We mark it as an error node and skip to the next node.
+                errorNodes.add(new DependencyNode(
+                        unresolvedNode.pkgDesc,
+                        unresolvedNode.scope,
+                        unresolvedNode.resolutionType,
+                        true));
+                continue;
+            }
             unresolvedRequests.add(resolutionRequest);
         }
 
@@ -259,8 +298,15 @@ public class ResolutionEngine {
 
         // Update the graph with new versions of dependencies (if any)
         addUpdatedPackagesToGraph(pkgMetadataResponses);
+        addErrorNodesToGraph(errorNodes);
 
         dumpIntermediateGraph(1);
+    }
+
+    private void addErrorNodesToGraph(List<DependencyNode> errorNodes) {
+        for (DependencyNode errorNode : errorNodes) {
+            graphBuilder.addErrorNode(errorNode.pkgDesc, errorNode.scope, errorNode.resolutionType);
+        }
     }
 
     /**
@@ -293,14 +339,22 @@ public class ResolutionEngine {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
         } else {
-            // TODO Report a diagnostic
             // Blended Dep version is incompatible with the unresolved node.
+            // We report a diagnostic and return null.
             String depInfo = blendedDep.org() + "/" + blendedDep.name();
             String sourceFile = blendedDep.origin() == BlendedManifest.DependencyOrigin.USER_SPECIFIED ?
                     ProjectConstants.BALLERINA_TOML : ProjectConstants.DEPENDENCIES_TOML;
-            throw new ProjectException("Incompatible versions: " + depInfo + ". " +
-                    "Version specified in " + sourceFile + ": " + blendedDep.version() +
-                    " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version());
+
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                    ProjectDiagnosticErrorCode.INCOMPATIBLE_DEPENDENCY_VERSIONS.diagnosticId(),
+                    "Incompatible versions: " + depInfo + ". " +
+                            "Version specified in " + sourceFile + ": " + blendedDep.version() +
+                            " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version(),
+                    DiagnosticSeverity.ERROR);
+            PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                    diagnosticInfo, this.rootPkgDesc.name().toString());
+            diagnostics.add(diagnostic);
+            return null;
         }
     }
 
@@ -319,6 +373,8 @@ public class ResolutionEngine {
 
         graphBuilder.removeDanglingNodes();
         Collection<DependencyNode> unresolvedNodes;
+        Collection<PackageMetadataResponse> pkgMetadataResponses = new ArrayList<>();
+
         while (!(unresolvedNodes = graphBuilder.getUnresolvedNodes()).isEmpty()) {
             // Create ResolutionRequests for all unresolved nodes by looking at the blended nodes
             List<ResolutionRequest> unresolvedRequests = new ArrayList<>(unresolvedNodes.size());
@@ -328,11 +384,14 @@ public class ResolutionEngine {
                         blendedManifest.userSpecifiedDependency(unresolvedPkgDes.org(), unresolvedPkgDes.name());
                 ResolutionRequest resolutionRequest = getRequestForUnresolvedNode(unresolvedNode,
                         blendedDepOptional.orElse(null));
+                if (unresolvedNode.errorNode()) {
+                    pkgMetadataResponses.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
+                    continue;
+                }
                 unresolvedRequests.add(resolutionRequest);
             }
 
-            Collection<PackageMetadataResponse> pkgMetadataResponses =
-                    packageResolver.resolvePackageMetadata(unresolvedRequests, resolutionOptions);
+            pkgMetadataResponses.addAll(packageResolver.resolvePackageMetadata(unresolvedRequests, resolutionOptions));
             addUpdatedPackagesToGraph(pkgMetadataResponses);
             graphBuilder.removeDanglingNodes();
 
@@ -361,13 +420,15 @@ public class ResolutionEngine {
         NodeStatus nodeStatus = graphBuilder.addResolvedNode(pkgDesc, scope, resolvedType);
         if (nodeStatus == NodeStatus.ACCEPTED) {
             mergeGraph(pkgDesc, resolutionResp.dependencyGraph().orElseThrow(
-                    () -> new IllegalStateException("Graph cannot be null in a resolved dependency")),
+                    () -> new IllegalStateException("Graph cannot be null in the resolved dependency: " +
+                            pkgDesc.toString())),
                     scope, resolvedType);
         }
     }
 
     private DependencyGraph<DependencyNode> buildFinalDependencyGraph() {
         DependencyGraph<DependencyNode> dependencyGraph = graphBuilder.buildGraph();
+        this.diagnostics.addAll(graphBuilder.diagnostics());
         dumpFinalGraph(dependencyGraph);
         return dependencyGraph;
     }
@@ -422,6 +483,7 @@ public class ResolutionEngine {
         private final PackageDescriptor pkgDesc;
         private final PackageDependencyScope scope;
         private final DependencyResolutionType resolutionType;
+        private final boolean errorNode;
 
         public DependencyNode(PackageDescriptor pkgDesc,
                               PackageDependencyScope scope,
@@ -429,6 +491,17 @@ public class ResolutionEngine {
             this.pkgDesc = Objects.requireNonNull(pkgDesc);
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
+            this.errorNode = false;
+        }
+
+        public DependencyNode(PackageDescriptor pkgDesc,
+                              PackageDependencyScope scope,
+                              DependencyResolutionType resolutionType,
+                              boolean errorNode) {
+            this.pkgDesc = Objects.requireNonNull(pkgDesc);
+            this.scope = Objects.requireNonNull(scope);
+            this.resolutionType = Objects.requireNonNull(resolutionType);
+            this.errorNode = errorNode;
         }
 
         public DependencyNode(PackageDescriptor pkgDesc) {
@@ -447,6 +520,10 @@ public class ResolutionEngine {
             return resolutionType;
         }
 
+        public boolean errorNode() {
+            return errorNode;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) {
@@ -463,7 +540,8 @@ public class ResolutionEngine {
                     Objects.equals(pkgDesc.version(), that.pkgDesc.version()) &&
                     Objects.equals(pkgDesc.repository(), that.pkgDesc.repository()) &&
                     scope == that.scope &&
-                    resolutionType == that.resolutionType;
+                    resolutionType == that.resolutionType &&
+                    errorNode == that.errorNode;
         }
 
         @Override
@@ -474,7 +552,7 @@ public class ResolutionEngine {
         @Override
         public String toString() {
             String attr = " [scope=" + scope + ",kind=" + resolutionType +
-                    ",repo=" + pkgDesc.repository().orElse(null) + "]";
+                    ",repo=" + pkgDesc.repository().orElse(null) + ",error=" + errorNode + "]";
             return pkgDesc.toString() + attr;
         }
     }
