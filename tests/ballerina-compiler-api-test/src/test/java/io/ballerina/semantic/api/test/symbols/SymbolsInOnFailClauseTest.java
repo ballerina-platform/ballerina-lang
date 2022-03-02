@@ -39,7 +39,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for class symbols.
+ * Test cases for on-fail clause.
  *
  * @since 2.0.0
  */
