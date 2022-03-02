@@ -90,15 +90,16 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
+
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
+
             // Report code generator diagnostics
             if (codeGenDiagnosticResult != null) {
                 codeGenDiagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
             }
-
             // Report package compilation and backend diagnostics
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
             diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
@@ -106,6 +107,7 @@ public class CompileTask implements Task {
                     (codeGenDiagnosticResult != null && codeGenDiagnosticResult.hasErrors())) {
                 throw createLauncherException("compilation contains errors");
             }
+
             project.save();
         } catch (ProjectException e) {
             throw createLauncherException("compilation failed: " + e.getMessage());
