@@ -1043,6 +1043,79 @@ function testReachableStatementInQueryAction() {
     assertEqual(true, testReachableStatementInQueryAction9() is ());
 }
 
+function testUnreachablePanicStmt1() {
+    if true {
+        return;
+    } else if true {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt2() {
+    while false {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt3() {
+    int a = 10;
+    if a !is int {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt4() {
+    if false {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt5() {
+    int? a = 10;
+    if a is int {
+    } else if a is () {
+    } else {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt6() {
+    int a = 10;
+    while a !is int {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt7() {
+    while true {
+        return;
+    }
+    panic error("Error"); // OK
+}
+
+function testUnreachablePanicStmt8() {
+    if true {
+        return;
+    }
+    panic error("Error"); // OK
+}
+
+function testUnreachablePanicStmt9() {
+    if true {
+        return;
+    } else {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt10() {
+    if true {
+        return;
+        panic error("Error"); // OK
+    }
+    panic error("Error"); // OK
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

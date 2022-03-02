@@ -1289,3 +1289,144 @@ function testUnreachableStatementInQueryAction24() {
             };
         };
 }
+
+function testLoggingExpectedUnreachableErrors1() {
+    if true {
+        return;
+    } else if true {
+        int _ = 10; // unreachable code
+    }
+}
+
+function testLoggingExpectedUnreachableErrors2() returns error? {
+    if true {
+        fail error("fail msg");
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors3() returns error? {
+    if true {
+        return;
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors4() {
+    if true {
+        panic error("fail msg");
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors5() {
+    while false {
+        continue; // unreachable code
+        int _ = 10;
+        string _ = "A";
+    }
+}
+
+function testLoggingExpectedUnreachableErrors6() {
+    while false {
+        return; // unreachable code
+        int _ = 10;
+        string _ = "A";
+    }
+}
+
+function testLoggingExpectedUnreachableErrors7() returns error? {
+    while true {
+        fail error("fail msg");
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors8() {
+    while true {
+        panic error("fail msg");
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors9() {
+    while true {
+        return;
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors10() {
+    int a = 10;
+    string b = "A";
+    if a is int {
+        return;
+    } else if b is string {
+        int _ = 10; // unreachable code
+    }
+}
+
+function testLoggingExpectedUnreachableErrors11() returns error? {
+    int i = 0;
+    while i > 10 {
+        fail error("Error");
+        i = i + 1; // unreachable code
+    }
+    i = 7; // unreachable code
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors12() returns error? {
+    while true {
+        fail error("Error");
+        int _ = 10; // unreachable code
+    }
+    int _ = 10; // unreachable code
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors13() returns error? {
+    while false {
+        fail error("Error"); // unreachable code
+        int _ = 10;
+    }
+    int _ = 10;
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors14() {
+    int i = 0;
+    while i > 10 {
+        panic error("Error");
+        i = i + 1; // unreachable code
+    }
+    return;
+    i = 7; // unreachable code
+}
+
+function testLoggingExpectedUnreachableErrors15() {
+    while true {
+        panic error("Error");
+        int _ = 10; // unreachable code
+    }
+    return; // unreachable code
+    //int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors16() {
+    while false {
+        panic error("Error");
+        int _ = 10; // unreachable code
+    }
+    panic error("error");
+    int _ = 10; // unreachable code
+}
