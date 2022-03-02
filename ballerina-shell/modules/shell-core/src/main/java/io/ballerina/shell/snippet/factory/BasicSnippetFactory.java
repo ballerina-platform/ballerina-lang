@@ -53,6 +53,7 @@ import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -126,8 +127,8 @@ public class BasicSnippetFactory extends SnippetFactory {
     @Override
     public VariableDeclarationSnippet createVariableDeclarationSnippet(Node node) {
         ModuleVariableDeclarationNode dclnNode;
-        if (isContainsIsolated(node)) {
-            addErrorDiagnostic("Isolation not allowed in Ballerina shell");
+        if (containsIsolated(node)) {
+            addErrorDiagnostic("Isolation not allowed in the Ballerina shell");
             return null;
         }
 
@@ -163,8 +164,7 @@ public class BasicSnippetFactory extends SnippetFactory {
     @Override
     public ModuleMemberDeclarationSnippet createModuleMemberDeclarationSnippet(Node node)
             throws SnippetException {
-        if (isContainsIsolated(node)) {
-            addErrorDiagnostic("Isolation not allowed in the Ballerina shell.");
+        if (containsIsolated(node)) {
             return null;
         }
 
@@ -214,21 +214,13 @@ public class BasicSnippetFactory extends SnippetFactory {
      * @param node input Node.
      * @return node contains isolated keyword or not.
      */
-    private boolean isContainsIsolated(Node node) {
+    private boolean containsIsolated(Node node) {
         if (node instanceof ModuleVariableDeclarationNode) {
             NodeList<Token> nodeList = ((ModuleVariableDeclarationNode) node).qualifiers();
-            for (Token token: nodeList) {
-                if (token.kind().stringValue().equals("isolated")) {
-                    return true;
-                }
-            }
+             return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
         } else if (node instanceof FunctionDefinitionNode) {
             NodeList<Token> nodeList = ((FunctionDefinitionNode) node).qualifierList();
-            for (Token token: nodeList) {
-                if (token.kind().stringValue().equals("isolated")) {
-                    return true;
-                }
-            }
+            return nodeList.stream().anyMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
         }
 
         return false;

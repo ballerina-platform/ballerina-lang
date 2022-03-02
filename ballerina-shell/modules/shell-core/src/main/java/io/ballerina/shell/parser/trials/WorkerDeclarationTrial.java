@@ -23,8 +23,8 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.parser.TrialTreeParser;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -40,15 +40,12 @@ public class WorkerDeclarationTrial extends TreeParserTrial {
 
     @Override
     public Collection<Node> parse(String source) throws ParserTrialFailedException {
-        Collection<Node> nodes = new ArrayList<>();
         Optional<NamedWorkerDeclarator> workerDeclarator = NodeParser.parseFunctionBodyBlock(source)
                 .namedWorkerDeclarator();
         if (workerDeclarator.isPresent()) {
-            nodes.add(workerDeclarator.get());
-            return nodes;
-        } else {
-            throw new ParserTrialFailedException("Worker declarations not found.");
+            return Collections.singletonList(workerDeclarator.get());
         }
 
+        throw new ParserTrialFailedException("Worker declarations not found.");
     }
 }
