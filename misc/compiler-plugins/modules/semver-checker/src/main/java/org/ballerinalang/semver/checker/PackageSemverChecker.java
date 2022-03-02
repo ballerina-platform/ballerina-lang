@@ -8,6 +8,7 @@ public class PackageSemverChecker extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
+        pluginContext.addCodeAnalyzer(new CodeSniffer());
     }
 
 }
