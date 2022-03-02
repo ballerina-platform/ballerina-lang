@@ -47,9 +47,9 @@ function test2(IntOrStr[] data1, IntOrStr[] data2) returns error? {
         select i * j;
 
     string[] _ = from IntOrStr i in data1
-            from IntOrStr j in data2
-            where i !is int && j !is int
-            select i + j;
+        from IntOrStr j in data2
+        where i !is int && j !is int
+        select i + j;
 
     check from IntOrStr i in data1
         from IntOrStr j in data2
@@ -71,15 +71,15 @@ function test3(IntStrOrBoolean[] data) returns error? {
 
     int[][] _ = from IntStrOrBoolean i in data
         where i !is boolean
-        select from int ii in 1...3
-        where i !is string
-        select i * ii;
+        select from int ii in 1 ... 3
+            where i !is string
+            select i * ii;
 
     check from var item in data
-            where item !is boolean && item !is int
-            do {
-                string _ = item;
-            };
+        where item !is boolean && item !is int
+        do {
+            string _ = item;
+        };
 
     check from var i in data
         where i !is boolean
@@ -140,10 +140,10 @@ function test4(AorB[] data1, AorC[] data2, BorC[] data3) returns error? {
         select cFn(item);
 
     check from AorC item in data2
-            where item is A
-            do {
-                aFn(item);
-            };
+        where item is A
+        do {
+            aFn(item);
+        };
 
     check from AorC item in data2
         where item !is A
@@ -412,12 +412,12 @@ function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
 
     _ = from var item in data1
         where item !is Q
-        select r2Fn(item); // error incompatible types: expected 'R', found '(Q|R)'
+        select rFn(item); // error incompatible types: expected 'R', found '(Q|R)'
 
     check from var item in data1
         where item !is Q
         do {
-            r2Fn(item); // error incompatible types: expected 'R', found '(Q|R)'
+            rFn(item); // error incompatible types: expected 'R', found '(Q|R)'
         };
 
     _ = from var item in data2
@@ -452,7 +452,7 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
         where item is 1
         select item * 2;
 
-    string[] _ = from Chars item in chars
+    "C"[] _ = from Chars item in chars
         where item == "C"
         select item;
 
@@ -480,7 +480,7 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
             2 two = one; // error incompatible types: expected '2', found '1'
         };
 
-    (int|string)[] arr = [1,2,3];
+    (int|string)[] arr = [1, 2, 3];
     check from int|string item in arr
         where item is int
         let int num = item
