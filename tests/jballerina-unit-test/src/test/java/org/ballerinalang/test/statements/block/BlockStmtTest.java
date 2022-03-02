@@ -113,8 +113,6 @@ public class BlockStmtTest {
         BAssertUtil.validateError(resultNegative, index++, "break cannot be used outside of a loop", 92, 9);
         BAssertUtil.validateError(resultNegative, index++, "unreachable code", 92, 9);
         //testUnreachableThrow
-        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 107, 9);
-        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 116, 9);
         BAssertUtil.validateError(resultNegative, index++, "unreachable code", 126, 9);
         //testUninitializedVariableAssignInBlock
         BAssertUtil.validateError(resultNegative, index++, "variable 'a' is not initialized", 136, 17);
