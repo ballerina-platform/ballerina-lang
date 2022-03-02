@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,28 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const PI = 3.14;
-
-function test(any val) {
+function test(any v) {
     match val {
         var x => {
             any a = val;
-        }
-        PI => {
-            any b = val;
-        }
-        [var x, var y, ...var rest] => {
-            any c = val;
-            string s1 = x.toString();
-            string s2 = rest.toString();
-        }
-        {x: var x, y: var y, ...var rest} => {
-            any d = val;
-            string s1 = y.toString();
-            string s2 = rest.toString();
-        }
-        PI | "Foo" if !(val is decimal) => {
-            any e = val;
         }
         _ => {
             any f = val;

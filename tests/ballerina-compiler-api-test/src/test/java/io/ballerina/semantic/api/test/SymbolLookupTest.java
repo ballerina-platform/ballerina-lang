@@ -358,6 +358,29 @@ public class SymbolLookupTest {
         };
     }
 
+    @Test
+    public void testOnFailClauseSymbolLookup() {
+        Project project = BCompileUtil.loadProject("test-src/on_fail_symbol_lookup_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(25, 23));
+        List<Symbol> symbols = new ArrayList<>();
+        for (Symbol symbol : allInScopeSymbols) {
+            if (symbol.getModule().get().id().equals(moduleID) && symbol.kind() == SymbolKind.VARIABLE) {
+                symbols.add(symbol);
+            }
+        }
+
+        assertEquals(symbols.size(), 2);
+    }
+
     private String createSymbolString(Symbol symbol) {
         return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
     }
