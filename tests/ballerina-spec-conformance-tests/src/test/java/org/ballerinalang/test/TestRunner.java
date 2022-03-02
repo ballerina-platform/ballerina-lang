@@ -91,7 +91,7 @@ public class TestRunner {
     @DataProvider(name = "spec-conformance-tests-file-provider")
     public Iterator<Object[]> dataProvider() {
         HashMap<String, HashSet<String>> definedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString());
-        Set<String> labels = runSelectedTests(definedLabels);
+        Set<String> labels = definedLabels.keySet();
         List<Object[]> testCases = new ArrayList<>();
         try {
             Files.walk(path).filter(path -> {

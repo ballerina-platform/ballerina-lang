@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,6 +111,7 @@ public class TestRunnerUtils {
 
             Map<String, String> headersOfTestCase = readHeaders(line, buffReader);
             String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
+            validateLabels(headersOfTestCase.get(LABELS), selectedLabels);
             //TODO: if kind of testcase is other, then need to skip creating the bal file
             boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
 
@@ -193,6 +195,22 @@ public class TestRunnerUtils {
                                   OUTPUT, PANIC, ERROR, PARSER_ERROR));
                 return OTHER;
 
+        }
+    }
+
+    private static void validateLabels(String labels, Set<String> selectedLabels) {
+        List<String> labelsList = new ArrayList<>();
+        for (String label : labels.split(",")) {
+            labelsList.add(label.trim());
+        }
+        StringJoiner unknownLabels = new StringJoiner(", ");
+        for (String label : labelsList) {
+            if (!selectedLabels.contains(label)) {
+                unknownLabels.add(label);
+            }
+        }
+        if (unknownLabels.length() != 0) {
+            reportDiagnostics("unknown labels: " + unknownLabels);
         }
     }
 
