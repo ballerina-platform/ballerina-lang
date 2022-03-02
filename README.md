@@ -6,7 +6,7 @@
   [![codecov](https://codecov.io/gh/ballerina-platform/ballerina-lang/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/ballerina-lang)
   ![Twitter Follow](https://img.shields.io/twitter/follow/ballerinalang?style=social)
 
-# The Ballerina Programming Language
+# The Ballerina programming language
 
 [Ballerina](https://ballerina.io/) is a statically typed, open-source cloud-native programming language developed
 and supported by [WSO2](https://wso2.com/).
@@ -45,7 +45,7 @@ You can use one of the following options to try out Ballerina.
 
 For instructions on downloading and installing, see [Ballerina Downloads](https://ballerina.io/downloads/).
 
-## Installation Options
+## Installation options
 
 For more installation options, see [Installation options](https://ballerina.io/learn/installing-ballerina/installation-options/).
 
