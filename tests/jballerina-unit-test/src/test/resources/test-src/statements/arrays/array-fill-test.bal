@@ -329,38 +329,38 @@ function testXMLSubtypesArrayFill() {
     " filler values\"}";
 
     xml:Element[] a = [];
-    error? result = trap addXmlElement(a, xml `<foo/>`);
+    error? result = trap setXmlArraySecondElement(a, xml `<foo/>`);
     assertEquality(result is error, true);
     error err = <error>result;
     assertEquality(errorMsg, err.message());
     assertEquality(errorDetails, err.detail().toString());
 
     xml:Comment[] b = [];
-    result = trap addXmlElement(b, xml `<!-- this is a comment text -->`);
+    result = trap setXmlArraySecondElement(b, xml `<!-- this is a comment text -->`);
     assertEquality(result is error, true);
     err = <error>result;
     assertEquality(errorMsg, err.message());
     assertEquality(errorDetails, err.detail().toString());
 
     xml:ProcessingInstruction[] c = [];
-    result = trap addXmlElement(c, xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`);
+    result = trap setXmlArraySecondElement(c, xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`);
     assertEquality(result is error, true);
     err = <error>result;
     assertEquality(errorMsg, err.message());
     assertEquality(errorDetails, err.detail().toString());
 
     xml:Text[] d = [];
-    result = trap addXmlElement(d, xml `Hello World`);
+    result = trap setXmlArraySecondElement(d, xml `Hello World`);
     assertEquality(result is (), true);
     assertEquality("[``,`Hello World`]", d.toString());
 
     xml[] e = [];
-    result = trap addXmlElement(e, xml `Hello World`);
+    result = trap setXmlArraySecondElement(e, xml `Hello World`);
     assertEquality(result is (), true);
     assertEquality("[``,`Hello World`]", e.toString());
 }
 
-function addXmlElement(xml[] arr, xml element) {
+function setXmlArraySecondElement(xml[] arr, xml element) {
     arr[1] = element;
 }
 
