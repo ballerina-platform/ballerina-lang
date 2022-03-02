@@ -30,6 +30,12 @@ import io.ballerina.types.subtypedata.NonCharStringSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static io.ballerina.types.EnumerableSubtype.EQ;
+import static io.ballerina.types.EnumerableSubtype.GT;
+import static io.ballerina.types.EnumerableSubtype.LT;
 
 /**
  * Uniform subtype ops for string type.
@@ -101,5 +107,76 @@ public class StringOps implements UniformTypeOps {
     @Override
     public boolean isEmpty(Context cx, SubtypeData t) {
         return Common.notIsEmpty(cx, t);
+    }
+
+    // Returns a description of the relationship between a StringSubtype and a list of strings
+    // `values` must be ordered.
+    static StringSubtype.StringSubtypeListCoverage stringSubtypeListCoverage(StringSubtype subtype, String[] values) {
+        List<Integer> indices = new ArrayList<>();
+        CharStringSubtype ch = subtype.getChar();
+        NonCharStringSubtype nonChar = subtype.getNonChar();
+        int stringConsts = 0;
+        if (ch.allowed) {
+            stringListIntersect(values, toStringArray(ch.values), indices);
+            stringConsts = ch.values.length;
+        } else if (ch.values.length == 0) {
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].length() == 1) {
+                    indices.add(i);
+                }
+            }
+        }
+        if (nonChar.allowed) {
+            stringListIntersect(values, toStringArray(nonChar.values), indices);
+            stringConsts += nonChar.values.length;
+        } else if (nonChar.values.length == 0) {
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].length() != 1) {
+                    indices.add(i);
+                }
+            }
+        }
+        int[] inds = indices.stream().mapToInt(i -> i).toArray();
+        return StringSubtype.StringSubtypeListCoverage.from(stringConsts == indices.size(), inds);
+    }
+
+    static boolean stringSubtypeContainedIn(StringSubtype subtype, String[] values) {
+        return stringSubtypeListCoverage(subtype, values).isSubtype;
+    }
+
+    private static String[] toStringArray(EnumerableCharString[] ar) {
+        return (String[]) Arrays.stream(ar).map(m -> m.value).toArray();
+    }
+
+    private static String[] toStringArray(EnumerableString[] ar) {
+        return (String[]) Arrays.stream(ar).map(m -> m.value).toArray();
+    }
+
+    static void stringListIntersect(String[] values, String[] target, List<Integer> indices) {
+        int i1 = 0;
+        int i2 = 0;
+        int len1 = values.length;
+        int len2 = target.length;
+        while (true) {
+            if( i1 >= len1 || i2 >= len2) {
+                break;
+            } else {
+                int comp = EnumerableSubtype.compareEnumerable(EnumerableString.from(values[i1]),
+                                                               EnumerableString.from(values[i2]));
+                switch (comp) {
+                    case EQ:
+                        indices.add(i1);
+                        i1 += 1;
+                        i2 += 1;
+                        break;
+                    case LT:
+                        i1 += 1;
+                        break;
+                    case GT:
+                        i2 += 1;
+                        break;
+                }
+            }
+        }
     }
 }

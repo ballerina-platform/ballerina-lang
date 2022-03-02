@@ -17,6 +17,7 @@
  */
 package io.ballerina.types;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,5 +40,9 @@ public class FixedLengthArray {
 
     public static FixedLengthArray from(List<SemType> initial, int fixedLength) {
         return new FixedLengthArray(initial, fixedLength);
+    }
+
+    public static FixedLengthArray empty() {
+        return from(new ArrayList<>(), 0);
     }
 }

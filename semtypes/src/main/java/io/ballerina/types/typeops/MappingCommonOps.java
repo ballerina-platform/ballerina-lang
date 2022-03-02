@@ -28,11 +28,19 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeOps;
+import io.ballerina.types.subtypedata.BddAllOrNothing;
+import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import static io.ballerina.types.Common.isAllSubtype;
+import static io.ballerina.types.PredefinedType.NEVER;
+import static io.ballerina.types.typeops.StringOps.stringSubtypeContainedIn;
+import static io.ballerina.types.typeops.StringOps.stringSubtypeListCoverage;
 
 /**
  * Common mapping related methods operate on SubtypeData.
@@ -40,8 +48,6 @@ import java.util.Objects;
  * @since 3.0.0
  */
 public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
-
-
     // This works the same as the tuple case, except that instead of
     // just comparing the lengths of the tuples we compare the sorted list of field names
     public static boolean mappingFormulaIsEmpty(Context cx, Conjunction posList, Conjunction negList) {
@@ -186,5 +192,60 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
         boolean isEmpty = Common.bddEvery(cx, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
         m.setIsEmpty(isEmpty);
         return isEmpty;
+    }
+
+    public static SemType bddMappingMemberType(Context cx, Bdd b, SubtypeData key, SemType accum)  {
+        if (b instanceof BddAllOrNothing) {
+            return ((BddAllOrNothing) b).isAll() ? accum : NEVER;
+        } else {
+            BddNode bdd = (BddNode) b;
+            return Core.union(
+                    bddMappingMemberType(cx, bdd.left, key,
+                                         Core.intersect(mappingAtomicMemberType(cx.mappingAtomType(bdd.atom), key),
+                                                        accum)),
+                    Core.union(bddMappingMemberType(cx, bdd.middle, key, accum),
+                               bddMappingMemberType(cx, bdd.right, key, accum)));
+        }
+    }
+
+    static SemType mappingAtomicMemberType(MappingAtomicType atomic, SubtypeData key) {
+        SemType memberType = NEVER;
+        for(SemType ty : mappingAtomicApplicableMemberTypes(atomic, key)) {
+            memberType = Core.union(memberType, ty);
+        }
+        return memberType;
+    }
+
+    static List<SemType> mappingAtomicApplicableMemberTypes(MappingAtomicType atomic, SubtypeData key) {
+        List<SemType> memberTypes = new ArrayList<>();
+        if (isAllSubtype(key)) {
+            for (SemType t : atomic.types) {
+                memberTypes.add(t);
+            }
+            memberTypes.add(atomic.rest);
+        } else {
+            StringSubtype.StringSubtypeListCoverage coverage = stringSubtypeListCoverage((StringSubtype) key,
+                                                                                         atomic.names);
+            for(int index : coverage.indices) {
+                memberTypes.add(atomic.types[index]);
+            }
+            if (!coverage.isSubtype) {
+                memberTypes.add(atomic.rest);
+            }
+        }
+        return memberTypes;
+    }
+
+
+    public static boolean bddMappingMemberRequired(Context cx, Bdd b, StringSubtype k, boolean requiredOnPath) {
+        if (b instanceof BddAllOrNothing) {
+            return ((BddAllOrNothing) b).isAll() ? requiredOnPath : true;
+        } else {
+            BddNode bdd = (BddNode) b;
+            return bddMappingMemberRequired(cx, bdd.left, k,
+                    requiredOnPath || stringSubtypeContainedIn(k, cx.mappingAtomType(bdd.atom).names))
+                    && bddMappingMemberRequired(cx, bdd.middle, k, requiredOnPath)
+                    && bddMappingMemberRequired(cx, bdd.right, k, requiredOnPath);
+        }
     }
 }

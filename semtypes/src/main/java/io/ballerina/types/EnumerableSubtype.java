@@ -28,9 +28,9 @@ import java.util.Objects;
  * @since 3.0.0
  */
 public abstract class EnumerableSubtype {
-    static final int LT = -1;
-    static final int EQ = 0;
-    static final int GT = 1;
+    public static final int LT = -1;
+    public static final int EQ = 0;
+    public static final int GT = 1;
 
     public abstract boolean allowed();
     public abstract EnumerableType[] values();
