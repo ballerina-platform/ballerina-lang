@@ -11,12 +11,12 @@
 [Ballerina](https://ballerina.io/) is a statically typed, open-source cloud-native programming language developed
 and supported by [WSO2](https://wso2.com/).
 
-With Ballerina, you could easily develop microservices, API endpoints & integrations,
+With Ballerina, you could easily develop microservices, API endpoints and integrations,
 and any other application for the cloud. Additionally, Ballerina has all the general-purpose
 functionalities you could expect from a modern programming language.
 
-With Ballerina's compiler level built-in support for widely used data types such
-as JSON & XML, your focus on handling structured data, network service interactions,
+With Ballerina's compiler-level built-in support for widely used data types such
+as JSON and XML, your focus on handling structured data, network service interactions,
 and dealing with concurrency is made much more effective.
 
 #### Providing and consuming services
@@ -30,7 +30,7 @@ It allows for looser coupling between distributed components and eliminates the 
 
 #### Metadata
 Extensible metadata enables easy integration of Ballerina programs with cloud platforms.
-You could directly generate Docker & Kubernetes artifacts straight away from
+You could directly generate Docker and Kubernetes artifacts straight away from
 the source code.
 
 ## Getting started
@@ -39,7 +39,7 @@ You can use one of the following options to try out Ballerina.
 
 * [Setting up Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/)
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
-* [Ballerina Online Playground](https://play.ballerina.io/)
+* [Ballerina Playground](https://play.ballerina.io/)
 
 ## Downloading and installing
 
@@ -47,17 +47,18 @@ For instructions on downloading and installing, see [Ballerina Downloads](https:
 
 ## Installation Options
 
-For more installation options, see [Installation Options](https://ballerina.io/learn/installing-ballerina/installation-options/).
+For more installation options, see [Installation options](https://ballerina.io/learn/installing-ballerina/installation-options/).
 
-## Get the VS Code Extension
+## Get the VS Code extension
 
-Try out Ballerina's development capabilities using [the Ballerina Extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina).
+Try out Ballerina's development capabilities using [the Ballerina extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina).
 
 ## Reporting issues and security flaws
 
 Report an issue in the relevant repo out of the GitHub repos listed below. 
 
->**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack Channel](https://ballerina-platform.slack.com/).
+>**Tip:** If you are unsure whether you have found a bug, search the existing issues in the corresponding repo on 
+> GitHub and raise it in the [Ballerina Slack channel](https://ballerina-platform.slack.com/).
   - Compiler, runtime, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
   - Standard library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-standard-library</a> repo
   - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
@@ -78,6 +79,6 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 ## Useful links
 
 * The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
-* Chat live with us on our [Slack channel](https://ballerina.io/community/slack/) and Engage with the [Ballerina Community](https://ballerina.io/community/).
+* Chat live with us on our [Slack channel](https://ballerina.io/community/slack/) and engage with the [Ballerina community](https://ballerina.io/community/).
 * Technical questions should be posted on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 * Ballerina performance test results are available [here](performance/benchmarks/summary.md).
