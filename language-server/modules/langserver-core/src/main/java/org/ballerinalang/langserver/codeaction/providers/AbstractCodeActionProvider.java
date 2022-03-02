@@ -125,4 +125,24 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return action;
     }
+
+    /**
+     * Returns a Code action.
+     * 
+     * @param commandTitle      title of the code action
+     * @param edits             edits to be added in the code action
+     * @param uri               uri
+     * @param codeActionKind    kind of the code action
+     * @return
+     */
+    public static CodeAction createCodeAction(String commandTitle, List<TextEdit> edits, String uri,
+                                              String codeActionKind) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        CodeAction action = new CodeAction(commandTitle);
+        action.setKind(codeActionKind);
+        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        return action;
+    }
 }

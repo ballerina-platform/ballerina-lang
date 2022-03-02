@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -51,7 +52,7 @@ import java.util.Set;
 public class AddCheckCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Add Check";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2800");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2652", "BCE2066", "BCE2068", "BCE2800");
 
     public AddCheckCodeAction() {
         super();
@@ -109,6 +110,15 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
                 pos, positionDetails.matchedNode(), context));
         if (edits.isEmpty()) {
             return Collections.emptyList();
+        }
+
+        if (expressionNode.get().kind() == SyntaxKind.WAIT_ACTION && context.currentSemanticModel().isPresent()) {
+            WaitActionNode waitActionNode = (WaitActionNode) expressionNode.get();
+            Optional<TypeSymbol> tSymbol = context.currentSemanticModel().get().typeOf(waitActionNode.waitFutureExpr());
+            if (tSymbol.isPresent() && CommonUtil.getRawType(tSymbol.get()).typeKind() != TypeDescKind.FUTURE) {
+                return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+                        CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri(), ""));
+            }
         }
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(
                 CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
