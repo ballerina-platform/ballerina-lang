@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -53,7 +54,8 @@ public class TypeCompletionItemBuilder {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         String[] delimiterSeparatedTokens = (label).split("\\.");
-        item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+        String insertText = delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1];
+        item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(insertText));
         setMeta(item, bSymbol);
         return item;
     }

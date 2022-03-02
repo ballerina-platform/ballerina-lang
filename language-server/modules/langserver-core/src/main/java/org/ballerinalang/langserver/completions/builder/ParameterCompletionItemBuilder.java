@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -41,7 +42,8 @@ public final class ParameterCompletionItemBuilder {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         String[] delimiterSeparatedTokens = label.split("\\.");
-        item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+        String insertText = delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1];
+        item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(insertText));
         item.setDetail((type.equals("")) ? ItemResolverConstants.NONE : type);
         item.setKind(CompletionItemKind.Variable);
         return item;
