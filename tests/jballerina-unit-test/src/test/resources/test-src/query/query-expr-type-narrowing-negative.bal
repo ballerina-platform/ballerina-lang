@@ -71,7 +71,7 @@ function test3(IntStrOrBoolean[] data) {
     int[][] _ = from IntStrOrBoolean i in data
         where i !is boolean
         select from int ii in 1...3
-        where i is int
+        where i !is string
         select i * ii;
 
     check from var item in data
@@ -122,10 +122,6 @@ function test4(AorB[] data1, AorC[] data2, BorC[] data3) returns error? {
             bFn(item); //error incompatible types: expected 'B', found 'AorB'
         };
 
-    _ = from AorB item in data1
-        where item !is A
-        select bFn(item); //error incompatible types: expected 'B', found 'AorB'
-
     _ = from AorC item in data2
         where item is A
         select aFn(item);
@@ -141,6 +137,18 @@ function test4(AorB[] data1, AorC[] data2, BorC[] data3) returns error? {
     _ = from BorC item in data3
         where item !is B
         select cFn(item);
+
+    check from AorC item in data2
+            where item is A
+            do {
+                aFn(item);
+            };
+
+    check from AorC item in data2
+        where item !is A
+        do {
+            cFn(item);
+        };
 
     check from BorC item in data3
         where item is B
@@ -411,9 +419,9 @@ function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
             r2Fn(item); // error incompatible types: expected 'R', found '(Q|R)'
         };
 
-    _ = from var item in data1
-        where item !is Q
-        select r2Fn(item);
+    _ = from var item in data2
+        where item is Q
+        select qFn(item);
 
     _ = from var item in data2
         where item !is Q

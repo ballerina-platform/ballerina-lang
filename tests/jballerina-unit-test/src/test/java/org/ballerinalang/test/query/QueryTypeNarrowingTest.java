@@ -65,42 +65,38 @@ public class QueryTypeNarrowingTest {
     @Test
     public void testNegativeTypeNarrowing() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-expr-type-narrowing-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 17);
+        Assert.assertEquals(compileResult.getErrorCount(), 15);
         int i = 0;
         validateError(compileResult, i++, "incompatible types: expected 'B', found 'AorB'",
                 117, 20);
         validateError(compileResult, i++, "incompatible types: expected 'B', found 'AorB'",
                 122, 17);
-        validateError(compileResult, i++, "incompatible types: expected 'B', found 'AorB'",
-                127, 20);
         validateError(compileResult, i++, "incompatible types: expected 'E', found 'DorE'",
-                201, 20);
+                209, 20);
         validateError(compileResult, i++, "incompatible types: expected 'E', found 'DorE'",
-                212, 17);
+                220, 17);
         validateError(compileResult, i++, "incompatible types: expected 'F', found 'DorF'",
-                221, 20);
-        validateError(compileResult, i++, "incompatible types: expected 'F', found '(E|F)'",
                 229, 20);
+        validateError(compileResult, i++, "incompatible types: expected 'F', found '(E|F)'",
+                237, 20);
         validateError(compileResult, i++, "incompatible types: expected 'F', found 'EorF'",
-                233, 20);
+                241, 20);
         validateError(compileResult, i++, "incompatible types: expected '(Y|Z)', found '(W|Y|Z)'",
-                361, 21);
+                369, 21);
         validateError(compileResult, i++, "incompatible types: expected '(Y|Z)', found '(W|Y|Z)'",
-                366, 18);
+                374, 18);
         validateError(compileResult, i++, "incompatible types: expected 'R', found '(Q|R)'",
-                406, 21);
+                414, 21);
         validateError(compileResult, i++, "incompatible types: expected 'R', found '(Q|R)'",
-                411, 18);
-        validateError(compileResult, i++, "incompatible types: expected 'R', found '(Q|R)'",
-                416, 21);
+                419, 18);
         validateError(compileResult, i++, "incompatible types: expected '(R|T)', found '(Q|R|T)'",
-                420, 21);
+                428, 21);
         validateError(compileResult, i++, "incompatible types: expected '1', found '(1|2)'",
-                439, 19);
+                447, 19);
         validateError(compileResult, i++, "incompatible types: expected '()', found '1'",
-                459, 26);
+                467, 26);
         validateError(compileResult, i, "incompatible types: expected '2', found '1'",
-                471, 21);
+                479, 21);
     }
 
     @AfterClass
