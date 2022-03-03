@@ -18,8 +18,10 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -38,6 +40,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -89,23 +92,49 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
                 return completionItems;
             }
             rowTypeSymbol = CommonUtil.getRawType(typeSymbol.get());
+            // If the context type is again a table, need to derive row type.
+            // This is valid for cases where table type is defined separately as a user defined type.
+            // ex:
+            //      type PersonTable table<Person> key(name);
+            //      PersonTable tbl = table key(<cursor>);
+            if (rowTypeSymbol.typeKind() == TypeDescKind.TABLE) {
+                TableTypeSymbol tableTypeSymbol = (TableTypeSymbol) rowTypeSymbol;
+                rowTypeSymbol = CommonUtil.getRawType(tableTypeSymbol.rowTypeParameter());
+            }
         }
-        if (rowTypeSymbol.typeKind() != TypeDescKind.RECORD) {
-            return completionItems;
-        }
-        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rowTypeSymbol;
+
         // Get existing keys
         Set<String> fieldNames = node.fieldNames().stream()
                 .filter(identifierToken -> !identifierToken.isMissing())
                 .map(Token::text)
                 .collect(Collectors.toSet());
-        // Get field symbols which are not already specified
-        List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
-                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
-                        && SyntaxInfo.isIdentifier(recordFieldSymbol.getName().get())
-                        && !fieldNames.contains(recordFieldSymbol.getName().get()))
-                .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(symbols, context));
+        
+        if (rowTypeSymbol.typeKind() == TypeDescKind.RECORD) {
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rowTypeSymbol;
+            // Get field symbols which are not already specified
+            List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
+                    .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
+                            && SyntaxInfo.isIdentifier(recordFieldSymbol.getName().get())
+                            && !fieldNames.contains(recordFieldSymbol.getName().get()))
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(symbols, context));
+        } else if (rowTypeSymbol.typeKind() == TypeDescKind.UNION && 
+                CommonUtil.isUnionOfType((UnionTypeSymbol) rowTypeSymbol, TypeDescKind.RECORD)) {
+            // If row type is a union of records, we find the common named fields (we don't consider the type of those
+            // fields as of now) and show them in completions.
+            UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rowTypeSymbol;
+            List<RecordFieldSymbol> commonFields = unionTypeSymbol.memberTypeDescriptors().stream()
+                    .map(CommonUtil::getRawType)
+                    .map(typeSymbol -> (RecordTypeSymbol) typeSymbol)
+                    .map(RecordTypeSymbol::fieldDescriptors)
+                    .reduce((map1, map2) -> map1.entrySet().stream()
+                            .filter(e -> map2.containsKey(e.getKey()))
+                            .filter(e -> !fieldNames.contains(e.getKey()))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+                    .map(fieldMap -> new ArrayList<>(fieldMap.values()))
+                    .orElse(new ArrayList<>());
+            completionItems.addAll(this.getCompletionItemList(commonFields, context));
+        }
         return completionItems;
     }
 

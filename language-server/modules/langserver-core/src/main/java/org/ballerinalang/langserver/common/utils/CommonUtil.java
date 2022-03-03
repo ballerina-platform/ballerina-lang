@@ -1404,6 +1404,20 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the provided union type is a union of members of provided type desc kind.
+     *
+     * @param unionTypeSymbol Union type symbol
+     * @param typeDescKind    Type desc kind
+     * @return true if provided union contains members of provided type desc kind
+     */
+    public static boolean isUnionOfType(UnionTypeSymbol unionTypeSymbol, TypeDescKind typeDescKind) {
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .map(CommonUtil::getRawType)
+                .map(TypeSymbol::typeKind)
+                .allMatch(kind -> kind == typeDescKind);
+    }
+
+    /**
      * Get the completion item label for a given package.
      *
      * @param pkg {@link Package} package info to evaluate

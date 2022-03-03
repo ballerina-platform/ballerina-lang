@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -83,6 +84,12 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
 
         TypeSymbol typeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
         // key specifier or key constraint not allowed for map types
-        return typeSymbol.typeKind() == TypeDescKind.RECORD;
+        if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
+            return true;
+        }
+        
+        // Check if type is a union of records
+        return typeSymbol.typeKind() == TypeDescKind.UNION &&
+                CommonUtil.isUnionOfType((UnionTypeSymbol) typeSymbol, TypeDescKind.RECORD);
     }
 }
