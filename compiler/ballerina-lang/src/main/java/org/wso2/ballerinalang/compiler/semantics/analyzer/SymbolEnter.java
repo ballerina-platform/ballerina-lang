@@ -4316,6 +4316,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         invokableNode.symbol = funcSymbol;
         defineSymbol(invokableNode.name.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
+        SymbolEnv enclEnv = invokableEnv.enclEnv;
+        NodeKind enclEnvNodeKind = enclEnv.node.getKind();
+        if (enclEnvNodeKind == NodeKind.CLASS_DEFN || enclEnvNodeKind == NodeKind.OBJECT_TYPE) {
+            invokableEnv.enclEnv = enclEnv.enclEnv;
+        }
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
