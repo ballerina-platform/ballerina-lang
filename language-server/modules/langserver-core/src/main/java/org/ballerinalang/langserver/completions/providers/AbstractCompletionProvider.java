@@ -329,7 +329,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
-        List<Package> packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
+        List<Package> packages = new ArrayList<>();
+        packages.addAll(LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages());
+        packages.addAll(LSPackageLoader.getInstance(ctx.languageServercontext()).getRemoteRepoPackages(ctx));
+        packages.addAll(LSPackageLoader.getInstance(ctx.languageServercontext()).getLocalRepoPackages(ctx));
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = CommonUtil.escapeModuleName(pkg.packageOrg().value());

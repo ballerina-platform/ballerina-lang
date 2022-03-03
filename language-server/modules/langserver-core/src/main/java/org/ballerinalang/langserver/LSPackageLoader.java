@@ -21,11 +21,14 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
+import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -40,11 +43,12 @@ import java.util.Optional;
  * Loads the Ballerina builtin core and builtin packages.
  */
 public class LSPackageLoader {
+
     private static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
     private final List<Package> distRepoPackages;
-    
+
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
         if (lsPackageLoader == null) {
@@ -96,11 +100,83 @@ public class LSPackageLoader {
 
     /**
      * Get the distribution repo packages.
-     * Here the distRepoPackages does not contain the langlib packages and ballerinai packages 
+     * Here the distRepoPackages does not contain the langlib packages and ballerinai packages
      *
      * @return {@link List} of distribution repo packages
      */
     public List<Package> getDistributionRepoPackages() {
         return this.distRepoPackages;
+    }
+
+    public List<Package> getLocalRepoPackages(DocumentServiceContext ctx) {
+        Optional<Project> project = ctx.workspace().project(ctx.filePath());
+        if (project.isEmpty()) {
+            return Collections.emptyList();
+        }
+        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
+                .from(project.get().projectEnvironmentContext().environment());
+        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
+        List<Package> localRepoPackages = new ArrayList<>();
+        Map<String, List<String>> localRepoPackageMap = localRepository.getPackages();
+        localRepoPackageMap.forEach((key, value) -> {
+            if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
+                return;
+            }
+            value.forEach(nameEntry -> {
+                String[] components = nameEntry.split(":");
+                if (components.length != 2) {
+                    return;
+                }
+                String nameComponent = components[0];
+                String version = components[1];
+                PackageOrg packageOrg = PackageOrg.from(key);
+                PackageName packageName = PackageName.from(nameComponent);
+                PackageVersion pkgVersion = PackageVersion.from(version);
+                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
+                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+
+                Optional<Package> repoPackage = localRepository.getPackage(request,
+                        ResolutionOptions.builder().setOffline(true).build());
+                repoPackage.ifPresent(localRepoPackages::add);
+            });
+        });
+
+        return localRepoPackages;
+    }
+
+    public List<Package> getRemoteRepoPackages(DocumentServiceContext ctx) {
+        Optional<Project> project = ctx.workspace().project(ctx.filePath());
+        if (project.isEmpty()) {
+            return Collections.emptyList();
+        }
+        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
+                .from(project.get().projectEnvironmentContext().environment());
+        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
+        List<Package> remoteRepoPackages = new ArrayList<>();
+        Map<String, List<String>> remoteRepoPackageMap = remoteRepository.getPackages();
+        remoteRepoPackageMap.forEach((key, value) -> {
+            if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
+                return;
+            }
+            value.forEach(nameEntry -> {
+                String[] components = nameEntry.split(":");
+                if (components.length != 2) {
+                    return;
+                }
+                String nameComponent = components[0];
+                String version = components[1];
+                PackageOrg packageOrg = PackageOrg.from(key);
+                PackageName packageName = PackageName.from(nameComponent);
+                PackageVersion pkgVersion = PackageVersion.from(version);
+                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
+                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+
+                Optional<Package> repoPackage = remoteRepository.getPackage(request,
+                        ResolutionOptions.builder().setOffline(true).build());
+                repoPackage.ifPresent(remoteRepoPackages::add);
+            });
+        });
+
+        return remoteRepoPackages;
     }
 }

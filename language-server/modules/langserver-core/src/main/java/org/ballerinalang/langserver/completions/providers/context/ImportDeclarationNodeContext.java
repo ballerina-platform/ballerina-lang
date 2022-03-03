@@ -186,8 +186,10 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     private ArrayList<LSCompletionItem> orgNameContextCompletions(BallerinaCompletionContext ctx) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Package> pkgList = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
-
+        List<Package> pkgList = new ArrayList<>();
+        pkgList.addAll(LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages());
+        pkgList.addAll(LSPackageLoader.getInstance(ctx.languageServercontext()).getRemoteRepoPackages(ctx));
+        pkgList.addAll(LSPackageLoader.getInstance(ctx.languageServercontext()).getLocalRepoPackages(ctx));
         pkgList.forEach(pkg -> {
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
@@ -367,7 +369,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         if (semicolon.isMissing()) {
             return true;
         }
-        
+
         return cursor < semicolon.textRange().endOffset();
     }
 
