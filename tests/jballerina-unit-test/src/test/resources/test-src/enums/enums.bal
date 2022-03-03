@@ -117,9 +117,11 @@ function testEnumInRecursiveArray() {
 
     ApproxType b = "boolean";
     assert(b, "boolean");
+    assert(b, 'boolean);
 
     Keyword i = "int";
     assert(i, "int");
+    assert(i, 'int);
 }
 
 public enum CallState {
@@ -129,6 +131,7 @@ public enum CallState {
 function testEnumMemberContainingNumericEscape() {
     CallState state = "new\\";
     assert(state, "new\\");
+    assert('new\u{5C}, "new\\");
 }
 
 function assert(anydata actual, anydata expected) {
