@@ -126,9 +126,6 @@ public class LangLibrary {
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib, BType type,
                                     BType boundTypeParam) {
         for (BInvokableSymbol symbol : langLib.values()) {
-            if (symbol.origin == SymbolOrigin.VIRTUAL) {
-                continue;
-            }
             String name = symbol.getOriginalName().getValue();
             BInvokableSymbol duplicate = methodBinder.cloneAndBind(symbol, type, boundTypeParam);
             FunctionSymbol method = symbolFactory.createFunctionSymbol(duplicate, name);

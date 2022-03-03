@@ -47,6 +47,7 @@ public class RuntimeConstants {
     public static final String ORG_NAME_SEPARATOR = "/";
     public static final String VERSION_SEPARATOR = ":";
     public static final String UNDERSCORE = "_";
+    public static final String COLON = ":";
     public static final char DOLLAR = '$';
 
     public static final String BLANG_SRC_FILE_EXT = "bal";
