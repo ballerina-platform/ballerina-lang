@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,6 +51,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
@@ -64,7 +66,7 @@ public class BreakpointProcessor {
 
     private final ExecutionContext context;
     private final JDIEventProcessor jdiEventProcessor;
-    private final Map<String, Map<Integer, BalBreakpoint>> userBreakpoints = new HashMap<>();
+    private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
 
     public BreakpointProcessor(ExecutionContext context, JDIEventProcessor jdiEventProcessor) {
@@ -72,8 +74,21 @@ public class BreakpointProcessor {
         this.jdiEventProcessor = jdiEventProcessor;
     }
 
-    public Map<String, Map<Integer, BalBreakpoint>> userBreakpoints() {
-        return userBreakpoints;
+    public List<BalBreakpoint> getAllUserBreakpoints() {
+        return userBreakpoints.values().stream()
+                .flatMap(breakpointMap -> breakpointMap.values().stream())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Updates the user breakpoints map with a list of breakpoints against its source.
+     *
+     * @param sourcePath  source file path which contains the given breakpoint.
+     * @param breakpoints the map of breakpoints against the line numbers.
+     */
+    public void addSourceBreakpoints(String sourcePath, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
+        Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePath);
+        qualifiedClassName.ifPresent(s -> userBreakpoints.put(s, breakpoints));
     }
 
     /**
@@ -84,7 +99,7 @@ public class BreakpointProcessor {
      */
     void processBreakpointEvent(BreakpointEvent bpEvent) {
         ReferenceType bpReference = bpEvent.location().declaringType();
-        String qualifiedClassName = getQualifiedClassName(context, bpReference);
+        String qualifiedClassName = getQualifiedClassName(bpReference);
         Map<Integer, BalBreakpoint> fileBreakpoints = userBreakpoints.get(qualifiedClassName);
         int lineNumber = bpEvent.location().lineNumber();
 
@@ -168,7 +183,7 @@ public class BreakpointProcessor {
     }
 
     /**
-     * Activates user-configured source breakpoints via Java Debug Interface(JDI).
+     * Activates user-configured source breakpoints in the program VM, via Java Debug Interface(JDI).
      *
      * @param referenceType represent the type of an object in the remote VM
      */
@@ -181,14 +196,15 @@ public class BreakpointProcessor {
                 return;
             }
 
-            String qualifiedClassName = getQualifiedClassName(context, referenceType);
+            String qualifiedClassName = getQualifiedClassName(referenceType);
             if (!userBreakpoints.containsKey(qualifiedClassName)) {
                 return;
             }
             Map<Integer, BalBreakpoint> breakpoints = this.userBreakpoints.get(qualifiedClassName);
-            for (BalBreakpoint bp : breakpoints.values()) {
-                List<Location> locations = referenceType.locationsOfLine(bp.getLine());
+            for (BalBreakpoint breakpoint : breakpoints.values()) {
+                List<Location> locations = referenceType.locationsOfLine(breakpoint.getLine());
                 if (!locations.isEmpty()) {
+                    breakpoint.setVerified(true);
                     Location loc = locations.get(0);
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
                     bpReq.enable();

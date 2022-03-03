@@ -110,6 +110,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -205,24 +206,25 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
-        BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
-                .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
-                .toArray(BalBreakpoint[]::new);
+        return CompletableFuture.supplyAsync(() -> {
+            BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
+                    .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
+                    .toArray(BalBreakpoint[]::new);
 
-        Breakpoint[] breakpoints = Arrays.stream(balBreakpoints)
-                .map(BalBreakpoint::getAsDAPBreakpoint)
-                .toArray(Breakpoint[]::new);
+            LinkedHashMap<Integer, BalBreakpoint> breakpointsMap = new LinkedHashMap<>();
+            for (BalBreakpoint bp : balBreakpoints) {
+                breakpointsMap.put(bp.getLine(), bp);
+            }
+            String sourcePath = args.getSource().getPath();
+            eventProcessor.enableBreakpoints(sourcePath, breakpointsMap);
 
-        Map<Integer, BalBreakpoint> breakpointsMap = new HashMap<>();
-        for (BalBreakpoint bp : balBreakpoints) {
-            breakpointsMap.put(bp.getLine(), bp);
-        }
-
-        SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
-        breakpointsResponse.setBreakpoints(breakpoints);
-        String sourcePath = args.getSource().getPath();
-        eventProcessor.setBreakpoints(sourcePath, breakpointsMap);
-        return CompletableFuture.completedFuture(breakpointsResponse);
+            SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
+            Breakpoint[] breakpoints = eventProcessor.getBreakpointProcessor().getAllUserBreakpoints().stream()
+                    .map(BalBreakpoint::getAsDAPBreakpoint)
+                    .toArray(Breakpoint[]::new);
+            breakpointsResponse.setBreakpoints(breakpoints);
+            return breakpointsResponse;
+        });
     }
 
     @Override

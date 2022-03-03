@@ -37,10 +37,12 @@ public class BalBreakpoint {
     private final int line;
     private String condition;
     private LogMessage logMessage;
+    private boolean isVerified;
 
     public BalBreakpoint(Source source, int line) {
         this.source = source;
         this.line = line;
+        this.isVerified = false;
     }
 
     public Integer getLine() {
@@ -71,11 +73,15 @@ public class BalBreakpoint {
         }
     }
 
+    public void setVerified(boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
     public Breakpoint getAsDAPBreakpoint() {
         Breakpoint breakpoint = new Breakpoint();
         breakpoint.setLine(line);
         breakpoint.setSource(source);
-        breakpoint.setVerified(true);
+        breakpoint.setVerified(isVerified);
         return breakpoint;
     }
 
