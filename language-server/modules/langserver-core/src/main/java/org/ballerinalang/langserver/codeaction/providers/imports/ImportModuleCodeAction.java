@@ -64,13 +64,8 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                 diagnosticMessage.lastIndexOf("'"));
-        List<Package> packagesList = new ArrayList<>();
-        packagesList.addAll(LSPackageLoader
-                .getInstance(context.languageServercontext()).getDistributionRepoPackages());
-        packagesList.addAll(LSPackageLoader
-                .getInstance(context.languageServercontext()).getRemoteRepoPackages(context));
-        packagesList.addAll(LSPackageLoader
-                .getInstance(context.languageServercontext()).getLocalRepoPackages(context));
+        List<Package> packagesList = LSPackageLoader
+                .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
         packagesList.stream()
                 .filter(pkgEntry -> {

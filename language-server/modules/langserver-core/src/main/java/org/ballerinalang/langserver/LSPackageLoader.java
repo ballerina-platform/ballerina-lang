@@ -68,17 +68,42 @@ public class LSPackageLoader {
         // Creating a Ballerina distribution instance
         BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
         PackageRepository packageRepository = ballerinaDistribution.packageRepository();
-        Map<String, List<String>> pkgMap = packageRepository.getPackages();
-
-        List<Package> packages = new ArrayList<>();
         List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
-        pkgMap.forEach((key, value) -> {
+        return Collections.unmodifiableList(getPackagesFromRepository(packageRepository, skippedLangLibs));
+    }
+
+    private List<Package> getLocalRepoPackages(DocumentServiceContext ctx) {
+        Optional<Project> project = ctx.workspace().project(ctx.filePath());
+        if (project.isEmpty()) {
+            return Collections.emptyList();
+        }
+        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
+                .from(project.get().projectEnvironmentContext().environment());
+        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
+        return getPackagesFromRepository(localRepository, Collections.emptyList());
+    }
+
+    private List<Package> getRemoteRepoPackages(DocumentServiceContext ctx) {
+        Optional<Project> project = ctx.workspace().project(ctx.filePath());
+        if (project.isEmpty()) {
+            return Collections.emptyList();
+        }
+        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
+                .from(project.get().projectEnvironmentContext().environment());
+        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
+        return getPackagesFromRepository(remoteRepository, Collections.emptyList());
+    }
+
+    private List<Package> getPackagesFromRepository(PackageRepository repository, List<String> skipList) {
+        List<Package> packages = new ArrayList<>();
+        Map<String, List<String>> packageMap = repository.getPackages();
+        packageMap.forEach((key, value) -> {
             if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
             }
             value.forEach(nameEntry -> {
                 String[] components = nameEntry.split(":");
-                if (components.length != 2 || skippedLangLibs.contains(components[0])) {
+                if (components.length != 2 || skipList.contains(components[0])) {
                     return;
                 }
                 String nameComponent = components[0];
@@ -89,13 +114,13 @@ public class LSPackageLoader {
                 PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
                 ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
-                Optional<Package> repoPackage = packageRepository.getPackage(request,
+                Optional<Package> repoPackage = repository.getPackage(request,
                         ResolutionOptions.builder().setOffline(true).build());
                 repoPackage.ifPresent(packages::add);
             });
         });
 
-        return Collections.unmodifiableList(packages);
+        return packages;
     }
 
     /**
@@ -108,75 +133,14 @@ public class LSPackageLoader {
         return this.distRepoPackages;
     }
 
-    public List<Package> getLocalRepoPackages(DocumentServiceContext ctx) {
-        Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        if (project.isEmpty()) {
-            return Collections.emptyList();
-        }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
-        List<Package> localRepoPackages = new ArrayList<>();
-        Map<String, List<String>> localRepoPackageMap = localRepository.getPackages();
-        localRepoPackageMap.forEach((key, value) -> {
-            if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
-                return;
-            }
-            value.forEach(nameEntry -> {
-                String[] components = nameEntry.split(":");
-                if (components.length != 2) {
-                    return;
-                }
-                String nameComponent = components[0];
-                String version = components[1];
-                PackageOrg packageOrg = PackageOrg.from(key);
-                PackageName packageName = PackageName.from(nameComponent);
-                PackageVersion pkgVersion = PackageVersion.from(version);
-                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
-
-                Optional<Package> repoPackage = localRepository.getPackage(request,
-                        ResolutionOptions.builder().setOffline(true).build());
-                repoPackage.ifPresent(localRepoPackages::add);
-            });
-        });
-
-        return localRepoPackages;
+    public List<Package> getAllVisiblePackages(DocumentServiceContext ctx) {
+        List<Package> packagesList = new ArrayList<>();
+        packagesList.addAll(this.distRepoPackages);
+        packagesList.addAll(LSPackageLoader
+                .getInstance(ctx.languageServercontext()).getRemoteRepoPackages(ctx));
+        packagesList.addAll(LSPackageLoader
+                .getInstance(ctx.languageServercontext()).getLocalRepoPackages(ctx));
+        return packagesList;
     }
 
-    public List<Package> getRemoteRepoPackages(DocumentServiceContext ctx) {
-        Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        if (project.isEmpty()) {
-            return Collections.emptyList();
-        }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        List<Package> remoteRepoPackages = new ArrayList<>();
-        Map<String, List<String>> remoteRepoPackageMap = remoteRepository.getPackages();
-        remoteRepoPackageMap.forEach((key, value) -> {
-            if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
-                return;
-            }
-            value.forEach(nameEntry -> {
-                String[] components = nameEntry.split(":");
-                if (components.length != 2) {
-                    return;
-                }
-                String nameComponent = components[0];
-                String version = components[1];
-                PackageOrg packageOrg = PackageOrg.from(key);
-                PackageName packageName = PackageName.from(nameComponent);
-                PackageVersion pkgVersion = PackageVersion.from(version);
-                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
-
-                Optional<Package> repoPackage = remoteRepository.getPackage(request,
-                        ResolutionOptions.builder().setOffline(true).build());
-                repoPackage.ifPresent(remoteRepoPackages::add);
-            });
-        });
-
-        return remoteRepoPackages;
-    }
 }
