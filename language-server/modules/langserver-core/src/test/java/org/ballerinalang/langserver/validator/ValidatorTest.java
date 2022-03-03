@@ -49,9 +49,9 @@ public class ValidatorTest {
                 {"validateNamedArgumentNode.bal", 2, 18, true},
                 {"validateListConstructorExpressionNode.bal", 2, 15, true},
                 {"validateCheckExpressionNode.bal", 2, 21, true},
-                {"validateTableTypeDescriptorNode.bal", 7, 38, true},
+                {"validateTableTypeDescriptorNode.bal", 6, 38, true},
                 {"validateExternalTreeNodeList.bal", 2, 21, false},
-                {"validateSpreadFieldNode.bal", 7, 24, true},
+                {"validateSpreadFieldNode.bal", 6, 24, true},
                 {"validatePositionalArgumentNode.bal", 2, 20, true},
                 {"validateRestArgumentNode.bal", 3, 15, true}
         };
