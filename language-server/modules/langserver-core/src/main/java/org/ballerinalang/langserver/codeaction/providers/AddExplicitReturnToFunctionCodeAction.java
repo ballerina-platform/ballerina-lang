@@ -87,11 +87,6 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
         return NAME;
     }
 
-    @Override
-    public boolean validate(CodeActionContext ctx) {
-        return true;
-    }
-
     private Optional<FunctionDefinitionNode> getFunctionDefinition(NonTerminalNode node) {
         NonTerminalNode functionDef = null;
         NonTerminalNode parent = node;

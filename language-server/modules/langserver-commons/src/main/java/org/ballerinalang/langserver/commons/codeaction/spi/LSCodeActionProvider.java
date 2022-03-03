@@ -103,5 +103,9 @@ public interface LSCodeActionProvider {
      *
      * @return True if syntactically correct, false otherwise.
      */
-    boolean validate(CodeActionContext ctx);
+    default boolean validate(Diagnostic diagnostic,
+                             DiagBasedPositionDetails positionDetails,
+                             CodeActionContext context) {
+        return true;
+    }
 }

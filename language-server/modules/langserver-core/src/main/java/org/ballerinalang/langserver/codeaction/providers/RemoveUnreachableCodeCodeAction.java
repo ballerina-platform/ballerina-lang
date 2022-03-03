@@ -58,9 +58,4 @@ public class RemoveUnreachableCodeCodeAction extends AbstractCodeActionProvider 
     public String getName() {
         return CODE_ACTION_NAME;
     }
-
-    @Override
-    public boolean validate(CodeActionContext ctx) {
-        return true;
-    }
 }

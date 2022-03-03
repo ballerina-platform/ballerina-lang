@@ -145,9 +145,4 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
     public String getName() {
         return null;
     }
-
-    @Override
-    public boolean validate(CodeActionContext ctx) {
-        return true;
-    }
 }

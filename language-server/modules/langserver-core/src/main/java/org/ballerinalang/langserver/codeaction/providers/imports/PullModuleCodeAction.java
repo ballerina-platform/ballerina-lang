@@ -72,11 +72,6 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
-    @Override
-    public boolean validate(CodeActionContext ctx) {
-        return true;
-    }
-
     /**
      * Returns the missing module's name taken from diagnostic properties.
      *
