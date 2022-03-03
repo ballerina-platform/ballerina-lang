@@ -63,7 +63,7 @@ public class CliSpec {
             mainArgs.add(optionLocation, recordVal);
         } else {
             RecordType type = TypeCreator.createRecordType("dummy", null, 1, new HashMap<>(), null, true, 6);
-            Option dummyOption = new Option(type, ValueCreator.createMapValue(type));
+            Option dummyOption = new Option(type, ValueCreator.createRecordValue(type));
             dummyOption.parseRecord(args);
             processOperands(dummyOption.getOperandArgs());
         }

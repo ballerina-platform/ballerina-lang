@@ -21,7 +21,6 @@ package io.ballerina.compiler.api.impl;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -36,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -102,7 +102,12 @@ public class LangLibrary {
      * @return The associated list of lang library functions
      */
     public List<FunctionSymbol> getMethods(BType type) {
-        String langLibName = getAssociatedLangLibName(type.getKind());
+        String langLibName;
+        if (type.getKind() == TypeKind.UNION && types.isAllErrorMembers((BUnionType) type)) {
+            langLibName = TypeKind.ERROR.typeName();
+        } else {
+            langLibName = getAssociatedLangLibName(type.getKind());
+        }
         return getMethods(langLibName, type);
     }
 

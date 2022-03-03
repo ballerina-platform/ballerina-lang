@@ -346,7 +346,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Lock extends BIRTerminator {
-        public final BIRBasicBlock lockedBB;
+        public BIRBasicBlock lockedBB;
 
         public Set<BIRGlobalVariableDcl> lockVariables = new HashSet<>();
 
@@ -390,7 +390,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class FieldLock extends BIRTerminator {
         public BIROperand localVar;
         public String field;
-        public final BIRBasicBlock lockedBB;
+        public BIRBasicBlock lockedBB;
 
         public FieldLock(Location pos, BIROperand localVar, String field, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.FIELD_LOCK);
@@ -423,7 +423,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Unlock extends BIRTerminator {
-        public final BIRBasicBlock unlockBB;
+        public BIRBasicBlock unlockBB;
 
         public BIRTerminator.Lock relatedLock;
 

@@ -29,8 +29,8 @@ import io.ballerina.toml.semantic.ast.TomlNode;
  */
 public class TomlConfigValue implements ConfigValue {
     private static final ConfigValueCreator valueCreator = new ConfigValueCreator();
-    private Object value;
-    private Type type;
+    private final Object value;
+    private final Type type;
 
     public TomlConfigValue(Object value, Type type) {
         this.value = value;

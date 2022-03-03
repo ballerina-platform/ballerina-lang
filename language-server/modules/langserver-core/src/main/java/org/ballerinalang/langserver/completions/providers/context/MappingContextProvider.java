@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -75,7 +74,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return CommonUtil.getVariableFilterPredicate().or(symbol -> symbol.kind() == SymbolKind.CONSTANT);
     }
 
-    protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    protected boolean withinValueExpression(BallerinaCompletionContext context, Node evalNodeAtCursor) {
         Token colon;
         if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
             Optional<Token> optionalColon = ((SpecificFieldNode) evalNodeAtCursor).colon();
@@ -139,13 +138,13 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return this.getCompletionItemList(moduleContent, context);
     }
 
-    protected boolean hasReadonlyKW(NonTerminalNode evalNodeAtCursor) {
+    protected boolean hasReadonlyKW(Node evalNodeAtCursor) {
         return ((evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD)
                 && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
     }
 
     protected List<LSCompletionItem> getFieldCompletionItems(BallerinaCompletionContext context, Node node,
-                                                             NonTerminalNode evalNode) {
+                                                             Node evalNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (!this.hasReadonlyKW(evalNode)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
@@ -160,8 +159,9 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
             if (!fields.values().isEmpty()) {
-                completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields,
-                        recordTypeSymbol));
+                Optional<LSCompletionItem> fillAllStructFieldsItem =
+                        CommonUtil.getFillAllStructFieldsItem(context, fields, recordTypeSymbol);
+                fillAllStructFieldsItem.ifPresent(completionItems::add);
             }
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }
@@ -199,12 +199,15 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         return this.expressionCompletions(context);
     }
 
-    protected NonTerminalNode getEvalNode(BallerinaCompletionContext context) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
-                ? nodeAtCursor.parent() : nodeAtCursor;
-        return evalNode;
+    protected Optional<Node> getEvalNode(BallerinaCompletionContext context) {
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(context.getNodeAtCursor(), predicate);
     }
 
     protected Map<String, RecordFieldSymbol> getValidFields(T node, RecordTypeSymbol recordTypeSymbol) {

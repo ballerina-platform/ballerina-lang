@@ -123,6 +123,9 @@
           "message": {
             "pattern": "invalid 'icon' under [package]: 'icon' can only have 'png' images"
           }
+        },
+        "template": {
+          "type": "boolean"
         }
       }
     },

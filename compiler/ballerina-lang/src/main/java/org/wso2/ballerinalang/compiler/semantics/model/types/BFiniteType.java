@@ -78,12 +78,19 @@ public class BFiniteType extends BType implements FiniteType {
     public String toString() {
         StringJoiner joiner = new StringJoiner("|");
         for (BLangExpression value : this.valueSpace) {
-            if (value.getBType().tag == TypeTags.FLOAT) {
-                joiner.add(value.toString() + "f");
-            } else if (value.getBType().tag == TypeTags.DECIMAL) {
-                joiner.add(value.toString() + "d");
-            } else {
-                joiner.add(value.toString());
+            switch (value.getBType().tag) {
+                case TypeTags.FLOAT:
+                    joiner.add(value + "f");
+                    break;
+                case TypeTags.DECIMAL:
+                    joiner.add(value + "d");
+                    break;
+                case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
+                    joiner.add("\"" + value + "\"");
+                    break;
+                default:
+                    joiner.add(value.toString());
             }
         }
         return joiner.toString();

@@ -163,6 +163,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 this.bStringValues = new BString[initialArraySize];
+                if (arrayType.getState() == ArrayState.CLOSED) {
+                    fillerValueCheck(initialArraySize, initialArraySize);
+                    fillValues(initialArraySize);
+                }
                 break;
             case TypeTags.BOOLEAN_TAG:
                 this.booleanValues = new boolean[initialArraySize];

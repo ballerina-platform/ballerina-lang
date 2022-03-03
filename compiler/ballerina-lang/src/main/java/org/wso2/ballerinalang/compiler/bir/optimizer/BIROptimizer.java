@@ -58,6 +58,7 @@ public class BIROptimizer {
     private final LHSTempVarOptimizer lhsTempVarOptimizer;
     private final BIRLockOptimizer lockOptimizer;
 //    private final BirVariableOptimizer variableOptimizer;
+    private final BIRBasicBlockOptimizer bbOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -74,6 +75,7 @@ public class BIROptimizer {
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
         this.lockOptimizer = new BIRLockOptimizer();
 //        this.variableOptimizer = new BirVariableOptimizer();
+        this.bbOptimizer = new BIRBasicBlockOptimizer();
     }
 
     public void optimizePackage(BIRPackage pkg) {
@@ -86,6 +88,9 @@ public class BIROptimizer {
         // Optimize lock statements
         this.lockOptimizer.optimizeNode(pkg);
 //        variableOptimizer.optimizeNode(pkg);
+
+        // Optimize BB - unnecessary goto removal
+        bbOptimizer.optimizeNode(pkg, null);
     }
 
     /**
@@ -653,6 +658,8 @@ public class BIROptimizer {
         private final List<BIRVariableDcl> multipleBBUsedTempVars = new ArrayList<>();
 
         public BIRBasicBlock currentBB;
+
+        public BIRBasicBlock nextBB;
 
         public boolean isTerminator;
 

@@ -76,6 +76,7 @@ public class ValueUtils {
         BMap<BString, Object> record = createRecordValue(packageId, recordTypeName);
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             Object val = fieldEntry.getValue();
+            // TODO: Remove the following String to BString conversion.
             if (val instanceof String) {
                 val = StringUtils.fromString((String) val);
             }
