@@ -56,7 +56,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private String escapedName;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
-        super(bField.name.value, kind, bField.symbol, context);
+        super(bField.symbol.getOriginalName().value, kind, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
@@ -64,15 +64,6 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField) {
         this(context, bField, OBJECT_FIELD);
-    }
-
-    @Override
-    public Optional<String> getName() {
-        if (this.escapedName != null) {
-            return Optional.of(this.escapedName);
-        }
-        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
-        return Optional.ofNullable(this.escapedName);
     }
 
     @Override
