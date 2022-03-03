@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CodeAction;
@@ -65,9 +64,13 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                 diagnosticMessage.lastIndexOf("'"));
-        LanguageServerContext serverContext = context.languageServercontext();
-        List<Package> packagesList =
-                new ArrayList<>(LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages());
+        List<Package> packagesList = new ArrayList<>();
+        packagesList.addAll(LSPackageLoader
+                .getInstance(context.languageServercontext()).getDistributionRepoPackages());
+        packagesList.addAll(LSPackageLoader
+                .getInstance(context.languageServercontext()).getRemoteRepoPackages(context));
+        packagesList.addAll(LSPackageLoader
+                .getInstance(context.languageServercontext()).getLocalRepoPackages(context));
 
         packagesList.stream()
                 .filter(pkgEntry -> {
