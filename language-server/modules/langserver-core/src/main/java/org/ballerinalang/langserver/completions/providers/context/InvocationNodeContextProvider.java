@@ -115,11 +115,11 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             if (parameterSymbol.paramKind() == ParameterKind.REQUIRED ||
                     parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE) {
                 Optional<String> paramName = parameterSymbol.getName();
-                TypeSymbol paramType = parameterSymbol.typeDescriptor();
-                String defaultValue = CommonUtil.getDefaultValueForType(paramType).orElse("");
                 if (paramName.isEmpty() || paramName.get().isEmpty() || existingNamedArgs.contains(paramName.get())) {
                     continue;
                 }
+                String defaultValue = CommonUtil.getDefaultValueForType(parameterSymbol.typeDescriptor())
+                        .orElse("");
                 CompletionItem completionItem = NamedArgCompletionItemBuilder.build(paramName.get(), defaultValue);
                 completionItems.add(
                         new NamedArgCompletionItem(context, completionItem, Either.forLeft(parameterSymbol)));
@@ -133,12 +133,12 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                 List<RecordFieldSymbol> recordFields = CommonUtil.getMandatoryRecordFields(includedRecordType);
                 recordFields.forEach(recordFieldSymbol -> {
                     Optional<String> fieldName = recordFieldSymbol.getName();
-                    TypeSymbol fieldType = recordFieldSymbol.typeDescriptor();
-                    String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("");
-                    if (fieldName.isEmpty() || fieldName.get().isEmpty() ||
+                    if (fieldName.isEmpty() || fieldName.get().isEmpty() || 
                             existingNamedArgs.contains(fieldName.get())) {
                         return;
                     }
+                    TypeSymbol fieldType = recordFieldSymbol.typeDescriptor();
+                    String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("");
                     CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), defaultValue);
                     completionItems.add(
                             new NamedArgCompletionItem(context, completionItem, Either.forRight(recordFieldSymbol)));
