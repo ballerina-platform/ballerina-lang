@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -87,7 +88,8 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
         });
 
         String commandTitle = "Implement all";
-        CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
+        CodeAction quickFixCodeAction = createCodeAction(commandTitle, edits, context.fileUri(),
+                CodeActionKind.QuickFix);
         quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(diags));
         return Collections.singletonList(quickFixCodeAction);
     }

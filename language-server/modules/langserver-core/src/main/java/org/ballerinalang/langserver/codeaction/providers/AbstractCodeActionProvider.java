@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDeta
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -116,10 +115,9 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * @param uri          uri
      * @return {@link CodeAction}
      */
-    public static CodeAction createQuickFixCodeAction(String commandTitle, List<TextEdit> edits, String uri) {
+    public static CodeAction createCodeAction(String commandTitle, List<TextEdit> edits, String uri) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         CodeAction action = new CodeAction(commandTitle);
-        action.setKind(CodeActionKind.QuickFix);
         action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                 new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));

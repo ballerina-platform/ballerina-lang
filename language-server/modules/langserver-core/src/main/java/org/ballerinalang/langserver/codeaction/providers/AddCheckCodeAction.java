@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -105,8 +106,7 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             pos = CommonUtil.toRange(bracedExpressionNode.expression().location().lineRange()).getStart();
         }
 
-        List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+        List<TextEdit> edits = new ArrayList<>(CodeActionUtil.getAddCheckTextEdits(
                 pos, positionDetails.matchedNode(), context));
         if (edits.isEmpty()) {
             return Collections.emptyList();
@@ -117,11 +117,11 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             Optional<TypeSymbol> tSymbol = context.currentSemanticModel().get().typeOf(waitActionNode.waitFutureExpr());
             if (tSymbol.isPresent() && CommonUtil.getRawType(tSymbol.get()).typeKind() != TypeDescKind.FUTURE) {
                 return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
-                        CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri(), ""));
+                        CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
             }
         }
-        return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(
-                CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
+        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+                CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri(), CodeActionKind.QuickFix));
     }
 
     @Override
