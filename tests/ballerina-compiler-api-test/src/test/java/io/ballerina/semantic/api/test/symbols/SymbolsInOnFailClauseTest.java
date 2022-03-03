@@ -40,8 +40,6 @@ import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for on-fail clause.
- *
- * @since 2.0.0
  */
 public class SymbolsInOnFailClauseTest {
 
@@ -56,7 +54,7 @@ public class SymbolsInOnFailClauseTest {
     }
 
     @Test(dataProvider = "OnFailPosProvider")
-    public void onFailTest(int line, int sCol, int eCol, TypeDescKind typeKind, String name) {
+    public void testOnFailSymbolPositions(int line, int sCol, int eCol, TypeDescKind typeKind, String name) {
         Optional<TypeSymbol> type = model.typeOf(
                 LineRange.from(srcFile.name(), LinePosition.from(line, sCol), LinePosition.from(line, eCol)));
         assertTrue(type.isPresent());
@@ -65,7 +63,7 @@ public class SymbolsInOnFailClauseTest {
     }
 
     @DataProvider(name = "OnFailPosProvider")
-    public Object[][] onFailTest() {
+    public Object[][] getOnFailSymbolPositions() {
         return new Object[][]{
                 {21, 20, 23, ERROR, "err"},
                 {30, 20, 23, ERROR, "err"},
