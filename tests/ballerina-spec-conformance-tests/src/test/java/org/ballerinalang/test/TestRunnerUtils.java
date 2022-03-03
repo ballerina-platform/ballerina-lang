@@ -200,17 +200,31 @@ public class TestRunnerUtils {
 
     private static void validateLabels(String labels, Set<String> selectedLabels) {
         List<String> labelsList = new ArrayList<>();
-        for (String label : labels.split(",")) {
-            labelsList.add(label.trim());
-        }
+        StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
-        for (String label : labelsList) {
-            if (!selectedLabels.contains(label)) {
-                unknownLabels.add(label);
+
+        for (String label : labels.split(",")) {
+            String trimmedLabel = label.trim();
+            if (labelsList.contains(trimmedLabel)) {
+                duplicateLabels.add(trimmedLabel);
+                continue;
             }
+            if (!selectedLabels.contains(trimmedLabel)) {
+                unknownLabels.add(trimmedLabel);
+            }
+            labelsList.add(trimmedLabel);
         }
-        if (unknownLabels.length() != 0) {
-            reportDiagnostics("unknown labels: " + unknownLabels);
+
+        boolean hasUnknownLabels = unknownLabels.length() != 0;
+        boolean hasDuplicateLabels = duplicateLabels.length() != 0;
+
+        String diagnosticMsg = hasUnknownLabels ? (hasDuplicateLabels ?
+                "Unknown labels: " + unknownLabels + "\n Duplicate labels: " + duplicateLabels :
+                "Unknown labels: " + unknownLabels) :
+                (hasDuplicateLabels ? "Duplicate labels: " + duplicateLabels : "");
+
+        if (!diagnosticMsg.isEmpty()) {
+            reportDiagnostics(diagnosticMsg);
         }
     }
 
@@ -514,7 +528,7 @@ public class TestRunnerUtils {
     public static void setDetailsOfErrorKindTests(ITestContext context, Map<String, String> detailsOfTest) {
         Map<String, Object> detailsOfErrorKindTests = getDetailsOfErrorKindTests(context);
 
-        boolean haveOnlyNulls = detailsOfErrorKindTests.values().stream().allMatch(Objects::isNull);;
+        boolean haveOnlyNulls = detailsOfErrorKindTests.values().stream().allMatch(Objects::isNull);
 
         if (!haveOnlyNulls) {
             int absLineNo = Integer.parseInt(detailsOfTest.get(ABS_LINE_NUM));
