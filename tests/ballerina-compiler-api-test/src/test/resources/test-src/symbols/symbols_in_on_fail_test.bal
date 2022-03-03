@@ -77,7 +77,7 @@ function testTransactionOnFail() {
         }
         check commit;
     } on fail error e {
-         string s = e.message() + x.toString();
+        string s = e.message() + x.toString();
     }
 }
 

@@ -72,8 +72,8 @@ public class SymbolsInOnFailClauseTest {
                 {38, 20, 23, ERROR, "err"},
                 {54, 20, 21, ERROR, "e"},
                 {67, 23, 26, ERROR, "err"},
-                {79, 20, 21, ERROR, "e"},
-//                {88, 20, 21, ERROR, "e"}
+                {79, 19, 20, ERROR, "e"},
+                {88, 19, 20, ERROR, "e"}
         };
     }
 }
