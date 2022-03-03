@@ -758,8 +758,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
         // Modify BType if Unary expressions were found
-        if (foundUnaryExpr) {
-            BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
+        BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
+        if (foundUnaryExpr && finiteType != null) {
             finiteType.setValueSpace(newValueSpace);
         }
     }
@@ -4144,14 +4144,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         BLangExpression expression = constant.expr;
-        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL)
-                && constant.typeNode == null) {
+        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
+        expression.getKind() != NodeKind.UNARY_EXPR && constant.typeNode == null) {
             constant.setBType(symTable.semanticError);
             dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
-            return; // This has to return, because constant.symbol.type is required for further validations.
+            // This has to return, because constant.symbol.type is required for further validations.
+            // ATM only special cased for unary expressions.
+            return;
         }
 
-        typeChecker.checkExpr(expression, env, constant.symbol.type);
+        BType constExprType = typeChecker.checkExpr(expression, env, constant.symbol.type);
+
+        if (expression.getKind() == NodeKind.UNARY_EXPR) {
+            constant.symbol.type = constExprType;
+            constant.symbol.literalType = constExprType;
+        }
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);

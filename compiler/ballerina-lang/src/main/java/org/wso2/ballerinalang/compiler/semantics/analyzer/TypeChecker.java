@@ -4901,6 +4901,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        // If typeNode is of finite type with unary expressions in the value space, we need to
+        // convert them into numeric literals.
+        if (conversionExpr.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
+            semanticAnalyzer.analyzeNode(conversionExpr.typeNode, this.env);
+        }
+
         BType targetType = getEffectiveReadOnlyType(conversionExpr.typeNode.pos,
                                                     symResolver.resolveTypeNode(conversionExpr.typeNode, env));
 
