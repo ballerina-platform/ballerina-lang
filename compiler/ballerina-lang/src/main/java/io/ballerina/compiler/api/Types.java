@@ -94,6 +94,10 @@ public class Types {
         return Optional.empty();
     }
 
+    public Optional<TypeDefinitionSymbol> getByName(String org, String module, String version, String typeDefName) {
+        return Optional.empty();
+    }
+
     public Optional<Map<String, TypeDefinitionSymbol>> typesInModule(ModuleID moduleID) {
         return Optional.empty();
     }
