@@ -370,15 +370,12 @@ public class SymbolLookupTest {
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
-        List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(25, 23));
-        List<Symbol> symbols = new ArrayList<>();
-        for (Symbol symbol : allInScopeSymbols) {
-            if (symbol.getModule().get().id().equals(moduleID) && symbol.kind() == SymbolKind.VARIABLE) {
-                symbols.add(symbol);
-            }
-        }
-
-        assertEquals(symbols.size(), 2);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 25, 23, moduleID);
+        assertEquals(symbolsInFile.size(), 4);
+        assertEquals(symbolsInFile.get("err").kind(), SymbolKind.VARIABLE);
+        assertEquals(symbolsInFile.get("test").kind(), SymbolKind.FUNCTION);
+        assertEquals(symbolsInFile.get("v").kind(), SymbolKind.PARAMETER);
+        assertEquals(symbolsInFile.get("errRef").kind(), SymbolKind.VARIABLE);
     }
 
     private String createSymbolString(Symbol symbol) {
