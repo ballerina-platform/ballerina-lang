@@ -113,11 +113,6 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
-    @Override
-    public boolean validate(CodeActionContext ctx) {
-        return true;
-    }
-
     private Optional<String> getVariableName(Node matchedNode) {
         switch (matchedNode.kind()) {
             case LOCAL_VAR_DECL:
