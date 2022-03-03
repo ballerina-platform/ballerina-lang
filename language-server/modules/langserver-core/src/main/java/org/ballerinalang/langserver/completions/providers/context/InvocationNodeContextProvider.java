@@ -68,13 +68,10 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-
-        if (node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION
-                && !CommonUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) {
-            super.sort(context, node, completionItems);
-            return;
-        } else if (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                !CommonUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node)) {
+        if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
+                !CommonUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) ||
+                (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                        !CommonUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node))) {
             super.sort(context, node, completionItems);
             return;
         }
@@ -118,9 +115,8 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                 if (paramName.isEmpty() || paramName.get().isEmpty() || existingNamedArgs.contains(paramName.get())) {
                     continue;
                 }
-                String defaultValue = CommonUtil.getDefaultValueForType(parameterSymbol.typeDescriptor())
-                        .orElse("");
-                CompletionItem completionItem = NamedArgCompletionItemBuilder.build(paramName.get(), defaultValue);
+                CompletionItem completionItem = NamedArgCompletionItemBuilder.build(paramName.get(),
+                        parameterSymbol.typeDescriptor());
                 completionItems.add(
                         new NamedArgCompletionItem(context, completionItem, Either.forLeft(parameterSymbol)));
             } else if (parameterSymbol.paramKind() == ParameterKind.INCLUDED_RECORD) {
@@ -138,8 +134,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                         return;
                     }
                     TypeSymbol fieldType = recordFieldSymbol.typeDescriptor();
-                    String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("");
-                    CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), defaultValue);
+                    CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), fieldType);
                     completionItems.add(
                             new NamedArgCompletionItem(context, completionItem, Either.forRight(recordFieldSymbol)));
                 });
