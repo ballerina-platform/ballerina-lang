@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
@@ -32,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
@@ -46,12 +48,12 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class CreateFunctionNodeValidator extends NodeTransformer<Boolean> {
+public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     Node node;
     private Set<Node> visited = new HashSet<>();
 
-    public CreateFunctionNodeValidator(Node node) {
+    public CodeActionNodeValidator(Node node) {
         this.node = node;
     }
 
@@ -157,7 +159,7 @@ public class CreateFunctionNodeValidator extends NodeTransformer<Boolean> {
         return !node.keyKeyword().isMissing() 
                 && !node.openParenToken().isMissing()
                 && !node.closeParenToken().isMissing()
-                && node.fieldNames().stream().allMatch(arg -> arg.apply(this));
+                && node.fieldNames().stream().noneMatch(arg->arg.isMissing());
     }
 
     @Override
@@ -217,6 +219,32 @@ public class CreateFunctionNodeValidator extends NodeTransformer<Boolean> {
     }
 
     @Override
+    public Boolean transform(SpreadFieldNode node) {
+        if (!visited.contains(node)) {
+            visited.add(node);
+            if (node.ellipsis().isMissing()) {
+                return false;
+            }
+            if (visited.contains(node.valueExpr())) {
+                return node.parent().apply(this);
+            } else {
+                return node.valueExpr().apply(this);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean transform(MappingConstructorExpressionNode node) {
+        if (!visited.contains(node)) {
+            visited.add(node);
+            return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
+                    && node.fields().stream().allMatch(arg -> arg.apply(this));
+        }
+        return true;
+    }
+
+    @Override
     public Boolean transform(PositionalArgumentNode node) {
         if (visited.contains(node)) {
             return true;
@@ -269,13 +297,13 @@ public class CreateFunctionNodeValidator extends NodeTransformer<Boolean> {
                 && node.expressions().stream().allMatch(arg -> arg.apply(this));
     }
     
-    public Boolean validate(NonTerminalNode node) {
+    public static Boolean validate(NonTerminalNode node) {
         NonTerminalNode validatorNode = node;
         if (node.kind().equals(SyntaxKind.LIST)) {
             validatorNode = node.parent();
         }
-        CreateFunctionNodeValidator nodeValidator = new CreateFunctionNodeValidator(validatorNode);
-        return node.apply(nodeValidator);
+        CodeActionNodeValidator nodeValidator = new CodeActionNodeValidator(validatorNode);
+        return validatorNode.apply(nodeValidator);
     }
     
 }
