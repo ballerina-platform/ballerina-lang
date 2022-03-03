@@ -60,14 +60,6 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
-            return Collections.emptyList();
-        }
-
-        if (positionDetails.matchedNode() == null) {
-            return Collections.emptyList();
-        }
-
         Optional<FunctionCallExpressionNode> callExpr = 
                 checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
         if (callExpr.isEmpty()) {
@@ -102,12 +94,21 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public boolean validate(CodeActionContext ctx) {
-        SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(ctx.cursorPosition(), ctx.cursorPosition()), syntaxTree);
-        CreateFunctionNodeValidator nodeValidator = new CreateFunctionNodeValidator(matchedNode);
-        Boolean validSyntax = nodeValidator.validate(matchedNode);
-        return validSyntax;
+    public boolean validate(Diagnostic diagnostic,
+                            DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION))) {
+            return false;
+        }
+
+        if (positionDetails.matchedNode() == null) {
+            return false;
+        }
+        
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
+        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(), 
+                context.cursorPosition()), syntaxTree);
+        return CodeActionNodeValidator.validate(matchedNode);
     }
 
     /**

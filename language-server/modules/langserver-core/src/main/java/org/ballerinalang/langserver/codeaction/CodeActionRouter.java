@@ -101,7 +101,7 @@ public class CodeActionRouter {
                 .forEach(diagnostic -> {
                         DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
                         codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
-                                .stream().filter(provider -> provider.validate(ctx))
+                                .stream().filter(provider -> provider.validate(diagnostic, positionDetails, ctx))
                                 .forEach(provider -> {
                             try {
                                 // Check whether the code action request has been cancelled
