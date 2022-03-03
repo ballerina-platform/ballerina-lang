@@ -166,29 +166,20 @@ public class UnionTypeTest {
         };
     }
 
-    @Test
-    public void testRecursiveUnionTypeWithArray() {
-        BRunUtil.invoke(result, "testRecursiveUnionTypeWithArray");
+    @Test(dataProvider = "function-name-provider-recursive")
+    public void testRecursiveUnionTypes(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testRecuriveUnionTypeWithMap() {
-        BRunUtil.invoke(result, "testRecuriveUnionTypeWithMap");
-    }
-
-    @Test
-    public void testRecursiveUnionTypeWithArrayAndMap() {
-        BRunUtil.invoke(result, "testRecursiveUnionTypeWithArrayAndMap");
-    }
-
-    @Test
-    public void testRecursiveUnionTypeWithRecord() {
-        BRunUtil.invoke(result, "testRecursiveUnionTypeWithRecord");
-    }
-
-    @Test
-    public void testRecursiveUnionTypeWithTuple() {
-        BRunUtil.invoke(result, "testRecursiveUnionTypeWithRecord");
+    @DataProvider(name = "function-name-provider-recursive")
+    public Object[] recursiveUnionTypesTests() {
+        return new String[]{
+                "testRecursiveUnionTypeWithArray",
+                "testRecursiveUnionTypeWithArrayAndMap",
+                "testRecursiveUnionTypeWithRecord",
+                "testRecursiveUnionTypeWithTuple",
+                "testRecursiveUnionWithTable"
+        };
     }
 
     @AfterClass

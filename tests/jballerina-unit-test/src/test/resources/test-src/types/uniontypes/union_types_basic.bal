@@ -374,12 +374,31 @@ function testRecursiveUnionTypeWithRecord() {
 
 type UnionTypeWithTuple1 int|[UnionTypeWithTuple1];
 type UnionTypeWithTuple2 int|[UnionTypeWithTuple2, UnionTypeWithTuple1];
+type UnionTypeWithTuple3 int|[UnionTypeWithTuple3...];
 
 function testRecursiveUnionTypeWithTuple() {
     UnionTypeWithTuple1 a = [5];
     assertEquality(true, a == [5]);
     UnionTypeWithTuple2 b = [4, [5]];
     assertEquality(true, b == [4, [5]]);
+    UnionTypeWithTuple3 c = [4, 5, 6, 7];
+    assertEquality(true, c == [4, 5, 6, 7]);
+}
+
+type UnionTypeWithTable int|table<map<UnionTypeWithTable>>;
+
+function testRecursiveUnionWithTable() {
+    UnionTypeWithTable a = 1;
+    UnionTypeWithTable b = 2;
+    UnionTypeWithTable tb = table [
+            {
+                one: a
+            },
+            {
+                one: b
+            }
+    ];
+    assertEquality("[{\"one\":1},{\"one\":2}]", (<table<map<UnionTypeWithTable>>> tb).toString());
 }
 
 function assertEquality(any|error expected, any|error actual) {

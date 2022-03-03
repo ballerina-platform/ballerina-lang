@@ -70,6 +70,44 @@ function testRecursiveRecordWithArray() {
     assertEquality(5, b["i"]);
 }
 
+type RecursiveRecordWithRestType record {|
+    int i;
+    RecursiveRecordWithRestType...;
+|};
+
+function testRecursiveRecordWithRestType() {
+    RecursiveRecordWithRestType a = {i:4};
+    assertEquality(4, a["i"]);
+    RecursiveRecordWithRestType b = {i:5, "a":a};
+    assertEquality(5, b["i"]);
+    RecursiveRecordWithRestType c = {i:5, "a":a, "b":b};
+    assertEquality(5, b["i"]);
+}
+
+type RecursiveRecordWithOptionalType record {|
+    int i;
+    RecursiveRecordWithOptionalType r?;
+|};
+
+function testRecursiveRecordWithOptionalType() {
+    RecursiveRecordWithOptionalType a = {i:4};
+    assertEquality(4, a["i"]);
+    RecursiveRecordWithOptionalType b = {i:5, r:a};
+    assertEquality(5, b["i"]);
+}
+
+type RecursiveRecordWithReadOnlyType record {|
+    int i;
+    readonly RecursiveRecordWithReadOnlyType|int r;
+|};
+
+function testRecursiveRecordWithReadOnlyType() {
+    RecursiveRecordWithReadOnlyType a = {i:4, r:5};
+    assertEquality(4, a["i"]);
+    RecursiveRecordWithReadOnlyType b = {i:5, r:{i:6, r:6}};
+    assertEquality(5, b["i"]);
+}
+
 const ASSERTION_ERR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

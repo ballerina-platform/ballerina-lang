@@ -22,6 +22,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -36,24 +37,22 @@ public class RecursiveRecordTypeTest {
         compileResult = BCompileUtil.compile("test-src/record/recursive_record.bal");
     }
 
-    @Test(description = "Test using expressions as index for record arrays")
-    public void testRecursiveRecordWithUnion() {
-        BRunUtil.invoke(compileResult, "testRecursiveRecordWithUnion");
+    @Test(dataProvider = "function-name-provider")
+    public void testRecursiveUnionTypes(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
     }
 
-    @Test(description = "Test using expressions as index for record arrays")
-    public void testRecursiveRecordWithTuple() {
-        BRunUtil.invoke(compileResult, "testRecursiveRecordWithTuple");
-    }
-
-    @Test(description = "Test using expressions as index for record arrays")
-    public void testRecursiveRecordWithMap() {
-        BRunUtil.invoke(compileResult, "testRecursiveRecordWithMap");
-    }
-
-    @Test(description = "Test using expressions as index for record arrays")
-    public void testRecursiveRecordWithArray() {
-        BRunUtil.invoke(compileResult, "testRecursiveRecordWithArray");
+    @DataProvider(name = "function-name-provider")
+    public Object[] recursiveUnionTypesTests() {
+        return new String[]{
+                "testRecursiveRecordWithUnion",
+                "testRecursiveRecordWithTuple",
+                "testRecursiveRecordWithMap",
+                "testRecursiveRecordWithArray",
+                "testRecursiveRecordWithRestType",
+                "testRecursiveRecordWithOptionalType",
+                "testRecursiveRecordWithReadOnlyType"
+        };
     }
 
     @AfterClass
