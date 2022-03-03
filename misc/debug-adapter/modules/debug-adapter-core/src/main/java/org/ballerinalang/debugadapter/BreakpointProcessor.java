@@ -51,7 +51,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
@@ -74,21 +73,19 @@ public class BreakpointProcessor {
         this.jdiEventProcessor = jdiEventProcessor;
     }
 
-    public List<BalBreakpoint> getAllUserBreakpoints() {
-        return userBreakpoints.values().stream()
-                .flatMap(breakpointMap -> breakpointMap.values().stream())
-                .collect(Collectors.toList());
+    public Map<String, LinkedHashMap<Integer, BalBreakpoint>> getUserBreakpoints() {
+        return Map.copyOf(userBreakpoints);
     }
 
     /**
      * Updates the user breakpoints map with a list of breakpoints against its source.
      *
-     * @param sourcePath  source file path which contains the given breakpoint.
-     * @param breakpoints the map of breakpoints against the line numbers.
+     * @param qualifiedClassName full-qualified classname generated for the corresponding Ballerina source file,
+     *                           which contains the given breakpoints
+     * @param breakpoints        the map of breakpoints against the line numbers
      */
-    public void addSourceBreakpoints(String sourcePath, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
-        Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePath);
-        qualifiedClassName.ifPresent(s -> userBreakpoints.put(s, breakpoints));
+    public void addSourceBreakpoints(String qualifiedClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
+        userBreakpoints.put(qualifiedClassName, breakpoints);
     }
 
     /**

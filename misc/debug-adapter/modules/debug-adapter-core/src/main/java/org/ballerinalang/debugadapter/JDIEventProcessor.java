@@ -126,8 +126,8 @@ public class JDIEventProcessor {
         }
     }
 
-    void enableBreakpoints(String debugSourcePath, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
-        breakpointProcessor.addSourceBreakpoints(debugSourcePath, breakpoints);
+    void enableBreakpoints(String qualifiedClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
+        breakpointProcessor.addSourceBreakpoints(qualifiedClassName, breakpoints);
 
         if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.

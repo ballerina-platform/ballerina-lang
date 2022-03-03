@@ -129,6 +129,7 @@ import static org.ballerinalang.debugadapter.completion.CompletionUtil.triggerCh
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 
 /**
@@ -215,14 +216,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             for (BalBreakpoint bp : balBreakpoints) {
                 breakpointsMap.put(bp.getLine(), bp);
             }
-            String sourcePath = args.getSource().getPath();
-            eventProcessor.enableBreakpoints(sourcePath, breakpointsMap);
 
             SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
-            Breakpoint[] breakpoints = eventProcessor.getBreakpointProcessor().getAllUserBreakpoints().stream()
-                    .map(BalBreakpoint::getAsDAPBreakpoint)
-                    .toArray(Breakpoint[]::new);
-            breakpointsResponse.setBreakpoints(breakpoints);
+            String sourcePath = args.getSource().getPath();
+            Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePath);
+            qualifiedClassName.ifPresent(className -> {
+                eventProcessor.enableBreakpoints(className, breakpointsMap);
+                BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();
+                Breakpoint[] breakpoints = breakpointProcessor.getUserBreakpoints().get(qualifiedClassName.get())
+                        .values().stream()
+                        .map(BalBreakpoint::getAsDAPBreakpoint)
+                        .toArray(Breakpoint[]::new);
+                breakpointsResponse.setBreakpoints(breakpoints);
+            });
             return breakpointsResponse;
         });
     }
