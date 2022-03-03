@@ -94,7 +94,8 @@ public class ReachabilityAnalysisTest {
                 "testUnreachablePanicStmt7",
                 "testUnreachablePanicStmt8",
                 "testUnreachablePanicStmt9",
-                "testUnreachablePanicStmt10"
+                "testUnreachablePanicStmt10",
+                "testReachabilityWithQueryAction"
         };
     }
 

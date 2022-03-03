@@ -1116,6 +1116,66 @@ function testUnreachablePanicStmt10() {
     panic error("Error"); // OK
 }
 
+function testReachabilityWithQueryAction1() returns string {
+    string[] stringArray = ["Hello", " ", "World"];
+
+    error? unionResult = from var item in stringArray
+        where item == "Hello"
+        do {
+            return "Hello";
+        };
+
+    if unionResult is error {
+        return "ballerina";
+    } else {
+        return "c#";
+    }
+}
+
+function testReachabilityWithQueryAction2() returns string {
+    string[] stringArray = ["Hello", " ", "World"];
+
+    error? unionResult = from var item in stringArray
+        where item == "Hello"
+        do {
+            panic error("Panic!");
+        };
+
+    if unionResult is error {
+        return "ballerina";
+    } else {
+        return "c#";
+    }
+}
+
+function testReachabilityWithQueryAction3() returns string {
+    string[] stringArray = ["Hello", " ", "World"];
+
+    error? unionResult = from var item in stringArray
+        where item == "Hello"
+        do {
+            while true {
+                return "Hello";
+            }
+        };
+
+    if unionResult is error {
+        return "ballerina";
+    } else {
+        return "c#";
+    }
+}
+
+function testReachabilityWithQueryAction() {
+    assertEqual(testReachabilityWithQueryAction1(), "c#");
+
+    string|error res = trap testReachabilityWithQueryAction2();
+    assertEqual(res is error, true);
+    assertEqual((<error>res).message(), "Panic!");
+
+    assertEqual(testReachabilityWithQueryAction3(), "c#");
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

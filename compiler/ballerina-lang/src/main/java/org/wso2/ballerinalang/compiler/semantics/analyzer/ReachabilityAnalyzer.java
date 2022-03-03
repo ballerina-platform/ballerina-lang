@@ -288,10 +288,6 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                 env.enclInvokable));
         this.unreachableBlock = this.unreachableBlock || this.booleanConstCondition == symTable.falseType;
         analyzeReachability(ifStmt.body, env);
-        if (this.unreachableBlock && !ifStmt.body.stmts.isEmpty()) {
-            resetUnreachableBlock();
-        }
-        resetSkipFurtherAnalysisInUnreachableBlock();
 
         boolean allBranchesTerminate = this.breakAsLastStatement || this.statementReturnsPanicsOrFails;
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate,
@@ -536,7 +532,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        resetAllReachabilityStatus();
+        resetFunction();
         if (funcNode.flagSet.contains(Flag.NATIVE)) {
             return;
         }
@@ -702,7 +698,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                 DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION);
         this.loopAndDoClauseCount--;
         this.loopAndDoClauseEnvs.pop();
-        resetAllReachabilityStatus();
+        resetStatementReturnsPanicsOrFails();
+        resetLastStatement();
     }
 
     @Override
@@ -779,7 +776,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.unreachableBlock = false;
     }
 
-    private void resetAllReachabilityStatus() {
+    private void resetFunction() {
         resetStatementReturnsPanicsOrFails();
         resetErrorThrown();
         resetLastStatement();
