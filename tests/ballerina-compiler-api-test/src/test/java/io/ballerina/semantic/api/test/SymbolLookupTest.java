@@ -358,8 +358,8 @@ public class SymbolLookupTest {
         };
     }
 
-    @Test
-    public void testOnFailClauseSymbolLookup() {
+    @Test(dataProvider = "OnFailSymbolPosProvider")
+    public void testOnFailClauseSymbolLookup(int line, int column, int expSymbols, List<String> expSymbolNames) {
         Project project = BCompileUtil.loadProject("test-src/on_fail_symbol_lookup_test.bal");
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
@@ -370,12 +370,20 @@ public class SymbolLookupTest {
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 25, 23, moduleID);
-        assertEquals(symbolsInFile.size(), 4);
-        assertEquals(symbolsInFile.get("err").kind(), SymbolKind.VARIABLE);
-        assertEquals(symbolsInFile.get("test").kind(), SymbolKind.FUNCTION);
-        assertEquals(symbolsInFile.get("v").kind(), SymbolKind.PARAMETER);
-        assertEquals(symbolsInFile.get("errRef").kind(), SymbolKind.VARIABLE);
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
+        assertEquals(symbolsInFile.size(), expSymbols);
+
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @DataProvider(name = "OnFailSymbolPosProvider")
+    public Object[][] getOnFailSymbolPositions() {
+        List<String> expSymbolNames = List.of("err", "test", "v", "errRef");
+        return new Object[][]{
+                {25, 23, 4, expSymbolNames}
+        };
     }
 
     private String createSymbolString(Symbol symbol) {
