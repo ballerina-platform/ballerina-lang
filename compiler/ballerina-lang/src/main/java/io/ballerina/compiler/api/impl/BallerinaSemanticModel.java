@@ -99,7 +99,6 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final SymbolFactory symbolFactory;
     private final TypesFactory typesFactory;
     private final SymbolTable symbolTable;
-    private final Types types;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
@@ -107,7 +106,14 @@ public class BallerinaSemanticModel implements SemanticModel {
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
-        this.types = Types.getInstance(context);
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public Types types() {
+        return Types.getInstance(this.compilerContext);
     }
 
     /**

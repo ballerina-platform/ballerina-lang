@@ -18,11 +18,20 @@
 
 package io.ballerina.compiler.api;
 
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Map;
 import java.util.Optional;
@@ -38,35 +47,41 @@ public class Types {
     private static final CompilerContext.Key<Types> TYPES_KEY = new CompilerContext.Key<>();
     private final CompilerContext context;
     private final TypesFactory typesFactory;
+    private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
+    private final SymbolResolver symbolResolver;
+    private final PackageCache packageCache;
 
-    private final TypeSymbol BOOLEAN;
-    private final TypeSymbol INT;
-    private final TypeSymbol FLOAT;
-    private final TypeSymbol DECIMAL;
-    private final TypeSymbol STRING;
-    private final TypeSymbol NIL;
-    private final TypeSymbol XML;
-    private final TypeSymbol ERROR;
-//    private final TypeSymbol FUNCTION;
-    private final TypeSymbol FUTURE;
-    private final TypeSymbol TYPEDESC;
-    private final TypeSymbol HANDLE;
-    private final TypeSymbol STREAM;
-    private final TypeSymbol ANY;
-    private final TypeSymbol ANYDATA;
-    private final TypeSymbol NEVER;
-    private final TypeSymbol READONLY;
-    private final TypeSymbol JSON;
-    private final TypeSymbol BYTE;
-    private final TypeSymbol COMPILATION_ERROR;
+    public final TypeSymbol BOOLEAN;
+    public final TypeSymbol INT;
+    public final TypeSymbol FLOAT;
+    public final TypeSymbol DECIMAL;
+    public final TypeSymbol STRING;
+    public final TypeSymbol NIL;
+    public final TypeSymbol XML;
+    public final TypeSymbol ERROR;
+//    public final TypeSymbol FUNCTION;
+    public final TypeSymbol FUTURE;
+    public final TypeSymbol TYPEDESC;
+    public final TypeSymbol HANDLE;
+    public final TypeSymbol STREAM;
+    public final TypeSymbol ANY;
+    public final TypeSymbol ANYDATA;
+    public final TypeSymbol NEVER;
+    public final TypeSymbol READONLY;
+    public final TypeSymbol JSON;
+    public final TypeSymbol BYTE;
+    public final TypeSymbol COMPILATION_ERROR;
 
 
     private Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
         this.context = context;
         this.typesFactory = TypesFactory.getInstance(context);
+        this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
+        this.symbolResolver = SymbolResolver.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
 
         this.BOOLEAN = typesFactory.getTypeDescriptor(symbolTable.booleanType);
         this.INT = typesFactory.getTypeDescriptor(symbolTable.intType);
@@ -91,11 +106,17 @@ public class Types {
     }
 
     public Optional<TypeDefinitionSymbol> getByName(ModuleID moduleID, String typeDefName) {
+
         return Optional.empty();
     }
 
-    public Optional<TypeDefinitionSymbol> getByName(String org, String module, String version, String typeDefName) {
-        return Optional.empty();
+    public Optional<TypeDefinitionSymbol> getByName(String org, String moduleName, String version, String typeDefName) {
+
+        PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
+                Names.fromString(version));
+
+        return getTypeDefByName(packageID, typeDefName);
+
     }
 
     public Optional<Map<String, TypeDefinitionSymbol>> typesInModule(ModuleID moduleID) {
@@ -109,6 +130,21 @@ public class Types {
         }
 
         return types;
+    }
+
+    private Optional<TypeDefinitionSymbol> getTypeDefByName(PackageID packageID, String typeDefName) {
+        BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
+        if (packageSymbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
+        BSymbol bSymbol = symbolResolver.lookupSymbolInGivenScope(pkgEnv, Names.fromString(typeDefName), SymTag.TYPE_DEF);
+        if (bSymbol.tag == SymTag.TYPE_DEF) {
+            return Optional.ofNullable((TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+        }
+
+        return Optional.empty();
     }
 
 }
