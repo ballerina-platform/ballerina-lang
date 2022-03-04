@@ -155,6 +155,10 @@ public class SyntaxTreeGenTest {
             if (endpoint.get("name").getAsString().equals("clientEndpoint")
                     || endpoint.get("name").getAsString().equals("myClient")) {
                 Assert.assertTrue(true);
+                Assert.assertEquals(endpoint.get("orgName").getAsString(), "marcus");
+                Assert.assertEquals(endpoint.get("packageName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("moduleName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("version").getAsString(), "0.1.0");
             } else {
                 Assert.fail("Additional endpoint has been found");
             }
@@ -204,6 +208,10 @@ public class SyntaxTreeGenTest {
             JsonObject endpoint = jsonElement.getAsJsonObject();
             if (endpoint.get("name").getAsString().equals("myClient")) {
                 Assert.assertTrue(true);
+                Assert.assertEquals(endpoint.get("orgName").getAsString(), "marcus");
+                Assert.assertEquals(endpoint.get("packageName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("moduleName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("version").getAsString(), "0.1.0");
             } else {
                 Assert.fail("Additional endpoint has been found");
             }
@@ -248,6 +256,10 @@ public class SyntaxTreeGenTest {
             JsonObject endpoint = jsonElement.getAsJsonObject();
             if (endpoint.get("name").getAsString().equals("myClient")) {
                 Assert.assertTrue(true);
+                Assert.assertEquals(endpoint.get("orgName").getAsString(), "marcus");
+                Assert.assertEquals(endpoint.get("packageName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("moduleName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("version").getAsString(), "0.1.0");
             } else {
                 Assert.fail("Additional endpoint has been found");
             }
