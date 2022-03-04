@@ -78,6 +78,10 @@ public class BalBreakpoint {
         }
     }
 
+    public boolean isVerified() {
+        return isVerified;
+    }
+
     public void setVerified(boolean isVerified) {
         this.isVerified = isVerified;
     }

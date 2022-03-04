@@ -209,8 +209,9 @@ public class BreakpointProcessor {
                     Location loc = locations.get(0);
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
                     bpReq.enable();
-                    breakpoint.setVerified(true);
-                    if (shouldVerify) {
+
+                    if (shouldVerify && !breakpoint.isVerified()) {
+                        breakpoint.setVerified(true);
                         notifyBreakPointChangesToClient(breakpoint);
                     }
                 }
