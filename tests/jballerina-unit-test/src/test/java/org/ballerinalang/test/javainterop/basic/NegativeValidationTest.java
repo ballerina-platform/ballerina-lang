@@ -274,14 +274,14 @@ public class NegativeValidationTest {
     public void testMethodSignatureNotMatch8() {
         CompileResult compileResult = BCompileUtil.compile("test-src/javainterop/negative/distinct_error");
         compileResult.getDiagnostics();
-        Assert.assertEquals(compileResult.getDiagnostics().length, 3);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
-                        "'Incompatible ballerina return type for Java method " +
-                        "'returnDistinctErrorUnionWhichThrowsCheckedException' which throws checked exception " +
-                        "found in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
-                        "expected 'int|error', found '(int|testorg/distinct_error.errors:1.0.0:DistinctError)''",
-                21, 1);
+                "unknown type 'DistinctError'",
+                20, 9);
+        BAssertUtil.validateError(compileResult, 1,
+                "incompatible types: expected '(int|other)', found '" +
+                        "(int|testorg/distinct_error.errors:1.0.0:DistinctError)'",
+                20, 29);
     }
 
     @Test

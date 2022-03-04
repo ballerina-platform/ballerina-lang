@@ -158,7 +158,6 @@ public class JBallerinaBackend extends CompilerBackend {
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 Collection<Diagnostic> diagnosticsCollection =
                         packageContext.project().currentPackage().getCompilation().diagnosticResult().diagnostics();
-
                 if (!hasNoErrors(new ArrayList<>(diagnosticsCollection))) {
                     moduleDiagnostics.addAll(packageContext.project().currentPackage().getCompilation()
                             .diagnosticResult().diagnostics());
@@ -179,6 +178,8 @@ public class JBallerinaBackend extends CompilerBackend {
         diagnostics.addAll(moduleDiagnostics);
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+
+        diagnostics = diagnostics.stream().distinct().collect(Collectors.toList());
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
