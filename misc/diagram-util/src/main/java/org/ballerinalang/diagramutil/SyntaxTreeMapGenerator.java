@@ -251,7 +251,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         JsonObject symbolMetaInfo = new JsonObject();
         ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
         String orgName = moduleID != null ? moduleID.orgName() : "";
+        String packageName = moduleID != null ? moduleID.packageName() : "";
         String moduleName = moduleID != null ? moduleID.moduleName() : "";
+        String version = moduleID != null ? moduleID.version() : "";
 
         if (node.kind() == SyntaxKind.REQUIRED_PARAM) {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
@@ -260,7 +262,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
+            symbolMetaInfo.addProperty("packageName", packageName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("version", version);
             symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
@@ -270,7 +274,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
             symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
             symbolMetaInfo.addProperty("orgName", orgName);
+            symbolMetaInfo.addProperty("packageName", packageName);
             symbolMetaInfo.addProperty("moduleName", moduleName);
+            symbolMetaInfo.addProperty("version", version);
             symbolMetaInfo.addProperty("isModuleVar", false);
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
@@ -282,7 +288,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         .orElse(null)));
                 symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
                 symbolMetaInfo.addProperty("orgName", orgName);
+                symbolMetaInfo.addProperty("packageName", packageName);
                 symbolMetaInfo.addProperty("moduleName", moduleName);
+                symbolMetaInfo.addProperty("version", version);
                 symbolMetaInfo.addProperty("isModuleVar", false);
             }
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
@@ -295,7 +303,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     .orElse(null)));
             metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
             metaInfoForModuleVar.addProperty("orgName", orgName);
+            metaInfoForModuleVar.addProperty("packageName", packageName);
             metaInfoForModuleVar.addProperty("moduleName", moduleName);
+            metaInfoForModuleVar.addProperty("version", version);
             metaInfoForModuleVar.addProperty("isModuleVar", true);
             metaInfoForModuleVar.addProperty("isExternal", true);
 
@@ -311,7 +321,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         .orElse(null)));
                 metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
                 metaInfoForModuleVar.addProperty("orgName", orgName);
+                metaInfoForModuleVar.addProperty("packageName", packageName);
                 metaInfoForModuleVar.addProperty("moduleName", moduleName);
+                metaInfoForModuleVar.addProperty("version", version);
                 metaInfoForModuleVar.addProperty("isExternal", true);
 
                 this.visibleEpsForModule.add(metaInfoForModuleVar);
@@ -397,6 +409,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional) prop).get()).id();
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
+                moduleIdJson.addProperty("packageName", ballerinaModuleID.packageName());
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
                 moduleIdJson.addProperty("version", ballerinaModuleID.version());
                 nodeJson.add("moduleID", moduleIdJson);
@@ -404,6 +417,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 ModuleID ballerinaModuleID = (ModuleID) prop;
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
+                moduleIdJson.addProperty("packageName", ballerinaModuleID.packageName());
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
                 moduleIdJson.addProperty("version", ballerinaModuleID.version());
                 nodeJson.add(jsonName, moduleIdJson);
