@@ -136,4 +136,5 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public String getName() {
         return NAME;
     }
+    
 }
