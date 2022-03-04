@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.impl.FieldMap;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
@@ -82,11 +83,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
             return classFields;
         }
 
-        Map<String, ClassFieldSymbol> fields = new LinkedHashMap<>();
+        FieldMap<String, ClassFieldSymbol> fields = new FieldMap<>();
         BObjectType type = (BObjectType) this.getBType();
 
         for (BField field : type.fields.values()) {
-            fields.put(field.name.value, new BallerinaClassFieldSymbol(this.context, field));
+            fields.put(field.symbol.getOriginalName().value, new BallerinaClassFieldSymbol(this.context, field));
         }
 
         this.classFields = Collections.unmodifiableMap(fields);
