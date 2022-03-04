@@ -448,9 +448,9 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
             1 _ = item; // error incompatible types: expected '1', found '(1|2)'
         };
 
-    int[] _ = from int item in numbers
+    1[] _ = from int item in numbers
         where item is 1
-        select item * 2;
+        select item;
 
     "C"[] _ = from Chars item in chars
         where item == "C"
