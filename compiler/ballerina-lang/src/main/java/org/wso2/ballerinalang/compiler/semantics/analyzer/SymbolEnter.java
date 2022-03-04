@@ -3912,8 +3912,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         resolveIncludedFields(structureTypeNode, typeDefEnv);
 
         // collect resolved type refs from structural type
-        structureType.typeInclusions = new ArrayList<>(structureTypeNode.typeRefs.size());
-        for (BLangType tRef : structureTypeNode.typeRefs) {
+        List<BLangType> typeRefs = structureTypeNode.typeRefs;
+        structureType.typeInclusions = new ArrayList<>(typeRefs.size());
+        for (BLangType tRef : typeRefs) {
             BType type = tRef.getBType();
             structureType.typeInclusions.add(type);
         }
