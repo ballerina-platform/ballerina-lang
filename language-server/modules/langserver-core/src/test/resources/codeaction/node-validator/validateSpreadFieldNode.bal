@@ -1,4 +1,3 @@
-
 type Employee record {|
     string name;
 |};

@@ -1,4 +1,3 @@
-
 function testFunction() {
-    int i = getInt();
+    int i = getInt(2, 3
 }
