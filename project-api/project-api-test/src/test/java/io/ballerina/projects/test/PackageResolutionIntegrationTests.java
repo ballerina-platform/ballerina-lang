@@ -330,7 +330,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         deleteDependenciesTomlAndBuildFile(projectDirPath2);
     }
 
-    @Test(description = "An imported module has a new version with a submodule")
+    @Test(description = "An imported module has a new version pushed to central with a submodule")
     public void testCase0007(ITestContext ctx) throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_s");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
@@ -338,7 +338,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // project --> package_protobuf:0.6.0
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
-
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
@@ -346,11 +345,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
-
         // project --> package_protobuf:0.7.0
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_1",
                 testDistCacheDirectory, projectEnvironmentBuilder);
-
         // Sticky
         deleteBuildFile(projectDirPath);
         BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
@@ -379,7 +376,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // project --> package_protobuf:0.6.0
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
-
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
@@ -387,11 +383,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
-
         // project --> package_protobuf.types.timestamp
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r.types.timestamp_0_6_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
-
         Path projectDirPath2 = RESOURCE_DIRECTORY.resolve("project_t_with_import");
         BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath2);
         buildProject2.save();
@@ -401,7 +395,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(enabled = false, description = "A newer pre-release version of a dependency has been released to central")
+    @Test(description = "A newer pre-release version of a dependency has been released to central")
     public void testCase0010(ITestContext ctx) throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_o");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
@@ -416,7 +410,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_n_2_0_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
 
-
         //1. Build project_o
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject1.save();
@@ -426,7 +419,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
-
         // User caches package_m:1_3_0-beta.1
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
         // User caches package_m:1_3_0-beta.1 to local repository
@@ -434,7 +426,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Cache package_n
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_n_2_0_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
-
 
         //2. Build project_o with sticky == true
         deleteBuildFile(projectDirPath);
@@ -444,7 +435,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
-
 
         //3. Build project_o with sticky == false
         deleteBuildFile(projectDirPath);
@@ -468,13 +458,10 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(enabled = false, description = "A newer pre-release version of a dependency is being used from the local " +
-            "repo")
+    @Test(description = "A newer pre-release version of a dependency is being used from the local repo")
     public void testCase0011(ITestContext ctx) throws IOException {
-
         // 1. Specify pre-release version in Ballerina.toml
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_local_dependency");
-
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject1.save();
@@ -494,14 +481,13 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(enabled = false, description = "A dependency has only pre-release versions released to central")
+    @Test(description = "A dependency has only pre-release versions released to central")
     public void testCase0012(ITestContext ctx) throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_q_pre_release_only");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
         // User has imported package_p:1.0.0-alpha.1
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_p_1_0_0_alpha"));
-
 
         //1. Build project_q_pre_release_only
         BuildProject buildProject1 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
@@ -512,13 +498,11 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
-
         // The following versions have been releasing to central
         //      - package_p:1.0.0-beta.1
 
         // Cache package_p pre-release version 1.0.0-beta.1 to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_p_1_0_0_beta"));
-
 
         //2. User builds the project_q again with sticky = true as default
         BuildProject buildProject2 = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
@@ -527,7 +511,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
-
 
         //3. User deletes the project_q build file
         deleteBuildFile(projectDirPath);
