@@ -80,8 +80,6 @@ import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.SetExceptionBreakpointsArguments;
-import org.eclipse.lsp4j.debug.SetFunctionBreakpointsArguments;
-import org.eclipse.lsp4j.debug.SetFunctionBreakpointsResponse;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceArguments;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
@@ -196,7 +194,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsStepBack(false);
         capabilities.setSupportsTerminateThreadsRequest(false);
         capabilities.setSupportsFunctionBreakpoints(false);
-        capabilities.setSupportsFunctionBreakpoints(false);
+        capabilities.setSupportsExceptionOptions(false);
+        capabilities.setSupportsExceptionFilterOptions(false);
+        capabilities.setSupportsExceptionInfoRequest(false);
 
         context.setClient(client);
         eventProcessor = new JDIEventProcessor(context);
@@ -539,12 +539,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }
             return completionsResponse;
         });
-    }
-
-    @Override
-    public CompletableFuture<SetFunctionBreakpointsResponse> setFunctionBreakpoints(
-            SetFunctionBreakpointsArguments args) {
-        return CompletableFuture.completedFuture(null);
     }
 
     private BalBreakpoint toBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {

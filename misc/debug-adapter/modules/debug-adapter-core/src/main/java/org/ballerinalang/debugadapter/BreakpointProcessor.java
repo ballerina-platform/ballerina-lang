@@ -37,6 +37,9 @@ import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.eclipse.lsp4j.debug.Breakpoint;
+import org.eclipse.lsp4j.debug.BreakpointEventArguments;
+import org.eclipse.lsp4j.debug.BreakpointEventArgumentsReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,7 +178,8 @@ public class BreakpointProcessor {
 
         context.getEventManager().deleteAllBreakpoints();
         if (instruction == DebugInstruction.CONTINUE || instruction == DebugInstruction.STEP_OVER) {
-            context.getDebuggeeVM().allClasses().forEach(this::activateUserBreakPoints);
+            context.getDebuggeeVM().allClasses().forEach(referenceType ->
+                    activateUserBreakPoints(referenceType, false));
         }
     }
 
@@ -183,8 +187,9 @@ public class BreakpointProcessor {
      * Activates user-configured source breakpoints in the program VM, via Java Debug Interface(JDI).
      *
      * @param referenceType represent the type of an object in the remote VM
+     * @param shouldVerify  if true, notifies the debugger frontend with the user breakpoint verification information
      */
-    void activateUserBreakPoints(ReferenceType referenceType) {
+    void activateUserBreakPoints(ReferenceType referenceType, boolean shouldVerify) {
         try {
             // Avoids setting break points if the server is running in 'no-debug' mode.
             ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
@@ -201,10 +206,13 @@ public class BreakpointProcessor {
             for (BalBreakpoint breakpoint : breakpoints.values()) {
                 List<Location> locations = referenceType.locationsOfLine(breakpoint.getLine());
                 if (!locations.isEmpty()) {
-                    breakpoint.setVerified(true);
                     Location loc = locations.get(0);
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
                     bpReq.enable();
+                    breakpoint.setVerified(true);
+                    if (shouldVerify) {
+                        notifyBreakPointChangesToClient(breakpoint);
+                    }
                 }
             }
         } catch (AbsentInformationException ignored) {
@@ -383,6 +391,20 @@ public class BreakpointProcessor {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * Updates the debugger frontend with the changes made on existing user breakpoints. This method can be to verify
+     * the user breakpoints which were configured before launching/connecting to the remote VM.
+     *
+     * @param balBreakpoint Ballerina breakpoint instance
+     */
+    private void notifyBreakPointChangesToClient(BalBreakpoint balBreakpoint) {
+        Breakpoint dapBreakpoint = balBreakpoint.getAsDAPBreakpoint();
+        BreakpointEventArguments bpEventArgs = new BreakpointEventArguments();
+        bpEventArgs.setBreakpoint(dapBreakpoint);
+        bpEventArgs.setReason(BreakpointEventArgumentsReason.CHANGED);
+        context.getClient().breakpoint(bpEventArgs);
     }
 
     /**
