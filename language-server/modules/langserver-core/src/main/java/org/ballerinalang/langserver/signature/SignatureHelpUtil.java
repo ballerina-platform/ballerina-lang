@@ -241,7 +241,6 @@ public class SignatureHelpUtil {
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         Optional<Documentation> documentation =
                 symbol instanceof Documentable ? ((Documentable) symbol).documentation() : Optional.empty();
-        List<Parameter> parameters = new ArrayList<>();
         // TODO: Handle the error constructor in the next phase
         // Handle error constructors
 //        if (functionSymbol.kind() == SymbolKind.ERROR_CONSTRUCTOR) {
@@ -287,13 +286,13 @@ public class SignatureHelpUtil {
 
         // Add parameters and rest params
         List<ParameterSymbol> parameterSymbols = fnType.params().orElse(new ArrayList<>());
-        parameters.addAll(parameterSymbols.stream()
+        List<Parameter> parameters = parameterSymbols.stream()
                 .map(param -> new Parameter(param, false, false, context))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
         Optional<ParameterSymbol> restParam = fnType.restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
-        boolean skipFirstParam = symbol.kind() == METHOD
-                && CommonUtil.isLangLib(symbol.getModule().get().id());
+        boolean skipFirstParam = (symbol.kind() == FUNCTION || symbol.kind() == METHOD)
+                && (symbol.getModule().isPresent() && CommonUtil.isLangLib(symbol.getModule().get().id()));
         // Create a list of param info models
         for (int i = 0; i < parameters.size(); i++) {
             if (i == 0 && skipFirstParam) {
@@ -522,7 +521,7 @@ public class SignatureHelpUtil {
             funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
             filteredContent = visibleSymbols.stream()
-                    .filter(symbolPredicate.and(symbol -> symbol.getName().isPresent() 
+                    .filter(symbolPredicate.and(symbol -> symbol.getName().isPresent()
                             && symbol.getName().get().equals(funcName)))
                     .collect(Collectors.toList());
         }
@@ -688,7 +687,7 @@ public class SignatureHelpUtil {
             ((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream()
                     .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
                     .findFirst().ifPresent(objectMember ->
-                            functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));
+                    functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 
