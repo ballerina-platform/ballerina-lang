@@ -112,12 +112,14 @@ public class CodeActionRouter {
                                         positionDetails, ctx);
                                 if (codeActionsOut != null) {
                                     codeActionsOut.forEach(codeAction ->
-                                            TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
+                                            TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, 
+                                                    provider));
                                     codeActions.addAll(codeActionsOut);
                                 }
                             } catch (Exception e) {
                                 String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                                clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null, (Position) null);
+                                clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null, 
+                                        (Position) null);
                             }
                         });
                 });

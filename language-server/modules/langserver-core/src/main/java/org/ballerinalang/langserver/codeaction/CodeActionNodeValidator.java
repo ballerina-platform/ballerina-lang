@@ -50,12 +50,7 @@ import java.util.Set;
  */
 public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
-    Node node;
     private Set<Node> visited = new HashSet<>();
-
-    public CodeActionNodeValidator(Node node) {
-        this.node = node;
-    }
 
     @Override
     protected Boolean transformSyntaxNode(Node node) {
@@ -302,7 +297,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         if (node.kind().equals(SyntaxKind.LIST)) {
             validatorNode = node.parent();
         }
-        CodeActionNodeValidator nodeValidator = new CodeActionNodeValidator(validatorNode);
+        CodeActionNodeValidator nodeValidator = new CodeActionNodeValidator();
         return validatorNode.apply(nodeValidator);
     }
     
