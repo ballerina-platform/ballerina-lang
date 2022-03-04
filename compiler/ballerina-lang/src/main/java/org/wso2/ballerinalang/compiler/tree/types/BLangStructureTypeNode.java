@@ -57,7 +57,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
         this.includedFields = new ArrayList<>();
     }
 
-    // This ctor is to be used in node cloner. Since we clone fileds and typeRefs no need to initialize them
+    // This ctor is to be used in node cloner. Since we clone fields and typeRefs no need to initialize them
     public BLangStructureTypeNode(int includedFieldCount) {
         this.includedFields = new ArrayList<>(includedFieldCount);
     }
