@@ -3731,11 +3731,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangLock lockNode, AnalyzerData data) {
-        SymbolEnv lockEnv = SymbolEnv.createLockEnv(lockNode, data.env);
-        data.env = lockEnv;
+        data.env = SymbolEnv.createLockEnv(lockNode, data.env);
         analyzeStmt(lockNode.body, data);
         if (lockNode.onFailClause != null) {
-            data.env = lockEnv;
             this.analyzeNode(lockNode.onFailClause, data);
         }
     }
