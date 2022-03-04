@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -123,6 +125,13 @@ public class Types {
         return Optional.empty();
     }
 
+    public Optional<Map<String, TypeDefinitionSymbol>> typesInModule(String org, String moduleName, String version) {
+        PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
+                Names.fromString(version));
+
+        return getTypeDefSymbolsInModule(packageID);
+    }
+
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -142,6 +151,31 @@ public class Types {
         BSymbol bSymbol = symbolResolver.lookupSymbolInGivenScope(pkgEnv, Names.fromString(typeDefName), SymTag.TYPE_DEF);
         if (bSymbol.tag == SymTag.TYPE_DEF) {
             return Optional.ofNullable((TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<Map<String, TypeDefinitionSymbol>> getTypeDefSymbolsInModule(PackageID packageID) {
+        BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
+
+        if (packageSymbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
+        Scope pkgEnvScope = pkgEnv.scope;
+        if (pkgEnvScope != null && pkgEnvScope.entries != null) {
+            Map<String, TypeDefinitionSymbol> typeDefSymbols = new HashMap<>();
+            for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
+                BSymbol bSymbol = scopeEntry.symbol;
+                if (bSymbol != null && bSymbol.tag == SymTag.TYPE_DEF) {
+                    String typeDefName = bSymbol.getName().getValue();
+                    typeDefSymbols.put(typeDefName, (TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+                }
+            }
+
+            return Optional.ofNullable(typeDefSymbols);
         }
 
         return Optional.empty();
