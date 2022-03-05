@@ -37,15 +37,6 @@
       "sortText": "K",
       "insertText": "rec1Field2: \"${3}\"",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Fill module1:TestRecord1 Required Fields",
-      "kind": "Property",
-      "detail": "module1:TestRecord1",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "rec1Field1: 0,\nrec1Field2: \"\"",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

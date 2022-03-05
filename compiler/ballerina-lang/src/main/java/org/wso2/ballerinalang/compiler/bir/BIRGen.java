@@ -189,7 +189,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -224,7 +223,6 @@ public class BIRGen extends BLangNodeVisitor {
     private boolean varAssignment = false;
     private Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BlockNode currentBlock;
-    private Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
@@ -744,17 +742,8 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         this.env.clear();
-
-        this.env.unlockVars.clear();
-
-        // Rearrange basic block ids.
-        birFunc.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names)));
-        birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
-        // Rearrange error entries.
-        birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
         birFunc.dependentGlobalVars = astFunc.symbol.dependentGlobalVars.stream()
                 .map(varSymbol -> this.globalVarMap.get(varSymbol)).collect(Collectors.toSet());
-        this.env.clear();
     }
 
     private BIRVariableDcl getSelf(BSymbol receiver) {
@@ -774,13 +763,13 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock endLoopEndBB = this.env.enclLoopEndBB;
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBody;
-        this.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
+        this.env.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
 
         for (BLangStatement astStmt : astBody.stmts) {
             astStmt.accept(this);
         }
 
-        List<BIRVariableDcl> varDecls = this.varDclsByBlock.get(astBody);
+        List<BIRVariableDcl> varDecls = this.env.varDclsByBlock.get(astBody);
         for (BIRVariableDcl birVariableDcl : varDecls) {
             birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1);
         }
@@ -788,18 +777,18 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentBlock = prevBlock;
     }
 
-    private BIRBasicBlock beginBreakableBlock(Location pos, BLangBlockStmt.FailureBreakMode mode) {
+    private BIRBasicBlock beginBreakableBlock(BLangBlockStmt.FailureBreakMode mode) {
         BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(blockBB);
         this.env.enclBasicBlocks.add(blockBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, blockBB, this.currentScope);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockBB, this.currentScope);
 
         BIRBasicBlock blockEndBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(blockEndBB);
 
-        blockBB.terminator = new BIRTerminator.GOTO(pos, blockEndBB, this.currentScope);
+        blockBB.terminator = new BIRTerminator.GOTO(null, blockEndBB, this.currentScope);
 
         this.env.enclBB = blockBB;
         if (mode == BLangBlockStmt.FailureBreakMode.BREAK_WITHIN_BLOCK) {
@@ -980,9 +969,9 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock currentWithinOnFailEndBB = this.env.enclInnerOnFailEndBB;
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
-        this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
+        this.env.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
-            blockEndBB = beginBreakableBlock(astBlockStmt.pos, astBlockStmt.failureBreakMode);
+            blockEndBB = beginBreakableBlock(astBlockStmt.failureBreakMode);
         }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
@@ -990,19 +979,29 @@ public class BIRGen extends BLangNodeVisitor {
         if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
             endBreakableBlock(blockEndBB);
         }
-        this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
+        this.env.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
+        if (astBlockStmt.isLetExpr) {
+            breakBBForLetExprVariables(astBlockStmt.pos);
+        }
         this.env.enclInnerOnFailEndBB = currentWithinOnFailEndBB;
         this.env.enclOnFailEndBB = currentOnFailEndBB;
         this.currentBlock = prevBlock;
+    }
+
+    private void breakBBForLetExprVariables(Location pos) {
+        BIRBasicBlock letExprEndBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, letExprEndBB, this.currentScope);
+        this.env.enclBasicBlocks.add(letExprEndBB);
+        this.env.enclBB = letExprEndBB;
     }
 
     @Override
     public void visit(BLangFail failNode) {
         if (failNode.expr == null) {
             if (this.env.enclInnerOnFailEndBB != null) {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclInnerOnFailEndBB,
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclInnerOnFailEndBB,
                         this.currentScope);
             }
             return;
@@ -1012,7 +1011,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (!toUnlock.isEmpty()) {
             BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(goToBB);
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, goToBB, this.currentScope);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, goToBB, this.currentScope);
             this.env.enclBB = goToBB;
         }
 
@@ -1033,20 +1032,20 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBasicBlocks.add(onFailBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, onFailBB, this.currentScope);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, onFailBB, this.currentScope);
 
         // Visit condition expression
         this.env.enclBB = onFailBB;
         failNode.exprStmt.accept(this);
         if (this.env.enclBB.terminator == null) {
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB,
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB,
                     this.currentScope);
         }
 
         // Statements after fail expression are unreachable, hence ignored
         BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(ignoreBlock);
-        ignoreBlock.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB, this.currentScope);
+        ignoreBlock.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB, this.currentScope);
         this.env.enclBasicBlocks.add(ignoreBlock);
         this.env.enclBB = ignoreBlock;
     }
@@ -1063,7 +1062,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, kind, astVarDefStmt.var.name.value);
         birVarDcl.startBB = this.env.enclBB;
-        this.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
+        this.env.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
         this.env.enclFunc.localVars.add(birVarDcl);
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.

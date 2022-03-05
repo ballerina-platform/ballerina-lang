@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BWorkerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -150,8 +151,8 @@ public class SymbolFactory {
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }
-            if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
-                return createWorkerSymbol((BVarSymbol) symbol, name);
+            if (symbol.kind == SymbolKind.WORKER) {
+                return createWorkerSymbol((BWorkerSymbol) symbol, name);
             }
             if (symbol.owner instanceof BRecordTypeSymbol) {
                 return createRecordFieldSymbol((BVarSymbol) symbol);
@@ -354,11 +355,11 @@ public class SymbolFactory {
         return bField != null ? new BallerinaClassFieldSymbol(this.context, bField) : null;
     }
 
-    public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
+    public BallerinaWorkerSymbol createWorkerSymbol(BWorkerSymbol symbol, String name) {
         BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
                 new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol, this.context);
 
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
+        for (AnnotationAttachmentSymbol annot : symbol.getAssociatedFuncSymbol().annAttachments) {
             builder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 

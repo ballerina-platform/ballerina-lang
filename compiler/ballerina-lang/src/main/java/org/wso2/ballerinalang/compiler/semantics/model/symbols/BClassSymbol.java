@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -51,6 +52,11 @@ public class BClassSymbol extends BObjectTypeSymbol implements Annotatable {
             return;
         }
         this.annotationAttachments.add((BAnnotationAttachmentSymbol) symbol);
+    }
+
+    @Override
+    public SymbolKind getKind() {
+        return this.kind;
     }
 
     @Override
