@@ -599,6 +599,7 @@ public class BIRGen extends BLangNodeVisitor {
         birConstant.constValue = constantValue;
 
         birConstant.setMarkdownDocAttachment(astConstant.symbol.markdownDocumentation);
+        populateBIRAnnotAttachments(constantSymbol.getAnnotations(), birConstant.annotAttachments, this.env);
 
         // Add the constant to the package.
         this.env.enclPkg.constants.add(birConstant);
@@ -685,12 +686,13 @@ public class BIRGen extends BLangNodeVisitor {
                     ((BLangExternalFunctionBody) astFunc.body).annAttachments));
         }
         // Populate annotation attachments on function in BIRFunction node
-        birFunc.annotAttachments.addAll(getBIRAnnotAttachments(astFunc.symbol.annAttachments));
+        populateBIRAnnotAttachments(astFunc.symbol.annAttachments, birFunc.annotAttachments, this.env);
 
         // Populate annotation attachments on return type
-        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) astFunc.symbol.type.tsymbol;
-        if (invokableTypeSymbol != null) {
-            birFunc.returnTypeAnnots.addAll(getBIRAnnotAttachments(invokableTypeSymbol.returnTypeAnnots));
+        BTypeSymbol tsymbol = astFunc.symbol.type.tsymbol;
+        if (astFunc.returnTypeNode != null && tsymbol != null) {
+            populateBIRAnnotAttachments(((BInvokableTypeSymbol) tsymbol).returnTypeAnnots,
+                                        birFunc.returnTypeAnnots, this.env);
         }
 
         birFunc.argsCount = astFunc.requiredParams.size()
@@ -823,6 +825,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                          annSymbol.attachedType, annSymbol.origin.toBIROrigin());
         birAnn.packageID = annSymbol.pkgID;
         birAnn.setMarkdownDocAttachment(annSymbol.markdownDocumentation);
+        populateBIRAnnotAttachments(annSymbol.getAnnotations(), birAnn.annotAttachments, this.env);
         return birAnn;
     }
 
@@ -1097,6 +1100,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                                   VarKind.GLOBAL, varNode.name.value,
                                                                   varNode.symbol.origin.toBIROrigin());
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
+        populateBIRAnnotAttachments(varNode.symbol.getAnnotations(), birVarDcl.annotAttachments, this.env);
 
         this.env.enclPkg.globalVars.add(birVarDcl);
 

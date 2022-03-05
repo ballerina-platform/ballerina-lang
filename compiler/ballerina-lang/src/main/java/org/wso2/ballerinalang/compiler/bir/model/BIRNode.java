@@ -213,6 +213,7 @@ public abstract class BIRNode {
         public long flags;
         public PackageID pkgId;
         public SymbolOrigin origin;
+        public List<BIRAnnotationAttachment> annotAttachments;
 
         public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name, Name originalName,
                                     VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
@@ -220,6 +221,7 @@ public abstract class BIRNode {
             this.flags = flags;
             this.pkgId = pkgId;
             this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -620,6 +622,11 @@ public abstract class BIRNode {
          */
         public PackageID packageID;
 
+        /**
+         * Annotation attachments on the annotation.
+         */
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         public BIRAnnotation(Location pos, Name name, Name originalName, long flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
@@ -629,6 +636,7 @@ public abstract class BIRNode {
             this.attachPoints = points;
             this.annotationType = annotationType;
             this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -674,6 +682,11 @@ public abstract class BIRNode {
          */
         public SymbolOrigin origin;
 
+        /**
+         * Annotation attachments on the constant.
+         */
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         public BIRConstant(Location pos, Name name, Name originalName, long flags,
                            BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
@@ -683,6 +696,7 @@ public abstract class BIRNode {
             this.type = type;
             this.constValue = constValue;
             this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
