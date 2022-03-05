@@ -303,8 +303,6 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when resuming program.
      */
     public void resumeProgram(StoppedEventArguments context, DebugResumeKind kind) throws BallerinaTestException {
-        // clears all the client notification events before resuming the program.
-        debugClientConnector.getServerEventHolder().reset();
         if (kind == DebugResumeKind.NEXT_BREAKPOINT) {
             ContinueArguments continueArgs = new ContinueArguments();
             continueArgs.setThreadId(context.getThreadId());
@@ -433,7 +431,7 @@ public class DebugTestRunner {
         timer.cancel();
 
         if (!breakpointEventListener.isBreakpointEventFound()) {
-            throw new BallerinaTestException("Timeout expired waiting for the debugger output");
+            throw new BallerinaTestException("Timeout expired waiting for the breakpoint events");
         }
         return breakpointEventListener.getModifiedBreakpoints();
     }

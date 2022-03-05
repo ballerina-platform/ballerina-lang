@@ -78,6 +78,10 @@ public class BallerinaTestDebugPoint {
         return verified;
     }
 
+    public int getLine() {
+        return line;
+    }
+
     public Source getSource() throws BallerinaTestException {
         Source source = new Source();
         if (filePathUri.getScheme().equals(URI_SCHEME_FILE)) {

@@ -187,11 +187,11 @@ public class BreakpointProcessor {
      * Activates user-configured source breakpoints in the program VM, via Java Debug Interface(JDI).
      *
      * @param referenceType represent the type of an object in the remote VM
-     * @param shouldVerify  if true, notifies the debugger frontend with the user breakpoint verification information
+     * @param shouldNotify  if true, notifies the debugger frontend with the user breakpoint verification information
      */
-    void activateUserBreakPoints(ReferenceType referenceType, boolean shouldVerify) {
+    void activateUserBreakPoints(ReferenceType referenceType, boolean shouldNotify) {
         try {
-            // Avoids setting break points if the server is running in 'no-debug' mode.
+            // avoids setting break points if the server is running in 'no-debug' mode.
             ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
             if (configHolder instanceof ClientLaunchConfigHolder
                     && ((ClientLaunchConfigHolder) configHolder).isNoDebugMode()) {
@@ -210,9 +210,12 @@ public class BreakpointProcessor {
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
                     bpReq.enable();
 
-                    if (shouldVerify && !breakpoint.isVerified()) {
+                    // verifies the breakpoint reachability and notifies the client if required.
+                    if (!breakpoint.isVerified()) {
                         breakpoint.setVerified(true);
-                        notifyBreakPointChangesToClient(breakpoint);
+                        if (shouldNotify) {
+                            notifyBreakPointChangesToClient(breakpoint);
+                        }
                     }
                 }
             }

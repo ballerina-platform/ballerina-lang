@@ -61,7 +61,7 @@ public class BreakpointEventListener extends TimerTask {
                 if (event != null && event.getReason().equals(BreakpointEventArgumentsReason.CHANGED)) {
                     Breakpoint breakpoint = event.getBreakpoint();
                     modifiedBreakpoints.add(new BallerinaTestDebugPoint(Path.of(breakpoint.getSource().getPath()),
-                            breakpoint.getLine()));
+                            breakpoint.getLine(), breakpoint.isVerified()));
                 }
             });
             events.clear();
