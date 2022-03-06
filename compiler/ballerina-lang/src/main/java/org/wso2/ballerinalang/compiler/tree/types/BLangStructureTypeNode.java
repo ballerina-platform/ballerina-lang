@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.StructureTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -50,6 +51,9 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
 
     // This is a cache of the fields referred through the type references
     public List<BLangSimpleVariable> includedFields;
+
+    // This is a cache to be used when resolving type inclusions
+    public SymbolEnv typeDefEnv;
 
     public BLangStructureTypeNode() {
         this.fields = new ArrayList<>();

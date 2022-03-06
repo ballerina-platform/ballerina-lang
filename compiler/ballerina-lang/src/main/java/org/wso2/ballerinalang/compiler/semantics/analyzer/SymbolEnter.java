@@ -3453,16 +3453,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        defineRecordTypeNode(recordTypeNode, typeDefEnv);
+        recordTypeNode.typeDefEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        defineRecordTypeNode(recordTypeNode);
     }
 
-    private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
+    private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode) {
         BRecordType recordType = (BRecordType) recordTypeNode.symbol.type;
         recordTypeNode.setBType(recordType);
 
         // Define all the fields
-        resolveFields(recordType, recordTypeNode, env);
+        resolveFields(recordType, recordTypeNode);
 
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
@@ -3470,10 +3470,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        List<BType> fieldTypes = new ArrayList<>(recordType.fields.size());
-        for (BField field : recordType.fields.values()) {
-            BType type = field.type;
-            fieldTypes.add(type);
+        LinkedHashMap<String, BField> fields = recordType.fields;
+        List<BType> fieldTypes = new ArrayList<>(fields.size());
+        for (BField field : fields.values()) {
+            fieldTypes.add(field.type);
         }
 
         if (recordTypeNode.restFieldType == null) {
@@ -3486,7 +3486,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
+        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, recordTypeNode.typeDefEnv);
         fieldTypes.add(recordType.restFieldType);
         symResolver.markParameterizedType(recordType, fieldTypes);
     }
@@ -3844,9 +3844,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         Scope recordScope = structureType.tsymbol.scope;
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, recordScope, pkgEnv);
+        structureTypeNode.typeDefEnv = typeDefEnv;
 
         // Define all the fields
-        resolveFields(structureType, structureTypeNode, typeDefEnv);
+        resolveFields(structureType, structureTypeNode);
 
         if (typeDef.symbol.kind == SymbolKind.TYPE_DEF && structureType.tsymbol.kind != SymbolKind.RECORD) {
             return;
@@ -3897,8 +3898,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         recordType.restFieldType = symTable.noType;
     }
 
-    private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
-                               SymbolEnv typeDefEnv) {
+    private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         structureType.fields = structureTypeNode.fields.stream()
                 .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
                 .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
@@ -3909,22 +3910,25 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(getFieldCollector());
 
         // Resolve referenced types and their fields of structural type
-        resolveIncludedFields(structureTypeNode, typeDefEnv);
+        resolveIncludedFields(structureTypeNode);
 
+        populateResolvedTypeRefs(structureType, structureTypeNode);
+
+        // Add referenced fields of structural type
+        defineReferencedFields(structureType, structureTypeNode);
+    }
+
+    private void populateResolvedTypeRefs(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
         // collect resolved type refs from structural type
         List<BLangType> typeRefs = structureTypeNode.typeRefs;
         structureType.typeInclusions = new ArrayList<>(typeRefs.size());
         for (BLangType tRef : typeRefs) {
-            BType type = tRef.getBType();
-            structureType.typeInclusions.add(type);
+            structureType.typeInclusions.add(tRef.getBType());
         }
-
-        // Add referenced fields of structural type
-        defineReferencedFields(structureType, structureTypeNode, typeDefEnv);
     }
 
-    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
-                                        SymbolEnv typeDefEnv) {
+    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         for (BLangSimpleVariable field : structureTypeNode.includedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
@@ -4793,9 +4797,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return docAttachment;
     }
 
-    private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
-        Set<BSymbol> referencedTypes = new HashSet<>();
-        List<BLangType> invalidTypeRefs = new ArrayList<>();
+    private void resolveIncludedFields(BLangStructureTypeNode structureTypeNode) {
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
+        List<BLangType> typeRefs = structureTypeNode.typeRefs;
+        int typeRefSize = typeRefs.size();
+        Set<BSymbol> referencedTypes = new HashSet<>(typeRefSize); // provide size to prevent rehashing
+        List<BLangType> invalidTypeRefs = new ArrayList<>(typeRefSize); // provide size to prevent dynamic growing
         // Get the inherited fields from the type references
 
         Map<String, BLangSimpleVariable> fieldNames = new HashMap<>(structureTypeNode.fields.size());
@@ -4803,7 +4810,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
-        structureTypeNode.includedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
+        structureTypeNode.includedFields = typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             referredType = Types.getReferredType(referredType);
             if (referredType == symTable.semanticError) {
@@ -4885,7 +4892,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return var;
             });
         }).collect(Collectors.toList());
-        structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
+        typeRefs.removeAll(invalidTypeRefs);
     }
 
     private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
