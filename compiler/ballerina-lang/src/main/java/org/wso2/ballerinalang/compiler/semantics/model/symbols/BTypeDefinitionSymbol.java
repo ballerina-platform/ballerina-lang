@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -32,10 +34,10 @@ import java.util.List;
 /**
  * @since 2.0.0
  */
-public class BTypeDefinitionSymbol extends BSymbol {
+public class BTypeDefinitionSymbol extends BSymbol implements Annotatable {
 
     public BTypeReferenceType referenceType = null;
-    public List<BAnnotationAttachmentSymbol> annAttachments;
+    public List<BAnnotationAttachmentSymbol> annAttachments; // TODO: 2022-03-06 private
 
     public BTypeDefinitionSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                  Location pos, SymbolOrigin origin) {
@@ -52,5 +54,15 @@ public class BTypeDefinitionSymbol extends BSymbol {
             return this.name.value;
         }
         return this.pkgID.toString() + ":" + this.name;
+    }
+
+    @Override
+    public void addAnnotation(AnnotationAttachmentSymbol symbol) {
+        this.annAttachments.add((BAnnotationAttachmentSymbol) symbol);
+    }
+
+    @Override
+    public List<? extends AnnotationAttachmentSymbol> getAnnotations() {
+        return this.annAttachments;
     }
 }

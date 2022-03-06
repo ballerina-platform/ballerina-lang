@@ -467,9 +467,6 @@ public class BIRPackageSymbolEnter {
 
         byte[] docBytes = readDocBytes(dataInStream);
 
-        // Skip annotation attachments for now
-        dataInStream.skip(dataInStream.readLong());
-
         BType type = readBType(dataInStream);
 
         BTypeReferenceType referenceType = null;
@@ -492,7 +489,8 @@ public class BIRPackageSymbolEnter {
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
         BSymbol symbol;
-        if (isClass || Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
+        boolean isEnum = Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM);
+        if (isClass || isEnum) {
             symbol = type.tsymbol;
             symbol.pos = pos;
         } else {
@@ -505,6 +503,9 @@ public class BIRPackageSymbolEnter {
         symbol.flags = flags;
 
         defineMarkDownDocAttachment(symbol, docBytes);
+        defineAnnotAttachmentSymbols(dataInStream,
+                                     (isClass || isEnum || symbol.tag == SymTag.TYPE_DEF) ? (Annotatable) symbol :
+                                             null);
 
         if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
             type.tsymbol.name = symbol.name;
@@ -757,11 +758,19 @@ public class BIRPackageSymbolEnter {
                     keyValuePairs.put(key, value);
                 }
                 return new BLangConstantValue(keyValuePairs, valueType);
+            case TypeTags.TUPLE:
+                int tupleSize = dataInStream.readInt();
+                List<BLangConstantValue> members = new ArrayList<>(tupleSize);
+                for (int i = 0; i < tupleSize; i++) {
+                    BType type = readBType(dataInStream);
+                    BLangConstantValue value = readConstLiteralValue(type, dataInStream);
+                    members.add(value);
+                }
+                return new BLangConstantValue(members, valueType);
             case TypeTags.INTERSECTION:
                 return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
                 return readConstLiteralValue(Types.getReferredType(valueType), dataInStream);
-            // TODO: 2022-03-06 Lists with const annots? 
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
@@ -903,6 +912,15 @@ public class BIRPackageSymbolEnter {
     private void defineAnnotAttachmentSymbols(DataInputStream dataInStream, Annotatable owner) throws IOException {
         long skip = dataInStream.readLong();
         int annotSymbolCount = dataInStream.readInt();
+
+        if (annotSymbolCount == 0) {
+            return;
+        }
+
+        // TODO: 2022-03-06 validate typedef
+        if (owner == null) {
+            throw new RuntimeException("Not yet done!");
+        }
 
         List<BAnnotationAttachmentSymbol> annotationAttachmentSymbols =
                 (List<BAnnotationAttachmentSymbol>) owner.getAnnotations();

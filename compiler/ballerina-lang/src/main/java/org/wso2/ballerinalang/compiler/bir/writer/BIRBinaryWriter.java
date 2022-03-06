@@ -182,11 +182,10 @@ public class BIRBinaryWriter {
         buf.writeByte(typeDef.origin.value());
         // write documentation
         typeWriter.writeMarkdownDocAttachment(buf, typeDef.markdownDocAttachment);
-        writeAnnotAttachments(buf, typeDef.annotAttachments);
         writeType(buf, typeDef.type);
-
         boolean hasReferenceType = typeDef.referenceType != null;
         buf.writeBoolean(hasReferenceType);
+        writeAnnotAttachments(buf, typeDef.annotAttachments);
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter,
