@@ -58,7 +58,7 @@ type ServiceIntrospectionDocConfig record {|
 |};
 
 # The annotation which is used to configure a HTTP service.
-annotation ServiceIntrospectionDocConfig IntrospectionDocConfig on service;
+const annotation ServiceIntrospectionDocConfig IntrospectionDocConfig on service;
 
 # An annotation that marks a program element as deprecated.
 #
