@@ -24,3 +24,4 @@ public const annotation Rec Annot on parameter;
 
 public const annotation Rec[] Annots on parameter;
 
+public annotation Rec NonConstAnnot on parameter;

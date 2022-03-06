@@ -18,10 +18,17 @@ import annots/defn;
 
 public const annotation Allow on parameter;
 
+public annotation map<int> NonConstAllow on parameter;
+
 public function func(@Allow int i) {
 }
 
-public function otherFunc(int i, @defn:Annot {i: 456} int j = 1, @Allow int... k) {
+int iVal = 12345;
+
+public function otherFunc(int i, @defn:Annot {i: 456} @defn:NonConstAnnot {i: iVal} int j = 1, @Allow int... k) {
+}
+
+public function anotherFunc(@NonConstAllow {x: 1, y: iVal} int i) {
 }
 
 public class TestListener {
@@ -31,7 +38,7 @@ public class TestListener {
     public function attach(@defn:Annot {i: 1} service object {} s, string[]|string? name) returns error? {
     }
 
-    public function detach(@defn:Annots {i: 1} @defn:Annots {i: 2} service object {} s) returns error? {
+    public function detach(@defn:Annots {i: 2} @defn:Annots {i: 3} service object {} s) returns error? {
     }
 
     public function 'start() returns error? {
