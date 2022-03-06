@@ -394,12 +394,22 @@ function testErrorHandlingWithinQueryAction() {
         res4 = e;
     }
     assertTrue(res4 is error);
+
+    assertTrue(failFromQueryAction() is error);
 }
 
 function throwErrorFromQueryAction() returns error? {
     check from int v in 1 ... 2
         do {
             _ = check getErrorOrString();
+        };
+}
+
+function failFromQueryAction() returns error? {
+    //when failed; error returned to invocation not to the result assignment
+    error? res = from int v in 1 ... 2
+        do {
+            fail error("Custom Error");
         };
 }
 

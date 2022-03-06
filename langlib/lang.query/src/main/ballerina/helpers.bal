@@ -67,7 +67,7 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
     return new _SelectFunction(selectFunc);
 }
 
-function createDoFunction(function(_Frame _frame) returns any|error doFunc ) returns _StreamFunction {
+function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
 }
 
