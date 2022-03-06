@@ -174,6 +174,26 @@ public function streamFromQueryWithAPanic() {
     var val = intStream.next(); // this should panic.
 }
 
+type SemanticError error<SemanticDiagnostic>;
+
+public type SemanticDiagnostic record {|
+    string message;
+|};
+
+function testDistinctErrorReturn() {
+    SemanticError|int[] val = getIntArrayOrError();
+    assertTrue(val is SemanticError);
+}
+
+function getIntArrayOrError() returns int[]|SemanticError {
+    int[] val = from var _ in [1, 2, 3] select check throwSemanticError();
+    return val;
+}
+
+function throwSemanticError() returns int|SemanticError {
+    return error SemanticError("intersection must not be empty", message="GFGF");
+}
+
 // Utils ---------------------------------------------------------------------------------------------------------
 
 public function verifyCheck(int i) returns int|error {
@@ -185,6 +205,10 @@ public function verifyPanic(int i) returns int {
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

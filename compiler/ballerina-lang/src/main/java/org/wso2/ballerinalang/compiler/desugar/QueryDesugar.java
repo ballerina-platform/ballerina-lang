@@ -2011,11 +2011,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-//        HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
-//        this.checkedErrorList = new HashSet<>();
         queryExpr.getQueryClauses().forEach(clause ->this.acceptNode(clause));
-//        this.checkedErrorList = prevCheckedErrorList;
-
     }
 
     @Override
