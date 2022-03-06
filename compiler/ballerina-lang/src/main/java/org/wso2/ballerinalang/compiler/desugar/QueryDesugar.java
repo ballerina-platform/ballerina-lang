@@ -142,6 +142,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -176,6 +177,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -319,14 +321,29 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return desugared query action.
      */
     BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env) {
+        containsCheckExpr = false;
+        HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
+        this.checkedErrorList = new HashSet<>();
         List<BLangNode> clauses = queryAction.getQueryClauses();
         Location pos = clauses.get(0).pos;
+        BType returnType = symTable.errorOrNilType;
+        if (queryAction.returnsWithinDoClause) {
+            BInvokableSymbol invokableSymbol = env.enclInvokable.symbol;
+            returnType = ((BInvokableType) invokableSymbol.type).retType;
+        }
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, queryAction.getBType(), env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock);
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                QUERY_CONSUME_STREAM_FUNCTION, symTable.errorOrNilType, Lists.of(streamRef), pos);
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
-        stmtExpr.setBType(symTable.errorOrNilType);
+                QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
+        BLangStatementExpression stmtExpr;
+        if (!containsCheckExpr && queryAction.returnsWithinDoClause) {
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(pos, result);
+            queryBlock.stmts.add(stmt);
+        }
+        stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                addTypeConversionExpr(result, returnType));
+        stmtExpr.setBType(returnType);
+        this.checkedErrorList = prevCheckedErrorList;
         return stmtExpr;
     }
 
@@ -828,8 +845,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return created lambda function.
      */
     private BLangLambdaFunction createActionLambda(Location pos) {
-        // returns ()
-        BLangValueType returnType = getNilTypeNode();
+        // returns any|error
+        BLangUnionTypeNode returnType = getAnyErrorNilTypeNode();
         return createLambdaFunction(pos, returnType, null, false);
     }
 
@@ -1791,6 +1808,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         containsCheckExpr = true;
+        this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
         this.acceptNode(checkedExpr.expr);
     }
 
@@ -1993,7 +2011,11 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+//        HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
+//        this.checkedErrorList = new HashSet<>();
         queryExpr.getQueryClauses().forEach(clause ->this.acceptNode(clause));
+//        this.checkedErrorList = prevCheckedErrorList;
+
     }
 
     @Override
@@ -2062,6 +2084,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         onFailClause.body.stmts.forEach(stmt -> this.acceptNode(stmt));
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        this.acceptNode(failNode.expr);
     }
 
     @Override
