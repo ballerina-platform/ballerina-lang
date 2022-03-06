@@ -38,6 +38,7 @@ import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
+import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import org.eclipse.lsp4j.debug.StackFrame;
@@ -63,7 +64,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Timer;
+
+import javax.swing.text.html.Option;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
@@ -236,7 +240,8 @@ public class DebugTestRunner {
      * @param breakpoint breakpoint to be set
      * @throws BallerinaTestException if any exception is occurred during action.
      */
-    public void addBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
+    public Optional<SetBreakpointsResponse> addBreakPoint(BallerinaTestDebugPoint breakpoint)
+            throws BallerinaTestException {
         testBreakpoints.add(breakpoint);
         List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
         for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
@@ -246,14 +251,16 @@ public class DebugTestRunner {
         }
 
         if (debugClientConnector != null && debugClientConnector.isConnected()) {
-            setBreakpoints(breakpointsToBeSent);
+            return Optional.ofNullable(setBreakpoints(breakpointsToBeSent));
         }
+        return Optional.empty();
     }
 
-    public void setBreakpoints(List<BallerinaTestDebugPoint> breakPoints) throws BallerinaTestException {
+    private SetBreakpointsResponse setBreakpoints(List<BallerinaTestDebugPoint> breakPoints)
+            throws BallerinaTestException {
 
         if (!isConnected) {
-            return;
+            return null;
         }
         Map<Source, List<SourceBreakpoint>> sourceBreakpoints = new HashMap<>();
         for (BallerinaTestDebugPoint bp : breakPoints) {
@@ -267,12 +274,13 @@ public class DebugTestRunner {
             breakpointRequestArgs.setSource(entry.getKey());
             breakpointRequestArgs.setBreakpoints(entry.getValue().toArray(new SourceBreakpoint[0]));
             try {
-                debugClientConnector.getRequestManager().setBreakpoints(breakpointRequestArgs);
+                return debugClientConnector.getRequestManager().setBreakpoints(breakpointRequestArgs);
             } catch (Exception e) {
                 LOGGER.error("SetBreakpoints request failed.", e);
                 throw new BallerinaTestException("Breakpoints request failed.", e);
             }
         }
+        return null;
     }
 
     /**

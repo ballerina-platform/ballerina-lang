@@ -24,14 +24,19 @@ import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.eclipse.lsp4j.debug.Breakpoint;
+import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Test implementation for debug breakpoint verification scenarios.
@@ -74,7 +79,10 @@ public class BreakpointVerificationTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 26));
 
+        // retrieves all the 'breakpoint' events received from the server, which indicates breakpoint verification
+        // status changes.
         List<BallerinaTestDebugPoint> changedBreakpoints = debugTestRunner.waitForModifiedBreakpoints(2000);
         assertBreakpointChanges(changedBreakpoints);
     }
@@ -82,7 +90,27 @@ public class BreakpointVerificationTest extends BaseTestCase {
     @Test(description = "Test to assert runtime verification on breakpoints which are getting added on-the-fly " +
             "during a debug session")
     public void testOnTheFlyBreakpointVerification() throws BallerinaTestException {
+        // adds one initial breakpoint and run debug session until the breakpoint is reached.
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
 
+        // adds breakpoints on-the-fly to all the other source lines, once the debugger is suspended on the initial
+        // breakpoint.
+        Optional<SetBreakpointsResponse> breakpointResponse = Optional.empty();
+        for (int line = 1; line <= SRC_LINE_COUNT; line++) {
+            BallerinaTestDebugPoint debugPoint = new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, line);
+            breakpointResponse = debugTestRunner.addBreakPoint(debugPoint);
+        }
+
+        Assert.assertTrue(breakpointResponse.isPresent(), "Breakpoint response should not be empty");
+        List<BallerinaTestDebugPoint> breakPoints = Arrays.stream(breakpointResponse.get().getBreakpoints())
+                .map(breakpoint -> new BallerinaTestDebugPoint(Path.of(breakpoint.getSource().getPath()),
+                        breakpoint.getLine(), breakpoint.isVerified()))
+                .collect(Collectors.toList());
+
+        assertBreakpointChanges(breakPoints);
     }
 
     private void assertBreakpointChanges(List<BallerinaTestDebugPoint> breakpoints) {
