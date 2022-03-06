@@ -60,3 +60,31 @@ public class TestListener {
     public isolated function immediateStop() returns error? {
     }
 }
+
+public type Foo record {|
+    string s;
+    string t;
+    boolean b = false;
+|};
+
+public type Bar record {|
+    Foo[] f1;
+    [Foo, string] f2;
+    int i = 10;
+|};
+
+public const annotation Bar ClassAnnot on source class;
+
+const s2 = "s2";
+const t3 = "t3";
+
+@ClassAnnot {
+    f1: [
+        { s: "s", t: "t" },
+        { s: s2, t: "t2" }
+    ],
+    f2: [{ s: "s3", t: t3 }, "test"]
+}
+class Cl {
+
+}

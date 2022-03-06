@@ -359,6 +359,67 @@ public class AnnotationTests {
         Assert.assertEquals(annotationAttachmentSymbols.size(), 0);
     }
 
+    @Test
+    public void testAnnotsWithConstLists() {
+        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+        BClassSymbol classSymbol =
+                (BClassSymbol) importedModuleEntries.get(Names.fromString("Cl")).symbol;
+        List<? extends AnnotationAttachmentSymbol> attachments = classSymbol.getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ClassAnnot");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+
+        Object constValue =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
+                        .attachmentValueSymbol.value.value;
+        Assert.assertTrue(constValue instanceof Map);
+
+        Map<String, BLangConstantValue> annotMapValue = (Map<String, BLangConstantValue>) constValue;
+        Assert.assertEquals(annotMapValue.size(), 2);
+
+        Assert.assertTrue(annotMapValue.containsKey("f1"));
+        Object f1ConstValue = annotMapValue.get("f1").value;
+        Assert.assertTrue(f1ConstValue instanceof List);
+        List<BLangConstantValue> f1 = (List<BLangConstantValue>) f1ConstValue;
+        Assert.assertEquals(f1.size(), 2);
+
+        Object f1Member1 = f1.get(0).value;
+        Assert.assertTrue(f1Member1 instanceof Map);
+        Map<String, BLangConstantValue> f1Member1Map = (Map<String, BLangConstantValue>) f1Member1;
+        Assert.assertEquals(f1Member1Map.size(), 2);
+        Assert.assertEquals(f1Member1Map.get("s").value, "s");
+        Assert.assertEquals(f1Member1Map.get("t").value, "t");
+
+        Object f1Member2 = f1.get(1).value;
+        Assert.assertTrue(f1Member2 instanceof Map);
+        Map<String, BLangConstantValue> f1Member2Map = (Map<String, BLangConstantValue>) f1Member2;
+        Assert.assertEquals(f1Member2Map.size(), 2);
+        Assert.assertEquals(f1Member2Map.get("s").value, "s2");
+        Assert.assertEquals(f1Member2Map.get("t").value, "t2");
+
+        Assert.assertTrue(annotMapValue.containsKey("f2"));
+        Object f2ConstValue = annotMapValue.get("f2").value;
+        Assert.assertTrue(f2ConstValue instanceof List);
+        List<BLangConstantValue> f2 = (List<BLangConstantValue>) f2ConstValue;
+        Assert.assertEquals(f2.size(), 2);
+
+        Object f2Member1 = f2.get(0).value;
+        Assert.assertTrue(f2Member1 instanceof Map);
+        Map<String, BLangConstantValue> f2Member1Map = (Map<String, BLangConstantValue>) f2Member1;
+        Assert.assertEquals(f2Member1Map.size(), 2);
+        Assert.assertEquals(f2Member1Map.get("s").value, "s3");
+        Assert.assertEquals(f2Member1Map.get("t").value, "t3");
+
+        Assert.assertEquals(f2.get(1).value, "test");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
