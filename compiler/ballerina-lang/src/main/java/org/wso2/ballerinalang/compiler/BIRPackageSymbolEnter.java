@@ -761,6 +761,7 @@ public class BIRPackageSymbolEnter {
                 return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
                 return readConstLiteralValue(Types.getReferredType(valueType), dataInStream);
+            // TODO: 2022-03-06 Lists with const annots? 
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);

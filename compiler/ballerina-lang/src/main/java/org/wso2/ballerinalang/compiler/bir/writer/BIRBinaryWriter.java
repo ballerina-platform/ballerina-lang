@@ -359,7 +359,7 @@ public class BIRBinaryWriter {
 
         writeType(buf, birAnnotation.annotationType);
         typeWriter.writeMarkdownDocAttachment(buf, birAnnotation.markdownDocAttachment);
-        writeAnnotAttachments(buf,birAnnotation.annotAttachments);
+        writeAnnotAttachments(buf, birAnnotation.annotAttachments);
     }
 
     private void writeConstants(ByteBuf buf, List<BIRNode.BIRConstant> birConstList) {
