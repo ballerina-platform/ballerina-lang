@@ -174,9 +174,9 @@ class _InputFunction {
 
     # Desugared function to do;
     # from var { firstName: nm1, lastName: nm2 } in personList
-    # frame {nm1: firstName, nm2: lastName}
+    #   frame {nm1: firstName, nm2: lastName}
     # from var dept in deptList
-    # frame {dept: deptList[x]}
+    #   frame {dept: deptList[x]}
     public function (_Frame _frame) returns _Frame|error? inputFunc;
 
     function init(function (_Frame _frame) returns _Frame|error? inputFunc) {
@@ -293,7 +293,7 @@ class _LetFunction {
 
     # Desugared function to do;
     # let Company companyRecord = { name: "WSO2" }
-    # frame { companyRecord: { name: "WSO2" }, ...prevFrame }
+    #   frame { companyRecord: { name: "WSO2" }, ...prevFrame }
     public function (_Frame _frame) returns _Frame|error? letFunc;
 
     function init(function (_Frame _frame) returns _Frame|error? letFunc) {
@@ -571,9 +571,9 @@ class _SelectFunction {
 
     # Desugared function to do;
     # select {
-    # firstName: person.firstName,
-    # lastName: person.lastName,
-    # dept : dept.name
+    #   firstName: person.firstName,
+    #   lastName: person.lastName,
+    #   dept : dept.name
     # };
     public function (_Frame _frame) returns _Frame|error? selectFunc;
 
@@ -606,7 +606,7 @@ class _DoFunction {
 
     # Desugared function to do;
     # do {
-    # count += value;
+    #   count += value;
     # };
     public function (_Frame _frame) returns any|error doFunc;
 
