@@ -21,5 +21,5 @@ package org.ballerinalang.model.symbols;
  * @since 2.1.0
  */
 public interface AnnotationAttachmentSymbol {
-
+    boolean isConstAnnotation();
 }

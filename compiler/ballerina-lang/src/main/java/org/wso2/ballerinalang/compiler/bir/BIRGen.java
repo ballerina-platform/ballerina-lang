@@ -2760,7 +2760,7 @@ public class BIRGen extends BLangNodeVisitor {
             BAnnotationAttachmentSymbol annotationAttachmentSymbol) {
         BIRAnnotationAttachment annotAttachment;
 
-        if (annotationAttachmentSymbol instanceof BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) {
+        if (annotationAttachmentSymbol.isConstAnnotation()) {
             BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAnnotationAttachmentSymbol =
                     (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol;
             annotAttachment = new BIRNode.BIRConstAnnotationAttachment(

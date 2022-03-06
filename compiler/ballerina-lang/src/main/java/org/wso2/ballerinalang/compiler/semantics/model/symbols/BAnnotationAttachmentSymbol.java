@@ -52,6 +52,11 @@ public class BAnnotationAttachmentSymbol extends BSymbol implements AnnotationAt
         this.annotTag = annotTag;
     }
 
+    @Override
+    public boolean isConstAnnotation() {
+        return false;
+    }
+
     /**
      * Symbol for const annotation attachments, including a constant symbol for the value.
      *
@@ -73,6 +78,11 @@ public class BAnnotationAttachmentSymbol extends BSymbol implements AnnotationAt
                                                 BConstantSymbol attachmentValueSymbol, BType attachedType) {
             super(annotPkgID, annotTag, pkgID, owner, pos, origin, attachedType);
             this.attachmentValueSymbol = attachmentValueSymbol;
+        }
+
+        @Override
+        public boolean isConstAnnotation() {
+            return true;
         }
     }
 }
