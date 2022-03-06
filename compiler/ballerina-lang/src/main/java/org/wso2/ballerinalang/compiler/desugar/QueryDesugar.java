@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -220,6 +221,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private boolean containsCheckExpr;
     private boolean withinLambdaFunc = false;
+    private HashSet<BType> checkedErrorList;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -247,6 +249,9 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
         containsCheckExpr = false;
+        HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
+        this.checkedErrorList = new HashSet<>();
+
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
@@ -293,7 +298,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
                 // so that it will propagate the error properly.
                 BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
-                checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                checkedExpr.equivalentErrorTypeList.addAll(this.checkedErrorList);
                 streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
                 streamStmtExpr.setBType(checkedExpr.getBType());
             } else {
@@ -302,6 +307,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 streamStmtExpr.setBType(queryExpr.getBType());
             }
         }
+        this.checkedErrorList = prevCheckedErrorList;
         return streamStmtExpr;
     }
 
