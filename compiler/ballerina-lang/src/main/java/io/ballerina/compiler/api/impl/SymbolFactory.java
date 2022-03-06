@@ -257,8 +257,8 @@ public class SymbolFactory {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
         }
 
-        for (BAnnotationAttachmentSymbol annAttachment : invokableSymbol.annAttachments) {
-            builder.withAnnotation(createAnnotationSymbol(annAttachment));
+        for (AnnotationAttachmentSymbol annAttachment : invokableSymbol.getAnnotations()) {
+            builder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annAttachment));
         }
 
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
@@ -359,7 +359,7 @@ public class SymbolFactory {
         BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
                 new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol, this.context);
 
-        for (AnnotationAttachmentSymbol annot : symbol.getAssociatedFuncSymbol().annAttachments) {
+        for (AnnotationAttachmentSymbol annot : symbol.getAssociatedFuncSymbol().getAnnotations()) {
             builder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
@@ -416,8 +416,8 @@ public class SymbolFactory {
         }
 
         if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
-            for (BAnnotationAttachmentSymbol annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
-                symbolBuilder.withAnnotation(createAnnotationSymbol(annAttachment));
+            for (AnnotationAttachmentSymbol annAttachment : ((BTypeDefinitionSymbol) typeSymbol).getAnnotations()) {
+                symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annAttachment));
             }
         }
 

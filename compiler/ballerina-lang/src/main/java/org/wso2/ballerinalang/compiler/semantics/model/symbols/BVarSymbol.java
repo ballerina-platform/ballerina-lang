@@ -38,7 +38,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
  */
 public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
-    private List<BAnnotationAttachmentSymbol> annotationAttachments;
+    protected List<BAnnotationAttachmentSymbol> annotationAttachments;
     public boolean isDefaultable = false;
     public boolean isWildcard = false;
     public DiagnosticState state = DiagnosticState.VALID;

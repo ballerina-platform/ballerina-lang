@@ -102,8 +102,7 @@ public class LangLibFunctionBinder {
         BInvokableSymbol duplicate = Symbols.createInvokableSymbol(original.tag, original.flags, original.name,
                                                                    original.originalName, original.pkgID, original.type,
                                                                    original.owner, original.pos, original.origin);
-
-        duplicate.annAttachments.addAll(original.annAttachments);
+        ((List<AnnotationAttachmentSymbol>) duplicate.getAnnotations()).addAll(original.getAnnotations());
         duplicate.bodyExist = original.bodyExist;
         duplicate.markdownDocumentation = original.markdownDocumentation;
         duplicate.receiverSymbol = original.receiverSymbol;

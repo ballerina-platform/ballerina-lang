@@ -69,7 +69,7 @@ public class AnnotationAttachmentSymbolsTest {
     public void testAnnotOnType() {
         List<? extends AnnotationAttachmentSymbol> attachments =
                 ((BTypeDefinitionSymbol) getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "T1").symbol)
-                        .annAttachments;
+                        .getAnnotations();
         Assert.assertEquals(attachments.size(), 1);
         assertAttachmentSymbol(attachments.get(0), "v1");
     }
@@ -87,7 +87,7 @@ public class AnnotationAttachmentSymbolsTest {
     @Test
     public void testAnnotOnObjectFunction() {
         BLangFunction function = getFunction("T2.setName");
-        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.annAttachments;
+        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 2);
         assertAttachmentSymbol(attachments.get(0), "v3");
         assertAttachmentSymbol(attachments.get(1), "v4");
@@ -112,7 +112,7 @@ public class AnnotationAttachmentSymbolsTest {
     @Test
     public void testAnnotOnFunction() {
         BLangFunction function = getFunction("func");
-        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.annAttachments;
+        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 1);
         assertAttachmentSymbol(attachments.get(0), "v3");
 
@@ -179,7 +179,7 @@ public class AnnotationAttachmentSymbolsTest {
     @Test
     public void testAnnotOnResourceOne() {
         BLangFunction function = getFunction("$anonType$_1.$get$res");
-        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.annAttachments;
+        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 2);
         assertAttachmentSymbol(attachments.get(0), "v3");
         assertAttachmentSymbol(attachments.get(1), "v5");
@@ -209,7 +209,7 @@ public class AnnotationAttachmentSymbolsTest {
     @Test
     public void testAnnotOnResourceTwo() {
         BLangFunction function = getFunction("$anonType$_3.$get$res");
-        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.annAttachments;
+        List<? extends AnnotationAttachmentSymbol> attachments = function.symbol.getAnnotations();
         Assert.assertEquals(attachments.size(), 1);
         assertAttachmentSymbol(attachments.get(0), "v5");
 
@@ -247,14 +247,14 @@ public class AnnotationAttachmentSymbolsTest {
 
     @Test
     public void testAnnotWithEmptyMapConstructorOnType() {
-        List<BAnnotationAttachmentSymbol> attachments = ((BTypeDefinitionSymbol)
-                getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "MyType2").symbol).annAttachments;
+        List<? extends AnnotationAttachmentSymbol> attachments = ((BTypeDefinitionSymbol)
+                getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "MyType2").symbol).getAnnotations();
         Assert.assertEquals(attachments.size(), 2);
 
         // Should come from the default value of the field, doesn't atm.
         // assertAttachmentSymbol(attachments.get(0), "v25", true, "val", "ABC");
         // Replace the assertion for v25 with the line above once fixed.
-        BAnnotationAttachmentSymbol annotationAttachmentSymbol = attachments.get(0);
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
         Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "v25");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         Object constValue =
@@ -264,7 +264,7 @@ public class AnnotationAttachmentSymbolsTest {
         Map<String, BLangConstantValue> mapConst = (Map<String, BLangConstantValue>) constValue;
         Assert.assertEquals(mapConst.size(), 0);
 
-        annotationAttachmentSymbol = attachments.get(1);
+        annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(1);
         Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "v26");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
         constValue =

@@ -42,7 +42,6 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public List<BVarSymbol> params;
     public BVarSymbol restParam;
     public BType retType;
-    public List<BAnnotationAttachmentSymbol> annAttachments;
     public Map<String, BType> paramDefaultValTypes;
 
     // This field is only applicable for functions at the moment.
@@ -81,7 +80,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         super(flags, name, originalName, pkgID, type, owner, pos, origin);
         this.tag = tag;
         this.params = new ArrayList<>();
-        this.annAttachments = new ArrayList<>();
+        this.annotationAttachments = new ArrayList<>();
         this.dependentGlobalVars = new HashSet<>();
         this.paramDefaultValTypes = new HashMap<>();
         this.kind = SymbolKind.FUNCTION;
@@ -104,5 +103,9 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     @Override
     public BType getReturnType() {
         return retType;
+    }
+
+    public void setAnnotationAttachments(List<BAnnotationAttachmentSymbol> annotationAttachments) {
+        this.annotationAttachments = annotationAttachments;
     }
 }

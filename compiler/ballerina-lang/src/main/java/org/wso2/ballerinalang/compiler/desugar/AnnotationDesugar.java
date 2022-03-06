@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -752,7 +753,8 @@ public class AnnotationDesugar {
         }
 
         symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
-        mainFunc.symbol.annAttachments.add(annoAttachment.annotationAttachmentSymbol);
+        ((List<BAnnotationAttachmentSymbol>) mainFunc.symbol.getAnnotations()).add(
+                annoAttachment.annotationAttachmentSymbol);
     }
 
     private BLangFunction defineFunction(Location pos, PackageID pkgID, BSymbol owner) {

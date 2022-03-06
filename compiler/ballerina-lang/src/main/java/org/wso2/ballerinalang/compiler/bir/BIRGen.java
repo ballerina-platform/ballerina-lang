@@ -442,7 +442,7 @@ public class BIRGen extends BLangNodeVisitor {
                     typeDef.type = referenceType;
                 }
             }
-            typeDef.annotAttachments.addAll(getBIRAnnotAttachments(((BTypeDefinitionSymbol) symbol).annAttachments));
+            typeDef.annotAttachments.addAll(getBIRAnnotAttachments(((BTypeDefinitionSymbol) symbol).getAnnotations()));
         } else {
             // TODO: 2022-02-23 not necessarily enums
             //enum symbols
@@ -686,7 +686,7 @@ public class BIRGen extends BLangNodeVisitor {
                     ((BLangExternalFunctionBody) astFunc.body).annAttachments));
         }
         // Populate annotation attachments on function in BIRFunction node
-        birFunc.annotAttachments.addAll(getBIRAnnotAttachments(astFunc.symbol.annAttachments));
+        birFunc.annotAttachments.addAll(getBIRAnnotAttachments(astFunc.symbol.getAnnotations()));
 
         // Populate annotation attachments on return type
         BTypeSymbol tsymbol = astFunc.symbol.type.tsymbol;
@@ -1354,7 +1354,7 @@ public class BIRGen extends BLangNodeVisitor {
                     fp, args, lhsOp, invocationExpr.async, transactional, thenBB, this.currentScope);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
-            List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.annAttachments);
+            List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
 
             List<BIRAnnotationAttachment> annots =
                     getBIRAnnotAttachmentsForASTAnnotAttachments(invocationExpr.annAttachments);
@@ -1363,7 +1363,7 @@ public class BIRGen extends BLangNodeVisitor {
                     args, lhsOp, thenBB, annots, calleeAnnots, bInvokableSymbol.getFlags(), this.currentScope);
         } else {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
-            List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.annAttachments);
+            List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
 
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,

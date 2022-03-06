@@ -457,7 +457,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             });
             validateAnnotationAttachmentCount(funcNode.annAttachments);
         }
-        funcNode.symbol.annAttachments.addAll(getAnnotationAttachmentSymbols(funcNode.annAttachments));
+        ((List<BAnnotationAttachmentSymbol>) funcNode.symbol.getAnnotations()).addAll(
+                getAnnotationAttachmentSymbols(funcNode.annAttachments));
 
         BLangType returnTypeNode = funcNode.returnTypeNode;
         boolean hasReturnType = returnTypeNode != null;
@@ -595,7 +596,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BSymbol typeDefSym = typeDefinition.symbol;
         if (typeDefSym != null && typeDefSym.kind == SymbolKind.TYPE_DEF) {
-            ((BTypeDefinitionSymbol) typeDefSym).annAttachments.addAll(annotSymbols);
+            ((List<BAnnotationAttachmentSymbol>) ((BTypeDefinitionSymbol) typeDefSym).getAnnotations()).addAll(
+                    annotSymbols);
         }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
