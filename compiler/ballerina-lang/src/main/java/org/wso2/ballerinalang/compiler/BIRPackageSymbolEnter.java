@@ -917,11 +917,6 @@ public class BIRPackageSymbolEnter {
             return;
         }
 
-        // TODO: 2022-03-06 validate typedef
-        if (owner == null) {
-            throw new RuntimeException("Not yet done!");
-        }
-
         List<BAnnotationAttachmentSymbol> annotationAttachmentSymbols =
                 (List<BAnnotationAttachmentSymbol>) owner.getAnnotations();
         for (int j = 0; j < annotSymbolCount; j++) {

@@ -444,15 +444,13 @@ public class BIRGen extends BLangNodeVisitor {
             }
             typeDef.annotAttachments.addAll(getBIRAnnotAttachments(((BTypeDefinitionSymbol) symbol).getAnnotations()));
         } else {
-            // TODO: 2022-02-23 not necessarily enums
+            // TODO: 2022-02-23 not necessarily enums, may not be a type definition symbol for generated type
+            //  definitions.
             //enum symbols
             typeDefs.put(symbol, typeDef);
 
             if (astTypeDefinition.flagSet.contains(Flag.ENUM)) {
                 typeDef.annotAttachments.addAll(getBIRAnnotAttachments(((BEnumSymbol) symbol).getAnnotations()));
-            } else {
-                typeDef.annotAttachments.addAll(
-                        getBIRAnnotAttachmentsForASTAnnotAttachments(astTypeDefinition.annAttachments));
             }
         }
         this.env.enclPkg.typeDefs.add(typeDef);
