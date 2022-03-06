@@ -164,6 +164,8 @@ public class BIRBinaryWriter {
 
             // Function type as a CP Index
             writeType(buf, birGlobalVar.type);
+
+            writeAnnotAttachments(buf, birGlobalVar.annotAttachments);
         }
     }
 
@@ -221,7 +223,7 @@ public class BIRBinaryWriter {
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
             buf.writeLong(parameter.flags);
-            writeAnnotAttachments(buf, parameter.annotAttachmentSymbols);
+            writeAnnotAttachments(buf, parameter.annotAttachments);
         }
 
         // TODO find a better way
@@ -230,7 +232,7 @@ public class BIRBinaryWriter {
         buf.writeBoolean(restParamExist);
         if (restParamExist) {
             buf.writeInt(addStringCPEntry(restParam.name.value));
-            writeAnnotAttachments(buf, restParam.annotAttachmentSymbols);
+            writeAnnotAttachments(buf, restParam.annotAttachments);
         }
 
         boolean hasReceiverType = birFunction.receiver != null;
@@ -357,6 +359,7 @@ public class BIRBinaryWriter {
 
         writeType(buf, birAnnotation.annotationType);
         typeWriter.writeMarkdownDocAttachment(buf, birAnnotation.markdownDocAttachment);
+        writeAnnotAttachments(buf,birAnnotation.annotAttachments);
     }
 
     private void writeConstants(ByteBuf buf, List<BIRNode.BIRConstant> birConstList) {
@@ -379,6 +382,7 @@ public class BIRBinaryWriter {
         // write the length of the constant value, so that it can be skipped.
         ByteBuf birbuf = Unpooled.buffer();
         writeType(birbuf, birConstant.constValue.type);
+        writeAnnotAttachments(buf, birConstant.annotAttachments);
         writeConstValue(birbuf, birConstant.constValue);
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);

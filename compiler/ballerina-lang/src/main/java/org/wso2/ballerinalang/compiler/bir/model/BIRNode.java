@@ -186,13 +186,13 @@ public abstract class BIRNode {
     public static class BIRParameter extends BIRNode {
         public Name name;
         public long flags;
-        public List<BIRAnnotationAttachment> annotAttachmentSymbols;
+        public List<BIRAnnotationAttachment> annotAttachments;
 
         public BIRParameter(Location pos, Name name, long flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
-            this.annotAttachmentSymbols = new ArrayList<>();
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override

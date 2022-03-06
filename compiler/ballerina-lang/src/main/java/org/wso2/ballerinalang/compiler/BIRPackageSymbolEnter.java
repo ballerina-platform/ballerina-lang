@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
@@ -667,6 +668,7 @@ public class BIRPackageSymbolEnter {
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
         defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
+        defineAnnotAttachmentSymbols(dataInStream, annotationSymbol);
 
         if (annotationType != symTable.noType) { //TODO fix properly
             annotationSymbol.attachedType = annotationType;
@@ -716,6 +718,7 @@ public class BIRPackageSymbolEnter {
                                                              pos, toOrigin(origin));
 
         defineMarkDownDocAttachment(constantSymbol, docBytes);
+        defineAnnotAttachmentSymbols(dataInStream, constantSymbol);
 
         // read and ignore constant value's byte chunk length.
         dataInStream.readLong();
@@ -841,6 +844,7 @@ public class BIRPackageSymbolEnter {
         this.globalVarMap.put(varName, varSymbol);
 
         defineMarkDownDocAttachment(varSymbol, docBytes);
+        defineAnnotAttachmentSymbols(dataInStream, varSymbol);
 
         enclScope.define(varSymbol.name, varSymbol);
     }
@@ -858,8 +862,7 @@ public class BIRPackageSymbolEnter {
                                                   invokableType.paramTypes.get(i), invokableSymbol,
                                                   symTable.builtinPos, COMPILED_SOURCE);
             varSymbol.isDefaultable = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
-
-            defineParamAnnotSymbols(dataInStream, varSymbol);
+            defineAnnotAttachmentSymbols(dataInStream, varSymbol);
             invokableSymbol.params.add(varSymbol);
         }
 
@@ -869,7 +872,7 @@ public class BIRPackageSymbolEnter {
                                                   invokableType.restType, invokableSymbol, symTable.builtinPos,
                                                   COMPILED_SOURCE);
             invokableSymbol.restParam = restParam;
-            defineParamAnnotSymbols(dataInStream, restParam);
+            defineAnnotAttachmentSymbols(dataInStream, restParam);
         }
 
         if (Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.PARAMETERIZED)) {
@@ -896,11 +899,14 @@ public class BIRPackageSymbolEnter {
         }
     }
 
-    private void defineParamAnnotSymbols(DataInputStream dataInStream, BVarSymbol varSymbol) throws IOException {
+    private void defineAnnotAttachmentSymbols(DataInputStream dataInStream, Annotatable owner) throws IOException {
         long skip = dataInStream.readLong();
         int annotSymbolCount = dataInStream.readInt();
+
+        List<BAnnotationAttachmentSymbol> annotationAttachmentSymbols =
+                (List<BAnnotationAttachmentSymbol>) owner.getAnnotations();
         for (int j = 0; j < annotSymbolCount; j++) {
-            varSymbol.addAnnotation(defineAnnotationAttachmentSymbol(dataInStream, varSymbol));
+            annotationAttachmentSymbols.add(defineAnnotationAttachmentSymbol(dataInStream, (BSymbol) owner));
         }
     }
 

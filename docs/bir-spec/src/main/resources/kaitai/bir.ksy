@@ -498,6 +498,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   type_definition:
     seq:
       - id: position
@@ -599,6 +601,8 @@ types:
         type: s4
       - id: doc
         type: markdown
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   attach_point:
     seq:
       - id: point_name_cp_index
@@ -619,6 +623,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: length
         type: s8
       - id: constant_value

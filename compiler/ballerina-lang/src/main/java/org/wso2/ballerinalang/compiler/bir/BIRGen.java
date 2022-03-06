@@ -924,7 +924,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.Return(birFunc.pos);
         }
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
-        parameter.annotAttachmentSymbols.addAll(getBIRAnnotAttachments(annots));
+        parameter.annotAttachments.addAll(getBIRAnnotAttachments(annots));
         birFunc.requiredParams.add(parameter);
         birFunc.parameters.put(birVarDcl, bbsOfDefaultValueExpr);
 
@@ -941,7 +941,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BIRParameter restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.restParam = restParam;
-        restParam.annotAttachmentSymbols.addAll(getBIRAnnotAttachments(paramSymbol.getAnnotations()));
+        restParam.annotAttachments.addAll(getBIRAnnotAttachments(paramSymbol.getAnnotations()));
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
