@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -86,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -2505,9 +2507,19 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BLangConstantValue constAnnotationValue;
 
         if (expr == null) {
-            // https://github.com/ballerina-platform/ballerina-lang/issues/35127
-            constAnnotationValue = new BLangConstantValue(true, symTable.booleanType);
-            constantSymbol.value = constAnnotationValue;
+            if (types.isAssignable(attachedType, symTable.trueType)) {
+                // https://github.com/ballerina-platform/ballerina-lang/issues/35127
+                constAnnotationValue = new BLangConstantValue(true, symTable.booleanType);
+                constantSymbol.value = constAnnotationValue;
+            } else {
+                // TODO: 2022-03-06 Need to handle defaults coming from records.
+                BLangRecordLiteral mappingConstructor = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                mappingConstructor.setBType(attachedType);
+                mappingConstructor.typeChecked = true;
+
+                constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(
+                        mappingConstructor, constantSymbol, env);
+            }
         } else {
             constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr,
                                                                                                   constantSymbol, env);
