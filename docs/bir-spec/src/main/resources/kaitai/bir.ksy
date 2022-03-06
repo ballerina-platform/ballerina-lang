@@ -514,12 +514,12 @@ types:
         type: s1
       - id: doc
         type: markdown
-      - id: annotation_attachments_content
-        type: annotation_attachments_content
       - id: type_cp_index
         type: s4
       - id: has_reference_type
         type: u1
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
 
   type_definition_body:
     seq:
