@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -149,7 +150,7 @@ public class Types {
 
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
         BSymbol bSymbol = symbolResolver.lookupSymbolInGivenScope(pkgEnv, Names.fromString(typeDefName), SymTag.TYPE_DEF);
-        if (bSymbol.tag == SymTag.TYPE_DEF) {
+        if (bSymbol.tag == SymTag.TYPE_DEF && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL) {
             return Optional.ofNullable((TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
         }
 
@@ -169,7 +170,7 @@ public class Types {
             Map<String, TypeDefinitionSymbol> typeDefSymbols = new HashMap<>();
             for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
                 BSymbol bSymbol = scopeEntry.symbol;
-                if (bSymbol != null && bSymbol.tag == SymTag.TYPE_DEF) {
+                if (bSymbol != null && bSymbol.tag == SymTag.TYPE_DEF && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL) {
                     String typeDefName = bSymbol.getName().getValue();
                     typeDefSymbols.put(typeDefName, (TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
                 }
