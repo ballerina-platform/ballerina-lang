@@ -1501,8 +1501,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
-            if (!identifiers.containsKey(identifier) && (withinLambdaFunc || queryEnv == null
-                    || !queryEnv.scope.entries.containsKey(symbol.name))) {
+            if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
+                    && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
                         symTable.anyOrErrorType, currentFrameSymbol);
@@ -2005,6 +2005,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         this.queryEnv = fromClause.env;
         this.acceptNode(fromClause.collection);
+        //we don't have to reset the env to the prev env because from clause is the init clause for the query
     }
 
     @Override
