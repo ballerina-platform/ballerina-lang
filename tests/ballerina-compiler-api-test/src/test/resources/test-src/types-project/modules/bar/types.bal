@@ -1,3 +1,8 @@
 type MyBoolean boolean|byte;
 
-type MyFloat float|decimal;
+type MyFloat decimal;
+
+public type Student record {|
+    int indexNo;
+    String name;
+|};
