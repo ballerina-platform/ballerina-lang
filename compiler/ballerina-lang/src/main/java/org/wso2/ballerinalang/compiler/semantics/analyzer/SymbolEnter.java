@@ -432,6 +432,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
 
+        defineDependentFields(typeAndClassDefs);
+
         // Calculate error intersections types.
         defineIntersectionTypes(pkgEnv);
 
@@ -468,6 +470,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                         varSymbol.tag = SymTag.ENDPOINT;
                     }
                 }
+            }
+        }
+    }
+
+    private void defineDependentFields(List<BLangNode> typeDefNodes) {
+        for (BLangNode typeDef : typeDefNodes) {
+            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                defineReferencedFieldsOfRecordTypeDef((BLangTypeDefinition) typeDef);
             }
         }
     }
@@ -3464,6 +3474,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define all the fields
         resolveFields(recordType, recordTypeNode);
 
+        resolveRestFieldType(recordTypeNode, recordType);
+    }
+
+    private void resolveRestFieldType(BLangRecordTypeNode recordTypeNode, BRecordType recordType) {
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
             dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
@@ -3855,47 +3869,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
         BRecordType recordType = (BRecordType) structureType;
-        recordType.sealed = recordTypeNode.sealed;
-        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
-            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
-            return;
-        }
-
-        if (recordTypeNode.restFieldType != null) {
-            recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
-            return;
-        }
-
-        if (!recordTypeNode.sealed) {
-            recordType.restFieldType = symTable.anydataType;
-            return;
-        }
-
-        // analyze restFieldType for open records
-        for (BLangType typeRef : recordTypeNode.typeRefs) {
-            BType refType = Types.getReferredType(typeRef.getBType());
-            if (refType.tag != TypeTags.RECORD) {
-                continue;
-            }
-            BType restFieldType = ((BRecordType) refType).restFieldType;
-            if (restFieldType == symTable.noType) {
-                continue;
-            }
-            if (recordType.restFieldType != null && !types.isSameType(recordType.restFieldType, restFieldType)) {
-                recordType.restFieldType = symTable.noType;
-                dlog.error(recordTypeNode.pos,
-                        DiagnosticErrorCode.
-                        CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES);
-                return;
-            }
-            recordType.restFieldType = restFieldType;
-            recordType.sealed = false;
-        }
-
-        if (recordType.restFieldType != null) {
-            return;
-        }
-        recordType.restFieldType = symTable.noType;
+        resolveRestFieldType(recordTypeNode, recordType);
     }
 
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
@@ -3908,13 +3882,30 @@ public class SymbolEnter extends BLangNodeVisitor {
                     return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
                 })
                 .collect(getFieldCollector());
+    }
 
-        // Resolve referenced types and their fields of structural type
+    private void defineReferencedFieldsOfRecordTypeDef(BLangTypeDefinition typeDef) {
+        NodeKind nodeKind = typeDef.typeNode.getKind();
+        if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
+            return;
+        }
+        BStructureType structureType = (BStructureType) typeDef.symbol.type;
+        BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
+        resolveReferencedFields(structureType, structureTypeNode);
+
+        if (typeDef.symbol.kind == SymbolKind.TYPE_DEF && structureType.tsymbol.kind != SymbolKind.RECORD) {
+            return;
+        }
+
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
+        BRecordType recordType = (BRecordType) structureType;
+        resolveRestFieldType(recordTypeNode, recordType);
+    }
+
+    private void resolveReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         resolveIncludedFields(structureTypeNode);
-
         populateResolvedTypeRefs(structureType, structureTypeNode);
-
-        // Add referenced fields of structural type
         defineReferencedFields(structureType, structureTypeNode);
     }
 
