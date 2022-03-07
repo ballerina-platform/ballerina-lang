@@ -745,14 +745,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BType resultType = typeChecker.checkExpr(value, env, symTable.noType);
 
                 // Replacing unary expression with numeric literal type for + and - numeric values
-                if (resultType != symTable.semanticError) {
+//                if (resultType != symTable.semanticError) {
                     BLangNumericLiteral newNumericLiteral = replaceUnaryExprWithLiteral((BLangUnaryExpr) value);
                     finiteTypeNode.valueSpace.set(i, newNumericLiteral);
 
                     // Remove unary expression and add the constructed literal
                     newValueSpace.remove(value);
                     newValueSpace.add(newNumericLiteral);
-                }
+//                }
             } else {
                 analyzeNode(value, env);
             }

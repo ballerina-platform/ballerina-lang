@@ -4746,7 +4746,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 if (basicNumericTypes.isEmpty()) {
                     dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                            expType, unaryExpr.expr);
+                                expType, unaryExpr.expr);
                     resultType = symTable.semanticError;
                 } else if (basicNumericTypes.size() == 1) {
                     newExpectedType = basicNumericTypes.iterator().next();
