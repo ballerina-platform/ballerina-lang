@@ -45,6 +45,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     // Parser Flags and Data
     public boolean isAnonymous;
     public boolean isLocal;
+    public boolean referencedFieldsDefined;
 
     // Semantic Data
     public BSymbol symbol;
