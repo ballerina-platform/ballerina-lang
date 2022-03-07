@@ -24,8 +24,8 @@ import java.util.Objects;
  */
 public class CodeActionNodeValidatorTest {
 
-    private final Path sourcesPath = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("codeaction/node-validator"))
-            .getFile()).toPath();
+    private final Path sourcesPath = new File(Objects.requireNonNull(getClass().getClassLoader()
+                    .getResource("codeaction/node-validator")).getFile()).toPath();
 
     @Test(dataProvider = "validatorDataProvider")
     public void testInvalidFunctionCall(String srcPath, int line, int character, boolean expectedResult) 
