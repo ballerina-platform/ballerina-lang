@@ -55,10 +55,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     protected Boolean transformSyntaxNode(Node node) {
-        if (node.parent() == null) {
-            return true;
-        }
-        return node.parent().apply(this);
+        return node.parent() == null || node.parent().apply(this);
     }
 
     @Override
@@ -67,7 +64,6 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
             return true;
         }
         visited.add(node);
-        
         return node.equalsToken().isPresent()
                 && !node.equalsToken().get().isMissing()
                 && node.typedBindingPattern().apply(this)
@@ -144,9 +140,10 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
             return true;
         }
         visited.add(node);
-        return !node.ltToken().isMissing()
-            && !node.gtToken().isMissing()
-            && node.typeNode().apply(this);
+        return !node.ltToken().isMissing() 
+                && !node.gtToken().isMissing() 
+                && node.typeNode().apply(this)
+                && node.parent().apply(this);
     }
 
     @Override
@@ -200,11 +197,10 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
             return true;
         }
         visited.add(node);
-        if (node.letKeyword().isMissing() || node.inKeyword().isMissing()
-                || !node.letVarDeclarations().stream().allMatch(arg -> arg.apply(this))) {
-            return false;
-        }
-        return node.expression().apply(this);
+        return !node.letKeyword().isMissing() 
+                && !node.inKeyword().isMissing()
+                && node.letVarDeclarations().stream().allMatch(arg -> arg.apply(this))
+                && node.expression().apply(this);
     }
 
     @Override
@@ -224,14 +220,9 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
             return true;
         }
         visited.add(node);
-        if (node.ellipsis().isMissing()) {
-            return false;
-        }
-        if (visited.contains(node.valueExpr())) {
-            return node.parent().apply(this);
-        } else {
-            return node.valueExpr().apply(this);
-        }
+        return !node.ellipsis().isMissing()
+                && node.valueExpr().apply(this)
+                && node.parent().apply(this);
     }
 
     @Override
@@ -241,7 +232,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         }
         visited.add(node);
         return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
-                && node.fields().stream().allMatch(arg -> arg.apply(this));
+                && node.fields().stream().allMatch(arg -> arg.apply(this))
+                && node.parent().apply(this); 
     }
 
     @Override
@@ -250,8 +242,10 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
             return true;
         }
         visited.add(node);
-        return node.expression().apply(this) && !node.dotToken().isMissing()
-                && node.fieldName().apply(this);
+        return node.expression().apply(this) 
+                && !node.dotToken().isMissing()
+                && node.fieldName().apply(this)
+                && node.parent().apply(this);
     }
     @Override
     public Boolean transform(PositionalArgumentNode node) {
@@ -259,10 +253,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
             return true;
         }
         visited.add(node);
-        if (visited.contains(node.expression())) {
-            return node.parent().apply(this);
-        }
-        return node.expression().apply(this);
+        return node.expression().apply(this)
+                && node.parent().apply(this);
     }
 
     @Override
@@ -294,7 +286,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         }
         visited.add(node);
         return !node.ellipsis().isMissing()
-                && node.expression().apply(this);
+                && node.expression().apply(this)
+                && node.parent().apply(this);
     }
 
     @Override
@@ -304,7 +297,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         }
         visited.add(node);
         return !node.openBracket().isMissing() && !node.closeBracket().isMissing()
-                && node.expressions().stream().allMatch(arg -> arg.apply(this));
+                && node.expressions().stream().allMatch(arg -> arg.apply(this))
+                && node.parent().apply(this);
     }
     
     public static Boolean validate(NonTerminalNode node) {
