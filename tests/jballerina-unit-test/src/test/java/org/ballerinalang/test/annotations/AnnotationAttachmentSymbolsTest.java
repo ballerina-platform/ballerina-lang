@@ -252,6 +252,7 @@ public class AnnotationAttachmentSymbolsTest {
         Assert.assertEquals(attachments.size(), 2);
 
         // Should come from the default value of the field, doesn't atm.
+        // https://github.com/ballerina-platform/ballerina-lang/issues/35348
         // assertAttachmentSymbol(attachments.get(0), "v25", true, "val", "ABC");
         // Replace the assertion for v25 with the line above once fixed.
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
