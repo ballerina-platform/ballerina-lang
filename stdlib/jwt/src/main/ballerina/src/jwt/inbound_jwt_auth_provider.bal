@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/http;
 import ballerina/stringutils;
 
 # Represents the inbound JWT auth provider, which authenticates by validating a JWT.
@@ -39,12 +40,19 @@ public type InboundJwtAuthProvider object {
     *auth:InboundAuthProvider;
 
     public JwtValidatorConfig jwtValidatorConfig;
+    http:Client? jwksClient;
 
     # Provides authentication based on the provided JWT.
     #
     # + jwtValidatorConfig - JWT validator configurations
     public function __init(JwtValidatorConfig jwtValidatorConfig) {
         self.jwtValidatorConfig = jwtValidatorConfig;
+        JwksConfig? jwksConfig = self.jwtValidatorConfig?.jwksConfig;
+        if (jwksConfig is JwksConfig) {
+            self.jwksClient = new(jwksConfig.url, jwksConfig.clientConfig);
+        } else {
+            self.jwksClient = ();
+        }
     }
 
 # Authenticates provided JWT against `jwt:JwtValidatorConfig`.
@@ -60,7 +68,7 @@ public type InboundJwtAuthProvider object {
             return false;
         }
 
-        JwtPayload|Error validationResult = validateJwt(credential, self.jwtValidatorConfig);
+        JwtPayload|Error validationResult = validate(credential, self.jwtValidatorConfig, self.jwksClient);
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
