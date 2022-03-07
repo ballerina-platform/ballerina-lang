@@ -2131,7 +2131,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
-                return getMappingConstructorCompatibleNonUnionType(((BTypeReferenceType)type).referredType);
+                return getMappingConstructorCompatibleNonUnionType(((BTypeReferenceType) type).referredType);
         }
         return symTable.semanticError;
     }
