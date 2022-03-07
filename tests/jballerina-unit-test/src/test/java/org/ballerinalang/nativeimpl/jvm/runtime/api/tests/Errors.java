@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -33,8 +32,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.List;
-
-import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
 
 /**
  * This class contains a set of utility methods required for runtime api @{@link ErrorCreator} testing.
@@ -64,32 +61,5 @@ public class Errors {
             index++;
         }
         return arrayValue;
-    }
-
-    public static BError getDistinctErrorNegative(BString errorName) {
-        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
-        errorDetails.put(StringUtils.fromString("detail"), "detail error message");
-        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("msg"),
-                null, errorDetails);
-    }
-
-    public static BError getErrorNegative1(BString msg) {
-        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
-        errorDetails.put(StringUtils.fromString("detail"), "detail error message");
-        return ErrorCreator.createError(msg, errorDetails);
-    }
-
-    public static BError getErrorWithTypeNegative(BString msg) {
-        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
-        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
-        errorDetails.put(StringUtils.fromString("detail"), "detail error message");
-        return ErrorCreator.createError(bErrorType, msg, null, errorDetails);
-    }
-
-    public static BError getErrorNegative2(BString msg) {
-        String typeIdName = "RuntimeError";
-        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
-        errorDetails.put(StringUtils.fromString("detail"), "this is runtime failure");
-        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, errorDetails);
     }
 }

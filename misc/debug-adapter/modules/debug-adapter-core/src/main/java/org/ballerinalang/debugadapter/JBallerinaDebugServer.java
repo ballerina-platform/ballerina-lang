@@ -1013,7 +1013,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void prepareFor(DebugInstruction instruction) {
         clearState();
-        eventProcessor.restoreBreakpoints(instruction);
+        eventProcessor.getBreakpointProcessor().restoreUserBreakpoints(instruction);
         context.setLastInstruction(instruction);
     }
 
