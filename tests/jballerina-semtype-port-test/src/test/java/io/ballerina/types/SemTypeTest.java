@@ -22,6 +22,7 @@ import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BCompileUtil;
+import org.jetbrains.annotations.NotNull;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -91,6 +92,37 @@ public class SemTypeTest {
         return testFiles.toArray(new String[0]);
     }
 
+    @DataProvider(name = "type-rel-provider")
+    public Object[] typeRelTestFileNameProvider() {
+        File dataDir = resolvePath("test-src/type-rel").toFile();
+        ArrayList<File> balFiles = new ArrayList<>();
+        listAllBalFiles(dataDir, balFiles);
+
+        List<SemTypeAssertionTransformer.TypeAssertion> tests = new ArrayList<>();
+        for (File file : balFiles) {
+            String fileName = file.getAbsolutePath();
+            BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
+            SemTypeAssertionTransformer transformer =
+                    new SemTypeAssertionTransformer(fileName, pair.syntaxTree, pair.bLangPackage.semtypeEnv);
+            tests.addAll(transformer.getTypeAssertions());
+        }
+        return tests.toArray();
+    }
+
+    public void listAllBalFiles(File file, List<File> balFiles) {
+        if (file.isFile()) {
+            return;
+        }
+        for (File f : file.listFiles()) {
+            if (f.isDirectory()) {
+                listAllBalFiles(f, balFiles);
+            }
+            if (f.getName().endsWith(".bal")) {
+                balFiles.add(f);
+            }
+        }
+    }
+
     private void include(List<String> testFiles, String... fileNames) {
         for (int i = 0; i < fileNames.length; i++) {
             testFiles.add(i, fileNames[i]);
@@ -122,7 +154,8 @@ public class SemTypeTest {
 
     @Test(dataProvider = "fileNameProviderFunc")
     public void funcTest(String fileName) {
-        BLangPackage bLangPackage = BCompileUtil.compileSemType(fileName);
+        BCompileUtil.PackageSyntaxTreePair packageSyntaxTreePair = BCompileUtil.compileSemType(fileName);
+        BLangPackage bLangPackage = packageSyntaxTreePair.bLangPackage;;
         ensureNoErrors(bLangPackage);
         List<String[]> vars = extractVarTypes(fileName);
         Context tc = Context.from(bLangPackage.semtypeEnv);
@@ -143,6 +176,34 @@ public class SemTypeTest {
         });
     }
 
+    @Test(dataProvider = "type-rel-provider")
+    public void testSemTypeAssertions(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
+        switch (typeAssertion.kind) {
+            case NON:
+                Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
+                                   formatFailingAssertionDescription(typeAssertion));
+                Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.rhs, typeAssertion.lhs),
+                                   formatFailingAssertionDescription(typeAssertion));
+                break;
+            case SUB:
+                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
+                                  formatFailingAssertionDescription(typeAssertion));
+                break;
+            case SAME:
+                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
+                                  formatFailingAssertionDescription(typeAssertion));
+                Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.rhs, typeAssertion.lhs),
+                                  formatFailingAssertionDescription(typeAssertion));
+
+        }
+    }
+
+    @NotNull
+    private String formatFailingAssertionDescription(SemTypeAssertionTransformer.TypeAssertion typeAssertion) {
+        return typeAssertion.text + "\n in: " + typeAssertion.file;
+    }
+
+
     private String toText(List<String> expectedRels) {
         StringJoiner joiner = new StringJoiner("\n// ", "// ", "");
         for (String rel : expectedRels) {
@@ -152,7 +213,7 @@ public class SemTypeTest {
     }
 
     private List<String> getSubtypeRels(String sourceFilePath) {
-        BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath);
+        BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath).bLangPackage;
         // xxxx-e.bal pattern is used to test bal files where jBallerina type checking doesn't support type operations
         // such as intersection. Make sure not to use nBallerina type negation (!) with this as jBallerina compiler
         // front end doesn't generate AST from those.

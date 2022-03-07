@@ -24,6 +24,7 @@ import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
+import io.ballerina.types.typeops.ListProj;
 
 import java.math.BigDecimal;
 
@@ -91,5 +92,21 @@ public class SemTypes {
 
     public static SemType intersection(SemType t1, SemType t2) {
         return Core.intersect(t1, t2);
+    }
+
+    public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
+        return Core.isSubtypeSimple(t1, t2);
+    }
+
+    public static SemType mappingMemberType(Context context, SemType t, SemType m) {
+        return Core.mappingMemberType(context, t, m);
+    }
+
+    public static SemType listProj(Context context, SemType t, SemType key) {
+        return ListProj.listProj(context, t, key);
+    }
+
+    public static SemType listMemberType(Context context, SemType t, SemType key) {
+        return Core.listMemberType(context, t, key);
     }
 }
