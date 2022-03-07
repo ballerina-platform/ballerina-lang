@@ -16,18 +16,24 @@
 
 import ErrorMatchProject.module1;
 
+type FooError error<record {|string msg; boolean fatal = false;|}>;
+
 function testErrorMatchWithQualifiedReference() {
     error err1 = error("OMG!");
     error err2 = error(module1:ERROR_MESSAGE_2);
     error err3 = error("SOMETHING'S WRONG!");
     error err4 = error("OH, NO!", error("SOMETHING'S WRONG!"));
-    error err5 = error("ERROR!");
+    FooError err5 = error("ERROR!", msg = "OH, NO!", fatal = false);
+    FooError err6 = error("ERROR!", msg = "OH, NO!", fatal = true);
+    error err7 = error("ERROR!");
 
     assertEquals(1, errorMatchWithQualifiedReference(err1));
     assertEquals(2, errorMatchWithQualifiedReference(err2));
     assertEquals(3, errorMatchWithQualifiedReference(err3));
     assertEquals(4, errorMatchWithQualifiedReference(err4));
-    assertEquals(0, errorMatchWithQualifiedReference(err5));
+    assertEquals(5, errorMatchWithQualifiedReference(err5));
+    assertEquals(0, errorMatchWithQualifiedReference(err6));
+    assertEquals(0, errorMatchWithQualifiedReference(err7));
 }
 
 function errorMatchWithQualifiedReference(error e) returns int {
@@ -43,6 +49,9 @@ function errorMatchWithQualifiedReference(error e) returns int {
         }
         error(module1:ERROR_MESSAGE_4, error(module1:ERROR_MESSAGE_3)) => {
             return 4;
+        }
+        error(_, msg = module1:ERROR_MESSAGE_4, fatal = module1:DEFAULT_FATAL_STATUS) => {
+            return 5;
         }
     }
 
