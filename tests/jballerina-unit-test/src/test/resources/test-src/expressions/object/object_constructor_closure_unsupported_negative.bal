@@ -59,3 +59,21 @@ function test2() returns any {
 
         return zz.bar(4);
 }
+
+function testClosuresWithObjectConstrExprUnsupported(int b1) {
+    final int a1 = 10;
+
+    var _ = object {
+        int a2 = 10;
+        object {
+            int a3;
+            function foo(int b2) returns int;
+        } obj2 = object {
+            int a3 = a1; // not supported
+            function foo(int b2) returns int {
+                //return self.a3 + a1; // should also give not supported error
+                return self.a3;
+            }
+        };
+    };
+}

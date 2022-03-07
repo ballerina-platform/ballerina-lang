@@ -82,16 +82,19 @@ public class CloneUtils {
     public static BError createConversionError(Object value, Type targetType, List<String> errors) {
         if (errors.isEmpty()) {
             return ErrorUtils.createConversionError(value, targetType);
-        } else {
-            if (errors.size() == MAX_CONVERSION_ERROR_COUNT + 1) {
-                errors.remove(MAX_CONVERSION_ERROR_COUNT);
-                errors.add("...");
-            }
-            StringBuilder errorMsg = new StringBuilder();
-            for (String error : errors) {
-                errorMsg.append("\n\t\t").append(error);
-            }
-            return ErrorUtils.createConversionError(value, targetType, errorMsg.toString());
         }
+        return ErrorUtils.createConversionError(value, targetType, getErrorMessage(errors));
+    }
+
+    private static String getErrorMessage(List<String> errors) {
+        if (errors.size() == MAX_CONVERSION_ERROR_COUNT + 1) {
+            errors.remove(MAX_CONVERSION_ERROR_COUNT);
+            errors.add("...");
+        }
+        StringBuilder errorMsg = new StringBuilder();
+        for (String error : errors) {
+            errorMsg.append("\n\t\t").append(error);
+        }
+        return errorMsg.toString();
     }
 }

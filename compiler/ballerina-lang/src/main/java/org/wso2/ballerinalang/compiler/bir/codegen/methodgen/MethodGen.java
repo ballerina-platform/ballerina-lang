@@ -64,8 +64,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.objectweb.asm.Opcodes.AALOAD;
-import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -76,7 +74,6 @@ import static org.objectweb.asm.Opcodes.DCONST_0;
 import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DSTORE;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.DUP_X1;
 import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FSTORE;
@@ -97,6 +94,7 @@ import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.SIPUSH;
@@ -109,6 +107,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_AN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -129,6 +128,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.UPDATE_CHANNEL_DETAILS;
 
 /**
@@ -506,7 +508,16 @@ public class MethodGen {
 
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
                                    BIRTerminator terminator) {
-        if (terminator.kind != InstructionKind.RETURN) {
+        if (terminator.kind == InstructionKind.GOTO &&
+                ((BIRTerminator.GOTO) terminator).targetBB.terminator.kind == InstructionKind.RETURN &&
+                !JvmCodeGenUtil.isExternFunc(func) && func.pos != null &&
+                func.pos.lineRange().endLine().line() != 0x80000000) {
+            // The ending line number of the function is added to the line number table to prevent wrong code
+            // coverage for generated return statements.
+            Label label = new Label();
+            mv.visitLabel(label);
+            mv.visitLineNumber(func.pos.lineRange().endLine().line() + 1, label);
+        } else if (terminator.kind != InstructionKind.RETURN) {
             JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
         }
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
@@ -536,15 +547,14 @@ public class MethodGen {
 
     private void genGetFrameOnResumeIndex(int localVarOffset, MethodVisitor mv, String frameName) {
         mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "[Ljava/lang/Object;");
-        mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
         mv.visitInsn(ICONST_1);
         mv.visitInsn(ISUB);
-        mv.visitInsn(DUP_X1);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, RESUME_INDEX, "I");
-        mv.visitInsn(AALOAD);
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STACK, "pop", RETURN_OBJECT, false);
         mv.visitTypeInsn(CHECKCAST, frameName);
     }
 
@@ -893,16 +903,16 @@ public class MethodGen {
         int frameVarIndex = indexMap.addIfNotExists("frame", symbolTable.stringType);
         mv.visitVarInsn(ASTORE, frameVarIndex);
         mv.visitVarInsn(ALOAD, localVarOffset);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, "[Ljava/lang/Object;");
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
+        mv.visitVarInsn(ALOAD, frameVarIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STACK, "push", PASS_OBJECT_RETURN_OBJECT, false);
+        mv.visitInsn(POP);
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
-        mv.visitInsn(DUP_X1);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(IADD);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, RESUME_INDEX, "I");
-        mv.visitVarInsn(ALOAD, frameVarIndex);
-        mv.visitInsn(AASTORE);
     }
 
     private void createLocalVariableTable(BIRFunction func, BIRVarToJVMIndexMap indexMap, int localVarOffset,
@@ -916,7 +926,6 @@ public class MethodGen {
         if (func.receiver != null) {
             mv.visitLocalVariable("self", GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
         }
-        BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
@@ -930,7 +939,7 @@ public class MethodGen {
                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
+                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;

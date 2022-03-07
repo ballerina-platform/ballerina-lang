@@ -44,7 +44,7 @@
       "detail": "TestRecord2",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "field1: 0,\nfield3: false,\nfield2: \"\"",
+      "insertText": "field1: 0",
       "insertTextFormat": "Snippet"
     }
   ]

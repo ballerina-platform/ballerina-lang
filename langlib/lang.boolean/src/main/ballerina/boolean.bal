@@ -22,7 +22,7 @@ import ballerina/jballerina.java;
 # The accepted representations are `true`, `false`
 # (in any combination of lower- and upper-case),
 # and also `1` for true and `0` for `false`.
-# This is the inverse of function `value:toString` applied to a `boolean`.
+# This is the inverse of function ``value:toString`` applied to a `boolean`.
 #
 # + s - string representing a boolean value
 # + return - boolean that parameter `s` represents, or an error if there is no such boolean

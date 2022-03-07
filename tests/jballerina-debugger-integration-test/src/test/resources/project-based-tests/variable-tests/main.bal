@@ -313,6 +313,12 @@ public function main() {
     intVar = addition(2, 3);
     intVar = addition(3, 4);
 
+    // visibility of variable which is defined inside 'if' statement
+    if (true) {
+        int newVar = intVar + 5;
+        intVar += intVar;
+    }
+
     var foo = basicClosure();
     int result = foo(3);
 }

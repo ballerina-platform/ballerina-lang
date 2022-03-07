@@ -31,7 +31,6 @@ import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
-import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -463,20 +462,24 @@ public class EvaluationUtils {
     /**
      * Returns the fully-qualified generated java class name for the source file, which includes the given symbol.
      *
-     * @param context suspended context
-     * @param symbol  source symbol
+     * @param symbol source symbol
      * @return the fully-qualified generated java class name for the source file, which includes the given symbol
      */
-    public static String constructQualifiedClassName(SuspendedContext context, Symbol symbol) {
+    public static String constructQualifiedClassName(Symbol symbol) {
         String className = symbol.getLocation().orElseThrow().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
-        // for ballerina single source files,
-        // qualified class name ::= <file_name>
-        if (context.getSourceType() == DebugSourceType.SINGLE_FILE) {
+        if (symbol.getModule().isEmpty()) {
             return className;
         }
+
+        ModuleID moduleMeta = symbol.getModule().get().id();
+        // for ballerina single source files, the package name will be "." and therefore,
+        // qualified class name ::= <file_name>
+        if (moduleMeta.packageName().equals(".")) {
+            return className;
+        }
+
         // for ballerina package source files,
         // qualified class name ::= <package_name>.<module_name>.<package_major_version>.<file_name>
-        ModuleID moduleMeta = symbol.getModule().orElseThrow().id();
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))

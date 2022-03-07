@@ -8,14 +8,12 @@ We appreciate your help!
 - [Build the source code](#build-the-source-code)
 - [Set up the development environment](#set-up-the-development-environment)
     - [Set up the Ballerina plugins](#set-up-the-ballerina-plugins)
-    - [Set up the ANTLR4 plugin](#set-up-the-antlr4-plugin)
 - [Submit your contribution](#submit-your-contribution)
-- [Accept the Contributor License Agreement](#accept-the-contributor-license-agreement)
 - [Propose changes to Ballerina](#propose-changes-to-ballerina)
 
 ## Get started
 
-- Download [Ballerina](https://ballerina.io/downloads/) and go through the [learning resources](https://ballerina.io/swan-lake/learn).
+- Download [Ballerina](https://ballerina.io/downloads/) and go through the [learning resources](https://ballerina.io/learn/).
 - Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
 
 - Join the conversations at:
@@ -27,7 +25,7 @@ We appreciate your help!
 
 - Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
 
-    >**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack channel](#https://ballerina-platform.slack.com/).
+    >**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack channel](https://ballerina-platform.slack.com/).
     - Compiler, runtime, standard library, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
     - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
     - Website: <a href="https://github.com/ballerina-platform/ballerina-dev-website/issues">ballerina-dev-website</a> repo
@@ -39,7 +37,7 @@ We appreciate your help!
 
 ## Build the source code 
 
-For instructions, see <a href="https://ballerina.io/learn/installing-ballerina/building-from-source/">Building from source</a>.
+For instructions, see <a href="https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/building-from-source.md/">Building from source</a>.
 
 ## Set up the development environment
 
@@ -47,9 +45,9 @@ See the below sections to set up the required plugins in your preferred IDEs/Edi
 
 ### Set up the Ballerina plugins
 
-Set up the [Ballerina plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina)
+Set up the [Ballerina plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
     
-For installation instructions, see [Ballerina VS Code Documentation](https://ballerina.io/swan-lake/learn/getting-started/setting-up-visual-studio-code/).
+For installation instructions, see [Ballerina VS Code Documentation](https://ballerina.io/learn/visual-studio-code-extension/vs-code-quick-start/).
 
 ## Submit your contribution
 

@@ -237,8 +237,10 @@ public class FileSystemRepository extends AbstractPackageRepository {
             pkgSemVer = Version.valueOf(pkgBalVer);
             distSemVer = Version.valueOf(distBalVer);
 
-
             if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
+                if (pkgSemVer.getMinorVersion() == distSemVer.getMinorVersion()) {
+                    return true;
+                }
                 return !pkgSemVer.greaterThan(distSemVer);
             }
         } catch (UnexpectedCharacterException ignore) {

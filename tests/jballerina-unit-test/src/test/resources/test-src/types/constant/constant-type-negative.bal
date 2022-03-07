@@ -36,7 +36,7 @@ function userDefinedTypeTests() {
     CD1 cd1 = 4.0; // expected '3.0d', found 'float'
 //  CBT3 cbt3 = 4; // expected '3', found 'int' // Uncomment after fixing #33889
     CB2 cb2 = true; // expected 'false', found 'boolean'
-    CS2 cs2 = "4"; // expected '12', found 'string'
+    CS2 cs2 = "4"; // expected '"12"', found 'string'
 
     TYPE1 t1 = CI6; // expected 'TYPE1', found '3'
     TYPE2 t2 = CF1; // expected 'TYPE2', found '3.0f'
@@ -133,4 +133,142 @@ function testTypesOfConstantMaps() {
     CMS1_CLONE cms1_clone = {};
     CMI5 cmi5 = {};
     CN2 cn2 = {a : ()};
+}
+
+const int A = 123;
+const int B = A;
+const int C = B - A - 1;
+
+function f1() {
+    A _ = 1; // error incompatible types: expected '123', found 'int'
+    B _ = 2; // error incompatible types: expected '123', found 'int'
+    C _ = 3; // error incompatible types: expected '-1', found 'int'
+}
+
+function f2() {
+    var a = A;
+    var b = B;
+    var c = C;
+    a = 1; // OK, using the broad type.
+    b = 2; // OK, using the broad type.
+    c = 3; // OK, using the broad type.
+    a = "1"; // error incompatible types: expected 'int', found 'string'
+    b = "2"; // error incompatible types: expected 'int', found 'string'
+    c = "3"; // error incompatible types: expected 'int', found 'string'
+}
+
+function f3() {
+    A[] _ = [A, B, C, 1]; // error
+    B[] _ = [A, B, C, 1, 123]; // error
+    (B|C)[] _ = [A, 1, C, 123, B, -1]; // error
+    C[] _ = [A, B, C, -1, 1]; // error
+}
+
+const X = 1;
+int i = 2;
+
+const map<int> D = {
+    a: X,
+    b: i, // error expression is not a constant expression
+    X
+};
+
+record { string a; } _ = D; // error incompatible types: expected 'record {| string a; anydata...; |}', found 'map<int>'
+
+const map<int> E = {
+    a: X,
+    b: 2
+};
+
+const map<map<int>> F = {
+    a: E,
+    b: {
+        a: 1
+    }
+};
+
+function f4() {
+    record {| int a; string...; |} _ = D; // error incompatible types: expected 'record {| int a; string...; |}', found 'map<int>'
+    record {| 1 a; |} _ = E; // error incompatible types: expected 'record {| 1 a; |}', found '(record {| 1 a; 2 b; |} & readonly)'
+    readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |} _ = F; // error incompatible types: expected 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly', found '(record {| record {| 1 a; 2 b; |} a; record {| 1 a; |} b; |} & readonly)'
+}
+
+function f5() {
+    var a = E;
+    a.a = 1; // error cannot update 'readonly' value of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'
+    a.b = 1; // error cannot update 'readonly' value of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'
+
+    var b = F;
+    b.a.a = 2; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
+    b.b.a = 2; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
+    b.b = {}; // error cannot update 'readonly' value of type 'record {| readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 1 a; |} & readonly) b; |} & readonly'
+}
+
+const G = 1;
+const int H = G + 1;
+
+G _ = 1; // OK
+G _ = 0; // error incompatible types: expected '1', found 'int'
+
+H _ = 2; // OK
+H _ = 0; // error incompatible types: expected '2', found 'int'
+
+const map<boolean> I = {a: true, b: false};
+
+I _ = {a: true, b: false}; // OK
+I _ = {}; // error missing non-defaultable required record field 'a', missing non-defaultable required record field 'b'
+I _ = {a: false}; // error missing non-defaultable required record field 'b', incompatible types: expected 'true', found 'boolean'
+
+const map<string> J = {
+    a: "greetings",
+    b: "map"
+};
+
+const map<map<string>> K = {
+    a: J,
+    b: {
+        x: "hello",
+        y: "world"
+    },
+    c: {
+        x: "from",
+        z: "Ballerina",
+        b: "!"
+    }
+};
+
+record {| record {| "greetings" a; "map" b; |} a; record {| "hello" x; "world" y; |} b; record {| "!" b; "from" x; "Ballerina" z; |} c; |} & readonly _ = K; // OK
+record {| record {| "greetings" a; "map" b; |}...; |} _ = K; // error incompatible types: expected 'record {| record {| greetings a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'
+
+K _ = {}; // error missing non-defaultable required record field 'a', missing non-defaultable required record field 'b', missing non-defaultable required record field 'c'
+K _ = { // OK
+    b: K.b,
+    a: {
+        a: "greetings",
+        b: "map"
+    },
+    c: {
+        x: "from",
+        z: "Ballerina",
+        b: K.c.b
+    }
+};
+
+function f6() {
+    record {| record {| "greetings" a; "map" b; |} a; record {| "hello" x; "world" y; |} b; record {| "!" b; "from" x; "Ballerina" z; |} c; |} & readonly _ = K; // OK
+    record {| record {| "greetings" a; "map" b; |}...; |} _ = K; // error incompatible types: expected 'record {| record {| greetings a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'
+
+    K _ = {}; // error missing non-defaultable required record field 'a', missing non-defaultable required record field 'b', missing non-defaultable required record field 'c'
+    K _ = { // OK
+        b: K.b,
+        a: {
+            a: "greetings",
+            b: "map"
+        },
+        c: {
+            x: "from",
+            z: "Ballerina",
+            b: K.c.b
+        }
+    };
 }

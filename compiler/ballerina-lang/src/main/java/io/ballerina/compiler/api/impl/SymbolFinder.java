@@ -641,6 +641,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode((BLangNode) foreach.variableDefinitionNode);
         lookupNode(foreach.collection);
         lookupNode(foreach.body);
+        lookupNode(foreach.onFailClause);
     }
 
     @Override
@@ -722,11 +723,13 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangWhile whileNode) {
         lookupNode(whileNode.expr);
         lookupNode(whileNode.body);
+        lookupNode(whileNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         lookupNode(lockNode.body);
+        lookupNode(lockNode.onFailClause);
     }
 
     @Override
@@ -1176,7 +1179,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
 
-        if (this.symbolAtCursor == null) {
+        if (this.symbolAtCursor == null && tableType.tableType != null) {
             this.symbolAtCursor = tableType.tableType.tsymbol;
         }
     }

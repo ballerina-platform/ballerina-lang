@@ -80,7 +80,7 @@ public class JlineBallerinaParser implements Parser {
 
         // Feed additional newline to the parser to submit all data
         stateMachine.feed(NEW_LINE);
-        if (context != ParseContext.COMPLETE && inputValidator.isIncomplete(line)) {
+        if (context != ParseContext.COMPLETE && !inputValidator.isComplete(line)) {
             throw new EOFError(-1, -1, "incomplete line");
         }
         return new JlineParsedLine(line, words, wordIndex, wordCursor, cursor);

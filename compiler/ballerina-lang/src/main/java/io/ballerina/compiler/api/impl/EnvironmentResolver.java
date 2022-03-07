@@ -133,7 +133,7 @@ public class EnvironmentResolver extends BaseVisitor {
     @Override
     public void visit(BLangCompilationUnit compUnit) {
         for (TopLevelNode node : compUnit.getTopLevelNodes()) {
-            if (node.getKind() == NodeKind.FUNCTION && isWorkerOrLambdaFunction((BLangFunction) node)) {
+            if (isWorkerOrLambdaFunction(node)) {
                 continue;
             }
 
@@ -197,7 +197,13 @@ public class EnvironmentResolver extends BaseVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         if (PositionUtil.withinBlock(this.linePosition, classDefinition.getPosition())
                 && isNarrowerEnclosure(classDefinition.getPosition())) {
-            SymbolEnv env = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, this.symbolEnv);
+            SymbolEnv env;
+            if (isAnonClass(classDefinition)) {
+                env = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope,
+                        classDefinition.oceEnvData.capturedClosureEnv);
+            } else {
+                env = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, this.symbolEnv);
+            }
             this.scope = env;
             classDefinition.getFunctions().forEach(function -> this.acceptNode(function, env));
             if (classDefinition.initFunction != null) {
@@ -753,7 +759,14 @@ public class EnvironmentResolver extends BaseVisitor {
         return PositionUtil.isRangeWithinNode(nodePosition.lineRange(), this.scope.node.getPosition());
     }
 
-    private boolean isWorkerOrLambdaFunction(BLangFunction node) {
-        return node.flagSet.contains(Flag.WORKER) || node.flagSet.contains(Flag.LAMBDA);
+    private boolean isWorkerOrLambdaFunction(TopLevelNode node) {
+        return node.getKind() == NodeKind.FUNCTION && (((BLangFunction) node).flagSet.contains(Flag.WORKER)
+                || ((BLangFunction) node).flagSet.contains(Flag.LAMBDA));
+    }
+
+    private boolean isAnonClass(TopLevelNode node) {
+        return node.getKind() == NodeKind.CLASS_DEFN
+                && ((BLangClassDefinition) node).getFlags().contains(Flag.ANONYMOUS)
+                && !((BLangClassDefinition) node).getFlags().contains(Flag.SERVICE);
     }
 }

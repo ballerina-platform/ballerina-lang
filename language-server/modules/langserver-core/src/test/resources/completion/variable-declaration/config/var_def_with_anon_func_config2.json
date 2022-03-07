@@ -598,6 +598,14 @@
       "filterText": "function",
       "insertText": "function (int i, string s) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intVal",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "F",
+      "insertText": "intVal",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
