@@ -67,8 +67,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
 
-import javax.swing.text.html.Option;
-
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
@@ -91,7 +89,6 @@ public class DebugTestRunner {
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
-    private static final int MAX_RETRY_COUNT = 3;
     private static final int SCHEDULER_INTERVAL_MS = 1000;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
 
