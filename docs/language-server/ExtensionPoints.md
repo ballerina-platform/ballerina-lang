@@ -1,4 +1,4 @@
-# Language Server Extensions Development Guide
+# Language Server Extension Points/ APIs
 Ballerina Language Server provides extension points to following editor features. 
 
 - <a href="#SuggestionsAndAutoCompletion">Suggestions and Auto Completion</a>
@@ -41,8 +41,9 @@ Language Client(eg.VSCode)       Language Server
 
 ### Code Action Attachment Points
 
-1. <a href="#CodeActionDiagnostic">Diagnostics</a>
+1. <a href="#CodeActionDiagnostic">Diagnostics based Code Actions</a>
 2. <a href="#CodeActionNodeType">Code Action Node-Type</a>
+3. <a href="#CodeActionCompilerPlugin">Compiler plugin based Code Actions</a>
 
 <a name="CodeActionDiagnostic"></a>
 
@@ -81,6 +82,11 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
         // return list of code-actions
     }
 ```
+<a name="CodeActionCompilerPlugin"></a>
+
+#### 3. Compiler Plugin Based Code Actions
+* The compiler plugin based code actions allow the developers to write code actions as a compiler plugin, without any prior requirement of the language server knowledge. The language server is going to load the plugins at the runtime and convert them to code actions.
+Refer [this](CompilerPluginCodeActionExtensions.md) for detailed explanation.
 <a name="CodeActionCommandExecutor"></a>
 
 #### Command Executor
