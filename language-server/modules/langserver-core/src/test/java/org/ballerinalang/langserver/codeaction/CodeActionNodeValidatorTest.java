@@ -47,18 +47,23 @@ public class CodeActionNodeValidatorTest {
         return new Object[][] {
                 {"validateFunctionCallExpressionNode1.bal", 1, 15, true},
                 {"validateFunctionCallExpressionNode2.bal", 1, 15, false},
+                {"validateFunctionCallExpressionNode3.bal", 1, 22, false},
                 {"validateAssignmentStatementNode.bal", 2, 11, true},
                 {"validateBinaryExpressionNode.bal", 1, 11, true},
-                {"validateLetVariableDeclarationNode.bal", 1, 27, true},
+                {"validateLetVariableDeclarationNode1.bal", 1, 27, true},
+                {"validateLetVariableDeclarationNode2.bal", 1, 23, false},
                 {"validateLetExpressionNode.bal", 1, 32, true},
-                {"validateNamedArgumentNode.bal", 1, 18, true},
+                {"validateNamedArgumentNode1.bal", 1, 18, true},
+                {"validateNamedArgumentNode2.bal", 1, 30, false},
                 {"validateListConstructorExpressionNode.bal", 1, 15, true},
                 {"validateCheckExpressionNode.bal", 1, 21, true},
                 {"validateTableTypeDescriptorNode.bal", 5, 38, true},
                 {"validateExternalTreeNodeList.bal", 1, 21, false},
                 {"validateSpreadFieldNode.bal", 5, 24, true},
                 {"validatePositionalArgumentNode.bal", 1, 20, true},
-                {"validateRestArgumentNode.bal", 2, 15, true}
+                {"validateRestArgumentNode1.bal", 2, 15, true},
+                {"validateRestArgumentNode2.bal", 1, 15, false},
+                {"validateFieldAccessExpressionNode.bal", 6, 15, true}
         };
     }
 }

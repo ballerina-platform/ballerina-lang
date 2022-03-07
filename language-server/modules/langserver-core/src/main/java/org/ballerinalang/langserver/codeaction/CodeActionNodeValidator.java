@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
@@ -100,7 +101,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         }
         visited.add(node);
         return node.bindingPattern().apply(this)
-                && node.typeDescriptor().apply(this);
+                && node.typeDescriptor().apply(this)
+                && node.parent().apply(this);
     }
 
     @Override
@@ -109,7 +111,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
             return true;
         }
         visited.add(node);
-        return !node.variableName().isMissing();
+        return !node.variableName().isMissing() 
+                && node.parent().apply(this);
     }
     
     @Override
@@ -186,7 +189,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         visited.add(node);
         return !node.operator().isMissing()
                 && node.lhsExpr().apply(this) 
-                && node.rhsExpr().apply(this);
+                && node.rhsExpr().apply(this)
+                && node.parent().apply(this);
     }
 
     @Override
@@ -215,30 +219,39 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(SpreadFieldNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            if (node.ellipsis().isMissing()) {
-                return false;
-            }
-            if (visited.contains(node.valueExpr())) {
-                return node.parent().apply(this);
-            } else {
-                return node.valueExpr().apply(this);
-            }
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        if (node.ellipsis().isMissing()) {
+            return false;
+        }
+        if (visited.contains(node.valueExpr())) {
+            return node.parent().apply(this);
+        } else {
+            return node.valueExpr().apply(this);
+        }
     }
 
     @Override
     public Boolean transform(MappingConstructorExpressionNode node) {
-        if (!visited.contains(node)) {
-            visited.add(node);
-            return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
-                    && node.fields().stream().allMatch(arg -> arg.apply(this));
+        if (visited.contains(node)) {
+            return true;
         }
-        return true;
+        visited.add(node);
+        return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
+                && node.fields().stream().allMatch(arg -> arg.apply(this));
     }
 
+    @Override
+    public Boolean transform(FieldAccessExpressionNode node) {
+        if (visited.contains(node)) {
+            return true;
+        }
+        visited.add(node);
+        return node.expression().apply(this) && !node.dotToken().isMissing()
+                && node.fieldName().apply(this);
+    }
     @Override
     public Boolean transform(PositionalArgumentNode node) {
         if (visited.contains(node)) {
@@ -269,7 +282,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         visited.add(node);
         return !node.equalsToken().isMissing()
                 && node.argumentName().apply(this) 
-                && node.expression().apply(this);
+                && node.expression().apply(this)
+                && node.parent().apply(this);
     }
     
     @Override
@@ -300,5 +314,4 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         CodeActionNodeValidator nodeValidator = new CodeActionNodeValidator();
         return validatorNode.apply(nodeValidator);
     }
-    
 }
