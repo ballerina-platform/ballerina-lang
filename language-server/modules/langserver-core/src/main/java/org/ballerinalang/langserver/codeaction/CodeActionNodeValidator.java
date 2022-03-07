@@ -51,7 +51,7 @@ import java.util.Set;
  */
 public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
-    private Set<Node> visited = new HashSet<>();
+    private final Set<Node> visited = new HashSet<>();
 
     @Override
     protected Boolean transformSyntaxNode(Node node) {
@@ -68,7 +68,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         }
         visited.add(node);
         
-        return !node.equalsToken().get().isMissing()
+        return node.equalsToken().isPresent()
+                && !node.equalsToken().get().isMissing()
                 && node.typedBindingPattern().apply(this)
                 && node.initializer().isPresent()
                 && node.initializer().get().apply(this);
@@ -157,7 +158,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
         return !node.keyKeyword().isMissing() 
                 && !node.openParenToken().isMissing()
                 && !node.closeParenToken().isMissing()
-                && node.fieldNames().stream().noneMatch(arg->arg.isMissing());
+                && node.fieldNames().stream().noneMatch(Node::isMissing);
     }
 
     @Override

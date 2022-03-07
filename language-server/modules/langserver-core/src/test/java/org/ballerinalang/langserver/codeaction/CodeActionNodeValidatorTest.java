@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Test cases to validate the code action syntax.
@@ -23,7 +24,7 @@ import java.nio.file.Path;
  */
 public class CodeActionNodeValidatorTest {
 
-    private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction/node-validator")
+    private final Path sourcesPath = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("codeaction/node-validator"))
             .getFile()).toPath();
 
     @Test(dataProvider = "validatorDataProvider")
