@@ -49,6 +49,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
@@ -75,6 +76,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getModule;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -151,10 +153,72 @@ public class TypesTest {
                 {"foo", "ErrorDetail1", RECORD},
                 {"foo", "MyErr", ERROR},
                 {"foo", "MyInt", UNION},
+
                 {"bar", "MyBoolean", UNION},
                 {"bar", "MyFloat", DECIMAL},
                 {"bar", "Student", RECORD},
+
+                {"bar", "Person", RECORD},
+                {"bar", "Employee", RECORD},
+                {"bar", "Digit", UNION},
+                {"bar", "ExampleErr", ERROR},
         };
+    }
+
+
+    @Test
+    public void testGetTypesInFooModule() {
+        testTypesInModule("foo", getTypesInFooModule());
+    }
+
+    @Test
+    public void testTypesInBarModule() {
+        testTypesInModule("bar", getTypesInBarModule());
+    }
+
+    private Object[][] getTypesInFooModule() {
+        return new Object[][] {
+                {"ErrorDetail1", RECORD},
+                {"MyErr", ERROR},
+                {"MyInt", UNION},
+        };
+    }
+
+    private Object[][] getTypesInBarModule() {
+        return new Object[][] {
+                // types.bal
+                {"MyBoolean", UNION},
+                {"MyFloat", DECIMAL},
+                {"Student", RECORD},
+
+                // more_typedefs.bal
+                {"Person", RECORD},
+                {"Employee", RECORD},
+                {"Digit", UNION},
+                {"ExampleErr", ERROR},
+        };
+    }
+
+    private void testTypesInModule(String moduleName, Object[][] expTypes) {
+        Module module = getModule(project, moduleName);
+        model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
+        types = model.types();
+        String org = module.descriptor().org().value();
+        String pkgName = module.descriptor().name().toString();
+        String version = module.descriptor().version().toString();
+
+        Optional<Map<String, TypeDefinitionSymbol>> typesInModule = types.typesInModule(org, pkgName, version);
+        assertTrue(typesInModule.isPresent());
+
+        Map<String, TypeDefinitionSymbol> typeDefSymbolMap = typesInModule.get();
+        assertEquals(typeDefSymbolMap.size(), expTypes.length);
+
+        for (Object[] expType : expTypes) {
+            String expTypeName = String.valueOf(expType[0]);
+            TypeDefinitionSymbol typeDefSymbol = typeDefSymbolMap.get(expTypeName);
+            assertNotNull(typeDefSymbol);
+            assertEquals(typeDefSymbol.typeDescriptor().typeKind(), expType[1]);
+        }
     }
 
 }
