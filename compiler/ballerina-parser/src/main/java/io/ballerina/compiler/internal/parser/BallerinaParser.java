@@ -10079,9 +10079,13 @@ public class BallerinaParser extends AbstractParser {
      * Parse list constructor expression.
      * <p>
      * <code>
-     * list-constructor-expr := [ [ expr-list ] ]
+     * list-constructor-expr := [ [ list-members  ] ]
      * <br/>
-     * expr-list := expression (, expression)*
+     * list-members  := list-member  (, list-member)*
+     * <br/>
+     * list-member := expression | spread-member
+     * <br/>
+     * spread-member := ... expression
      * </code>
      *
      * @return Parsed node
@@ -10089,43 +10093,78 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseListConstructorExpr() {
         startContext(ParserRuleContext.LIST_CONSTRUCTOR);
         STNode openBracket = parseOpenBracket();
-        STNode expressions = parseOptionalExpressionsList();
+        STNode listMembers = parseListMembers();
         STNode closeBracket = parseCloseBracket();
         endContext();
-        return STNodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
+        return STNodeFactory.createListConstructorExpressionNode(openBracket, listMembers, closeBracket);
     }
 
     /**
-     * Parse optional expression list.
+     * Parse optional list member list.
      *
      * @return Parsed node
      */
-    private STNode parseOptionalExpressionsList() {
-        List<STNode> expressions = new ArrayList<>();
+    private STNode parseListMembers() {
+        List<STNode> listMembers = new ArrayList<>();
         if (isEndOfListConstructor(peek().kind)) {
             return STNodeFactory.createEmptyNodeList();
         }
 
-        STNode expr = parseExpression();
-        expressions.add(expr);
-        return parseOptionalExpressionsList(expressions);
+        STNode listMember = parseListMember();
+        listMembers.add(listMember);
+        return parseListMembers(listMembers);
     }
 
-    private STNode parseOptionalExpressionsList(List<STNode> expressions) {
-        // Parse the remaining expressions
+    private STNode parseListMembers(List<STNode> listMembers) {
+        // Parse the remaining list members
         STNode listConstructorMemberEnd;
         while (!isEndOfListConstructor(peek().kind)) {
             listConstructorMemberEnd = parseListConstructorMemberEnd();
             if (listConstructorMemberEnd == null) {
                 break;
             }
-            expressions.add(listConstructorMemberEnd);
+            listMembers.add(listConstructorMemberEnd);
 
-            STNode expr = parseExpression();
-            expressions.add(expr);
+            STNode listMember = parseListMember();
+            listMembers.add(listMember);
         }
 
-        return STNodeFactory.createNodeList(expressions);
+        return STNodeFactory.createNodeList(listMembers);
+    }
+
+    /**
+     * Parse list member.
+     * <p>
+     * <code>
+     * list-member := expression | spread-member
+     * <br/>
+     * spread-member := ... expression
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseListMember() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
+            return parseSpreadMember();
+        } else {
+            return parseExpression();
+        }
+    }
+
+    /**
+     * Parse spread member.
+     * <p>
+     * <code>
+     * spread-member := ... expression
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseSpreadMember() {
+        STNode ellipsis = parseEllipsis();
+        STNode expr = parseExpression();
+        return STNodeFactory.createSpreadMemberNode(ellipsis, expr);
     }
 
     private boolean isEndOfListConstructor(SyntaxKind tokenKind) {
@@ -18185,7 +18224,7 @@ public class BallerinaParser extends AbstractParser {
         memberList = getExpressionList(memberList);
 
         switchContext(ParserRuleContext.LIST_CONSTRUCTOR);
-        STNode expressions = parseOptionalExpressionsList(memberList);
+        STNode expressions = parseListMembers(memberList);
         STNode closeBracket = parseCloseBracket();
         STNode listConstructor =
                 STNodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);

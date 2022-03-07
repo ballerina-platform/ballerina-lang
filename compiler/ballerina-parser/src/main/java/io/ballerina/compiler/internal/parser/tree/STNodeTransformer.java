@@ -817,6 +817,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
+    public T transform(STSpreadMemberNode spreadMemberNode) {
+        return transformSyntaxNode(spreadMemberNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

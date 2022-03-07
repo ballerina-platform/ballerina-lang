@@ -41,6 +41,11 @@ public class ListConstructorTest extends AbstractExpressionsTest {
         test("[ [[]], [ a, b ], { a:b, c:[ d, { e:f } ] } ]", "list-constructor/list_constructor_assert_03.json");
     }
 
+    @Test
+    public void testSpreadOperator() {
+        testFile("list-constructor/list_constructor_source_10.bal", "list-constructor/list_constructor_assert_10.json");
+    }
+
     // Recovery tests
 
     @Test
