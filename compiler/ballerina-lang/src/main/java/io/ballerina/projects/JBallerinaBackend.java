@@ -133,7 +133,6 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         this.conflictedJars = new ArrayList<>();
         performCodeGen();
-
     }
 
     PackageContext packageContext() {
@@ -156,11 +155,8 @@ public class JBallerinaBackend extends CompilerBackend {
             // If modules from the current package are being processed
             // we do an overall check on the diagnostics of the package
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
-                Collection<Diagnostic> diagnosticsCollection =
-                        packageContext.project().currentPackage().getCompilation().diagnosticResult().diagnostics();
-                if (!hasNoErrors(new ArrayList<>(diagnosticsCollection))) {
-                    moduleDiagnostics.addAll(packageContext.project().currentPackage().getCompilation()
-                            .diagnosticResult().diagnostics());
+                if (packageCompilation.diagnosticResult().hasErrors()) {
+                    moduleDiagnostics.addAll(packageCompilation.diagnosticResult().diagnostics());
                     break;
                 }
             }

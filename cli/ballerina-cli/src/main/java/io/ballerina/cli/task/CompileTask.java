@@ -98,6 +98,7 @@ public class CompileTask implements Task {
             if (codeGenDiagnosticResult != null) {
                 codeGenDiagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
             }
+
             // Report package compilation and backend diagnostics
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
             diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
