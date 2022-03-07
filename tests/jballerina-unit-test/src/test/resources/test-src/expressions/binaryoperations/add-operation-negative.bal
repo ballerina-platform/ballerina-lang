@@ -63,4 +63,18 @@ function testImplicitConversion() {
     float e = 12.25;
     var y1 = d + e;
     any y2 = d + e;
+
+    I i = "i";
+    O o = "o";
+    xml x = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
+    string y = "abc";
+
+    string z = x + y;
+    FO xx = i + o;
 }
+
+type FO "fo";
+
+type I "i";
+
+type O "o";
