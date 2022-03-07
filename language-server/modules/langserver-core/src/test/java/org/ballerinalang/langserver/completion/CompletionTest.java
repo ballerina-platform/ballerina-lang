@@ -53,9 +53,9 @@ public abstract class CompletionTest {
 
     protected Endpoint serviceEndpoint;
 
-    private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
+    protected final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
-    private final String configDir = "config";
+    protected final String configDir = "config";
     
     private final Gson gson = new Gson();
 
@@ -85,7 +85,7 @@ public abstract class CompletionTest {
         }
     }
 
-    private String getResponse(JsonObject configJsonObject) throws IOException {
+    protected String getResponse(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         Position position = new Position();
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();

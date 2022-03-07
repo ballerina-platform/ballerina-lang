@@ -70,6 +70,7 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation "com.google.guava:guava:${project.guavaVersion}"
     implementation 'com.moandjiezana.toml:toml4j'
+    implementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
 
     distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
@@ -77,6 +78,7 @@ dependencies {
     dependency "org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:${project.eclipseLsp4jJsonrpcVersion}"
     dependency "commons-io:commons-io:${project.commonsIoVersion}"
     dependency "com.google.guava:guava:${project.guavaVersion}"
+    dependency "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     
     testCompile 'org.testng:testng'
 }

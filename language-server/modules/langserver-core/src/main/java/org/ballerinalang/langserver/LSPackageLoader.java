@@ -44,7 +44,7 @@ import java.util.Optional;
  */
 public class LSPackageLoader {
 
-    private static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
+    public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
     private final List<Package> distRepoPackages;
@@ -58,12 +58,15 @@ public class LSPackageLoader {
         return lsPackageLoader;
     }
 
-    private LSPackageLoader(LanguageServerContext context) {
+    public LSPackageLoader(LanguageServerContext context) {
         distRepoPackages = this.getPackagesFromDistRepo();
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 
     private List<Package> getPackagesFromDistRepo() {
+        if (this.distRepoPackages != null) {
+            return this.distRepoPackages;
+        }
         DefaultEnvironment environment = new DefaultEnvironment();
         // Creating a Ballerina distribution instance
         BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
@@ -72,7 +75,7 @@ public class LSPackageLoader {
         return Collections.unmodifiableList(getPackagesFromRepository(packageRepository, skippedLangLibs));
     }
 
-    private List<Package> getLocalRepoPackages(DocumentServiceContext ctx) {
+    public List<Package> getLocalRepoPackages(DocumentServiceContext ctx) {
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -83,7 +86,7 @@ public class LSPackageLoader {
         return getPackagesFromRepository(localRepository, Collections.emptyList());
     }
 
-    private List<Package> getRemoteRepoPackages(DocumentServiceContext ctx) {
+    public List<Package> getRemoteRepoPackages(DocumentServiceContext ctx) {
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -95,8 +98,8 @@ public class LSPackageLoader {
     }
 
     private List<Package> getPackagesFromRepository(PackageRepository repository, List<String> skipList) {
-        List<Package> packages = new ArrayList<>();
         Map<String, List<String>> packageMap = repository.getPackages();
+        List<Package> packages = new ArrayList<>();
         packageMap.forEach((key, value) -> {
             if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
@@ -135,11 +138,9 @@ public class LSPackageLoader {
 
     public List<Package> getAllVisiblePackages(DocumentServiceContext ctx) {
         List<Package> packagesList = new ArrayList<>();
-        packagesList.addAll(this.distRepoPackages);
-        packagesList.addAll(LSPackageLoader
-                .getInstance(ctx.languageServercontext()).getRemoteRepoPackages(ctx));
-        packagesList.addAll(LSPackageLoader
-                .getInstance(ctx.languageServercontext()).getLocalRepoPackages(ctx));
+        packagesList.addAll(this.getPackagesFromDistRepo());
+        packagesList.addAll(this.getRemoteRepoPackages(ctx));
+        packagesList.addAll(this.getLocalRepoPackages(ctx));
         return packagesList;
     }
 
