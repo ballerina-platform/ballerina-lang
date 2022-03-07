@@ -95,7 +95,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this(new LanguageServerContextImpl());
     }
 
-    private BallerinaLanguageServer(LanguageServerContext serverContext) {
+    public BallerinaLanguageServer(LanguageServerContext serverContext) {
         super(serverContext);
         this.textService = new BallerinaTextDocumentService(this, workspaceManagerProxy, this.serverContext);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManagerProxy, this.serverContext);
