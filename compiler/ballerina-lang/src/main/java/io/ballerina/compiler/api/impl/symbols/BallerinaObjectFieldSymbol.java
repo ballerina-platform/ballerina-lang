@@ -53,7 +53,6 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private List<AnnotationSymbol> annots;
     private String signature;
     private boolean deprecated;
-    private String escapedName;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
         super(bField.symbol.getOriginalName().value, kind, bField.symbol, context);

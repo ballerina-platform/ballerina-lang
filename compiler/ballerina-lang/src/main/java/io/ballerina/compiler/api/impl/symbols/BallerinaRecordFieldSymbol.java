@@ -52,7 +52,6 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private List<Qualifier> qualifiers;
     private String signature;
     private boolean deprecated;
-    private String escapedName;
 
     public BallerinaRecordFieldSymbol(CompilerContext context, BField bField) {
         super(bField.symbol.getOriginalName().value, SymbolKind.RECORD_FIELD, bField.symbol, context);

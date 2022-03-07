@@ -37,6 +37,8 @@ import static io.ballerina.compiler.api.impl.util.SymbolUtils.unescapeUnicode;
  */
 public class FieldMap<K, V> extends LinkedHashMap<K, V> {
 
+    private static final long serialVersionUID = 609051204130116L;
+
     @Override
     public V get(Object key) {
         validateKeyType(key);
