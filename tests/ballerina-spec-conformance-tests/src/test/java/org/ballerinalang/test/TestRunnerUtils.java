@@ -111,17 +111,18 @@ public class TestRunnerUtils {
 
             Map<String, String> headersOfTestCase = readHeaders(line, buffReader);
             String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
-            validateLabels(headersOfTestCase.get(LABELS), selectedLabels);
+
             //TODO: if kind of testcase is other, then need to skip creating the bal file
             boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
 
-            Object[] testCase = new Object[9];
+            Object[] testCase = new Object[10];
             testCase[0] = kindOfTestCase;
             testCase[1] = tempDir + tempFileName + BAL_EXTENSION;
             testCase[4] = fileName;
             testCase[5] = absLineNum;
             testCase[6] = isSkippedTestCase;
             testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
+            testCase[9] = headersOfTestCase.get(LABELS);
 
             line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
         }
@@ -198,7 +199,7 @@ public class TestRunnerUtils {
         }
     }
 
-    private static void validateLabels(String labels, Set<String> selectedLabels) {
+    public static void validateLabels(String labels, Set<String> selectedLabels) {
         List<String> labelsList = new ArrayList<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
@@ -224,7 +225,7 @@ public class TestRunnerUtils {
                 (hasDuplicateLabels ? "Duplicate labels: " + duplicateLabels : "");
 
         if (!diagnosticMsg.isEmpty()) {
-            reportDiagnostics(diagnosticMsg);
+            Assert.fail(diagnosticMsg);
         }
     }
 
