@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,16 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
+public function main() {
+    int result = recursion1(5);
+}
 
-public type GenericError distinct error;
+function recursion1(int num) returns int {
+    if (num is 0) {
+        return 0;
+    }
 
-public type UserError distinct GenericError;
+    int recursionResult = recursion2(num - 1);
+    return recursionResult;
+}
 
-public function getError(string errorName) returns error = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
-} external;
+function recursion2(int num) returns int {
+    if (num is 0) {
+        return 0;
+    }
 
-public function getTypeIds(error errorVal) returns string[] = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
-} external;
+    int recursionResult = recursion1(num - 1);
+    return recursionResult;
+}

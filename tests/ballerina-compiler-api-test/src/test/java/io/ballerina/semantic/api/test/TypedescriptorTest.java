@@ -926,7 +926,7 @@ public class TypedescriptorTest {
 
     public Object[][] getSymbolModuleInfo() {
         return new Object[][]{
-                {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
+                {0, 16, "main.bal", SymbolKind.FUNCTION, "main",
                         "symbolowner/testprojmodules:0.1.0"},
                 {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
                         "symbolowner/testprojmodules.module1:0.1.0"},

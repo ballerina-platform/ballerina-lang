@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
@@ -287,8 +288,8 @@ public class SignatureHelpUtil {
         // Add parameters and rest params
         List<ParameterSymbol> parameterSymbols = fnType.params().orElse(new ArrayList<>());
         parameters.addAll(parameterSymbols.stream()
-                                  .map(param -> new Parameter(param, false, false, context))
-                                  .collect(Collectors.toList()));
+                .map(param -> new Parameter(param, false, false, context))
+                .collect(Collectors.toList()));
         Optional<ParameterSymbol> restParam = fnType.restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));
         boolean skipFirstParam = symbol.kind() == METHOD
@@ -497,28 +498,39 @@ public class SignatureHelpUtil {
         }
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor().get();
         if (nodeAtCursor.kind() == SyntaxKind.FUNCTION_CALL) {
-            NameReferenceNode nameReferenceNode = ((FunctionCallExpressionNode) nodeAtCursor).functionName();
-            String funcName;
-            Predicate<Symbol> symbolPredicate =
-                    symbol -> symbol.kind() == FUNCTION || symbol.kind() == VARIABLE || symbol.kind() == PARAMETER;
-            List<Symbol> filteredContent;
-            if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameReferenceNode;
-                funcName = (qNameRef).identifier().text();
-                filteredContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
-                                                                      symbolPredicate
-                                                                              .and(symbol -> symbol.getName().orElse("")
-                                                                                      .equals(funcName)));
-            } else {
-                funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
-                List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-                filteredContent = visibleSymbols.stream()
-                        .filter(symbolPredicate.and(symbol -> symbol.getName().get().equals(funcName)))
-                        .collect(Collectors.toList());
-            }
-
-            return filteredContent.stream().findAny();
+            return getFunctionSymbol((FunctionCallExpressionNode) nodeAtCursor, context);
         }
+        return getFunctionSymbol(nodeAtCursor, context);
+
+    }
+
+    private static Optional<? extends Symbol> getFunctionSymbol(FunctionCallExpressionNode node,
+                                                                SignatureContext context) {
+        NameReferenceNode nameReferenceNode = node.functionName();
+        String funcName;
+        Predicate<Symbol> symbolPredicate =
+                symbol -> symbol.kind() == FUNCTION || symbol.kind() == VARIABLE || symbol.kind() == PARAMETER;
+        List<Symbol> filteredContent;
+        if (nameReferenceNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameReferenceNode;
+            funcName = (qNameRef).identifier().text();
+            filteredContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
+                    symbolPredicate
+                            .and(symbol -> symbol.getName().orElse("")
+                                    .equals(funcName)));
+        } else {
+            funcName = ((SimpleNameReferenceNode) nameReferenceNode).name().text();
+            List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+            filteredContent = visibleSymbols.stream()
+                    .filter(symbolPredicate.and(symbol -> symbol.getName().isPresent() 
+                            && symbol.getName().get().equals(funcName)))
+                    .collect(Collectors.toList());
+        }
+
+        return filteredContent.stream().findAny();
+    }
+
+    private static Optional<? extends Symbol> getFunctionSymbol(Node nodeAtCursor, SignatureContext context) {
         Optional<? extends TypeSymbol> typeDesc;
         String methodName;
         if (nodeAtCursor.kind() == SyntaxKind.METHOD_CALL) {
@@ -538,7 +550,6 @@ public class SignatureHelpUtil {
         } else {
             return Optional.empty();
         }
-
         if (typeDesc.isEmpty()) {
             return Optional.empty();
         }
@@ -672,6 +683,12 @@ public class SignatureHelpUtil {
         }
         if (rawType.kind() == CLASS && ((ClassSymbol) rawType).initMethod().isPresent()) {
             functionSymbols.add(((ClassSymbol) rawType).initMethod().get());
+        }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            ((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream()
+                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
+                    .findFirst().ifPresent(objectMember ->
+                            functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 

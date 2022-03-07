@@ -134,11 +134,6 @@ public class ErrorUtils {
                 getErrorMessage(RuntimeErrors.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
     }
 
-    public static BError createJToBTypeCastError(Object value) {
-        throw createError(BLangExceptionHelper.
-                getErrorMessage(RuntimeErrors.J_TYPE_ASSIGNABLE_ERROR, value));
-    }
-
     public static BError createNumericConversionError(Object inputValue, Type targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                           BLangExceptionHelper.getErrorDetails(
