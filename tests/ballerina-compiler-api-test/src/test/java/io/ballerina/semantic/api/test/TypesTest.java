@@ -80,7 +80,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for the types() API
+ * Test cases for the types() API.
  *
  * @since 2.0.0
  */
