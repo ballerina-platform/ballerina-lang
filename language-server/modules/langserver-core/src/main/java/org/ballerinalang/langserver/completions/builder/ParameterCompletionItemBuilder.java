@@ -41,9 +41,8 @@ public final class ParameterCompletionItemBuilder {
     public static CompletionItem build(String label, String type) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
-        String[] delimiterSeparatedTokens = label.split("\\.");
-        String insertText = delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1];
-        item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(insertText));
+        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(label);
+        item.setInsertText(insertText);
         item.setDetail((type.equals("")) ? ItemResolverConstants.NONE : type);
         item.setKind(CompletionItemKind.Variable);
         return item;

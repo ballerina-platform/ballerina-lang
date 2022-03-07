@@ -53,9 +53,8 @@ public class TypeCompletionItemBuilder {
     public static CompletionItem build(Symbol bSymbol, String label) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
-        String[] delimiterSeparatedTokens = (label).split("\\.");
-        String insertText = delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1];
-        item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(insertText));
+        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(label);
+        item.setInsertText(insertText);
         setMeta(item, bSymbol);
         return item;
     }
