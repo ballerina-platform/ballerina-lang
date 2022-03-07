@@ -1885,8 +1885,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     // Statements
 
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
-        SymbolEnv symbolEnv = SymbolEnv.createBlockEnv(blockNode, data.env);
-        data.env = symbolEnv;
+        data.env = SymbolEnv.createBlockEnv(blockNode, data.env);
         int stmtCount = -1;
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
@@ -1948,7 +1947,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             expType = symTable.semanticError;
         }
 
-        this.typeChecker.checkExpr(compoundAssignment.expr, env, symTable.noType, data.prevEnvs);
+        this.typeChecker.checkExpr(compoundAssignment.expr, env, data.prevEnvs);
 
         checkConstantAssignment(varRef, data);
 
@@ -2386,7 +2385,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 return;
             }
             resetTypeNarrowing(lhsRef.restVar, data);
-            typeChecker.checkExpr(lhsRef.restVar, env, symTable.noType, data.prevEnvs);
+            typeChecker.checkExpr(lhsRef.restVar, env, data.prevEnvs);
         }
     }
 
@@ -2418,7 +2417,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                                          BLangNamedArgsExpression detailItem,
                                          BType expectedType, AnalyzerData data) {
         if (detailItem.expr.getKind() == NodeKind.RECORD_VARIABLE_REF) {
-            typeChecker.checkExpr(detailItem.expr, data.env, symTable.noType, data.prevEnvs);
+            typeChecker.checkExpr(detailItem.expr, data.env, data.prevEnvs);
             checkRecordVarRefEquivalency(location, (BLangRecordVarRef) detailItem.expr, expectedType,
                     rhsLocation, data);
             return;
@@ -2471,7 +2470,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, env.scope);
         env.copyTo(stmtEnv);
         BLangExpression expr = exprStmtNode.expr;
-        BType bType = typeChecker.checkExpr(expr, stmtEnv, symTable.noType, data.prevEnvs);
+        BType bType = typeChecker.checkExpr(expr, stmtEnv, data.prevEnvs);
         if (bType != symTable.nilType && bType != symTable.semanticError &&
                 expr.getKind() != NodeKind.FAIL &&
                 !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType)) {
@@ -3315,7 +3314,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangConstPattern constMatchPattern, AnalyzerData data) {
         BLangExpression constPatternExpr = constMatchPattern.expr;
-        typeChecker.checkExpr(constPatternExpr, data.env, symTable.noType, data.prevEnvs);
+        typeChecker.checkExpr(constPatternExpr, data.env, data.prevEnvs);
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef constRef = (BLangSimpleVarRef) constPatternExpr;
             if (constRef.symbol.kind != SymbolKind.CONSTANT) {
@@ -3708,19 +3707,17 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangDo doNode, AnalyzerData data) {
-        SymbolEnv narrowedEnv = SymbolEnv.createTypeNarrowedEnv(doNode, data.env);
+        data.env = SymbolEnv.createTypeNarrowedEnv(doNode, data.env);
         if (doNode.onFailClause != null) {
-            data.env = narrowedEnv;
             this.analyzeNode(doNode.onFailClause, data);
         }
-        data.env = narrowedEnv;
         analyzeStmt(doNode.body, data);
     }
 
     @Override
     public void visit(BLangFail failNode, AnalyzerData data) {
         BLangExpression errorExpression = failNode.expr;
-        BType errorExpressionType = typeChecker.checkExpr(errorExpression, data.env, symTable.noType, data.prevEnvs);
+        BType errorExpressionType = typeChecker.checkExpr(errorExpression, data.env, data.prevEnvs);
 
         if (errorExpressionType == symTable.semanticError ||
                 !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
@@ -3939,13 +3936,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangTransaction transactionNode, AnalyzerData data) {
-        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, data.env);
+        data.env = SymbolEnv.createTransactionEnv(transactionNode, data.env);
 
         if (transactionNode.onFailClause != null) {
-            data.env = transactionEnv;
             this.analyzeNode(transactionNode.onFailClause, data);
         }
-        data.env = transactionEnv;
         analyzeStmt(transactionNode.transactionBody, data);
     }
 
@@ -3971,8 +3966,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (retryNode.retrySpec != null) {
             retryNode.retrySpec.accept(this, data);
         }
-        SymbolEnv retryEnv = SymbolEnv.createRetryEnv(retryNode, data.env);
-        data.env = retryEnv;
+        data.env = SymbolEnv.createRetryEnv(retryNode, data.env);
         analyzeStmt(retryNode.retryBody, data);
 
         if (retryNode.onFailClause != null) {
@@ -4029,7 +4023,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv env = data.env;
         // TODO Need to remove this cached env
         workerSendNode.env = env;
-        this.typeChecker.checkExpr(workerSendNode.expr, env, symTable.noType, data.prevEnvs);
+        this.typeChecker.checkExpr(workerSendNode.expr, env, data.prevEnvs);
 
         BSymbol symbol =
                 symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerSendNode.workerIdentifier));
@@ -4276,7 +4270,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BLangVariableReference varRefExpr = (BLangVariableReference) expr;
         varRefExpr.isLValue = true;
 
-        typeChecker.checkExpr(varRefExpr, data.env, symTable.noType, data.prevEnvs);
+        typeChecker.checkExpr(varRefExpr, data.env, data.prevEnvs);
 
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:

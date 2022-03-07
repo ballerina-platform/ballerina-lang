@@ -344,6 +344,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return checkExpr(expr, data.env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
+    public BType checkExpr(BLangExpression expr, SymbolEnv env) {
+        return checkExpr(expr, env, symTable.noType, new Stack<>());
+    }
+
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, Stack<SymbolEnv> prevEnvs) {
+        return checkExpr(expr, env, symTable.noType, prevEnvs);
+    }
+
     public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs) {
         final AnalyzerData data = new AnalyzerData();
         data.env = env;
@@ -594,7 +602,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         String numericLiteral = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
         if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
             data.resultType = symTable.semanticError;
-            return data.resultType;
+            return symTable.semanticError;
         }
         literalExpr.value = Double.parseDouble(numericLiteral);
         BType referredType = Types.getReferredType(expType);
@@ -643,7 +651,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else if (expectedType.tag == TypeTags.FLOAT) {
             if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
                 data.resultType = symTable.semanticError;
-                return data.resultType;
+                return symTable.semanticError;
             }
             return symTable.floatType;
         } else if (expectedType.tag == TypeTags.FINITE) {
@@ -662,7 +670,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         getAndSetAssignableUnionMember(literalExpr, unionType, symTable.getTypeFromTag(tag), data);
                 if (unionMember == symTable.floatType && !types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
                     data.resultType = symTable.semanticError;
-                    return data.resultType;
+                    return symTable.semanticError;
                 } else if (unionMember != symTable.noType) {
                     return unionMember;
                 }
@@ -670,7 +678,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
             data.resultType = symTable.semanticError;
-            return data.resultType;
+            return symTable.semanticError;
         }
         return symTable.floatType;
     }
@@ -680,7 +688,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         String numericLiteral = String.valueOf(literalValue);
         if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
             data.resultType = symTable.semanticError;
-            return data.resultType;
+            return symTable.semanticError;
         }
         literalExpr.value = Double.parseDouble(numericLiteral);
         BType referredType = Types.getReferredType(expType);

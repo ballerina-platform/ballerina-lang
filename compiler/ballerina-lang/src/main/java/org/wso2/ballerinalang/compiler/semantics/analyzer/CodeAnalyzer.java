@@ -2294,7 +2294,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // Check at module level.
             return;
         }
-        typeChecker.checkExpr(failNode.expr, env, symTable.noType, new Stack<>());
+        typeChecker.checkExpr(failNode.expr, env);
         if (!this.errorTypes.empty()) {
             this.errorTypes.peek().add(getErrorTypes(failNode.expr.getBType()));
         }
@@ -4363,7 +4363,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
                 kind == NodeKind.FAIL) {
-            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env, symTable.noType, new Stack<>());
+            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send.expr;
     }
@@ -4399,7 +4399,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         addImplicitCast(send.getBType(), receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
-            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env, symTable.noType, new Stack<>());
+            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send;
     }
