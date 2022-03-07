@@ -20,6 +20,9 @@ package io.ballerina.compiler.api.impl.util;
 
 import io.ballerina.identifier.Utils;
 
+/**
+ * Common util methods related to symbols.
+ */
 public class SymbolUtils {
 
     public static String unescapeUnicode(String value) {

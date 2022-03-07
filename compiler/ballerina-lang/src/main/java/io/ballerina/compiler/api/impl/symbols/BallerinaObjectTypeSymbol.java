@@ -17,8 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.FieldMap;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;

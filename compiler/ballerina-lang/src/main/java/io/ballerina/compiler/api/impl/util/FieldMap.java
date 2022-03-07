@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl;
+package io.ballerina.compiler.api.impl.util;
 
 import java.util.LinkedHashMap;
 

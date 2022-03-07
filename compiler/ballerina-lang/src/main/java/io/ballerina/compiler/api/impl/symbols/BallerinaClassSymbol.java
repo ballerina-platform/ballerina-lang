@@ -17,8 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.impl.FieldMap;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
