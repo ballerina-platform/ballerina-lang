@@ -298,6 +298,27 @@ function getImmutable(ImmutableIntArrayOrStringArray x) returns ImmutableIntArra
     return [];
 }
 
+type AnyDataType anydata;
+
+type JsonType json;
+
+type AnyType any;
+
+function testUnionTypeRefWithMap() {
+    AnyDataType map1 = {"a": 1};
+    JsonType map2 = {"b": 2};
+    AnyType map3 = {"c": 3};
+
+    assertTrue(map1 is anydata);
+    assertEqual(map1.toString(), "{\"a\":1}");
+
+    assertTrue(map2 is json);
+    assertEqual(map2.toString(), "{\"b\":2}");
+
+    assertTrue(map3 is any);
+    assertEqual(map3.toString(), "{\"c\":3}");
+}
+
 function assertTrue(anydata actual) {
     return assertEqual(actual, true);
 }

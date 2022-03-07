@@ -2052,7 +2052,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tag == TypeTags.TYPEREFDESC) {
             BType refType = Types.getReferredType(bType);
             BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor);
-            return (refType.tag != TypeTags.UNION && refType.tag != TypeTags.INTERSECTION) ? bType : compatibleType;
+            return compatibleType == refType ? bType : compatibleType;
         }
 
         if (tag == TypeTags.INTERSECTION) {
@@ -2131,7 +2131,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
-                return Types.getReferredType(type);
+                return getMappingConstructorCompatibleNonUnionType(((BTypeReferenceType)type).referredType);
         }
         return symTable.semanticError;
     }
