@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - stage-swan-lake
+      - spread-operator
   workflow_dispatch:
 
 jobs:
