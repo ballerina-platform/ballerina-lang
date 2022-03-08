@@ -40,7 +40,7 @@ import java.util.Optional;
  * This will calculate the node information and fill the {@link PositionDetailsBuilder} and the information will be
  * reflected to the code actions via the PositionDetails API.
  *
- * @since 2201.0.x
+ * @since 2201.1.x
  */
 public class CodeActionNodeAnalyzer extends NodeVisitor {
     private final PositionDetailsBuilder positionDetailsBuilder;
@@ -78,8 +78,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         int startOffset = !qualifiers.isEmpty() ?
                 qualifiers.get(0).textRange().startOffset() :
                 node.functionKeyword().textRange().startOffset();
-        int openBraceEnd = ((FunctionBodyBlockNode) node.functionBody()).openBraceToken().textRange().endOffset();
-        int closeBraceEnd = ((FunctionBodyBlockNode) node.functionBody()).closeBraceToken().textRange().endOffset();
+        FunctionBodyBlockNode functionBody = (FunctionBodyBlockNode) node.functionBody();
+        int openBraceEnd = functionBody.openBraceToken().textRange().endOffset();
+        int closeBraceEnd = functionBody.closeBraceToken().textRange().endOffset();
 
         if (isWithinRange(startOffset, closeBraceEnd)) {
             positionDetailsBuilder.setEnclosingDocumentableNode(node);

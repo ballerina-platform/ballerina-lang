@@ -54,7 +54,8 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.RESOURCE,
                 CodeActionNodeType.RECORD,
                 CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.CLASS_FUNCTION));
+                CodeActionNodeType.CLASS_FUNCTION,
+                CodeActionNodeType.MODULE_VARIABLE));
     }
 
     @Override
