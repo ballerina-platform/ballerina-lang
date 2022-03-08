@@ -19,7 +19,11 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,6 +43,7 @@ import java.util.Objects;
 import java.util.jar.JarFile;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -48,6 +53,11 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
  */
 public class BuildCommandTest extends BaseCommandTest {
     private Path testResources;
+    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
+    private static final Path testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
+    Path customUserHome = Paths.get("build", "user-home");
+    Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+    ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
     @BeforeClass
     public void setup() throws IOException {
@@ -658,7 +668,13 @@ public class BuildCommandTest extends BaseCommandTest {
 
     @Test(description = "tests consistent conflicted jars reporting")
     public void testConsistentConflictedJarsReporting() throws IOException {
-        Path projectPath = this.testResources.resolve("conflictedJarsProject");
+        // Cache packages
+        BCompileUtil.compileAndCacheBala(testResources.resolve("inconsistentConflictedJars")
+                .resolve("uberJarPackage"), testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(testResources.resolve("inconsistentConflictedJars")
+                .resolve("correctJarPackage"), testDistCacheDirectory, projectEnvironmentBuilder);
+
+        Path projectPath = this.testResources.resolve("inconsistentConflictedJars").resolve("conflictedJarsProject");
         System.setProperty("user.dir", projectPath.toString());
 
         // Check build output which contains conflicted jars for 10 consecutive builds
