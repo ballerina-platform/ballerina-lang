@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntSigned32TypeSymbol;
@@ -35,7 +34,7 @@ import java.util.Optional;
  */
 public class BallerinaIntSigned32TypeSymbol extends AbstractTypeSymbol implements IntSigned32TypeSymbol {
 
-    public BallerinaIntSigned32TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType signed32Type) {
+    public BallerinaIntSigned32TypeSymbol(CompilerContext context, BIntSubType signed32Type) {
         super(context, TypeDescKind.INT_SIGNED32, signed32Type);
     }
 

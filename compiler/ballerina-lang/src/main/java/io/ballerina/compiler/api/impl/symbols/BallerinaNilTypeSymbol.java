@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.NilTypeSymbol;
@@ -31,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaNilTypeSymbol extends AbstractTypeSymbol implements NilTypeSymbol {
 
-    public BallerinaNilTypeSymbol(CompilerContext context, ModuleID moduleID, BNilType nilType) {
+    public BallerinaNilTypeSymbol(CompilerContext context, BNilType nilType) {
         super(context, TypeDescKind.NIL, nilType);
     }
 

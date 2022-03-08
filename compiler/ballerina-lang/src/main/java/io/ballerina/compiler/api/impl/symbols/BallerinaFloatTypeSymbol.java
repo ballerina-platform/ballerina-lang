@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.FloatTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaFloatTypeSymbol extends AbstractTypeSymbol implements FloatTypeSymbol {
 
-    public BallerinaFloatTypeSymbol(CompilerContext context, ModuleID moduleID, BType floatType) {
+    public BallerinaFloatTypeSymbol(CompilerContext context, BType floatType) {
         super(context, TypeDescKind.FLOAT, floatType);
     }
 

@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -32,7 +31,7 @@ public class BallerinaTypeSymbol extends AbstractTypeSymbol {
 
     private final String typeName;
 
-    public BallerinaTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType) {
+    public BallerinaTypeSymbol(CompilerContext context, BType bType) {
         super(context, TypesFactory.getTypeDescKind(bType.getKind()), bType);
         // In an unlikely event if the `BNoType` get exposed, this would ensure that the user would know that this is
         // not a typical condition.

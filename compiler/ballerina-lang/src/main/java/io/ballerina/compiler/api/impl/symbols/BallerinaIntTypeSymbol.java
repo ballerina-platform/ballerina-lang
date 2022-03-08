@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaIntTypeSymbol extends AbstractTypeSymbol implements IntTypeSymbol {
 
-    public BallerinaIntTypeSymbol(CompilerContext context, ModuleID moduleID, BType intType) {
+    public BallerinaIntTypeSymbol(CompilerContext context, BType intType) {
         super(context, TypeDescKind.INT, intType);
     }
 

@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.HandleTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaHandleTypeSymbol extends AbstractTypeSymbol implements HandleTypeSymbol {
 
-    public BallerinaHandleTypeSymbol(CompilerContext context, ModuleID moduleID, BHandleType handleType) {
+    public BallerinaHandleTypeSymbol(CompilerContext context, BHandleType handleType) {
         super(context, TypeDescKind.HANDLE, handleType);
     }
 

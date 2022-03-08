@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.ReadonlyTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaReadonlyTypeSymbol extends AbstractTypeSymbol implements ReadonlyTypeSymbol {
 
-    public BallerinaReadonlyTypeSymbol(CompilerContext context, ModuleID moduleID, BReadonlyType readonlyType) {
+    public BallerinaReadonlyTypeSymbol(CompilerContext context, BReadonlyType readonlyType) {
         super(context, TypeDescKind.READONLY, readonlyType);
     }
 

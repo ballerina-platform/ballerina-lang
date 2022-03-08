@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.util.FieldMap;
@@ -48,7 +47,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
 
-    public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
+    public BallerinaRecordTypeSymbol(CompilerContext context, BRecordType recordType) {
         super(context, TypeDescKind.RECORD, recordType);
     }
 

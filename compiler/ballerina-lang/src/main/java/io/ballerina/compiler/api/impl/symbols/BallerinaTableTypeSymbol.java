@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
@@ -44,7 +43,7 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
     private List<String> keySpecifiers;
     private String signature;
 
-    public BallerinaTableTypeSymbol(CompilerContext context, ModuleID moduleID, BTableType tableType) {
+    public BallerinaTableTypeSymbol(CompilerContext context, BTableType tableType) {
         super(context, TypeDescKind.TABLE, tableType);
     }
 

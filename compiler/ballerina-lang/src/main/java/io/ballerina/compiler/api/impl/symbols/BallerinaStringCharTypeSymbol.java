@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.StringCharTypeSymbol;
@@ -35,7 +34,7 @@ import java.util.Optional;
  */
 public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements StringCharTypeSymbol {
 
-    public BallerinaStringCharTypeSymbol(CompilerContext context, ModuleID moduleID, BStringSubType charType) {
+    public BallerinaStringCharTypeSymbol(CompilerContext context, BStringSubType charType) {
         super(context, TypeDescKind.STRING_CHAR, charType);
     }
 

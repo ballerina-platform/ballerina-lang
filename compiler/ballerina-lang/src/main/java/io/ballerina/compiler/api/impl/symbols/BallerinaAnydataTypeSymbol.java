@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.AnydataTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaAnydataTypeSymbol extends AbstractTypeSymbol implements AnydataTypeSymbol {
 
-    public BallerinaAnydataTypeSymbol(CompilerContext context, ModuleID moduleID, BAnydataType anydataType) {
+    public BallerinaAnydataTypeSymbol(CompilerContext context, BAnydataType anydataType) {
         super(context, TypeDescKind.ANYDATA, anydataType);
     }
 

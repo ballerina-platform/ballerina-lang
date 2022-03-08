@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -36,7 +35,7 @@ import java.util.Optional;
  */
 public class BallerinaXMLCommentTypeSymbol extends AbstractTypeSymbol implements XMLCommentTypeSymbol {
 
-    public BallerinaXMLCommentTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType commentType) {
+    public BallerinaXMLCommentTypeSymbol(CompilerContext context, BXMLSubType commentType) {
         super(context, TypeDescKind.XML_COMMENT, commentType);
     }
 

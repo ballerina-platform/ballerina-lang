@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.BooleanTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaBooleanTypeSymbol extends AbstractTypeSymbol implements BooleanTypeSymbol {
 
-    public BallerinaBooleanTypeSymbol(CompilerContext context, ModuleID moduleID, BType booleanType) {
+    public BallerinaBooleanTypeSymbol(CompilerContext context, BType booleanType) {
         super(context, TypeDescKind.BOOLEAN, booleanType);
     }
 
