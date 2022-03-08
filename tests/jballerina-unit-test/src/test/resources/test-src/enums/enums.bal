@@ -134,6 +134,21 @@ function testEnumMemberContainingNumericEscape() {
     assert('new\u{5C}, "new\\");
 }
 
+public enum EnumOfQuotedIdentifiers {
+    'new,
+    'string
+}
+
+function testEnumMemberContainingQuotedIdentifier() {
+    EnumOfQuotedIdentifiers a = 'new;
+    assert(a, "new");
+    assert('new, "new");
+    
+    'string b = "string";
+    assert(b, "string");
+    assert('string, "string");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

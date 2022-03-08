@@ -69,6 +69,7 @@ public class EnumTest {
                 "testEnumAsGlobalRef",
                 "testEnumInRecursiveArray",
                 "testEnumMemberContainingNumericEscape",
+                "testEnumMemberContainingQuotedIdentifier"
         };
     }
 
