@@ -199,7 +199,7 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void validateLabels(String labels, Set<String> selectedLabels) {
+    public static void validateLabels(String labels, Set<String> predefinedLabels) {
         List<String> labelsList = new ArrayList<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
@@ -210,14 +210,14 @@ public class TestRunnerUtils {
                 duplicateLabels.add(trimmedLabel);
                 continue;
             }
-            if (!selectedLabels.contains(trimmedLabel)) {
+            if (!predefinedLabels.contains(trimmedLabel)) {
                 unknownLabels.add(trimmedLabel);
             }
             labelsList.add(trimmedLabel);
         }
 
-        boolean hasUnknownLabels = unknownLabels.length() != 0;
-        boolean hasDuplicateLabels = duplicateLabels.length() != 0;
+        boolean hasUnknownLabels = unknownLabels.length() > 0;
+        boolean hasDuplicateLabels = duplicateLabels.length() > 0;
 
         String diagnosticMsg = hasUnknownLabels ? (hasDuplicateLabels ?
                 "Unknown labels: " + unknownLabels + "\n Duplicate labels: " + duplicateLabels :
