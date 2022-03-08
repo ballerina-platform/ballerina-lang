@@ -416,6 +416,9 @@ function failFromQueryAction() returns error? {
 function testReturnStmtWithinQueryAction() {
     assertEquality("Dummy string", returnString());
     assertEquality("Dummy string", returnStringOrError());
+    assertEquality("World", testReachabilityWithQueryAction());
+//    should enable when issues/35383 is fixed
+//    assertEquality((), testNilReturnWithinQueryAction());
 }
 
 function returnString() returns string {
@@ -435,6 +438,32 @@ function returnStringOrError() returns string|error {
     //checking return statement breaks the loop
     panic error("Return statement should brake the loop and return");
 }
+
+function testReachabilityWithQueryAction() returns string {
+    string?[] stringArray = [(), (), ()];
+
+    error? unionResult = from var item in stringArray
+        where item is string
+        do {
+            if 5 + 5 == 10 { //to avoid unreachable error at final return
+                return "Hello";
+            }
+        };
+    return "World";
+}
+
+//function testNilReturnWithinQueryAction() returns string? {
+//    int count = 0;
+//    error? res = from int i in 1 ... 3
+//        do {
+//            count = count + 1;
+//            if 5 + 5 == 10 { //to avoid unreachable error
+//                return;
+//            }
+//        };
+//    //checking return statement breaks the loop
+//    panic error("Return statement should brake the loop and return");
+//}
 
 function assertTrue (any|error actual) {
     return assertEquality(true, actual);

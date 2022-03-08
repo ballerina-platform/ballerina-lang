@@ -337,8 +337,21 @@ public class QueryDesugar extends BLangNodeVisitor {
                 QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr;
         if (!containsCheckExpr && queryAction.returnsWithinDoClause) {
-            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(pos, result);
-            queryBlock.stmts.add(stmt);
+            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, result);
+            BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(pos);
+            ifBody.stmts.add(returnStmt);
+
+            BLangTypeTestExpr nilTypeTestExpr = desugar.createTypeCheckExpr(pos, result, desugar.getNillTypeNode());
+            nilTypeTestExpr.setBType(symTable.booleanType);
+
+            BLangGroupExpr nilCheckGroupExpr = new BLangGroupExpr();
+            nilCheckGroupExpr.setBType(symTable.booleanType);
+            // !($streamElement$ is ()))
+            nilCheckGroupExpr.expression = desugar.createNotBinaryExpression(pos, nilTypeTestExpr);
+
+            BLangIf ifStatement = ASTBuilderUtil.createIfStmt(pos, queryBlock);
+            ifStatement.expr = nilCheckGroupExpr;
+            ifStatement.body = ifBody;
         }
         stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
                 addTypeConversionExpr(result, returnType));
