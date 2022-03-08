@@ -3,13 +3,13 @@ Compiling source
 
 Generating executable
 	warning: Detected conflicting jar files:
-		'netty-handler-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-handler-proxy-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-codec-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-codec-http-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-codec-http2-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-transport-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-common-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-resolver-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
-		'netty-buffer-4.1.71.Final.jar' dependency of 'ballerina/http' conflict with 'redis-2.2.0.jar' dependency of 'ballerinax/redis'
+		'netty-handler-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-handler-proxy-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-codec-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-codec-http-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-codec-http2-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-transport-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-common-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-resolver-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
+		'netty-buffer-4.1.71.Final.jar' dependency of 'pramodya/correctJarPackage' conflict with 'redis-2.2.0.jar' dependency of 'pramodya/uberJarPackage'
 	target/bin/conflictedJarsProject.jar

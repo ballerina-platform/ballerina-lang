@@ -45,6 +45,7 @@ dependencies {
     implementation project(':ballerina-shell:shell-cli')
     implementation project(':toml-parser')
     implementation project(':identifier-util')
+    testCompile project(':ballerina-test-utils')
 
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
