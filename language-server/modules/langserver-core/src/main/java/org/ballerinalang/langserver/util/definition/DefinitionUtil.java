@@ -34,6 +34,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -80,7 +81,7 @@ public class DefinitionUtil {
         Optional<Location> location;
         if (context.enclosedModuleMember().isPresent() && CommonUtil.isSelfClassSymbol(symbol.get(), context,
                 context.enclosedModuleMember().get())) {
-            // Within the #isSelfClassSymbol we do the instance check against the symbol. Hence casting is safe 
+            // Within the #isSelfClassSymbol we do the instance check against the symbol. Hence casting is safe
             // If the self variable is referring to the class instance, navigate to class definition
             TypeSymbol rawType = CommonUtil.getRawType(((VariableSymbol) symbol.get()).typeDescriptor());
             location = getLocation(rawType, context);
@@ -111,7 +112,7 @@ public class DefinitionUtil {
         }
 
         String fileUri;
-        // Check if file resides in a protected dir 
+        // Check if file resides in a protected dir
         if (CommonUtil.isWriteProtectedPath(filepath.get())) {
             try {
                 fileUri = CommonUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
@@ -132,9 +133,9 @@ public class DefinitionUtil {
         return Optional.of(new Location(fileUri, range));
     }
 
-    private static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
+    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
                                                            Project project, Symbol symbol,
-                                                           BallerinaDefinitionContext context) {
+                                                           DocumentServiceContext context) {
         if (symbol.getLocation().isEmpty()) {
             return Optional.empty();
         }
