@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.expressions.ternary;
 
+import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
@@ -388,6 +389,43 @@ public class TernaryExpressionTest {
     @Test
     public void testTernaryInModuleLevel() {
         BRunUtil.invoke(compileResult, "testTernaryInModuleLevel");
+    }
+
+    @Test(description = "Test type narrowing for ternary expression")
+    public void testTernaryTypeNarrow() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
+                35, 41); // issue #30598, #33217
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'false', found 'boolean'",
+                36, 41); // issue #30598, #33217
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'true', found 'boolean'",
+                37, 29); // issue #30598, #33217
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '()', found 'boolean?'",
+                40, 66); // issue #30598, #33217
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found '(A|B)'",
+                120, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E', found '(D|E)'",
+                149, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'F', found '(D|F)'",
+                151, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'F', found '(E|F)'",
+                153, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '(Y|Z)', found '(W|Y|Z)'",
+                262, 35);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'R', found '(Q|R)'",
+                288, 32);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '(R|T)', found '(Q|R|T)'",
+                291, 32);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Test type narrowing for ternary expression with no errors")
+    public void testTernaryTypeNarrowPositive() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/expressions/ternary/ternary_expr_type_narrow_positive.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTernaryTypeNarrow");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @AfterClass

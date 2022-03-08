@@ -1,39 +1,46 @@
 {
   "position": {
-    "line": 4,
-    "character": 27
+    "line": 419,
+    "character": 38
   },
+  "source": "expressions/expressions.bal",
   "expected": {
     "result": {
       "signatures": [
         {
-          "label": "indexOf(string substr, int startIndex?)",
+          "label": "substring(int startIndex, int endIndex)",
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "**Description**  \nFinds the first occurrence of one string in another string."
+              "value": "**Description**  \nReturns a substring of a string."
             }
           },
           "parameters": [
             {
               "label": {
-                "left": "string substr"
+                "right": {
+                  "first": 14,
+                  "second": 24
+                }
               },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "**Parameter**  \n**`string`substr**: the string to search for"
+                  "value": "**Parameter**  \n**`int`startIndex**: the starting index, inclusive"
                 }
               }
             },
             {
               "label": {
-                "left": "int startIndex?"
+                "right": {
+                  "first": 30,
+                  "second": 38
+                }
               },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "**Parameter**  \n**`int`startIndex?**: index to start searching from"
+                  "value": "**Parameter**  \n**`int`endIndex**: the ending index, exclusive"
                 }
               }
             }
