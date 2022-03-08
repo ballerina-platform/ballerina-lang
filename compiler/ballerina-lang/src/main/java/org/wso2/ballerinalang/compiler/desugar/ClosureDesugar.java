@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -343,7 +342,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // argsExpr updated to improve debug efforts since `argsExpr` is part of `toString`
         if (typeInit.argsExpr == null) {
-            typeInit.argsExpr = new ArrayList<>();
+            typeInit.argsExpr = new ArrayList<>(1);
         }
         typeInit.argsExpr.add(refToBlockClosureMap);
 
@@ -1347,7 +1346,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
 
-        List<BLangExpression> exprList = new ArrayList<>();
+        List<BLangExpression> multiKeyIndexExprs = tableMultiKeyExpr.multiKeyIndexExprs;
+        List<BLangExpression> exprList = new ArrayList<>(multiKeyIndexExprs.size());
         tableMultiKeyExpr.multiKeyIndexExprs.forEach(expression -> exprList.add(rewriteExpr(expression)));
         tableMultiKeyExpr.multiKeyIndexExprs = exprList;
         result = tableMultiKeyExpr;
@@ -1368,7 +1368,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitExpr waitExpr) {
-        List<BLangExpression> exprList = new ArrayList<>();
+        List<BLangExpression> expressionList = waitExpr.exprList;
+        List<BLangExpression> exprList = new ArrayList<>(expressionList.size());
         waitExpr.exprList.forEach(expression -> exprList.add(rewriteExpr(expression)));
         waitExpr.exprList = exprList;
         result = waitExpr;
@@ -1430,15 +1431,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         SymbolEnv symbolEnv = env.createClone();
         bLangLambdaFunction.capturedClosureEnv = symbolEnv;
-        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, symbolEnv);
+        BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
+        // Save param closure map of the encl invokable. Used in BIRGen
+        bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
+        boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
+        bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker); // BIRGen
 
-        if (symbolEnv.enclInvokable != null) {
-            BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
-            // Save param closure map of the encl invokable.
-            bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
-            boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
-            bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
-        }
         result = bLangLambdaFunction;
     }
 
