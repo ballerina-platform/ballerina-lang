@@ -530,7 +530,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
         Location pos = fromClause.pos;
         // function(_Frame frame) returns any|error? { return collection; }
-        BLangUnionTypeNode returnType = getAnyErrorNilTypeNode();
+        BLangUnionTypeNode returnType = getAnyAndErrorTypeNode();
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.expr = fromClause.collection;
         returnNode.pos = pos;
@@ -859,7 +859,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangLambdaFunction createActionLambda(Location pos) {
         // returns any|error
-        BLangUnionTypeNode returnType = getAnyErrorNilTypeNode();
+        BLangUnionTypeNode returnType = getAnyAndErrorTypeNode();
         return createLambdaFunction(pos, returnType, null, false);
     }
 
@@ -1286,16 +1286,15 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Return union type node consists of any, error & ().
+     * Return union type node consists of any & error.
      *
-     * @return a any, error & nil type node.
+     * @return a any & error type node.
      */
-    private BLangUnionTypeNode getAnyErrorNilTypeNode() {
-        BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType, symTable.nilType);
+    private BLangUnionTypeNode getAnyAndErrorTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.memberTypeNodes.add(getAnyTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
-        unionTypeNode.memberTypeNodes.add(getNilTypeNode());
         unionTypeNode.setBType(unionType);
         unionTypeNode.desugared = true;
         return unionTypeNode;
