@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
-* Represents the Types of a semantic model
+ * Represents the Types of a semantic model.
  *
  * @since 2.0.0
 * */
@@ -48,8 +48,6 @@ import java.util.Optional;
 public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY = new CompilerContext.Key<>();
-    private final CompilerContext context;
-    private final TypesFactory typesFactory;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
     private final SymbolResolver symbolResolver;
@@ -79,8 +77,7 @@ public class Types {
 
     private Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
-        this.context = context;
-        this.typesFactory = TypesFactory.getInstance(context);
+        TypesFactory typesFactory = TypesFactory.getInstance(context);
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.symbolResolver = SymbolResolver.getInstance(context);
@@ -149,7 +146,8 @@ public class Types {
         }
 
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
-        BSymbol bSymbol = symbolResolver.lookupSymbolInGivenScope(pkgEnv, Names.fromString(typeDefName), SymTag.TYPE_DEF);
+        BSymbol bSymbol = symbolResolver.lookupSymbolInGivenScope(pkgEnv, Names.fromString(typeDefName),
+                SymTag.TYPE_DEF);
         if (bSymbol.tag == SymTag.TYPE_DEF && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL) {
             return Optional.ofNullable((TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
         }
@@ -172,11 +170,12 @@ public class Types {
                 BSymbol bSymbol = scopeEntry.symbol;
                 if (bSymbol != null && bSymbol.tag == SymTag.TYPE_DEF && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL) {
                     String typeDefName = bSymbol.getName().getValue();
-                    typeDefSymbols.put(typeDefName, (TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+                    typeDefSymbols.put(typeDefName, (TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol,
+                            typeDefName));
                 }
             }
 
-            return Optional.ofNullable(typeDefSymbols);
+            return Optional.of(typeDefSymbols);
         }
 
         return Optional.empty();

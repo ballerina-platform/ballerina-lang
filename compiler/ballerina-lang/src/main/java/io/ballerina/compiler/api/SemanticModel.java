@@ -38,7 +38,7 @@ import java.util.Optional;
 public interface SemanticModel {
 
     /**
-     * Retrieves a single instance of the Types API
+     * Retrieves a single instance of the Types API.
      *
      * @return {@link Types} instance per single context
      * */
