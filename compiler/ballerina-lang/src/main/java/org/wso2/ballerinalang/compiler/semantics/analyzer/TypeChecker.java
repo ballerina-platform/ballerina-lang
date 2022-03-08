@@ -244,19 +244,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private static final String FUNCTION_NAME_UNSHIFT = "unshift";
     private static final String FUNCTION_NAME_ENSURE_TYPE = "ensureType";
 
+    private final BLangAnonymousModelHelper anonymousModelHelper;
+    private final BLangDiagnosticLog dlog;
+    private final BLangMissingNodesHelper missingNodesHelper;
     private final Names names;
-    private final SymbolTable symTable;
+    private final NodeCloner nodeCloner;
+    private final SemanticAnalyzer semanticAnalyzer;
     private final SymbolEnter symbolEnter;
     private final SymbolResolver symResolver;
-    private final NodeCloner nodeCloner;
-    private final Types types;
-    private final BLangDiagnosticLog dlog;
+    private final SymbolTable symTable;
     private final TypeNarrower typeNarrower;
     private final TypeParamAnalyzer typeParamAnalyzer;
-    private final BLangAnonymousModelHelper anonymousModelHelper;
-    private final SemanticAnalyzer semanticAnalyzer;
+    private final Types types;
     private final Unifier unifier;
-    private final BLangMissingNodesHelper missingNodesHelper;
 
     static {
         listLengthModifierFunctions.add(FUNCTION_NAME_PUSH);
