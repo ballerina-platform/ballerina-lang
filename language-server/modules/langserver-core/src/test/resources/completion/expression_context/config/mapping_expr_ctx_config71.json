@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 19,
-    "character": 8
+    "character": 11
   },
-  "source": "expression_context/source/mapping_expr_ctx_source10.bal",
+  "source": "expression_context/source/mapping_expr_ctx_source71.bal",
   "items": [
     {
       "label": "readonly",
@@ -15,9 +15,18 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "...b",
+      "kind": "Variable",
+      "detail": "B",
+      "sortText": "AB",
+      "filterText": "b",
+      "insertText": "...b",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "field1",
       "kind": "Field",
-      "detail": "TestRecord2.field1",
+      "detail": "B.field1",
       "sortText": "K",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,44 +34,35 @@
     {
       "label": "field3",
       "kind": "Field",
-      "detail": "TestRecord2.field3",
+      "detail": "B.field3",
       "sortText": "K",
-      "insertText": "field3: ${1:false}",
+      "insertText": "field3: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "field2",
       "kind": "Field",
-      "detail": "TestRecord2.field2",
+      "detail": "B.field2",
       "sortText": "K",
-      "insertText": "field2: ${1:\"\"}",
+      "insertText": "field2: \"${3}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill TestRecord2 Required Fields",
+      "label": "Fill B Required Fields",
       "kind": "Property",
-      "detail": "TestRecord2",
+      "detail": "B",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "field1: ${1:0}",
+      "insertText": "field1: 0,\nfield3: 0,\nfield2: \"\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "...rec",
+      "label": "...a",
       "kind": "Variable",
-      "detail": "TestRecord2",
-      "sortText": "AB",
-      "filterText": "rec",
-      "insertText": "...rec",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "...rec1",
-      "kind": "Variable",
-      "detail": "TestRecord1",
+      "detail": "A",
       "sortText": "F",
-      "filterText": "rec1",
-      "insertText": "...rec1",
+      "filterText": "a",
+      "insertText": "...a",
       "insertTextFormat": "Snippet"
     }
   ]

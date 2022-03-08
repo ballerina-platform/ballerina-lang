@@ -36,10 +36,13 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.builder.SpreadFieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -156,7 +159,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             Map<String, RecordFieldSymbol> fields = this.getValidFields((T) node, rawType);
             validFields.addAll(fields.values());
             // TODO: Revamp the implementation
-            // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
+            completionItems.addAll(this.getSpreadFieldCompletionItems(context, validFields, rawType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
             if (!fields.values().isEmpty()) {
                 Optional<LSCompletionItem> fillAllStructFieldsItem =
@@ -165,7 +168,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             }
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
         }
-        
+
         if (recordTypeDesc.isEmpty() || validFields.isEmpty()) {
             List<String> existingFields = getFields((T) node);
             /*
@@ -187,7 +190,77 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                     .filter(varSymbol -> !existingFields.contains(varSymbol.getName().get()))
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(variables, context));
+            //Spread field can only be used with in a mapping constructor and the fields should be empty
+            if (existingFields.isEmpty() && evalNode.kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
+                completionItems.addAll(this.getSpreadFieldCompletionItems(evalNode, context));
+            }
         }
+        return completionItems;
+    }
+
+    private List<LSCompletionItem> getSpreadFieldCompletionItems(Node evalNode, BallerinaCompletionContext context) {
+        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> resolvedType = evalNode.apply(typeResolver);
+
+        if (resolvedType.isEmpty() || resolvedType.get().typeKind() != TypeDescKind.MAP) {
+            return Collections.emptyList();
+        }
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
+                .filter(this.getVariableFilter().and(symbol -> {
+                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                    if (typeDescriptor.isEmpty() || !typeDescriptor.get().subtypeOf(resolvedType.get())
+                            || (CommonUtil.getRawType(typeDescriptor.get()).typeKind() != TypeDescKind.MAP
+                            && CommonUtil.getRawType(typeDescriptor.get()).typeKind() != TypeDescKind.RECORD)) {
+                        return false;
+                    }
+                    return true;
+                })).collect(Collectors.toList());
+
+        return getSpreadFieldCompletionItemList(visibleSymbols, context);
+    }
+
+    private List<LSCompletionItem> getSpreadFieldCompletionItems(BallerinaCompletionContext context,
+                                                                 List<RecordFieldSymbol> validFields,
+                                                                 RecordTypeSymbol recordTypeSymbol) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
+                .filter(this.getVariableFilter().and(symbol -> {
+                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+                    if (typeDescriptor.isEmpty() || 
+                            CommonUtil.getRawType(typeDescriptor.get()).typeKind() != TypeDescKind.RECORD) {
+                        return false;
+                    }
+                    TypeSymbol rawType = CommonUtil.getRawType(typeDescriptor.get());
+                    Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) rawType).fieldDescriptors();
+                    for (RecordFieldSymbol fieldSymbol : recordFields.values()) {
+                        if (fieldSymbol.getName().isEmpty() || validFields.stream()
+                                .filter(validField -> validField.getName().isPresent()
+                                        && validField.getName().get().equals(fieldSymbol.getName().get())
+                                        && fieldSymbol.typeDescriptor()
+                                        .subtypeOf(validField.typeDescriptor())).findAny().isEmpty()) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }))
+                .collect(Collectors.toList());
+        return this.getSpreadFieldCompletionItemList(visibleSymbols, context);
+    }
+
+    private List<LSCompletionItem> getSpreadFieldCompletionItemList(List<Symbol> visibleSymbols,
+                                                                    BallerinaCompletionContext ctx) {
+        List<Symbol> processedSymbols = new ArrayList<>();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        visibleSymbols.forEach(symbol -> {
+            if (processedSymbols.contains(symbol)) {
+                return;
+            }
+            Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+            String typeName = (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null) ? "" :
+                    CommonUtil.getModifiedTypeName(ctx, typeDescriptor.get());
+            CompletionItem cItem = SpreadFieldCompletionItemBuilder.build(symbol, typeName, ctx);
+            completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
+            processedSymbols.add(symbol);
+        });
         return completionItems;
     }
 
