@@ -94,6 +94,14 @@ public class TypeCompletionItemBuilder {
                 // Union types
                 List<TypeSymbol> memberTypes = new ArrayList<>(((UnionTypeSymbol) typeDescriptor.get())
                         .memberTypeDescriptors());
+
+                // To handle cases where the source is incomplete and hence results in an empty union
+                if (memberTypes.isEmpty()) {
+                    item.setKind(CompletionItemKind.Unit);
+                    item.setDetail("type");
+                    return;
+                }
+
                 boolean allMatch = memberTypes.stream()
                         .allMatch(typeDesc -> typeDesc.typeKind() == memberTypes.get(0).typeKind());
                 if (allMatch) {
