@@ -82,6 +82,10 @@ public type InboundJwtCacheEntry record {|
 # + config - JWT validator config record
 # + return - JWT payload or else a `jwt:Error` if token validation fails
 public function validateJwt(string jwt, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
+    return validate(jwt, config);
+}
+
+function validate(string jwt, JwtValidatorConfig config, http:Client? jwksClient = ()) returns @tainted (JwtPayload|Error) {
     if (config.jwtCache.hasKey(jwt)) {
         JwtPayload? payload = validateFromCache(config.jwtCache, jwt);
         if (payload is JwtPayload) {
@@ -89,7 +93,7 @@ public function validateJwt(string jwt, JwtValidatorConfig config) returns @tain
         }
     }
     [JwtHeader, JwtPayload] [header, payload] = check decodeJwt(jwt);
-    _ = check validateJwtRecords(jwt, header, payload, config);
+    _ = check validateJwtRecords(jwt, header, payload, config, jwksClient);
     addToCache(config.jwtCache, jwt, payload);
     return payload;
 }
@@ -287,19 +291,18 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
     return jwtPayload;
 }
 
-function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPayload, JwtValidatorConfig config)
-                            returns @tainted Error? {
+function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPayload, JwtValidatorConfig config, 
+                            http:Client? jwksClient = ()) returns @tainted Error? {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm (alg) is not provided in JOSE header.");
     }
 
     JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
-    JwksConfig? jwksConfig = config?.jwksConfig;
     JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
-    if (jwksConfig is JwksConfig) {
+    if (jwksClient is http:Client) {
         string? kid = jwtHeader?.kid;
         if (kid is string) {
-            _ = check validateSignatureByJwks(jwt, kid, alg, jwksConfig);
+            _ = check validateSignatureByJwks(jwt, kid, alg, jwksClient);
         } else if (trustStoreConfig is JwtTrustStoreConfig) {
             _ = check validateSignatureByTrustStore(jwt, alg, trustStoreConfig);
         } else {
@@ -373,9 +376,9 @@ function validateSignatureByTrustStore(string jwt, JwtSigningAlgorithm alg, JwtT
     _ = check validateSignature(jwt, alg, <crypto:PublicKey>publicKey);
 }
 
-function validateSignatureByJwks(string jwt, string kid, JwtSigningAlgorithm alg, JwksConfig jwksConfig)
+function validateSignatureByJwks(string jwt, string kid, JwtSigningAlgorithm alg, http:Client jwksClient)
                                  returns @tainted Error? {
-    json jwk = check getJwk(kid, jwksConfig);
+    json jwk = check getJwk(kid, jwksClient);
     if (jwk is ()) {
         return prepareError("No JWK found for kid: " + kid);
     }
@@ -409,8 +412,7 @@ function validateSignature(string jwt, JwtSigningAlgorithm alg, crypto:PublicKey
     }
 }
 
-function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error) {
-    http:Client jwksClient = new(jwksConfig.url, jwksConfig.clientConfig);
+function getJwk(string kid, http:Client jwksClient) returns @tainted (json|Error) {
     http:Response|http:ClientError response = jwksClient->get("");
     if (response is http:Response) {
         json|http:ClientError result = response.getJsonPayload();
