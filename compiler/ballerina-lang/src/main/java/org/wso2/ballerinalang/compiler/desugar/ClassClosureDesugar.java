@@ -247,9 +247,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         BLangFunction generatedInitFunction = classDef.generatedInitFunction;
         BLangBlockFunctionBody generatedInitFnBody = (BLangBlockFunctionBody) generatedInitFunction.body;
 
-        // self[$map$objectCtor$_<num1>] = $map$block$_<num2>
+        // self.$map$objectCtor$_block = $map$block$oce$_<num>
         generatedInitFnBody.stmts.add(0, assignmentStmt);
-        assignmentStmt.parent = generatedInitFnBody;
+        assignmentStmt.parent = generatedInitFnBody; // to improve debuggability
 
         desugar.rewrite(assignmentStmt, oceEnvData.objMethodsEnv);
     }
