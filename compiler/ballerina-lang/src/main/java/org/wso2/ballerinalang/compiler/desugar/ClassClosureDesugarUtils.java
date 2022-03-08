@@ -11,6 +11,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -49,10 +50,23 @@ public class ClassClosureDesugarUtils {
 
     public static void updateObjectCtorClosureSymbols(Location pos, BLangFunction enclosedF,
                                                       BSymbol resolvedSymbol,
-                                                      BLangClassDefinition classDef, SymbolEnv env) {
+                                                      BLangClassDefinition classDef, SymbolEnv env,
+                                                      BSymbol symbol,
+                                                      BLangNode originalNode) {
         classDef.hasClosureVars = true;
+        if (resolvedSymbol.closure) {
+            resolvedSymbol.flags |= Flags.ATTACHED;
+            resolvedSymbol.flags |= Flags.OBJECT_CTOR;
+        }
+        if (originalNode.getKind() == NodeKind.ARROW_EXPR) {
+            BLangArrowFunction arrowFunction = (BLangArrowFunction) originalNode;
+            resolvedSymbol.flags |= Flags.ATTACHED;
+        }
+
         resolvedSymbol.closure = true;
-        resolvedSymbol.flags |= Flags.OBJECT_CTOR;
+        System.out.println("Adding oce flag to : " + resolvedSymbol + " " + resolvedSymbol.pos);
+        System.out.println("Original symbol is : " + symbol + " " + symbol.pos);
+        System.out.println("originalNode is : " + originalNode + " " + originalNode.pos);
         if (enclosedF != null) {
             enclosedF.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             // TODO: can identify if attached here

@@ -7367,21 +7367,24 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLangFunction.setName(bLangArrowFunction.functionName);
+        bLangFunction.addFlag(Flag.LAMBDA);
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-        lambdaFunction.pos = bLangArrowFunction.pos;
-        bLangFunction.addFlag(Flag.LAMBDA);
         lambdaFunction.function = bLangFunction;
+        lambdaFunction.function.pos = bLangArrowFunction.pos;
+        lambdaFunction.pos = bLangArrowFunction.pos;
+        lambdaFunction.parent = bLangArrowFunction.parent;
+        // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
+        lambdaFunction.capturedClosureEnv = env;
+        lambdaFunction.setBType(bLangArrowFunction.funcType);
+        bLangArrowFunction.params.forEach(bLangFunction::addParameter);
 
         // Create function body with return node
         BLangValueType returnType = (BLangValueType) TreeBuilder.createValueTypeNode();
         returnType.setBType(bLangArrowFunction.body.expr.getBType());
         bLangFunction.setReturnTypeNode(returnType);
         bLangFunction.setBody(populateArrowExprBodyBlock(bLangArrowFunction));
-
-        bLangArrowFunction.params.forEach(bLangFunction::addParameter);
-        lambdaFunction.parent = bLangArrowFunction.parent;
-        lambdaFunction.setBType(bLangArrowFunction.funcType);
+        bLangFunction.body.pos = bLangArrowFunction.pos;
 
         // Create function symbol.
         BLangFunction funcNode = lambdaFunction.function;
@@ -7414,10 +7417,6 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.setBType(
                 new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(), null));
 
-        lambdaFunction.function.pos = bLangArrowFunction.pos;
-        lambdaFunction.function.body.pos = bLangArrowFunction.pos;
-        // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
-        lambdaFunction.capturedClosureEnv = env;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         result = rewriteExpr(lambdaFunction);
