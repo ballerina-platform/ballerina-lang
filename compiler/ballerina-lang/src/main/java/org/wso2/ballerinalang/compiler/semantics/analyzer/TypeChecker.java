@@ -229,8 +229,8 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class TypeChecker extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
-    private static Set<String> listLengthModifierFunctions = new HashSet<>();
-    private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
+    private static Set<String> listLengthModifierFunctions = new HashSet<>(4);
+    private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>(5);
 
     private static final String LIST_LANG_LIB = "lang.array";
     private static final String MAP_LANG_LIB = "lang.map";
@@ -789,7 +789,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getAndSetAssignableUnionMember(BLangLiteral literalExpr, BUnionType expType, BType desiredType) {
         List<BType> members = types.getAllTypes(expType, true);
-        Set<BType> memberTypes = new HashSet<>();
+        Set<BType> memberTypes = new HashSet<>(members.size());
         members.forEach(member -> memberTypes.addAll(members));
         if (memberTypes.stream()
                 .anyMatch(memType -> memType.tag == desiredType.tag
@@ -841,13 +841,14 @@ public class TypeChecker extends BLangNodeVisitor {
         Set<BLangExpression> matchedValueSpace = new LinkedHashSet<>();
 
         for (BFiniteType finiteType : finiteTypeMembers) {
-            Set<BLangExpression> set = new HashSet<>();
-            for (BLangExpression expression : finiteType.getValueSpace()) {
+            Set<BLangExpression> valueSpace = finiteType.getValueSpace();
+            Set<BLangExpression> matchedSet = new HashSet<>(valueSpace.size());
+            for (BLangExpression expression : valueSpace) {
                 if (expression.getBType().tag == tag) {
-                    set.add(expression);
+                    matchedSet.add(expression);
                 }
             }
-            matchedValueSpace.addAll(set);
+            matchedValueSpace.addAll(matchedSet);
         }
 
         if (matchedValueSpace.isEmpty()) {
@@ -956,7 +957,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BIntersectionType) applicableExpType).effectiveType : applicableExpType;
 
         if (applicableExpType.tag == TypeTags.TABLE) {
-            List<BType> memTypes = new ArrayList<>();
+            List<BType> memTypes = new ArrayList<>(tableConstructorExpr.recordLiteralList.size());
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
                 BLangRecordLiteral clonedExpr = recordLiteral;
                 if (this.nonErrorLoggingCheck) {
@@ -5997,9 +5998,11 @@ public class TypeChecker extends BLangNodeVisitor {
     protected void markAndRegisterClosureVariable(BSymbol symbol, Location pos, SymbolEnv env) {
         BLangInvokableNode encInvokable = env.enclInvokable;
         BLangNode bLangNode = env.node;
-        if ((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
-                bLangNode.getKind() != NodeKind.ARROW_EXPR && bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
-                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA) &&
+        if (((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) &&
+                bLangNode.getKind() != NodeKind.ARROW_EXPR &&
+                bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
+                encInvokable != null &&
+                !encInvokable.flagSet.contains(Flag.LAMBDA) &&
                 !encInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
             return;
         }
@@ -6019,7 +6022,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
                         ClassClosureDesugarUtils.updateObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol,
-                                classDef, env);
+                                classDef, env, symbol, node);
                         return;
                     }
                 }
@@ -6027,6 +6030,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         SymbolEnv cEnv = env;
+        BLangNode originalNode = node;
         while (node != null) {
             if (node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction function = (BLangFunction) node;
@@ -6053,7 +6057,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         break;
                     }
                     ClassClosureDesugarUtils.updateObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol,
-                            classDef, cEnv);
+                            classDef, cEnv, symbol, originalNode);
                     return;
                 }
                 break;
@@ -6336,8 +6340,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BVarSymbol checkForIncRecordParamAllowAdditionalFields(BInvokableSymbol invokableSymbol,
                                                                    List<BVarSymbol> incRecordParams) {
-        Set<String> requiredParamNames = new HashSet<>();
-        List<BVarSymbol> openIncRecordParams = new ArrayList<>();
+
+        int size = invokableSymbol.params.size();
+        Set<String> requiredParamNames = new HashSet<>(size);
+        List<BVarSymbol> openIncRecordParams = new ArrayList<>(size);
         for (BVarSymbol paramSymbol : invokableSymbol.params) {
             BType paramType = Types.getReferredType(paramSymbol.type);
             if (Symbols.isFlagOn(Flags.asMask(paramSymbol.getFlags()), Flags.INCLUDED) &&
@@ -6380,7 +6386,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                                                      incRecordParams);
         int parameterCountForPositionalArgs = paramTypes.size();
         int parameterCountForNamedArgs = parameterCountForPositionalArgs + incRecordParams.size();
-        iExpr.requiredArgs = new ArrayList<>();
+
         for (BVarSymbol symbol : invokableSymbol.params) {
             if (!Symbols.isFlagOn(Flags.asMask(symbol.getFlags()), Flags.INCLUDED) ||
                     Types.getReferredType(symbol.type).tag != TypeTags.RECORD) {
@@ -6403,6 +6409,7 @@ public class TypeChecker extends BLangNodeVisitor {
         int i = 0;
         BLangExpression vararg = null;
         boolean foundNamedArg = false;
+        iExpr.requiredArgs = new ArrayList<>(iExpr.argExprs.size());
         for (BLangExpression expr : iExpr.argExprs) {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
@@ -6642,7 +6649,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (vararg != null) {
             iExpr.restArgs.add(vararg);
             if (mappingTypeRestArg != null) {
-                LinkedHashSet<BType> restTypes = new LinkedHashSet<>();
+                LinkedHashSet<BType> restTypes = new LinkedHashSet<>(2);
                 restTypes.add(listTypeRestArg);
                 restTypes.add(mappingTypeRestArg);
                 BType actualType = BUnionType.create(null, restTypes);
