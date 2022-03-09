@@ -31,7 +31,6 @@ function testRecursiveRecordWithUnion() {
     assertEquality("a", b["i"]);
     RecursiveRecordWithUnionTwo c = {i: "a", r:b};
     assertEquality("a", c["i"]);
-
 }
 
 type RecursiveRecordWithTupleArray record {
