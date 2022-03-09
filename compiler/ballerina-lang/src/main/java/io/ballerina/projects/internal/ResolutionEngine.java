@@ -268,7 +268,6 @@ public class ResolutionEngine {
 
         // Create ResolutionRequests for all unresolved nodes by looking at the blended nodes
         List<ResolutionRequest> unresolvedRequests = new ArrayList<>();
-//        Collection<PackageMetadataResponse> pkgMetadataResponses = new ArrayList<>();
         for (DependencyNode unresolvedNode : unresolvedNodes) {
             if (unresolvedNode.errorNode) {
                 errorNodes.add(unresolvedNode);
@@ -322,6 +321,12 @@ public class ResolutionEngine {
         if (blendedDep == null) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
+        }
+
+        if (blendedDep.origin().equals(BlendedManifest.DependencyOrigin.ERROR)) {
+            // The conflict is already identified when creating the BlendedManifest.
+            // So we just return a null.
+            return null;
         }
 
         // Compare blendedDep version with the unresolved version
