@@ -1123,8 +1123,8 @@ public class TypeGuardTest {
     public void testTypeGuardTypeNarrowPositive() {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_type_narrow_positive.bal");
-        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardTypeNarrow");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testTypeGuardTypeNarrow");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @AfterClass
