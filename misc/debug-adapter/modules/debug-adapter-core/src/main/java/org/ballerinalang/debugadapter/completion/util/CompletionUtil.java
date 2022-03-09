@@ -57,7 +57,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 public class CompletionUtil {
 
     private static final String PARENTHESIS = "()";
-    public static final List<String> triggerCharacters = Arrays.asList(".", ">");
+    private static final List<String> triggerCharacters = Arrays.asList(".", ">");
 
     /**
      * Get the updated bal file content which includes debug console expression.
@@ -301,6 +301,10 @@ public class CompletionUtil {
         return Arrays.stream(expression.split("")).anyMatch(triggerCharacters::contains);
     }
 
+    public static List<String> getTriggerCharacters() {
+        return triggerCharacters;
+    }
+
     /**
      * Get non terminal node with injected expression.
      *
@@ -334,6 +338,7 @@ public class CompletionUtil {
         // Inject the debug console expression.
         String updatedSource = getUpdatedBalFileContent(completionContext, args, nonTerminalNode, lineNumber);
 
-        return getNonTerminalNode(completionContext, updatedSource, sourcePath, nonTerminalNode, lineNumber, args.getColumn());
+        return getNonTerminalNode(completionContext, updatedSource, sourcePath, nonTerminalNode, lineNumber,
+                args.getColumn());
     }
 }

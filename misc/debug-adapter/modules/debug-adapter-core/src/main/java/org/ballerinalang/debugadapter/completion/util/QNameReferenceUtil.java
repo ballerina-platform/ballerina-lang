@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class QNameReferenceUtil {
      * @return {@link Boolean}
      */
     public static boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
-        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE || !(node instanceof QualifiedNameReferenceNode)) {
             return false;
         }
         QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node;

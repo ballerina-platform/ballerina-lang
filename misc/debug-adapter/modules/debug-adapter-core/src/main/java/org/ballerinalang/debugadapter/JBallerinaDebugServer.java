@@ -37,9 +37,8 @@ import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.completion.context.AsyncSendActionNodeContext;
 import org.ballerinalang.debugadapter.completion.context.CompletionContext;
-import org.ballerinalang.debugadapter.completion.resolver.FieldAccessCompletionResolver;
 import org.ballerinalang.debugadapter.completion.context.RemoteMethodCallActionNodeContext;
-import org.ballerinalang.debugadapter.completion.util.CompletionUtil;
+import org.ballerinalang.debugadapter.completion.resolver.FieldAccessCompletionResolver;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
@@ -127,6 +126,7 @@ import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getCompletions;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getInjectedExpressionNode;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getResolverNode;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getTriggerCharacters;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getVisibleSymbolCompletions;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.triggerCharactersFound;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
@@ -191,8 +191,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsConditionalBreakpoints(true);
         capabilities.setSupportsLogPoints(true);
         capabilities.setSupportsCompletionsRequest(true);
-        capabilities.setCompletionTriggerCharacters(new String[]{".", ">"});
-//        capabilities.setCompletionTriggerCharacters(CompletionUtil.triggerCharacters.toArray(String[]::new));
+        capabilities.setCompletionTriggerCharacters(getTriggerCharacters().toArray(String[]::new));
+        // Todo - Implement
         capabilities.setSupportsRestartRequest(false);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
@@ -515,7 +515,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (suspendedContext == null) {
                 return completionsResponse;
             }
-
             CompletionContext completionContext = new CompletionContext(suspendedContext);
 
             // If the debug console expression doesn't have any trigger characters,
@@ -546,18 +545,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
                     RemoteMethodCallActionNodeContext remoteMethodCallActionNodeContext =
                             new RemoteMethodCallActionNodeContext();
-                    List<CompletionItem> completions =
-                            remoteMethodCallActionNodeContext.getCompletions(completionContext, ((RemoteMethodCallActionNode) resolverNode.get()));
-                    completionsResponse.setTargets(completions.toArray(new CompletionItem[completions.size()]));
+                    List<CompletionItem> completions = remoteMethodCallActionNodeContext
+                            .getCompletions(completionContext, ((RemoteMethodCallActionNode) resolverNode.get()));
+                    completionsResponse.setTargets(completions.toArray(new CompletionItem[0]));
                 }
 
                 if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.ASYNC_SEND_ACTION) {
-//                    RemoteMethodCallActionNodeContext remoteMethodCallActionNodeContext =
-//                            new RemoteMethodCallActionNodeContext();
                     AsyncSendActionNodeContext asyncSendActionNodeContext = new AsyncSendActionNodeContext();
-                    List<CompletionItem> completions =
-                            asyncSendActionNodeContext.getCompletions(completionContext, ((AsyncSendActionNode) resolverNode.get()));
-                    completionsResponse.setTargets(completions.toArray(new CompletionItem[completions.size()]));
+                    List<CompletionItem> completions = asyncSendActionNodeContext
+                            .getCompletions(completionContext, ((AsyncSendActionNode) resolverNode.get()));
+                    completionsResponse.setTargets(completions.toArray(new CompletionItem[0]));
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage());
