@@ -1,5 +1,5 @@
 Compiling source
-	pramodya/conflictedJarsProject:0.1.0
+	_org/conflictedJarsProject:0.1.0
 
 Generating executable
 	warning: Detected conflicting jar files:
