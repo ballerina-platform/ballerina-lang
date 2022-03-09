@@ -24,7 +24,6 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.ResolutionOptions;
