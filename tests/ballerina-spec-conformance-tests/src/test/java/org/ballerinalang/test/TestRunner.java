@@ -41,6 +41,7 @@ import static org.ballerinalang.test.TestRunnerUtils.getAllLabels;
 import static org.ballerinalang.test.TestRunnerUtils.handleTestSkip;
 import static org.ballerinalang.test.TestRunnerUtils.setDetails;
 import static org.ballerinalang.test.TestRunnerUtils.setDetailsOfTest;
+import static org.ballerinalang.test.TestRunnerUtils.validateLabels;
 import static org.ballerinalang.test.TestRunnerUtils.validateTestFormat;
 import static org.ballerinalang.test.TestRunnerUtils.validateTestOutput;
 
@@ -53,14 +54,16 @@ public class TestRunner {
 
     private final Path path = TEST_DIR.resolve("src").resolve("test").resolve("resources")
                                      .resolve("ballerina-spec-tests").resolve("conformance");
+    private static final Set<String> predefinedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString()).keySet();
 
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
                      int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context,
-                     boolean isKnownIssue) {
+                     boolean isKnownIssue, String labels) {
         setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
         handleTestSkip(isSkippedTest);
         validateTestFormat(diagnostics);
+        validateLabels(labels, predefinedLabels, absLineNum);
         validateTestOutput(path, kind, outputValues, isKnownIssue, lineNumbers, fileName, absLineNum, context);
     }
 
@@ -90,8 +93,6 @@ public class TestRunner {
 
     @DataProvider(name = "spec-conformance-tests-file-provider")
     public Iterator<Object[]> dataProvider() {
-        HashMap<String, HashSet<String>> definedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString());
-        Set<String> labels = runSelectedTests(definedLabels);
         List<Object[]> testCases = new ArrayList<>();
         try {
             Files.walk(path).filter(path -> {
@@ -101,7 +102,8 @@ public class TestRunner {
                     .map(path -> new Object[]{path.toFile().getName(), path.toString()})
                     .forEach(object -> {
                         try {
-                            TestRunnerUtils.readTestFile((String) object[0], (String) object[1], testCases, labels);
+                            TestRunnerUtils.readTestFile((String) object[0], (String) object[1], testCases,
+                                    predefinedLabels);
                         } catch (IOException e) {
                             Assert.fail("failed to read spec conformance test: \"" + object[0] + "\"", e);
                         }

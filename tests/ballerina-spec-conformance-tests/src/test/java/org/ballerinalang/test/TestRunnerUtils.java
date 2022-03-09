@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,16 +111,18 @@ public class TestRunnerUtils {
 
             Map<String, String> headersOfTestCase = readHeaders(line, buffReader);
             String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
+
             //TODO: if kind of testcase is other, then need to skip creating the bal file
             boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
 
-            Object[] testCase = new Object[9];
+            Object[] testCase = new Object[10];
             testCase[0] = kindOfTestCase;
             testCase[1] = tempDir + tempFileName + BAL_EXTENSION;
             testCase[4] = fileName;
             testCase[5] = absLineNum;
             testCase[6] = isSkippedTestCase;
             testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
+            testCase[9] = headersOfTestCase.get(LABELS);
 
             line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
         }
@@ -193,6 +196,36 @@ public class TestRunnerUtils {
                                   OUTPUT, PANIC, ERROR, PARSER_ERROR));
                 return OTHER;
 
+        }
+    }
+
+    public static void validateLabels(String labels, Set<String> predefinedLabels, int absLineNum) {
+        HashSet<String> labelsList = new HashSet<>();
+        StringJoiner duplicateLabels = new StringJoiner(", ");
+        StringJoiner unknownLabels = new StringJoiner(", ");
+
+        for (String label : labels.split(",")) {
+            String trimmedLabel = label.trim();
+            if (labelsList.contains(trimmedLabel)) {
+                duplicateLabels.add(trimmedLabel);
+                continue;
+            }
+            if (!predefinedLabels.contains(trimmedLabel)) {
+                unknownLabels.add(trimmedLabel);
+            }
+            labelsList.add(trimmedLabel);
+        }
+
+        boolean hasUnknownLabels = unknownLabels.length() > 0;
+        boolean hasDuplicateLabels = duplicateLabels.length() > 0;
+
+        String diagnosticMsg = hasUnknownLabels ? (hasDuplicateLabels ?
+                "Unknown labels: " + unknownLabels + "\n Duplicate labels: " + duplicateLabels :
+                "Unknown labels: " + unknownLabels) :
+                (hasDuplicateLabels ? "Duplicate labels: " + duplicateLabels : "");
+
+        if (!diagnosticMsg.isEmpty()) {
+            Assert.fail("Errors in labels at line number: " + (absLineNum - 1) + "\n" + diagnosticMsg);
         }
     }
 
@@ -496,7 +529,7 @@ public class TestRunnerUtils {
     public static void setDetailsOfErrorKindTests(ITestContext context, Map<String, String> detailsOfTest) {
         Map<String, Object> detailsOfErrorKindTests = getDetailsOfErrorKindTests(context);
 
-        boolean haveOnlyNulls = detailsOfErrorKindTests.values().stream().allMatch(Objects::isNull);;
+        boolean haveOnlyNulls = detailsOfErrorKindTests.values().stream().allMatch(Objects::isNull);
 
         if (!haveOnlyNulls) {
             int absLineNo = Integer.parseInt(detailsOfTest.get(ABS_LINE_NUM));
