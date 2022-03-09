@@ -200,7 +200,7 @@ public class TestRunnerUtils {
     }
 
     public static void validateLabels(String labels, Set<String> predefinedLabels) {
-        List<String> labelsList = new ArrayList<>();
+        HashSet<String> labelsList = new HashSet<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
 
