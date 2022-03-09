@@ -367,7 +367,9 @@ public class LangLibValueTest {
                 { "testCloneWithTypeTupleRestType" },
                 { "testCloneWithTypeUnionTuple" },
                 { "testCloneWithTypeTupleRestTypeNegative" },
-                { "testCloneWithTypeUnionTupleRestTypeNegative" }
+                { "testCloneWithTypeUnionTupleRestTypeNegative" },
+                { "testCloneWithTypeToTupleTypeWithFiniteTypesNegative" },
+                { "testCloneWithTypeTupleWithoutFillerValues" }
         };
     }
 
@@ -482,6 +484,12 @@ public class LangLibValueTest {
                 "testEnsureTypeNegative", "testEnsureTypeJsonToNestedRecordsWithErrors",
                 "testEnsureTypeFloatToIntNegative"
         };
+    }
+
+    @Test
+    public void testDecimalToString() {
+        BRunUtil.invokeFunction(compileResult, "testDecimalZeroToString");
+        BRunUtil.invokeFunction(compileResult, "testDecimalNonZeroToString");
     }
 
     @AfterClass

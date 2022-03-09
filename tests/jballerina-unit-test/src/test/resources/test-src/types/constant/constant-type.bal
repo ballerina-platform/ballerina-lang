@@ -31,7 +31,7 @@ type TYPE4 20;
 type TYPE5 false;
 type TYPE6 "CS";
 
-function testTypesOfConstants() {
+function testTypesOfSimpleConstants() {
     CI1 ci1 = 3;
     CI2 ci2 = 2;
     CF3 cf3 = 12.0;
@@ -90,6 +90,8 @@ const map<int> CMI5 = {a};
 
 const map<()> CN1 = {a : ()};
 const map<map<()>> CN2 = {CN1};
+
+const map<int> empty = {};
 
 type TYPE7 readonly & record {|
     readonly & record {|
@@ -161,6 +163,8 @@ type TYPE14 readonly & record {|
     |} e;
 |};
 
+type TYPE15 readonly & record {||};
+
 function testTypesOfConstantMaps() {
     TYPE7 t7 = CMI4;
     TYPE8 t8 = CMF1;
@@ -170,6 +174,7 @@ function testTypesOfConstantMaps() {
     TYPE12 t12 = CMS1;
     TYPE13 t13 = CN2;
     TYPE14 t14 = CMS34_CLONE;
+    TYPE15 t15 = empty;
 
     assertEqual(CMI4 is TYPE7, true);
     assertEqual(CMF1 is TYPE8, true);
@@ -177,6 +182,7 @@ function testTypesOfConstantMaps() {
     // assertEqual(CMBT is TYPE10, true); // Uncomment after fixing #33889
     assertEqual(CMB1 is TYPE11, true);
     assertEqual(CMS1 is TYPE12, true);
+    assertEqual(empty is TYPE15, true);
 
     assertEqual(t7, {a : {b : {a : 1}}, b : {a : {a : 1}, CMI2 : {b : 2, c : 3}, c : {d : 1}}});
     assertEqual(t8, {a : 0.11, b : 2.12});
@@ -186,6 +192,88 @@ function testTypesOfConstantMaps() {
     assertEqual(t12, {a : "C", b : "S"});
     assertEqual(t13, {CN1 : {a : ()}});
     assertEqual(t14, {a : {e : "C", f : "S"}, b : {g : "C", h : "S"}, d : {i : "C", j : "S"}, e : {k : "C", l : "S"}});
+    assertEqual(t15, {});
+}
+
+const A = 1;
+
+const map<int> B = {
+    a: A,
+    b: 2
+};
+
+const map<map<int>> C = {
+    a: B,
+    b: {
+        a: 3
+    }
+};
+
+function testConstTypesInline() {
+    1 _ = A; // OK
+    anydata a = A;
+    assertTrue(a is 1);
+    assertEqual(1, a);
+
+    readonly & record {| 1 a; 2 b; |} _ = B; // OK
+    anydata b = B;
+    assertTrue(b is readonly & record {| 1 a; 2 b; |});
+    assertEqual({a: 1, b: 2}, b);
+
+    readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |} _ = C; // OK
+    anydata c = C;
+    assertTrue(c is readonly & record {| record {| 1 a; 2 b; |} a; record {| 3 a; |} b; |});
+    assertEqual({a: {a: 1, b: 2}, b: {a: 3}}, c);
+}
+
+function testInvalidRuntimeUpdateOfConstMaps() {
+    map<int> a = B;
+
+    function () fn = function () {
+        a["a"] = 1;
+    };
+    error? res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+
+    record {| 1 a; 2 b; |} b = C.a;
+    fn = function () {
+        b.b = 2;
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+
+    map<map<int>> c = C;
+    fn = function () {
+        c["a"]["a"] = 2;
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+
+    fn = function () {
+        c["c"] = {};
+    };
+    res = trap fn();
+    // https://github.com/ballerina-platform/ballerina-lang/issues/34798
+    assertInvalidUpdateError(res, "invalid value for record field 'c': expected value of type 'never', found 'map<int>'");
+
+    fn = function () {
+        c["a"] = {a: 1, b: 2};
+    };
+    res = trap fn();
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type " +
+                                    "'record {| readonly (record {| 1 a; 2 b; |} & readonly & readonly) a; " +
+                                    "readonly (record {| 3 a; |} & readonly & readonly) b; |} & readonly'");
+}
+
+function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
+    assertTrue(res is error);
+    error err = <error> res;
+    assertEqual("{ballerina/lang.map}InherentTypeViolation", err.message());
+    assertEqual(expectedDetailMessage, <string> checkpanic err.detail()["message"]);
+}
+
+function assertTrue(anydata actual) {
+    assertEqual(true, actual);
 }
 
 function assertEqual(anydata expected, anydata actual) {

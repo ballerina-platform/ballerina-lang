@@ -35,19 +35,19 @@ import java.util.concurrent.TimeUnit;
 public class ModuleExecutionFlowTests extends BaseTest {
     public static final int TIMEOUT = 10000;
 
-    @Test
+    @Test(enabled = false)
     public void testModuleExecutionOrder() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj1");
         runAndAssert(projectPath);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleMainExecutionOrder() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj6");
         runAndAssert(projectPath);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testImportModuleHasListener() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj2");
         BServerInstance serverInstance = new BServerInstance(balServer);
@@ -77,7 +77,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    @Test(description = "Test 'init' is called only once for each module at runtime")
+    @Test(description = "Test 'init' is called only once for each module at runtime", enabled = false)
     public void testModuleDependencyChainForInit() throws BallerinaTestException, InterruptedException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_invocation_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
@@ -101,13 +101,13 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDynamicListenerExecution() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_execution");
         runAssertDynamicListener(projectPath);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDynamicListenerDeregister() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_deregister");
         runAssertDynamicListener(projectPath);

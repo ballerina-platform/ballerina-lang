@@ -61,6 +61,7 @@ service  / on lsn {
 
 function exprBodyScope(string myStr) returns string => m
 
+function (int) returns int fn3 = (intParam) => 2 +;
 
 // utils
 public class Listener {

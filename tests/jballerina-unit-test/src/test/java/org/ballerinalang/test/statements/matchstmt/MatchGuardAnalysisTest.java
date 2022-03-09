@@ -72,6 +72,7 @@ public class MatchGuardAnalysisTest {
                 "will not be matched to 'isolated function'", 69, 19);
         BAssertUtil.validateError(result, i++, "incompatible types: 'function () returns (int)' will not be " +
                 "matched to 'isolated function'", 78, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: '\"P2\"' will not be matched to '\"P3\"'", 88, 17);
         Assert.assertEquals(result.getWarnCount(), 3);
         Assert.assertEquals(result.getErrorCount(), i - 3);
     }

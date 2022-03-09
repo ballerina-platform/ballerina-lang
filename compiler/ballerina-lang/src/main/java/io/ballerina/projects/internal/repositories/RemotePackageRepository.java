@@ -88,12 +88,6 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
-        // Avoid resolving from remote repository for lang repo tests
-        String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
-        if (langRepoBuild != null) {
-            return Optional.empty();
-        }
-
         // Check if the package is in cache
         Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(request, options);
         if (cachedPackage.isPresent()) {

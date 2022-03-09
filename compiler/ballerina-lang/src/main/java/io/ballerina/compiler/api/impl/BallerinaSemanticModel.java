@@ -137,7 +137,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet);
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet,
+                        compilationUnit.getName());
             }
         }
 
@@ -308,8 +309,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private BType getDeterminedType(BLangNode node, LineRange range) {
         if (node.getKind() == NodeKind.INVOCATION && node.getDeterminedType().getKind() == TypeKind.FUTURE) {
-            BLangInvocation.BLangActionInvocation invocationNode = (BLangInvocation.BLangActionInvocation) node;
-
+            BLangInvocation invocationNode = (BLangInvocation) node;
             if (invocationNode.isAsync()
                     && PositionUtil.withinBlock(range.startLine(), invocationNode.getName().getPosition())) {
 
@@ -404,7 +404,9 @@ public class BallerinaSemanticModel implements SemanticModel {
             return false;
         }
 
-        if (symbol.owner.getKind() == SymbolKind.PACKAGE || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+        if (symbol.owner.getKind() == SymbolKind.OBJECT
+                || symbol.owner.getKind() == SymbolKind.PACKAGE
+                || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
             return true;
         }
 
@@ -493,7 +495,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private void addToCompiledSymbols(Set<Symbol> compiledSymbols, Scope.ScopeEntry scopeEntry, Location cursorPos,
-                                      Name name, SymbolEnv symbolEnv, Set<DiagnosticState> states) {
+                                      Name name, SymbolEnv symbolEnv, Set<DiagnosticState> states,
+                                      String compUnitName) {
         if (scopeEntry == null || scopeEntry.symbol == null || isFilteredVarSymbol(scopeEntry.symbol, states)) {
             return;
         }
@@ -501,14 +504,22 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbolEnvScopeOwner = symbolEnv.scope.owner;
         BSymbol symbol = scopeEntry.symbol;
 
-        // Checks if the enclosed node is within a worker declaration body and the encountered symbol is the same
+        if (isIgnorableSelfSymbol(name, symbol, symbolEnvScopeOwner)) {
+            return;
+        }
+
+        // Checks
+        // 1. if the enclosed node is within a worker declaration body and the encountered symbol is the same
         // worker that is being declared.
-        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol)) {
+        // 2. if the cursor within a class-field declaration and the particular symbol is a class-method.
+        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol) ||
+                isCursorWithinClassFieldDecl(symbolEnvScopeOwner.flags) && isClassMemberMethod(symbol))  {
             return;
         }
 
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
-                && !isServiceDeclSymbol(symbol)) {
+                && !isServiceDeclSymbol(symbol) && !isResourceFunction(symbol)
+                && (symbol.getKind() != SymbolKind.PACKAGE || isPackageImportedOnTheCompUnit(symbol, compUnitName))) {
             Symbol compiledSymbol;
             // TODO: Fix #31808 and remove this if-check
             if (symbol.getKind() == SymbolKind.PACKAGE) {
@@ -534,7 +545,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
             compiledSymbols.add(compiledSymbol);
         }
-        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states);
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states, compUnitName);
     }
 
     private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {
@@ -553,12 +564,29 @@ public class BallerinaSemanticModel implements SemanticModel {
         return false;
     }
 
+    private boolean isCursorWithinClassFieldDecl(long symbolEnvScopeOwnerFlags) {
+        return Symbols.isFlagOn(symbolEnvScopeOwnerFlags, Flags.CLASS);
+    }
+
+    private boolean isClassMemberMethod(BSymbol symbol) {
+        return symbol.getKind() == SymbolKind.FUNCTION && Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)
+                && Symbols.isFlagOn(symbol.owner.flags, Flags.CLASS);
+    }
+
     private boolean isFieldSymbol(Symbol symbol) {
         return symbol.kind() == CLASS_FIELD || symbol.kind() == OBJECT_FIELD || symbol.kind() == RECORD_FIELD;
     }
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {
         return symbol.kind == SymbolKind.SERVICE;
+    }
+
+    private boolean isResourceFunction(BSymbol symbol) {
+        return Symbols.isFlagOn(symbol.flags, Flags.RESOURCE);
+    }
+
+    private boolean isIgnorableSelfSymbol(Name name, BSymbol symbol, BSymbol symbolEnvScopeOwner) {
+        return name.value.equals("self") && !symbol.owner.owner.equals(symbolEnvScopeOwner.owner);
     }
 
     private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {
@@ -576,5 +604,9 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean isNonNamedArgExprNode(BLangNode node) {
         return node instanceof BLangExpression && !(node instanceof BLangNamedArgsExpression);
+    }
+
+    private boolean isPackageImportedOnTheCompUnit(BSymbol symbol, String compUnit) {
+        return symbol.getKind() == SymbolKind.PACKAGE && ((BPackageSymbol) symbol).compUnit.getValue().equals(compUnit);
     }
 }

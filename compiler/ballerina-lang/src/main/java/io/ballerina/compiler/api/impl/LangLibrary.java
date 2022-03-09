@@ -35,10 +35,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -100,7 +102,12 @@ public class LangLibrary {
      * @return The associated list of lang library functions
      */
     public List<FunctionSymbol> getMethods(BType type) {
-        String langLibName = getAssociatedLangLibName(type.getKind());
+        String langLibName;
+        if (type.getKind() == TypeKind.UNION && types.isAllErrorMembers((BUnionType) type)) {
+            langLibName = TypeKind.ERROR.typeName();
+        } else {
+            langLibName = getAssociatedLangLibName(type.getKind());
+        }
         return getMethods(langLibName, type);
     }
 
@@ -174,7 +181,7 @@ public class LangLibrary {
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
                     (!invSymbol.params.isEmpty()
-                            && basicType.compareToIgnoreCase(types.getReferredType(invSymbol.params.get(0).type)
+                            && basicType.compareToIgnoreCase(Types.getReferredType(invSymbol.params.get(0).type)
                             .getKind().name()) == 0 || invSymbol.restParam != null
                             && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
                             .eType.tsymbol.getName().getValue()) == 0)) {
@@ -213,7 +220,10 @@ public class LangLibrary {
             case STREAM:
                 return ((BStreamType) type).constraint;
             case XML:
-                return ((BXMLType) type).constraint;
+                if (type.tag == TypeTags.XML) {
+                    return ((BXMLType) type).constraint;
+                }
+                return type;
             // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
             case ERROR:
             default:

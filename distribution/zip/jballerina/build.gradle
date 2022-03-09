@@ -52,8 +52,6 @@ dependencies {
 
     // Lang libs
 
-    balSource project(path: ':ballerina-observability', configuration: 'balSource')
-    balSource project(path: ':ballerina-observability-internal', configuration: 'balSource')
 //    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
 
     // Lang Libs

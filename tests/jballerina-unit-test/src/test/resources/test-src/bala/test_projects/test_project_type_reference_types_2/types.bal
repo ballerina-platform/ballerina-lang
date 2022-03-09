@@ -21,3 +21,25 @@ public readonly class ConstPointerValue {
         self.i = i;
     }
 }
+
+public type FunctionDecl FooFunction;
+
+public class FooFunction {
+    string functionName;
+    public function init(string functionName) {
+        self.functionName = functionName;
+    }
+
+    public function getFuncName() returns string {
+        return self.functionName;
+    }
+}
+
+public type Object2 object {
+    public int b;
+    *Object3;
+};
+
+public type Object3 object {
+    public int c;
+};

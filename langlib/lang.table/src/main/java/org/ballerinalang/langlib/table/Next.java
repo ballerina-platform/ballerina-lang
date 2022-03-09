@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.table;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
@@ -63,8 +64,8 @@ public class Next {
         if (tableIterator.hasNext()) {
             BArray keyValueTuple = (BArray) tableIterator.next();
             returnedKeys.add(keyValueTuple.get(0));
-            return ValueCreator.createRecordValue(ValueCreator.createMapValue(table.getIteratorNextReturnType()),
-                                                  keyValueTuple.get(1));
+            return ValueCreator.createRecordValue(ValueCreator.createRecordValue(
+                    (RecordType) table.getIteratorNextReturnType()), keyValueTuple.get(1));
         }
 
         return null;

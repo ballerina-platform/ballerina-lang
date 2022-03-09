@@ -314,6 +314,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
+    private boolean inInternallyDefinedBlockStmt;
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private int workerSystemMovementSequence;
     private final ReachabilityAnalyzer reachabilityAnalyzer;
@@ -535,6 +536,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(funcNode.body, invokableEnv);
             this.defaultValueState = prevDefaultValueState;
         }
+        reachabilityAnalyzer.clearStacks();
         reachabilityAnalyzer.analyzeReachability(funcNode, invokableEnv);
         this.returnTypes.pop();
         this.returnWithinTransactionCheckStack.pop();
@@ -557,8 +559,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
         for (BLangStatement e : body.stmts) {
+            this.inInternallyDefinedBlockStmt = true;
             analyzeNode(e, blockEnv);
         }
+        this.inInternallyDefinedBlockStmt = false;
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
             withinTransactionScope = prevWithinTxScope;
         }
@@ -722,15 +726,36 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int prevRollbackCount = this.rollbackCountWithinBlock;
         this.commitCountWithinBlock = 0;
         this.rollbackCountWithinBlock = 0;
+        boolean inInternallyDefinedBlockStmt = this.inInternallyDefinedBlockStmt;
+        this.inInternallyDefinedBlockStmt = checkBlockIsAnInternalBlockInImmediateFunctionBody(blockNode);
         final SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
         blockNode.stmts.forEach(e -> {
             analyzeNode(e, blockEnv);
         });
+        this.inInternallyDefinedBlockStmt = inInternallyDefinedBlockStmt;
         if (commitCountWithinBlock > 1 || rollbackCountWithinBlock > 1) {
             this.dlog.error(blockNode.pos, DiagnosticErrorCode.MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH);
         }
         this.commitCountWithinBlock = prevCommitCount;
         this.rollbackCountWithinBlock = prevRollbackCount;
+    }
+
+    private boolean checkBlockIsAnInternalBlockInImmediateFunctionBody(BLangNode node) {
+        BLangNode parent = node.parent;
+
+        while (parent != null) {
+            final NodeKind kind = parent.getKind();
+            if (kind == NodeKind.BLOCK_FUNCTION_BODY) {
+                return true;
+            }
+            if (kind == NodeKind.BLOCK) {
+                parent = parent.parent;
+            } else {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -1106,11 +1131,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (firstConstType != null && types.getReferredType(firstConstType).tag == TypeTags.FINITE) {
+        if (firstConstType != null && Types.getReferredType(firstConstType).tag == TypeTags.FINITE) {
             firstConstValue = getConstValueFromFiniteType(((BFiniteType) firstConstType));
         }
 
-        if (secondConstType != null && types.getReferredType(secondConstType).tag == TypeTags.FINITE) {
+        if (secondConstType != null && Types.getReferredType(secondConstType).tag == TypeTags.FINITE) {
             secondConstValue = getConstValueFromFiniteType(((BFiniteType) secondConstType));
         }
 
@@ -1837,9 +1862,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkLiteralSimilarity(precedingPattern, rhsExpr);
         }
 
-        switch (types.getReferredType(precedingPattern.getBType()).tag) {
+        switch (Types.getReferredType(precedingPattern.getBType()).tag) {
             case TypeTags.MAP:
-                if (types.getReferredType(pattern.getBType()).tag == TypeTags.MAP) {
+                if (Types.getReferredType(pattern.getBType()).tag == TypeTags.MAP) {
                     BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
                     Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).fields
                             .stream()
@@ -1866,7 +1891,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 return false;
             case TypeTags.TUPLE:
-                if (types.getReferredType(pattern.getBType()).tag == TypeTags.TUPLE) {
+                if (Types.getReferredType(pattern.getBType()).tag == TypeTags.TUPLE) {
                     BLangListConstructorExpr precedingTupleLiteral = (BLangListConstructorExpr) precedingPattern;
                     BLangListConstructorExpr tupleLiteral = (BLangListConstructorExpr) pattern;
                     if (precedingTupleLiteral.exprs.size() != tupleLiteral.exprs.size()) {
@@ -1903,14 +1928,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return (precedingPatternSym.value.equals(literal.value));
                 }
 
-                if (types.isValueType(types.getReferredType(pattern.getBType()))) {
+                if (types.isValueType(Types.getReferredType(pattern.getBType()))) {
                     // preceding pattern is a literal.
                     BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.GROUP_EXPR ?
                             (BLangLiteral) ((BLangGroupExpr) precedingPattern).expression :
                             (BLangLiteral) precedingPattern;
 
                     if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        if (types.getReferredType(pattern.getBType()).tag != TypeTags.NONE) {
+                        if (Types.getReferredType(pattern.getBType()).tag != TypeTags.NONE) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
                             return patternSym.value.equals(precedingLiteral.value);
@@ -1927,7 +1952,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return false;
             case TypeTags.ANY:
                 // preceding pattern is '_'. Hence will match all patterns except error that follow.
-                if (types.getReferredType(pattern.getBType()).tag == TypeTags.ERROR) {
+                if (Types.getReferredType(pattern.getBType()).tag == TypeTags.ERROR) {
                     return false;
                 }
                 return true;
@@ -1974,7 +1999,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar,
                                                      BLangVariable var,
                                                      boolean errorTypeInMatchExpr) {
-        if (types.getReferredType(precedingVar.getBType()).tag == TypeTags.SEMANTIC_ERROR ||
+        if (Types.getReferredType(precedingVar.getBType()).tag == TypeTags.SEMANTIC_ERROR ||
                 var.getBType().tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
@@ -2106,7 +2131,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @return true if the pattern is valid, else false.
      */
     private boolean isValidStaticMatchPattern(BType matchType, BLangExpression literal) {
-        if (types.getReferredType(literal.getBType()).tag == TypeTags.NONE) {
+        if (Types.getReferredType(literal.getBType()).tag == TypeTags.NONE) {
             return true; // When matching '_'
         }
 
@@ -2114,7 +2139,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (TypeTags.ANY == types.getReferredType(literal.getBType()).tag) {
+        if (TypeTags.ANY == Types.getReferredType(literal.getBType()).tag) {
             return true;
         }
 
@@ -2201,7 +2226,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                return  isValidStaticMatchPattern(types.getReferredType(matchType), literal);
+                return  isValidStaticMatchPattern(Types.getReferredType(matchType), literal);
         }
         return false;
     }
@@ -2811,7 +2836,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             return false;
         }
-        BType refType = types.getReferredType(type);
+        BType refType = Types.getReferredType(type);
         return refType.tag == TypeTags.FUTURE && ((BFutureType) refType).workerDerivative;
     }
 
@@ -2837,7 +2862,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation()) {
+        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2890,7 +2915,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        if (!isCommunicationAllowedLocation()) {
+        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2918,7 +2943,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation()) {
+        if (!isCommunicationAllowedLocation() && !this.inInternallyDefinedBlockStmt) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
@@ -2990,7 +3015,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         returnType = types.getTypeWithEffectiveIntersectionTypes(returnType);
-        returnType = types.getReferredType(returnType);
+        returnType = Types.getReferredType(returnType);
         if (returnType.tag == TypeTags.ERROR) {
             return true;
         }
@@ -3038,7 +3063,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         Set<Object> names = new HashSet<>();
         Set<Object> neverTypedKeys = new HashSet<>();
         BType literalBType = recordLiteral.getBType();
-        BType type = types.getReferredType(literalBType);
+        BType type = Types.getReferredType(literalBType);
         boolean isRecord = type.tag == TypeTags.RECORD;
         boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
 
@@ -3059,7 +3084,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 analyzeExpr(spreadOpExpr);
 
-                BType spreadOpExprType = types.getReferredType(spreadOpExpr.getBType());
+                BType spreadOpExprType = Types.getReferredType(spreadOpExpr.getBType());
                 int spreadFieldTypeTag = spreadOpExprType.tag;
                 if (spreadFieldTypeTag == TypeTags.MAP) {
                     if (inclusiveTypeSpreadField != null) {
@@ -3125,7 +3150,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             inclusiveTypeSpreadField != null && isSpreadExprRecordTypeSealed) {
                         this.dlog.error(spreadOpExpr.pos,
                                 DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
-                                types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
+                                Types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
                                 bField.symbol, spreadOpField);
                     }
                     names.add(fieldName);
@@ -3148,7 +3173,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     String unescapedName = Utils.unescapeJava(name);
                     if (names.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
-                                        types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
+                                        Types.getReferredType(recordLiteral.expectedType).getKind().typeName(),
                                         unescapedName);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(unescapedName)) {
                         this.dlog.error(keyExpr.pos,
@@ -3166,7 +3191,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
-                                types.getReferredType(recordLiteral.parent.getBType())
+                                Types.getReferredType(recordLiteral.parent.getBType())
                                         .getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
                         this.dlog.error(keyExpr.pos,
@@ -3923,7 +3948,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangFromClause fromClause = (BLangFromClause) clause;
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
-                    if (TypeTags.STREAM == types.getReferredType(collection.getBType()).tag) {
+                    if (TypeTags.STREAM == Types.getReferredType(collection.getBType()).tag) {
                         this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
@@ -3941,7 +3966,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangFromClause fromClause = (BLangFromClause) clause;
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
-                    if (TypeTags.STREAM == types.getReferredType(collection.getBType()).tag) {
+                    if (TypeTags.STREAM == Types.getReferredType(collection.getBType()).tag) {
                         this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
@@ -4523,7 +4548,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         int tag = bType.tag;
         if (tag == TypeTags.TYPEREFDESC) {
-            return getErrorTypes(types.getReferredType(bType));
+            return getErrorTypes(Types.getReferredType(bType));
         }
         if (tag == TypeTags.ERROR) {
             errorType = bType;

@@ -18,8 +18,13 @@
 
 package io.ballerina.shell.cli.jline.validator;
 
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 
 /**
  * Validates user input as a complete module member.
@@ -42,20 +47,12 @@ public class ModuleMemberValidator implements Validator {
     @Override
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
-        boolean isIncomplete = NodeParser.parseModuleMemberDeclaration(source).apply(incompleteInputFinder);
-        if (!NodeParser.parseModuleMemberDeclaration(source).hasDiagnostics()) {
-            return false;
-        } else {
-            if (!source.endsWith(";") && !NodeParser.parseModuleMemberDeclaration(source + ";").hasDiagnostics()) {
-                return false;
-            }
-        }
-
-        if (!isIncomplete) {
-            return  nextInValidator.evaluate(source);
-        } else {
-            return true;
-        }
-
+        TextDocument document = TextDocuments.from(source);
+        SyntaxTree tree = SyntaxTree.from(document);
+        ModulePartNode node = tree.rootNode();
+        // Ignore code segments including imports
+        Node parsedNode = NodeParser.parseModuleMemberDeclaration(source);
+        return !node.imports().isEmpty() || !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
+                || nextInValidator.evaluate(source);
     }
 }

@@ -63,6 +63,13 @@
       "detail": "String",
       "sortText": "A",
       "insertText": "icon=\"${1:}\""
+    },
+    {
+      "label": "template",
+      "kind": "Snippet",
+      "detail": "Boolean",
+      "sortText": "A",
+      "insertText": "template=${1:false}"
     }
   ]
 }

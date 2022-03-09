@@ -156,6 +156,11 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testWildcardBindingPatternInQueryAction2");
     }
 
+    @Test
+    public void testQueryActionWithAsyncCalls() {
+        BRunUtil.invoke(result, "testQueryActionWithAsyncCalls");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
