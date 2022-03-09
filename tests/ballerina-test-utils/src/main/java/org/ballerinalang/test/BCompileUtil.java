@@ -197,6 +197,7 @@ public class BCompileUtil {
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         if (packageCompilation.diagnosticResult().errorCount() > 0) {
             logger.error("compilation failed with errors: " + currentPackage.project().sourceRoot());
+            logger.error(packageCompilation.diagnosticResult().diagnostics().iterator().next().toString());
         }
         return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
     }
