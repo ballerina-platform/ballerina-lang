@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 
 /**
- * Common utils to be reused in language server implementation.
+ * Common utils to be reused in debug completion implementation.
  */
 public class CommonUtil {
 
@@ -73,7 +73,7 @@ public class CommonUtil {
     /**
      * Get the module symbol associated with the given alias.
      *
-     * @param context Language server operation context
+     * @param context Debug completion context
      * @param alias   alias value
      * @return {@link Optional} scope entry for the module symbol
      */
@@ -144,7 +144,7 @@ public class CommonUtil {
     /**
      * Whether the package is already imported in the current document.
      *
-     * @param context service operation context
+     * @param context debug completion context
      * @param orgName organization name
      * @param modName module name
      * @return {@link Optional}
@@ -162,7 +162,7 @@ public class CommonUtil {
     /**
      * Returns the type name (derived from signature) with version infromation removed.
      *
-     * @param context    Context
+     * @param context    Debug completion context
      * @param typeSymbol Type symbol
      * @return Signature
      */
@@ -174,7 +174,7 @@ public class CommonUtil {
     /**
      * Given a signature, this method will remove the version information from the signature.
      *
-     * @param context   Context
+     * @param context   Debug completion context
      * @param signature Signature to be modified.
      * @return Modified signature
      */
@@ -229,7 +229,7 @@ public class CommonUtil {
      * information corresponding to the FunctionTypeSymbol instance.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
+     * @param ctx                Debug completion context.
      * @param node               Function call expression node.
      * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
      */
@@ -244,7 +244,7 @@ public class CommonUtil {
      * information corresponding to the FunctionTypeSymbol instance.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
+     * @param ctx                Debug completion context.
      * @param node               Remote method call action node.
      * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
      */
@@ -259,7 +259,7 @@ public class CommonUtil {
      * information corresponding to the FunctionTypeSymbol instance.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
+     * @param ctx                Debug completion context.
      * @param node               Method call expression node.
      * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
      */
@@ -274,7 +274,7 @@ public class CommonUtil {
      * information corresponding to the FunctionTypeSymbol instance.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
+     * @param ctx                Debug completion context.
      * @param node               Implicit new expression node.
      * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
      */
@@ -293,7 +293,7 @@ public class CommonUtil {
      * information corresponding to the FunctionTypeSymbol instance.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
+     * @param ctx                Debug completion context.
      * @param node               Explicit new expression node.
      * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
      */
@@ -307,7 +307,7 @@ public class CommonUtil {
     /**
      * Check if the cursor is positioned in a function call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
+     * @param ctx  Debug completion context
      * @param node FunctionCallExpressionNode
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
@@ -319,7 +319,7 @@ public class CommonUtil {
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
+     * @param ctx  Debug completion context
      * @param node MethodCallExpressionNode
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
@@ -331,7 +331,7 @@ public class CommonUtil {
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
+     * @param ctx  Debug completion context
      * @param node RemoteMethodCallActionNode
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
@@ -343,7 +343,7 @@ public class CommonUtil {
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
+     * @param ctx  Debug completion context
      * @param node RemoteMethodCallActionNode
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
@@ -359,7 +359,7 @@ public class CommonUtil {
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
+     * @param ctx  Debug completion context
      * @param node RemoteMethodCallActionNode
      * @return {@link Boolean} whether the cursor is in parameter context.
      */

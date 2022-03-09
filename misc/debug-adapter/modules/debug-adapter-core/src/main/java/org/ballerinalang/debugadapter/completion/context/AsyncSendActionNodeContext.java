@@ -42,7 +42,7 @@ public class AsyncSendActionNodeContext {
     /**
      * Get Completion items for the scope/ context.
      *
-     * @param context debug completion Context
+     * @param context Debug completion context
      * @param node    Node instance for the parser context
      * @return {@link List}     List of calculated Completion Items
      */

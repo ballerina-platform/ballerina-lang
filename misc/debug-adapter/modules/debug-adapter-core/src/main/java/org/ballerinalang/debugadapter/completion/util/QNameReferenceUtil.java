@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class QNameReferenceUtil {
+
     private QNameReferenceUtil() {
     }
 
@@ -46,6 +47,7 @@ public class QNameReferenceUtil {
      * @return {@link String} extracted alias
      */
     public static String getAlias(QualifiedNameReferenceNode qNameRef) {
+
         String alias = qNameRef.modulePrefix().text();
         return getAlias(alias);
     }
@@ -63,7 +65,7 @@ public class QNameReferenceUtil {
     /**
      * Get module content, given the given a qualified name reference and a predicate to filter.
      *
-     * @param context   Language server operation context
+     * @param context   debug completion context
      * @param qNameRef  qualified name reference
      * @param predicate predicate to filer
      * @return {@link List} of filtered module entries
@@ -81,7 +83,7 @@ public class QNameReferenceUtil {
     /**
      * Check whether the current cursor is positioned in the qualified name identifier.
      *
-     * @param context Positioned operation context
+     * @param context debug completion context
      * @param node    node to be evaluated
      * @return {@link Boolean}
      */
@@ -100,7 +102,7 @@ public class QNameReferenceUtil {
     /**
      * Get the completions for the qualified name reference context.
      *
-     * @param ctx      language server operation context
+     * @param ctx      debug completion context
      * @param qNameRef qualified name reference
      * @return {@link List} of completion items
      */
@@ -112,8 +114,8 @@ public class QNameReferenceUtil {
     /**
      * Get the completions for the qualified name reference context.
      *
-     * @param ctx           language server operation context
-     * @param moduleAlias   module alias of the qualified name reference
+     * @param ctx         debug completion context
+     * @param moduleAlias module alias of the qualified name reference
      * @return {@link List} of completion items
      */
     public static List<Symbol> getExpressionContextEntries(CompletionContext ctx, String moduleAlias) {

@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 /**
  * This class is being used to build function type completion item.
  *
@@ -49,7 +48,7 @@ public final class FunctionCompletionItemBuilder {
      * Creates and returns a completion item.
      *
      * @param functionSymbol BSymbol
-     * @param context        LS context
+     * @param context        Debug completion Context
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(FunctionSymbol functionSymbol, CompletionContext context) {
@@ -66,20 +65,20 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Get the function invocation signature.
      *
-     * @param functionSymbol ballerina function instance
-     * @param functionName   function name
-     * @param ctx            Language Server Operation context
+     * @param functionSymbol Ballerina function instance
+     * @param functionName   Function name
+     * @param context        Debug completion Context
      * @return {@link Pair} of insert text(left-side) and signature label(right-side)
      */
     private static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
                                                                        String functionName,
-                                                                       CompletionContext ctx) {
+                                                                       CompletionContext context) {
         if (functionSymbol == null) {
             return ImmutablePair.of(functionName + "()", functionName + "()");
         }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
-        List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
+        List<String> funcArguments = getFuncArguments(functionSymbol, context);
         if (!funcArguments.isEmpty()) {
             signature.append(String.join(", ", funcArguments));
         }
@@ -92,13 +91,13 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Get the list of function arguments from the invokable symbol.
      *
-     * @param symbol Invokable symbol to extract the arguments
-     * @param ctx    Lang Server Operation context
+     * @param symbol  Invokable symbol to extract the arguments
+     * @param context Debug completion Context
      * @return {@link List} List of arguments
      */
-    private static List<String> getFuncArguments(FunctionSymbol symbol, CompletionContext ctx) {
+    private static List<String> getFuncArguments(FunctionSymbol symbol, CompletionContext context) {
         List<String> args = new ArrayList<>();
-        boolean skipFirstParam = skipFirstParam(ctx, symbol);
+        boolean skipFirstParam = skipFirstParam(context, symbol);
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
         Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
         List<ParameterSymbol> parameterDefs = new ArrayList<>();
@@ -114,14 +113,14 @@ public final class FunctionCompletionItemBuilder {
                 // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
                 args.add("");
             } else {
-                args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.getName().isEmpty() ? ""
-                        : " " + param.getName().get()));
+                args.add(CommonUtil.getModifiedTypeName(context, param.typeDescriptor()) + (param.getName().isEmpty() ?
+                        "" : " " + param.getName().get()));
             }
         }
         restParam.ifPresent(param -> {
             // Rest param is represented as an array type symbol
             ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
-            args.add(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+            args.add(CommonUtil.getModifiedTypeName(context, typeSymbol.memberTypeDescriptor())
                     + (param.getName().isEmpty() ? "" : "... "
                     + param.getName().get()));
         });
@@ -132,12 +131,12 @@ public final class FunctionCompletionItemBuilder {
      * Whether we skip the first parameter being included as a label in the signature.
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
      * showing the invocation over package of the langlib with the COLON we show the first param.
-     * 
+     * <p>
      * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
      * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
      *
-     * @param context        context
-     * @param functionSymbol invokable symbol
+     * @param context        Debug completion Context
+     * @param functionSymbol Invokable symbol
      * @return {@link Boolean} whether we show the first param or not
      */
     private static boolean skipFirstParam(CompletionContext context, FunctionSymbol functionSymbol) {

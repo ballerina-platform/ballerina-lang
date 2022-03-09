@@ -168,7 +168,7 @@ public class CompletionUtil {
      * Populate the completion item list by considering the.
      *
      * @param scopeEntries list of symbol information
-     * @param ctx          Language server operation context
+     * @param ctx          debug completion context
      * @return {@link List}     list of completion items
      */
     public static List<CompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries,
@@ -182,7 +182,6 @@ public class CompletionUtil {
             if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
                 completionItems.addAll(populateBallerinaFunctionCompletionItems(symbol, ctx));
             }
-
             processedSymbols.add(symbol);
         });
         return completionItems;
@@ -309,9 +308,9 @@ public class CompletionUtil {
      * Get non terminal node with injected expression.
      *
      * @param completionContext debug completion context
-     * @param args               debug completions arguments
-     * @param sourcePath         source path
-     * @param lineNumber         debug hit line
+     * @param args              debug completions arguments
+     * @param sourcePath        source path
+     * @param lineNumber        debug hit line
      * @return non terminal node with injected expression
      */
     public static NonTerminalNode getInjectedExpressionNode(CompletionContext completionContext,

@@ -542,7 +542,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     completionsResponse.setTargets(completions);
                 }
 
-                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
+                        && resolverNode.get() instanceof RemoteMethodCallActionNode) {
                     RemoteMethodCallActionNodeContext remoteMethodCallActionNodeContext =
                             new RemoteMethodCallActionNodeContext();
                     List<CompletionItem> completions = remoteMethodCallActionNodeContext
@@ -550,7 +551,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     completionsResponse.setTargets(completions.toArray(new CompletionItem[0]));
                 }
 
-                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.ASYNC_SEND_ACTION) {
+                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.ASYNC_SEND_ACTION
+                        && resolverNode.get() instanceof AsyncSendActionNode) {
                     AsyncSendActionNodeContext asyncSendActionNodeContext = new AsyncSendActionNodeContext();
                     List<CompletionItem> completions = asyncSendActionNodeContext
                             .getCompletions(completionContext, ((AsyncSendActionNode) resolverNode.get()));
