@@ -121,3 +121,12 @@ function testMapCast() {
     MyRecord rec = myMap;
 }
 
+function testFuture() {
+    worker w1 returns string {
+        return "ballerina";
+    }
+
+    future a0 = w1;
+    future<string> a1 = a0;
+}
+

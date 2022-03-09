@@ -18,6 +18,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
@@ -88,11 +89,11 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
             return this.objectFields;
         }
 
-        Map<String, ObjectFieldSymbol> fields = new LinkedHashMap<>();
+        FieldMap<String, ObjectFieldSymbol> fields = new FieldMap<>();
         BObjectType type = (BObjectType) this.getBType();
 
         for (BField field : type.fields.values()) {
-            fields.put(field.name.value, new BallerinaObjectFieldSymbol(this.context, field));
+            fields.put(field.symbol.getOriginalName().value, new BallerinaObjectFieldSymbol(this.context, field));
         }
 
         this.objectFields = Collections.unmodifiableMap(fields);

@@ -38,6 +38,7 @@ import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
+import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import org.eclipse.lsp4j.debug.StackFrame;
@@ -63,6 +64,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Timer;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
@@ -87,7 +89,6 @@ public class DebugTestRunner {
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
-    private static final int MAX_RETRY_COUNT = 3;
     private static final int SCHEDULER_INTERVAL_MS = 1000;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
 
@@ -236,7 +237,8 @@ public class DebugTestRunner {
      * @param breakpoint breakpoint to be set
      * @throws BallerinaTestException if any exception is occurred during action.
      */
-    public void addBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
+    public Optional<SetBreakpointsResponse> addBreakPoint(BallerinaTestDebugPoint breakpoint)
+            throws BallerinaTestException {
         testBreakpoints.add(breakpoint);
         List<BallerinaTestDebugPoint> breakpointsToBeSent = new ArrayList<>();
         for (org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint bp : testBreakpoints) {
@@ -246,14 +248,16 @@ public class DebugTestRunner {
         }
 
         if (debugClientConnector != null && debugClientConnector.isConnected()) {
-            setBreakpoints(breakpointsToBeSent);
+            return Optional.ofNullable(setBreakpoints(breakpointsToBeSent));
         }
+        return Optional.empty();
     }
 
-    public void setBreakpoints(List<BallerinaTestDebugPoint> breakPoints) throws BallerinaTestException {
+    private SetBreakpointsResponse setBreakpoints(List<BallerinaTestDebugPoint> breakPoints)
+            throws BallerinaTestException {
 
         if (!isConnected) {
-            return;
+            return null;
         }
         Map<Source, List<SourceBreakpoint>> sourceBreakpoints = new HashMap<>();
         for (BallerinaTestDebugPoint bp : breakPoints) {
@@ -267,12 +271,13 @@ public class DebugTestRunner {
             breakpointRequestArgs.setSource(entry.getKey());
             breakpointRequestArgs.setBreakpoints(entry.getValue().toArray(new SourceBreakpoint[0]));
             try {
-                debugClientConnector.getRequestManager().setBreakpoints(breakpointRequestArgs);
+                return debugClientConnector.getRequestManager().setBreakpoints(breakpointRequestArgs);
             } catch (Exception e) {
                 LOGGER.error("SetBreakpoints request failed.", e);
                 throw new BallerinaTestException("Breakpoints request failed.", e);
             }
         }
+        return null;
     }
 
     /**
@@ -303,7 +308,6 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when resuming program.
      */
     public void resumeProgram(StoppedEventArguments context, DebugResumeKind kind) throws BallerinaTestException {
-
         if (kind == DebugResumeKind.NEXT_BREAKPOINT) {
             ContinueArguments continueArgs = new ContinueArguments();
             continueArgs.setThreadId(context.getThreadId());
@@ -415,6 +419,29 @@ public class DebugTestRunner {
     }
 
     /**
+     * Waits for 'breakpoint' events from the debug server within the given timeout.
+     *
+     * @param timeoutMillis timeout.
+     * @return pair of the debug point and context details.
+     * @throws BallerinaTestException if a debug point is not found within the given time.
+     */
+    public List<BallerinaTestDebugPoint> waitForModifiedBreakpoints(long timeoutMillis) throws BallerinaTestException {
+        BreakpointEventListener breakpointEventListener = new BreakpointEventListener(debugClientConnector);
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(breakpointEventListener, 0, 1000);
+        try {
+            Thread.sleep(timeoutMillis);
+        } catch (InterruptedException ignored) {
+        }
+        timer.cancel();
+
+        if (!breakpointEventListener.isBreakpointEventFound()) {
+            throw new BallerinaTestException("Timeout expired waiting for the breakpoint events");
+        }
+        return breakpointEventListener.getModifiedBreakpoints();
+    }
+
+    /**
      * Waits for a debugger output within the given timeout.
      *
      * @param timeoutMillis timeout.
@@ -471,7 +498,7 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when fetching debug hit variables.
      */
     public Map<String, Variable> fetchVariables(StoppedEventArguments args, VariableScope scope)
-        throws BallerinaTestException {
+            throws BallerinaTestException {
         Map<String, Variable> variables = new HashMap<>();
         if (!hitListener.getConnector().isConnected()) {
             return variables;
@@ -482,9 +509,8 @@ public class DebugTestRunner {
         stackTraceArgs.setThreadId(args.getThreadId());
 
         try {
-            StackTraceResponse stackTraceResp = hitListener.getConnector().getRequestManager()
-                .stackTrace(stackTraceArgs);
-            StackFrame[] stackFrames = stackTraceResp.getStackFrames();
+            StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
+            StackFrame[] stackFrames = stackResp.getStackFrames();
             if (stackFrames.length == 0) {
                 return variables;
             }
@@ -711,17 +737,16 @@ public class DebugTestRunner {
     private Variable evaluateExpression(StoppedEventArguments args, String expr) throws BallerinaTestException {
         if (!hitListener.getConnector().isConnected()) {
             throw new BallerinaTestException("Connection error occurred when trying to fetch information from the " +
-                "debug server");
+                    "debug server");
         }
         try {
             StackTraceArguments stackTraceArgs = new StackTraceArguments();
             stackTraceArgs.setThreadId(args.getThreadId());
-            StackTraceResponse stackTraceResp = hitListener.getConnector().getRequestManager()
-                .stackTrace(stackTraceArgs);
-            StackFrame[] stackFrames = stackTraceResp.getStackFrames();
+            StackTraceResponse stackResp = hitListener.getConnector().getRequestManager().stackTrace(stackTraceArgs);
+            StackFrame[] stackFrames = stackResp.getStackFrames();
             if (stackFrames.length == 0) {
                 throw new BallerinaTestException("Error occurred when trying to fetch stack frames from the suspended" +
-                    " thread.");
+                        " thread.");
             }
 
             EvaluateArguments evaluateArguments = new EvaluateArguments();

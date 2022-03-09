@@ -21,6 +21,9 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
@@ -44,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * Generic completion resolver for invocation nodes.
@@ -66,13 +68,10 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-
-        if (node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION
-                && !CommonUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) {
-            super.sort(context, node, completionItems);
-            return;
-        } else if (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                !CommonUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node)) {
+        if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
+                !CommonUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) ||
+                (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                        !CommonUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node))) {
             super.sort(context, node, completionItems);
             return;
         }
@@ -82,8 +81,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             super.sort(context, node, completionItems);
             return;
         }
-        for (
-                LSCompletionItem completionItem : completionItems) {
+        for (LSCompletionItem completionItem : completionItems) {
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 String sortText = SortingUtil.genSortText(1) +
                         SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
@@ -110,18 +108,38 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         }
 
         List<String> existingNamedArgs = CommonUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
-        Predicate<ParameterSymbol> predicate = parameter -> parameter.paramKind() == ParameterKind.REQUIRED
-                || parameter.paramKind() == ParameterKind.DEFAULTABLE;
-        params.get().stream().filter(predicate).forEach(parameterSymbol -> {
-            Optional<String> paramName = parameterSymbol.getName();
-            TypeSymbol paramType = parameterSymbol.typeDescriptor();
-            String defaultValue = CommonUtil.getDefaultValueForType(paramType).orElse("");
-            if (paramName.isEmpty() || paramName.get().isEmpty() || existingNamedArgs.contains(paramName.get())) {
-                return;
+        for (ParameterSymbol parameterSymbol : params.get()) {
+            if (parameterSymbol.paramKind() == ParameterKind.REQUIRED ||
+                    parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE) {
+                Optional<String> paramName = parameterSymbol.getName();
+                if (paramName.isEmpty() || paramName.get().isEmpty() || existingNamedArgs.contains(paramName.get())) {
+                    continue;
+                }
+                CompletionItem completionItem = NamedArgCompletionItemBuilder.build(paramName.get(),
+                        parameterSymbol.typeDescriptor());
+                completionItems.add(
+                        new NamedArgCompletionItem(context, completionItem, Either.forLeft(parameterSymbol)));
+            } else if (parameterSymbol.paramKind() == ParameterKind.INCLUDED_RECORD) {
+                TypeSymbol typeSymbol = CommonUtil.getRawType(parameterSymbol.typeDescriptor());
+                if (typeSymbol.typeKind() != TypeDescKind.RECORD) {
+                    // Impossible
+                    continue;
+                }
+                RecordTypeSymbol includedRecordType = (RecordTypeSymbol) typeSymbol;
+                List<RecordFieldSymbol> recordFields = CommonUtil.getMandatoryRecordFields(includedRecordType);
+                recordFields.forEach(recordFieldSymbol -> {
+                    Optional<String> fieldName = recordFieldSymbol.getName();
+                    if (fieldName.isEmpty() || fieldName.get().isEmpty() || 
+                            existingNamedArgs.contains(fieldName.get())) {
+                        return;
+                    }
+                    TypeSymbol fieldType = recordFieldSymbol.typeDescriptor();
+                    CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), fieldType);
+                    completionItems.add(
+                            new NamedArgCompletionItem(context, completionItem, Either.forRight(recordFieldSymbol)));
+                });
             }
-            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(paramName.get(), defaultValue);
-            completionItems.add(new NamedArgCompletionItem(context, completionItem, Either.forLeft(parameterSymbol)));
-        });
+        }
         return completionItems;
     }
 }

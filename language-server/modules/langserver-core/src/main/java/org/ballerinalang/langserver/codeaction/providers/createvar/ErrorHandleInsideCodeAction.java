@@ -15,9 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.createvar;
 
-import io.ballerina.compiler.api.symbols.Qualifiable;
-import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -63,8 +60,6 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
 
-        Symbol matchedSymbol = positionDetails.matchedSymbol();
-
         Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
         if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION) {
@@ -73,11 +68,6 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         String uri = context.fileUri();
         UnionTypeSymbol unionType = (UnionTypeSymbol) typeDescriptor.get();
-        boolean isRemoteInvocation = matchedSymbol instanceof Qualifiable &&
-                ((Qualifiable) matchedSymbol).qualifiers().contains(Qualifier.REMOTE);
-        if (isRemoteInvocation) {
-            return Collections.emptyList();
-        }
 
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeDescriptor.get(),

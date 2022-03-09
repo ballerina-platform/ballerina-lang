@@ -22,6 +22,7 @@ import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Source;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.debugadapter.breakpoint.LogMessage.INTERPOLATION_REGEX;
@@ -33,14 +34,20 @@ import static org.ballerinalang.debugadapter.breakpoint.LogMessage.INTERPOLATION
  */
 public class BalBreakpoint {
 
+    private final int id;
     private final Source source;
     private final int line;
     private String condition;
     private LogMessage logMessage;
+    private boolean isVerified;
+
+    private static final AtomicInteger nextID = new AtomicInteger(0);
 
     public BalBreakpoint(Source source, int line) {
+        this.id = nextID.getAndIncrement();
         this.source = source;
         this.line = line;
+        this.isVerified = false;
     }
 
     public Integer getLine() {
@@ -71,11 +78,20 @@ public class BalBreakpoint {
         }
     }
 
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
     public Breakpoint getAsDAPBreakpoint() {
         Breakpoint breakpoint = new Breakpoint();
+        breakpoint.setId(id);
         breakpoint.setLine(line);
         breakpoint.setSource(source);
-        breakpoint.setVerified(true);
+        breakpoint.setVerified(isVerified);
         return breakpoint;
     }
 
