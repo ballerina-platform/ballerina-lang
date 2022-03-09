@@ -255,4 +255,48 @@ public class WhileStmtTest {
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 118, 5);
         Assert.assertEquals(onfailNegativeCompileResult.getDiagnostics().length, index);
     }
+
+    @Test(description = "Test type narrowing for while statement")
+    public void testWhileStmtTypeNarrowing() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/statements/whilestatement/while_stmt_type_narrowing.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'int', found '(int|string|true)?'", 43, 13);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'int', found '(int|string)'", 53, 17);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'float', found '(float|boolean)'", 56, 19);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'int', found '(int|string)'", 65, 17);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'int', found '(int|string)'", 69, 17);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'string', found '(int|string)'", 83, 16);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'B', found '(A|B)'", 153, 15);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'A', found 'C'", 161, 15);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected '(X|Y)', found '(W|X|Y)'", 261, 17);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected '[string]', found '([int]|[string])'", 271, 22);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected '[int]', found '([string] & readonly)'", 282, 19);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'string[]', found '(int[]|string[])'", 288, 22);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'int[]', found '(string[] & readonly)'", 298, 19);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'string', found '(boolean|string)'", 314, 20); // issue #34307
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'string', found '(boolean|string)'", 327, 20); // issue #34307
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Test type narrowing for while statement with no errors")
+    public void testWhileStmtTypeNarrowPositive() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/statements/whilestatement/while_stmt_type_narrowing_positive.bal");
+        Object returns = BRunUtil.invoke(compileResult, "testWhileStmtTypeNarrow");
+        Assert.assertTrue((Boolean) returns);
+    }
 }

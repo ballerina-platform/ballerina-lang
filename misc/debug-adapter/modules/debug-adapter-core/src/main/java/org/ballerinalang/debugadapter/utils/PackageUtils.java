@@ -241,11 +241,10 @@ public class PackageUtils {
     /**
      * Returns full-qualified class name for a given JDI class reference instance.
      *
-     * @param context       Debug context
      * @param referenceType JDI class reference instance
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(ExecutionContext context, ReferenceType referenceType) {
+    public static String getQualifiedClassName(ReferenceType referenceType) {
         try {
             List<String> paths = referenceType.sourcePaths(null);
             List<String> names = referenceType.sourceNames(null);

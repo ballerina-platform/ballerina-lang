@@ -346,6 +346,14 @@ public class ErrorVariableReferenceTest {
                 "cannot bind undefined error detail field 'msg'", 40, 33);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot bind undefined error detail field 'extra'", 40, 61);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'identifier'", 50, 14);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot bind undefined error detail field 'identifier'", 51, 18);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 53, 14);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid field binding pattern; can only bind required fields", 54, 18);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }

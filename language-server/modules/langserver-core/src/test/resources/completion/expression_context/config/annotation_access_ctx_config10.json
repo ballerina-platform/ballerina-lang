@@ -30,6 +30,46 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "typeParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "builtinSubtype",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "builtinSubtype",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyAnnotationService",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "MyAnnotationService",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
@@ -172,78 +212,6 @@
           "newText": "import ballerina/lang.runtime;\n"
         }
       ]
-    },
-    {
-      "label": "typeParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "typeParam",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MyAnnotationParameter",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "MyAnnotationParameter",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "tainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "tainted",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "builtinSubtype",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "builtinSubtype",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "untainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "untainted",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "strand",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "strand",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MyAnnotationObjectFunction",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "MyAnnotationObjectFunction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isolatedParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "isolatedParam",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MyAnnotationService",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "MyAnnotationService",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

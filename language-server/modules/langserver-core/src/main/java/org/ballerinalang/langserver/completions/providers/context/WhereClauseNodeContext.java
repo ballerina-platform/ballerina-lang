@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -27,6 +28,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +73,22 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, WhereClauseNode node) {
         return !node.whereKeyword().isMissing();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, WhereClauseNode node, List<LSCompletionItem> completionItems) {
+        Optional<QueryExpressionNode> queryExprNode =  SortingUtil.getTheOutermostQueryExpressionNode(node);
+        if (queryExprNode.isEmpty()) {
+            return;
+        }        
+        completionItems.forEach(lsCItem -> {
+            int rank = 2;
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
+                rank = 1;
+            }
+            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
+                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+        });
     }
 
     @Override

@@ -359,7 +359,7 @@
                 "credentialBearer",
                 "clientConfig"
               ],
-              "description": "Set Up Gmail Connection"
+              "description": "Set Up Google Sheets Connection"
             },
             "spreadsheetId": {
               "type": "string",
