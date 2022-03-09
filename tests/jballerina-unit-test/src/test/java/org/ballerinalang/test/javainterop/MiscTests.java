@@ -17,9 +17,8 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -36,10 +35,11 @@ public class MiscTests {
     @Test(description = "Test interoperability with Java ArryList")
     public void testInteropWithJavaArrayList() {
         CompileResult result = BCompileUtil.compile("test-src/javainterop/java_array_list_interop_tests.bal");
-        BValue[] returns = BRunUtil.invoke(result, "interopWithJavaArrayList");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "[Ballerina, Language, Specification]");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertEquals(returns[2].stringValue(), "Specification");
+        Object val = BRunUtil.invoke(result, "interopWithJavaArrayList");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(((HandleValue) returns.get(0)).getValue(), "[Ballerina, Language, Specification]");
+        Assert.assertEquals(returns.get(1), 3L);
+        Assert.assertEquals(returns.get(2).toString(), "Specification");
     }
 }

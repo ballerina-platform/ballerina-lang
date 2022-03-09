@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -33,6 +31,7 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class MultipleOrderByClauseTest {
+
     private CompileResult result;
 
     @BeforeClass
@@ -42,65 +41,57 @@ public class MultipleOrderByClauseTest {
 
     @Test(description = "Test query expression with multiple order by clauses")
     public void testQueryExprWithMultipleOrderByClauses() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple from and order by clauses")
     public void testQueryExprWithMultipleFromAndMultipleOrderByClauses() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleFromAndMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleFromAndMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with join and multiple order by clauses")
     public void testQueryExprWithJoinAndMultipleOrderByClauses() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithJoinAndMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithJoinAndMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with inner queries and multiple order by clauses")
     public void testQueryExprWithInnerQueriesAndMultipleOrderByClauses() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithInnerQueriesAndMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithInnerQueriesAndMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple limit and multiple order by clauses")
     public void testQueryExprWithMultipleOrderByAndMultipleLimitClauses() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByAndMultipleLimitClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByAndMultipleLimitClauses");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query action with multiple order by clauses")
     public void testQueryActionWithMultipleOrderByClauses() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryActionWithMultipleOrderByClauses");
+        Object returnValues = BRunUtil.invoke(result, "testQueryActionWithMultipleOrderByClauses");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple order by clauses returning table")
     public void testQueryExprWithMultipleOrderByClausesReturnTable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnTable");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnTable");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expression with multiple order by clauses returning stream")
     public void testQueryExprWithMultipleOrderByClausesReturnStream() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithMultipleOrderByClausesReturnStream");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 }
