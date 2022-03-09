@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,27 +16,22 @@
  *  under the License.
  */
 
-package org.ballerinalang.core.model.util;
+package org.ballerinalang.test.utils;
+
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
- * Type of nodes a BXML represents.
- * 
- * @since 0.88
+ * A util class that is useful with bstring array related test operations.
  */
-public enum XMLNodeType {
-    SEQUENCE("sequence"),
-    ELEMENT("element"),
-    TEXT("text"),
-    COMMENT("comment"),
-    PI("pi");
-    
-    String nodeType;
+public class BStringUtils {
 
-    XMLNodeType(String value) {
-        nodeType = value;
+    public static BString[] getBStringArray(String[] s) {
+        BString[] bStringArray = new BString[s.length];
+        for (int i = 0; i < s.length; i++) {
+            bStringArray[i] = StringUtils.fromString(s[i]);
+        }
+        return bStringArray;
     }
 
-    public String value() {
-        return nodeType;
-    }
 }

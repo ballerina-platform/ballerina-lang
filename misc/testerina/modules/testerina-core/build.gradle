@@ -24,7 +24,6 @@ configurations {
 }
 
 dependencies {
-    implementation project(':ballerina-core')
     implementation project(':testerina:testerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
