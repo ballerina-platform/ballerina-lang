@@ -16,11 +16,10 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.values.XmlValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,12 +45,11 @@ public class AddOperationTest {
 
     @Test(description = "Test two int add expression")
     public void testIntAddExpr() {
-        BValue[] args = { new BInteger(2147483647), new BInteger(2147483646)};
+        Object[] args = { (2147483647), (2147483646)};
 
-        BValue[] returns = BRunUtil.invoke(result, "intAdd", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "intAdd", args);
+        Assert.assertTrue(returns instanceof Long);
+        long actual = (long) returns;
         long expected = 4294967293L;
         Assert.assertEquals(actual, expected);
     }
@@ -65,25 +63,23 @@ public class AddOperationTest {
 
     @Test(description = "Test two float add expression")
     public void testFloatAddExpr() {
-        BValue[] args = { new BFloat(100.0f), new BFloat(200.0f)};
+        Object[] args = { (100.0f), (200.0f)};
 
-        BValue[] returns = BRunUtil.invoke(result, "floatAdd", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
+        Object returns = BRunUtil.invoke(result, "floatAdd", args);
+        Assert.assertTrue(returns instanceof Double);
+        double actual = (double) returns;
         double expected = 300.0f;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test two string add expression")
     public void testStringAddExpr() {
-        BValue[] args = { new BString("WSO2"), new BString(" Inc.")};
-        BValue[] returns = BRunUtil.invoke(result, "stringAdd", args);
+        Object[] args = { StringUtils.fromString("WSO2"), StringUtils.fromString(" Inc.")};
+        Object returns = BRunUtil.invoke(result, "stringAdd", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertTrue(returns instanceof BString);
 
-        String actual = returns[0].stringValue();
+        String actual = returns.toString();
         String expected = "WSO2 Inc.";
         Assert.assertEquals(actual, expected);
     }
@@ -95,12 +91,11 @@ public class AddOperationTest {
 
         long expectedResult = a + b;
 
-        BValue[] args = {new BInteger(a), new BInteger(b)};
+        Object[] args = {(a), (b)};
 
-        BValue[] returns = BRunUtil.invoke(result, "intAdd", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actualResult = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "intAdd", args);
+        Assert.assertTrue(returns instanceof Long);
+        long actualResult = (long) returns;
         Assert.assertEquals(actualResult, expectedResult);
     }
 
@@ -111,34 +106,33 @@ public class AddOperationTest {
 
         String expectedResult = a + b;
 
-        BValue[] args = {new BString(a), new BInteger(b)};
+        Object[] args = {StringUtils.fromString(a), (b)};
 
-        BValue[] returns = BRunUtil.invoke(result, "stringAndIntAdd", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        String actualResult = returns[0].stringValue();
+        Object returns = BRunUtil.invoke(result, "stringAndIntAdd", args);
+        Assert.assertTrue(returns instanceof BString);
+        String actualResult = returns.toString();
         Assert.assertEquals(actualResult, expectedResult);
     }
 
     @Test(description = "Test xml xml add expression")
     public void testXmlXmlAddExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "xmlXmlAdd");
-        Assert.assertEquals((returns[0]).size(), 1);
-        Assert.assertEquals((returns[0]).stringValue(), "abcdef");
+        Object returns = BRunUtil.invoke(result, "xmlXmlAdd");
+        Assert.assertEquals(((XmlValue) returns).size(), 1);
+        Assert.assertEquals(returns.toString(), "abcdef");
     }
 
     @Test(description = "Test xml string add expression")
     public void testXmlStringAddExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "xmlStringAdd");
-        Assert.assertEquals((returns[0]).size(), 1);
-        Assert.assertEquals((returns[0]).stringValue(), "abcdef");
+        Object returns = BRunUtil.invoke(result, "xmlStringAdd");
+        Assert.assertEquals(((XmlValue) returns).size(), 1);
+        Assert.assertEquals(returns.toString(), "abcdef");
     }
 
     @Test(description = "Test string xml add expression")
     public void testStringXmlAddExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "stringXmlAdd");
-        Assert.assertEquals((returns[0]).size(), 1);
-        Assert.assertEquals((returns[0]).stringValue(), "defabc");
+        Object returns = BRunUtil.invoke(result, "stringXmlAdd");
+        Assert.assertEquals(((XmlValue) returns).size(), 1);
+        Assert.assertEquals(returns.toString(), "defabc");
     }
 
     @Test(dataProvider = "dataToTestAdditionWithTypes", description = "Test addition with types")

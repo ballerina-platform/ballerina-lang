@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,44 +41,40 @@ public class BinaryExprTest {
         // stone + value
         boolean stone = true;
         boolean value = true;
-        BValue[] args = { new BBoolean(stone), new BBoolean(value) };
-        BValue[] returns = BRunUtil.invoke(result, "makeChild", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actual = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = { (stone), (value) };
+        Object returns = BRunUtil.invoke(result, "makeChild", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        boolean actual = (boolean) returns;
         boolean expected = true;
         Assert.assertEquals(actual, expected);
 
         // stone + !value
         stone = true;
         value = false;
-        args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
+        args = new Object[] { (stone), (value) };
         returns = BRunUtil.invoke(result, "makeChild", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        actual = ((BBoolean) returns[0]).booleanValue();
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        actual = (boolean) returns;
         expected = false;
         Assert.assertEquals(actual, expected);
 
         // !stone + value
         stone = false;
         value = true;
-        args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
+        args = new Object[] { (stone), (value) };
         returns = BRunUtil.invoke(result, "makeChild", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        actual = ((BBoolean) returns[0]).booleanValue();
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        actual = (boolean) returns;
         expected = false;
         Assert.assertEquals(actual, expected);
 
         // !stone + !value
         stone = false;
         value = false;
-        args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
+        args = new Object[] { (stone), (value) };
         returns = BRunUtil.invoke(result, "makeChild", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        actual = ((BBoolean) returns[0]).booleanValue();
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        actual = (boolean) returns;
         expected = false;
         Assert.assertEquals(actual, expected);
     }
@@ -94,11 +87,10 @@ public class BinaryExprTest {
 
         boolean expectedResult = one & two & three;
 
-        BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
-        BValue[] returns = BRunUtil.invoke(result, "multiBinaryANDExpression", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = { (one), (two), (three) };
+        Object returns = BRunUtil.invoke(result, "multiBinaryANDExpression", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        boolean actualResult = (boolean) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
@@ -111,11 +103,10 @@ public class BinaryExprTest {
 
         boolean expectedResult = one || two || three;
 
-        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
-        BValue[] returns = BRunUtil.invoke(result, "multiBinaryORExpression", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = {(one), (two), (three)};
+        Object returns = BRunUtil.invoke(result, "multiBinaryORExpression", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        boolean actualResult = (boolean) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
@@ -128,27 +119,26 @@ public class BinaryExprTest {
 
         boolean expectedResult = (!one || (two && three)) || (!three || (one && two));
 
-        BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
-        BValue[] returns = BRunUtil.invoke(result, "multiBinaryExpression", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
+        Object[] args = { (one), (two), (three) };
+        Object returns = BRunUtil.invoke(result, "multiBinaryExpression", args);
+        Assert.assertSame(returns.getClass(), Boolean.class);
+        boolean actualResult = (boolean) returns;
 
         Assert.assertEquals(actualResult, expectedResult);
     }
 
     @Test(description = "Test bitwise and")
     public void bitwiseAndTest() {
-        int a = 5;
-        int b = 6;
-        byte c = 7;
-        byte d = 8;
-        BValue[] args = {new BInteger(a), new BInteger(b), new BByte(c), new BByte(d)};
-        BValue[] returns = BRunUtil.invoke(result, "bitwiseAnd", args);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), a & b);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), a & c);
-        Assert.assertEquals(((BByte) returns[2]).byteValue(), c & d);
-        Assert.assertEquals(((BByte) returns[3]).byteValue(), b & d);
+        long a = 5;
+        long b = 6;
+        int c = 7;
+        int d = 8;
+        Object[] args = {(a), (b), (c), (d)};
+        Object arr = BRunUtil.invoke(result, "bitwiseAnd", args);
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.get(0), a & b);
+        Assert.assertEquals(((Byte) returns.get(1)).longValue(), a & c);
+        Assert.assertEquals(((Byte) returns.get(2)).intValue(), c & d);
+        Assert.assertEquals(((Byte) returns.get(3)).longValue(), b & d);
     }
 }

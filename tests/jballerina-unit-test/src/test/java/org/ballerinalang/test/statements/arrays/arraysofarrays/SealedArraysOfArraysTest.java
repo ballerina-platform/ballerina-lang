@@ -18,10 +18,10 @@
  */
 package org.ballerinalang.test.statements.arrays.arraysofarrays;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -49,59 +49,63 @@ public class SealedArraysOfArraysTest {
     @Test
     public void testInitializeTwoDArray() {
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "initTwoDimensionalSealedArray");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "initTwoDimensionalSealedArray");
         Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 3, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 4, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[2]).intValue(), 2, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[3]).intValue(), 3, "Value didn't match");
+                returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(returnValues.get(0), 3L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(1), 4L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(2), 2L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(3), 3L, "Value didn't match");
     }
 
     @Test
     public void testInitializeThreeDArray() {
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "initThreeDimensionalSealedArray");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "initThreeDimensionalSealedArray");
         Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 3, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 4, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[2]).intValue(), 5, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[3]).intValue(), 2, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[4]).intValue(), 3, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[5]).intValue(), 3, "Value didn't match");
+                returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(returnValues.get(0), 3L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(1), 4L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(2), 5L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(3), 2L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(4), 3L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(5), 3L, "Value didn't match");
     }
 
     @Test
     public void testIntegerSealedArraysOfArrays() {
 
-        BValueArray arrayValue = new BValueArray(BTypes.typeInt, 2);
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 2), 2);
         arrayValue.add(0, 10);
         arrayValue.add(1, 12);
-        BValue[] args = {arrayValue};
+        Object[] args = {arrayValue};
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "twoDArrayIntAssignment", args);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 3, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 10, "Value didn't match");
-        Assert.assertEquals(((BInteger) returnValues[2]).intValue(), 3, "Value didn't match");
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "twoDArrayIntAssignment", args);
+        Assert.assertFalse(returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null, "Invalid " +
+                "Return Values.");
+        Assert.assertEquals(returnValues.get(0), 3L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(1), 10L, "Value didn't match");
+        Assert.assertEquals(returnValues.get(2), 3L, "Value didn't match");
     }
 
     @Test
     public void testStringSealedArraysOfArrays() {
 
-        BValueArray arrayValue = new BValueArray(BTypes.typeString, 2);
+        BArray arrayValue =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, 2), 2);
         arrayValue.add(0, "ballerina");
         arrayValue.add(1, "multidimensional");
-        BValue[] args = {arrayValue};
+        Object[] args = {arrayValue};
 
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "twoDArrayStringAssignment", args);
+        BArray returnValues = (BArray) BRunUtil.invoke(compileResult, "twoDArrayStringAssignment", args);
         Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals((returnValues[0]).stringValue(), "val1", "Value didn't match");
-        Assert.assertEquals((returnValues[1]).stringValue(), "ballerina", "Value didn't match");
-        Assert.assertEquals((returnValues[2]).stringValue(), "val1", "Value didn't match");
+                returnValues == null || returnValues.size() == 0 || returnValues.get(0) == null,
+                "Invalid Return Values.");
+        Assert.assertEquals((returnValues.get(0)).toString(), "val1", "Value didn't match");
+        Assert.assertEquals((returnValues.get(1)).toString(), "ballerina", "Value didn't match");
+        Assert.assertEquals((returnValues.get(2)).toString(), "val1", "Value didn't match");
     }
 
     @Test()

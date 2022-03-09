@@ -18,8 +18,7 @@
 
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -38,6 +37,7 @@ import static org.testng.Assert.assertEquals;
  * @since 0.995.0
  */
 public class ObjectSubtypingTest {
+
     private CompileResult compileResult;
 
     @BeforeClass
@@ -48,38 +48,38 @@ public class ObjectSubtypingTest {
 
     @Test
     public void testAdditionalMethodsInSourceType() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testAdditionalMethodsInSourceType");
-        assertEquals(result[0].stringValue(), "{name:\"John Doe\", age:25}");
+        Object result = BRunUtil.invoke(compileResult, "testAdditionalMethodsInSourceType");
+        assertEquals(result.toString(), "{name:John Doe, age:25}");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1' cannot be cast to 'Employee1'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1' cannot be cast to 'Employee1'.*")
     public void testCastingRuntimeError() {
         BRunUtil.invoke(compileResult, "testCastingRuntimeError");
     }
 
     @Test
     public void testSubtypingAPublicAbstractObject() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbstractObject");
-        assertEquals(result[0].stringValue(), "Student1{John Doe, 25, Ballerina Academy}");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbstractObject");
+        assertEquals(result.toString(), "Student1{John Doe, 25, Ballerina Academy}");
     }
 
     @Test
     public void testSubtypingAPublicAbsObjectInAnotherModule() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbsObjectInAnotherModule");
-        assertEquals(result[0].stringValue(), "Student{Jane Doe, 22, BA}");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbsObjectInAnotherModule");
+        assertEquals(result.toString(), "Student{Jane Doe, 22, BA}");
     }
 
     @Test
     public void testSubtypingAPublicObjectInAnotherModule() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAPublicObjectInAnotherModule");
-        assertEquals(result[0].stringValue(), "Student{Jane Doe, 22, BA, CS}");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAPublicObjectInAnotherModule");
+        assertEquals(result.toString(), "Student{Jane Doe, 22, BA, CS}");
     }
 
     @Test
     public void testSubtypingAnAbsObjectInSameModule() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAnAbsObjectInSameModule");
-        assertEquals(result[0].stringValue(), "Rocky walked 50 meters");
+        Object result = BRunUtil.invoke(compileResult, "testSubtypingAnAbsObjectInSameModule");
+        assertEquals(result.toString(), "Rocky walked 50 meters");
     }
 
     @Test(description = "Test object subtyping")
@@ -97,9 +97,9 @@ public class ObjectSubtypingTest {
         validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
         validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
         validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj", "Subtype1"),
-                      65, 45);
+                65, 45);
         validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj2", "Subtype2"),
-                      66, 46);
+                66, 46);
         assertEquals(result.getErrorCount(), i);
     }
 

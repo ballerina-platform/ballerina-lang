@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -34,21 +32,19 @@ public class WorkerInFunctionTest {
     @Test(description = "Test worker in function")
     public void testWorkerInFunction() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
-        BValue[] args = {new BString("hello")};
-        BValue[] returns = BRunUtil.invoke(result, "testSimpleWorker", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "hello");
+        Object[] args = {StringUtils.fromString("hello")};
+        Object returns = BRunUtil.invoke(result, "testSimpleWorker", args);
+        Assert.assertEquals(returns.toString(), "hello");
     }
 
     @Test(description = "Test worker interactions with each other")
     public void testWorkerMultipleInteractions() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-multiple-interactions.bal");
-        BValue[] args = {new BInteger(100)};
-        BValue[] returns = BRunUtil.invoke(result, "testMultiInteractions", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
+        Object[] args = {(100)};
+        Object returns = BRunUtil.invoke(result, "testMultiInteractions", args);
+        Assert.assertTrue(returns instanceof Long);
         final String expected = "1103";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
 }
