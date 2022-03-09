@@ -39,15 +39,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static org.ballerinalang.debugadapter.BreakpointProcessor.DynamicBreakpointMode;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
  * JDI Event processor implementation.
@@ -104,7 +102,7 @@ public class JDIEventProcessor {
         if (event instanceof ClassPrepareEvent) {
             if (context.getLastInstruction() != DebugInstruction.STEP_OVER) {
                 ClassPrepareEvent evt = (ClassPrepareEvent) event;
-                breakpointProcessor.activateUserBreakPoints(evt.referenceType());
+                breakpointProcessor.activateUserBreakPoints(evt.referenceType(), true);
             }
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
@@ -128,14 +126,14 @@ public class JDIEventProcessor {
         }
     }
 
-    void setBreakpoints(String debugSourcePath, Map<Integer, BalBreakpoint> breakpoints) {
-        Optional<String> qualifiedClassName = getQualifiedClassName(context, debugSourcePath);
-        qualifiedClassName.ifPresent(qClassName -> breakpointProcessor.userBreakpoints().put(qClassName, breakpoints));
+    void enableBreakpoints(String qualifiedClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
+        breakpointProcessor.addSourceBreakpoints(qualifiedClassName, breakpoints);
 
         if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
-            context.getDebuggeeVM().allClasses().forEach(breakpointProcessor::activateUserBreakPoints);
+            context.getDebuggeeVM().allClasses().forEach(referenceType ->
+                    breakpointProcessor.activateUserBreakPoints(referenceType, false));
         }
     }
 
