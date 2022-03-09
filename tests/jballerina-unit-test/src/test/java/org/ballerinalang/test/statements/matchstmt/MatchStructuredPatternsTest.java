@@ -18,8 +18,7 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -51,36 +50,36 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test basics of structured pattern match statement 1")
     public void testMatchStatementBasics1() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic1", new Object[]{});
 
-        BString bString = (BString) returns[0];
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : S, 24, 6.6, 4, true");
+        BString bString = (BString) returns;
+
+        Assert.assertEquals(bString.toString(), "Matched Values : S, 24, 6.6, 4, true");
     }
 
     @Test(description = "Test basics of structured pattern match statement 2")
     public void testMatchStatementBasics2() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Object returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic2", new Object[]{});
 
-        BString bString = (BString) returns[0];
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : S, 23, 5.6, 100, 12, S, 24, 5.6, 200");
+        BString bString = (BString) returns;
+
+        Assert.assertEquals(bString.toString(), "Matched Values : S, 23, 5.6, 100, 12, S, 24, 5.6, 200");
     }
 
     @Test(description = "Test error not being match to wildcard match pattern using 'var _' pattern")
     public void testErrorShouldNotMatchWildCardPatternVarIgnore() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPatternVarIgnore");
-        Assert.assertEquals(returns[0].stringValue(), "no-match");
+        Object returns = BRunUtil.invoke(result, "testErrorShouldNotMatchWildCardPatternVarIgnore");
+        Assert.assertEquals(returns.toString(), "no-match");
     }
 
     @Test(description = "Test error match fall through '_' to error pattern")
     public void testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern");
-        Assert.assertEquals(returns[0].stringValue(), "{UserGenError}Error");
+        Object returns = BRunUtil.invoke(result, "testErrorNotMatchingVarIgnoreAndFallThroughToErrorPattern");
+        Assert.assertEquals(returns.toString(), "{UserGenError}Error");
     }
 
     @Test(description = "Test pattern will not be matched")

@@ -17,12 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.primitivetypes;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,39 +41,39 @@ public class PrimitiveTypeFunctionParamTest {
 
     @Test(description = "Test function that creates java.lang.Boolean instance")
     public void testCreateBoxedBoolean() {
-        BValue[] args = new BValue[1];
-        args[0] = new BBoolean(true);
-        BValue[] returns = BRunUtil.invoke(result, "testCreateBoxedBooleanFromBBoolean", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), true);
+        Object[] args = new Object[1];
+        args[0] = (true);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedBooleanFromBBoolean", args);
+        
+        Assert.assertEquals(((HandleValue) returns).getValue(), true);
     }
 
     @Test(description = "Test functions that create java.lang.Byte instances")
     public void testCreateBoxedByteFromBInt() {
         byte byteVal = (byte) 130;
-        BValue[] args = new BValue[1];
-        args[0] = new BByte(byteVal);
-        BValue[] returns = BRunUtil.invoke(result, "testCreateBoxedByteFromBByte", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), byteVal);
+        Object[] args = new Object[1];
+        args[0] = (byteVal);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedByteFromBByte", args);
+        
+        Assert.assertEquals(((HandleValue) returns).getValue(), byteVal);
     }
 
     @Test(description = "Test function that creates java.lang.Long instance")
     public void testCreateBoxedLongFromBInt() {
-        BValue[] args = new BValue[1];
-        args[0] = new BInteger(100000000);
-        BValue[] returns = BRunUtil.invoke(result, "testCreateBoxedLongFromBInt", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), (long) 100000000);
+        Object[] args = new Object[1];
+        args[0] = (100000000);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedLongFromBInt", args);
+        
+        Assert.assertEquals(((HandleValue) returns).getValue(), (long) 100000000);
     }
 
     @Test(description = "Test function that creates java.lang.Double instance")
     public void testCreateBoxedDoubleFromBFloat() {
-        BValue[] args = new BValue[1];
-        args[0] = new BFloat(30000000.00);
-        BValue[] returns = BRunUtil.invoke(result, "testCreateBoxedDoubleFromBFloat", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), 30000000.00d);
+        Object[] args = new Object[1];
+        args[0] = (30000000.00);
+        Object returns = BRunUtil.invoke(result, "testCreateBoxedDoubleFromBFloat", args);
+        
+        Assert.assertEquals(((HandleValue) returns).getValue(), 30000000.00d);
     }
 
     @AfterClass

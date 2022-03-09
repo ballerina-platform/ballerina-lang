@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -60,24 +57,22 @@ public class ModOperationTest {
     }
 
     private void intMod(int val1, int val2, long expected) {
-        BValue[] args = { new BInteger(val1), new BInteger(val2) };
-        BValue[] returns = BRunUtil.invoke(result, "intMod", args);
+        Object[] args = { (val1), (val2) };
+        Object returns = BRunUtil.invoke(result, "intMod", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         Assert.assertEquals(actual, expected);
     }
 
     private void floatMod(float val1, float val2, double expected) {
-        BValue[] args = { new BFloat(val1), new BFloat(val2) };
-        BValue[] returns = BRunUtil.invoke(result, "floatMod", args);
+        Object[] args = { (val1), (val2) };
+        Object returns = BRunUtil.invoke(result, "floatMod", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         Assert.assertEquals(actual, expected);
     }
 
@@ -85,13 +80,13 @@ public class ModOperationTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero \\{\"message\":\" / " +
                     "by zero\"\\}.*")
     public void testIntModZero() {
-        BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
+        BRunUtil.invoke(result, "intMod", new Object[]{(2000), (0)});
     }
 
     @Test
     public void testFloatModZero() {
-        BValue[] returns = BRunUtil.invoke(result, "floatMod", new BValue[]{new BFloat(200.1), new BFloat(0.0)});
-        Assert.assertEquals(returns[0].stringValue(), "NaN");
+        Object returns = BRunUtil.invoke(result, "floatMod", new Object[]{(200.1), (0.0)});
+        Assert.assertEquals(returns.toString(), "NaN");
     }
 
     @Test(dataProvider = "dataToTestModWithTypes", description = "Test mod with types")

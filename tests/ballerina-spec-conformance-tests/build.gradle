@@ -21,7 +21,6 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 dependencies {
     implementation project(':ballerina-io-internal')
 
-    testImplementation project(':ballerina-core')
     testImplementation project(':ballerina-lang')
     testImplementation project(':ballerina-lang:annotations')
     testImplementation project(':testerina:testerina-core')

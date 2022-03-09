@@ -37,12 +37,16 @@ import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.eclipse.lsp4j.debug.Breakpoint;
+import org.eclipse.lsp4j.debug.BreakpointEventArguments;
+import org.eclipse.lsp4j.debug.BreakpointEventArgumentsReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +68,7 @@ public class BreakpointProcessor {
 
     private final ExecutionContext context;
     private final JDIEventProcessor jdiEventProcessor;
-    private final Map<String, Map<Integer, BalBreakpoint>> userBreakpoints = new HashMap<>();
+    private final Map<String, LinkedHashMap<Integer, BalBreakpoint>> userBreakpoints = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(BreakpointProcessor.class);
 
     public BreakpointProcessor(ExecutionContext context, JDIEventProcessor jdiEventProcessor) {
@@ -72,8 +76,19 @@ public class BreakpointProcessor {
         this.jdiEventProcessor = jdiEventProcessor;
     }
 
-    public Map<String, Map<Integer, BalBreakpoint>> userBreakpoints() {
-        return userBreakpoints;
+    public Map<String, LinkedHashMap<Integer, BalBreakpoint>> getUserBreakpoints() {
+        return Map.copyOf(userBreakpoints);
+    }
+
+    /**
+     * Updates the user breakpoints map with a list of breakpoints against its source.
+     *
+     * @param qualifiedClassName full-qualified classname generated for the corresponding Ballerina source file,
+     *                           which contains the given breakpoints
+     * @param breakpoints        the map of breakpoints against the line numbers
+     */
+    public void addSourceBreakpoints(String qualifiedClassName, LinkedHashMap<Integer, BalBreakpoint> breakpoints) {
+        userBreakpoints.put(qualifiedClassName, breakpoints);
     }
 
     /**
@@ -84,7 +99,7 @@ public class BreakpointProcessor {
      */
     void processBreakpointEvent(BreakpointEvent bpEvent) {
         ReferenceType bpReference = bpEvent.location().declaringType();
-        String qualifiedClassName = getQualifiedClassName(context, bpReference);
+        String qualifiedClassName = getQualifiedClassName(bpReference);
         Map<Integer, BalBreakpoint> fileBreakpoints = userBreakpoints.get(qualifiedClassName);
         int lineNumber = bpEvent.location().lineNumber();
 
@@ -163,35 +178,45 @@ public class BreakpointProcessor {
 
         context.getEventManager().deleteAllBreakpoints();
         if (instruction == DebugInstruction.CONTINUE || instruction == DebugInstruction.STEP_OVER) {
-            context.getDebuggeeVM().allClasses().forEach(this::activateUserBreakPoints);
+            context.getDebuggeeVM().allClasses().forEach(referenceType ->
+                    activateUserBreakPoints(referenceType, false));
         }
     }
 
     /**
-     * Activates user-configured source breakpoints via Java Debug Interface(JDI).
+     * Activates user-configured source breakpoints in the program VM, via Java Debug Interface(JDI).
      *
      * @param referenceType represent the type of an object in the remote VM
+     * @param shouldNotify  if true, notifies the debugger frontend with the user breakpoint verification information
      */
-    void activateUserBreakPoints(ReferenceType referenceType) {
+    void activateUserBreakPoints(ReferenceType referenceType, boolean shouldNotify) {
         try {
-            // Avoids setting break points if the server is running in 'no-debug' mode.
+            // avoids setting break points if the server is running in 'no-debug' mode.
             ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
             if (configHolder instanceof ClientLaunchConfigHolder
                     && ((ClientLaunchConfigHolder) configHolder).isNoDebugMode()) {
                 return;
             }
 
-            String qualifiedClassName = getQualifiedClassName(context, referenceType);
+            String qualifiedClassName = getQualifiedClassName(referenceType);
             if (!userBreakpoints.containsKey(qualifiedClassName)) {
                 return;
             }
             Map<Integer, BalBreakpoint> breakpoints = this.userBreakpoints.get(qualifiedClassName);
-            for (BalBreakpoint bp : breakpoints.values()) {
-                List<Location> locations = referenceType.locationsOfLine(bp.getLine());
+            for (BalBreakpoint breakpoint : breakpoints.values()) {
+                List<Location> locations = referenceType.locationsOfLine(breakpoint.getLine());
                 if (!locations.isEmpty()) {
                     Location loc = locations.get(0);
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
                     bpReq.enable();
+
+                    // verifies the breakpoint reachability and notifies the client if required.
+                    if (!breakpoint.isVerified()) {
+                        breakpoint.setVerified(true);
+                        if (shouldNotify) {
+                            notifyBreakPointChangesToClient(breakpoint);
+                        }
+                    }
                 }
             }
         } catch (AbsentInformationException ignored) {
@@ -370,6 +395,20 @@ public class BreakpointProcessor {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * Updates the debugger frontend with the changes made on existing user breakpoints. This method can be to verify
+     * the user breakpoints which were configured before launching/connecting to the remote VM.
+     *
+     * @param balBreakpoint Ballerina breakpoint instance
+     */
+    private void notifyBreakPointChangesToClient(BalBreakpoint balBreakpoint) {
+        Breakpoint dapBreakpoint = balBreakpoint.getAsDAPBreakpoint();
+        BreakpointEventArguments bpEventArgs = new BreakpointEventArguments();
+        bpEventArgs.setBreakpoint(dapBreakpoint);
+        bpEventArgs.setReason(BreakpointEventArgumentsReason.CHANGED);
+        context.getClient().breakpoint(bpEventArgs);
     }
 
     /**

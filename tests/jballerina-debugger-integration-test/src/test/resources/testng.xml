@@ -63,6 +63,7 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.DebugOutputTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.RecursiveDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.BreakpointVerificationTest"/>
         </classes>
     </test>
 </suite>

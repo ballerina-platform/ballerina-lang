@@ -59,6 +59,16 @@ public class BinaryBitwiseOperationTest {
         BRunUtil.invoke(result, "testBinaryBitwiseOperationsForNullable");
     }
 
+    @Test(description = "Test binary bitwise OR operations for user defined types")
+    public void testBinaryBitWiseOrOperationForUserDefinedTypes() {
+        BRunUtil.invoke(result, "testBinaryBitWiseOrOperationForUserDefinedTypes");
+    }
+
+    @Test(description = "Test binary bitwise XOR operations for user defined values")
+    public void testBinaryBitwiseXOROperationForUserDefinedTypes() {
+        BRunUtil.invoke(result, "testBinaryBitwiseXOROperationForUserDefinedTypes");
+    }
+
     @Test(description = "Test binary bitwise operations negative scenarios")
     public void testBinaryBitwiseOperationsNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 21);

@@ -77,7 +77,6 @@ dependencies {
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
-    dist project(':ballerina-core')
     dist project(':ballerina-lang')
     dist project(':ballerina-cli')
     dist project(':ballerina-io-internal')

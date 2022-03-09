@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -34,10 +33,10 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testRuntimeObjEqNegative() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/object/RuntimeObjEgNegativeProject");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
-                " 'pkg.org_foo:user' cannot be cast to 'pkg:userB'\"}");
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina}TypeCastError\",message=\"incompatible types: " +
+                "'pkg.org_foo:user' cannot be cast to 'pkg:userB'\")");
     }
 
     @Test(description = "Test private field access")

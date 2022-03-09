@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.statements.retrystmt;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -42,7 +41,7 @@ public class RetryStmtWithOnFailTest {
 
     @Test
     public void testRetryStatement() {
-        BValue[] params = {};
+        Object[] params = {};
         BRunUtil.invoke(programFile, "testRetryStatement", params);
     }
 
