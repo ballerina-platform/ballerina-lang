@@ -4715,13 +4715,13 @@ public class TypeChecker extends BLangNodeVisitor {
         BType exprType;
         BType actualType = symTable.semanticError;
 
-        //Allow subtraction and add (to resolve ex: byte x = +7) operators to get expected type
-        boolean isAddOrSubOperator = OperatorKind.SUB.equals(unaryExpr.operator) ||
-                OperatorKind.ADD.equals(unaryExpr.operator);
-
         BType newExpectedType = expType;
         LinkedHashSet<BType> basicNumericTypes;
         BType referredType = types.getReferredType(expType);
+
+        //Allow subtraction and add (to resolve ex: byte x = +7) operators to get expected type
+        boolean isAddOrSubOperator = OperatorKind.SUB.equals(unaryExpr.operator) ||
+                OperatorKind.ADD.equals(unaryExpr.operator);
 
         // Set expected type for subtraction operator
         if (OperatorKind.SUB.equals(unaryExpr.operator)) {
@@ -4743,14 +4743,9 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (referredType.tag == TypeTags.FINITE || referredType.tag == TypeTags.UNION) {
                 basicNumericTypes = referredType.tag == TypeTags.FINITE ?
                         getBasicNumericTypesInFiniteType(referredType) : getBasicNumericTypesInUnionType(referredType);
-
-                if (basicNumericTypes.isEmpty()) {
-                    dlog.error(unaryExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                                expType, unaryExpr.expr);
-                    resultType = symTable.semanticError;
-                } else if (basicNumericTypes.size() == 1) {
+                if (basicNumericTypes.size() == 1) {
                     newExpectedType = basicNumericTypes.iterator().next();
-                } else {
+                } else if (basicNumericTypes.size() > 1) {
                     newExpectedType = BUnionType.create(null, basicNumericTypes);
                 }
             } else if (referredType.tag == TypeTags.JSON || referredType.tag == TypeTags.ANYDATA ||

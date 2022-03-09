@@ -727,6 +727,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         newNumericLiteral.setBType(exprInUnary.getBType());
         newNumericLiteral.value = objectValueInUnary;
         newNumericLiteral.originalValue = strValueInUnary;
+        newNumericLiteral.typeChecked = unaryExpr.typeChecked;
 
         return newNumericLiteral;
     }
@@ -735,6 +736,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
         boolean foundUnaryExpr = false;
         Set<BLangExpression> newValueSpace = new LinkedHashSet<>();
+        boolean isErroredExprInFiniteType = false;
 
         for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
             BLangExpression value = finiteTypeNode.valueSpace.get(i);
@@ -743,7 +745,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (value.getKind() == NodeKind.UNARY_EXPR) {
                 foundUnaryExpr = true;
                 BType resultType = typeChecker.checkExpr(value, env, symTable.noType);
-
+                if (resultType == symTable.semanticError) {
+                    isErroredExprInFiniteType = true;
+                    continue;
+                }
                 // Replacing unary expression with numeric literal type for + and - numeric values
 //                if (resultType != symTable.semanticError) {
                     BLangNumericLiteral newNumericLiteral = replaceUnaryExprWithLiteral((BLangUnaryExpr) value);
@@ -760,7 +765,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Modify BType if Unary expressions were found
         BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
         if (foundUnaryExpr && finiteType != null) {
-            finiteType.setValueSpace(newValueSpace);
+            if (isErroredExprInFiniteType) {
+                finiteTypeNode.setBType(symTable.semanticError);
+            } else {
+                finiteType.setValueSpace(newValueSpace);
+            }
         }
     }
 
