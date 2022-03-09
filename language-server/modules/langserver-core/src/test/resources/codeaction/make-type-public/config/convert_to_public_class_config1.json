@@ -3,7 +3,7 @@
   "character": 33,
   "expected": [
     {
-      "title": "Make type public",
+      "title": "Convert 'Test' to public",
       "edits": [
         {
           "range": {

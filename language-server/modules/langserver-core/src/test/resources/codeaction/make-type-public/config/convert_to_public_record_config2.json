@@ -3,7 +3,7 @@
   "character": 38,
   "expected": [
     {
-      "title": "Make type public",
+      "title": "Convert 'DefaultModRecord1' to public",
       "edits": [
         {
           "range": {

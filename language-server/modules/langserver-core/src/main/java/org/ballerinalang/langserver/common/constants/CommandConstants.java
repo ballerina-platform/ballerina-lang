@@ -150,5 +150,5 @@ public class CommandConstants {
 
     public static final String IMPLEMENT_ALL = "Implement all";
 
-    public static final String MAKE_TYPE_PUBLIC = "Make type public";
+    public static final String MAKE_TYPE_PUBLIC = "Convert '%s' to public";
 }
