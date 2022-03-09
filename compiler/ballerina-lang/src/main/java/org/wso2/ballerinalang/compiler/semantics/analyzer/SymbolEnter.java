@@ -289,6 +289,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         populateDistinctTypeIdsFromIncludedTypeReferences(classNode);
         defineFieldsOfClassDef(classNode, env);
+        defineReferencedFieldsOfClassDef(classNode, env);
         defineFunctionsOfClassDef(env, classNode);
         setReadOnlynessOfClassDef(classNode, env);
         defineReadOnlyIncludedFieldsAndMethods(classNode, env);
@@ -432,7 +433,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
 
-        defineDependentFields(typeAndClassDefs);
+        defineDependentFields(typeAndClassDefs, pkgEnv);
 
         // Calculate error intersections types.
         defineIntersectionTypes(pkgEnv);
@@ -474,12 +475,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineDependentFields(List<BLangNode> typeDefNodes) {
+    private void defineDependentFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode typeDef : typeDefNodes) {
-            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
+                if (isObjectCtor(classDefinition)) {
+                    continue;
+                }
+                defineReferencedFieldsOfClassDef(classDefinition, pkgEnv);
+            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineReferencedFieldsOfRecordTypeDef((BLangTypeDefinition) typeDef);
             }
         }
+    }
+
+    private void defineReferencedFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {
+        SymbolEnv typeDefEnv = classDefinition.typeDefEnv;
+        BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
+        BObjectType objType = (BObjectType) tSymbol.type;
+
+        // todo: check for class fields and object fields
+        defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
     private void defineIntersectionTypes(SymbolEnv env) {
@@ -3474,7 +3490,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define all the fields
         resolveFields(recordType, recordTypeNode);
 
-        resolveRestFieldType(recordTypeNode, recordType);
+//        resolveRestFieldType(recordTypeNode, recordType);
+        recordType.sealed = recordTypeNode.sealed;
+        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
+            return;
+        }
+
+        List<BType> fieldTypes = new ArrayList<>(recordType.fields.size());
+        for (BField field : recordType.fields.values()) {
+            BType type = field.type;
+            fieldTypes.add(type);
+        }
+
+        if (recordTypeNode.restFieldType == null) {
+            symResolver.markParameterizedType(recordType, fieldTypes);
+            if (recordTypeNode.sealed) {
+                recordType.restFieldType = symTable.noType;
+                return;
+            }
+            recordType.restFieldType = symTable.anydataType;
+            return;
+        }
+
+        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
+        fieldTypes.add(recordType.restFieldType);
+        symResolver.markParameterizedType(recordType, fieldTypes);
     }
 
     private void resolveRestFieldType(BLangRecordTypeNode recordTypeNode, BRecordType recordType) {
@@ -3823,6 +3864,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             classDefinition.oceEnvData.fieldEnv = typeDefEnv;
         }
 
+        classDefinition.typeDefEnv = typeDefEnv;
+
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
             if (field.expr != null) {
@@ -3836,7 +3879,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // todo: check for class fields and object fields
-        defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
+        //defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
     private void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
@@ -3860,16 +3903,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, recordScope, pkgEnv);
         structureTypeNode.typeDefEnv = typeDefEnv;
 
+
+
+
+
+
         // Define all the fields
         resolveFields(structureType, structureTypeNode);
 
-        if (typeDef.symbol.kind == SymbolKind.TYPE_DEF && structureType.tsymbol.kind != SymbolKind.RECORD) {
-            return;
-        }
-
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
-        BRecordType recordType = (BRecordType) structureType;
-        resolveRestFieldType(recordTypeNode, recordType);
+//        if (typeDef.symbol.kind == SymbolKind.TYPE_DEF && structureType.tsymbol.kind != SymbolKind.RECORD) {
+//            return;
+//        }
+//
+//        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
+//        BRecordType recordType = (BRecordType) structureType;
+//        resolveRestFieldType(recordTypeNode, recordType);
     }
 
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {
@@ -3892,14 +3940,54 @@ public class SymbolEnter extends BLangNodeVisitor {
         BStructureType structureType = (BStructureType) typeDef.symbol.type;
         BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
         resolveReferencedFields(structureType, structureTypeNode);
-
         if (typeDef.symbol.kind == SymbolKind.TYPE_DEF && structureType.tsymbol.kind != SymbolKind.RECORD) {
             return;
         }
 
+        SymbolEnv typeDefEnv = structureTypeNode.typeDefEnv;
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
         BRecordType recordType = (BRecordType) structureType;
-        resolveRestFieldType(recordTypeNode, recordType);
+        recordType.sealed = recordTypeNode.sealed;
+        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
+            return;
+        }
+
+        if (recordTypeNode.restFieldType != null) {
+            recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+            return;
+        }
+
+        if (!recordTypeNode.sealed) {
+            recordType.restFieldType = symTable.anydataType;
+            return;
+        }
+
+        // analyze restFieldType for open records
+        for (BLangType typeRef : recordTypeNode.typeRefs) {
+            BType refType = Types.getReferredType(typeRef.getBType());
+            if (refType.tag != TypeTags.RECORD) {
+                continue;
+            }
+            BType restFieldType = ((BRecordType) refType).restFieldType;
+            if (restFieldType == symTable.noType) {
+                continue;
+            }
+            if (recordType.restFieldType != null && !types.isSameType(recordType.restFieldType, restFieldType)) {
+                recordType.restFieldType = symTable.noType;
+                dlog.error(recordTypeNode.pos,
+                        DiagnosticErrorCode.
+                                CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES);
+                return;
+            }
+            recordType.restFieldType = restFieldType;
+            recordType.sealed = false;
+        }
+
+        if (recordType.restFieldType != null) {
+            return;
+        }
+        recordType.restFieldType = symTable.noType;
     }
 
     private void resolveReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {

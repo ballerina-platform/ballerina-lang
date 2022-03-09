@@ -2626,6 +2626,7 @@ public class Types {
             return Symbols.isFlagOn(target.flags, Flags.READONLY) == Symbols.isFlagOn(source.flags, Flags.READONLY);
         }
 
+        @Override
         public Boolean visit(BTupleType t, BType s) {
             if (((!t.tupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(t.tupleTypes)) ||
                     (t.restType != null && t.restType.tag == TypeTags.NONE)) &&
@@ -2785,8 +2786,14 @@ public class Types {
             return isSameType(sType.paramValueType, t.paramValueType) && sType.paramSymbol.equals(t.paramSymbol);
         }
 
+        @Override
         public Boolean visit(BTypeReferenceType t, BType s) {
-            return isSameType(getReferredType(t), s);
+            BType constraint = s;
+            if (s.tag == TypeTags.TYPEREFDESC) {
+                constraint = getReferredType(((BTypeReferenceType) s).referredType);
+            }
+            BType target = getReferredType(((BTypeReferenceType) t).referredType);
+            return isSameType(target, constraint);
         }
     };
 
@@ -3015,6 +3022,7 @@ public class Types {
             return false;
         }
 
+        @Override
         public Boolean visit(BTypeReferenceType t, BType s) {
             return this.visit(getReferredType(t), t);
         }

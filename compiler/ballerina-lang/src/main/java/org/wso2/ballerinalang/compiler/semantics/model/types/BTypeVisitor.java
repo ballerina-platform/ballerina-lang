@@ -64,4 +64,6 @@ public interface BTypeVisitor<T, R> {
     R visit(BTypedescType t, T s);
 
     R visit(BParameterizedType t, T s);
+
+    R visit(BTypeReferenceType t, T s);
 }
