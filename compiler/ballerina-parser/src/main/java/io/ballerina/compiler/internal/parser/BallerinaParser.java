@@ -10137,8 +10137,6 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>
      * list-member := expression | spread-member
-     * <br/>
-     * spread-member := ... expression
      * </code>
      *
      * @return Parsed node
@@ -17049,12 +17047,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseRestBindingOrSpreadMember() {
-        // We reach here after seeing the `...` token
-        if (getNextNextToken().kind != SyntaxKind.IDENTIFIER_TOKEN) {
-            return parseSpreadMember();
+        STNode ellipsis = parseEllipsis();
+        STNode expr = parseExpression();
+        if (expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return STNodeFactory.createRestBindingPatternNode(ellipsis, expr);
+        } else {
+            return STNodeFactory.createSpreadMemberNode(ellipsis, expr);
         }
-
-        return parseRestBindingPattern();
     }
 
     private STNode parseAsTupleTypeDescOrListConstructor(STNode annots, STNode openBracket, List<STNode> memberList,
@@ -18653,6 +18652,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode getExpression(STNode ambiguousNode) {
         return getExpression(ambiguousNode, false);
     }
+
     private STNode getExpression(STNode ambiguousNode, boolean isMappingConstructor) {
         if (isEmpty(ambiguousNode) || 
                 (isDefiniteExpr(ambiguousNode.kind) && ambiguousNode.kind != SyntaxKind.INDEXED_EXPRESSION) || 
@@ -18682,7 +18682,7 @@ public class BallerinaParser extends AbstractParser {
                         STNode valueExpr = getExpression(qualifiedNameRefNode.identifier);
                         fieldNode = STNodeFactory.createSpecificFieldNode(readOnlyKeyword, fieldName, colon, valueExpr);
                     } else {
-                        fieldNode = getExpression(field);
+                        fieldNode = getExpression(field, true);
                     }
 
                     fieldList.add(fieldNode);

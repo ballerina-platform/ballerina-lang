@@ -55,6 +55,9 @@ public class ParserTestRunner {
         hashSet.add("method_call_expr_source_05.bal"); // issue #34620
         hashSet.add("float_literal_source_08.bal"); // issue #34620
         hashSet.add("float_literal_source_07.bal"); // issue #34620
+        hashSet.add("list_constructor_source_10.bal"); // issue #35178
+        hashSet.add("list_constructor_source_11.bal"); // issue #35178
+        hashSet.add("expression_stmt_source_02.bal"); // issue #35178
         return hashSet;
     }
 

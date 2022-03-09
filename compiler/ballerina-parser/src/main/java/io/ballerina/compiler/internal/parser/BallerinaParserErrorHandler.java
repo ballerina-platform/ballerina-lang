@@ -365,7 +365,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
-            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION, ParserRuleContext.ELLIPSIS };
 
     private static final ParserRuleContext[] TYPE_CAST_PARAM =
             { ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, ParserRuleContext.ANNOTATIONS };
@@ -3097,6 +3097,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 switch (parentCtx) {
                     case MAPPING_CONSTRUCTOR:
+                    case LIST_CONSTRUCTOR:
                     case ARG_LIST:
                         return ParserRuleContext.EXPRESSION;
                     case TYPE_DESC_IN_TUPLE:

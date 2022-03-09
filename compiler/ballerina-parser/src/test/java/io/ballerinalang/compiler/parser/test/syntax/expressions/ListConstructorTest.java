@@ -42,7 +42,7 @@ public class ListConstructorTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testSpreadOperator() {
+    public void testSpreadMember() {
         testFile("list-constructor/list_constructor_source_10.bal", "list-constructor/list_constructor_assert_10.json");
     }
 
@@ -72,5 +72,10 @@ public class ListConstructorTest extends AbstractExpressionsTest {
     @Test
     public void testListWithInvalidAnnotations() {
         test("@Annotation [a + b, c]", "list-constructor/list_constructor_assert_09.json");
+    }
+
+    @Test
+    public void testSpreadMemberRecovery() {
+        testFile("list-constructor/list_constructor_source_11.bal", "list-constructor/list_constructor_assert_11.json");
     }
 }
