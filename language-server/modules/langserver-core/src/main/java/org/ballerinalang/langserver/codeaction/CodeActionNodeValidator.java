@@ -47,24 +47,28 @@ import java.util.Set;
 /**
  * Node Transformer to check whether the syntax is valid.
  *
- * @since 2.0.0
+ * @since 2201.0.3
  */
 public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
-    private final Set<Node> visited = new HashSet<>();
+    private final Set<Node> visitedNodes = new HashSet<>();
 
     @Override
     protected Boolean transformSyntaxNode(Node node) {
         return node.parent() == null || node.parent().apply(this);
     }
 
-    @Override
-    public Boolean transform(VariableDeclarationNode node) {
-        if (visited.contains(node)) {
+    private Boolean isVisited(Node node) {
+        if (visitedNodes.contains(node)) {
             return true;
         }
-        visited.add(node);
-        return node.equalsToken().isPresent()
+        visitedNodes.add(node);
+        return false;
+    }
+    
+    @Override
+    public Boolean transform(VariableDeclarationNode node) {
+        return isVisited(node) || node.equalsToken().isPresent()
                 && !node.equalsToken().get().isMissing()
                 && node.typedBindingPattern().apply(this)
                 && node.initializer().isPresent()
@@ -73,14 +77,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(FunctionCallExpressionNode node) {
-        if (visited.contains(node)) {
+        if (isVisited(node)) {
             return true;
-        }
-        visited.add(node);
-        if (node.functionName().isMissing() || node.openParenToken().isMissing()
-                || node.closeParenToken().isMissing()
-                || !node.arguments().stream().allMatch(arg -> arg.apply(this))) {
-            return false;
         }
         // Check for missing commas
         for (int i = 0; i < node.arguments().separatorSize(); i++) {
@@ -88,47 +86,35 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 return false;
             }
         }
-        return node.parent().apply(this);
+        return !node.functionName().isMissing() &&
+                !node.openParenToken().isMissing() && 
+                !node.closeParenToken().isMissing() &&
+                node.arguments().stream().allMatch(arg -> arg.apply(this))
+                && node.parent().apply(this);
     }
     
     @Override
     public Boolean transform(TypedBindingPatternNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return node.bindingPattern().apply(this)
+        return isVisited(node) || node.bindingPattern().apply(this)
                 && node.typeDescriptor().apply(this)
                 && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(CaptureBindingPatternNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.variableName().isMissing() 
+        return isVisited(node) || !node.variableName().isMissing() 
                 && node.parent().apply(this);
     }
     
     @Override
     public Boolean transform(CheckExpressionNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.checkKeyword().isMissing()
+        return isVisited(node) || !node.checkKeyword().isMissing()
             && node.expression().apply(this);
     }
     
     @Override
     public Boolean transform(TableTypeDescriptorNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.tableKeywordToken().isMissing()
+        return isVisited(node) || !node.tableKeywordToken().isMissing()
                 && node.rowTypeParameterNode().apply(this)
                 && node.keyConstraintNode().isPresent() 
                 && node.keyConstraintNode().get().apply(this);
@@ -136,11 +122,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
     
     @Override
     public Boolean transform(TypeParameterNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.ltToken().isMissing() 
+        return isVisited(node) || !node.ltToken().isMissing() 
                 && !node.gtToken().isMissing() 
                 && node.typeNode().apply(this)
                 && node.parent().apply(this);
@@ -148,11 +130,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(KeySpecifierNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.keyKeyword().isMissing() 
+        return isVisited(node) || !node.keyKeyword().isMissing() 
                 && !node.openParenToken().isMissing()
                 && !node.closeParenToken().isMissing()
                 && node.fieldNames().stream().noneMatch(Node::isMissing);
@@ -160,32 +138,20 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(SimpleNameReferenceNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.name().isMissing()
+        return isVisited(node) || !node.name().isMissing()
             && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(AssignmentStatementNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.equalsToken().isMissing()
+        return isVisited(node) || !node.equalsToken().isMissing()
             && node.expression().apply(this)
             && node.varRef().apply(this);
     }
 
     @Override
     public Boolean transform(BinaryExpressionNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.operator().isMissing()
+        return isVisited(node) || !node.operator().isMissing()
                 && node.lhsExpr().apply(this) 
                 && node.rhsExpr().apply(this)
                 && node.parent().apply(this);
@@ -193,11 +159,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(LetExpressionNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.letKeyword().isMissing() 
+        return isVisited(node) || !node.letKeyword().isMissing() 
                 && !node.inKeyword().isMissing()
                 && node.letVarDeclarations().stream().allMatch(arg -> arg.apply(this))
                 && node.expression().apply(this);
@@ -205,75 +167,48 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(LetVariableDeclarationNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.equalsToken().isMissing()
+        return isVisited(node) || !node.equalsToken().isMissing()
                 && node.typedBindingPattern().apply(this)
                 && node.expression().apply(this);
     }
 
     @Override
     public Boolean transform(SpreadFieldNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.ellipsis().isMissing()
+        return isVisited(node) || !node.ellipsis().isMissing()
                 && node.valueExpr().apply(this)
                 && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(MappingConstructorExpressionNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
+        return isVisited(node) || !node.openBrace().isMissing() 
+                && !node.closeBrace().isMissing()
                 && node.fields().stream().allMatch(arg -> arg.apply(this))
                 && node.parent().apply(this); 
     }
 
     @Override
     public Boolean transform(FieldAccessExpressionNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return node.expression().apply(this) 
+        return isVisited(node) || node.expression().apply(this) 
                 && !node.dotToken().isMissing()
                 && node.fieldName().apply(this)
                 && node.parent().apply(this);
     }
     @Override
     public Boolean transform(PositionalArgumentNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return node.expression().apply(this)
+        return isVisited(node) || node.expression().apply(this)
                 && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(BasicLiteralNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.literalToken().isMissing()
+        return isVisited(node) || !node.literalToken().isMissing()
             && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(NamedArgumentNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.equalsToken().isMissing()
+        return isVisited(node) || !node.equalsToken().isMissing()
                 && node.argumentName().apply(this) 
                 && node.expression().apply(this)
                 && node.parent().apply(this);
@@ -281,22 +216,14 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
     
     @Override
     public Boolean transform(RestArgumentNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.ellipsis().isMissing()
+        return isVisited(node) || !node.ellipsis().isMissing()
                 && node.expression().apply(this)
                 && node.parent().apply(this);
     }
 
     @Override
     public Boolean transform(ListConstructorExpressionNode node) {
-        if (visited.contains(node)) {
-            return true;
-        }
-        visited.add(node);
-        return !node.openBracket().isMissing() && !node.closeBracket().isMissing()
+        return isVisited(node) || !node.openBracket().isMissing() && !node.closeBracket().isMissing()
                 && node.expressions().stream().allMatch(arg -> arg.apply(this))
                 && node.parent().apply(this);
     }

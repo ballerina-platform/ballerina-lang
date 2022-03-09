@@ -99,29 +99,29 @@ public class CodeActionRouter {
                         .isWithinRange(ctx.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
                 )
                 .forEach(diagnostic -> {
-                        DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
-                        codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
-                                .stream().filter(provider -> provider.validate(diagnostic, positionDetails, ctx))
-                                .forEach(provider -> {
-                            try {
-                                // Check whether the code action request has been cancelled
-                                // in order to avoid unnecessary calculations
-                                ctx.checkCancelled();
+                    DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
+                    codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
+                            .stream().forEach(provider -> {
+                                try {
+                                    // Check whether the code action request has been cancelled
+                                    // in order to avoid unnecessary calculations
+                                    ctx.checkCancelled();
 
-                                List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
-                                        positionDetails, ctx);
-                                if (codeActionsOut != null) {
+                                    if (!provider.validate(diagnostic, positionDetails, ctx)) {
+                                        return;
+                                    }
+                                    List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
+                                            positionDetails, ctx);
                                     codeActionsOut.forEach(codeAction ->
-                                            TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, 
+                                            TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction,
                                                     provider));
                                     codeActions.addAll(codeActionsOut);
+                                } catch (Exception e) {
+                                    String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
+                                    clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null,
+                                            (Position) null);
                                 }
-                            } catch (Exception e) {
-                                String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                                clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null, 
-                                        (Position) null);
-                            }
-                        });
+                            });
                 });
         return codeActions;
     }
