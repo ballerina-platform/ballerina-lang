@@ -30,7 +30,6 @@ import io.ballerina.types.subtypedata.NonCharStringSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.types.EnumerableSubtype.EQ;
@@ -145,11 +144,19 @@ public class StringOps implements UniformTypeOps {
     }
 
     private static String[] toStringArray(EnumerableCharString[] ar) {
-        return (String[]) Arrays.stream(ar).map(m -> m.value).toArray();
+        final String[] strings = new String[ar.length];
+        for (int i = 0; i < ar.length; i++) {
+            strings[i] = ar[i].value;
+        }
+        return strings;
     }
 
     private static String[] toStringArray(EnumerableString[] ar) {
-        return (String[]) Arrays.stream(ar).map(m -> m.value).toArray();
+        final String[] strings = new String[ar.length];
+        for (int i = 0; i < ar.length; i++) {
+            strings[i] = ar[i].value;
+        }
+        return strings;
     }
 
     static void stringListIntersect(String[] values, String[] target, List<Integer> indices) {
@@ -162,7 +169,7 @@ public class StringOps implements UniformTypeOps {
                 break;
             } else {
                 int comp = EnumerableSubtype.compareEnumerable(EnumerableString.from(values[i1]),
-                                                               EnumerableString.from(values[i2]));
+                                                               EnumerableString.from(target[i2]));
                 switch (comp) {
                     case EQ:
                         indices.add(i1);

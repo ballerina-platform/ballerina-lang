@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -95,9 +96,11 @@ public class SemTypeTest {
     @DataProvider(name = "type-rel-provider")
     public Object[] typeRelTestFileNameProvider() {
         File dataDir = resolvePath("test-src/type-rel").toFile();
-        ArrayList<File> balFiles = new ArrayList<>();
+        List<File> balFiles = new ArrayList<>();
         listAllBalFiles(dataDir, balFiles);
+        Collections.sort(balFiles);
 
+        //balFiles = balFiles.stream().filter(f -> f.getName().contains("xml-complex-ro-tv")).collect(Collectors.toList());
         List<SemTypeAssertionTransformer.TypeAssertion> tests = new ArrayList<>();
         for (File file : balFiles) {
             String fileName = file.getAbsolutePath();
