@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
@@ -87,8 +88,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
             edits.addAll(getDiagBasedTextEdits(diagnostic, positionDetails, context));
         });
 
-        String commandTitle = "Implement all";
-        CodeAction quickFixCodeAction = createCodeAction(commandTitle, edits, context.fileUri(),
+        CodeAction quickFixCodeAction = createCodeAction(CommandConstants.IMPLEMENT_ALL, edits, context.fileUri(),
                 CodeActionKind.QuickFix);
         quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(diags));
         return Collections.singletonList(quickFixCodeAction);

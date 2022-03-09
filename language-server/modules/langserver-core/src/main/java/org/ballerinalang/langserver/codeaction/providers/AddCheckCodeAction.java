@@ -112,10 +112,12 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             return Collections.emptyList();
         }
 
+        // The following code is used to provide code actions (but not as a quick fix, since it does not fix the code) 
+        // for the scenario where wait-future-expr is not a future
         if (expressionNode.get().kind() == SyntaxKind.WAIT_ACTION && context.currentSemanticModel().isPresent()) {
             WaitActionNode waitActionNode = (WaitActionNode) expressionNode.get();
             Optional<TypeSymbol> tSymbol = context.currentSemanticModel().get().typeOf(waitActionNode.waitFutureExpr());
-            if (tSymbol.isPresent() && CommonUtil.getRawType(tSymbol.get()).typeKind() != TypeDescKind.FUTURE) {
+            if (tSymbol.map(CommonUtil::getRawType).filter(t -> t.typeKind() != TypeDescKind.FUTURE).isPresent()) {
                 return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
                         CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
             }
