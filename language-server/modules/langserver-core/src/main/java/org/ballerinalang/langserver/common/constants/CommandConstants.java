@@ -148,7 +148,5 @@ public class CommandConstants {
 
     public static final String IGNORE_UNUSED_VAR_TITLE = "Ignore unused variable";
     
-    public static final String GENERATE_MAPPING_FUNCTION = "Generate mapping function";
-    
     public static final String IMPLEMENT_ALL = "Implement all";
 }

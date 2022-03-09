@@ -45,6 +45,7 @@ import java.util.Optional;
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "AI Data Mapper";
+    public static final String GENERATE_MAPPING_FUNCTION = "Generate mapping function";
 
     /**
      * {@inheritDoc}
@@ -100,8 +101,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 if (fEdits.isEmpty()) {
                     return Optional.empty();
                 }
-                CodeAction action = createCodeAction(CommandConstants.GENERATE_MAPPING_FUNCTION,
-                        fEdits, context.fileUri(), CodeActionKind.QuickFix);
+                CodeAction action = createCodeAction(GENERATE_MAPPING_FUNCTION, fEdits, context.fileUri(), 
+                        CodeActionKind.QuickFix);
                 return Optional.of(action);
             }
         } catch (IOException e) {
