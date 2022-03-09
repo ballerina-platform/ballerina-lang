@@ -31,8 +31,7 @@ public class Context {
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
 
-    // Non thread-safe singleton; we should make this a double check locked one if necessary.
-    private static Context instance;
+    private static volatile Context instance;
     public SemType anydataMemo;
 
     private Context(Env env) {
@@ -41,7 +40,11 @@ public class Context {
 
     public static Context from(Env env) {
         if (instance == null) {
-            instance = new Context(env);
+            synchronized (Context.class) {
+                if (instance == null) {
+                    instance = new Context(env);
+                }
+            }
         }
         return instance;
     }

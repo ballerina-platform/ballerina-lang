@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Extract semtype assertions from comments in the form:
+ * Extract semtype assertions in the below form.
  * // @type A < B
  * // @type B = C
  * // @type c <> D
@@ -120,7 +120,7 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         return Arrays.copyOfRange(parts, 2, 5);
     }
 
-    @Override
+     @Override
      protected void visitSyntaxNode(Node node) {
         addComments(node.leadingMinutiae());
         addComments(node.trailingMinutiae());
@@ -180,6 +180,11 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
         }
     }
 
+    /**
+     * Relationship to be asserted.
+     *
+     * @since 3.0.0
+     */
     public enum RelKind {
         SUB, SAME, NON;
 

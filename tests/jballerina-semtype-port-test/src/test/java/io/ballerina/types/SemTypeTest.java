@@ -100,7 +100,6 @@ public class SemTypeTest {
         listAllBalFiles(dataDir, balFiles);
         Collections.sort(balFiles);
 
-        //balFiles = balFiles.stream().filter(f -> f.getName().contains("xml-complex-ro-tv")).collect(Collectors.toList());
         List<SemTypeAssertionTransformer.TypeAssertion> tests = new ArrayList<>();
         for (File file : balFiles) {
             String fileName = file.getAbsolutePath();
