@@ -1902,7 +1902,7 @@
           "type": "Token"
         },
         {
-          "name": "expressions",
+          "name": "listMembers",
           "type": "Node",
           "occurrences": "MULTIPLE_SEPARATED"
         },
@@ -2366,6 +2366,26 @@
         },
         {
           "name": "commentEnd",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "XMLCDATANode",
+      "base": "XMLItemNode",
+      "kind": "XML_CDATA",
+      "attributes": [
+        {
+          "name": "cdataStart",
+          "type": "Token"
+        },
+        {
+          "name": "content",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "cdataEnd",
           "type": "Token"
         }
       ]
@@ -4334,6 +4354,21 @@
           "name": "typeParamNode",
           "type": "TypeParameterNode",
           "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "SpreadMemberNode",
+      "base": "Node",
+      "kind": "SPREAD_MEMBER",
+      "attributes": [
+        {
+          "name": "ellipsis",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
         }
       ]
     }
