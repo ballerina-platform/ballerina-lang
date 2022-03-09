@@ -20,8 +20,9 @@ package io.ballerina.compiler.api;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,13 +107,7 @@ public class Types {
         this.COMPILATION_ERROR = typesFactory.getTypeDescriptor(symbolTable.semanticError);
     }
 
-    public Optional<TypeDefinitionSymbol> getByName(ModuleID moduleID, String typeDefName) {
-
-        return Optional.empty();
-    }
-
-    public Optional<TypeDefinitionSymbol> getByName(String org, String moduleName, String version, String typeDefName) {
-
+    public Optional<Symbol> getByName(String org, String moduleName, String version, String typeDefName) {
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
 
@@ -119,11 +115,7 @@ public class Types {
 
     }
 
-    public Optional<Map<String, TypeDefinitionSymbol>> typesInModule(ModuleID moduleID) {
-        return Optional.empty();
-    }
-
-    public Optional<Map<String, TypeDefinitionSymbol>> typesInModule(String org, String moduleName, String version) {
+    public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
 
@@ -139,23 +131,23 @@ public class Types {
         return types;
     }
 
-    private Optional<TypeDefinitionSymbol> getTypeDefByName(PackageID packageID, String typeDefName) {
+    private Optional<Symbol> getTypeDefByName(PackageID packageID, String typeDefName) {
         BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
         if (packageSymbol == null) {
             return Optional.empty();
         }
 
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
-        BSymbol bSymbol = symbolResolver.lookupSymbolInGivenScope(pkgEnv, Names.fromString(typeDefName),
-                SymTag.TYPE_DEF);
-        if (bSymbol.tag == SymTag.TYPE_DEF && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL) {
-            return Optional.ofNullable((TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+        BSymbol bSymbol = symbolResolver.lookupSymbolInMainSpace(pkgEnv, Names.fromString(typeDefName));
+
+        if (isValidTypeDef(bSymbol)) {
+            return Optional.ofNullable(symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
         }
 
         return Optional.empty();
     }
 
-    private Optional<Map<String, TypeDefinitionSymbol>> getTypeDefSymbolsInModule(PackageID packageID) {
+    private Optional<Map<String, Symbol>> getTypeDefSymbolsInModule(PackageID packageID) {
         BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
 
         if (packageSymbol == null) {
@@ -165,13 +157,12 @@ public class Types {
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
         Scope pkgEnvScope = pkgEnv.scope;
         if (pkgEnvScope != null && pkgEnvScope.entries != null) {
-            Map<String, TypeDefinitionSymbol> typeDefSymbols = new HashMap<>();
+            Map<String, Symbol> typeDefSymbols = new HashMap<>();
             for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
                 BSymbol bSymbol = scopeEntry.symbol;
-                if (bSymbol != null && bSymbol.tag == SymTag.TYPE_DEF && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL) {
+                if (isValidTypeDef(bSymbol)) {
                     String typeDefName = bSymbol.getName().getValue();
-                    typeDefSymbols.put(typeDefName, (TypeDefinitionSymbol) symbolFactory.getBCompiledSymbol(bSymbol,
-                            typeDefName));
+                    typeDefSymbols.put(typeDefName, symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
                 }
             }
 
@@ -179,6 +170,14 @@ public class Types {
         }
 
         return Optional.empty();
+    }
+
+    private boolean isValidTypeDef(BSymbol bSymbol) {
+        return bSymbol != null && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL &&
+                (bSymbol.tag == SymTag.TYPE_DEF
+                        || bSymbol.tag == SymTag.CONSTANT
+                        || bSymbol.tag == SymTag.ENUM
+                        || Flags.unMask(bSymbol.flags).contains(Flag.CLASS));
     }
 
 }
