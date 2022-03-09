@@ -1,0 +1,5 @@
+digraph "asmaj/app:0.1.0" {
+    "asmaj/bazz"
+    "samjs/bar"
+    "ballerina/io"
+}
