@@ -199,7 +199,7 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void validateLabels(String labels, Set<String> predefinedLabels) {
+    public static void validateLabels(String labels, Set<String> predefinedLabels, int absLineNum) {
         HashSet<String> labelsList = new HashSet<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
@@ -225,7 +225,7 @@ public class TestRunnerUtils {
                 (hasDuplicateLabels ? "Duplicate labels: " + duplicateLabels : "");
 
         if (!diagnosticMsg.isEmpty()) {
-            Assert.fail(diagnosticMsg);
+            Assert.fail("Errors in labels at line number: " + (absLineNum - 1) + "\n" + diagnosticMsg);
         }
     }
 

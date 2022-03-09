@@ -63,7 +63,7 @@ public class TestRunner {
         setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
         handleTestSkip(isSkippedTest);
         validateTestFormat(diagnostics);
-        validateLabels(labels, predefinedLabels);
+        validateLabels(labels, predefinedLabels, absLineNum);
         validateTestOutput(path, kind, outputValues, isKnownIssue, lineNumbers, fileName, absLineNum, context);
     }
 
