@@ -1902,7 +1902,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "expressions",
+                    "name": "listMembers",
                     "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },

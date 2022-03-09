@@ -1230,7 +1230,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         Token openBracket = formatToken(listConstructorExpressionNode.openBracket(), 0, fieldTrailingNL);
         indent();
-        SeparatedNodeList<Node> expressions = formatSeparatedNodeList(listConstructorExpressionNode.expressions(),
+        SeparatedNodeList<Node> listMembers = formatSeparatedNodeList(listConstructorExpressionNode.listMembers(),
                 0, 0, fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL);
         unindent();
         Token closeBracket = formatToken(listConstructorExpressionNode.closeBracket(),
@@ -1238,7 +1238,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return listConstructorExpressionNode.modify()
                 .withOpenBracket(openBracket)
-                .withExpressions(expressions)
+                .withListMembers(listMembers)
                 .withCloseBracket(closeBracket)
                 .apply();
     }

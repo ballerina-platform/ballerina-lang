@@ -131,11 +131,11 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
 
     @Override
     public Optional<ExpressionNode> transform(ListConstructorExpressionNode listConstructorExpressionNode) {
-        Optional<Node> expressionNode = listConstructorExpressionNode.expressions().stream()
+        Optional<Node> listMemberNode = listConstructorExpressionNode.listMembers().stream()
                 .filter(expression -> this.matchedNode == expression)
                 .findFirst();
-        if (expressionNode.isPresent() && expressionNode.get() instanceof ExpressionNode) {
-            return Optional.of((ExpressionNode) expressionNode.get());
+        if (listMemberNode.isPresent() && listMemberNode.get() instanceof ExpressionNode) {
+            return Optional.of((ExpressionNode) listMemberNode.get());
         }
         return Optional.empty();
     }

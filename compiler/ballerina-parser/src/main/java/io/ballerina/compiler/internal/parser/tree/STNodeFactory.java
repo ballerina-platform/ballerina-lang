@@ -1044,12 +1044,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createListConstructorExpressionNode(
             STNode openBracket,
-            STNode expressions,
+            STNode listMembers,
             STNode closeBracket) {
 
         return new STListConstructorExpressionNode(
                 openBracket,
-                expressions,
+                listMembers,
                 closeBracket);
     }
 

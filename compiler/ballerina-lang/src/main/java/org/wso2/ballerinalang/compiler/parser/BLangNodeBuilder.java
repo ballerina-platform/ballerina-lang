@@ -1981,7 +1981,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         List<BLangExpression> argExprList = new ArrayList<>();
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
-        for (Node expr : listConstructorExprNode.expressions()) {
+        for (Node expr : listConstructorExprNode.listMembers()) {
             argExprList.add(createExpression(expr));
         }
         listConstructorExpr.exprs = argExprList;

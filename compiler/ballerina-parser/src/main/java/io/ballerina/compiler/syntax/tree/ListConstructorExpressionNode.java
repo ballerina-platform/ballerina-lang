@@ -36,7 +36,7 @@ public class ListConstructorExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> expressions() {
+    public SeparatedNodeList<Node> listMembers() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -58,24 +58,24 @@ public class ListConstructorExpressionNode extends ExpressionNode {
     protected String[] childNames() {
         return new String[]{
                 "openBracket",
-                "expressions",
+                "listMembers",
                 "closeBracket"};
     }
 
     public ListConstructorExpressionNode modify(
             Token openBracket,
-            SeparatedNodeList<Node> expressions,
+            SeparatedNodeList<Node> listMembers,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
-                expressions.underlyingListNode(),
+                listMembers.underlyingListNode(),
                 closeBracket)) {
             return this;
         }
 
         return NodeFactory.createListConstructorExpressionNode(
                 openBracket,
-                expressions,
+                listMembers,
                 closeBracket);
     }
 
@@ -91,13 +91,13 @@ public class ListConstructorExpressionNode extends ExpressionNode {
     public static class ListConstructorExpressionNodeModifier {
         private final ListConstructorExpressionNode oldNode;
         private Token openBracket;
-        private SeparatedNodeList<Node> expressions;
+        private SeparatedNodeList<Node> listMembers;
         private Token closeBracket;
 
         public ListConstructorExpressionNodeModifier(ListConstructorExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.openBracket = oldNode.openBracket();
-            this.expressions = oldNode.expressions();
+            this.listMembers = oldNode.listMembers();
             this.closeBracket = oldNode.closeBracket();
         }
 
@@ -108,10 +108,10 @@ public class ListConstructorExpressionNode extends ExpressionNode {
             return this;
         }
 
-        public ListConstructorExpressionNodeModifier withExpressions(
-                SeparatedNodeList<Node> expressions) {
-            Objects.requireNonNull(expressions, "expressions must not be null");
-            this.expressions = expressions;
+        public ListConstructorExpressionNodeModifier withListMembers(
+                SeparatedNodeList<Node> listMembers) {
+            Objects.requireNonNull(listMembers, "listMembers must not be null");
+            this.listMembers = listMembers;
             return this;
         }
 
@@ -125,7 +125,7 @@ public class ListConstructorExpressionNode extends ExpressionNode {
         public ListConstructorExpressionNode apply() {
             return oldNode.modify(
                     openBracket,
-                    expressions,
+                    listMembers,
                     closeBracket);
         }
     }

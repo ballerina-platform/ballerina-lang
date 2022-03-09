@@ -1412,13 +1412,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ListConstructorExpressionNode listConstructorExpressionNode) {
         Token openBracket =
                 modifyToken(listConstructorExpressionNode.openBracket());
-        SeparatedNodeList<Node> expressions =
-                modifySeparatedNodeList(listConstructorExpressionNode.expressions());
+        SeparatedNodeList<Node> listMembers =
+                modifySeparatedNodeList(listConstructorExpressionNode.listMembers());
         Token closeBracket =
                 modifyToken(listConstructorExpressionNode.closeBracket());
         return listConstructorExpressionNode.modify(
                 openBracket,
-                expressions,
+                listMembers,
                 closeBracket);
     }
 

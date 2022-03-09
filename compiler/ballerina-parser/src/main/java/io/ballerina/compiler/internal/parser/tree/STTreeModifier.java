@@ -1107,11 +1107,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STListConstructorExpressionNode transform(
             STListConstructorExpressionNode listConstructorExpressionNode) {
         STNode openBracket = modifyNode(listConstructorExpressionNode.openBracket);
-        STNode expressions = modifyNode(listConstructorExpressionNode.expressions);
+        STNode listMembers = modifyNode(listConstructorExpressionNode.listMembers);
         STNode closeBracket = modifyNode(listConstructorExpressionNode.closeBracket);
         return listConstructorExpressionNode.modify(
                 openBracket,
-                expressions,
+                listMembers,
                 closeBracket);
     }
 

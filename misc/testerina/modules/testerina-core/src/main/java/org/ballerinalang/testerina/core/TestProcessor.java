@@ -414,8 +414,8 @@ public class TestProcessor {
                             if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
                                     valueExpr instanceof ListConstructorExpressionNode) {
                                 List<String> groupList = new ArrayList<>();
-                                ((ListConstructorExpressionNode) valueExpr).expressions().forEach(
-                                        expression -> groupList.add(getStringValue(expression)));
+                                ((ListConstructorExpressionNode) valueExpr).listMembers().forEach(
+                                        listMember -> groupList.add(getStringValue(listMember)));
                                 if (isBeforeGroups) {
                                     suite.addBeforeGroupsFunction(functionName, groupList);
                                 } else {
@@ -466,8 +466,8 @@ public class TestProcessor {
                                 if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
                                         valueExpr instanceof ListConstructorExpressionNode) {
                                     List<String> groupList = new ArrayList<>();
-                                    ((ListConstructorExpressionNode) valueExpr).expressions().forEach(
-                                            expression -> groupList.add(getStringValue(expression)));
+                                    ((ListConstructorExpressionNode) valueExpr).listMembers().forEach(
+                                            listMember -> groupList.add(getStringValue(listMember)));
                                     test.setGroups(groupList);
                                     suite.addTestToGroups(test);
 
@@ -506,8 +506,8 @@ public class TestProcessor {
                                 if (SyntaxKind.LIST_CONSTRUCTOR == valueExpr.kind() &&
                                         valueExpr instanceof ListConstructorExpressionNode) {
                                     List<String> dependsOnFunctions = new ArrayList<>();
-                                    ((ListConstructorExpressionNode) valueExpr).expressions().forEach(
-                                            expression -> dependsOnFunctions.add(getStringValue(expression)));
+                                    ((ListConstructorExpressionNode) valueExpr).listMembers().forEach(
+                                            listMember -> dependsOnFunctions.add(getStringValue(listMember)));
                                     for (String function : dependsOnFunctions) {
                                         test.addDependsOnTestFunction(function);
                                     }
