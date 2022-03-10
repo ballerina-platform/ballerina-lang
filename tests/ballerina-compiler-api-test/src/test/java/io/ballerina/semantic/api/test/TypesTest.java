@@ -24,8 +24,11 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaAnyTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnydataTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaCompilationErrorTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaErrorTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFutureTypeSymbol;
@@ -37,9 +40,11 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaReadonlyTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStreamTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDescTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
@@ -52,6 +57,11 @@ import org.testng.annotations.Test;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
@@ -66,8 +76,10 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
@@ -129,7 +141,7 @@ public class TypesTest {
     }
 
     @Test(dataProvider = "TypesByNameProvider")
-    public void testTypeByName(String moduleName, String typeDefName, TypeDescKind typeDescKind) {
+    public void testTypeByName(String moduleName, String typeDefName, SymbolKind symKind, TypeDescKind typeDescKind) {
         Module module = getModule(project, moduleName);
         model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
         types = model.types();
@@ -137,12 +149,11 @@ public class TypesTest {
         String pkgName = module.descriptor().name().toString();
         String version = module.descriptor().version().toString();
 
-        Optional<TypeDefinitionSymbol> typeDefSymbol = types.getByName(org, pkgName, version, typeDefName);
+        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
+        assertTrue(symbol.isPresent());
+        assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
 
-        assertTrue(typeDefSymbol.isPresent());
-        assertEquals(typeDefSymbol.get().typeDescriptor().typeKind(), typeDescKind);
-
-        Optional<String> symbolName = typeDefSymbol.get().getName();
+        Optional<String> symbolName = symbol.get().getName();
         assertTrue(symbolName.isPresent());
         assertEquals(symbolName.get(), typeDefName);
     }
@@ -150,18 +161,23 @@ public class TypesTest {
     @DataProvider(name = "TypesByNameProvider")
     public Object[][] getTypesByName() {
         return new Object[][] {
-                {"foo", "ErrorDetail1", RECORD},
-                {"foo", "MyErr", ERROR},
-                {"foo", "MyInt", UNION},
+                {"foo", "ErrorDetail1", TYPE_DEFINITION, RECORD},
+                {"foo", "MyErr", TYPE_DEFINITION, ERROR},
+                {"foo", "MyInt", TYPE_DEFINITION, UNION},
+                {"foo", "Language", ENUM, UNION},
+                {"foo", "SI", ENUM_MEMBER, SINGLETON},
 
-                {"bar", "MyBoolean", UNION},
-                {"bar", "MyFloat", DECIMAL},
-                {"bar", "Student", RECORD},
-
-                {"bar", "Person", RECORD},
-                {"bar", "Employee", RECORD},
-                {"bar", "Digit", UNION},
-                {"bar", "ExampleErr", ERROR},
+                {"bar", "MyBoolean", TYPE_DEFINITION, UNION},
+                {"bar", "MyFloat", TYPE_DEFINITION, DECIMAL},
+                {"bar", "Student", TYPE_DEFINITION, RECORD},
+                {"bar", "Person", TYPE_DEFINITION, RECORD},
+                {"bar", "Employee", TYPE_DEFINITION, RECORD},
+                {"bar", "Digit", TYPE_DEFINITION, UNION},
+                {"bar", "ExampleErr", TYPE_DEFINITION, ERROR},
+                {"bar", "Color", ENUM, UNION},
+                {"bar", "RED", ENUM_MEMBER, SINGLETON},
+                {"bar", "ABC", CONSTANT, SINGLETON},
+                {"bar", "PersonClass", CLASS, OBJECT},
         };
     }
 
@@ -178,24 +194,34 @@ public class TypesTest {
 
     private Object[][] getTypesInFooModule() {
         return new Object[][] {
-                {"ErrorDetail1", RECORD},
-                {"MyErr", ERROR},
-                {"MyInt", UNION},
+                {"ErrorDetail1", TYPE_DEFINITION, RECORD},
+                {"MyErr", TYPE_DEFINITION, ERROR},
+                {"MyInt", TYPE_DEFINITION, UNION},
+                {"Language", ENUM, UNION},
+                {"SI", ENUM_MEMBER, SINGLETON},
+                {"TA", ENUM_MEMBER, SINGLETON},
+                {"EN", ENUM_MEMBER, SINGLETON},
         };
     }
 
     private Object[][] getTypesInBarModule() {
         return new Object[][] {
                 // types.bal
-                {"MyBoolean", UNION},
-                {"MyFloat", DECIMAL},
-                {"Student", RECORD},
+                {"MyBoolean", TYPE_DEFINITION, UNION},
+                {"MyFloat", TYPE_DEFINITION, DECIMAL},
+                {"Student", TYPE_DEFINITION, RECORD},
+                {"Color", ENUM, UNION},
+                {"RED", ENUM_MEMBER, SINGLETON},
+                {"GREEN", ENUM_MEMBER, SINGLETON},
+                {"BLUE", ENUM_MEMBER, SINGLETON},
 
                 // more_typedefs.bal
-                {"Person", RECORD},
-                {"Employee", RECORD},
-                {"Digit", UNION},
-                {"ExampleErr", ERROR},
+                {"Person", TYPE_DEFINITION, RECORD},
+                {"Employee", TYPE_DEFINITION, RECORD},
+                {"Digit", TYPE_DEFINITION, UNION},
+                {"ExampleErr", TYPE_DEFINITION, ERROR},
+                {"ABC", CONSTANT, SINGLETON},
+                {"PersonClass", CLASS, OBJECT},
         };
     }
 
@@ -207,17 +233,40 @@ public class TypesTest {
         String pkgName = module.descriptor().name().toString();
         String version = module.descriptor().version().toString();
 
-        Optional<Map<String, TypeDefinitionSymbol>> typesInModule = types.typesInModule(org, pkgName, version);
+        Optional<Map<String, Symbol>> typesInModule = types.typesInModule(org, pkgName, version);
         assertTrue(typesInModule.isPresent());
 
-        Map<String, TypeDefinitionSymbol> typeDefSymbolMap = typesInModule.get();
+        Map<String, Symbol> typeDefSymbolMap = typesInModule.get();
         assertEquals(typeDefSymbolMap.size(), expTypes.length);
 
         for (Object[] expType : expTypes) {
             String expTypeName = String.valueOf(expType[0]);
-            TypeDefinitionSymbol typeDefSymbol = typeDefSymbolMap.get(expTypeName);
-            assertNotNull(typeDefSymbol);
-            assertEquals(typeDefSymbol.typeDescriptor().typeKind(), expType[1]);
+            Symbol symbol = typeDefSymbolMap.get(expTypeName);
+            assertNotNull(symbol);
+            assertSymbolTypeDesc(symbol, (SymbolKind) expType[1], (TypeDescKind) expType[2]);
+        }
+    }
+
+    private void assertSymbolTypeDesc(Symbol symbol, SymbolKind symbolKind, TypeDescKind typeDescKind) {
+        assertEquals(symbol.kind(), symbolKind);
+        switch (symbolKind) {
+            case TYPE_DEFINITION:
+                BallerinaTypeDefinitionSymbol typeDefSymbol = (BallerinaTypeDefinitionSymbol) symbol;
+                assertEquals(typeDefSymbol.typeDescriptor().typeKind(), typeDescKind);
+                break;
+            case CONSTANT:
+            case ENUM_MEMBER:
+                BallerinaConstantSymbol constantSymbol = (BallerinaConstantSymbol) symbol;
+                assertEquals(constantSymbol.typeDescriptor().typeKind(), typeDescKind);
+                break;
+            case ENUM:
+                BallerinaEnumSymbol enumSymbol = (BallerinaEnumSymbol) symbol;
+                assertEquals(enumSymbol.typeDescriptor().typeKind(), typeDescKind);
+                break;
+            case CLASS:
+                BallerinaClassSymbol classSymbol = (BallerinaClassSymbol) symbol;
+                assertEquals(classSymbol.typeKind(), typeDescKind);
+                break;
         }
     }
 
