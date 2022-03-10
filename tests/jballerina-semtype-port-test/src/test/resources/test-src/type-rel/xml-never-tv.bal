@@ -1,34 +1,31 @@
-// C<:CS
-// E<:ENS
-// E<:ES
-// ENS<:ES
-// ES<:ENS
-// N<:CS
-// N<:ENS
-// N<:ES
-// N<:NS
-// N<:PS
-// N<:T
-// N<:TS
-// NS<:CS
-// NS<:ENS
-// NS<:ES
-// NS<:N
-// NS<:PS
-// NS<:T
-// NS<:TS
-// P<:PS
-// T<:TS
-// TS<:T
-
 type N xml<never>;
+
+// @type N = NS
 type NS xml<N>;
+
+// @type N <> E
 type E xml:Element;
+
+// @type N < T
 type T xml:Text;
+
+// @type N <> C
 type C xml:Comment;
+
+// @type N <> P
 type P xml:ProcessingInstruction;
+
+// @type N < ES
 type ES xml<xml:Element>;
+
+// @type N < CS
 type CS xml<xml:Comment>;
+
+// @type N < TS
 type TS xml<xml:Text>;
+
+// @type N < PS
 type PS xml<xml:ProcessingInstruction>;
+
+// @type ENS = ES
 type ENS xml<xml:Element|never>;

@@ -18,14 +18,21 @@
 package io.ballerina.types;
 
 import io.ballerina.types.definition.ListDefinition;
+import io.ballerina.types.definition.MappingDefinition;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.DecimalSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.StringSubtype;
 import io.ballerina.types.subtypedata.TableSubtype;
+import io.ballerina.types.subtypedata.XmlSubtype;
+import io.ballerina.types.typeops.ListProj;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+
+import static io.ballerina.types.PredefinedType.SIMPLE_OR_STRING;
+import static io.ballerina.types.PredefinedType.XML;
 
 /**
  * Public API for creating type values.
@@ -91,5 +98,43 @@ public class SemTypes {
 
     public static SemType intersection(SemType t1, SemType t2) {
         return Core.intersect(t1, t2);
+    }
+
+    public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
+        return Core.isSubtypeSimple(t1, t2);
+    }
+
+    public static SemType mappingMemberType(Context context, SemType t, SemType m) {
+        return Core.mappingMemberType(context, t, m);
+    }
+
+    public static SemType listProj(Context context, SemType t, SemType key) {
+        return ListProj.listProj(context, t, key);
+    }
+
+    public static SemType listMemberType(Context context, SemType t, SemType key) {
+        return Core.listMemberType(context, t, key);
+    }
+
+    public static SemType createAnydata(Context context) {
+        SemType memo = context.anydataMemo;
+        Env env = context.env;
+
+        if (memo != null) {
+            return memo;
+        }
+        ListDefinition listDef = new ListDefinition();
+        MappingDefinition mapDef = new MappingDefinition();
+        SemType tableTy = tableContaining(mapDef.getSemType(env));
+        SemType ad = union(union(SIMPLE_OR_STRING, union(XML, tableTy)),
+                           union(listDef.getSemType(env), mapDef.getSemType(env)));
+        listDef.define(env, ad);
+        mapDef.define(env, new ArrayList<>(), ad);
+        context.anydataMemo = ad;
+        return ad;
+    }
+
+    public static SemType xmlSequence(SemType t) {
+        return XmlSubtype.xmlSequence(t);
     }
 }

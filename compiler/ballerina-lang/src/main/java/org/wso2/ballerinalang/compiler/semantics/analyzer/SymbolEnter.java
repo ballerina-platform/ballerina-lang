@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.Definition;
 import io.ballerina.types.Env;
@@ -751,7 +752,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (td.defn != null) {
             return td.defn.getSemType(semtypeEnv);
         }
-        return resolveTypeDesc(semtypeEnv, mod, defn, depth + 1, td.constraint);
+        return SemTypes.xmlSequence(resolveTypeDesc(semtypeEnv, mod, defn, depth + 1, td.constraint));
     }
 
     private SemType resolveMapTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
@@ -847,6 +848,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (td.typeKind) {
             case ANY:
                 return PredefinedType.ANY;
+            case ANYDATA:
+                return SemTypes.createAnydata(Context.from(semtypeEnv));
             case BOOLEAN:
                 return PredefinedType.BOOLEAN;
             case DECIMAL:
@@ -890,7 +893,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
 
         ArrayList<BLangExpression> reversed = new ArrayList<>(td.sizes);
-        Collections.reverse(reversed);
         for (BLangExpression t : reversed) {
             // todo: We need to constFold this expression.
             int size = constExprToInt(t);

@@ -6,7 +6,6 @@
 // E<:XE
 // E<:XEU
 // E<:Y
-// N<:E
 // N<:P
 // N<:Q
 // N<:T
@@ -35,7 +34,6 @@
 // T<:XEU
 // T<:XT
 // T<:Y
-// U<:E
 // U<:P
 // U<:Q
 // U<:V
@@ -49,6 +47,9 @@
 // V<:XE
 // V<:XEU
 // V<:Y
+// X<:P
+// X<:Q
+// X<:XE
 // X<:XEU
 // X<:Y
 // XE<:P
@@ -56,7 +57,10 @@
 // XE<:X
 // XE<:XEU
 // XE<:Y
+// XEU<:P
+// XEU<:Q
 // XEU<:X
+// XEU<:XE
 // XEU<:Y
 // XT<:P
 // XT<:Q
@@ -66,7 +70,10 @@
 // XT<:XE
 // XT<:XEU
 // XT<:Y
+// Y<:P
+// Y<:Q
 // Y<:X
+// Y<:XE
 // Y<:XEU
 
 type X xml;

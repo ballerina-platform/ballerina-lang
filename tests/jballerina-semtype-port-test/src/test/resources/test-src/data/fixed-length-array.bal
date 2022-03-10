@@ -1,11 +1,14 @@
-// Array2OfInt5<:Array5OfIntArray
+// Array2OfInt5<:ArrayOfInt5
 // Array2OfInt5<:ArrayOfIntArray
+// Array2OfInt5<:ArrayOfIntFive
 // Array5OfInt5<:Array5OfIntArray
 // Array5OfInt5<:ArrayFiveOfIntFive
 // Array5OfInt5<:ArrayOfInt5
 // Array5OfInt5<:ArrayOfIntArray
 // Array5OfInt5<:ArrayOfIntFive
 // Array5OfIntArray<:ArrayOfIntArray
+// Array7OfArray2OfInt5<:Array7x2x5
+// Array7x2x5<:Array7OfArray2OfInt5
 // ArrayFiveOfIntFive<:Array5OfInt5
 // ArrayFiveOfIntFive<:Array5OfIntArray
 // ArrayFiveOfIntFive<:ArrayOfInt5
@@ -15,8 +18,9 @@
 // ArrayOfInt5<:ArrayOfIntFive
 // ArrayOfIntFive<:ArrayOfInt5
 // ArrayOfIntFive<:ArrayOfIntArray
-// EmptyIntArray<:Array5OfIntArray
+// EmptyIntArray<:ArrayOfInt5
 // EmptyIntArray<:ArrayOfIntArray
+// EmptyIntArray<:ArrayOfIntFive
 // EmptyIntArray<:IntArray
 // FIVE<:INT
 // Int5<:IntArray
