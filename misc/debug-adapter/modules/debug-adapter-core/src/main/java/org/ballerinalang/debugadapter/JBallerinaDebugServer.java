@@ -25,16 +25,13 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.identifier.Utils;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
-import org.ballerinalang.debugadapter.completion.CompletionContext;
-import org.ballerinalang.debugadapter.completion.FieldAccessCompletionResolver;
+import org.ballerinalang.debugadapter.completion.CompletionGenerator;
+import org.ballerinalang.debugadapter.completion.context.CompletionContext;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
@@ -119,11 +116,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getCompletions;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getInjectedExpressionNode;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getResolverNode;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getVisibleSymbolCompletions;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.triggerCharactersFound;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getInjectedExpressionNode;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getResolverNode;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getTriggerCharacters;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getVisibleSymbolCompletions;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.triggerCharactersFound;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
@@ -186,6 +183,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsConditionalBreakpoints(true);
         capabilities.setSupportsLogPoints(true);
         capabilities.setSupportsCompletionsRequest(true);
+        capabilities.setCompletionTriggerCharacters(getTriggerCharacters().toArray(String[]::new));
         // Todo - Implement
         capabilities.setSupportsRestartRequest(false);
         // unsupported capabilities
@@ -524,15 +522,31 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             try {
                 NonTerminalNode injectedExpressionNode = getInjectedExpressionNode(completionContext, args,
                         clientConfigHolder.getSourcePath(), suspendedContext.getLineNumber());
+                completionContext.setNodeAtCursor(injectedExpressionNode);
                 Optional<Node> resolverNode = getResolverNode(injectedExpressionNode);
 
-                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.FIELD_ACCESS) {
-                    FieldAccessCompletionResolver fieldAccessCompletionResolver =
-                            new FieldAccessCompletionResolver(completionContext);
-                    List<Symbol> visibleEntries = fieldAccessCompletionResolver
-                            .getVisibleEntries(((FieldAccessExpressionNode) resolverNode.get()).expression());
-                    CompletionItem[] completions = getCompletions(visibleEntries);
-                    completionsResponse.setTargets(completions);
+                if (resolverNode.isEmpty()) {
+                    return completionsResponse;
+                }
+
+                CompletionItem[] completionItems;
+                switch (resolverNode.get().kind()) {
+                    case FIELD_ACCESS:
+                        completionItems = CompletionGenerator
+                                .getFieldAccessCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    case REMOTE_METHOD_CALL_ACTION:
+                        completionItems = CompletionGenerator
+                                .getRemoteMethodCallActionCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    case ASYNC_SEND_ACTION:
+                        completionItems = CompletionGenerator
+                                .getAsyncSendActionCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    default:
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage());
