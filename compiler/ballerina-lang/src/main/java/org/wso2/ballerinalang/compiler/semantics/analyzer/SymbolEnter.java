@@ -2164,7 +2164,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    getOrigin(funcNode.name.value));
         funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
-        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        SymbolEnv invokableEnv;
+        if (env.node.getKind() == NodeKind.CLASS_DEFN || env.node.getKind() == NodeKind.OBJECT_TYPE) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env.enclEnv);
+        } else {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        }
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         funcNode.setBType(funcSymbol.type);
 
@@ -4316,11 +4321,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         invokableNode.symbol = funcSymbol;
         defineSymbol(invokableNode.name.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
-        SymbolEnv enclEnv = invokableEnv.enclEnv;
-        NodeKind enclEnvNodeKind = enclEnv.node.getKind();
-        if (enclEnvNodeKind == NodeKind.CLASS_DEFN || enclEnvNodeKind == NodeKind.OBJECT_TYPE) {
-            invokableEnv.enclEnv = enclEnv.enclEnv;
-        }
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
 
         if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {

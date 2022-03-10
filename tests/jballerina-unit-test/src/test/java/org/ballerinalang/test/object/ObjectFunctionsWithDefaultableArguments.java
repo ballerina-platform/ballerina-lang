@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.values.ObjectValue;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -289,6 +290,9 @@ public class ObjectFunctionsWithDefaultableArguments {
         BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 117, 29);
         BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 122, 29);
         BAssertUtil.validateError(result, i++, "undefined symbol 'i'", 123, 29);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 36);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 58);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'self'", 135, 84);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
