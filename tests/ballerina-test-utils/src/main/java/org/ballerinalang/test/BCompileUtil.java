@@ -113,9 +113,8 @@ public class BCompileUtil {
         Package currentPackage = project.currentPackage();
         Module module = currentPackage.getDefaultModule();
         DocumentId docId = module.documentIds().iterator().next();
-        return new PackageSyntaxTreePair(
-                currentPackage.getCompilation().defaultModuleBLangPackage(),
-                module.document(docId).syntaxTree());
+        return new PackageSyntaxTreePair(currentPackage.getCompilation().defaultModuleBLangPackage(),
+                                         module.document(docId).syntaxTree());
     }
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {

@@ -144,7 +144,7 @@ public class StringOps implements UniformTypeOps {
     }
 
     private static String[] toStringArray(EnumerableCharString[] ar) {
-        final String[] strings = new String[ar.length];
+        String[] strings = new String[ar.length];
         for (int i = 0; i < ar.length; i++) {
             strings[i] = ar[i].value;
         }
@@ -152,7 +152,7 @@ public class StringOps implements UniformTypeOps {
     }
 
     private static String[] toStringArray(EnumerableString[] ar) {
-        final String[] strings = new String[ar.length];
+        String[] strings = new String[ar.length];
         for (int i = 0; i < ar.length; i++) {
             strings[i] = ar[i].value;
         }

@@ -893,7 +893,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
 
         ArrayList<BLangExpression> reversed = new ArrayList<>(td.sizes);
-        //Collections.reverse(reversed);
         for (BLangExpression t : reversed) {
             // todo: We need to constFold this expression.
             int size = constExprToInt(t);

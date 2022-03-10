@@ -47,16 +47,22 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
     private final SyntaxTree syntaxTree;
     private final Env semtypeEnv;
     private final Context context;
-    private List<String> list;
+    private final List<String> list;
 
-    public SemTypeAssertionTransformer(String fileName, SyntaxTree syntaxTree, Env semtypeEnv) {
+    private SemTypeAssertionTransformer(String fileName, SyntaxTree syntaxTree, Env semtypeEnv) {
         this.fileName = fileName;
         this.syntaxTree = syntaxTree;
         this.semtypeEnv = semtypeEnv;
         this.context = Context.from(semtypeEnv);
+        list = new ArrayList<>();
     }
 
-    public List<TypeAssertion> getTypeAssertions() {
+    public static List<TypeAssertion> getTypeAssertionsFrom(String fileName, SyntaxTree syntaxTree, Env semtypeEnv) {
+        final SemTypeAssertionTransformer t = new SemTypeAssertionTransformer(fileName, syntaxTree, semtypeEnv);
+        return t.getTypeAssertions();
+    }
+
+    private List<TypeAssertion> getTypeAssertions() {
         syntaxTree.rootNode().accept(this);
         List<TypeAssertion> assertions = new ArrayList<>();
         for (String str : list) {
@@ -145,7 +151,6 @@ public class SemTypeAssertionTransformer extends NodeVisitor {
 
     @Override
     public void visit(ModulePartNode modulePartNode) {
-        list = new ArrayList<>();
         for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
             member.accept(this);
         }
