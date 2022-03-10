@@ -412,25 +412,25 @@ public class KeyValueTest {
         Assert.assertEquals(arrVal2.getValue(), "how are youu");
 
         TomlArrayValueNode arrSample = (TomlArrayValueNode) read.get("arrSample").get();
-        Assert.assertEquals(((TomlStringValueNode)arrSample.get(2)).getValue(), "hello");
+        Assert.assertEquals(((TomlStringValueNode) arrSample.get(2)).getValue(), "hello");
 
         TomlInlineTableValueNode inlineTable1 = arrSample.get(0);
         TomlKeyValueNode inlineTable1Val1 = (TomlKeyValueNode) inlineTable1.elements().get(0);
-        Assert.assertEquals(inlineTable1Val1.key().name(),"first");
-        Assert.assertEquals(((TomlStringValueNode)inlineTable1Val1.value()).getValue(),"yagami");
+        Assert.assertEquals(inlineTable1Val1.key().name(), "first");
+        Assert.assertEquals(((TomlStringValueNode) inlineTable1Val1.value()).getValue(), "yagami");
 
         TomlInlineTableValueNode inlineTable2 = arrSample.get(1);
         TomlKeyValueNode inlineTable2Val1 = (TomlKeyValueNode) inlineTable2.elements().get(0);
-        Assert.assertEquals(inlineTable2Val1.key().name(),"first");
-        Assert.assertEquals(((TomlStringValueNode)inlineTable2Val1.value()).getValue(),"Anjana");
+        Assert.assertEquals(inlineTable2Val1.key().name(), "first");
+        Assert.assertEquals(((TomlStringValueNode) inlineTable2Val1.value()).getValue(), "Anjana");
 
         TomlTableNode convertedTable = inlineTable2.toTable();
         Map<String, TopLevelNode> entries = convertedTable.entries();
-        
+
         TomlValueNode firstVal = ((TomlKeyValueNode) entries.get("first")).value();
-        Assert.assertEquals(((TomlStringValueNode)firstVal).getValue(), "Anjana");
+        Assert.assertEquals(((TomlStringValueNode) firstVal).getValue(), "Anjana");
 
         TomlValueNode lsatVal = ((TomlKeyValueNode) entries.get("last")).value();
-        Assert.assertEquals(((TomlStringValueNode)lsatVal).getValue(), "Supun");
+        Assert.assertEquals(((TomlStringValueNode) lsatVal).getValue(), "Supun");
     }
 }
