@@ -50,7 +50,7 @@ public class TomlInlineTableValueNode extends TomlValueNode {
      * Get a single element of the array based on the Index.
      *
      * @param index index of the element
-     * @param <T> Type of the element
+     * @param <T>   Type of the element
      * @return Element object
      */
     public <T extends TopLevelNode> T get(int index) {
@@ -106,7 +106,7 @@ public class TomlInlineTableValueNode extends TomlValueNode {
         }
         return list;
     }
-    
+
     public TomlTableNode toTable() {
         Map<String, TopLevelNode> table = new HashMap<>();
         for (TopLevelNode node : elements) {
@@ -115,14 +115,14 @@ public class TomlInlineTableValueNode extends TomlValueNode {
         return new TomlTableNode((InlineTableNode) this.externalTreeNode(), generateKey(), false,
                 this.location(), table);
     }
-    
+
     private TomlKeyNode generateKey() {
-        String inlineValueKey = "__inline_value";
+        String tableKey = "__inline_value";
         IdentifierLiteralNode key =
-                NodeFactory.createIdentifierLiteralNode(NodeFactory.createIdentifierToken(inlineValueKey));
-        TomlKeyEntryNode root = new TomlKeyEntryNode(key, new TomlUnquotedKeyNode(key, inlineValueKey, this.location()));
+                NodeFactory.createIdentifierLiteralNode(NodeFactory.createIdentifierToken(tableKey));
+        TomlKeyEntryNode root = new TomlKeyEntryNode(key, new TomlUnquotedKeyNode(key, tableKey, this.location()));
         List<TomlKeyEntryNode> tomlKeyEntryNodes = Collections.singletonList(root);
-        return  new TomlKeyNode(NodeFactory.createKeyNode(NodeFactory.createSeparatedNodeList(key)),
+        return new TomlKeyNode(NodeFactory.createKeyNode(NodeFactory.createSeparatedNodeList(key)),
                 tomlKeyEntryNodes, this.location());
     }
 }
