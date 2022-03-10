@@ -191,6 +191,8 @@ public class SemTypeTest {
             case SUB:
                 Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
                                   formatFailingAssertionDescription(typeAssertion));
+                Assert.assertFalse(SemTypes.isSubtype(typeAssertion.context, typeAssertion.rhs, typeAssertion.lhs),
+                        formatFailingAssertionDescription(typeAssertion));
                 break;
             case SAME:
                 Assert.assertTrue(SemTypes.isSubtype(typeAssertion.context, typeAssertion.lhs, typeAssertion.rhs),
