@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * Holds the set of utilities to get the qualified name reference associated Completion Items.
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 public class QNameReferenceUtil {
 

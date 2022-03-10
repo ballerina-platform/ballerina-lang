@@ -35,7 +35,7 @@ import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getC
 /**
  * Handles the completions for the {@link AsyncSendActionNode}.
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 public class AsyncSendActionNodeContext {
 

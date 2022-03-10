@@ -25,20 +25,13 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.identifier.Utils;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
-import org.ballerinalang.debugadapter.completion.context.AsyncSendActionNodeContext;
+import org.ballerinalang.debugadapter.completion.CompletionGenerator;
 import org.ballerinalang.debugadapter.completion.context.CompletionContext;
-import org.ballerinalang.debugadapter.completion.context.RemoteMethodCallActionNodeContext;
-import org.ballerinalang.debugadapter.completion.resolver.FieldAccessCompletionResolver;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
@@ -123,7 +116,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
-import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getCompletions;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getInjectedExpressionNode;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getResolverNode;
 import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getTriggerCharacters;
@@ -533,30 +525,28 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 completionContext.setNodeAtCursor(injectedExpressionNode);
                 Optional<Node> resolverNode = getResolverNode(injectedExpressionNode);
 
-                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.FIELD_ACCESS) {
-                    FieldAccessCompletionResolver fieldAccessCompletionResolver =
-                            new FieldAccessCompletionResolver(completionContext);
-                    List<Symbol> visibleEntries = fieldAccessCompletionResolver
-                            .getVisibleEntries(((FieldAccessExpressionNode) resolverNode.get()).expression());
-                    CompletionItem[] completions = getCompletions(visibleEntries);
-                    completionsResponse.setTargets(completions);
+                if (resolverNode.isEmpty()) {
+                    return completionsResponse;
                 }
 
-                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
-                        && resolverNode.get() instanceof RemoteMethodCallActionNode) {
-                    RemoteMethodCallActionNodeContext remoteMethodCallActionNodeContext =
-                            new RemoteMethodCallActionNodeContext();
-                    List<CompletionItem> completions = remoteMethodCallActionNodeContext
-                            .getCompletions(completionContext, ((RemoteMethodCallActionNode) resolverNode.get()));
-                    completionsResponse.setTargets(completions.toArray(new CompletionItem[0]));
-                }
-
-                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.ASYNC_SEND_ACTION
-                        && resolverNode.get() instanceof AsyncSendActionNode) {
-                    AsyncSendActionNodeContext asyncSendActionNodeContext = new AsyncSendActionNodeContext();
-                    List<CompletionItem> completions = asyncSendActionNodeContext
-                            .getCompletions(completionContext, ((AsyncSendActionNode) resolverNode.get()));
-                    completionsResponse.setTargets(completions.toArray(new CompletionItem[0]));
+                CompletionItem[] completionItems;
+                switch (resolverNode.get().kind()) {
+                    case FIELD_ACCESS:
+                        completionItems = CompletionGenerator
+                                .getFieldAccessCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    case REMOTE_METHOD_CALL_ACTION:
+                        completionItems = CompletionGenerator
+                                .getRemoteMethodCallActionCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    case ASYNC_SEND_ACTION:
+                        completionItems = CompletionGenerator
+                                .getAsyncSendActionCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    default:
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage());

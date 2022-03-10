@@ -91,7 +91,7 @@ import java.util.function.Predicate;
 /**
  * This visitor is used to resolve a type of given context.
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 

@@ -37,9 +37,13 @@ import java.util.Optional;
 /**
  * This class is being used to build function type completion item.
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 public final class FunctionCompletionItemBuilder {
+
+    private static final String PARENTHESIS = "()";
+    private static final String OPEN_PARENTHESIS = "(";
+    private static final String CLOSE_PARENTHESIS = ")";
 
     private FunctionCompletionItemBuilder() {
     }
@@ -74,16 +78,16 @@ public final class FunctionCompletionItemBuilder {
                                                                        String functionName,
                                                                        CompletionContext context) {
         if (functionSymbol == null) {
-            return ImmutablePair.of(functionName + "()", functionName + "()");
+            return ImmutablePair.of(functionName + PARENTHESIS, functionName + PARENTHESIS);
         }
-        StringBuilder signature = new StringBuilder(functionName + "(");
-        StringBuilder insertText = new StringBuilder(functionName + "(");
+        StringBuilder signature = new StringBuilder(functionName + OPEN_PARENTHESIS);
+        StringBuilder insertText = new StringBuilder(functionName + OPEN_PARENTHESIS);
         List<String> funcArguments = getFuncArguments(functionSymbol, context);
         if (!funcArguments.isEmpty()) {
             signature.append(String.join(", ", funcArguments));
         }
-        signature.append(")");
-        insertText.append(")");
+        signature.append(CLOSE_PARENTHESIS);
+        insertText.append(CLOSE_PARENTHESIS);
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
