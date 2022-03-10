@@ -46,6 +46,11 @@ public class Context {
                 }
             }
         }
+        if (instance.env == env) {
+            return instance;
+        } else {
+            instance = new Context(env);
+        }
         return instance;
     }
 
