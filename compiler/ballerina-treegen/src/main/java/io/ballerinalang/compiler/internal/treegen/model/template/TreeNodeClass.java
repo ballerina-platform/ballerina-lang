@@ -36,6 +36,7 @@ public class TreeNodeClass {
     private final List<ImportClass> imports;
     private final List<Field> fields;
     private final String syntaxKind;
+    private final String createdYear;
 
     private final String externalClassName;
     private final String internalClassName;
@@ -48,13 +49,15 @@ public class TreeNodeClass {
                          boolean isAbstract,
                          String superClassName,
                          List<Field> fields,
-                         String syntaxKind) {
+                         String syntaxKind,
+                         String createdYear) {
         this.packageName = packageName;
         this.isAbstract = isAbstract;
         this.superClassName = superClassName;
         this.imports = new ArrayList<>();
         this.fields = fields;
         this.syntaxKind = syntaxKind;
+        this.createdYear = createdYear == null ? "2020" : createdYear;
 
         this.externalClassName = className;
         this.internalClassName = INTERNAL_NODE_CLASS_NAME_PREFIX + className;
@@ -85,6 +88,10 @@ public class TreeNodeClass {
 
     public String syntaxKind() {
         return syntaxKind;
+    }
+
+    public String createdYear() {
+        return createdYear;
     }
 
     public String externalClassName() {

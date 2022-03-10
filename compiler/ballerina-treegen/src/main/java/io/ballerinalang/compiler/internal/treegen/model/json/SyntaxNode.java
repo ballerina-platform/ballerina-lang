@@ -32,19 +32,22 @@ public class SyntaxNode {
     private String base;
     private String type;
     private boolean isAbstract;
+    private String createdYear;
 
     public SyntaxNode(String name,
                       List<SyntaxNodeAttribute> attributes,
                       String kind,
                       String base,
                       String type,
-                      boolean isAbstract) {
+                      boolean isAbstract,
+                      String createdYear) {
         this.name = name;
         this.attributes = attributes;
         this.kind = kind;
         this.base = base;
         this.type = type;
         this.isAbstract = isAbstract;
+        this.createdYear = createdYear;
     }
 
     public SyntaxNode() {
@@ -73,5 +76,9 @@ public class SyntaxNode {
 
     public boolean isAbstract() {
         return isAbstract;
+    }
+
+    public String getCreatedYear() {
+        return createdYear;
     }
 }

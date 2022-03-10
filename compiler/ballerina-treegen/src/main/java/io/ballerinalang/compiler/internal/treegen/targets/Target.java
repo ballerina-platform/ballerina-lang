@@ -64,7 +64,7 @@ public abstract class Target {
                                                    List<String> importClassNameList) {
         TreeNodeClass nodeClass = new TreeNodeClass(packageName,
                 syntaxNode.getName(), syntaxNode.isAbstract(), syntaxNode.getBase(),
-                getFields(syntaxNode), syntaxNode.getKind());
+                getFields(syntaxNode), syntaxNode.getKind(), syntaxNode.getCreatedYear());
 
         // TODO Can we pass this as part of the constructor
         nodeClass.addImports(importClassNameList);
