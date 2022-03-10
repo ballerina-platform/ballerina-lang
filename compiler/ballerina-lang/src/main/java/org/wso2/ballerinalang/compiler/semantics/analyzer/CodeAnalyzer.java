@@ -2489,22 +2489,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
-    private boolean isValidInferredArray(BLangNode node, List<BLangExpression> indexSizes) {
+    private boolean isValidInferredArray(BLangNode node) {
         switch (node.getKind()) {
             case INTERSECTION_TYPE_NODE:
             case UNION_TYPE_NODE:
-                return isValidInferredArray(node.parent, indexSizes);
+                return isValidInferredArray(node.parent);
             case VARIABLE:
                 BLangSimpleVariable varNode = (BLangSimpleVariable) node;
                 BLangExpression expr = varNode.expr;
-                return validateContext(node.parent) && expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR
-                        && validateInitializer(indexSizes, indexSizes.size() - 2, (BLangListConstructorExpr) expr);
+                return expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
+                        isValidContextForInferredArray(node.parent);
             default:
                 return false;
         }
     }
 
-    private boolean validateContext(BLangNode node) {
+    private boolean isValidContextForInferredArray(BLangNode node) {
         switch (node.getKind()) {
             case PACKAGE:
             case EXPR_FUNCTION_BODY:
@@ -2512,75 +2512,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case BLOCK:
                 return true;
             case VARIABLE_DEF:
-                return validateContext(node.parent);
+                return isValidContextForInferredArray(node.parent);
             default:
                 return false;
         }
-    }
-
-    private void getPositionsOfInferredArrays(BLangNode node, List<Location> posArray) {
-        switch (node.getKind()) {
-            case ARRAY_TYPE:
-                BLangArrayType arrayType = (BLangArrayType) node;
-                if (isInferredArray(arrayType.sizes)) {
-                    posArray.add(arrayType.pos);
-                }
-                return;
-            case INTERSECTION_TYPE_NODE:
-                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) node;
-                for (BLangType member : intersectionTypeNode.constituentTypeNodes) {
-                    getPositionsOfInferredArrays(member, posArray);
-                }
-                return;
-            case UNION_TYPE_NODE:
-                BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) node;
-                for (BLangType member : unionTypeNode.memberTypeNodes) {
-                    getPositionsOfInferredArrays(member, posArray);
-                }
-                return;
-            default:
-                return;
-        }
-    }
-
-    private boolean validateInitializer(List<BLangExpression> indexSizes, int index, BLangListConstructorExpr expr) {
-        if (index < 0) {
-            return true;
-        }
-
-        boolean isInferred = false;
-        if ((indexSizes.get(index).getKind() == LITERAL) &&
-                ((BLangLiteral) indexSizes.get(index)).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
-            isInferred = true;
-        }
-
-        for (BLangExpression member : expr.exprs) {
-            if (member.getKind() != NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                if (isInferred) {
-                    return false;
-                }
-                for (int i = index - 1; i > -1; i++) {
-                    if ((indexSizes.get(i).getKind() == LITERAL) &&
-                            ((BLangLiteral) indexSizes.get(i)).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            if (!validateInitializer(indexSizes, index - 1, (BLangListConstructorExpr) member)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isInferredArray(List<BLangExpression> indexSizes) {
-        for (BLangExpression size : indexSizes) {
-            if ((size.getKind() == LITERAL) && ((BLangLiteral) size).value.equals(Constants.INFERRED_ARRAY_INDICATOR)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isCurrentPositionInWorker(SymbolEnv env) {
@@ -3752,14 +3687,34 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        if (isInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent, arrayType.sizes)) {
+        if (doesContainInferredArraySizesInHigherDimensions(arrayType.sizes)) {
+            dlog.error(arrayType.pos, DiagnosticErrorCode.INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION);
+        } else if (isInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent)) {
             dlog.error(arrayType.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
         }
 
         analyzeTypeNode(arrayType.elemtype, env);
     }
 
+    private boolean isInferredArray(List<BLangExpression> indexSizes) {
+        return indexSizes.size() > 0 && isInferredArrayIndicator(indexSizes.get(indexSizes.size() - 1));
+    }
 
+    private boolean isInferredArrayIndicator(BLangExpression size) {
+        return size.getKind() == LITERAL && ((BLangLiteral) size).value.equals(Constants.INFERRED_ARRAY_INDICATOR);
+    }
+
+    private boolean doesContainInferredArraySizesInHigherDimensions(List<BLangExpression> sizes) {
+        if (sizes.size() < 2) {
+            return false;
+        }
+        for (int i = 0; i < sizes.size() - 1; i++) {
+            if (isInferredArrayIndicator(sizes.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
         /* ignore */

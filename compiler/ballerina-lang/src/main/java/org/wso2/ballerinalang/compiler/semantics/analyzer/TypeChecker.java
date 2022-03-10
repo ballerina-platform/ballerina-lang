@@ -2447,6 +2447,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
+        if (expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) expType)) {
+            return;
+        }
+
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
