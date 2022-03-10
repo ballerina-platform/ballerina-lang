@@ -256,7 +256,7 @@ public class SealedArrayTest {
 
     @Test
     public void testSemanticsNegativeSealedArrays() {
-        Assert.assertEquals(semanticsNegative.getErrorCount(), 23);
+        Assert.assertEquals(semanticsNegative.getErrorCount(), 22);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
@@ -277,8 +277,6 @@ public class SealedArrayTest {
         BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in closed array. expected '4', but found '5'",
                 78, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 81, 8);
-        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[*]', found 'json[3]'", 83,
-                18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'FiniteOne'",

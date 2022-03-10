@@ -18,15 +18,18 @@ function invalidSealedLiteralUsage() {
     int[*][*] a1 = [[1, 2], [3, 4]];
     int[][2][*] _ = [[[5, 6], [7, 8]], a1];
     int[*][2][*] _ = [[[5, 6], [7, 8]], a1];
-    int[][2][][*] _ = [[[[5, 5], [6, 6]], [[7, 7], [8, 9]]], [a1, a1]];
+    int[*][2][2] a2 = [[[5, 5], [6, 6]]];
+    int[*][2][2] _ = a2;
 
     int[][*]|string _ = "a1";
     int[][*][]|string _ = [[[5, 6], [7, 8]], a1];
 
-    string[*][*] & readonly a2 = [["1", "2"], ["3", "4"]];
-    string[][*] & readonly _ = a2;
+    string[*][] & readonly a3 = [["1", "2"], ["3", "4"]];
+    string[*][] & readonly _ = a3;
 
-    float[*] & readonly a3 = [3, 4];
-    float[][*] & readonly|string _ = [[1, 2], a3];
-    (float[][*]|string) & readonly _ = [[1, 2], a3];
+    float[*] & readonly a4 = [3, 4];
+    float[*][] & readonly|string _ = [[1, 2], a4];
+    (float[][*]|string) & readonly _ = [[1, 2], a4];
+    (float[2][2]) & readonly a5 = [[3, 4], [3, 4]];
+    (float[*][]) & readonly _ = a5;
 }
