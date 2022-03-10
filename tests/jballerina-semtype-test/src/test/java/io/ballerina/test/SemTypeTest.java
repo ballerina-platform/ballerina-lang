@@ -64,7 +64,7 @@ public class SemTypeTest {
         List<String> files = new ArrayList<>();
         for (File file : Objects.requireNonNull(dir.listFiles())) {
             String fileName = file.getName();
-            if (fileName.endsWith(FAILING_FILE) || fileName.endsWith(DISABLED_FILE)) {
+            if (!fileName.endsWith(".bal") || fileName.endsWith(FAILING_FILE) || fileName.endsWith(DISABLED_FILE)) {
                 continue;
             }
             files.add(file.getAbsolutePath());

@@ -36,12 +36,14 @@ public class CompilationOptions {
     Boolean withCodeGenerators;
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
+    private Boolean semtype;
 
     CompilationOptions(Boolean offlineBuild, Boolean experimental,
                        Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
                        String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators, Boolean configSchemaGen,
-                       Boolean exportOpenAPI) {
+                       Boolean exportOpenAPI,
+                       Boolean semtype) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -55,6 +57,7 @@ public class CompilationOptions {
         this.withCodeGenerators = withCodeGenerators;
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
+        this.semtype = semtype;
     }
 
     public boolean offlineBuild() {
@@ -182,6 +185,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
         }
+        if (theirOptions.semtype != null) {
+            compilationOptionsBuilder.setSemtype(theirOptions.semtype);
+        } else {
+            compilationOptionsBuilder.setSemtype(this.semtype);
+        }
         return compilationOptionsBuilder.build();
     }
 
@@ -210,6 +218,10 @@ public class CompilationOptions {
         return value;
     }
 
+    public boolean semtype() {
+        return toBooleanDefaultIfNull(this.semtype);
+    }
+
     /**
      * A builder for the {@code CompilationOptions}.
      *
@@ -229,6 +241,7 @@ public class CompilationOptions {
         private Boolean withCodeGenerators;
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
+        private Boolean semtype;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -295,10 +308,16 @@ public class CompilationOptions {
             return this;
         }
 
+        public CompilationOptionsBuilder setSemtype(Boolean value) {
+            semtype = value;
+            return this;
+        }
+
         public CompilationOptions build() {
             return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky,
-                    dumpGraph, dumpRawGraph, withCodeGenerators, configSchemaGen, exportOpenAPI);
+                    dumpGraph, dumpRawGraph, withCodeGenerators, configSchemaGen, exportOpenAPI,
+                    semtype);
         }
     }
 }

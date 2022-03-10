@@ -79,6 +79,10 @@ public class BuildOptions {
         return this.compilationOptions.getCloud();
     }
 
+    public boolean semtype() {
+        return this.compilationOptions.semtype();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
@@ -134,6 +138,7 @@ public class BuildOptions {
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setSemType(compilationOptions.semtype());
 
         return buildOptionsBuilder.build();
     }
@@ -281,6 +286,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setExportOpenAPI(Boolean value) {
             compilationOptionsBuilder.setExportOpenAPI(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setSemType(Boolean value) {
+            compilationOptionsBuilder.setSemtype(value);
             return this;
         }
 

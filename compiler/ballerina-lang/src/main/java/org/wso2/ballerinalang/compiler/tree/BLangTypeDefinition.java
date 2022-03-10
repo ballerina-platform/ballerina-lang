@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -53,6 +54,9 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     public boolean hasCyclicReference = false;
 
     public BSymbol symbol;
+
+    public SemType semType;
+    public int cycleDepth = -1;
 
     public BLangTypeDefinition() {
         this.annAttachments = new ArrayList<>();

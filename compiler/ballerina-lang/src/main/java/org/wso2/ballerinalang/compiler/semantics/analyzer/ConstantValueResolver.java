@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -63,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -90,6 +92,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
+
+    public BLangConstantValue getResult() {
+        return result;
+    }
+
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
     private Location currentPos;
@@ -104,6 +111,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
+    private boolean semtypeEnabled;
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -119,6 +127,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constantValueResolver == null) {
             constantValueResolver = new ConstantValueResolver(context);
         }
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        constantValueResolver.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return constantValueResolver;
     }
 
@@ -492,7 +503,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue visitExpr(BLangExpression node) {
-        if (!node.typeChecked) {
+
+        if (!node.typeChecked && !this.semtypeEnabled) {
             return null;
         }
         switch (node.getKind()) {
@@ -601,7 +613,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 if (value != null) {
                     return createRecordType(expr, constant, value, pos, constValue);
                 }
-                return null; 
+                return null;
             default:
                 return null;
         }

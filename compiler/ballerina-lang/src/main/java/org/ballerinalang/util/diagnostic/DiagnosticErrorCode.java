@@ -410,7 +410,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
     NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
 
-    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
+    INVALID_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTORS("BCE2650",
           "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
@@ -759,8 +759,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs"),
     INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION("BCE4023", "invalid.assignment.to.narrowed.var.in.query.action"),
     COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS("BCE4024",
-            "compound.assignment.not.allowed.with.nullable.operands")
-    ;
+            "compound.assignment.not.allowed.with.nullable.operands"),
+
+    INVALID_TYPE_CYCLE("BCE5000", "invalid.type.cycle"),
+    REFERENCE_TO_UNDEFINED_TYPE("BCE5001", "reference.to.undefined.type");
 
     private String diagnosticId;
     private String messageKey;
