@@ -1,24 +1,23 @@
 {
-  "line": 5,
-  "character": 37,
+  "line": 82,
+  "character": 16,
   "expected": [
     {
-      "title": "Update documentation",
-      "kind": "quickfix",
+      "title": "Document this",
       "command": {
-        "title": "Update documentation",
-        "command": "UPDATE_DOC",
+        "title": "Document this",
+        "command": "ADD_DOC",
         "arguments": [
           {
             "key": "node.range",
             "value": {
               "start": {
-                "line": 1,
+                "line": 82,
                 "character": 0
               },
               "end": {
-                "line": 7,
-                "character": 1
+                "line": 82,
+                "character": 30
               }
             }
           }

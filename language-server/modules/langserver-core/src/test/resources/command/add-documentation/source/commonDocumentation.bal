@@ -29,3 +29,11 @@ type testDocObject2 object {
     
     function testFunctionSignature(int param1, string param2) returns int;
 };
+
+final int testModuleVar2 = 10;
+
+@varAnnotation
+final int testModuleVar1 = 10;
+
+annotation varAnnotation;
+
