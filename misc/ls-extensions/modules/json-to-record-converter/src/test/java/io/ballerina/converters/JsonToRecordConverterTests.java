@@ -98,6 +98,11 @@ public class JsonToRecordConverterTests {
     private final Path sample7TypeDescBal = RES_DIR.resolve("ballerina")
             .resolve("sample_7_type_desc.bal");
 
+    private final Path sample8Json = RES_DIR.resolve("json")
+            .resolve("sample_8.json");
+    private final Path sample8TypeDescBal = RES_DIR.resolve("ballerina")
+            .resolve("sample_8_type_desc.bal");
+
     private final Path crlfJson = RES_DIR.resolve("json")
             .resolve("crlf.json");
     private final Path crlfBal = RES_DIR.resolve("ballerina")
@@ -225,6 +230,15 @@ public class JsonToRecordConverterTests {
         String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "",
                 true, false).getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample7TypeDescBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test null and empty array field type extraction")
+    public void testNullAndEmptyArray() throws JsonToRecordConverterException, IOException, FormatterException {
+        String jsonFileContent = Files.readString(sample8Json);
+        String generatedCodeBlock = JsonToRecordConverter.convert(jsonFileContent, "",
+                true, false).getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample8TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
