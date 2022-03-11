@@ -267,7 +267,7 @@ public class VersionConflictResolutionTests {
         assertExpectedPackage(graphBuilder, rootPkgDesc, dependencyCurrent);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testVersionConflictsMajor() throws IOException {
         DependencyGraph<DependencyNode> dependencyGraph =
                 getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"));

@@ -77,6 +77,12 @@ public class BlendedManifest {
                     depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) ?
                     Repository.LOCAL : Repository.NOT_SPECIFIED;
 
+            if (!depInPkgManifestRepo.equals(Repository.LOCAL)) {
+                // Repository is mandatory.
+                // A diagnostic is issued already in ManifestBuilder for the missing repository.
+                // So we just continue here
+                continue;
+            }
             if (!localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
                                                        depInPkgManifest.version())) {
                 var diagnosticInfo = new DiagnosticInfo(
