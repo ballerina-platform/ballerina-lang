@@ -35,7 +35,6 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
-import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -185,22 +184,19 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         if (syntaxTree.isEmpty()) {
             return false;
         }
+        Node node;
         if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-            Node varRef = ((AssignmentStatementNode) matchedNode).varRef();
-            return isCursorWithinIdentifier(varRef, context);
+            node = ((AssignmentStatementNode) matchedNode).varRef();
+        } else if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            node = ((VariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
+        } else {
+            return false;
         }
-        if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            BindingPatternNode bindingPatternNode = 
-                    ((VariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
-            return isCursorWithinIdentifier(bindingPatternNode, context);
-        }
-        return false;
+        return isCursorWithinIdentifier(node, context);
     }
 
     private boolean isCursorWithinIdentifier(Node node, CodeActionContext context) {
-        LinePosition cursorPosition = 
-                LinePosition.from(context.cursorPosition().getLine(), context.cursorPosition().getCharacter());
-        int cursorPosOffset = context.currentSyntaxTree().get().textDocument().textPositionFrom(cursorPosition);
+        int cursorPosOffset = context.cursorPositionInTree();
         return node.textRange().startOffset() <= cursorPosOffset && cursorPosOffset <= node.textRange().endOffset();
     }
 }

@@ -17,9 +17,12 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
@@ -32,6 +35,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +46,7 @@ import java.util.stream.Collectors;
 public class CodeActionContextImpl extends AbstractDocumentServiceContext implements CodeActionContext {
 
     private Position cursorPosition;
+    private int cursorPositionInTree = -1;
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
 
@@ -102,6 +107,21 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     @Override
     public List<Diagnostic> cursorDiagnostics() {
         return params.getContext().getDiagnostics();
+    }
+
+    @Override
+    public int cursorPositionInTree() {
+        if (this.cursorPositionInTree == -1) {
+            Optional<Document> document = this.currentDocument();
+            if (document.isEmpty()) {
+                throw new RuntimeException("Current document is empty");
+            }
+            TextDocument textDocument = document.get().textDocument();
+            Position position = this.cursorPosition();
+            this.cursorPositionInTree = 
+                    textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        }
+        return this.cursorPositionInTree;
     }
 
     /**
