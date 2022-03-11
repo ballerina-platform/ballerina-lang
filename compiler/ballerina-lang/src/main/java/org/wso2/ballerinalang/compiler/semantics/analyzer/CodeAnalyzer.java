@@ -3950,9 +3950,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        analyzeNode(typeTestExpr.expr, env);
-        BType exprType = typeTestExpr.expr.getBType();
-        BType typeNodeType = typeTestExpr.typeNode.getBType();
+        BLangExpression expr = typeTestExpr.expr;
+        BLangType typeNode = typeTestExpr.typeNode;
+        analyzeNode(expr, env);
+        BType exprType = expr.getBType();
+        BType typeNodeType = typeNode.getBType();
         if (typeNodeType == symTable.semanticError || exprType == symTable.semanticError) {
             return;
         }
@@ -3975,7 +3977,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!intersectionExists(typeTestExpr.expr, typeNodeType)) {
+        if (!intersectionExists(expr, typeNodeType, expr.pos, typeNode.pos)) {
             dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
@@ -3989,22 +3991,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean intersectionExists(BLangExpression expression, BType testType) {
+    private boolean intersectionExists(BLangExpression expression, BType testType, Location exprPos, Location typePos) {
         BType expressionType = expression.getBType();
 
+        Location pos = expression.pos;
         BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.typeTestIntersectionExistenceContext(),
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(exprPos, typePos),
                 expressionType, testType, env);
 
         if (intersectionType != symTable.semanticError) {
             return true;
         }
 
-        // any and readonly has a intersection
-        if (expressionType.tag == TypeTags.ANY && testType.tag == TypeTags.READONLY) {
-            return true;
-        }
-        return false;
+        // any and readonly has an intersection
+        return expressionType.tag == TypeTags.ANY && testType.tag == TypeTags.READONLY;
     }
 
     @Override

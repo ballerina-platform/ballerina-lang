@@ -20,6 +20,9 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -29,6 +32,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -4691,8 +4695,9 @@ public class Types {
                     return symTable.semanticError;
                 }
 
-                return ImmutableTypeCloner.getEffectiveImmutableType(bType.tsymbol.pos, this, bType,
-                                                                     env, symTable, anonymousModelHelper, names);
+                return ImmutableTypeCloner.getEffectiveImmutableType(
+                        combinePos(intersectionContext.lhsPos, intersectionContext.rhsPos),
+                        this, bType, env, symTable, anonymousModelHelper, names);
             }
         }
 
@@ -4824,6 +4829,19 @@ public class Types {
         return null;
     }
 
+    private Location combinePos(Location lhsPos, Location rhsPos) {
+        LineRange lhsLineRange = lhsPos.lineRange();
+        LinePosition lhsStartLine = lhsLineRange.startLine();
+        LinePosition rhsStartLine = rhsPos.lineRange().startLine();
+        TextRange lhsTextRange = lhsPos.textRange();
+
+        return new BLangDiagnosticLocation(lhsLineRange.filePath(),
+                lhsStartLine.line(), rhsStartLine.line(),
+                lhsStartLine.offset(), rhsStartLine.offset(),
+                lhsTextRange.startOffset(), lhsTextRange.length() + rhsPos.textRange().length());
+    }
+
+    // int[] & readonly
     private BType getEffectiveTypeForIntersection(BType bType) {
         BType type = getReferredType(bType);
         if (type.tag != TypeTags.INTERSECTION) {
@@ -6333,8 +6351,8 @@ public class Types {
          *
          * @return a {@link IntersectionContext}
          */
-        public static IntersectionContext typeTestIntersectionExistenceContext() {
-            IntersectionContext intersectionContext = new IntersectionContext(null, null, null);
+        public static IntersectionContext typeTestIntersectionExistenceContext(Location lhsPos, Location rhsPos) {
+            IntersectionContext intersectionContext = new IntersectionContext(null, lhsPos, rhsPos);
             intersectionContext.ignoreDefaultValues = true;
             intersectionContext.preferNonGenerativeIntersection = true;
             intersectionContext.createTypeDefs = false;
@@ -6351,6 +6369,22 @@ public class Types {
          */
         public static IntersectionContext typeTestIntersectionCalculationContext() {
             IntersectionContext intersectionContext = new IntersectionContext(null, null, null);
+            intersectionContext.ignoreDefaultValues = true;
+            intersectionContext.preferNonGenerativeIntersection = true;
+            intersectionContext.createTypeDefs = true;
+            return intersectionContext;
+        }
+
+        /**
+         * Create {@link IntersectionContext} used for creating effective types for the intersection of types,
+         * irrespective of default values.
+         * Type definitions are created.
+         * This does not emit error messages explaining why there is no intersection between two types.
+         *
+         * @return a {@link IntersectionContext}
+         */
+        public static IntersectionContext typeTestIntersectionCalculationContext(Location lhsPos, Location rhsPos) {
+            IntersectionContext intersectionContext = new IntersectionContext(null, lhsPos, rhsPos);
             intersectionContext.ignoreDefaultValues = true;
             intersectionContext.preferNonGenerativeIntersection = true;
             intersectionContext.createTypeDefs = true;
