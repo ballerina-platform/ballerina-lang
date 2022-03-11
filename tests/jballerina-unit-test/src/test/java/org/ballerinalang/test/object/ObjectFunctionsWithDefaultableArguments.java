@@ -296,6 +296,14 @@ public class ObjectFunctionsWithDefaultableArguments {
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
+    @Test(description = "Test an object constructor when value of default parameter is a local variable. " +
+            "Currently fails at BIR generation (#35359)", enabled = false)
+    public void testReferLocalVarInObjConstructor() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/object/object_functions_with_default_parameters_rt_failure.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
