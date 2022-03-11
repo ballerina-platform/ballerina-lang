@@ -523,7 +523,7 @@ public class BIRBinaryWriter {
 
     private void writeAnnotAttachment(ByteBuf annotBuf, BIRAnnotationAttachment annotAttachment) {
         // Write module information of the annotation attachment
-        annotBuf.writeInt(BIRWriterUtils.addPkgCPEntry(annotAttachment.packageID, this.cp));
+        annotBuf.writeInt(BIRWriterUtils.addPkgCPEntry(annotAttachment.annotPkgId, this.cp));
         // Write position
         writePosition(annotBuf, annotAttachment.pos);
         annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value));

@@ -2737,7 +2737,7 @@ public class BIRGen extends BLangNodeVisitor {
     // add the attachments symbols to the attachment expression and extract them here.
     private List<BIRAnnotationAttachment> getBIRAnnotAttachmentsForASTAnnotAttachments(
             List<BLangAnnotationAttachment> astAnnotAttachments) {
-        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>();
+        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>(astAnnotAttachments.size());
         for (BLangAnnotationAttachment astAnnotAttachment : astAnnotAttachments) {
             annotationAttachments.add(createBIRAnnotationAttachment(astAnnotAttachment.annotationAttachmentSymbol));
         }
@@ -2746,7 +2746,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private List<BIRAnnotationAttachment> getBIRAnnotAttachments(
             List<? extends AnnotationAttachmentSymbol> astAnnotAttachments) {
-        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>();
+        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>(astAnnotAttachments.size());
         for (AnnotationAttachmentSymbol annotationAttachmentSymbol : astAnnotAttachments) {
             annotationAttachments.add(createBIRAnnotationAttachment(
                     (BAnnotationAttachmentSymbol) annotationAttachmentSymbol));
@@ -2754,22 +2754,18 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
-    private BIRAnnotationAttachment createBIRAnnotationAttachment(
-            BAnnotationAttachmentSymbol annotationAttachmentSymbol) {
-        BIRAnnotationAttachment annotAttachment;
+    private BIRAnnotationAttachment createBIRAnnotationAttachment(BAnnotationAttachmentSymbol annotAttachmentSymbol) {
+        Location pos = annotAttachmentSymbol.pos;
+        PackageID annotPkgID = annotAttachmentSymbol.annotPkgID;
+        Name annotTag = annotAttachmentSymbol.annotTag;
 
-        if (annotationAttachmentSymbol.isConstAnnotation()) {
-            BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol constAnnotationAttachmentSymbol =
-                    (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol;
-            annotAttachment = new BIRNode.BIRConstAnnotationAttachment(
-                    annotationAttachmentSymbol.pos, annotationAttachmentSymbol.annotTag, getBIRConstantVal(
-                    constAnnotationAttachmentSymbol.attachmentValueSymbol.value));
-        } else {
-            annotAttachment = new BIRAnnotationAttachment(annotationAttachmentSymbol.pos,
-                                                          annotationAttachmentSymbol.annotTag);
+        if (!annotAttachmentSymbol.isConstAnnotation()) {
+            return new BIRAnnotationAttachment(pos, annotPkgID, annotTag);
         }
 
-        annotAttachment.packageID = annotationAttachmentSymbol.annotPkgID;
-        return annotAttachment;
+        BLangConstantValue attachmentValue =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachmentSymbol)
+                        .attachmentValueSymbol.value;
+        return new BIRNode.BIRConstAnnotationAttachment(pos, annotPkgID, annotTag, getBIRConstantVal(attachmentValue));
     }
 }

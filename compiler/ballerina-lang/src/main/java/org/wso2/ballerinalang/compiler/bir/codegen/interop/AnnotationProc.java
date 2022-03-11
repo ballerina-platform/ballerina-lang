@@ -73,8 +73,8 @@ public class AnnotationProc {
 
     private static boolean isInteropAnnotAttachment(BIRAnnotationAttachment annotAttach) {
 
-        return INTEROP_ANNOT_ORG.equals(annotAttach.packageID.orgName.value) &&
-                INTEROP_ANNOT_MODULE.equals(annotAttach.packageID.name.value) &&
+        return INTEROP_ANNOT_ORG.equals(annotAttach.annotPkgId.orgName.value) &&
+                INTEROP_ANNOT_MODULE.equals(annotAttach.annotPkgId.name.value) &&
                 isInteropAnnotationTag(annotAttach.annotTagRef.value);
     }
 
@@ -131,7 +131,7 @@ public class AnnotationProc {
         Object value = annotValue.value;
 
         BIRNode.ConstValue[] annotArrayElements = (BIRNode.ConstValue[]) value;
-        List<JType> constraints = new ArrayList<>();
+        List<JType> constraints = new ArrayList<>(annotArrayElements.length);
         for (BIRNode.ConstValue annotArrayElement : annotArrayElements) {
             JType jType;
             Object elementValue = annotArrayElement.value;

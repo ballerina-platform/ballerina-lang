@@ -614,7 +614,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
-        if (isListOrMapping(type.tag) && resolvedType.getKind() == TypeKind.INTERSECTION) {
+        if (resolvedType.getKind() == TypeKind.INTERSECTION && isListOrMapping(type.tag)) {
             expr.setBType(((BIntersectionType) resolvedType).effectiveType);
             symbol.type = resolvedType;
             symbol.literalType = resolvedType;
@@ -678,10 +678,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 return null;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
-                if (value == null) {
-                    return null;
+                if (value != null) {
+                    return createTupleType(expr, constantSymbol, pos, value, env);
                 }
-                return createTupleType(expr, constantSymbol, pos, value, env);
+                return null;
             default:
                 return null;
         }
@@ -894,8 +894,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         List<BLangConstantValue> constValueList = (List<BLangConstantValue>) constValue;
 
-        List<BType> tupleTypes = new ArrayList<>(constValueList.size());
-
         for (BLangConstantValue memberValue : constValueList) {
             if (memberValue == null) {
                 return null;
@@ -903,6 +901,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         List<BLangExpression> memberExprs = ((BLangListConstructorExpr) expr).exprs;
+        List<BType> tupleTypes = new ArrayList<>(constValueList.size());
 
         for (int i = 0; i < memberExprs.size(); i++) {
             BLangExpression memberExpr = memberExprs.get(i);

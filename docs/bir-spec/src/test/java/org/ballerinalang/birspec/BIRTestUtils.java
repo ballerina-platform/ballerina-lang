@@ -785,7 +785,7 @@ class BIRTestUtils {
             BIRNode.BIRAnnotationAttachment expAnnot = expAnnots.get(i);
 
             Bir.ConstantPoolEntry pkgId = constantPoolEntries.get(actualAnnot.packageIdCpIndex());
-            assertConstantPoolEntry(pkgId, expAnnot.packageID);
+            assertConstantPoolEntry(pkgId, expAnnot.annotPkgId);
 
             assertPosition(actualAnnot.position(), expAnnot.pos);
 

@@ -910,7 +910,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineAnnotAttachmentSymbols(DataInputStream dataInStream, Annotatable owner) throws IOException {
-        long skip = dataInStream.readLong();
+        dataInStream.readLong(); // Read and skip annotation symbol info length.
         int annotSymbolCount = dataInStream.readInt();
 
         if (annotSymbolCount == 0) {

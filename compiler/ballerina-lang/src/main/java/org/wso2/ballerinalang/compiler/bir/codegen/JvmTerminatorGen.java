@@ -949,7 +949,7 @@ public class JvmTerminatorGen {
             for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
                 if (annotationAttachment == null ||
                         !STRAND.equals(annotationAttachment.annotTagRef.value) ||
-                        !JvmCodeGenUtil.isBuiltInPackage(annotationAttachment.packageID)) {
+                        !JvmCodeGenUtil.isBuiltInPackage(annotationAttachment.annotPkgId)) {
                     continue;
                 }
 

@@ -713,11 +713,12 @@ public abstract class BIRNode {
      */
     public static class BIRAnnotationAttachment extends BIRNode {
 
-        public PackageID packageID;
+        public PackageID annotPkgId;
         public Name annotTagRef;
 
-        public BIRAnnotationAttachment(Location pos, Name annotTagRef) {
+        public BIRAnnotationAttachment(Location pos, PackageID annotPkgId, Name annotTagRef) {
             super(pos);
+            this.annotPkgId = annotPkgId;
             this.annotTagRef = annotTagRef;
         }
 
@@ -736,8 +737,9 @@ public abstract class BIRNode {
 
         public ConstValue annotValue;
 
-        public BIRConstAnnotationAttachment(Location pos, Name annotTagRef, ConstValue annotValue) {
-            super(pos, annotTagRef);
+        public BIRConstAnnotationAttachment(Location pos, PackageID annotPkgId, Name annotTagRef,
+                                            ConstValue annotValue) {
+            super(pos, annotPkgId, annotTagRef);
             this.annotValue = annotValue;
         }
 

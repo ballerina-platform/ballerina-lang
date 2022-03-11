@@ -938,7 +938,7 @@ class JvmObservabilityGen {
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
             if (OBSERVABLE_ANNOTATION.equals(
                     JvmCodeGenUtil.getPackageName(
-                            new PackageID(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)) +
+                            new PackageID(annot.annotPkgId.orgName, annot.annotPkgId.name, Names.EMPTY)) +
                             annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;
