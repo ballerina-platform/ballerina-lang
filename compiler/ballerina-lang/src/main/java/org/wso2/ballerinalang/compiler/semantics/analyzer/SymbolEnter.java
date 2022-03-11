@@ -4412,7 +4412,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
+        SymbolEnv typeDefEnv =
+                            SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.getBType().tsymbol.scope, env);
         defineInvokableTypeNode(functionTypeNode, Flags.asMask(functionTypeNode.flagSet), typeDefEnv);
     }
 
@@ -4476,7 +4477,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineInvokableTypeNode(BLangFunctionTypeNode functionTypeNode, long flags, SymbolEnv env) {
-        BInvokableTypeSymbol invokableTypeSymbol = functionTypeNode.symbol;
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) functionTypeNode.getBType().tsymbol;
         List<BVarSymbol> paramSymbols = defineParameters(functionTypeNode.params, env);
         invokableTypeSymbol.params = paramSymbols;
 

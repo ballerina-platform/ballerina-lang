@@ -3126,7 +3126,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
         functionTypeNode.pos = getPosition(functionTypeDescriptorNode);
         functionTypeNode.returnsKeywordExists = true;
-        functionTypeNode.isInTypeDefinitionContext = isInTypeDefinitionContext(functionTypeDescriptorNode.parent());
+        functionTypeNode.inTypeDefinitionContext = isInTypeDefinitionContext(functionTypeDescriptorNode.parent());
 
         if (functionTypeDescriptorNode.functionSignature().isPresent()) {
             FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature().get();

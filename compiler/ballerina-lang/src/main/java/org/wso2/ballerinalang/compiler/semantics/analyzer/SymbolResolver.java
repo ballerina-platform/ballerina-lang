@@ -1637,7 +1637,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 if (func != null) {
                     bSymbol = func.symbol;
                 } else {
-                    bSymbol = funcTypeNode.symbol;
+                    bSymbol = funcTypeNode.getBType().tsymbol;
                 }
 
                 if (paramValType != null) {
@@ -1716,7 +1716,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     @Override
     public BType transform(BLangFunctionTypeNode functionTypeNode, AnalyzerData data) {
         SymbolEnv env = data.env;
-        if (functionTypeNode.symbol == null) {
+        if (functionTypeNode.getBType() == null) {
             BInvokableTypeSymbol invokableTypeSymbol;
             BInvokableType invokableType;
             if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
@@ -1730,7 +1730,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 invokableTypeSymbol.restParam = null;
                 invokableTypeSymbol.returnType = null;
                 invokableType.tsymbol = invokableTypeSymbol;
-                functionTypeNode.symbol = invokableTypeSymbol;
                 functionTypeNode.setBType(invokableType);
             } else {
                 invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -1739,11 +1738,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         env.scope.owner, functionTypeNode.pos, VIRTUAL);
                 invokableType = new BInvokableType(invokableTypeSymbol);
                 invokableTypeSymbol.type = invokableType;
-                functionTypeNode.symbol = invokableTypeSymbol;
                 invokableTypeSymbol.name =
                         Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
                 symbolEnter.defineSymbol(functionTypeNode.pos, invokableTypeSymbol, env);
-                if (env.node.getKind() != NodeKind.PACKAGE || !functionTypeNode.isInTypeDefinitionContext) {
+                functionTypeNode.setBType(invokableType);
+                if (env.node.getKind() != NodeKind.PACKAGE || !functionTypeNode.inTypeDefinitionContext) {
                     symbolEnter.defineNode(functionTypeNode, env);
                 }
                 invokableType = (BInvokableType) invokableTypeSymbol.type;
@@ -1754,7 +1753,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return validateInferTypedescParams(pos, params,
                     returnTypeNode == null ? null : returnTypeNode.getBType()) ? invokableType : symTable.semanticError;
         } else {
-            return functionTypeNode.symbol.type;
+            return functionTypeNode.getBType();
         }
     }
 

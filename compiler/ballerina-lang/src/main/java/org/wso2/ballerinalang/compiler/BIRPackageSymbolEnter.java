@@ -1032,21 +1032,22 @@ public class BIRPackageSymbolEnter {
 
             int params = inputStream.readInt();
             for (int i = 0; i < params; i++) {
-                String fieldName = getStringCPEntryValue(inputStream);
-                var fieldFlags = inputStream.readLong();
+                String paramName = getStringCPEntryValue(inputStream);
+                var paramFlags = inputStream.readLong();
                 byte[] docBytes = readDocBytes(inputStream);
                 BType fieldType = readTypeFromCp();
 
-                BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName), tSymbol.pkgID,
+                BVarSymbol varSymbol = new BVarSymbol(paramFlags, names.fromString(paramName), tSymbol.pkgID,
                                                       fieldType, tSymbol, symTable.builtinPos,
                                                       COMPILED_SOURCE);
 
-                varSymbol.isDefaultable = ((fieldFlags & Flags.OPTIONAL) == Flags.OPTIONAL);
+                varSymbol.isDefaultable = ((paramFlags & Flags.OPTIONAL) == Flags.OPTIONAL);
                 defineMarkDownDocAttachment(varSymbol, docBytes);
                 tSymbol.params.add(varSymbol);
             }
 
-            if (inputStream.readBoolean()) { // if rest param exists
+            boolean hasRestParam = inputStream.readBoolean();
+            if (hasRestParam) {
                 String fieldName = getStringCPEntryValue(inputStream);
                 var fieldFlags = inputStream.readLong();
                 byte[] docBytes = readDocBytes(inputStream);

@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -48,8 +47,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
 
     // Parser Flags and Data
     public Set<Flag> flagSet = new HashSet<>();
-    public BInvokableTypeSymbol symbol;
-    public boolean isInTypeDefinitionContext;
+    public boolean inTypeDefinitionContext;
     public boolean analyzed;
 
     public boolean returnsKeywordExists = false;
