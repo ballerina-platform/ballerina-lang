@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -2555,7 +2556,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(annAttachmentNode.expr);
         BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annAttachmentNode.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            logDeprecatedWaring(annAttachmentNode.annotationName.toString(), annotationSymbol, annAttachmentNode.pos);
         }
     }
 
@@ -3133,8 +3134,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     trackNamedWorkerReferences(varRefExpr);
                 }
         }
-        if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(varRefExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
+
+        BSymbol symbol = varRefExpr.symbol;
+        if (symbol != null && Symbols.isFlagOn(symbol.flags, Flags.DEPRECATED)) {
+            logDeprecatedWaring(varRefExpr.variableName.toString(), symbol, varRefExpr.pos);
         }
     }
 
@@ -3169,11 +3172,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeFieldBasedAccessExpr(BLangFieldBasedAccess fieldAccessExpr) {
-        analyzeExpr(fieldAccessExpr.expr);
+        BLangExpression expr = fieldAccessExpr.expr;
+        analyzeExpr(expr);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, 
-                    fieldAccessExpr.field);
+            String deprecatedConstruct = generateDeprecatedConstructString(expr, fieldAccessExpr.field.toString(), 
+                    symbol);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
         }
     }
 
@@ -3200,8 +3205,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-                dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
-                             invocationExpr.name);
+                logDeprecatedWarningForInvocation(invocationExpr);
             }
         }
     }
@@ -3235,8 +3239,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (actionInvocation.symbol != null && actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, 
-                    actionInvocation.name);
+            logDeprecatedWarningForInvocation(actionInvocation);
         }
 
         if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !withinTransactionScope) {
@@ -3266,6 +3269,45 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void logDeprecatedWarningForInvocation(BLangInvocation invocationExpr) {
+        String deprecatedConstruct = invocationExpr.name.toString();
+        BLangExpression expr = invocationExpr.expr;
+        BSymbol funcSymbol = invocationExpr.symbol;
+        
+        if (expr != null) {
+            // Method call
+            deprecatedConstruct = generateDeprecatedConstructString(expr, deprecatedConstruct, funcSymbol);
+        } else if (!Names.DOT.equals(funcSymbol.pkgID.name)) {
+            deprecatedConstruct = funcSymbol.pkgID + ":" + deprecatedConstruct;
+        }
+
+        dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+    }
+
+    private String generateDeprecatedConstructString(BLangExpression expr, String fieldOrMethodName, 
+                                                     BSymbol symbol) {
+        BType bType = expr.getBType();
+        if (bType.tag == TypeTags.TYPEREFDESC) {
+            return bType + "." + fieldOrMethodName;
+        }
+
+        if (bType.tag == TypeTags.OBJECT) {
+            BObjectType objectType = (BObjectType) bType;
+            // for anonymous objects, only the field name will be in the error msg
+            if (objectType.classDef == null || objectType.classDef.internal == false) {
+                fieldOrMethodName = bType + "." + fieldOrMethodName;
+            }
+            return fieldOrMethodName;
+        }
+        
+        if (symbol.kind == SymbolKind.FUNCTION && !Names.DOT.equals(symbol.pkgID.name)) {
+            // for deprecated lang lib methods
+            fieldOrMethodName = symbol.pkgID + ":" + fieldOrMethodName;
+        }
+
+        return fieldOrMethodName;
+    }
+    
     private void validateActionInvocation(Location pos, BLangInvocation iExpr) {
         if (iExpr.expr != null) {
             final NodeKind clientNodeKind = iExpr.expr.getKind();
@@ -3321,7 +3363,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(cIExpr.initInvocation);
         BType type = cIExpr.getBType();
         if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(cIExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
+            logDeprecatedWaring(((BLangUserDefinedType) cIExpr.userDefinedType).typeName.toString(), type.tsymbol,
+                    cIExpr.pos);
         }
     }
 
@@ -3704,7 +3747,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangUserDefinedType userDefinedType) {
         BTypeSymbol typeSymbol = userDefinedType.getBType().tsymbol;
         if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(userDefinedType.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
+            logDeprecatedWaring(userDefinedType.typeName.toString(), typeSymbol, userDefinedType.pos);
         }
     }
 
@@ -3987,8 +4030,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(annotAccessExpr.expr);
         BAnnotationSymbol annotationSymbol = annotAccessExpr.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annotAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            logDeprecatedWaring(annotAccessExpr.annotationName.toString(), annotationSymbol, annotAccessExpr.pos);
         }
+    }
+    
+    private void logDeprecatedWaring(String deprecatedConstruct, BSymbol symbol, Location pos) {
+        if (!Names.DOT.equals(symbol.pkgID.name)) {
+            deprecatedConstruct = symbol.pkgID + ":" + deprecatedConstruct;
+        }
+
+        dlog.warning(pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
     }
 
     private boolean intersectionExists(BLangExpression expression, BType testType) {
