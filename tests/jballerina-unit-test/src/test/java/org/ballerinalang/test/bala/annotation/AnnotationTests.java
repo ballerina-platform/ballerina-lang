@@ -60,7 +60,7 @@ public class AnnotationTests {
     @Test(description = "Test the deprecated construct from external module")
     public void testDeprecation() {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/annotations/deprecation_annotation.bal");
-        Assert.assertEquals(result.getWarnCount(), 13);
+        Assert.assertEquals(result.getWarnCount(), 14);
 
         int i = 0;
         BAssertUtil.validateWarning(result, i++, 
@@ -87,8 +87,9 @@ public class AnnotationTests {
                 "usage of construct 'testorg/foo:1.0.0:deprecatedAnnotation' is deprecated", 24, 9);
         BAssertUtil.validateWarning(result, i++, 
                 "usage of construct 'testorg/foo:1.0.0:MyClientObject' is deprecated", 28, 5);
-        BAssertUtil.validateWarning(result, i, 
+        BAssertUtil.validateWarning(result, i++, 
                 "usage of construct 'testorg/foo:1.0.0:MyClientObject.remoteFunction' is deprecated", 34, 5);
+        BAssertUtil.validateWarning(result, i, "usage of construct 'a' is deprecated", 38, 9);
     }
 
     @Test

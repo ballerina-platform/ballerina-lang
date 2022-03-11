@@ -53,11 +53,13 @@ public function deprecated_func() returns string {
 }
 
 # Define an annotation
+# # Deprecated
 # This annotation is deprecated
 @deprecated
 public annotation deprecatedAnnotation on function;
 
 # Define an client object
+# # Deprecated
 # This client object is deprecated
 @deprecated
 public type MyClientObject client object {

@@ -33,3 +33,7 @@ function testCallingDeprecatedRemoteMethod() {
 
     clientObj->remoteFunction();
 }
+
+function testUsageOfDeprecatedParam(@deprecated foo:C2 a) {
+    _ = a;
+}
