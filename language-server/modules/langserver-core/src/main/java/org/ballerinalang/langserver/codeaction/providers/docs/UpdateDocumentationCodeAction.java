@@ -107,12 +107,10 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
                                                          CommonUtil.toRange(node.lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
-        CodeAction action = new CodeAction(CommandConstants.UPDATE_DOCUMENTATION_TITLE);
-        action.setKind(CodeActionKind.QuickFix);
+        String commandTitle = CommandConstants.UPDATE_DOCUMENTATION_TITLE;
+        Command command = new Command(commandTitle, UpdateDocumentationExecutor.COMMAND, args);
+        CodeAction action = createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
         action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList(diagnostic)));
-        Command command = new Command(CommandConstants.UPDATE_DOCUMENTATION_TITLE, UpdateDocumentationExecutor.COMMAND,
-                                      args);
-        action.setCommand(command);
         return Collections.singletonList(action);
     }
 
