@@ -19,6 +19,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyResolutionType;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
@@ -60,6 +61,7 @@ public class ResolutionEngine {
 
     private final PrintStream console = System.out;
     private final List<Diagnostic> diagnostics;
+    private DiagnosticResult diagnosticResult;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
                             BlendedManifest blendedManifest,
@@ -76,8 +78,11 @@ public class ResolutionEngine {
         this.diagnostics = new ArrayList<>();
     }
 
-    public List<Diagnostic> diagnostics() {
-        return diagnostics;
+    public DiagnosticResult diagnosticResult() {
+        if (diagnosticResult == null) {
+            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+        }
+        return diagnosticResult;
     }
 
     public DependencyGraph<DependencyNode> resolveDependencies(Collection<ModuleLoadRequest> moduleLoadRequests) {
@@ -269,7 +274,7 @@ public class ResolutionEngine {
         // Create ResolutionRequests for all unresolved nodes by looking at the blended nodes
         List<ResolutionRequest> unresolvedRequests = new ArrayList<>();
         for (DependencyNode unresolvedNode : unresolvedNodes) {
-            if (unresolvedNode.errorNode) {
+            if (unresolvedNode.isError) {
                 errorNodes.add(unresolvedNode);
                 continue;
             }
@@ -488,7 +493,7 @@ public class ResolutionEngine {
         private final PackageDescriptor pkgDesc;
         private final PackageDependencyScope scope;
         private final DependencyResolutionType resolutionType;
-        private final boolean errorNode;
+        private final boolean isError;
 
         public DependencyNode(PackageDescriptor pkgDesc,
                               PackageDependencyScope scope,
@@ -496,7 +501,7 @@ public class ResolutionEngine {
             this.pkgDesc = Objects.requireNonNull(pkgDesc);
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
-            this.errorNode = false;
+            this.isError = false;
         }
 
         public DependencyNode(PackageDescriptor pkgDesc,
@@ -506,7 +511,7 @@ public class ResolutionEngine {
             this.pkgDesc = Objects.requireNonNull(pkgDesc);
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
-            this.errorNode = errorNode;
+            this.isError = errorNode;
         }
 
         public DependencyNode(PackageDescriptor pkgDesc) {
@@ -526,7 +531,7 @@ public class ResolutionEngine {
         }
 
         public boolean errorNode() {
-            return errorNode;
+            return isError;
         }
 
         @Override
@@ -546,7 +551,7 @@ public class ResolutionEngine {
                     Objects.equals(pkgDesc.repository(), that.pkgDesc.repository()) &&
                     scope == that.scope &&
                     resolutionType == that.resolutionType &&
-                    errorNode == that.errorNode;
+                    isError == that.isError;
         }
 
         @Override
@@ -557,7 +562,7 @@ public class ResolutionEngine {
         @Override
         public String toString() {
             String attr = " [scope=" + scope + ",kind=" + resolutionType +
-                    ",repo=" + pkgDesc.repository().orElse(null) + ",error=" + errorNode + "]";
+                    ",repo=" + pkgDesc.repository().orElse(null) + ",error=" + isError + "]";
             return pkgDesc.toString() + attr;
         }
     }

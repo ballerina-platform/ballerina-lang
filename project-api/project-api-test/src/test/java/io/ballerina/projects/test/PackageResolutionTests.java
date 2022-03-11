@@ -750,10 +750,17 @@ public class PackageResolutionTests extends BaseTest {
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.errorCount(), 4, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.warningCount(), 1, "Unexpected compilation diagnostics");
 
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        Assert.assertTrue(diagnosticIterator.next().toString().contains(
+                "WARNING [Ballerina.toml:(11:1,15:19)] Dependency version (1.2.3) cannot be found in the " +
+                        "local repository. org: `ccc` name: ddd"));
+        // Check dependency repository is not given diagnostic
+        Assert.assertTrue(diagnosticIterator.next().toString().contains(
+                "ERROR [Ballerina.toml:(6:1,9:18)] 'repository' under [[dependency]] is missing"));
         // Check dependency cannot be resolved diagnostic
         Assert.assertEquals(
                 diagnosticIterator.next().toString(),
