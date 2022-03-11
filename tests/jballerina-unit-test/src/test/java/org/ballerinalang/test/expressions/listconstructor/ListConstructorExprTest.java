@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.expressions.listconstructor;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,9 +43,8 @@ public class ListConstructorExprTest {
 
     @Test
     public void testListConstructorExpr() {
-        BValue[] returns = BRunUtil.invoke(result, "testListConstructorExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testListConstructorExpr");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test

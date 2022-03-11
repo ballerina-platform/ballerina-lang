@@ -17,8 +17,6 @@
 
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,26 +43,26 @@ public class TableCastTest {
 
     @Test
     public void testKeyConstraintCastToString1() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString1");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString1");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString2() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString2");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString2");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString3() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString3");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString3");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString4() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString4");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString4");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test

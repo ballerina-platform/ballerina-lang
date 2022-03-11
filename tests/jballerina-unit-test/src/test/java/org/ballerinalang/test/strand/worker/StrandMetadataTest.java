@@ -17,7 +17,6 @@
 
 package org.ballerinalang.test.strand.worker;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -41,7 +40,7 @@ public class StrandMetadataTest {
 
     @Test
     public void testStrandMetadataAsyncCalls() {
-        BRunUtil.invoke(compileResult, "testStrandMetadataAsyncCalls", new BValue[0]);
+        BRunUtil.invoke(compileResult, "testStrandMetadataAsyncCalls");
     }
 
     @AfterClass

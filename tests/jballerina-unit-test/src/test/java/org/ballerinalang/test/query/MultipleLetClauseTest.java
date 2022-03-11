@@ -18,8 +18,9 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,63 +45,56 @@ public class MultipleLetClauseTest {
 
     @Test(description = "Test multiple let clauses in single line - simple variable definition statement ")
     public void testLetClauseWithSimpleVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable1");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable1");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alexander");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "WSO2");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alexander");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "WSO2");
     }
 
     @Test(description = "Test multiple let clauses in multiple lines - simple variable definition statement ")
     public void testMultipleLetClausesWithSimpleVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleLetClausesWithSimpleVariable2");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alexander");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "WSO2");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alexander");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "WSO2");
     }
 
     @Test(description = "Test multiple let clauses - record variable definition statement")
     public void testMultipleLetClausesWithRecordVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleLetClausesWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleLetClausesWithRecordVariable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
-
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "WSO2");
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        Assert.assertEquals(person1.size(), 3, "Expected events are not received");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "WSO2");
     }
-
 
     @Test(description = "Reuse variables in let clause")
     public void testMultipleVarDeclReuseLetClause() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleVarDeclReuseLetClause");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleVarDeclReuseLetClause");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+        Assert.assertEquals(returnValues.size(), 2, "Expected events are not received");
 
-        BMap<String, BValue> teacher1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> teacher2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, Object> teacher1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> teacher2 = (BMap<String, Object>) returnValues.get(1);
 
-        Assert.assertEquals(teacher1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(teacher1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(teacher1.get("age").stringValue(), "30");
+        Assert.assertEquals(teacher1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(teacher1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(teacher1.get(StringUtils.fromString("age")).toString(), "30");
 
-        Assert.assertEquals(teacher2.get("firstName").stringValue(), "Ranjan");
-        Assert.assertEquals(teacher2.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(teacher2.get("age").stringValue(), "30");
+        Assert.assertEquals(teacher2.get(StringUtils.fromString("firstName")).toString(), "Ranjan");
+        Assert.assertEquals(teacher2.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(teacher2.get(StringUtils.fromString("age")).toString(), "30");
     }
 
     @Test
