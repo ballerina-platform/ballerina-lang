@@ -310,6 +310,13 @@ function testFromStringFunctionWithInvalidValues() {
         assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
         assertEquality("'string' value '+0x12a' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
     }
+
+    a1 = decimal:fromString("");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
+        assertEquality("'string' value '' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
+    }
 }
 
 function assertEquality(any|error expected, any|error actual) {
