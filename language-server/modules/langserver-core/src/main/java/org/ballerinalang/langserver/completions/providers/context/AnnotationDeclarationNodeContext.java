@@ -96,7 +96,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         int cursor = context.getCursorPositionInTree();
         
         return !annotationKeyword.isMissing() && cursor >= annotationKeyword.textRange().endOffset()
-                && (semicolonToken.isMissing()) || cursor < semicolonToken.textRange().endOffset();
+                && (semicolonToken.isMissing() || cursor < semicolonToken.textRange().endOffset());
     }
 
     private boolean onTypeDescriptorContext(BallerinaCompletionContext context, AnnotationDeclarationNode node) {
