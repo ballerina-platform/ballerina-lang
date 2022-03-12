@@ -290,6 +290,19 @@ function xmlTypeParamPIIter() {
     assert(nextPI2.toString(), "{\"value\":`<?target data?>`}");
 }
 
+function testSequenceOfSequenceOfXmlElementIteration() {
+    xml<xml<xml:Element>> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+
+    xml:Element[] arr = [];
+    foreach var element in elements {
+        arr.push(element);
+    }
+
+    assert(arr.length(), 3);
+    assert(arr[0], xml `<foo/>`);
+    assert(arr[1], xml `<bar>value</bar>`);
+    assert(arr[2], xml `<baz>1</baz>`);
+}
 
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
