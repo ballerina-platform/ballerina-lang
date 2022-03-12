@@ -8251,6 +8251,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
                 if (isConstExpr(indexExpr)) {
                     String fieldName = Utils.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
