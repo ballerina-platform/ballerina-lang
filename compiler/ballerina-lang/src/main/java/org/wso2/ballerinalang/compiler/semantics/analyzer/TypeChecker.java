@@ -1674,8 +1674,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
                                                                       env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
-                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayType :
-                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayType, env,
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAllType :
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, env,
                                                                       symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
@@ -2124,8 +2124,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAnydataType,
                                                                       env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
-                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapType :
-                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapType, env,
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAllType :
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAllType, env,
                                                                       symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
