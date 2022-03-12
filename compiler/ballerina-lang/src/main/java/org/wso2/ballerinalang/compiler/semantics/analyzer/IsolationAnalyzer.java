@@ -1820,9 +1820,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv typeEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
 
+        boolean prevInLockStatement = this.inLockStatement;
+        this.inLockStatement = false;
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             analyzeNode(field, typeEnv);
         }
+        this.inLockStatement = prevInLockStatement;
 
         for (BLangSimpleVariable referencedField : recordTypeNode.includedFields) {
             analyzeNode(referencedField, typeEnv);
