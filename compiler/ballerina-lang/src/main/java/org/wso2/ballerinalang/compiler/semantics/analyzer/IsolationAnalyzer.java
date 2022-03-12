@@ -1291,7 +1291,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isolatedModuleVariableReference) {
-            if (!inLockStatement) {
+            if (inLockStatement) {
+                return;
+            }
+
+            if (recordFieldDefaultValue) {
+                dlog.error(varRefExpr.pos,
+                           DiagnosticErrorCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK_IN_RECORD_DEFAULT);
+            } else {
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
             }
             return;
