@@ -45,6 +45,7 @@ public class ErrorTest {
     private CompileResult errorTestResult;
     private CompileResult distinctErrorTestResult;
     private CompileResult negativeDistinctErrorRes;
+    private CompileResult cloneableResult;
 
     private static final String CONST_ERROR_REASON = "reason one";
 
@@ -53,6 +54,7 @@ public class ErrorTest {
         errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
         distinctErrorTestResult = BCompileUtil.compile("test-src/error/distinct_error_test.bal");
         negativeDistinctErrorRes = BCompileUtil.compile("test-src/error/distinct_error_test_negative.bal");
+        cloneableResult = BCompileUtil.compile("test-src/error/value_and_error_cloneable_test.bal");
     }
 
     @Test
@@ -442,10 +444,25 @@ public class ErrorTest {
                 "\t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:507)");
     }
 
+    @DataProvider(name = "cloneableTests")
+    public Object[][] cloneableTests() {
+        return new Object[][]{
+                {"testSimpleErrorDetailsMatchToCloneable"},
+                {"testSimpleAssignabilityRules"},
+                {"testSimpleIsChecks"},
+        };
+    }
+
+    @Test(dataProvider = "cloneableTests")
+    public void testCloneableTests(String testFunction) {
+        BRunUtil.invoke(cloneableResult, testFunction);
+    }
+
     @AfterClass
     public void cleanup() {
         errorTestResult = null;
         distinctErrorTestResult = null;
         negativeDistinctErrorRes = null;
+        cloneableResult = null;
     }
 }
