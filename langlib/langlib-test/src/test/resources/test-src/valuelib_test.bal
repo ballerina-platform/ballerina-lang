@@ -1450,7 +1450,8 @@ function testCloneWithTypeWithFiniteType() {
     error err = <error> q;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(<string> checkpanic err.detail()["message"],
-            "'decimal' value cannot be converted to 'IntTwoOrFloatTwo': ambiguous target type");
+            "'decimal' value cannot be converted to 'IntTwoOrFloatTwo': " +
+            "\n\t\tvalue '2' cannot be converted to 'IntTwoOrFloatTwo': ambiguous target type");
 }
 
 function testCloneWithTypeWithUnionOfFiniteType() {
