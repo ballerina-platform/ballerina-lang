@@ -226,5 +226,9 @@ public function testTupleParamWithExistingArg3() {
     testFunc3("1", 2, 3);
 }
 
+public function testTupleParamWithExistingArg4() {
+    testFunc2(1, 2, 3 + "4");
+}
+
 function testFunc3(string i, int... i) {
 }

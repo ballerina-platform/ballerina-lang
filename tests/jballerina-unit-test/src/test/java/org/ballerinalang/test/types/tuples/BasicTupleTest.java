@@ -186,7 +186,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 43);
+        Assert.assertEquals(resultNegative.getErrorCount(), 44);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 32);
@@ -317,7 +317,8 @@ public class BasicTupleTest {
         int i = 40;
         BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 215, 34);
         BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 222, 41);
-        BAssertUtil.validateError(resultNegative, i, "redeclared symbol 'i'", 229, 37);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'int' and 'string'", 230, 21);
+        BAssertUtil.validateError(resultNegative, i, "redeclared symbol 'i'", 233, 37);
     }
 
     @Test

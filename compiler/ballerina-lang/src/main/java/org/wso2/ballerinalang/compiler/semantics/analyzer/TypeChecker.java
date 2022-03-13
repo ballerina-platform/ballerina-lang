@@ -6717,6 +6717,11 @@ public class TypeChecker extends BLangNodeVisitor {
                         restType = this.resultType;
                     }
                 }
+            } else {
+                for (BLangExpression restArg : iExpr.restArgs) {
+                    checkExpr(restArg, this.env, symTable.semanticError);
+                }
+                this.resultType = symTable.semanticError;
             }
         }
 
