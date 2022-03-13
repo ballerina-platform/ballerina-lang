@@ -1136,6 +1136,48 @@ function assertIndexTooLargeError(error? res, string index) {
     assertEquality(string `index number too large: ${index}`, err.detail()["message"]);
 }
 
+function testValidRecordMemberAccessWithStringCharKeyExpr() {
+    record {|
+        int a = 1;
+        int b;
+        int cd;
+    |} r = {b: 2, cd: 3};
+
+    string:Char a = "a";
+    string:Char b = "b";
+
+    int? v = r[a];
+    assertEquality(1, v);
+
+    v = r[b];
+    assertEquality(2, v);
+
+    record {
+        int a = 10;
+        int b;
+        int cd;
+    } s = {b: 20, cd: 30};
+
+    anydata w = s[a];
+    assertEquality(10, w);
+
+    w = s[b];
+    assertEquality(20, w);
+}
+
+function testUnspecifiedFieldRecordMemberAccessWithStringCharKeyExpr() {
+    record {|
+        int a = 1;
+        int b;
+        int cd;
+    |} r = {b: 2, cd: 3};
+
+    string:Char c = "c";
+
+    int? v = r[c];
+    assertTrue(v is ());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

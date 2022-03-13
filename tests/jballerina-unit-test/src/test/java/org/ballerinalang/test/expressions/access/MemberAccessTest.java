@@ -241,6 +241,19 @@ public class MemberAccessTest {
         };
     }
 
+    @Test(dataProvider = "recordMemberAccessTestFunctions")
+    public void testRecordMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public Object[][] recordMemberAccessTestFunctions() {
+        return new Object[][] {
+                { "testValidRecordMemberAccessWithStringCharKeyExpr" },
+                { "testUnspecifiedFieldRecordMemberAccessWithStringCharKeyExpr" }
+        };
+    }
+
     @Test(dataProvider = "mapMemberAccessFunctions")
     public void testMapMemberAccess(String function) {
         Object returns = BRunUtil.invoke(result, function);

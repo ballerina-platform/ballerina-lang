@@ -228,6 +228,11 @@ public class LValueTest {
         BRunUtil.invoke(result, "testTupleMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr");
     }
 
+    @Test
+    public void testRecordMemberAccessLvExprWithStringCharKeyExpr() {
+        BRunUtil.invoke(result, "testRecordMemberAccessLvExprWithStringCharKeyExpr");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

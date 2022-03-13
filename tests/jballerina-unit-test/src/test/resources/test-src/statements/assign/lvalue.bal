@@ -472,6 +472,30 @@ function testTupleMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr() {
     //                <string> checkpanic err.detail()["message"]);
 }
 
+function testRecordMemberAccessLvExprWithStringCharKeyExpr() {
+    record {|
+        int a;
+        int b;
+    |} r = {a: 1, b: 2};
+
+    string:Char a = "a";
+    r[a] = 101;
+    assertEquality(101, r.a);
+
+    function () fn = function () {
+        string:Char c = "c";
+        r[c] = 20;
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertEquality("{ballerina/lang.map}KeyNotFound", err.message());
+    assertEquality("invalid field access: field 'c' not found in record type 'record {| int a; int b; |}'",
+                   <string> checkpanic err.detail()["message"]);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }
