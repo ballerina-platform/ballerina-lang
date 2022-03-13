@@ -146,7 +146,22 @@ public class MemberAccessTest {
             { "testTupleMemberAccessByLiteralPositive" },
             { "testTupleMemberAccessByConstPositive" },
             { "testTupleMemberAccessByVariablePositive" },
-            { "testTupleMemberAccessByFiniteTypeVariablePositive" },
+            { "testTupleMemberAccessByFiniteTypeVariablePositive" }
+        };
+    }
+
+    @Test(dataProvider = "listMemberAccessTestFunctions")
+    public void testListMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public Object[][] listMemberAccessTestFunctions() {
+        return new Object[][] {
+                { "testValidArrayMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testOutOfRangeArrayMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testValidTupleMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testOutOfRangeTupleMemberAccessWithBuiltInIntSubTypeKeyExpr" }
         };
     }
 

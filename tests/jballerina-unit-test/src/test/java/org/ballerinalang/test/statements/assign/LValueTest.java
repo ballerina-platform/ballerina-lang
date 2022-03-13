@@ -218,6 +218,16 @@ public class LValueTest {
         BRunUtil.invoke(result, "testFillingReadOnRecordNegativeMemberAccessLvExpr");
     }
 
+    @Test
+    public void testArrayMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr() {
+        BRunUtil.invoke(result, "testArrayMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr");
+    }
+
+    @Test
+    public void testTupleMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr() {
+        BRunUtil.invoke(result, "testTupleMemberAccessLvExprWithBuiltInIntSubTypeKeyExpr");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
