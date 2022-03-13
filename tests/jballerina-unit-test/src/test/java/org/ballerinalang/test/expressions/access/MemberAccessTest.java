@@ -123,6 +123,9 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "invalid operation: type '((Grault|int[]) & readonly)?' does " +
                 "not support member access", 222, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 225, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 231, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'int:Signed32', found 'int'", 234, 22);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 244, 13);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
