@@ -447,9 +447,10 @@ public class Types {
         if (listMatchPattern.matchExpr == null) {
             return listMatchPatternType;
         }
-        BType matchExprType = listMatchPattern.matchExpr.getBType();
+        BLangExpression matchExpr = listMatchPattern.matchExpr;
+        BType matchExprType = matchExpr.getBType();
         BType intersectionType = getTypeIntersection(
-                IntersectionContext.compilerInternalIntersectionContext(),
+                IntersectionContext.compilerInternalIntersectionContext(listMatchPattern.pos, matchExpr.pos),
                 matchExprType, listMatchPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
@@ -6340,6 +6341,17 @@ public class Types {
          */
         public static IntersectionContext compilerInternalIntersectionContext() {
             IntersectionContext diagnosticContext = new IntersectionContext(null, null, null);
+            return diagnosticContext;
+        }
+
+        /**
+         * Create {@link IntersectionContext} used for calculating the intersection type.
+         * This does not emit error messages explaining why there is no intersection between two types.
+         *
+         * @return a {@link IntersectionContext}
+         */
+        public static IntersectionContext compilerInternalIntersectionContext(Location lhsPos, Location rhsPos) {
+            IntersectionContext diagnosticContext = new IntersectionContext(null, lhsPos, rhsPos);
             return diagnosticContext;
         }
 

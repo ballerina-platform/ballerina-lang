@@ -3991,12 +3991,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean intersectionExists(BLangExpression expression, BType testType, Location exprPos, Location typePos) {
+    private boolean intersectionExists(BLangExpression expression, BType testType, Location lhsPos, Location rhsPos) {
         BType expressionType = expression.getBType();
 
-        Location pos = expression.pos;
         BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.typeTestIntersectionExistenceContext(exprPos, typePos),
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(lhsPos, rhsPos),
                 expressionType, testType, env);
 
         if (intersectionType != symTable.semanticError) {
