@@ -49,3 +49,7 @@ public function getErrorWithTypeNegative(string msg) returns error = @java:Metho
 public function getDistinctErrorWithNullDetailNegative(string msg) returns error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
 } external;
+
+public function getDistinctErrorWithNullDetailNegative2(string msg) returns error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;

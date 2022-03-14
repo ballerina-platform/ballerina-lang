@@ -61,6 +61,11 @@ public function main() {
         "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
         "from the package 'io.ballerina.runtime.api.values'");
 
+    record{}|error res2 = trap records:getRecordWithRestFieldsNegative2();
+    test:assertTrue(res2 is error);
+    error e6 = <error> res2;
+    test:assertValueEqual(e6.message(), "java.lang.NullPointerException");
+
     maps:validateAPI();
     records:validateAPI();
 }

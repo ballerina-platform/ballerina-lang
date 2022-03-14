@@ -97,4 +97,9 @@ public class Errors {
         return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("msg"),
                 null, null);
     }
+
+    public static BError getDistinctErrorWithNullDetailNegative2(BString msg) {
+        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
+        return ErrorCreator.createError(bErrorType, msg, null, null);
+    }
 }

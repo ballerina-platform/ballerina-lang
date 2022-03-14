@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.util;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -31,6 +32,7 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.io.PrintStream;
 import java.util.Map;
@@ -202,7 +204,10 @@ public class RuntimeUtils {
         return version.split("\\.")[0];
     }
 
-    public static void validateObjectAssignabilityToBType(BMap<BString, Object> bMap) {
+    public static void validateBMapValues(BMap<BString, Object> bMap) {
+        if (bMap == null) {
+            bMap = new MapValueImpl<>();
+        }
         for (Object value : bMap.values()) {
             if (isInvalidBallerinaValue(value)) {
                 throw ErrorUtils.createJToBTypeCastError(value.getClass());
@@ -210,9 +215,23 @@ public class RuntimeUtils {
         }
     }
 
-    public static void validateObjectAssignabilityToBType(Map<String, Object> bMap) {
+    public static void validateBMapValues(Map<String, Object> bMap) {
+        if (bMap == null) {
+            bMap = new MapValueImpl<>();
+        }
         for (Object value : bMap.values()) {
             if (isInvalidBallerinaValue(value) && !(value instanceof String)) {
+                throw ErrorUtils.createJToBTypeCastError(value.getClass());
+            }
+        }
+    }
+
+    public static void validateErrorDetails(BMap<BString, Object> details) {
+        if (details == null) {
+            details = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        }
+        for (Object value : details.values()) {
+            if (isInvalidBallerinaValue(value)) {
                 throw ErrorUtils.createJToBTypeCastError(value.getClass());
             }
         }
