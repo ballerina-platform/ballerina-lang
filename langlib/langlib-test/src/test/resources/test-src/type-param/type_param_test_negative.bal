@@ -137,3 +137,35 @@ function testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing() {
         [int, (int|float)][] y = arr.enumerate();
     }
 }
+
+type DataRecord record {|
+    string name;
+|};
+
+type DataRow record {|
+    string name;
+|};
+
+function foo(table<DataRecord> a) returns table<DataRow> {
+    table<DataRow> aa = a.map(function(dRecord) returns DataRow {
+        return {
+            name: ""
+        };
+    });
+}
+
+function testAnonymousFunctionsWithMissingParameterType() {
+    _ = foo(table []);
+}
+
+function bar(table<DataRecord> a) returns table<DataRow> {
+    table<DataRow> aa = a.map(function(string dRecord) returns DataRow {
+        return {
+            name: ""
+        };
+    });
+}
+
+function testAnonymousFunctionsWithIncorrectParameterType() {
+    _ = bar(table []);
+}
