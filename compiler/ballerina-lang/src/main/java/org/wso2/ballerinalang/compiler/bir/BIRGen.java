@@ -466,8 +466,7 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        BSymbol typeSymbol = symbol.tag == SymTag.TYPE_DEF
-                ? symbol.type.tsymbol : symbol;
+        BSymbol typeSymbol = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol : symbol;
         // Write referenced functions, if this is an abstract-object
         if (typeSymbol.tag != SymTag.OBJECT || !Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS)) {
             return;
