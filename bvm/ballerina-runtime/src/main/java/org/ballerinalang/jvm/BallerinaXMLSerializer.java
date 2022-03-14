@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
@@ -54,9 +55,12 @@ public class BallerinaXMLSerializer extends OutputStream {
     private static final String EMPTY_STR = "";
     public static final String PARSE_XML_OP = "parse xml";
     public static final String XML = "xml";
+    private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
+
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
+    private boolean withinElement;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -160,7 +164,12 @@ public class BallerinaXMLSerializer extends OutputStream {
         // Write attributes
         writeAttributes(currentNSLevel, attributeMap);
 
+        // Track and override xml text escape when xml text is within an element.
+        boolean prevWithinElementFlag = this.withinElement;
+        this.withinElement = true;
         xmlValue.getChildrenSeq().serialize(this);
+        this.withinElement = prevWithinElementFlag;
+
         xmlStreamWriter.writeEndElement();
         // Reset namespace decl hierarchy for this node.
         this.parentNSSet.pop();
@@ -169,9 +178,9 @@ public class BallerinaXMLSerializer extends OutputStream {
     private String setDefaultNamespace(Map<String, String> nsPrefixMap, QName qName, HashSet<String> currentNSLevel)
             throws XMLStreamException {
         boolean elementNSUsageFoundInAttribute = false;
-        String defaultNsUri = (qName.getPrefix() == null || qName.getPrefix().isEmpty()) ? qName.getNamespaceURI() : "";
+//        String defaultNsUri = (qName.getPrefix() == null || qName.getPrefix().isEmpty()) ? qName.getNamespaceURI() : "";
         for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
-            if (entry.getValue().equals(defaultNsUri)) {
+            if (entry.getValue().equals(qName.getNamespaceURI())) {
                 elementNSUsageFoundInAttribute = true;
             }
             if (entry.getKey().isEmpty()) {
@@ -179,14 +188,20 @@ public class BallerinaXMLSerializer extends OutputStream {
                 return entry.getValue();
             }
         }
-        if (!elementNSUsageFoundInAttribute && !defaultNsUri.isEmpty()) {
-            xmlStreamWriter.setDefaultNamespace(defaultNsUri);
-            return defaultNsUri;
+        if (!elementNSUsageFoundInAttribute && !qName.getNamespaceURI().isEmpty()) {
+            xmlStreamWriter.setDefaultNamespace(qName.getNamespaceURI());
+            return qName.getNamespaceURI();
+        }
+
+        String defaultNsURI = nsPrefixMap.get(XMLNS);
+        if (defaultNsURI != null) {
+            xmlStreamWriter.setDefaultNamespace(defaultNsURI);
+            return defaultNsURI;
         }
 
         // Undeclare default namespace for this element, if outer elements have redefined default ns and this
         // element doesn't have NS URI in it's name.
-        if (defaultNsUri.isEmpty()) {
+        if ((qName.getNamespaceURI() == null || qName.getNamespaceURI().isEmpty())) {
             for (String s : currentNSLevel) {
                 if (s.startsWith(XMLNS)) {
                     xmlStreamWriter.setDefaultNamespace(EMPTY_STR);
@@ -195,12 +210,11 @@ public class BallerinaXMLSerializer extends OutputStream {
             }
         }
 
-        return defaultNsUri.isEmpty() ? null : defaultNsUri;
+        return null;
     }
 
     private void writeStartElement(QName qName, Map<String, String> nsPrefixMap, HashSet<String> currentNSLevel)
             throws XMLStreamException {
-        String defaultNsUriOfOuterElem = xmlStreamWriter.getNamespaceContext().getNamespaceURI("");
         String defaultNamespaceUri = setDefaultNamespace(nsPrefixMap, qName, currentNSLevel);
 
         if (qName.getPrefix() == null || qName.getPrefix().isEmpty()) {
@@ -209,8 +223,14 @@ public class BallerinaXMLSerializer extends OutputStream {
             xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
         }
 
-        if (defaultNamespaceUri != null && !defaultNamespaceUri.equals(defaultNsUriOfOuterElem)) {
+        if (defaultNamespaceUri == null) {
+            return;
+        }
+
+        String defaultNsMapEntry = concatNsPrefixURI("", defaultNamespaceUri);
+        if (!currentNSLevel.contains(defaultNsMapEntry)) {
             xmlStreamWriter.writeDefaultNamespace(defaultNamespaceUri);
+            currentNSLevel.add(defaultNsMapEntry);
         }
     }
 
