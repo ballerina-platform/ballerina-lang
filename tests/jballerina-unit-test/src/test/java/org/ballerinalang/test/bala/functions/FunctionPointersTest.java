@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.test.bala.functions;
 
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -61,55 +61,52 @@ public class FunctionPointersTest {
     @Test
     public void testGlobalFP() {
         // testing function pointer.
-        BValue[] returns = BRunUtil.invoke(result, "test1");
+        Object returns = BRunUtil.invoke(result, "test1");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test1");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test1");
     }
 
     @Test
     public void testGlobalFPAsLambda() {
         // lambda.
-        BValue[] returns = BRunUtil.invoke(result, "test2");
+        Object returns = BRunUtil.invoke(result, "test2");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test2true");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test2true");
     }
 
     @Test
     public void testGlobalFPAssignment() {
         // assign function pointer and invoke.
-        BValue[] returns = BRunUtil.invoke(result, "test3");
+        Object resultArr = BRunUtil.invoke(result, "test3");
+        BArray returns = (BArray) resultArr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test3");
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(returns[1].stringValue(), "test3");
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[2].stringValue(), "3test");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertEquals(returns.get(0).toString(), "test3");
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(1).toString(), "test3");
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertEquals(returns.get(2).toString(), "3test");
     }
 
     @Test
     public void testGlobalFPWithLocalFP() {
         // Check global and local variable.
-        BValue[] returns = BRunUtil.invoke(result, "test5");
+        Object returns = BRunUtil.invoke(result, "test5");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "falsetest5");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "falsetest5");
     }
 
     @Test
     public void testGlobalFPByAssigningLocalFP() {
         // assign local ref to global and invoke.
-        BValue[] returns = BRunUtil.invoke(result, "test6");
+        Object returns = BRunUtil.invoke(result, "test6");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "truetest6");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "truetest6");
     }
 
     @Test

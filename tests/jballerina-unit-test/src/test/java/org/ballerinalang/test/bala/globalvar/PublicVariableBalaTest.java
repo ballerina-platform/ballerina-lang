@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.bala.globalvar;
 
-
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;

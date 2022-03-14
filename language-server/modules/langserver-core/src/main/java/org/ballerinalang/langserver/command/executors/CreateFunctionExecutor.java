@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.codeaction.providers.CreateFunctionCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
+import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -186,15 +187,19 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Optional<TypeSymbol> returnTypeSymbol = typeFinder.getReturnTypeSymbol();
         Optional<TypeDescKind> returnTypeDescKind = typeFinder.getReturnTypeDescKind();
 
+        //Check if the function call is invoked from an isolated context.
+        IsolatedBlockResolver isolatedBlockResolver = new IsolatedBlockResolver();
+        Boolean isIsolated = isolatedBlockResolver.findIsolatedBlock(fnCallExprNode.get());
+
         // Generate function. We have to check if we have a return type symbol or a return type desc kind. Depending
         // on that, we need to use separate APIs.
         String function;
         if (returnTypeSymbol.isPresent()) {
             function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
-                    args, returnTypeSymbol.get());
+                    args, returnTypeSymbol.get(), isIsolated);
         } else if (returnTypeDescKind.isPresent()) {
             function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
-                    args, returnTypeDescKind.get());
+                    args, returnTypeDescKind.get(), isIsolated);
         } else {
             return Collections.emptyList();
         }

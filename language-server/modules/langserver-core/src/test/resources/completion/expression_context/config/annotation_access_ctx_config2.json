@@ -172,6 +172,38 @@
           "newText": "import ballerina/lang.runtime;\n"
         }
       ]
+    },
+    {
+      "label": "typeParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "builtinSubtype",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "builtinSubtype",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

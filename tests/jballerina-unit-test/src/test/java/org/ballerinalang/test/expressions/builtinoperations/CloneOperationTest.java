@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.expressions.builtinoperations;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -61,35 +61,37 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneCyclicMapsArray() {
-        BValue[] results = BRunUtil.invoke(result, "cloneCyclicMapsArray");
+        Object arr = BRunUtil.invoke(result, "cloneCyclicMapsArray");
+        BArray results = (BArray) arr;
         Assert.assertNotNull(results);
-        Assert.assertNotSame(((BValueArray) results[0]).getRefValue(0), ((BValueArray) results[1]).getRefValue(0));
-        Assert.assertNotSame(((BValueArray) results[0]).getRefValue(1), ((BValueArray) results[1]).getRefValue(1));
+        Assert.assertNotSame(((BArray) results.get(0)).getRefValue(0), ((BArray) results.get(1)).getRefValue(0));
+        Assert.assertNotSame(((BArray) results.get(0)).getRefValue(1), ((BArray) results.get(1)).getRefValue(1));
     }
 
     @Test
     public void testCloneCyclicRecord() {
-        BValue[] results = BRunUtil.invoke(result, "cloneCyclicRecord");
+        Object returns = BRunUtil.invoke(result, "cloneCyclicRecord");
+        BArray results = (BArray) returns;
         Assert.assertNotNull(results);
 
-        BMap record = (BMap) results[0];
-        BMap fieldA = (BMap) record.get("a");
+        BMap record = (BMap) results.get(0);
+        BMap fieldA = (BMap) record.get(StringUtils.fromString("a"));
 
-        BValueArray arr = (BValueArray) fieldA.get("arr");
-        BMap fieldB = (BMap) record.get("b");
-        BMap fieldAOfB = (BMap) fieldB.get("aa");
-        BValueArray arrOfAA = (BValueArray) fieldAOfB.get("arr");
+        BArray arr = (BArray) fieldA.get(StringUtils.fromString("arr"));
+        BMap fieldB = (BMap) record.get(StringUtils.fromString("b"));
+        BMap fieldAOfB = (BMap) fieldB.get(StringUtils.fromString("aa"));
+        BArray arrOfAA = (BArray) fieldAOfB.get(StringUtils.fromString("arr"));
 
         Assert.assertEquals(arr.getInt(0), 10);
         Assert.assertEquals(arrOfAA.getInt(0), 10);
 
-        record = (BMap) results[1];
-        BMap fieldA1 = (BMap) record.get("a");
+        record = (BMap) results.get(1);
+        BMap fieldA1 = (BMap) record.get(StringUtils.fromString("a"));
 
-        arr = (BValueArray) fieldA1.get("arr");
-        fieldB = (BMap) record.get("b");
-        BMap fieldAOfB1 = (BMap) fieldB.get("aa");
-        arrOfAA = (BValueArray) fieldAOfB1.get("arr");
+        arr = (BArray) fieldA1.get(StringUtils.fromString("arr"));
+        fieldB = (BMap) record.get(StringUtils.fromString("b"));
+        BMap fieldAOfB1 = (BMap) fieldB.get(StringUtils.fromString("aa"));
+        arrOfAA = (BArray) fieldAOfB1.get(StringUtils.fromString("arr"));
 
         Assert.assertEquals(arr.getInt(0), 1);
         Assert.assertEquals(arrOfAA.getInt(0), 1);
@@ -103,24 +105,25 @@ public class CloneOperationTest {
 
     @Test
     public void testCloneCyclicArray() {
-        BValue[] results = BRunUtil.invoke(result, "cloneCyclicArray");
+        Object returns = BRunUtil.invoke(result, "cloneCyclicArray");
+        BArray results = (BArray) returns;
         Assert.assertNotNull(results);
 
-        BValueArray[] arr = new BValueArray[2];
-        arr[0] = (BValueArray) results[0];
-        arr[1] = (BValueArray) results[1];
+        BArray[] arr = new BArray[2];
+        arr[0] = (BArray) results.get(0);
+        arr[1] = (BArray) results.get(1);
 
-        BMap record1 = (BMap) arr[0].getBValue(2);
-        BMap record2 = (BMap) arr[0].getBValue(3);
+        BMap record1 = (BMap) arr[0].getRefValue(2);
+        BMap record2 = (BMap) arr[0].getRefValue(3);
 
-        BMap record3 = (BMap) arr[1].getBValue(2);
-        BMap record4 = (BMap) arr[1].getBValue(3);
+        BMap record3 = (BMap) arr[1].getRefValue(2);
+        BMap record4 = (BMap) arr[1].getRefValue(3);
 
-        BValueArray intArr1 = (BValueArray) record1.get("arr");
-        BValueArray intArr2 = (BValueArray) record2.get("arr");
+        BArray intArr1 = (BArray) record1.get(StringUtils.fromString("arr"));
+        BArray intArr2 = (BArray) record2.get(StringUtils.fromString("arr"));
 
-        BValueArray intArr3 = (BValueArray) record3.get("arr");
-        BValueArray intArr4 = (BValueArray) record4.get("arr");
+        BArray intArr3 = (BArray) record3.get(StringUtils.fromString("arr"));
+        BArray intArr4 = (BArray) record4.get(StringUtils.fromString("arr"));
 
         Assert.assertSame(intArr1, intArr2);
         Assert.assertSame(intArr3, intArr4);

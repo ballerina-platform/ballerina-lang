@@ -146,7 +146,7 @@ class TypeEmitter {
             case TypeTags.STREAM:
                 return emitBStreamType((BStreamType) bType, tabs);
             case TypeTags.TYPEREFDESC:
-                return emitType(((BTypeReferenceType) bType).referredType, tabs);
+                return emitTypeRefDesc((BTypeReferenceType) bType, tabs);
             default:
                 throw new IllegalStateException("Invalid type");
         }
@@ -196,6 +196,14 @@ class TypeEmitter {
             }
         }
         return unionStr.toString();
+    }
+
+    private static String emitTypeRefDesc(BTypeReferenceType bType, int tabs) {
+        String str = "typeRefDesc";
+        str += "<";
+        str += emitTypeRef(bType.referredType, 0);
+        str += ">";
+        return str;
     }
 
     private static String emitBIntersectionType(BIntersectionType bType, int tabs) {

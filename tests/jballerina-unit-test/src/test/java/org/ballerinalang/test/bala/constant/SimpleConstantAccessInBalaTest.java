@@ -17,12 +17,7 @@
  */
 package org.ballerinalang.test.bala.constant;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,114 +41,108 @@ public class SimpleConstantAccessInBalaTest {
 
     @Test
     public void testAccessConstantWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessConstantWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "testAccessConstantWithoutType");
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test
     public void testAccessConstantWithoutTypeAsString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessConstantWithoutTypeAsString");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "testAccessConstantWithoutTypeAsString");
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test
     public void testAccessConstantWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessConstantWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Colombo");
+        Object returns = BRunUtil.invoke(compileResult, "testAccessConstantWithType");
+        Assert.assertEquals(returns.toString(), "Colombo");
     }
 
     @Test
     public void testAccessFiniteType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessFiniteType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "A");
+        Object returns = BRunUtil.invoke(compileResult, "testAccessFiniteType");
+        Assert.assertEquals(returns.toString(), "A");
     }
 
     @Test
     public void testReturnFiniteType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReturnFiniteType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "A");
+        Object returns = BRunUtil.invoke(compileResult, "testReturnFiniteType");
+        Assert.assertEquals(returns.toString(), "A");
     }
 
     @Test
     public void testAccessTypeWithContInDef() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAccessTypeWithContInDef");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "X");
+        Object returns = BRunUtil.invoke(compileResult, "testAccessTypeWithContInDef");
+        Assert.assertEquals(returns.toString(), "X");
     }
 
     @Test
     public void testBooleanTypeWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithType");
+        Assert.assertNotNull(returns);
+        Assert.assertFalse((Boolean) returns);
     }
 
     @Test
     public void testBooleanTypeWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testBooleanTypeWithoutType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testIntTypeWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntTypeWithType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+        Object returns = BRunUtil.invoke(compileResult, "testIntTypeWithType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 40L);
     }
 
     @Test
     public void testIntTypeWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntTypeWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+        Object returns = BRunUtil.invoke(compileResult, "testIntTypeWithoutType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 20L);
     }
 
     @Test
     public void testByteTypeWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BByte) returns[0]).intValue(), 240);
+        Object returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 240);
     }
 
     @Test
     public void testFloatTypeWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatTypeWithType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+        Object returns = BRunUtil.invoke(compileResult, "testFloatTypeWithType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 4.0);
     }
 
     @Test
     public void testFloatTypeWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatTypeWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+        Object returns = BRunUtil.invoke(compileResult, "testFloatTypeWithoutType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 2.0);
     }
 
     @Test
     public void testDecimalTypeWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BDecimal) returns[0]).floatValue(), 50.0);
+        Object returns = BRunUtil.invoke(compileResult, "testDecimalTypeWithType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, ValueCreator.createDecimalValue("50.0"));
     }
 
     @Test
     public void testStringTypeWithType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina is awesome");
+        Object returns = BRunUtil.invoke(compileResult, "testStringTypeWithType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "Ballerina is awesome");
     }
 
     @Test
     public void testStringTypeWithoutType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringTypeWithoutType");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
+        Object returns = BRunUtil.invoke(compileResult, "testStringTypeWithoutType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "Ballerina rocks");
     }
 
     @AfterClass

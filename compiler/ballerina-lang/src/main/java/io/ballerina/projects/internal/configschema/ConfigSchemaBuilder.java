@@ -44,7 +44,7 @@ public class ConfigSchemaBuilder {
      * @param configDetails Map of configurable variables against module
      * @return config schema JSON content as String
      */
-    public static String getConfigSchemaContent(Map<ConfigModuleDetails, List<ConfigVariable>> configDetails) {
+    public String getConfigSchemaContent(Map<ConfigModuleDetails, List<ConfigVariable>> configDetails) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(getRootNode(configDetails));
     }
@@ -55,7 +55,7 @@ public class ConfigSchemaBuilder {
      * @param configDetails Map of configurable variables against module
      * @return JsonObject with configurable details
      */
-    private static JsonObject getRootNode(Map<ConfigModuleDetails, List<ConfigVariable>> configDetails) {
+    private JsonObject getRootNode(Map<ConfigModuleDetails, List<ConfigVariable>> configDetails) {
         JsonObject rootNode = new JsonObject();
         // Create root node
         JsonObject root = new JsonObject();
@@ -144,10 +144,10 @@ public class ConfigSchemaBuilder {
      * @param node            JSONObject to set the configurable details
      * @return JSONObject with configurable details
      */
-    private static JsonObject setConfigVariables(List<ConfigVariable> configVariables,
+    private JsonObject setConfigVariables(List<ConfigVariable> configVariables,
                                                  JsonObject node) {
         for (ConfigVariable configVariable : configVariables) {
-            JsonObject typeNode = TypeConverter.getType(configVariable.type());
+            JsonObject typeNode = new TypeConverter().getType(configVariable.type());
             typeNode.addProperty("description", configVariable.description());
             node.add(configVariable.name(), typeNode);
         }

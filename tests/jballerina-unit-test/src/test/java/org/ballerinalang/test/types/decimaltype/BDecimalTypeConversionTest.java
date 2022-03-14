@@ -18,11 +18,10 @@
 
 package org.ballerinalang.test.types.decimaltype;
 
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -66,47 +65,47 @@ public class BDecimalTypeConversionTest {
 
     @Test(description = "Test decimal to other types conversion")
     public void testDecimalToOtherTypesConversion() {
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalToOtherTypesConversion", new BValue[]{});
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BDecimal.class);
-        Assert.assertSame(returns[4].getClass(), BDecimal.class);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testDecimalToOtherTypesConversion", new Object[]{});
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Double.class);
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertTrue(returns.get(3) instanceof BDecimal);
+        Assert.assertTrue(returns.get(4) instanceof BDecimal);
 
-        BInteger intVal = (BInteger) returns[0];
-        BFloat floatVal = (BFloat) returns[1];
-        BString stringVal = (BString) returns[2];
-        BDecimal anyVal = (BDecimal) returns[3];
-        BDecimal jsonVal = (BDecimal) returns[4];
+        long intVal = (long) returns.get(0);
+        double floatVal = (double) returns.get(1);
+        BString stringVal = (BString) returns.get(2);
+        BDecimal anyVal = (BDecimal) returns.get(3);
+        BDecimal jsonVal = (BDecimal) returns.get(4);
 
-        Assert.assertEquals(intVal.intValue(), 23, "Invalid integer value returned.");
-        Assert.assertEquals(floatVal.floatValue(), 23.456, "Invalid float value returned.");
-        Assert.assertEquals(stringVal.stringValue(), "23.456", "Invalid string value returned.");
-        Assert.assertEquals(anyVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
-                            "Invalid value returned.");
-        Assert.assertEquals(jsonVal.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
-                            "Invalid value returned.");
+        Assert.assertEquals(intVal, 23, "Invalid integer value returned.");
+        Assert.assertEquals(floatVal, 23.456, "Invalid float value returned.");
+        Assert.assertEquals(stringVal.toString(), "23.456", "Invalid string value returned.");
+        Assert.assertEquals(anyVal.value().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
+                "Invalid value returned.");
+        Assert.assertEquals(jsonVal.value().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
+                "Invalid value returned.");
     }
 
     @Test(description = "Test other types to decimal conversion")
     public void testOtherTypesToDecimalConversion() {
-        BValue[] returns = BRunUtil.invoke(result, "testOtherTypesToDecimalConversion", new BValue[]{});
-        Assert.assertEquals(returns.length, 3);
+        BArray returns = (BArray) BRunUtil.invoke(result, "testOtherTypesToDecimalConversion", new Object[]{});
+        Assert.assertEquals(returns.size(), 3);
         for (int i = 0; i < 3; i++) {
-            Assert.assertSame(returns[i].getClass(), BDecimal.class);
+            Assert.assertTrue(returns.get(i) instanceof BDecimal);
         }
 
-        BDecimal val1 = (BDecimal) returns[0];
-        BDecimal val2 = (BDecimal) returns[1];
-        BDecimal val3 = (BDecimal) returns[2];
+        BDecimal val1 = (BDecimal) returns.get(0);
+        BDecimal val2 = (BDecimal) returns.get(1);
+        BDecimal val3 = (BDecimal) returns.get(2);
 
-        Assert.assertEquals(val1.decimalValue().compareTo(new BigDecimal("12", MathContext.DECIMAL128)), 0,
-                            "Invalid decimal value returned.");
-        Assert.assertTrue(val2.decimalValue().subtract(new BigDecimal("-12.34", MathContext.DECIMAL128)).
-                compareTo(DELTA) < 0, "Invalid decimal value returned.");
-        Assert.assertEquals(val3.decimalValue().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
-                            "Invalid decimal value returned.");
+        Assert.assertEquals(val1.value().compareTo(new BigDecimal("12", MathContext.DECIMAL128)), 0,
+                "Invalid decimal value returned.");
+        Assert.assertTrue(val2.subtract(ValueCreator.createDecimalValue(new BigDecimal("-12.34",
+                MathContext.DECIMAL128))).value().compareTo(DELTA) < 0, "Invalid decimal value returned.");
+        Assert.assertEquals(val3.value().compareTo(new BigDecimal("23.456", MathContext.DECIMAL128)), 0,
+                "Invalid decimal value returned.");
     }
 
     @AfterClass
