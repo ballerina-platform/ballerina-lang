@@ -1350,7 +1350,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
-        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode());
+        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode(), true);
         bLangFiniteTypeNode.pos = simpleLiteral.pos;
         bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
         return bLangFiniteTypeNode;
@@ -5350,7 +5350,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     value = textValue.replaceAll("[fd+]", "");
                     originalValue = textValue.replace("+", "");
                 } else {
-                    value = textValue.replaceAll("[fd+]", "");
+                    value = textValue;
                     originalValue = textValue;
                 }
             } else {
