@@ -267,6 +267,11 @@ public class CommonUtil {
         return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
     }
 
+    public static Optional<String> getDefaultPlaceholderForType(TypeSymbol bType) {
+        return getDefaultValueForType(bType)
+                .map(defaultValue -> defaultValue.replace("}", "\\}"));
+    }
+
     /**
      * Get the default value for the given BType.
      *
@@ -495,17 +500,16 @@ public class CommonUtil {
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
      * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
-     * @return {@link LSCompletionItem}   Completion Item to fill all the options
+     * @return {@link Optional}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
+    public static Optional<LSCompletionItem> getFillAllStructFieldsItem(BallerinaCompletionContext context,
                                                               Map<String, RecordFieldSymbol> fields,
                                                               Pair<TypeSymbol, TypeSymbol> symbol) {
-
         List<String> fieldEntries = new ArrayList<>();
 
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-            if (!entry.getValue().isOptional()) {
+            if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
                 requiredFields.put(entry.getKey(), entry.getValue());
             }
         }
@@ -527,26 +531,20 @@ public class CommonUtil {
                         + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
                 fieldEntries.add(fieldEntry);
             }
-        } else {
-            label = "Fill " + detail + " Optional Fields";
-            for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-                String fieldEntry = entry.getKey()
-                        + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
-                fieldEntries.add(fieldEntry);
-            }
+
+            String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
+            CompletionItem completionItem = new CompletionItem();
+            completionItem.setFilterText("fill");
+            completionItem.setLabel(label);
+            completionItem.setInsertText(insertText);
+            completionItem.setDetail(detail);
+            completionItem.setKind(CompletionItemKind.Property);
+            completionItem.setSortText(Priority.PRIORITY110.toString());
+
+            return Optional.of(new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER));
         }
 
-        String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setFilterText("fill");
-        completionItem.setLabel(label);
-        completionItem.setInsertText(insertText);
-        completionItem.setDetail(detail);
-        completionItem.setKind(CompletionItemKind.Property);
-        completionItem.setSortText(Priority.PRIORITY110.toString());
-
-        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER);
+        return Optional.empty();
     }
 
     /**
@@ -689,7 +687,7 @@ public class CommonUtil {
             insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
         } else {
             insertText.append("${").append(fieldId).append(":")
-                    .append(getDefaultValueForType(bField.typeDescriptor()).orElse(" ")).append("}");
+                    .append(getDefaultPlaceholderForType(bField.typeDescriptor()).orElse(" ")).append("}");
         }
 
         return insertText.toString();
@@ -1625,6 +1623,22 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the symbol is an object symbol with self as the name.
+     *
+     * @param symbol               Symbol
+     * @param nodeAtCursor         Node
+     * @return {@link Boolean} whether the symbol is a self object symbol.
+     */
+    public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
+        Node currentNode = nodeAtCursor;
+        while (currentNode != null && currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
+            currentNode = currentNode.parent();
+        }
+        return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                && symbol.getName().orElse("").equals(SELF_KW);
+    }
+
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
@@ -1853,4 +1867,19 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * Given a node (currentNode) start looking up the parent ladder until the given predicate is satisfied.
+     *
+     * @param currentNode Node to start looking
+     * @param predicate   to be satisfied
+     * @return {@link Optional}
+     */
+    public static Optional<Node> getMatchingNode(Node currentNode, Predicate<Node> predicate) {
+        Node evalNode = currentNode;
+        while (evalNode != null && !predicate.test(evalNode)) {
+            evalNode = evalNode.parent();
+        }
+
+        return Optional.ofNullable(evalNode);
+    }
 }

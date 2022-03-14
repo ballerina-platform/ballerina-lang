@@ -87,6 +87,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_E
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
@@ -353,7 +354,7 @@ public class JvmSignatures {
             "(L" + FUNCTION_POINTER + ";L" + MAP_VALUE + ";L" + STRING_VALUE + ";)V";
     public static final String PROCESS_OBJ_CTR_ANNOTATIONS =
             "(L" + OBJECT_TYPE_IMPL + ";L" + MAP_VALUE + ";L" + STRAND_CLASS + ";)V";
-    public static final String PUT_FRAMES = "[L" + OBJECT + ";";
+    public static final String STACK_FRAMES = "L" + STACK + ";";
     public static final String RECORD_GET = "(L" + STRING_VALUE + ";L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String RECORD_GET_KEYS = "()[L" + OBJECT + ";";
     public static final String RECORD_INIT = "(L" + TYPE + ";)V";

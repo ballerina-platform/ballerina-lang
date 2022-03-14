@@ -245,6 +245,86 @@ function baz2() returns never[] {
     return [];
 }
 
+function testNeverRestFieldType() {
+    record {|never...; |} a = {};
+    record {||} copy = a;
+    assertEquality(true, copy == {});
+    assertEquality(true, copy is record {||});
+    assertEquality(true, copy is record {|never...; |});
+
+    record {||} a1 = {};
+    record {|never...; |} copy2 = a1;
+    assertEquality(true, copy2 == {});
+    assertEquality(true, copy2 is record {||});
+    assertEquality(true, copy2 is record {|never...; |});
+
+    record {|int x; never...; |} a2 = {x: 12};
+    record {|int x;|} copy3 = a2;
+    assertEquality(true, copy3 == {x: 12});
+    assertEquality(true, copy3 is record {|int x;|});
+    assertEquality(true, copy3 is record {|int x; never...; |});
+
+    record {|int x;|} a3 = {x: 12};
+    record {|int x; never...; |} copy4 = a3;
+    assertEquality(true, copy4 == {x: 12});
+    assertEquality(true, copy4 is record {|int x;|});
+    assertEquality(true, copy4 is record {|int x; never...; |});
+
+    record {|int x?; never...; |} a4 = {};
+    record {|int x?;|} copy5 = a4;
+    assertEquality(true, copy5 == {});
+    assertEquality(true, copy5 is record {|int x?;|});
+    assertEquality(true, copy5 is record {|int x?; never...; |});
+
+    record {|int x?;|} a5 = {};
+    record {|int x?; never...; |} copy6 = a5;
+    assertEquality(true, copy6 == {});
+    assertEquality(true, copy6 is record {|int x?;|});
+    assertEquality(true, copy6 is record {|int x?; never...; |});
+
+    record {|int? x; never...; |} a6 = {x: ()};
+    record {|int? x;|} copy7 = a6;
+    assertEquality(true, copy7 == {x: ()});
+    assertEquality(true, copy7 is record {|int? x;|});
+    assertEquality(true, copy7 is record {|int? x; never...; |});
+
+    record {|int? x; never...; |} a7 = {x: ()};
+    record {|int? x;|} copy8 = a7;
+    assertEquality(true, copy8 == {x: ()});
+    assertEquality(true, copy8 is record {|int? x;|});
+    assertEquality(true, copy8 is record {|int? x; never...; |});
+
+    function () returns record {|never...; |} c = () => {};
+    assertEquality(true, c is function () returns record {||});
+
+    function () returns record {||} d = () => {};
+    assertEquality(true, d is function () returns record {|never...; |});
+
+    function () returns record {|int i; never...; |} e = () => {i: 2};
+    assertEquality(false, <any>e is function () returns record {|int i; string s;|});
+
+    function () returns record {|int i; string s;|} f = () => {i: 2, s: "s"};
+    assertEquality(false, <any>f is function () returns record {|int i; never...; |});
+
+    map<record {|never...; |}> g = {};
+    assertEquality(true, g is map<record {||}>);
+
+    map<record {||}> h = {};
+    assertEquality(true, h is map<record {|never...; |}>);
+
+    record {|never...; |}[] i = [];
+    assertEquality(true, i is record {||}[]);
+
+    record {||}[] j = [];
+    assertEquality(true, j is record {|never...; |}[]);
+
+    record {|never...; |} k = {};
+    assertEquality(true, k is record {||});
+
+    record {||} l = {};
+    assertEquality(true, l is record {|never...; |});
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

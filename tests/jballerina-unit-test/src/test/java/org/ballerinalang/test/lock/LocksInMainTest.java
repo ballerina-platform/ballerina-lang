@@ -18,17 +18,13 @@
  */
 package org.ballerinalang.test.lock;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,20 +45,21 @@ public class LocksInMainTest {
     @BeforeClass
     public void setup() {
         parallelCompileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
-        Assert.assertEquals(parallelCompileResult.getErrorCount(), 0);
+        assertEquals(parallelCompileResult.getErrorCount(), 0);
     }
 
     @Test(description = "Tests lock within a lock")
     public void testLockWithinLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "lockWithinLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "lockWithinLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 77);
-        assertEquals(returns[1].stringValue(), "second sample value");
+        assertEquals(returns.get(0), 77L);
+        assertEquals(returns.get(1).toString(), "second sample value");
 
     }
 
@@ -70,23 +67,23 @@ public class LocksInMainTest {
     @Test(description = "Tests lock within in workers", enabled = false)
     public void simpleLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/simple-lock.bal");
-        BValue[] returns = BRunUtil.invoke(compileResult, "simpleLock");
-        assertEquals(returns.length, 1);
-        assertSame(returns[0].getClass(), BString.class);
-        assertEquals(returns[0].stringValue(), "main in critical after w1 is out");
+        Object returns = BRunUtil.invoke(compileResult, "simpleLock");
+        assertTrue(returns instanceof BString);
+        assertEquals(returns.toString(), "main in critical after w1 is out");
     }
 
     @Test(description = "Tests lock within lock in workers")
     public void testLockWithinLockInWorkers() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "lockWithinLockInWorkers");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "lockWithinLockInWorkers");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 66);
-        assertEquals(returns[1].stringValue(), "sample output");
+        assertEquals(returns.get(0), 66L);
+        assertEquals(returns.get(1).toString(), "sample output");
 
     }
 
@@ -94,11 +91,10 @@ public class LocksInMainTest {
     public void testLockInsideWhileLoop() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "lockInsideWhileLoop");
-        assertEquals(returns.length, 1);
-        assertSame(returns[0].getClass(), BInteger.class);
+        Object returns = BRunUtil.invoke(compileResult, "lockInsideWhileLoop");
+        assertSame(returns.getClass(), Long.class);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 56);
+        assertEquals(returns, 56L);
 
     }
 
@@ -106,39 +102,42 @@ public class LocksInMainTest {
     public void testThrowErrorInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "throwErrorInsideLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 51);
-        assertEquals(returns[1].stringValue(), "second worker string");
+        assertEquals(returns.get(0), 51L);
+        assertEquals(returns.get(1).toString(), "second worker string");
     }
 
     @Test(description = "Tests throwing an error inside a lock inside try catch block")
     public void testThrowErrorInsideLockInsideTrap() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "throwErrorInsideLockInsideTryFinally");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideLockInsideTryFinally");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 53);
-        assertEquals(returns[1].stringValue(), "worker 2 sets the string value after try catch finally");
+        assertEquals(returns.get(0), 53L);
+        assertEquals(returns.get(1).toString(), "worker 2 sets the string value after try catch finally");
     }
 
     @Test(description = "Tests throwing an error inside try catch finally block inside a lock")
     public void testThrowErrorInsideTryCatchFinallyInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "throwErrorInsideTryCatchFinallyInsideLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideTryCatchFinallyInsideLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 53);
-        assertEquals(returns[1].stringValue(), "worker 2 sets the string after try catch finally inside lock");
+        assertEquals(returns.get(0), 53L);
+        assertEquals(returns.get(1).toString(), "worker 2 sets the string after try catch finally inside lock");
     }
 
     // https://github.com/ballerina-platform/ballerina-lang/issues/22987
@@ -146,52 +145,56 @@ public class LocksInMainTest {
     public void testThrowErrorInsideTryFinallyInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "throwErrorInsideTryFinallyInsideLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideTryFinallyInsideLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 52);
-        assertEquals(returns[1].stringValue(), "worker 2 sets the string after try finally");
+        assertEquals(returns.get(0), 52L);
+        assertEquals(returns.get(1).toString(), "worker 2 sets the string after try finally");
     }
 
     @Test(description = "Tests throwing an error inside a lock inside try catch block")
     public void testThrowErrorInsideLockInsideTryCatch() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "throwErrorInsideLockInsideTryCatch");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideLockInsideTryCatch");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 52);
-        assertEquals(returns[1].stringValue(), "worker 2 sets the string value after try catch");
+        assertEquals(returns.get(0), 52L);
+        assertEquals(returns.get(1).toString(), "worker 2 sets the string value after try catch");
     }
 
     @Test(description = "Tests throwing an error inside try catch block inside a lock")
     public void testThrowErrorInsideTryCatchInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "throwErrorInsideTryCatchInsideLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideTryCatchInsideLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 52);
-        assertEquals(returns[1].stringValue(), "worker 2 sets the string after try catch inside lock");
+        assertEquals(returns.get(0), 52L);
+        assertEquals(returns.get(1).toString(), "worker 2 sets the string after try catch inside lock");
     }
 
     @Test(description = "Tests lock within lock in workers for boolean and blob")
     public void testLockWithinLockInWorkersForBlobAndBoolean() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "lockWithinLockInWorkersForBlobAndBoolean");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BBoolean.class);
-        assertSame(returns[1].getClass(), BValueArray.class);
+        Object val = BRunUtil.invoke(compileResult, "lockWithinLockInWorkersForBlobAndBoolean");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Boolean.class);
+        assertTrue(returns.get(1) instanceof BArray);
 
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "sample blob output".getBytes());
+        assertTrue((Boolean) returns.get(0));
+        ByteArrayUtils.assertJBytesWithBBytes(((BArray) returns.get(1)).getBytes(), "sample blob output".getBytes());
 
     }
 
@@ -199,10 +202,9 @@ public class LocksInMainTest {
     public void testLockWithinFunctionsDownTheLine() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks_in_functions_down_the_chain.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "lockWithinLock");
-        assertEquals(returns.length, 1);
-        assertSame(returns[0].getClass(), BString.class);
-        String result = returns[0].stringValue();
+        Object returns = BRunUtil.invoke(compileResult, "lockWithinLock");
+        assertTrue(returns instanceof BString);
+        String result = returns.toString();
         assertTrue("w1w1w1vw2w2w2v".equals(result) || "w2w2w2v".equals(result));
     }
 
@@ -211,13 +213,14 @@ public class LocksInMainTest {
     public void testReturnInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "returnInsideLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "returnInsideLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 88);
-        assertEquals(returns[1].stringValue(), "changed value11");
+        assertEquals(returns.get(0), 88L);
+        assertEquals(returns.get(1).toString(), "changed value11");
 
     }
 
@@ -225,13 +228,14 @@ public class LocksInMainTest {
     public void testBreakInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "breakInsideLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "breakInsideLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 657);
-        assertEquals(returns[1].stringValue(), "lock value inside second worker after while");
+        assertEquals(returns.get(0), 657L);
+        assertEquals(returns.get(1).toString(), "lock value inside second worker after while");
 
     }
 
@@ -239,20 +243,21 @@ public class LocksInMainTest {
     public void testNextInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "nextInsideLock");
-        assertEquals(returns.length, 2);
-        assertSame(returns[0].getClass(), BInteger.class);
-        assertSame(returns[1].getClass(), BString.class);
+        Object val = BRunUtil.invoke(compileResult, "nextInsideLock");
+        BArray returns = (BArray) val;
+        assertEquals(returns.size(), 2);
+        assertSame(returns.get(0).getClass(), Long.class);
+        assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(((BInteger) returns[0]).intValue(), 657);
-        assertEquals(returns[1].stringValue(), "lock value inside second worker after while");
+        assertEquals(returns.get(0), 657L);
+        assertEquals(returns.get(1).toString(), "lock value inside second worker after while");
 
     }
 
     @Test(description = "Test lock negative cases")
     public void testLockNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "undefined symbol 'val'",
                                   8, 5);
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'val1'",
@@ -262,22 +267,22 @@ public class LocksInMainTest {
     // https://github.com/ballerina-platform/ballerina-lang/issues/22987
     @Test(description = "Test for parallel run using locks", enabled = false)
     public void testParallelRunUsingLocks() {
-        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
+        Object returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
     }
 
     @Test(description = "Test for parallel run when invocations have global variable dependencies")
     public void testParallelRunWithInvocationDependencies() {
-        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWithInvokableAccessingGlobal");
+        Object returns = BRunUtil.invoke(parallelCompileResult, "testLockWithInvokableAccessingGlobal");
     }
 
     @Test(description = "Test for parallel run when invocations have loops and global var dependencies")
     public void testParallelRunWithChainedInvocationDependencies() {
-        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableChainsAccessingGlobal");
+        Object returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableChainsAccessingGlobal");
     }
 
     @Test(description = "Test for parallel run when invocation are recursive and have global var dependencies")
     public void testParallelRunWithRecursiveInvocationDependencies() {
-        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableRecursiveAccessGlobal");
+        Object returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableRecursiveAccessGlobal");
     }
 
     @Test(description = "Test for parallel run when invocations are imported and contains global var dependencies")

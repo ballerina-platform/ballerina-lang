@@ -16,8 +16,7 @@
  *  under the License.
  */
 package org.ballerinalang.test.query;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
+
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -34,6 +33,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  * @since 1.3.0
  */
 public class JoinClauseTest {
+
     private CompileResult result;
     private CompileResult negativeResult;
 
@@ -45,74 +45,74 @@ public class JoinClauseTest {
 
     @Test(description = "Test join clause with record variable definition")
     public void testSimpleJoinClauseWithRecordVariable() {
-        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with field name : variable name")
     public void testSimpleJoinClauseWithRecordVariable2() {
-        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable2");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable2");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with variable name")
     public void testSimpleJoinClauseWithRecordVariable3() {
-        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable3");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithRecordVariable3");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause with simple variable definition and stream")
     public void testJoinClauseWithStream() {
-        BValue[] values = BRunUtil.invoke(result, "testJoinClauseWithStream", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testJoinClauseWithStream", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test query expr with join and limit clause")
     public void testJoinClauseWithLimit() {
-        BValue[] values = BRunUtil.invoke(result, "testJoinClauseWithLimit");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testJoinClauseWithLimit");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test outer join clause with record variable definition")
     public void testOuterJoinClauseWithRecordVariable() {
-        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with field name : variable name")
     public void testOuterJoinClauseWithRecordVariable2() {
-        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable2");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable2");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause having mapping binding with variable name")
     public void testOuterJoinClauseWithRecordVariable3() {
-        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable3");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable3");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test join clause with simple variable definition and stream")
     public void testOuterJoinClauseWithStream() {
-        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithStream", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithStream", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test query expr with join and limit clause")
     public void testOuterJoinClauseWithLimit() {
-        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithLimit");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testOuterJoinClauseWithLimit");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test equals clause with a variable defined from a let clause")
     public void testSimpleJoinClauseWithLetAndEquals() {
-        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithLetAndEquals");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithLetAndEquals");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test equals clause with a function invocation")
     public void testSimpleJoinClauseWithFunctionInAnEquals() {
-        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithFunctionInAnEquals");
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testSimpleJoinClauseWithFunctionInAnEquals");
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test negative scenarios for query expr with join clause")
