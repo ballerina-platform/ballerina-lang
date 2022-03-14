@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
@@ -49,8 +50,8 @@ public class RemoveUnreachableCodeCodeAction extends AbstractCodeActionProvider 
 
         LineRange lineRange = diagnostic.location().lineRange();
         TextEdit edit = new TextEdit(CommonUtil.toRange(lineRange), "");
-        return List.of(createQuickFixCodeAction(CommandConstants.REMOVE_UNREACHABLE_CODE_TITLE, 
-                List.of(edit), context.fileUri()));
+        return List.of(createCodeAction(CommandConstants.REMOVE_UNREACHABLE_CODE_TITLE, List.of(edit),
+                context.fileUri(), CodeActionKind.QuickFix));
     }
 
     @Override

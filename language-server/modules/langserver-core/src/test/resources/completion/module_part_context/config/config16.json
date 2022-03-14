@@ -765,7 +765,7 @@
       "detail": "Snippet",
       "sortText": "E",
       "filterText": "service_module1_Listener",
-      "insertText": "service ${1} on new module11:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3(module11:MyType|int arg1) returns module11:MyType {\n        return ${4:{a: \"\"}};\n    }\n\n}\n",
+      "insertText": "service ${1} on new module11:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3(module11:MyType|int arg1) returns module11:MyType {\n        return ${4:{a: \"\"\\}};\n    }\n\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
