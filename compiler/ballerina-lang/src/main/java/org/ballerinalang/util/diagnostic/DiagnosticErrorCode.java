@@ -416,7 +416,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
             "invalid.field.binding.pattern.with.non.required.field"),
-    INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2653", "infer.size.only.supported.in.the.first.dimension"),
+    INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),

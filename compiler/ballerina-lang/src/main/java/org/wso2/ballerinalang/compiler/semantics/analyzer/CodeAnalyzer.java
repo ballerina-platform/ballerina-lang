@@ -3687,7 +3687,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        if (doesContainInferredArraySizesInHigherDimensions(arrayType.sizes)) {
+        if (containsInferredArraySizesOfHigherDimensions(arrayType.sizes)) {
             dlog.error(arrayType.pos, DiagnosticErrorCode.INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION);
         } else if (isInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent)) {
             dlog.error(arrayType.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
@@ -3696,15 +3696,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(arrayType.elemtype, env);
     }
 
-    private boolean isInferredArray(List<BLangExpression> indexSizes) {
-        return indexSizes.size() > 0 && isInferredArrayIndicator(indexSizes.get(indexSizes.size() - 1));
+    private boolean isSizeInferredArray(List<BLangExpression> indexSizes) {
+        return !indexSizes.isEmpty() && isInferredArrayIndicator(indexSizes.get(indexSizes.size() - 1));
     }
 
     private boolean isInferredArrayIndicator(BLangExpression size) {
         return size.getKind() == LITERAL && ((BLangLiteral) size).value.equals(Constants.INFERRED_ARRAY_INDICATOR);
     }
 
-    private boolean doesContainInferredArraySizesInHigherDimensions(List<BLangExpression> sizes) {
+    private boolean containsInferredArraySizesOfHigherDimensions(List<BLangExpression> sizes) {
         if (sizes.size() < 2) {
             return false;
         }
