@@ -180,23 +180,18 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
     }
 
     private boolean isInValidContext(NonTerminalNode matchedNode, CodeActionContext context) {
+
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         if (syntaxTree.isEmpty()) {
             return false;
         }
-        Node node;
+        Node node = null;
         if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             node = ((AssignmentStatementNode) matchedNode).varRef();
         } else if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             node = ((VariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
-        } else {
-            return false;
         }
-        return isCursorWithinIdentifier(node, context);
+        return node == null ? false : CommonUtil.isWithInRange(node, context.cursorPositionInTree());
     }
-
-    private boolean isCursorWithinIdentifier(Node node, CodeActionContext context) {
-        int cursorPosOffset = context.cursorPositionInTree();
-        return node.textRange().startOffset() <= cursorPosOffset && cursorPosOffset <= node.textRange().endOffset();
-    }
+    
 }
