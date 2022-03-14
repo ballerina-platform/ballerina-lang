@@ -7858,8 +7858,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
 
             if (actualType == symTable.semanticError) {
-                if (Types.getReferredType(indexExpr.getBType()).tag == TypeTags.STRING
-                        && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD,
                             fieldName, indexBasedAccessExpr.expr.getBType());
@@ -7884,7 +7883,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.getBType().tag == TypeTags.INT && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.indexExpr.pos,
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
                     return actualType;
