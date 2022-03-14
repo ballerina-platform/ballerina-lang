@@ -1,11 +1,10 @@
-type A record {|
+type A record {
     int field1;
     string field2;
     int field3;
-|};
+};
 
 type B record {|
-    int field0;
     int field1;
     string field2;
     int field3;
@@ -18,5 +17,5 @@ public function main() {
         field3: 30
     };
 
-    B b = {field0: 20, };
+    B b = {};
 }

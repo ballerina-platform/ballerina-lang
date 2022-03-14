@@ -17,5 +17,5 @@ public function main() {
         field3: 30
     };
 
-    B b = {field1: 20, };
+    B b = {};
 }

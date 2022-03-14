@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 20,
-    "character": 23
+    "line": 19,
+    "character": 11
   },
-  "source": "expression_context/source/mapping_expr_ctx_source71.bal",
+  "source": "expression_context/source/mapping_expr_ctx_source72.bal",
   "items": [
     {
       "label": "readonly",
@@ -12,6 +12,15 @@
       "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...b",
+      "kind": "Variable",
+      "detail": "B",
+      "sortText": "AB",
+      "filterText": "b",
+      "insertText": "...b",
       "insertTextFormat": "Snippet"
     },
     {
