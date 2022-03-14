@@ -1226,11 +1226,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
 
         for (BLangType langType : unionTypeNode.memberTypeNodes) {
-            BType resolvedType = resolveTypeNode(langType, data, data.env);
-            if (resolvedType == symTable.noType) {
-                return symTable.noType;
-            }
-            memberTypes.add(resolvedType);
+            memberTypes.add(resolveTypeNode(langType, data.env));
+        }
+
+        if (memberTypes.contains(symTable.noType)) {
+            return symTable.noType;
         }
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
@@ -1730,7 +1730,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 invokableTypeSymbol.restParam = null;
                 invokableTypeSymbol.returnType = null;
                 invokableType.tsymbol = invokableTypeSymbol;
-                functionTypeNode.setBType(invokableType);
             } else {
                 invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                         Flags.asMask(functionTypeNode.flagSet),
@@ -1741,17 +1740,16 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 invokableTypeSymbol.name =
                         Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
                 symbolEnter.defineSymbol(functionTypeNode.pos, invokableTypeSymbol, env);
-                functionTypeNode.setBType(invokableType);
                 if (env.node.getKind() != NodeKind.PACKAGE || !functionTypeNode.inTypeDefinitionContext) {
+                    functionTypeNode.setBType(invokableType);
                     symbolEnter.defineNode(functionTypeNode, env);
                 }
-                invokableType = (BInvokableType) invokableTypeSymbol.type;
             }
             List<BLangSimpleVariable> params = functionTypeNode.getParams();
             Location pos = functionTypeNode.pos;
             BLangType returnTypeNode = functionTypeNode.returnTypeNode;
-            return validateInferTypedescParams(pos, params,
-                    returnTypeNode == null ? null : returnTypeNode.getBType()) ? invokableType : symTable.semanticError;
+            validateInferTypedescParams(pos, params, returnTypeNode == null ? null : invokableType);
+            return invokableType;
         } else {
             return functionTypeNode.getBType();
         }
@@ -2393,7 +2391,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env);
     }
 
-    boolean validateInferTypedescParams(Location pos, List<? extends BLangVariable> parameters, BType retType) {
+    void validateInferTypedescParams(Location pos, List<? extends BLangVariable> parameters, BType retType) {
         int inferTypedescParamCount = 0;
         BVarSymbol paramWithInferredTypedescDefault = null;
         Location inferDefaultLocation = null;
@@ -2411,26 +2409,25 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         if (inferTypedescParamCount > 1) {
             dlog.error(pos, DiagnosticErrorCode.MULTIPLE_INFER_TYPEDESC_PARAMS);
-            return false;
+            return;
         }
 
         if (paramWithInferredTypedescDefault == null) {
-            return true;
+            return;
         }
 
         if (retType == null) {
             dlog.error(inferDefaultLocation,
                        DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
-            return false;
+            return;
         }
 
         if (unifier.refersInferableParamName(paramWithInferredTypedescDefault.name.value, retType)) {
-            return true;
+            return;
         }
 
         dlog.error(inferDefaultLocation,
                    DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
-        return false;
     }
 
     private boolean isModuleLevelVar(BSymbol symbol) {
