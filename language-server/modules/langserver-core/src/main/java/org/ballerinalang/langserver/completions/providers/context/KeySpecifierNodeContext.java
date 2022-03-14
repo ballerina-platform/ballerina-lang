@@ -92,15 +92,6 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
                 return completionItems;
             }
             rowTypeSymbol = CommonUtil.getRawType(typeSymbol.get());
-            // If the context type is again a table, need to derive row type.
-            // This is valid for cases where table type is defined separately as a user defined type.
-            // ex:
-            //      type PersonTable table<Person> key(name);
-            //      PersonTable tbl = table key(<cursor>);
-            if (rowTypeSymbol.typeKind() == TypeDescKind.TABLE) {
-                TableTypeSymbol tableTypeSymbol = (TableTypeSymbol) rowTypeSymbol;
-                rowTypeSymbol = CommonUtil.getRawType(tableTypeSymbol.rowTypeParameter());
-            }
         }
 
         // Get existing keys

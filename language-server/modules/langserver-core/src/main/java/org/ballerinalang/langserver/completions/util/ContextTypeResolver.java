@@ -652,11 +652,16 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (optionalTypeSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         TypeSymbol typeSymbol = CommonUtil.getRawType(optionalTypeSymbol.get());
-        // Check if the cursor is within the brackets. If so, we return the row type parameter.
-        if (node.openBracket().textRange().endOffset() < context.getCursorPositionInTree() &&
+        if (node.keySpecifier().isPresent() &&
+                node.keySpecifier().get().textRange().startOffset() < context.getCursorPositionInTree() &&
+                context.getCursorPositionInTree() < node.keySpecifier().get().textRange().endOffset()) {
+            // Check if cursor is within the key specifier node
+            typeSymbol = ((TableTypeSymbol) typeSymbol).rowTypeParameter();
+        } else if (node.openBracket().textRange().endOffset() < context.getCursorPositionInTree() &&
                 context.getCursorPositionInTree() < node.closeBracket().textRange().startOffset()) {
+            // Check if the cursor is within the brackets. If so, we return the row type parameter.
             // NOTE: We don't check if the typeSymbol's type desc kind to be TABLE because, it cannot be otherwise.
             typeSymbol = ((TableTypeSymbol) typeSymbol).rowTypeParameter();
         }
