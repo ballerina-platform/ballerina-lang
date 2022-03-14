@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -25,26 +27,59 @@ import org.eclipse.lsp4j.CompletionItemKind;
 /**
  * This class is being used to build spread field completion item.
  *
- * @since 2.0.0
+ * @since 2201.0.3
  */
 public class SpreadFieldCompletionItemBuilder {
 
     /**
      * Build the constant {@link CompletionItem}.
      *
-     * @param symbol  {@link Symbol}
-     * @param context Completion context
+     * @param symbol   {@link Symbol}
+     * @param typeName type name of the {@link Symbol}
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(Symbol symbol, String typeName, BallerinaCompletionContext context) {
+    public static CompletionItem build(Symbol symbol, String typeName) {
         String symbolName = symbol.getName().orElseThrow();
+        String insertText = "..." + symbolName;
+        return build(insertText, insertText, CompletionItemKind.Variable, symbolName, typeName);
+    }
+
+    /**
+     * Build the constant {@link CompletionItem}.
+     *
+     * @param symbol   {@link FunctionSymbol}
+     * @param typeName type name of the {@link Symbol}
+     * @param context  completion context
+     * @return {@link CompletionItem} generated completion item
+     */
+    public static CompletionItem build(FunctionSymbol symbol, String typeName, BallerinaCompletionContext context) {
+        String symbolName = symbol.getName().orElseThrow();
+        Pair<String, String> functionInvocationSignature =
+                FunctionCompletionItemBuilder.getFunctionInvocationSignature(symbol, symbolName, context);
+        String insertText = "..." + functionInvocationSignature.getLeft();
+        String label = "..." + functionInvocationSignature.getRight();
+        return build(insertText, label, CompletionItemKind.Function, symbolName, typeName);
+    }
+
+    /**
+     * Build the constant {@link CompletionItem}.
+     *
+     * @param insertText insert text
+     * @param label      label
+     * @param kind       completion item kind
+     * @param symbolName symbol name
+     * @param typeName   type name of the {@link Symbol}
+     * @return {@link CompletionItem} generated completion item
+     */
+    private static CompletionItem build(String insertText, String label, CompletionItemKind kind, String symbolName,
+                                        String typeName) {
         CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel("..." + symbolName);
-        completionItem.setKind(CompletionItemKind.Variable);
+        completionItem.setLabel(label);
+        completionItem.setKind(kind);
         completionItem.setDetail(typeName);
         completionItem.setFilterText(symbolName);
-        String insertText = "..." + symbolName;
         completionItem.setInsertText(insertText);
         return completionItem;
     }
+
 }

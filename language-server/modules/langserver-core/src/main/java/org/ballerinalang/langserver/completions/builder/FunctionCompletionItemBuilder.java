@@ -262,7 +262,7 @@ public final class FunctionCompletionItemBuilder {
      * @param ctx            Language Server Operation context
      * @return {@link Pair} of insert text(left-side) and signature label(right-side)
      */
-    private static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
+    public static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
                                                                        String functionName,
                                                                        BallerinaCompletionContext ctx) {
         String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);

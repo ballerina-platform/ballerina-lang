@@ -46,6 +46,15 @@
       "filterText": "fill",
       "insertText": "field1: ${1:0},\nfield3: {rec2f1: ${2:0}, rec2f2: ${3:0}},\nfield2: ${3:0}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...testFunction()",
+      "kind": "Function",
+      "detail": "record {| int field1; int field2; Record2 field3; anydata...; |}",
+      "sortText": "AC",
+      "filterText": "testFunction",
+      "insertText": "...testFunction()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
