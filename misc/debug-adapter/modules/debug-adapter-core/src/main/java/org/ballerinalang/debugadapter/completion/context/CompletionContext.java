@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completion;
+package org.ballerinalang.debugadapter.completion.context;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.SuspendedContext;
 
@@ -34,6 +35,8 @@ import java.util.Optional;
 public class CompletionContext {
 
     private final SuspendedContext suspendedContext;
+    private int cursorPosInTree = -1;
+    private NonTerminalNode nodeAtCursor;
 
     public CompletionContext(SuspendedContext suspendedContext) {
         this.suspendedContext = suspendedContext;
@@ -50,5 +53,21 @@ public class CompletionContext {
 
     public SuspendedContext getSuspendedContext() {
         return suspendedContext;
+    }
+
+    public int getCursorPositionInTree() {
+        return cursorPosInTree;
+    }
+
+    public void setCursorPositionInTree(int cursorPosInTree) {
+        this.cursorPosInTree = cursorPosInTree;
+    }
+
+    public NonTerminalNode getNodeAtCursor() {
+        return nodeAtCursor;
+    }
+
+    public void setNodeAtCursor(NonTerminalNode nodeAtCursor) {
+        this.nodeAtCursor = nodeAtCursor;
     }
 }
