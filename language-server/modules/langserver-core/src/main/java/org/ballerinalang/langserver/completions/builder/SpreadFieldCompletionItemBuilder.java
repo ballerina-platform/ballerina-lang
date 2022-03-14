@@ -19,10 +19,12 @@ package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+
+import java.util.List;
 
 /**
  * This class is being used to build spread field completion item.
@@ -49,15 +51,13 @@ public class SpreadFieldCompletionItemBuilder {
      *
      * @param symbol   {@link FunctionSymbol}
      * @param typeName type name of the {@link Symbol}
-     * @param context  completion context
      * @return {@link CompletionItem} generated completion item
      */
     public static CompletionItem build(FunctionSymbol symbol, String typeName, BallerinaCompletionContext context) {
         String symbolName = symbol.getName().orElseThrow();
-        Pair<String, String> functionInvocationSignature =
-                FunctionCompletionItemBuilder.getFunctionInvocationSignature(symbol, symbolName, context);
-        String insertText = "..." + functionInvocationSignature.getLeft();
-        String label = "..." + functionInvocationSignature.getRight();
+        List<String> funcArguments = CommonUtil.getFuncArguments(symbol, context);
+        String insertText = "..." + symbolName + (funcArguments.isEmpty() ? "()" : "(${1})");
+        String label = "..." + symbolName + "(" + String.join(", ", funcArguments) + ")";
         return build(insertText, label, CompletionItemKind.Function, symbolName, typeName);
     }
 

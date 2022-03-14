@@ -225,39 +225,43 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                                                                  List<RecordFieldSymbol> validFields) {
         Predicate<Symbol> symbolFilter = this.getVariableFilter().or(symbol -> (symbol.kind() == FUNCTION));
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
-                .filter(symbolFilter.and(symbol -> {
-                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                    if (typeDescriptor.isEmpty()) {
-                        return false;
-                    }
-                    TypeSymbol rawType;
-                    if (typeDescriptor.get().typeKind() == TypeDescKind.FUNCTION) {
-                        Optional<TypeSymbol> returnTypeSymbol =
-                                ((FunctionTypeSymbol) typeDescriptor.get()).returnTypeDescriptor();
-                        if (returnTypeSymbol.isEmpty()) {
-                            return false;
-                        }
-                        rawType = CommonUtil.getRawType(returnTypeSymbol.get());
-                    } else {
-                        rawType = CommonUtil.getRawType(typeDescriptor.get());
-                    }
-                    if (rawType.typeKind() != TypeDescKind.RECORD) {
-                        return false;
-                    }
-                    Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) rawType).fieldDescriptors();
-                    for (RecordFieldSymbol fieldSymbol : recordFields.values()) {
-                        if (fieldSymbol.getName().isEmpty() || validFields.stream()
-                                .filter(validField -> validField.getName().isPresent()
-                                        && validField.getName().get().equals(fieldSymbol.getName().get())
-                                        && fieldSymbol.typeDescriptor()
-                                        .subtypeOf(validField.typeDescriptor())).findAny().isEmpty()) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }))
+                .filter(symbolFilter.and(symbol -> isSpreadable(symbol, validFields)))
                 .collect(Collectors.toList());
         return this.getSpreadFieldCompletionItemList(visibleSymbols, context);
+    }
+
+    private boolean isSpreadable(Symbol symbol, List<RecordFieldSymbol> fields) {
+        Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+        if (typeDescriptor.isEmpty()) {
+            return false;
+        }
+        TypeSymbol rawType;
+        if (typeDescriptor.get().typeKind() == TypeDescKind.FUNCTION) {
+            Optional<TypeSymbol> returnTypeSymbol =
+                    ((FunctionTypeSymbol) typeDescriptor.get()).returnTypeDescriptor();
+            if (returnTypeSymbol.isEmpty()) {
+                return false;
+            }
+            typeDescriptor = returnTypeSymbol;
+        }
+
+        rawType = CommonUtil.getRawType(typeDescriptor.get());
+        if (rawType.typeKind() != TypeDescKind.RECORD) {
+            return false;
+        }
+        Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) rawType).fieldDescriptors();
+        for (RecordFieldSymbol fieldSymbol : recordFields.values()) {
+            if (!isAMember(fieldSymbol, fields)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isAMember(RecordFieldSymbol field, List<RecordFieldSymbol> fields) {
+        return field.getName().isPresent() && fields.stream().anyMatch(validField ->
+                validField.getName().isPresent() && validField.getName().get().equals(field.getName().get())
+                        && field.typeDescriptor().subtypeOf(validField.typeDescriptor()));
     }
 
     private List<LSCompletionItem> getSpreadFieldCompletionItemList(List<Symbol> visibleSymbols,
