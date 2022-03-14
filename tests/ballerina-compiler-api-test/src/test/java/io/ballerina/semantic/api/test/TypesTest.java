@@ -225,6 +225,40 @@ public class TypesTest {
         };
     }
 
+    @Test(dataProvider = "subTypeOfProvider")
+    public void testSubTypeOfTypes(String moduleName, String typeDefName, TypeSymbol expType) {
+        Module module = getModule(project, moduleName);
+        model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
+        types = model.types();
+        String org = module.descriptor().org().value();
+        String pkgName = module.descriptor().name().toString();
+        String version = module.descriptor().version().toString();
+
+        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
+        assertTrue(symbol.isPresent());
+        Optional<TypeSymbol> typeSymbol = getTypeSymbolOfTypeDef(symbol.get());
+        assertTrue(typeSymbol.isPresent());
+
+        assertTrue(typeSymbol.get().subtypeOf(expType));
+    }
+
+    @DataProvider(name = "subTypeOfProvider")
+    private Object[][] getSubTypeOfTypes() {
+        return new Object[][] {
+                {"foo", "MyErr", types.ERROR},
+                {"foo", "ErrorDetail1", types.ANY},
+                {"foo", "MyInt", types.ANY},
+                {"foo", "Language", types.ANY},
+                {"foo", "SI", types.ANY},
+                
+                {"bar", "MyFloat", types.ANY},
+                {"bar", "Employee", types.ANY},
+                {"bar", "Digit", types.ANY},
+                {"bar", "ABC", types.ANY},
+                {"bar", "PersonClass", types.ANY},
+        };
+    }
+
     private void testTypesInModule(String moduleName, Object[][] expTypes) {
         Module module = getModule(project, moduleName);
         model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
@@ -249,25 +283,24 @@ public class TypesTest {
 
     private void assertSymbolTypeDesc(Symbol symbol, SymbolKind symbolKind, TypeDescKind typeDescKind) {
         assertEquals(symbol.kind(), symbolKind);
-        switch (symbolKind) {
+        Optional<TypeSymbol> typeSymbol = getTypeSymbolOfTypeDef(symbol);
+        assertTrue(typeSymbol.isPresent());
+        assertEquals(typeSymbol.get().typeKind(), typeDescKind);
+    }
+
+    private Optional<TypeSymbol> getTypeSymbolOfTypeDef(Symbol symbol) {
+        switch (symbol.kind()) {
             case TYPE_DEFINITION:
-                BallerinaTypeDefinitionSymbol typeDefSymbol = (BallerinaTypeDefinitionSymbol) symbol;
-                assertEquals(typeDefSymbol.typeDescriptor().typeKind(), typeDescKind);
-                break;
+                return Optional.of(((BallerinaTypeDefinitionSymbol) symbol).typeDescriptor());
             case CONSTANT:
             case ENUM_MEMBER:
-                BallerinaConstantSymbol constantSymbol = (BallerinaConstantSymbol) symbol;
-                assertEquals(constantSymbol.typeDescriptor().typeKind(), typeDescKind);
-                break;
+                return Optional.of(((BallerinaConstantSymbol) symbol).typeDescriptor());
             case ENUM:
-                BallerinaEnumSymbol enumSymbol = (BallerinaEnumSymbol) symbol;
-                assertEquals(enumSymbol.typeDescriptor().typeKind(), typeDescKind);
-                break;
+                return Optional.of(((BallerinaEnumSymbol) symbol).typeDescriptor());
             case CLASS:
-                BallerinaClassSymbol classSymbol = (BallerinaClassSymbol) symbol;
-                assertEquals(classSymbol.typeKind(), typeDescKind);
-                break;
+                return Optional.of((BallerinaClassSymbol) symbol);
         }
+        return Optional.empty();
     }
 
 }
