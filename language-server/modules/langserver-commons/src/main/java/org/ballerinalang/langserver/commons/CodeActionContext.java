@@ -56,5 +56,5 @@ public interface CodeActionContext extends DocumentServiceContext {
      *
      * @return {@link Integer} offset of the cursor
      */
-    int cursorPositionInTree() throws Exception;
+    int cursorPositionInTree();
 }

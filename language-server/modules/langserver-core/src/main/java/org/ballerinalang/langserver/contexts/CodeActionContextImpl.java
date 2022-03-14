@@ -110,15 +110,15 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
-    public int cursorPositionInTree() throws Exception {
+    public int cursorPositionInTree() {
         if (this.cursorPositionInTree == -1) {
             Optional<Document> document = this.currentDocument();
             if (document.isEmpty()) {
-                throw new NoSuchFieldException();
+                return this.cursorPositionInTree;
             }
             TextDocument textDocument = document.get().textDocument();
             Position position = this.cursorPosition();
-            this.cursorPositionInTree = 
+            this.cursorPositionInTree =
                     textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         }
         return this.cursorPositionInTree;
