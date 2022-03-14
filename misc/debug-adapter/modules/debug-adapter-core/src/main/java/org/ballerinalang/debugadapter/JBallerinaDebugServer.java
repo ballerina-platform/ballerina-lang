@@ -130,7 +130,6 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 
 /**
  * JBallerina debug server implementation.
