@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -29,7 +28,6 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -145,7 +143,7 @@ public final class FunctionCompletionItemBuilder {
         item.setInsertText("self." + functionSignature.getLeft());
         item.setLabel("self." + functionSignature.getRight());
         item.setFilterText("self." + funcName);
-        
+
         return item;
     }
 
