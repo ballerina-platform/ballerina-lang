@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -114,8 +113,7 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
                 return true;
             }
 
-            return rawType.typeKind() == TypeDescKind.UNION &&
-                    CommonUtil.isUnionOfType((UnionTypeSymbol) rawType, TypeDescKind.RECORD);
+            return CommonUtil.isUnionOfType(rawType, TypeDescKind.RECORD);
         };
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {

@@ -21,15 +21,14 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
-import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -108,33 +107,22 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
                 .filter(identifierToken -> !identifierToken.isMissing())
                 .map(Token::text)
                 .collect(Collectors.toSet());
-        
-        if (rowTypeSymbol.typeKind() == TypeDescKind.RECORD) {
-            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rowTypeSymbol;
-            // Get field symbols which are not already specified
-            List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
-                    .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent()
-                            && SyntaxInfo.isIdentifier(recordFieldSymbol.getName().get())
-                            && !fieldNames.contains(recordFieldSymbol.getName().get()))
-                    .collect(Collectors.toList());
-            completionItems.addAll(this.getCompletionItemList(symbols, context));
-        } else if (rowTypeSymbol.typeKind() == TypeDescKind.UNION && 
-                CommonUtil.isUnionOfType((UnionTypeSymbol) rowTypeSymbol, TypeDescKind.RECORD)) {
-            // If row type is a union of records, we find the common named fields (we don't consider the type of those
-            // fields as of now) and show them in completions.
-            UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rowTypeSymbol;
-            List<RecordFieldSymbol> commonFields = unionTypeSymbol.memberTypeDescriptors().stream()
-                    .map(CommonUtil::getRawType)
-                    .map(typeSymbol -> (RecordTypeSymbol) typeSymbol)
-                    .map(RecordTypeSymbol::fieldDescriptors)
-                    .reduce((map1, map2) -> map1.entrySet().stream()
-                            .filter(e -> map2.containsKey(e.getKey()))
-                            .filter(e -> !fieldNames.contains(e.getKey()))
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
-                    .map(fieldMap -> new ArrayList<>(fieldMap.values()))
-                    .orElse(new ArrayList<>());
-            completionItems.addAll(this.getCompletionItemList(commonFields, context));
-        }
+
+        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeSymbols = CommonUtil.getRecordTypeSymbols(rowTypeSymbol);
+        List<RecordFieldSymbol> commonFields = recordTypeSymbols.stream()
+                .map(RawTypeSymbolWrapper::getRawType)
+                .map(RecordTypeSymbol::fieldDescriptors)
+                .reduce((map1, map2) -> map1.entrySet().stream()
+                        .filter(e -> map2.containsKey(e.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                )
+                .stream()
+                .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> !fieldNames.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        completionItems.addAll(this.getCompletionItemList(commonFields, context));
         return completionItems;
     }
 

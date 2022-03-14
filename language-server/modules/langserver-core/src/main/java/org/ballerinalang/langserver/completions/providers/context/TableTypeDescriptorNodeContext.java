@@ -89,7 +89,6 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
         }
         
         // Check if type is a union of records
-        return typeSymbol.typeKind() == TypeDescKind.UNION &&
-                CommonUtil.isUnionOfType((UnionTypeSymbol) typeSymbol, TypeDescKind.RECORD);
+        return CommonUtil.isUnionOfType(typeSymbol, TypeDescKind.RECORD);
     }
 }
