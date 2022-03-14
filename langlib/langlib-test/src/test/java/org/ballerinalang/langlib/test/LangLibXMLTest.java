@@ -68,10 +68,17 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testFromXml() {
+    public void testFromString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromString");
         assertEquals(returns[0].stringValue(),
                 "<TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE><TITLE>Greatest Hits</TITLE>");
+    }
+
+    @Test
+    public void testFromString2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFromString2");
+        assertEquals(returns[0].stringValue(),
+                "<A xmlns=\"abc\"><B xmlns=\"\"/><B xmlns=\"\"/><B xmlns=\"\"/></A>");
     }
 
     @Test
