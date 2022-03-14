@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -123,7 +124,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             edits.add(new TextEdit(paramTypeRange.get(), type));
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
                                                 type);
-            actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }

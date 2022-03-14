@@ -23,7 +23,6 @@ import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -35,11 +34,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +62,6 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
             return actions;
         }
         String uri = context.fileUri();
-        List<Diagnostic> diagnostics = new ArrayList<>();
         String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                 diagnosticMessage.lastIndexOf("'"));
@@ -83,19 +77,14 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 .forEach(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
                     String moduleName = CommonUtil.escapeModuleName(pkgName);
-                    CodeAction action = new CodeAction();
                     Position insertPos = getImportPosition(context);
                     String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
                     String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
                                                         pkgEntry.packageOrg().value() + "/" + moduleName);
-                    action.setTitle(commandTitle);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
-                    action.setKind(CodeActionKind.QuickFix);
-                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-                    action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+                    CodeAction action = createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
                     actions.add(action);
                 });
         return actions;

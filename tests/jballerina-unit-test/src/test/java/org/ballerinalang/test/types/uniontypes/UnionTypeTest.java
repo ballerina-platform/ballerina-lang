@@ -163,6 +163,22 @@ public class UnionTypeTest {
         };
     }
 
+    @Test(dataProvider = "function-name-provider-recursive")
+    public void testRecursiveUnionTypes(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "function-name-provider-recursive")
+    public Object[] recursiveUnionTypesTests() {
+        return new String[]{
+                "testRecursiveUnionTypeWithArray",
+                "testRecursiveUnionTypeWithArrayAndMap",
+                "testRecursiveUnionTypeWithRecord",
+                "testRecursiveUnionTypeWithTuple",
+                "testRecursiveUnionWithTable"
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

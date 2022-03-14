@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -84,7 +85,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         edits.add(createVarTextEdits.edits.get(0));
         // Add all the import text edits excluding duplicates
         createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
-        return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
+        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(commandTitle, edits, uri, 
+                CodeActionKind.QuickFix));
     }
 
     @Override

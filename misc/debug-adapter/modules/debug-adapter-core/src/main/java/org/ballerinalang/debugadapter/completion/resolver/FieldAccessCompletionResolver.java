@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completion;
+package org.ballerinalang.debugadapter.completion.resolver;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
@@ -61,6 +61,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.completion.context.CompletionContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
