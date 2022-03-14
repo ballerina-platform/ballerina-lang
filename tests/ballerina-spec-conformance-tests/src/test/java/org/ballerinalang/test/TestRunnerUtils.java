@@ -16,7 +16,6 @@
 package org.ballerinalang.test;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
@@ -357,7 +356,7 @@ public class TestRunnerUtils {
                     validateOutput(compileResult, outputValues, lineNumbers, absLineNum, context);
                     break;
             }
-        } catch (BLangRuntimeException exception) {
+        } catch (RuntimeException exception) {
             validateRuntimeErrorOrPanic(exception.getMessage(), lineNumbers, outputValues, absLineNum, context);
         }
     }
