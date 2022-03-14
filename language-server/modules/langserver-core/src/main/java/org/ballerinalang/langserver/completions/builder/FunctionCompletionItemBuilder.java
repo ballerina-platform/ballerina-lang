@@ -98,8 +98,8 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, functionSymbol, context);
         if (functionSymbol != null) {
             // Override function signature
-            String funcName = functionSymbol.getName().get();
-            item.setInsertText(funcName);
+            String funcName = functionSymbol.getName().orElse("");
+            item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(funcName));
             item.setLabel(funcName);
             item.setFilterText(funcName);
             item.setKind(CompletionItemKind.Variable);
@@ -265,11 +265,12 @@ public final class FunctionCompletionItemBuilder {
     private static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
                                                                        String functionName,
                                                                        BallerinaCompletionContext ctx) {
+        String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);
         if (functionSymbol == null) {
-            return ImmutablePair.of(functionName + "()", functionName + "()");
+            return ImmutablePair.of(escapedFunctionName + "()", functionName + "()");
         }
         StringBuilder signature = new StringBuilder(functionName + "(");
-        StringBuilder insertText = new StringBuilder(functionName + "(");
+        StringBuilder insertText = new StringBuilder(escapedFunctionName + "(");
         List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
         if (!funcArguments.isEmpty()) {
             signature.append(String.join(", ", funcArguments));

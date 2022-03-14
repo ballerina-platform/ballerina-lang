@@ -77,8 +77,15 @@ function test() {
     'xml:ProcessingInstruction pi = xml `<?target data?>`;
     'xml:Comment cmnt;
     'xml:Text txt;
+
+    Err err = error ErrX("Foo");
 }
 
 type T1 1|2|3;
 
 type T2 "a"|"b";
+
+type ErrX distinct error;
+type ErrY distinct error;
+
+type Err ErrX|ErrY|error<map<anydata>>;

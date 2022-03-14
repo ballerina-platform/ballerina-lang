@@ -67,8 +67,8 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                 from("age", CLASS_FIELD),
                                 from("init", METHOD),
                                 from("y", VARIABLE),
-                                from("obj", VARIABLE)
-//                                from("getName", METHOD)
+                                from("obj", VARIABLE),
+                                from("getName", METHOD)
                 )},
                 {26, 25, concat(expModuleSymbols,
                                 from("self", VARIABLE),
@@ -76,8 +76,8 @@ public class VisibleSymbolsInExpressionsTest extends BaseVisibleSymbolsTest {
                                 from("age", CLASS_FIELD),
                                 from("init", METHOD),
                                 from("y", VARIABLE),
-                                from("obj", VARIABLE)
-//                                from("getName", METHOD)
+                                from("obj", VARIABLE),
+                                from("getName", METHOD)
                 )},
                 {29, 43, concat(expModuleSymbols,
                                 from("self", VARIABLE),

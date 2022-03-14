@@ -17,8 +17,7 @@
 */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,71 +42,70 @@ public class FunctionPointersWithRestArgsTest {
 
     @Test
     public void testFunctionPointerRest() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRest");
-        Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3]");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRest");
+        Assert.assertEquals(returns.toString(), "[1,2,3]");
     }
 
     @Test
     public void testFunctionPointerRestTyped() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestTyped");
-        Assert.assertEquals(returns[0].stringValue(), "[4, 5, 6]");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestTyped");
+        Assert.assertEquals(returns.toString(), "[4,5,6]");
     }
 
     @Test
     public void testFunctionPointerAssignmentWithRestParams() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerAssignmentWithRestParams");
+        Object arr = BRunUtil.invoke(fpProgram, "testFunctionPointerAssignmentWithRestParams");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertEquals(returns.get(0), 1L);
 
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(1), 2L);
 
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[2].stringValue(), "[3, 4]");
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertEquals(returns.get(2).toString(), "[3,4]");
     }
 
     @Test
     public void testFunctionPointerRestParamExpand() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamExpand");
+        Object arr = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamExpand");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertEquals(returns.get(0), 6L);
 
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 7);
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertEquals(returns.get(1), 7L);
 
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[2].stringValue(), "[8, 9, 4]");
+        Assert.assertNotNull(returns.get(2));
+        Assert.assertEquals(returns.get(2).toString(), "[8,9,4]");
     }
 
     @Test
     public void testFunctionPointerRestParamUnionNarrow() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrow");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrow");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[2, 3, 4]");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "[2,3,4]");
     }
 
     @Test
     public void testFunctionPointerRestParamUnionNarrowName() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrowName");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrowName");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[3, 2, 1]");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "[3,2,1]");
     }
 
     @Test
     public void testFunctionPointerRestParamStructuredType() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamStructuredType");
+        Object returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamStructuredType");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "Irshad");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "Irshad");
     }
 
     @AfterClass

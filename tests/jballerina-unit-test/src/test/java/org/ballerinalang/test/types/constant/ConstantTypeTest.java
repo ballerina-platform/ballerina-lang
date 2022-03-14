@@ -66,29 +66,30 @@ public class ConstantTypeTest {
 //        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 37, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'",
                 38, 15);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '12', found 'string'", 39, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '\"12\"', found 'string'", 39, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE1', found '3'", 41, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE2', found '3.0f'", 42, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE3', found '3.0d'", 43, 16);
         // Activate this after fixing #33889
 //        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE4', found '3'", 44, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE5', found 'false'", 45, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE6', found '12'", 46, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE12', found " +
-                "'(record {| record {| record {| 1 a; |} b; |} a; record {| record {| 1 a; |} a;" +
-                " record {| 2 b; 3 c; |} CMI2; record {| 1 d; |} c; |} b; |} & readonly)'", 117, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE6', found '\"12\"'", 46, 16);
+
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE12', found '(record {| " +
+                "record {| record {| 1 a; |} b; |} a; record {| record {| 1 a; |} a; record {| 2 b; 3 c; |} CMI2; " +
+                "record {| 1 d; |} c; |} b; |} & readonly)'", 117, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE11', found " +
                 "'(record {| 0.11f a; 2.12f b; |} & readonly)'", 118, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE10', found " +
                 "'(record {| 0.11d a; 2.12d b; |} & readonly)'", 119, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE8', found " +
                 "'(record {| true a; false b; |} & readonly)'", 121, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
-                "'(record {| C a; S b; |} & readonly)'", 122, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
-                "'(record {| C a; S b; |} & readonly)'", 123, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
-                "'(record {| C a; C b; S c; |} & readonly)'", 124, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found '(record {| \"C\"" +
+                " a; \"S\" b; |} & readonly)'", 122, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found '(record {| \"C\"" +
+                " a; \"S\" b; |} & readonly)'", 123, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found '(record {| \"C\"" +
+                " a; \"C\" b; \"S\" c; |} & readonly)'", 124, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
                 "'(record {| record {| record {| 1 a; |} b; |} a; record {| record {| 1 a; |} a; record {| 2 b; 3 c; " +
                 "|} CMI2; record {| 1 d; |} c; |} b; |} & readonly)'", 125, 16);
@@ -100,8 +101,8 @@ public class ConstantTypeTest {
                 "readonly 2.12f b; |} & readonly'", 128, 28);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '0.11d', found 'float'", 129, 22);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 131, 17);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'C', found 'string'", 132, 22);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'S', found 'string'", 132, 31);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '\"C\"', found 'string'", 132, 22);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '\"S\"', found 'string'", 132, 31);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 133, 29);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 133, 29);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 134, 17);
@@ -158,18 +159,20 @@ public class ConstantTypeTest {
         // BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'true', found 'boolean'",
         //                          220, 11);
 
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| record {| greetings " +
-                "a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world" +
-                " y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'", 241, 59);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| record {| " +
+                "\"greetings\" a; \"map\" b; |}...; |}', found '(record {| record {| \"greetings\" a; \"map\" b; |} " +
+                "a; record {| \"hello\" x; \"world\" y; |} b; record {| \"from\" x; \"Ballerina\" z; \"!\" b; |} c; " +
+                "|} & readonly)'", 241, 59);
 
         // https://github.com/ballerina-platform/ballerina-lang/issues/33890
         // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 243, 7);
         // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 243, 7);
         // BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'c'", 243, 7);
 
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| record {| greetings " +
-                "a; map b; |}...; |}', found '(record {| record {| greetings a; map b; |} a; record {| hello x; world" +
-                " y; |} b; record {| from x; Ballerina z; ! b; |} c; |} & readonly)'", 259, 63);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| record {| " +
+                "\"greetings\" a; \"map\" b; |}...; |}', found '(record {| record {| \"greetings\" a; \"map\" b; |} " +
+                "a; record {| \"hello\" x; \"world\" y; |} b; record {| \"from\" x; \"Ballerina\" z; \"!\" b; |} c; " +
+                "|} & readonly)'", 259, 63);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'a'", 261, 11);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 261, 11);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'c'", 261, 11);

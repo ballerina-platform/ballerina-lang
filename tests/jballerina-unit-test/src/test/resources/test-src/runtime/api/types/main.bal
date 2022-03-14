@@ -41,16 +41,16 @@ function testTypeIds() {
     string[] types = objects:getTypeIds(apple);
     test:assertEquals(types.length(), 3);
     test:assertEquals(types[0], "Apple");
-    test:assertEquals(types[1], "Common");
-    test:assertEquals(types[2], "Fruit");
+    test:assertEquals(types[1], "Fruit");
+    test:assertEquals(types[2], "Common");
 
     // service type
     objects:Collection collection = new("waruna");
     types = objects:getTypeIds(collection);
     test:assertEquals(types.length(), 3);
     test:assertEquals(types[0], "Common");
-    test:assertEquals(types[1], "Iterable");
-    test:assertEquals(types[2], "Collection");
+    test:assertEquals(types[1], "Collection");
+    test:assertEquals(types[2], "Iterable");
 }
 
 function testFunctionToString() {

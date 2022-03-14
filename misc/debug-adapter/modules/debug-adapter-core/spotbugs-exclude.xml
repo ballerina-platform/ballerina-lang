@@ -58,6 +58,10 @@
                 <Class name="org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator"/>
                 <Method name="invokeObjectMethod"/>
             </And>
+            <And>
+                <Bug pattern="BC_UNCONFIRMED_CAST"/>
+                <Class name="org.ballerinalang.debugadapter.completion.CompletionGenerator"/>
+            </And>
         </Or>
     </Match>
 </FindBugsFilter>

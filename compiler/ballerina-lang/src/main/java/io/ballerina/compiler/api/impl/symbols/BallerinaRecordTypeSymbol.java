@@ -17,6 +17,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -29,7 +30,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,11 +56,11 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
             return this.fieldSymbols;
         }
 
-        Map<String, RecordFieldSymbol> fields = new LinkedHashMap<>();
+        FieldMap<String, RecordFieldSymbol> fields = new FieldMap<>();
         BRecordType type = (BRecordType) this.getBType();
 
         for (BField field : type.fields.values()) {
-            fields.put(field.name.value, new BallerinaRecordFieldSymbol(this.context, field));
+            fields.put(field.symbol.getOriginalName().value, new BallerinaRecordFieldSymbol(this.context, field));
         }
 
         this.fieldSymbols = Collections.unmodifiableMap(fields);

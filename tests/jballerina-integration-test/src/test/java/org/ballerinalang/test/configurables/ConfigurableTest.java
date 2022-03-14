@@ -278,6 +278,16 @@ public class ConfigurableTest extends BaseTest {
         executeBalCommand("/largeProject", "main", null);
     }
 
+    @Test
+    public void testModuleAmbiguityWithModuleNameAsBallerina() throws BallerinaTestException {
+        LogLeecher errorLog = new LogLeecher("error: [Config.toml:(1:1,1:13)] the module name 'ballerina' clashes " +
+                "with an imported organization name. Please provide the module name as '[ballerina.ballerina]'", ERROR);
+        bMainInstance.runMain("run", new String[]{}, null, new String[]{},
+                new LogLeecher[]{errorLog},
+                Paths.get(testFileLocation, "testAmbiguousCases", "moduleNamedBallerina").toString());
+        errorLog.waitForText(5000);
+    }
+
     /**
      * Get environment variables and add config file path, data as an env variable.
      *
@@ -285,9 +295,7 @@ public class ConfigurableTest extends BaseTest {
      */
     private Map<String, String> addEnvironmentVariables(Map<String, String> pathVariables) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        for (Map.Entry<String, String> pathVariable :pathVariables.entrySet()) {
-            envVariables.put(pathVariable.getKey(), pathVariable.getValue());
-        }
+        envVariables.putAll(pathVariables);
         return envVariables;
     }
 }

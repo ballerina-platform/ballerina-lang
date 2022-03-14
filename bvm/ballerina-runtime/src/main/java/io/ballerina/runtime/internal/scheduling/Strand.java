@@ -63,7 +63,7 @@ public class Strand {
     private String name;
     private StrandMetadata metadata;
 
-    public Object[] frames;
+    public Stack<Object> frames;
     public int resumeIndex;
     public Object returnValue;
     public BError panic;

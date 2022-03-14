@@ -86,17 +86,17 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 47, 6);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 55, 106);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 71, 39);
+                "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 71, 39);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 74, 9);
+                "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 74, 9);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 81, 16);
+                "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 81, 16);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 91, 43);
+                "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 91, 43);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 94, 13);
+                "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 94, 13);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 101, 20);
+                "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 101, 20);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 118, 30);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 18);
         validateError(result, i++, ERROR_EXPECTED_AN_ISOLATED_EXPRESSION, 131, 24);
