@@ -615,7 +615,7 @@ public class ArrayFillTest {
 
     @Test
     public void testXMLSubtypesArrayFill() {
-        BRunUtil.invokeFunction(compileResult, "testXMLSubtypesArrayFill");
+        BRunUtil.invoke(compileResult, "testXMLSubtypesArrayFill");
     }
 
     @AfterClass

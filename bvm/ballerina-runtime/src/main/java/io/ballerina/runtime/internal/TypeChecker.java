@@ -3220,7 +3220,7 @@ public class TypeChecker {
 
         int typeTag = type.getTag();
         if (TypeTags.isXMLTypeTag(typeTag)) {
-            return (typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG);
+            return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
         }
 
         if (typeTag < TypeTags.RECORD_TYPE_TAG &&
