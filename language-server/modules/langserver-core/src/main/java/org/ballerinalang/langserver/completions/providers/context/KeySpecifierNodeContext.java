@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -120,6 +121,8 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
                 .flatMap(map -> map.entrySet().stream())
                 .filter(entry -> !fieldNames.contains(entry.getKey()))
                 .map(Map.Entry::getValue)
+                .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
+                .filter(recordFieldSymbol -> SyntaxInfo.isIdentifier(recordFieldSymbol.getName().get()))
                 .collect(Collectors.toList());
 
         completionItems.addAll(this.getCompletionItemList(commonFields, context));

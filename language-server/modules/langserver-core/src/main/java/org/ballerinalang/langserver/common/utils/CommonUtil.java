@@ -1429,8 +1429,9 @@ public class CommonUtil {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
         if (rawType.typeKind() == TypeDescKind.RECORD) {
             return Collections.singletonList(RawTypeSymbolWrapper.from(typeSymbol, (RecordTypeSymbol) rawType));
-        } else if (CommonUtil.isUnionOfType(rawType, TypeDescKind.RECORD)) {
+        } else if (rawType.typeKind() == TypeDescKind.UNION) {
             return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                    .filter(tSymbol -> CommonUtil.getRawType(tSymbol).typeKind() == TypeDescKind.RECORD)
                     .map(tSymbol -> {
                         RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(tSymbol);
                         return RawTypeSymbolWrapper.from(tSymbol, recordTypeSymbol);
