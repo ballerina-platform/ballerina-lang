@@ -1,3 +1,4 @@
+import ballerina/lang.'xml;
 xmlns "http://ballerina.com/b" as ns1;
 
 function testElementLiteralWithNamespaces() returns [xml, xml] {
@@ -153,4 +154,13 @@ public function xmlWithDefaultNamespace() returns string {
                    </Add>`;
     string s2 = body2.toString();
     return s2;
+}
+
+function testXmlLiteralUsingXmlNamespacePrefix() {
+    xml x1 = xml `<entry xml:base="https://namespace.servicebus.windows.net/$Resources/Eventhubs"></entry>`;
+    string s = x1.toString();
+    string expectedStr = "<entry xml:base=\"https://namespace.servicebus.windows.net/$Resources/Eventhubs\"></entry>";
+    if (s != expectedStr) {
+        panic error("Assertion error", expected = expectedStr, found=s);
+    }
 }
