@@ -34,10 +34,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -138,7 +140,14 @@ public class Types {
         }
 
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
-        BSymbol bSymbol = symbolResolver.lookupSymbolInMainSpace(pkgEnv, Names.fromString(typeDefName));
+
+        BSymbol bSymbol;
+        Name typeDef = Names.fromString(typeDefName);
+        bSymbol = symbolResolver.lookupSymbolInMainSpace(pkgEnv, typeDef);
+
+        if (bSymbol == symbolTable.notFoundSymbol) {
+            bSymbol = findByNameInImportedPackages(packageSymbol.imports, typeDef);
+        }
 
         if (isValidTypeDef(bSymbol)) {
             return Optional.ofNullable(symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
@@ -147,9 +156,20 @@ public class Types {
         return Optional.empty();
     }
 
+    private BSymbol findByNameInImportedPackages(List<BPackageSymbol> imports, Name typeDef) {
+        for (BPackageSymbol packageSymbol : imports) {
+            SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
+            BSymbol bSymbol = symbolResolver.lookupSymbolInMainSpace(pkgEnv, typeDef);
+            if (bSymbol != symbolTable.notFoundSymbol) {
+                return bSymbol;
+            }
+        }
+
+        return symbolTable.notFoundSymbol;
+    }
+
     private Optional<Map<String, Symbol>> getTypeDefSymbolsInModule(PackageID packageID) {
         BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
-
         if (packageSymbol == null) {
             return Optional.empty();
         }
@@ -177,7 +197,6 @@ public class Types {
     }
 
     private void findTypeDefsInPackageSymbol(BSymbol packageSymbol, Map<String, Symbol> typeDefSymbols) {
-
         if (packageSymbol != null) {
             SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
             Scope pkgEnvScope = pkgEnv.scope;
@@ -197,11 +216,11 @@ public class Types {
     }
 
     private boolean isValidTypeDef(BSymbol bSymbol) {
-        return bSymbol != null && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL &&
-                (bSymbol.tag == SymTag.TYPE_DEF
-                        || bSymbol.tag == SymTag.CONSTANT
-                        || bSymbol.tag == SymTag.ENUM
-                        || Flags.unMask(bSymbol.flags).contains(Flag.CLASS));
+        return bSymbol != null && bSymbol != symbolTable.notFoundSymbol && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL
+                && (bSymbol.tag == SymTag.TYPE_DEF
+                || bSymbol.tag == SymTag.CONSTANT
+                || bSymbol.tag == SymTag.ENUM
+                || Flags.unMask(bSymbol.flags).contains(Flag.CLASS));
     }
 
 }

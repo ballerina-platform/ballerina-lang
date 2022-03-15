@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaErrorTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFutureTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaHandleTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
@@ -74,6 +75,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.HANDLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -120,21 +122,28 @@ public class TypesTest {
         types = model.types();
     }
 
-    @Test
-    public void testA() {
-        String moduleName = "bar";
-        Module module = getModule(project, moduleName);
-        model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
-        types = model.types();
-//        String org = module.descriptor().org().value();
-//        String pkgName = module.descriptor().name().toString();
-//        String version = module.descriptor().version().toString();
+    @Test(dataProvider = "TypeByNameFromBir")
+    public void testTypeByNameFromBir(String typeDefName, SymbolKind symKind, TypeDescKind typeDescKind) {
         ModuleDescriptor moduleDescriptor = project.currentPackage().getDefaultModule().descriptor();
         String org = moduleDescriptor.org().value();
         String pkgName = moduleDescriptor.name().toString();
         String version = moduleDescriptor.version().toString();
-        Optional<Map<String, Symbol>> typesInModule = types.typesInModule(org, pkgName, version);
-        int i = 0;
+        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
+        assertTrue(symbol.isPresent());
+        assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
+
+        Optional<String> symbolName = symbol.get().getName();
+        assertTrue(symbolName.isPresent());
+        assertEquals(symbolName.get(), typeDefName);
+    }
+
+    @DataProvider(name = "TypeByNameFromBir")
+    private Object[][] getTypeByNameFromBir() {
+        return new  Object[][] {
+                {"ExampleDec", TYPE_DEFINITION, DECIMAL},
+                {"TestRecord", TYPE_DEFINITION, RECORD},
+                {"AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
+        };
     }
 
     @Test(dataProvider = "BuiltInTypesProvider")
@@ -155,6 +164,7 @@ public class TypesTest {
                 {types.XML, XML, BallerinaXMLTypeSymbol.class},
                 {types.ERROR, ERROR, BallerinaErrorTypeSymbol.class},
                 {types.FUTURE, FUTURE, BallerinaFutureTypeSymbol.class},
+//                {types.FUNCTION, FUNCTION, BallerinaFunctionTypeSymbol.class},
                 {types.TYPEDESC, TYPEDESC, BallerinaTypeDescTypeSymbol.class},
                 {types.HANDLE, HANDLE, BallerinaHandleTypeSymbol.class},
                 {types.STREAM, STREAM, BallerinaStreamTypeSymbol.class},
