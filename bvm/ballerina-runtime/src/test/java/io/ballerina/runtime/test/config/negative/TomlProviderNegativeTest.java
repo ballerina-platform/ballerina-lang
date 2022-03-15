@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -173,6 +174,36 @@ public class TomlProviderNegativeTest {
                         "'intArr[2]' is expected to be of type 'int', but found 'array'", 0},
                 {"ArrayMultiType", "[ArrayMultiType.toml:(1:15,1:21)] configurable variable " +
                         "'intArr[1]' is expected to be of type 'int', but found 'string'", 0},
+        };
+    }
+
+    @Test(dataProvider = "array-size-negative-tests")
+    public void testArraySizeNegative(Type elementType, String varName, String errorMsg) {
+        ArrayType arrayType = TypeCreator.createArrayType(elementType, 2, true);
+        VariableKey arr = new VariableKey(ROOT_MODULE, varName,
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
+                        true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{arr}));
+        validateTomlProviderErrors("ArrayWrongSize", errorMsg, configVarMap, 14, 0);
+    }
+
+    @DataProvider(name = "array-size-negative-tests")
+    public Object[][] getArraySizeNegativeTests() {
+        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
+        return new Object[][]{
+                {PredefinedTypes.TYPE_INT, "intArr", "[ArrayWrongSize.toml:(1:10,1:22)] the array size for " +
+                        "configurable variable 'intArr' is expected to be '2', but found '4'"},
+                {TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true), "mapArr",
+                        "[ArrayWrongSize.toml:(4:1,5:6)] the array size for configurable variable 'mapArr' is " +
+                                "expected to be '2', but found '3'"},
+                {TypeCreator.createMapType(TYPE_ANYDATA, true), "mapAnydataArr",
+                        "[ArrayWrongSize.toml:(13:1,14:8)] the array size for configurable variable 'mapAnydataArr' " +
+                                "is expected to be '2', but found '3'"},
+                {TYPE_ANYDATA, "anydataArr1", "[ArrayWrongSize.toml:(2:15,2:29)] the array size for configurable " +
+                        "variable 'anydataArr1' is expected to be '2', but found '3'"},
+                {TypeCreator.createUnionType(List.of(mapType, PredefinedTypes.TYPE_INT), true), "anydataArr2",
+                        "[ArrayWrongSize.toml:(22:1,23:8)] the array size for configurable variable" +
+                                " 'anydataArr2' is expected to be '2', but found '3'"},
         };
     }
 
@@ -323,7 +354,7 @@ public class TomlProviderNegativeTest {
     public void testSubModuleValueNotProvided() {
         Map<Module, VariableKey[]> variableMap =
                 Map.ofEntries(Map.entry(ROOT_MODULE, getSimpleVariableKeys(ROOT_MODULE)),
-                Map.entry(subModule, getSimpleVariableKeys(subModule)));
+                        Map.entry(subModule, getSimpleVariableKeys(subModule)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
@@ -345,7 +376,7 @@ public class TomlProviderNegativeTest {
         Map<Module, VariableKey[]> variableMap =
                 Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule, clashingVariableKeys));
         String errorMsg = "warning: invalid toml file : \n" +
-                    "[ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'\n";
+                "[ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'\n";
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
@@ -407,7 +438,7 @@ public class TomlProviderNegativeTest {
 
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
         RecordType type = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
-                        Map.ofEntries(Map.entry("name", name)), null, true, 6);
+                Map.ofEntries(Map.entry("name", name)), null, true, 6);
 
         VariableKey recordVar = new VariableKey(ROOT_MODULE, "recordVar", type, true);
 
@@ -416,7 +447,7 @@ public class TomlProviderNegativeTest {
                 PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
 
         VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", intersectionType, true);
-        VariableKey[] rootVariableKeys = new VariableKey[] {intVar, stringVar, recordVar, tableVar};
+        VariableKey[] rootVariableKeys = new VariableKey[]{intVar, stringVar, recordVar, tableVar};
 
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
                 Map.entry(subModule, getSimpleVariableKeys(subModule)),
@@ -428,7 +459,7 @@ public class TomlProviderNegativeTest {
                         configVarMap.keySet())));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 7);
-        String[] warnings = new String[] {
+        String[] warnings = new String[]{
                 "error: [UnusedTomlParts.toml:(3:1,3:20)] unused configuration value 'undefinedVar1'",
                 "error: [UnusedTomlParts.toml:(11:1,11:20)] unused configuration value 'test_module.util.foo" +
                         ".undefinedVar2'",
@@ -449,7 +480,7 @@ public class TomlProviderNegativeTest {
     public void testOptionalImportedModuleWarning() {
         VariableKey intVar = new VariableKey(importedModule, "intVar", PredefinedTypes.TYPE_INT, false);
         VariableKey stringVar = new VariableKey(importedModule, "stringVar", PredefinedTypes.TYPE_STRING, false);
-        VariableKey[] variableKeys = new VariableKey[] {intVar, stringVar};
+        VariableKey[] variableKeys = new VariableKey[]{intVar, stringVar};
 
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(importedModule, variableKeys));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
@@ -458,7 +489,7 @@ public class TomlProviderNegativeTest {
                         configVarMap.keySet())));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 3);
-        String[] errors = new String[] {
+        String[] errors = new String[]{
                 "error: [OptionalImportedModule.toml:(1:1,3:18)] invalid toml structure found for module 'mod'. " +
                         "Please provide the module name as '[myOrg.mod]'",
                 "error: [OptionalImportedModule.toml:(2:1,2:13)] unused configuration value 'mod.intVar'",
@@ -541,24 +572,24 @@ public class TomlProviderNegativeTest {
     public Object[][] getUnionAmbiguityTests() {
         UnionType unionType1 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_STRING,
                 PredefinedTypes.TYPE_XML), true);
-        VariableKey stringUnion =  new VariableKey(ROOT_MODULE, "var1", new BIntersectionType(ROOT_MODULE,
+        VariableKey stringUnion = new VariableKey(ROOT_MODULE, "var1", new BIntersectionType(ROOT_MODULE,
                 new Type[]{unionType1, PredefinedTypes.TYPE_READONLY}, unionType1, 1, true), true);
 
         UnionType unionType2 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT,
                 PredefinedTypes.TYPE_DECIMAL), true);
-        VariableKey floatUnion =  new VariableKey(ROOT_MODULE, "var2", new BIntersectionType(ROOT_MODULE,
+        VariableKey floatUnion = new VariableKey(ROOT_MODULE, "var2", new BIntersectionType(ROOT_MODULE,
                 new Type[]{unionType2, PredefinedTypes.TYPE_READONLY}, unionType2, 1, true), true);
 
         FiniteType decimals = TypeCreator.createFiniteType("Decimals", Set.of(ValueCreator.createDecimalValue("1.2"),
                 ValueCreator.createDecimalValue("3.4")), 1);
         UnionType unionType4 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT, decimals), true);
-        VariableKey finiteUnion =  new VariableKey(ROOT_MODULE, "var3", new BIntersectionType(ROOT_MODULE,
+        VariableKey finiteUnion = new VariableKey(ROOT_MODULE, "var3", new BIntersectionType(ROOT_MODULE,
                 new Type[]{unionType4, PredefinedTypes.TYPE_READONLY}, unionType4, 1, true), true);
 
         MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
         UnionType unionType3 = TypeCreator.createUnionType(List.of(TypeCreator.createArrayType(mapType),
                 TypeCreator.createTableType(mapType, true)), true);
-        VariableKey tableUnion =  new VariableKey(ROOT_MODULE, "var4", new BIntersectionType(ROOT_MODULE,
+        VariableKey tableUnion = new VariableKey(ROOT_MODULE, "var4", new BIntersectionType(ROOT_MODULE,
                 new Type[]{unionType3, PredefinedTypes.TYPE_READONLY}, unionType3, 1, true), true);
 
         return new Object[][]{
@@ -584,21 +615,21 @@ public class TomlProviderNegativeTest {
 
     @DataProvider(name = "value-negative-provider")
     public Object[] getVariablesWithoutValues() {
-        VariableKey intVar =  new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey byteVar =  new VariableKey(ROOT_MODULE, "byteVar", PredefinedTypes.TYPE_BYTE, true);
-        VariableKey booleanVar =  new VariableKey(ROOT_MODULE, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true);
-        VariableKey floatVar =  new VariableKey(ROOT_MODULE, "floatVar", PredefinedTypes.TYPE_FLOAT, true);
-        VariableKey decimalVar =  new VariableKey(ROOT_MODULE, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true);
-        VariableKey stringVar =  new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey byteVar = new VariableKey(ROOT_MODULE, "byteVar", PredefinedTypes.TYPE_BYTE, true);
+        VariableKey booleanVar = new VariableKey(ROOT_MODULE, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true);
+        VariableKey floatVar = new VariableKey(ROOT_MODULE, "floatVar", PredefinedTypes.TYPE_FLOAT, true);
+        VariableKey decimalVar = new VariableKey(ROOT_MODULE, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true);
+        VariableKey stringVar = new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
 
         BIntersectionType xmlIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{PredefinedTypes.TYPE_XML,
                 PredefinedTypes.TYPE_READONLY}, PredefinedTypes.TYPE_XML, 0, true);
-        VariableKey xmlVar =  new VariableKey(ROOT_MODULE, "xmlVar", xmlIntersection, true);
+        VariableKey xmlVar = new VariableKey(ROOT_MODULE, "xmlVar", xmlIntersection, true);
 
         ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true);
         BIntersectionType arrayIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{arrayType,
                 PredefinedTypes.TYPE_READONLY}, arrayType, 0, true);
-        VariableKey arrayVar =  new VariableKey(ROOT_MODULE, "arrayVar", arrayIntersection, true);
+        VariableKey arrayVar = new VariableKey(ROOT_MODULE, "arrayVar", arrayIntersection, true);
 
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
         Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
@@ -654,6 +685,36 @@ public class TomlProviderNegativeTest {
                         "found for configurable variable 'finiteVar' with type 'Finite'"},
                 {Set.of(strVal, 1.34d, 1L), "[FiniteNegative.toml:(1:1,1:17)] configurable variable 'finiteVar' is " +
                         "expected to be of type 'Finite', but found 'float'"}
+        };
+    }
+
+    @Test(dataProvider = "tuple-negative-tests")
+    public void testTupleNegativeConfig(List<Type> elements, String tomlFileName, String errorMsg, int warnCount) {
+        TupleType tupleType = TypeCreator.createTupleType(elements, null, 0, true);
+        VariableKey tupleVar = new VariableKey(ROOT_MODULE, "tupleVar",
+                new BIntersectionType(ROOT_MODULE, new Type[]{tupleType, PredefinedTypes.TYPE_READONLY}, tupleType, 0,
+                        true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tupleVar}));
+        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1, warnCount);
+    }
+
+    @DataProvider(name = "tuple-negative-tests")
+    public Object[][] getTupleNegativeTests() {
+        List<Type> simpleTypes = List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING);
+        return new Object[][]{
+                {simpleTypes, "TupleTypeError", "[TupleTypeError.toml:(1:12,1:33)] configurable variable 'tupleVar' " +
+                        "is expected to be of type '[int,string] & readonly', but found 'string'", 0},
+                {simpleTypes, "TupleStructureError", "[TupleStructureError.toml:(1:1,1:35)] configurable variable " +
+                        "'tupleVar' is expected to be of type '[int,string] & readonly', but found 'record'", 0},
+                {simpleTypes, "TupleElementStructure", "[TupleElementStructure.toml:(1:13,1:24)] configurable " +
+                        "variable 'tupleVar[0]' is expected to be of type 'int', but found 'record'", 0},
+                {simpleTypes, "TupleElementType", "[TupleElementType.toml:(1:16,1:17)] configurable variable " +
+                        "'tupleVar[1]' is expected to be of type 'string', but found 'int'", 0},
+                {simpleTypes, "TupleWrongSize", "[TupleWrongSize.toml:(1:12,1:29)] the array size for configurable " +
+                        "variable 'tupleVar' is expected to be '2', but found '3'", 0},
+                {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BYTE), "TupleByteRange", "[TupleByteRange" +
+                        ".toml:(1:18,1:21)] value provided for byte variable 'tupleVar[1]' is out of range. Expected " +
+                        "range is (0-255), found '278'", 0},
         };
     }
 

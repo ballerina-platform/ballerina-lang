@@ -729,8 +729,18 @@ public class TomlProvider implements ConfigProvider {
         }
         visitedNodes.add(tomlValue);
         List<TomlTableNode> tableNodeList = ((TomlTableArrayNode) tomlValue).children();
+        validateArraySize(tomlValue, variableName, arrayType, tableNodeList.size());
         for (TomlTableNode tomlTableNode : tableNodeList) {
             validateValue(tomlTableNode, variableName, elementType);
+        }
+    }
+
+    private void validateArraySize(TomlNode tomlValue, String variableName, ArrayType arrayType, int tomlArraySize) {
+        int arraySize = arrayType.getSize();
+        if (arraySize < tomlArraySize && arrayType.getState() != ArrayType.ArrayState.OPEN) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_ARRAY_SIZE_MISMATCH, getLineRange(tomlValue), variableName, arraySize,
+                    tomlArraySize);
         }
     }
 
@@ -747,7 +757,9 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         visitedNodes.add(tomlValue);
-        validateArrayElements(variableName, ((TomlArrayValueNode) valueNode).elements(), elementType);
+        TomlArrayValueNode arrayNode = (TomlArrayValueNode) valueNode;
+        validateArraySize(arrayNode, variableName, arrayType, arrayNode.elements().size());
+        validateArrayElements(variableName, arrayNode.elements(), elementType);
     }
 
     private void validateMapUnionArray(TomlTableArrayNode tomlValue, String variableName, ArrayType arrayType,
@@ -758,6 +770,7 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         visitedNodes.add(tomlValue);
+        validateArraySize(tomlValue, variableName, arrayType, tomlValue.children().size());
         for (TomlNode tomlValueNode : tomlValue.children()) {
             validateUnionValue(tomlValueNode, variableName, elementType);
         }
@@ -770,6 +783,7 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
+        validateArraySize(tomlValue, variableName, arrayType, arrayList.size());
         validateArrayElements(variableName, arrayList, arrayType.getElementType());
     }
 
