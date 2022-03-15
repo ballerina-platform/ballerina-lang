@@ -263,8 +263,9 @@ public class TypeNarrower extends BLangNodeVisitor {
             // Terminate for undefined symbols
             return;
         }
-
-        typeChecker.markAndRegisterClosureVariable(symbol, lhsExpression.pos, env);
+        final TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
+        data.env = env;
+        typeChecker.markAndRegisterClosureVariable(symbol, lhsExpression.pos, env, data);
         if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
             return;
         }
@@ -426,8 +427,9 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (((lhsVarSymbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE)) {
             return;
         }
-
-        typeChecker.markAndRegisterClosureVariable(lhsVarSymbol, lhsExpr.pos, env);
+        final TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
+        data.env = env;
+        typeChecker.markAndRegisterClosureVariable(lhsVarSymbol, lhsExpr.pos, env, data);
         if (lhsVarSymbol.closure || (lhsVarSymbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
             return;
         }
