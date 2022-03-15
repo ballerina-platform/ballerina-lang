@@ -54,24 +54,24 @@ public class SymbolsInOnFailClauseTest {
     }
 
     @Test(dataProvider = "OnFailPosProvider")
-    public void testOnFailSymbolPositions(int line, int sCol, int eCol, TypeDescKind typeKind, String name) {
+    public void testOnFailSymbolPositions(int line, int sCol, int eCol, String name) {
         Optional<TypeSymbol> type = model.typeOf(
                 LineRange.from(srcFile.name(), LinePosition.from(line, sCol), LinePosition.from(line, eCol)));
         assertTrue(type.isPresent());
-        assertEquals(type.get().typeKind(), typeKind);
+        assertEquals(type.get().typeKind(), TypeDescKind.ERROR);
         type.get().getName().ifPresent(tName -> assertEquals(tName, name));
     }
 
     @DataProvider(name = "OnFailPosProvider")
     public Object[][] getOnFailSymbolPositions() {
         return new Object[][]{
-                {21, 20, 23, ERROR, "err"},
-                {30, 20, 23, ERROR, "err"},
-                {38, 20, 23, ERROR, "err"},
-                {54, 20, 21, ERROR, "e"},
-                {67, 23, 26, ERROR, "err"},
-                {79, 19, 20, ERROR, "e"},
-                {88, 19, 20, ERROR, "e"}
+                {21, 20, 23, "err"},
+                {30, 20, 23, "err"},
+                {38, 20, 23, "err"},
+                {54, 20, 21, "e"},
+                {67, 23, 26, "err"},
+                {79, 19, 20, "e"},
+                {88, 19, 20, "e"}
         };
     }
 }
