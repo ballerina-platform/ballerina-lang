@@ -120,6 +120,9 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
         boolean availableOutSideDeleteRange = false;
         for (Location location : locations) {
             if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
+                if (locations.size() == 1) {
+                    availableOutSideDeleteRange = true;
+                }
                 continue;
             }
             LineRange deleteRange = getDeleteRange(location.lineRange());
