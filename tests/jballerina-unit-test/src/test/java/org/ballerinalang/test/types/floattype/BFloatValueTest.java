@@ -191,6 +191,29 @@ public class BFloatValueTest {
         BRunUtil.invoke(result, "testHexaDecimalLiteralsWithFloat");
     }
 
+    @Test
+    public void testInvalidValuesWithFloatType() {
+        CompileResult result = BCompileUtil.compile("test-src/types/float/float_type_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 2, 15);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 4, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 6, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 8, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 10, 23);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 12, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 14, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 16, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 19, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 21, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 23, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 25, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 27, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 29, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 31, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 33, 20);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
