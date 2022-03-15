@@ -16,10 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.completion;
+package org.ballerinalang.debugadapter.completion.util;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -31,6 +33,8 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.completion.FunctionCompletionItemBuilder;
+import org.ballerinalang.debugadapter.completion.context.CompletionContext;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.eclipse.lsp4j.debug.CompletionItem;
 import org.eclipse.lsp4j.debug.CompletionItemType;
@@ -42,6 +46,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+
 /**
  * Common utility methods for debug completions operation.
  *
@@ -50,7 +57,7 @@ import java.util.Optional;
 public class CompletionUtil {
 
     private static final String PARENTHESIS = "()";
-    private static final List<String> triggerCharacters = Arrays.asList(".", ":");
+    private static final List<String> triggerCharacters = Arrays.asList(".", ">");
 
     /**
      * Get the updated bal file content which includes debug console expression.
@@ -109,7 +116,8 @@ public class CompletionUtil {
     public static Optional<Node> getResolverNode(NonTerminalNode node) {
         if (node == null || node.kind() == SyntaxKind.MODULE_PART) {
             return Optional.empty();
-        } else if (node.kind() == SyntaxKind.FIELD_ACCESS) {
+        } else if (node.kind() == SyntaxKind.FIELD_ACCESS || node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
+                || node.kind() == SyntaxKind.ASYNC_SEND_ACTION) {
             return Optional.of(node);
         }
         return getResolverNode(node.parent());
@@ -156,6 +164,47 @@ public class CompletionUtil {
         return completionItems.toArray(new CompletionItem[0]);
     }
 
+    /**
+     * Populate the completion item list by considering the.
+     *
+     * @param scopeEntries list of symbol information
+     * @param ctx          debug completion context
+     * @return {@link List}     list of completion items
+     */
+    public static List<CompletionItem> getCompletionItemList(List<? extends Symbol> scopeEntries,
+                                                             CompletionContext ctx) {
+        List<Symbol> processedSymbols = new ArrayList<>();
+        List<CompletionItem> completionItems = new ArrayList<>();
+        scopeEntries.forEach(symbol -> {
+            if (processedSymbols.contains(symbol)) {
+                return;
+            }
+            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
+                completionItems.addAll(populateBallerinaFunctionCompletionItems(symbol, ctx));
+            }
+            processedSymbols.add(symbol);
+        });
+        return completionItems;
+    }
+
+    /**
+     * Populate the Ballerina Function Completion Items.
+     *
+     * @param symbol symbol Entry
+     * @return completion item
+     */
+    private static List<CompletionItem> populateBallerinaFunctionCompletionItems(Symbol symbol,
+                                                                                 CompletionContext context) {
+
+        List<CompletionItem> completionItems = new ArrayList<>();
+        if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
+            return completionItems;
+        }
+        CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
+        completionItems.add(completionItem);
+        return completionItems;
+    }
+
     private static CompletionItemType getCompletionItemType(Symbol symbol) {
         switch (symbol.kind()) {
             case MODULE:
@@ -198,8 +247,9 @@ public class CompletionUtil {
      * @param lineNumber breakpoint line number
      * @return non terminal node at breakpoint
      */
-    public static NonTerminalNode getNonTerminalNode(String source, String sourcePath, int lineNumber) {
-        return getNonTerminalNode(source, sourcePath, null, lineNumber, 0);
+    public static NonTerminalNode getNonTerminalNode(CompletionContext completionContext, String source,
+                                                     String sourcePath, int lineNumber) {
+        return getNonTerminalNode(completionContext, source, sourcePath, null, lineNumber, 0);
     }
 
     /**
@@ -212,12 +262,14 @@ public class CompletionUtil {
      * @param column          debug expression column number
      * @return non terminal node at breakpoint
      */
-    public static NonTerminalNode getNonTerminalNode(String source, String sourcePath, NonTerminalNode nonTerminalNode,
+    public static NonTerminalNode getNonTerminalNode(CompletionContext completionContext,
+                                                     String source, String sourcePath, NonTerminalNode nonTerminalNode,
                                                      int lineNumber, int column) {
         TextDocument document = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(document, sourcePath);
 
         int textPosition = getTextPosition(nonTerminalNode, document, lineNumber, column - 1);
+        completionContext.setCursorPositionInTree(textPosition);
         TextRange range = TextRange.from(textPosition, 0);
         return ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
     }
@@ -248,13 +300,17 @@ public class CompletionUtil {
         return Arrays.stream(expression.split("")).anyMatch(triggerCharacters::contains);
     }
 
+    public static List<String> getTriggerCharacters() {
+        return triggerCharacters;
+    }
+
     /**
      * Get non terminal node with injected expression.
      *
      * @param completionContext debug completion context
-     * @param args               debug completions arguments
-     * @param sourcePath         source path
-     * @param lineNumber         debug hit line
+     * @param args              debug completions arguments
+     * @param sourcePath        source path
+     * @param lineNumber        debug hit line
      * @return non terminal node with injected expression
      */
     public static NonTerminalNode getInjectedExpressionNode(CompletionContext completionContext,
@@ -266,7 +322,7 @@ public class CompletionUtil {
         // Identify the non terminal node at breakpoint before injecting the debug console expression.
         SuspendedContext suspendedContext = completionContext.getSuspendedContext();
         String source = suspendedContext.getDocument().textDocument().toString();
-        NonTerminalNode nonTerminalNode = getNonTerminalNode(source, sourcePath, lineNumber);
+        NonTerminalNode nonTerminalNode = getNonTerminalNode(completionContext, source, sourcePath, lineNumber);
 
         // Debug console expressions are injected at the beginning of StatementNode, except FunctionBodyBlockNode.
         // If the non terminal node is not an instance of StatementNode,
@@ -281,6 +337,7 @@ public class CompletionUtil {
         // Inject the debug console expression.
         String updatedSource = getUpdatedBalFileContent(completionContext, args, nonTerminalNode, lineNumber);
 
-        return getNonTerminalNode(updatedSource, sourcePath, nonTerminalNode, lineNumber, args.getColumn());
+        return getNonTerminalNode(completionContext, updatedSource, sourcePath, nonTerminalNode, lineNumber,
+                args.getColumn());
     }
 }
