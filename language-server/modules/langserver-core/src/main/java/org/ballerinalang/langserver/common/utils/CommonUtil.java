@@ -79,7 +79,6 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -1429,7 +1428,9 @@ public class CommonUtil {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
         if (rawType.typeKind() == TypeDescKind.RECORD) {
             return Collections.singletonList(RawTypeSymbolWrapper.from(typeSymbol, (RecordTypeSymbol) rawType));
-        } else if (rawType.typeKind() == TypeDescKind.UNION) {
+        }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            // This will only consider the record type members and disregard other types
             return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                     .filter(tSymbol -> CommonUtil.getRawType(tSymbol).typeKind() == TypeDescKind.RECORD)
                     .map(tSymbol -> {
