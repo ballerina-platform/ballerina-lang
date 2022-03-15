@@ -278,7 +278,7 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(),
-                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:root>");
+                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
     }
 
     @Test
@@ -452,5 +452,10 @@ public class XMLLiteralTest {
         XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
+    }
+
+    @Test
+    public void testXmlLiteralUsingXmlNamespacePrefix() {
+        BRunUtil.invoke(literalWithNamespacesResult, "testXmlLiteralUsingXmlNamespacePrefix");
     }
 }

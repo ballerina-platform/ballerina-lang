@@ -51,6 +51,11 @@ function testFromString() returns xml|error {
     return x["CD"]["TITLE"];
 }
 
+function testFromString2() returns xml|error {
+    string x = "<A xmlns=\"abc\"><B xmlns=\"\"/><B xmlns=\"\"/><B xmlns=\"\"/></A>";
+    return check 'xml:fromString(x);
+}
+
 function emptyConcatCall() returns xml {
     return 'xml:concat();
 }
