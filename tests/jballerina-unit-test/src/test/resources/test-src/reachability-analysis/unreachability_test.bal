@@ -1430,3 +1430,72 @@ function testLoggingExpectedUnreachableErrors16() {
     panic error("error");
     int _ = 10; // unreachable code
 }
+
+function testUnreachableStatementInQueryAction25() {
+    string m;
+    error(m) = <error>from var item in 1 ... 5
+        where true
+        do {
+            while true {
+                int _ = 3;
+            }
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction26() returns error? {
+    string m;
+    check from var item in 1 ... 5
+        where true
+        do {
+            m = "Error";
+            while m is string {
+                int _ = 3;
+            }
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction27() returns error? {
+    check from var item in 1 ... 5
+        where true
+        do {
+            if true {
+                return;
+            }
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction28() returns error? {
+    check from var item in 1 ... 5
+        where false
+        do {
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction29() returns error? {
+    check from var item in 1 ... 5
+        where true
+        do {
+            while true {
+                int _ = 3;
+            }
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction30() returns error? {
+    check from var item in 1 ... 5
+        where true
+        do {
+            if true {
+                return;
+            }
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
+}
