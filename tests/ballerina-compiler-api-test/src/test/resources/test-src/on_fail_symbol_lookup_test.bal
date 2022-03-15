@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function test(any v) {
+function testMatchOnFail(any val) {
     match val {
         var x => {
             any a = val;
@@ -24,5 +24,68 @@ function test(any v) {
         }
     } on fail error err {
         error errRef = err;
+    }
+}
+
+function testWhileOnFail(){
+    int iter = 0;
+    while (iter < 3) {
+
+    } on fail error err {
+        error ref = err;
+    }
+}
+
+function testForEachOnFail() {
+    int[] arr = [1,2,3];
+    foreach int item in arr {
+        fail getError();
+    } on fail error err {
+        error ref = err;
+    }
+}
+
+function testLockOnFail(){
+    lock {
+        fail getError();
+    } on fail error err {
+        error ref = err;
+    }
+}
+
+function testRetryOnFail() returns error? {
+    string str = "string";
+    int count = 0;
+    error err = error error:Retriable("Error");
+    retry {
+        count = count + 1;
+        if (count < 5) {
+            str += "retry";
+        }
+        str = "value";
+        fail er;
+    } on fail error e {
+        error ref = e;
+    }
+}
+
+function testTransactionOnFail() {
+    transaction {
+        func(2);
+        if true {
+            func(2);
+        }
+        check commit;
+    } on fail error e {
+        string s = e.message() + x.toString();
+    }
+}
+
+function testDoOnFail() {
+    int x = 10;
+    do {
+        int y = x + 10;
+    } on fail error e {
+        string s = e.message() + x.toString();
     }
 }

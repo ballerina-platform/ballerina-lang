@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 
 import java.util.Optional;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
