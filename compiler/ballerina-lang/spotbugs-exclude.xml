@@ -359,6 +359,10 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager$SourceModifierTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.SyntaxNodeAnalysisTask"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>

@@ -53,7 +53,7 @@ class CompilerPluginContextIml implements CompilerPluginContext {
         codeGenerators.add(new CodeGeneratorManager.CodeGeneratorInfo(codeGenerator, compilerPluginInfo));
     }
 
-    public void addCodeModifiers(CodeModifier codeModifier) {
+    public void addCodeModifier(CodeModifier codeModifier) {
         codeModifiers.add(new CodeModifierManager.CodeModifierInfo(codeModifier, compilerPluginInfo));
     }
 

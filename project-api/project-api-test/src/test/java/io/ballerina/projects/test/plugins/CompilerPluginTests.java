@@ -18,7 +18,10 @@
 package io.ballerina.projects.test.plugins;
 
 import io.ballerina.projects.CodeGeneratorResult;
+import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -73,6 +76,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_with_codeactions");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_codegen_init_function");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_code_modify_add_function");
     }
 
     @Test
@@ -269,6 +274,48 @@ public class CompilerPluginTests {
             Assert.assertEquals(resource.module(), module);
         }
 
+    }
+
+    @Test
+    public void testCompilerPluginCodeModifyBasic() {
+        Package currentPackage = loadPackage("package_plugin_code_modify_user_1");
+        // Check the document count in the current package
+        Assert.assertEquals(1, currentPackage.getDefaultModule().documentIds().size());
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+
+        // Compiling the new package
+        Project project = currentPackage.project();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code generators");
+        Assert.assertSame(newPackage.project(), project);
+        Assert.assertSame(newPackage, project.currentPackage());
+
+        // The code generator adds specific function to the end of every source file.
+        String specificFunction = "public function newFunctionByCodeModifier(string params) returns error? {\n}";
+
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 1);
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        PackageCompilation compilation = newPackage.getCompilation();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies count is 1
+        Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
     }
 
     public void assertDiagnostics(Package currentPackage) {
