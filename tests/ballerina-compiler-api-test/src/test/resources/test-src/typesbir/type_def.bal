@@ -14,10 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/typesbir;
+public type TestRecord record {
+    int a;
+    string b;
+};
 
-public type ExampleDec decimal;
-
-public function main() {
-    typesbir:AnInt x = 5;
-}
+public type AnInt int;

@@ -48,12 +48,16 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
@@ -83,6 +87,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -104,9 +109,32 @@ public class TypesTest {
 
     @BeforeClass
     public void setup() {
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/typesbir");
+        if (compileResult.getErrorCount() != 0) {
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains error");
+        }
+
         project = BCompileUtil.loadProject("test-src/types-project");
         model = getDefaultModulesSemanticModel(project);
         types = model.types();
+    }
+
+    @Test
+    public void testA() {
+        String moduleName = "bar";
+        Module module = getModule(project, moduleName);
+        model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
+        types = model.types();
+//        String org = module.descriptor().org().value();
+//        String pkgName = module.descriptor().name().toString();
+//        String version = module.descriptor().version().toString();
+        ModuleDescriptor moduleDescriptor = project.currentPackage().getDefaultModule().descriptor();
+        String org = moduleDescriptor.org().value();
+        String pkgName = moduleDescriptor.name().toString();
+        String version = moduleDescriptor.version().toString();
+        Optional<Map<String, Symbol>> typesInModule = types.typesInModule(org, pkgName, version);
+        int i = 0;
     }
 
     @Test(dataProvider = "BuiltInTypesProvider")
@@ -116,7 +144,7 @@ public class TypesTest {
     }
 
     @DataProvider(name = "BuiltInTypesProvider")
-    public Object[][] getBuiltInTypes() {
+    private Object[][] getBuiltInTypes() {
         return new Object[][] {
                 {types.BOOLEAN, BOOLEAN, BallerinaBooleanTypeSymbol.class},
                 {types.INT, INT, BallerinaIntTypeSymbol.class},
@@ -159,7 +187,7 @@ public class TypesTest {
     }
 
     @DataProvider(name = "TypesByNameProvider")
-    public Object[][] getTypesByName() {
+    private Object[][] getTypesByName() {
         return new Object[][] {
                 {"foo", "ErrorDetail1", TYPE_DEFINITION, RECORD},
                 {"foo", "MyErr", TYPE_DEFINITION, ERROR},
@@ -225,6 +253,19 @@ public class TypesTest {
         };
     }
 
+    @Test
+    public void testTypesFromBir() {
+        testTypesInModule(project.currentPackage().getDefaultModule(), getTypesFromBir());
+    }
+
+    private Object[][] getTypesFromBir() {
+        return new Object[][] {
+                {"ExampleDec", TYPE_DEFINITION, DECIMAL},
+                {"typesbir:TestRecord", TYPE_DEFINITION, RECORD},
+                {"typesbir:AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
+        };
+    }
+
     @Test(dataProvider = "subTypeOfProvider")
     public void testSubTypeOfTypes(String moduleName, String typeDefName, TypeSymbol expType) {
         Module module = getModule(project, moduleName);
@@ -245,12 +286,13 @@ public class TypesTest {
     @DataProvider(name = "subTypeOfProvider")
     private Object[][] getSubTypeOfTypes() {
         return new Object[][] {
+                // foo module
                 {"foo", "MyErr", types.ERROR},
                 {"foo", "ErrorDetail1", types.ANY},
                 {"foo", "MyInt", types.ANY},
                 {"foo", "Language", types.ANY},
                 {"foo", "SI", types.ANY},
-                
+                // bar module
                 {"bar", "MyFloat", types.ANY},
                 {"bar", "Employee", types.ANY},
                 {"bar", "Digit", types.ANY},
@@ -260,7 +302,10 @@ public class TypesTest {
     }
 
     private void testTypesInModule(String moduleName, Object[][] expTypes) {
-        Module module = getModule(project, moduleName);
+        testTypesInModule(getModule(project, moduleName), expTypes);
+    }
+
+    private void testTypesInModule(Module module, Object[][] expTypes) {
         model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
         types = model.types();
         String org = module.descriptor().org().value();

@@ -166,10 +166,34 @@ public class Types {
                 }
             }
 
+            for (BPackageSymbol importedPkgs : packageSymbol.imports) {
+                findTypeDefsInPackageSymbol(importedPkgs, typeDefSymbols);
+            }
+
             return Optional.of(typeDefSymbols);
         }
 
         return Optional.empty();
+    }
+
+    private void findTypeDefsInPackageSymbol(BSymbol packageSymbol, Map<String, Symbol> typeDefSymbols) {
+
+        if (packageSymbol != null) {
+            SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
+            Scope pkgEnvScope = pkgEnv.scope;
+            if (pkgEnvScope != null && pkgEnvScope.entries != null) {
+                for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
+                    BSymbol bSymbol = scopeEntry.symbol;
+                    if (isValidTypeDef(bSymbol)) {
+                        String typeDefName = packageSymbol.getName().getValue() + ":" + bSymbol.getName().getValue();
+                        typeDefSymbols.put(typeDefName, symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+                    } else if (bSymbol.tag == SymTag.PACKAGE) {
+                        findTypeDefsInPackageSymbol(bSymbol, typeDefSymbols);
+                    }
+                }
+            }
+        }
+
     }
 
     private boolean isValidTypeDef(BSymbol bSymbol) {
