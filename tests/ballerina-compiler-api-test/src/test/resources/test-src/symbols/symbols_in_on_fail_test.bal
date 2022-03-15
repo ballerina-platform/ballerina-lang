@@ -56,7 +56,7 @@ function testRetryOnFail() returns error? {
     }
 }
 
-function matchOnFail(any val) {
+function testMatchOnFail(any val) {
     match val {
         var x => {
             any a = val;
