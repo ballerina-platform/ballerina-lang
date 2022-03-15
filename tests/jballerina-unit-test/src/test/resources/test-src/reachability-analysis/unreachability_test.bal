@@ -1217,9 +1217,9 @@ function testUnreachableStatementInQueryAction20() returns error? {
     check from var item in 1 ... 5
         where item < 2
         do {
-            a = (from var item in 1 ... 5
+            a = (from var value in 1 ... 5
                 where false
-                where item < 2
+                where value < 2
                 do {
                     int _ = 10; // unreachable code
                 });

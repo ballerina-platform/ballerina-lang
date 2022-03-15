@@ -639,6 +639,7 @@
             "moduleID": {
               "orgName": "$anon",
               "moduleName": ".",
+              "packageName": ".",
               "version": "0.0.0"
             },
             "kind": "FUNCTION"
