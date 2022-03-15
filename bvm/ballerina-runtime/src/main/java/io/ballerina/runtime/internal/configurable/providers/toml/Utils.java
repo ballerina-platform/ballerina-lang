@@ -49,6 +49,7 @@ import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
+import io.ballerina.toml.semantic.ast.TomlInlineTableValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
@@ -82,7 +83,7 @@ public class Utils {
 
     private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
             new BIntersectionType(null, new Type[]{TYPE_READONLY_ANYDATA},
-                                  (IntersectableReferenceType) TYPE_READONLY_ANYDATA, 0, true);
+                    (IntersectableReferenceType) TYPE_READONLY_ANYDATA, 0, true);
 
     private Utils() {
     }
@@ -100,6 +101,7 @@ public class Utils {
             case ARRAY:
                 return "array";
             case TABLE:
+            case INLINE_TABLE:
                 return "record";
             case TABLE_ARRAY:
                 return "table";
@@ -134,6 +136,9 @@ public class Utils {
             case TABLE_ARRAY:
                 return validateAndGetTableArrayValue((TomlTableArrayNode) tomlNode, visitedNodes, unionType,
                         invalidTomlLines, variableName);
+            case INLINE_TABLE:
+                return getAnydataMap(((TomlInlineTableValueNode) tomlNode).toTable(), visitedNodes, invalidTomlLines,
+                        variableName);
             default:
                 // should not come here
                 return null;
@@ -455,4 +460,22 @@ public class Utils {
         }
 
     }
+
+    static boolean isEquivalentTomlTypeFromTuple(TomlType kind, Type type, String variableName) {
+        switch (type.getTag()) {
+            case TypeTags.MAP_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                return kind == TomlType.INLINE_TABLE || kind == TomlType.TABLE;
+            case TypeTags.TABLE_TAG:
+                return kind == TomlType.ARRAY;
+            case TypeTags.TUPLE_TAG:
+                return kind == TomlType.ARRAY;
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((IntersectionType) type).getEffectiveType();
+                return isEquivalentTomlTypeFromTuple(kind, effectiveType, variableName);
+            default:
+                return kind == getEffectiveTomlType(type, variableName);
+        }
+    }
+
 }

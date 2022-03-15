@@ -286,6 +286,16 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
+    public Optional<ConfigValue> getAsTupleAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
+    @Override
     public void complete(RuntimeDiagnosticLog diagnosticLog) {
         Set<String> varKeySet = cliVarKeyValueMap.keySet();
         varKeySet.removeAll(markedCliKeyVariableMap.keySet());

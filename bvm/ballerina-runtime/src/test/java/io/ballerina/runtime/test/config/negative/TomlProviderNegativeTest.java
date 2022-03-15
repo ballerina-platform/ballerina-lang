@@ -196,7 +196,7 @@ public class TomlProviderNegativeTest {
                 {"RecordTypeError", "[RecordTypeError.toml:(2:1,2:40)] configurable variable 'recordVar' " +
                         "is expected to be of type 'test_module:Person', but found 'string'", 1},
                 {"RecordFieldTypeError", "[RecordFieldTypeError.toml:(2:8,2:12)] configurable variable 'recordVar" +
-                        ".name' is expected to be of type 'string', but found 'int'", 2},
+                        ".name' is expected to be of type 'string', but found 'int'", 1},
                 {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] configurable variable " +
                         "'recordVar.name' is expected to be of type 'string', but found 'record'", 1},
                 {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] undefined field 'age' provided for " +
@@ -254,7 +254,7 @@ public class TomlProviderNegativeTest {
                         " is expected to be of type 'table<test_module:Person> key(name) & readonly'," +
                         " but found 'record'", 3},
                 {"TableFieldTypeError", "[TableFieldTypeError.toml:(2:8,2:11)] configurable variable 'tableVar.name' " +
-                        "is expected to be of type 'string', but found 'int'", 3},
+                        "is expected to be of type 'string', but found 'int'", 2},
                 {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] configurable variable " +
                         "'tableVar.name' is expected to be of type 'string', but found 'record'", 2},
                 {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] undefined field 'city' provided for closed " +
@@ -485,7 +485,7 @@ public class TomlProviderNegativeTest {
                 {"MapTypeError", "[MapTypeError.toml:(2:1,2:37)] configurable variable 'mapVar' is expected to be of " +
                         "type 'map<string>', but found 'string'", 1},
                 {"MapFieldTypeError", "[MapFieldTypeError.toml:(2:8,2:12)] configurable variable 'mapVar.name' is " +
-                        "expected to be of type 'string', but found 'int'", 2},
+                        "expected to be of type 'string', but found 'int'", 1},
                 {"MapFieldStructureError", "[MapFieldStructureError.toml:(2:1,2:24)] configurable variable 'mapVar" +
                         ".name' is expected to be of type 'string', but found 'record'", 1},
         };
@@ -514,7 +514,7 @@ public class TomlProviderNegativeTest {
         String error = "[RestFieldNegative.toml:(3:8,3:14)] configurable variable 'person.name' is expected to be of " +
                 "type 'int', but found 'string'";
         validateTomlProviderErrors("RestFieldNegative", error, Map.ofEntries(Map.entry(ROOT_MODULE,
-                new VariableKey[]{recordVar})), 2, 0);
+                new VariableKey[]{recordVar})), 1, 0);
     }
 
     @Test
