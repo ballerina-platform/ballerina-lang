@@ -69,8 +69,8 @@ public class BallerinaXMLSerializer extends OutputStream {
         if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
             xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
         } else {
-        xmlOutputFactory.setProperty("escapeCharacters", false);
-        isDefaultFactory = true;
+            xmlOutputFactory.setProperty("escapeCharacters", false);
+            isDefaultFactory = true;
         }
     }
 
