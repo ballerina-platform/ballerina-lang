@@ -654,6 +654,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         TypeSymbol typeSymbol = CommonUtil.getRawType(optionalTypeSymbol.get());
+        if (typeSymbol.typeKind() != TypeDescKind.TABLE) {
+            // We have got the row type already
+            return Optional.of(typeSymbol);
+        }
+        
         if (node.keySpecifier().isPresent() &&
                 node.keySpecifier().get().textRange().startOffset() < context.getCursorPositionInTree() &&
                 context.getCursorPositionInTree() < node.keySpecifier().get().textRange().endOffset()) {
