@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -25,11 +25,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.util.definition.DefinitionUtil;
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.*;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -40,23 +36,24 @@ import java.util.Optional;
 /**
  * Code Action to make type public.
  *
- * @since 2.0.2
+ * @since 2201.0.3
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ConvertToPublicTypeCodeAction extends AbstractCodeActionProvider {
+public class MakeTypePublicCodeAction extends AbstractCodeActionProvider {
+    public static final String NAME = "MakeTypePublicCodeAction";
+    public static final String DIAGNOSTIC_CODE = "BCE2038";
+
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals("BCE2038")) {
+        if ((!DIAGNOSTIC_CODE.contains(diagnostic.diagnosticInfo().code())) || context.currentSyntaxTree().isEmpty()
+                || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
-        Range range = new Range(CommonUtil.toPosition(diagnostic.location().lineRange().startLine()),
+        Range diagnosticRange = new Range(CommonUtil.toPosition(diagnostic.location().lineRange().startLine()),
                 CommonUtil.toPosition(diagnostic.location().lineRange().endLine()));
-        if (context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty()) {
-            return Collections.emptyList();
-        }
-        NonTerminalNode nonTerminalNode = CommonUtil.findNode(range, context.currentSyntaxTree().get());
+        NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
         Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(nonTerminalNode);
         if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
             return Collections.emptyList();
@@ -69,7 +66,7 @@ public class ConvertToPublicTypeCodeAction extends AbstractCodeActionProvider {
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<Path> filePath = DefinitionUtil.getFilePathForDependency(orgName, moduleName, project.get(),
+        Optional<Path> filePath = CommonUtil.getFilePathForDependency(orgName, moduleName, project.get(),
                 symbol.get(), context);
         if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
             return Collections.emptyList();
@@ -81,14 +78,28 @@ public class ConvertToPublicTypeCodeAction extends AbstractCodeActionProvider {
         if (node.isEmpty()) {
             return Collections.emptyList();
         }
-        Position startPosition = CommonUtil.toPosition(node.get().lineRange().startLine());
-        Range recordRange = new Range(startPosition, startPosition);
+        Position startPosition = new Position();
 
-        String editText = "public ";
-        TextEdit textEdit = new TextEdit(recordRange, editText);
+        if (node.get().kind().equals(SyntaxKind.TYPE_DEFINITION)) {
+            TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node.get();
+            startPosition = CommonUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine());
+        }
+        if (node.get().kind().equals(SyntaxKind.CLASS_DEFINITION)) {
+            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node.get();
+            if (!classDefinitionNode.classTypeQualifiers().isEmpty()) {
+                startPosition = CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
+                        .lineRange().startLine());
+            } else {
+                startPosition = CommonUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine());
+            }
+        }
+
+        Range range = new Range(startPosition, startPosition);
+        String editText = SyntaxKind.PUBLIC_KEYWORD.stringValue() + " ";
+        TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
-        String recordToPublic = String.format(CommandConstants.MAKE_TYPE_PUBLIC, symbol.get().getName().orElse(""));
-        return List.of(createQuickFixCodeAction(recordToPublic, editList, uri.toString()));
+        String commandTitle = String.format(CommandConstants.MAKE_TYPE_PUBLIC, symbol.get().getName().orElse(""));
+        return List.of(createCodeAction(commandTitle, editList, uri.toString(), CodeActionKind.QuickFix));
     }
 
     @Override
@@ -98,6 +109,6 @@ public class ConvertToPublicTypeCodeAction extends AbstractCodeActionProvider {
 
     @Override
     public String getName() {
-        return "MakePublicCodeAction";
+        return NAME;
     }
 }

@@ -28,13 +28,11 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -42,8 +40,6 @@ import org.eclipse.lsp4j.Range;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -104,7 +100,7 @@ public class DefinitionUtil {
         if (CommonUtil.isLangLib(orgName, moduleName)) {
             filepath = getFilePathForLanglib(orgName, moduleName, project.get(), symbol);
         } else {
-            filepath = getFilePathForDependency(orgName, moduleName, project.get(), symbol, context);
+            filepath = CommonUtil.getFilePathForDependency(orgName, moduleName, project.get(), symbol, context);
         }
 
         if (filepath.isEmpty() || symbol.getLocation().isEmpty()) {
@@ -131,40 +127,6 @@ public class DefinitionUtil {
         Range range = new Range(start, end);
 
         return Optional.of(new Location(fileUri, range));
-    }
-
-    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
-                                                           Project project, Symbol symbol,
-                                                           DocumentServiceContext context) {
-        if (symbol.getLocation().isEmpty()) {
-            return Optional.empty();
-        }
-        Collection<ResolvedPackageDependency> dependencies =
-                project.currentPackage().getResolution().dependencyGraph().getNodes();
-        Optional<Path> filepath = Optional.empty();
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
-        for (ResolvedPackageDependency depNode : dependencies) {
-            Package depPackage = depNode.packageInstance();
-            for (ModuleId moduleId : depPackage.moduleIds()) {
-                if (depPackage.packageOrg().value().equals(orgName) &&
-                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
-                    Module module = depPackage.module(moduleId);
-                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
-                    documentIds.addAll(module.testDocumentIds());
-                    for (DocumentId docId : documentIds) {
-                        if (module.document(docId).name().equals(sourceFile)) {
-                            filepath =
-                                    module.project().documentPath(docId);
-                            break;
-                        }
-                    }
-                }
-                // Check for the cancellation after each of the module visit 
-                context.checkCancelled();
-            }
-        }
-
-        return filepath;
     }
 
     private static Optional<Path> getFilePathForLanglib(String orgName, String moduleName,

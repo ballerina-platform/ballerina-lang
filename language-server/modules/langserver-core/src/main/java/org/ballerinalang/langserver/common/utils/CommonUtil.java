@@ -1213,6 +1213,48 @@ public class CommonUtil {
     }
 
     /**
+     * Returns the file path.
+     *
+     * @param orgName    organization name
+     * @param moduleName module name
+     * @param project    ballerina project
+     * @param context    service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
+                                                          Project project, Symbol symbol,
+                                                          DocumentServiceContext context) {
+        if (symbol.getLocation().isEmpty()) {
+            return Optional.empty();
+        }
+        Collection<ResolvedPackageDependency> dependencies =
+                project.currentPackage().getResolution().dependencyGraph().getNodes();
+        Optional<Path> filepath = Optional.empty();
+        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        for (ResolvedPackageDependency depNode : dependencies) {
+            Package depPackage = depNode.packageInstance();
+            for (ModuleId moduleId : depPackage.moduleIds()) {
+                if (depPackage.packageOrg().value().equals(orgName) &&
+                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
+                    Module module = depPackage.module(moduleId);
+                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
+                    documentIds.addAll(module.testDocumentIds());
+                    for (DocumentId docId : documentIds) {
+                        if (module.document(docId).name().equals(sourceFile)) {
+                            filepath =
+                                    module.project().documentPath(docId);
+                            break;
+                        }
+                    }
+                }
+                // Check for the cancellation after each of the module visit
+                context.checkCancelled();
+            }
+        }
+        return filepath;
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -1922,8 +1964,8 @@ public class CommonUtil {
     }
 
     /**
-     * Check if a given offset is with in the range of a given node. 
-     * 
+     * Check if a given offset is with in the range of a given node.
+     *
      * @param node
      * @param offset
      * @return

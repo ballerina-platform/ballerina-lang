@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ import java.io.IOException;
 /**
  * Test Cases for CodeActions.
  *
- * @since 2.0.2
+ * @since 2201.0.3
  */
-public class ConvertToPublicTypeCodeActionTest extends AbstractCodeActionTest {
+public class MakeTypePublicCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")
     @Override
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
@@ -45,9 +45,7 @@ public class ConvertToPublicTypeCodeActionTest extends AbstractCodeActionTest {
                 {"convert_to_public_class_config1.json",
                         "publicCodeAction/modules/module1/convert_to_public_class_source1.bal"},
                 {"convert_to_public_record_config2.json",
-                        "publicCodeAction/modules/module2/convert_to_public_record_source2.bal"},
-                {"convert_to_public_record_config3.json",
-                        "publicCodeAction/modules/module3/convert_to_public_record_source3.bal"}
+                        "publicCodeAction/modules/module2/convert_to_public_record_source2.bal"}
         };
     }
 }

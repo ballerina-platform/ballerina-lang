@@ -3,22 +3,32 @@
   "character": 38,
   "expected": [
     {
-      "title": "Convert 'DefaultModRecord1' to public",
-      "edits": [
-        {
-          "range": {
-            "start": {
-              "line": 4,
-              "character": 0
+      "title": "Convert 'DefaultModRecord3' to public",
+      "edit": {
+        "documentChanges": [
+          {
+            "textDocument": {
+              "version": null,
+              "uri": "file:///home/mindula/ballerina-lang/language-server/modules/langserver-core/build/resources/test/codeaction/make-type-public/source/publicCodeAction/modules/module3/convert_to_public_record_source3_test.bal"
             },
-            "end": {
-              "line": 4,
-              "character": 0
-            }
-          },
-          "newText": "public "
-        }
-      ]
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "public "
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
