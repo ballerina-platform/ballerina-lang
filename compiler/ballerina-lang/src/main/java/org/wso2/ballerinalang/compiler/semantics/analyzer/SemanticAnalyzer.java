@@ -285,7 +285,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     // Visitor methods
-
+    @Override
     public void visit(BLangPackage pkgNode, AnalyzerData data) {
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
@@ -369,6 +369,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    @Override
     public void visit(BLangXMLNS xmlnsNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         xmlnsNode.setBType(symTable.stringType);
@@ -382,10 +383,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         typeChecker.checkExpr(xmlnsNode.namespaceURI, currentEnv, symTable.stringType, data.prevEnvs);
     }
 
+    @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode, AnalyzerData data) {
         analyzeNode(xmlnsStmtNode.xmlnsDecl, data);
     }
 
+    @Override
     public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
         visit((BLangFunction) funcNode, data);
         for (BLangSimpleVariable pathParam : funcNode.pathParams) {
@@ -407,6 +410,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    @Override
     public void visit(BLangFunction funcNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, currentEnv);
@@ -674,6 +678,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeDef(classDefinition.initFunction, data);
     }
 
+    @Override
     public void visit(BLangTypeConversionExpr conversionExpr, AnalyzerData data) {
         conversionExpr.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
@@ -909,6 +914,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         /* ignore */
     }
 
+    @Override
     public void visit(BLangAnnotation annotationNode, AnalyzerData data) {
         BAnnotationSymbol symbol = (BAnnotationSymbol) annotationNode.symbol;
         annotationNode.annAttachments.forEach(annotationAttachment -> {
@@ -919,6 +925,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateAnnotationAttachmentCount(annotationNode.annAttachments);
     }
 
+    @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode, AnalyzerData data) {
         BSymbol symbol = this.symResolver.resolveAnnotation(annAttachmentNode.pos, data.env,
                 names.fromString(annAttachmentNode.pkgAlias.getValue()),
@@ -943,6 +950,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol, data);
     }
 
+    @Override
     public void visit(BLangSimpleVariable varNode, AnalyzerData data) {
         boolean configurable = isConfigurable(varNode);
 
@@ -1446,6 +1454,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         return symTable.noType;
     }
 
+    @Override
     public void visit(BLangErrorVariable varNode, AnalyzerData data) {
 
         // Only simple variables are allowed to be configurable.
@@ -1883,7 +1892,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     // Statements
-
+    @Override
     public void visit(BLangBlockStmt blockNode, AnalyzerData data) {
         data.env = SymbolEnv.createBlockEnv(blockNode, data.env);
         int stmtCount = -1;
@@ -1898,10 +1907,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    @Override
     public void visit(BLangSimpleVariableDef varDefNode, AnalyzerData data) {
         analyzeDef(varDefNode.var, data);
     }
 
+    @Override
     public void visit(BLangRecordVariableDef varDefNode, AnalyzerData data) {
         // TODO: 10/18/18 Need to support record literals as well
         if (varDefNode.var.expr != null && varDefNode.var.expr.getKind() == RECORD_LITERAL_EXPR) {
@@ -1911,6 +1922,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeDef(varDefNode.var, data);
     }
 
+    @Override
     public void visit(BLangErrorVariableDef varDefNode, AnalyzerData data) {
         analyzeDef(varDefNode.errorVariable, data);
     }
@@ -1932,6 +1944,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         return true;
     }
 
+    @Override
     public void visit(BLangCompoundAssignment compoundAssignment, AnalyzerData data) {
         BType expType;
         BLangValueExpression varRef = compoundAssignment.varRef;
@@ -2006,6 +2019,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         resetTypeNarrowing(compoundAssignment.varRef, data);
     }
 
+    @Override
     public void visit(BLangAssignment assignNode, AnalyzerData data) {
         BLangExpression varRef = assignNode.varRef;
         if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR ||
