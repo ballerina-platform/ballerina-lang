@@ -100,3 +100,15 @@ function f3() returns typedesc<record { int[] arr; }> {
         return typeof r;
     }
 }
+
+function f4() {
+    lock {
+        record {
+            record {
+                int[] i = z; // error
+                int j = 3; // OK
+            } r = {};
+            int[] k = z; // error
+        } _ = {};
+    }
+}

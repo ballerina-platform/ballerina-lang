@@ -265,6 +265,8 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 68, 23);
         validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 81, 25);
         validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 95, 25);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 108, 27);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 111, 23);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
