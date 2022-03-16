@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -65,8 +66,8 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
         textEdit.setNewText(newText);
         List<TextEdit> textEdits = Collections.singletonList(textEdit);
 
-        return Collections.singletonList(createQuickFixCodeAction(CommandConstants.CONVERT_TO_READONLY_CLONE,
-                textEdits, uri));
+        return Collections.singletonList(createCodeAction(CommandConstants.CONVERT_TO_READONLY_CLONE,
+                textEdits, uri, CodeActionKind.QuickFix));
     }
 
     /**

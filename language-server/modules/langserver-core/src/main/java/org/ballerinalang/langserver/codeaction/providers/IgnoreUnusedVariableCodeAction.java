@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -136,8 +137,8 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        return List.of(createQuickFixCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
-                List.of(textEdit), context.fileUri()));
+        return List.of(createCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
+                List.of(textEdit), context.fileUri(), CodeActionKind.QuickFix));
     }
 
     @Override

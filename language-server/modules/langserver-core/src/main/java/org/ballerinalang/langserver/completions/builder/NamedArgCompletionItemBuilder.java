@@ -41,9 +41,9 @@ public class NamedArgCompletionItemBuilder {
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(String argName, TypeSymbol argSymbol) {
-        String defaultValue = CommonUtil.getDefaultValueForType(argSymbol).orElse("");
+        String defaultValue = CommonUtil.getDefaultPlaceholderForType(argSymbol).orElse("");
         String label = argName + " = ...";
-        String insertText = argName + " = ${1:" + defaultValue + "}";
+        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(argName) + " = ${1:" + defaultValue + "}";
         String detail = argName + " = " + defaultValue;
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
