@@ -654,6 +654,28 @@ function testMappingBindingToRecordWithDefaultValue() {
     assertEquals("Matched", fn2());
 }
 
+type T2 readonly & (S1|S2);
+
+type S1 record {|
+    1 x;
+    string y;
+|};
+
+type S2 record {|
+    2 x;
+    string y;
+|};
+
+function testMatchNarrowing() {
+    T2 t = {x: 1, y: "s"};
+    match t {
+        {x: 1, y: var val} => {
+            string a = val;
+            assertEquals("s", a);
+        }
+    }
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
