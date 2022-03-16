@@ -730,15 +730,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     @Override
-    public void visit(BLangTableKeyTypeConstraint keyTypeConstraint) {
-        analyzeDef(keyTypeConstraint.keyType, env);
+    public void visit(BLangTableKeyTypeConstraint keyTypeConstraint, AnalyzerData data) {
+        analyzeNode(keyTypeConstraint.keyType, data);
     }
 
     @Override
     public void visit(BLangTableTypeNode tableTypeNode, AnalyzerData data) {
-        analyzeDef(tableTypeNode.constraint, env);
+        analyzeNode(tableTypeNode.constraint, data);
         if (tableTypeNode.tableKeyTypeConstraint != null) {
-            analyzeDef(tableTypeNode.tableKeyTypeConstraint, env);
+            analyzeNode(tableTypeNode.tableKeyTypeConstraint, data);
         }
         BType constraint = Types.getReferredType(tableTypeNode.constraint.getBType());
         if (!types.isAssignable(constraint, symTable.mapAllType)) {
@@ -811,15 +811,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        SymbolEnv funcEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.getBType().tsymbol.scope, currentEnv);
+        data.env = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.getBType().tsymbol.scope, currentEnv);
         for (BLangVariable param : functionTypeNode.params) {
-            analyzeDef(param, funcEnv);
+            analyzeNode(param, data);
         }
         if (functionTypeNode.restParam != null) {
-            analyzeDef(functionTypeNode.restParam.typeNode, funcEnv);
+            analyzeNode(functionTypeNode.restParam.typeNode, data);
         }
         if (functionTypeNode.returnTypeNode != null) {
-            analyzeDef(functionTypeNode.returnTypeNode, funcEnv);
+            analyzeNode(functionTypeNode.returnTypeNode, data);
         }
         functionTypeNode.analyzed = true;
     }
@@ -960,7 +960,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
             analyzeVarNode(varNode, data, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
         } else if ((ownerSymTag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) {
-            analyzeVarNode(varNode, env, AttachPoint.Point.PARAMETER);
+            analyzeVarNode(varNode, data, AttachPoint.Point.PARAMETER);
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (isListenerDecl) {
@@ -1212,7 +1212,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE &&
                 !((BLangFunctionTypeNode) varNode.typeNode).analyzed) {
-            analyzeDef(varNode.typeNode, env);
+            analyzeDef(varNode.typeNode, data);
         }
 
         List<AttachPoint.Point> attachPointsList = Arrays.asList(attachPoints);

@@ -3426,9 +3426,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return false;
     }
 
-    private void checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
-        BType type = checkExpr(iExpr.expr, env);
-        checkIfLangLibMethodExists(iExpr, type, iExpr.name.pos, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, type);
+    private void checkFieldFunctionPointer(BLangInvocation iExpr, AnalyzerData data) {
+        BType type = checkExpr(iExpr.expr, data.env);
+        checkIfLangLibMethodExists(iExpr, type, iExpr.name.pos, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, data,
+                                   type);
     }
 
     private void checkIfLangLibMethodExists(BLangInvocation iExpr, BType varRefType, Location pos,
@@ -4686,19 +4687,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction, AnalyzerData data) {
-        if (this.nonErrorLoggingCheck) {
+        SymbolEnv currentEnv = data.env;
+        if (data.nonErrorLoggingCheck) {
             BLangFunction funcNode = bLangLambdaFunction.function;
             BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                        names.fromIdNode(funcNode.name), Names.EMPTY,
-                                                                       env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                       funcNode.hasBody(), funcNode.pos, VIRTUAL);
+                                                                       currentEnv.enclPkg.symbol.pkgID, null,
+                                                                       currentEnv.scope.owner, funcNode.hasBody(),
+                                                                       funcNode.pos, VIRTUAL);
             funcSymbol.scope = new Scope(funcSymbol);
-            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, currentEnv);
             invokableEnv.scope = funcSymbol.scope;
             symbolEnter.defineInvokableSymbolParams(bLangLambdaFunction.function, funcSymbol, invokableEnv);
             funcNode.setBType(funcSymbol.type);
         } else if (bLangLambdaFunction.function.symbol == null) {
-            symbolEnter.defineNode(bLangLambdaFunction.function, env);
+            symbolEnter.defineNode(bLangLambdaFunction.function, currentEnv);
         }
         bLangLambdaFunction.setBType(bLangLambdaFunction.function.getBType());
         // creating a copy of the env to visit the lambda function later
@@ -4706,9 +4709,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (!data.nonErrorLoggingCheck) {
             if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-                env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+                currentEnv.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
             } else {
-                semanticAnalyzer.analyzeDef(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+                semanticAnalyzer.analyzeNode(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
             }
        }
 
