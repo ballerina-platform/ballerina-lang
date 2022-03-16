@@ -598,8 +598,7 @@ function testMappingMatchPattern26() {
     assertEquals(1, mappingMatchPattern27({y: "hello world", x: 1}));
 }
 
-
-type T (map<string> & readonly) | map<int>;
+type T (map<string> & readonly)|map<int>;
 
 function mappingMatchPattern28(T v) returns string {
     match v {

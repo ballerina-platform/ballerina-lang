@@ -103,7 +103,7 @@ function testCaptureBindingPattern4() {
 
 type A [int, string] & readonly;
 type B map<int> & readonly;
-type T A | B;
+type T A|B;
 
 function captureBindingPattern5(T v) returns string {
     string s = "No match";
