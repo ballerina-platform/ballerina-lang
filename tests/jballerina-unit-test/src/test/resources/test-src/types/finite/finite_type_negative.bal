@@ -128,9 +128,39 @@ function testFiniteTypeOfNumericValues() {
     0x.12p12 f6 = 1.2d;
     1.2e12 f7 = 2.1d;
 
-    2d d1 = 2;
+    2d d1 = 4;
     1.2d d2 = 2.1;
     1.21d d3 = 1.2f;
     0.1219e-1 d4 = 1.21d;
     12.1d d5 = 0x.21;
+
+    boolean b = true;
+    if b {
+        0x.12p12 f8 = 1.2d;
+        1.2e12 f9 = 2.1d;
+
+        2d d6 = 4;
+        1.2d d7 = 2.1;
+    }
+}
+
+type Float1 1f;
+Float1 float1 = 2;
+
+1f f1 = 2;
+1.0 f2 = 3;
+1.121 f3 = 5;
+1.2e12 f4 = 2.1;
+0x1p-1 f5 = 1.2f;
+0x.12p12 f6 = 1.2d;
+1.2e12 f7 = 2.1d;
+
+2d d1 = 4;
+1.2d d2 = 2.1;
+1.21d d3 = 1.2f;
+0.1219e-1 d4 = 1.21d;
+12.1d d5 = 0x.21;
+
+public function main() {
+
 }
