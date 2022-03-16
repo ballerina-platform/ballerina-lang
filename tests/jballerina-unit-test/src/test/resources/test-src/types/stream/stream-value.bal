@@ -451,3 +451,55 @@ function testInvalidCast() {
     stream<Foo, error?> fooStream = fooArr.toStream();
     stream<Foo, error> barStream = <stream<Foo, error>>fooStream;
 }
+
+function testBasicStreamType() {
+    boolean testPassed = true;
+    stream<int> emptyStream1 = new;
+    stream<int> emptyStream2 = new stream<int>();
+    stream<int, ()> emptyStream3 = new;
+    stream<int, error?> emptyStream4 = new;
+    stream<int, ()> emptyStream5 = new stream<int, ()>();
+    stream<int, error?> emptyStream6 = new stream<int, error?>();
+    var emptyStream7 = new stream<int>();
+    var emptyStream8 = new stream<int, ()>();
+    var emptyStream9 = new stream<int, error?>();
+
+    stream a1 = emptyStream1;
+    stream a2 = emptyStream2;
+    stream a3 = emptyStream3;
+    stream a4 = emptyStream4;
+    stream a5 = emptyStream5;
+    stream a6 = emptyStream6;
+    stream a7 = emptyStream7;
+    stream a8 = emptyStream8;
+    stream a9 = emptyStream9;
+
+    assertTrue(a1.next() === ());
+    assertTrue(a2.next() === ());
+    assertTrue(a3.next() === ());
+    assertTrue(a4.next() === ());
+    assertTrue(a5.next() === ());
+    assertTrue(a6.next() === ());
+    assertTrue(a7.next() === ());
+    assertTrue(a8.next() === ());
+    assertTrue(a9.next() === ());
+}
+
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    if actual is boolean && actual {
+        return;
+    }
+
+    string actualValAsString = "";
+    if (actual is error) {
+        actualValAsString = actual.toString();
+    } else {
+        actualValAsString = actual.toString();
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected 'true', found '" + actualValAsString + "'");
+}

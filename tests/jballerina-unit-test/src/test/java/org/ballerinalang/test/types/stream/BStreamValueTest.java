@@ -269,6 +269,11 @@ public class BStreamValueTest {
         BRunUtil.invoke(result, "testInvalidCast");
     }
 
+    @Test(description = "Test basic stream type variables")
+    public void testBasicStreamType() {
+        BRunUtil.invoke(result, "testBasicStreamType");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
