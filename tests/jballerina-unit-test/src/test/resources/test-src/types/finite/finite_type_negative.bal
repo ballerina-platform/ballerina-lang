@@ -160,7 +160,3 @@ Float1 float1 = 2;
 1.21d d3 = 1.2f;
 0.1219e-1 d4 = 1.21d;
 12.1d d5 = 0x.21;
-
-public function main() {
-
-}
