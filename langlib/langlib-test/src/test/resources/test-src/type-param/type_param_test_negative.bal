@@ -146,20 +146,27 @@ type DataRow record {|
     string name;
 |};
 
-function foo(table<DataRecord> a) returns table<DataRow> {
-    table<DataRow> aa = a.map(function(dRecord) returns DataRow {
+function foo1(table<DataRecord> a) returns table<DataRow> {
+    table<DataRow> aa = a.map(function(dRecord) returns DataRow { // error
         return {
             name: ""
         };
     });
 }
 
+public function foo2(int[] ia) {
+    int[] _ = ia.filter(function (x) returns boolean { // error
+        return x > 0; // error
+    });
+}
+
 function testAnonymousFunctionsWithMissingParameterType() {
-    _ = foo(table []);
+    _ = foo1(table []);
+    _ = foo2([1, 2, 3]);
 }
 
 function bar(table<DataRecord> a) returns table<DataRow> {
-    table<DataRow> aa = a.map(function(string dRecord) returns DataRow {
+    table<DataRow> aa = a.map(function(string dRecord) returns DataRow { // error
         return {
             name: ""
         };

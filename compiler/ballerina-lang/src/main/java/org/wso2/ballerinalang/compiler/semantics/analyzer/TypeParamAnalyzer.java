@@ -421,11 +421,9 @@ public class TypeParamAnalyzer {
                     findTypeParamInInvokableType(loc, (BInvokableType) expType, (BInvokableType) actualType, env,
                             resolvedTypes, result);
                 }
-                if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
-                    if (expr != null && expr.getKind() == NodeKind.LAMBDA) {
-                        updateTypeParamAndBoundTypeForInvokableType(loc, env, (BInvokableType) expType,
-                                (BInvokableType) ((BLangLambdaFunction) expr).function.getBType());
-                    }
+                if (actualType.tag == TypeTags.SEMANTIC_ERROR && expr != null && expr.getKind() == NodeKind.LAMBDA) {
+                    updateTypeParamAndBoundTypeForInvokableType(loc, env, (BInvokableType) expType,
+                            (BInvokableType) ((BLangLambdaFunction) expr).function.getBType());
                 }
                 break;
             case TypeTags.OBJECT:
