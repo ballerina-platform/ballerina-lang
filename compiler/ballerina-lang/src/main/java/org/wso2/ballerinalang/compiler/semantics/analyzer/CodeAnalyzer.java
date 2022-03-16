@@ -3689,7 +3689,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangArrayType arrayType) {
         if (containsInferredArraySizesOfHigherDimensions(arrayType.sizes)) {
             dlog.error(arrayType.pos, DiagnosticErrorCode.INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION);
-        } else if (isInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent)) {
+        } else if (isSizeInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent)) {
             dlog.error(arrayType.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
         }
 
