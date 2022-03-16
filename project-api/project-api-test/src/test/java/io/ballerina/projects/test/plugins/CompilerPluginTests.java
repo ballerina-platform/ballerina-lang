@@ -29,6 +29,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.Resource;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.test.TestUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -276,11 +277,11 @@ public class CompilerPluginTests {
 
     }
 
-    @Test
+    @Test(description = "Test basic package code modify using code modifier plugin")
     public void testCompilerPluginCodeModifyBasic() {
         Package currentPackage = loadPackage("package_plugin_code_modify_user_1");
         // Check the document count in the current package
-        Assert.assertEquals(1, currentPackage.getDefaultModule().documentIds().size());
+        Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 1);
 
         //  Running the compilation
         currentPackage.getCompilation();
@@ -295,7 +296,52 @@ public class CompilerPluginTests {
         // Compiling the new package
         Project project = currentPackage.project();
         Package newPackage = codeModifierResult.updatedPackage().orElse(null);
-        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code generators");
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
+        Assert.assertSame(newPackage.project(), project);
+        Assert.assertSame(newPackage, project.currentPackage());
+
+        // The code generator adds specific function to the end of every source file.
+        String specificFunction = "public function newFunctionByCodeModifier(string params) returns error? {\n}";
+
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 1);
+        for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        PackageCompilation compilation = newPackage.getCompilation();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies count is 1
+        Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
+    }
+
+    @Test(description = "Test basic single bal file code modify using code modifier plugin")
+    public void testCompilerPluginSingleBalFileCodeModifyBasic() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("single_bal_plugin_code_modify_user_1").resolve("main.bal");
+        SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(projectDirPath);
+        Package currentPackage = singleFileProject.currentPackage();
+
+        // Check the document count in the current package
+        Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 1);
+
+        //  Running the compilation
+        currentPackage.getCompilation();
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+
+        // Running the code generation
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+
+        // Compiling the new package
+        Project project = currentPackage.project();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
         Assert.assertSame(newPackage.project(), project);
         Assert.assertSame(newPackage, project.currentPackage());
 

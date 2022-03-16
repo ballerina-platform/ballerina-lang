@@ -18,7 +18,6 @@
 package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CodeModifier;
 import io.ballerina.projects.plugins.CodeModifierContext;
@@ -26,9 +25,6 @@ import io.ballerina.projects.plugins.ModifierTask;
 import io.ballerina.projects.plugins.SourceModifierContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticFactory;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -271,15 +267,6 @@ class CodeModifierManager {
 
         @Override
         public void modifySourceFile(TextDocument textDocument, DocumentId documentId) {
-            if (this.currentPackage.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                        ProjectDiagnosticErrorCode.UNSUPPORTED_COMPILER_PLUGIN_TYPE.diagnosticId(),
-                        "Skipped modifying source file" +
-                                ". Source file modification is not supported with standalone bal files",
-                        DiagnosticSeverity.WARNING);
-                reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
-                return;
-            }
             for (ModuleId moduleId : currentPackage().moduleIds()) {
                 Module module = currentPackage.module(moduleId);
                 if (module.documentIds().contains(documentId)) {
