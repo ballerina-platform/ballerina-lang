@@ -65,7 +65,7 @@ public class Types {
     public final TypeSymbol NIL;
     public final TypeSymbol XML;
     public final TypeSymbol ERROR;
-//    public final TypeSymbol FUNCTION;
+    public final TypeSymbol FUNCTION;
     public final TypeSymbol FUTURE;
     public final TypeSymbol TYPEDESC;
     public final TypeSymbol HANDLE;
@@ -95,7 +95,7 @@ public class Types {
         this.NIL = typesFactory.getTypeDescriptor(symbolTable.nilType);
         this.XML = typesFactory.getTypeDescriptor(symbolTable.xmlType);
         this.ERROR = typesFactory.getTypeDescriptor(symbolTable.errorType);
-//        this.FUNCTION = typesFactory.getTypeDescriptor(null);
+        this.FUNCTION = typesFactory.getTypeDescriptor(symbolTable.invokableType);
         this.FUTURE = typesFactory.getTypeDescriptor(symbolTable.futureType);
         this.TYPEDESC = typesFactory.getTypeDescriptor(symbolTable.typeDesc);
         this.HANDLE = typesFactory.getTypeDescriptor(symbolTable.handleType);

@@ -122,30 +122,6 @@ public class TypesTest {
         types = model.types();
     }
 
-    @Test(dataProvider = "TypeByNameFromBir")
-    public void testTypeByNameFromBir(String typeDefName, SymbolKind symKind, TypeDescKind typeDescKind) {
-        ModuleDescriptor moduleDescriptor = project.currentPackage().getDefaultModule().descriptor();
-        String org = moduleDescriptor.org().value();
-        String pkgName = moduleDescriptor.name().toString();
-        String version = moduleDescriptor.version().toString();
-        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
-        assertTrue(symbol.isPresent());
-        assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
-
-        Optional<String> symbolName = symbol.get().getName();
-        assertTrue(symbolName.isPresent());
-        assertEquals(symbolName.get(), typeDefName);
-    }
-
-    @DataProvider(name = "TypeByNameFromBir")
-    private Object[][] getTypeByNameFromBir() {
-        return new  Object[][] {
-                {"ExampleDec", TYPE_DEFINITION, DECIMAL},
-                {"TestRecord", TYPE_DEFINITION, RECORD},
-                {"AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
-        };
-    }
-
     @Test(dataProvider = "BuiltInTypesProvider")
     public void testBuiltInTypes(TypeSymbol typeSymbol, TypeDescKind kind, Class<? extends TypeSymbol> typeClass) {
         assertEquals(typeSymbol.typeKind(), kind);
@@ -164,7 +140,7 @@ public class TypesTest {
                 {types.XML, XML, BallerinaXMLTypeSymbol.class},
                 {types.ERROR, ERROR, BallerinaErrorTypeSymbol.class},
                 {types.FUTURE, FUTURE, BallerinaFutureTypeSymbol.class},
-//                {types.FUNCTION, FUNCTION, BallerinaFunctionTypeSymbol.class},
+                {types.FUNCTION, FUNCTION, BallerinaFunctionTypeSymbol.class},
                 {types.TYPEDESC, TYPEDESC, BallerinaTypeDescTypeSymbol.class},
                 {types.HANDLE, HANDLE, BallerinaHandleTypeSymbol.class},
                 {types.STREAM, STREAM, BallerinaStreamTypeSymbol.class},
@@ -260,6 +236,30 @@ public class TypesTest {
                 {"ExampleErr", TYPE_DEFINITION, ERROR},
                 {"ABC", CONSTANT, SINGLETON},
                 {"PersonClass", CLASS, OBJECT},
+        };
+    }
+
+    @Test(dataProvider = "TypeByNameFromBir")
+    public void testTypeByNameFromBir(String typeDefName, SymbolKind symKind, TypeDescKind typeDescKind) {
+        ModuleDescriptor moduleDescriptor = project.currentPackage().getDefaultModule().descriptor();
+        String org = moduleDescriptor.org().value();
+        String pkgName = moduleDescriptor.name().toString();
+        String version = moduleDescriptor.version().toString();
+        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
+        assertTrue(symbol.isPresent());
+        assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
+
+        Optional<String> symbolName = symbol.get().getName();
+        assertTrue(symbolName.isPresent());
+        assertEquals(symbolName.get(), typeDefName);
+    }
+
+    @DataProvider(name = "TypeByNameFromBir")
+    private Object[][] getTypeByNameFromBir() {
+        return new  Object[][] {
+                {"ExampleDec", TYPE_DEFINITION, DECIMAL},
+                {"TestRecord", TYPE_DEFINITION, RECORD},
+                {"AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
         };
     }
 
