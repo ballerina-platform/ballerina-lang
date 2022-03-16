@@ -7860,8 +7860,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
 
             if (actualType == symTable.semanticError) {
-                if (Types.getReferredType(indexExpr.getBType()).tag == TypeTags.STRING
-                        && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD,
                             fieldName, indexBasedAccessExpr.expr.getBType());
@@ -7886,7 +7885,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.getBType().tag == TypeTags.INT && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.indexExpr.pos,
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
                     return actualType;
@@ -8027,16 +8026,19 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
                                              BArrayType arrayType) {
         BType actualType = symTable.semanticError;
-        switch (indexExprType.tag) {
-            case TypeTags.INT:
-                BLangExpression indexExpr = indexBasedAccess.indexExpr;
-                if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
-                    actualType = arrayType.eType;
-                    break;
-                }
-                Long indexVal = getConstIndex(indexExpr);
-                actualType = indexVal >= arrayType.size || indexVal < 0 ? symTable.semanticError : arrayType.eType;
-                break;
+
+        int tag = indexExprType.tag;
+
+        if (tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(tag)) {
+            BLangExpression indexExpr = indexBasedAccess.indexExpr;
+            if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
+                return arrayType.eType;
+            }
+            Long indexVal = getConstIndex(indexExpr);
+            return indexVal >= arrayType.size || indexVal < 0 ? symTable.semanticError : arrayType.eType;
+        }
+
+        switch (tag) {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
                 boolean validIndexExists = false;
@@ -8116,17 +8118,20 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple, BType currentType) {
         BType actualType = symTable.semanticError;
         BLangExpression indexExpr = accessExpr.indexExpr;
-        switch (currentType.tag) {
-            case TypeTags.INT:
-                if (isConstExpr(indexExpr)) {
-                    actualType = checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
-                } else {
-                    BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
-                    LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
-                    actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null,
-                                                                                                           tupleTypes);
-                }
-                break;
+
+        int tag = currentType.tag;
+
+        if (tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(tag)) {
+            if (isConstExpr(indexExpr)) {
+                return checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
+            }
+
+            BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
+            LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
+            return tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
+        }
+
+        switch (tag) {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
@@ -8247,6 +8252,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
                 if (isConstExpr(indexExpr)) {
                     String fieldName = Utils.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
