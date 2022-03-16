@@ -3992,7 +3992,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 recordType.restFieldType = symTable.noType;
                 dlog.error(recordTypeNode.pos,
                         DiagnosticErrorCode.
-                                CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES);
+                        CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES);
                 return;
             }
             recordType.restFieldType = restFieldType;
