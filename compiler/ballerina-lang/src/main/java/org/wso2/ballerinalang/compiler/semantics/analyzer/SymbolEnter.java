@@ -4923,6 +4923,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (referredType == symTable.semanticError) {
                 continue;
             }
+            if (referredType.tag != TypeTags.RECORD) {
+                continue;
+            }
             var fields = ((BStructureType) referredType).fields.values();
             for (BField field : fields) {
                 BType type = field.type;
@@ -5016,7 +5019,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return var;
             });
         }).collect(Collectors.toList());
-        typeRefs.removeAll(invalidTypeRefs);
+        structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
     private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
