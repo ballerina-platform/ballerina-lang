@@ -5413,7 +5413,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }  else if (type == SyntaxKind.NULL_LITERAL) {
             originalValue = "null";
             typeTag = TypeTags.NIL;
-            value = "null";
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.BINARY_EXPRESSION) { // Should be base16 and base64
             typeTag = TypeTags.BYTE_ARRAY;
