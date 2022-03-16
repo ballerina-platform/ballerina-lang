@@ -54,9 +54,9 @@ function testFn() {
     a1 = [1, 2].cloneReadOnly();
     assertEquality(true, a1 is int[2]);
     a1 = [1, 2, 3].cloneReadOnly();
-//  assertEquality(false, a1 is tr:IntArray); // Uncomment after fixing ballerina-lang/issues/#34879
+    assertEquality(false, a1 is tr:IntArray);
     a1 = [1].cloneReadOnly();
-    assertEquality(true, a1 is tr:IntArray);
+    assertEquality(false, a1 is tr:IntArray);
 
     a1 = [1.2, true].cloneReadOnly();
     assertEquality(true, a1 is tr:FloatBooleanTuple);

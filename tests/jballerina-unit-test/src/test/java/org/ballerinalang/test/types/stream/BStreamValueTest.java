@@ -16,9 +16,7 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,80 +44,80 @@ public class BStreamValueTest {
 
     @Test(description = "Test global stream construct")
     public void testGlobalStreamConstruct() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalStreamConstruct", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testGlobalStreamConstruct", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream construct within a function")
     public void testStreamConstruct() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamConstruct", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testStreamConstruct", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream construct with stream filter")
     public void testStreamConstructWithFilter() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithFilter", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testStreamConstructWithFilter", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream explicit return type")
     public void testStreamReturnTypeExplicit() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamReturnTypeExplicit", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testStreamReturnTypeExplicit", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream implicit return type")
     public void testStreamReturnTypeImplicit() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamReturnTypeImplicit", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testStreamReturnTypeImplicit", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator With Custom Error")
     public void testIteratorWithCustomError() {
-        BValue[] values = BRunUtil.invoke(result, "testIteratorWithCustomError", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testIteratorWithCustomError", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator with generic error")
     public void testIteratorWithGenericError() {
-        BValue[] values = BRunUtil.invoke(result, "testIteratorWithGenericError", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testIteratorWithGenericError", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator with withOut error")
     public void testIteratorWithOutError() {
-        BValue[] values = BRunUtil.invoke(result, "testIteratorWithOutError", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testIteratorWithOutError", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test Iterator with error union")
     public void testIteratorWithErrorUnion() {
-        BValue[] values = BRunUtil.invoke(result, "testIteratorWithErrorUnion", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testIteratorWithErrorUnion", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream construct within never")
     public void testStreamConstructWithNil() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithNil", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testStreamConstructWithNil", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test stream of streams")
     public void testStreamOfStreams() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamOfStreams", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testStreamOfStreams", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test empty stream constructs")
     public void testEmptyStreamConstructs() {
-        BValue[] values = BRunUtil.invoke(result, "testEmptyStreamConstructs", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testEmptyStreamConstructs", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test passing union of stream to a function which takes a stream as a argument")
     public void testUnionOfStreamsAsFunctionParams() {
-        BValue[] values = BRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+        Object values = BRunUtil.invoke(result, "testUnionOfStreamsAsFunctionParams", new Object[]{});
+        Assert.assertTrue((Boolean) values);
     }
 
     @Test(description = "Test negative test scenarios of stream type")

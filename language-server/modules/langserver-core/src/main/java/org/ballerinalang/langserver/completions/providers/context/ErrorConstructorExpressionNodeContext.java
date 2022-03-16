@@ -224,12 +224,11 @@ public class ErrorConstructorExpressionNodeContext extends
 
         fields.entrySet().forEach(field -> {
             Optional<String> fieldName = field.getValue().getName();
-            TypeSymbol fieldType = field.getValue().typeDescriptor();
-            String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("\"\"");
             if (fieldName.isEmpty() || fieldName.get().isEmpty() || existingNamedArgs.contains(fieldName.get())) {
                 return;
             }
-            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), defaultValue);
+            TypeSymbol fieldType = field.getValue().typeDescriptor();
+            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), fieldType);
             completionItems.add(new NamedArgCompletionItem(context, completionItem, Either.forRight(field.getValue())));
         });
 

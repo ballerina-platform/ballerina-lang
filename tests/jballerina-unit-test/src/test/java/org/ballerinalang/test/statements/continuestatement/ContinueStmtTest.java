@@ -16,8 +16,6 @@
  */
 package org.ballerinalang.test.statements.continuestatement;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,52 +44,52 @@ public class ContinueStmtTest {
 
     @Test(description = "Test continue statement in a while loop.")
     public void testContinueStmtConditionTrue() {
-        BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object[] args = {(15), (5)};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 9;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test continue statement in a while loop, where continue not in execution path ")
     public void testContinueStmtConditionFalse() {
-        BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object[] args = {(25), (15)};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 10;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionTrue() {
-        BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
+        Object[] args = {(15), (5)};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 666;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test continue statement in a nested while loop.")
     public void testContinueStmtInNestedWhileConditionFalse() {
-        BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
+        Object[] args = {(25), (15)};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "nestedContinueStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 2486;
         Assert.assertEquals(actual, expected);
     }

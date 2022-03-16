@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -73,7 +74,8 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             }
             edits.add(getSurroundWithOnFailEditText(nodeAtDiagnostic));
             commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
-            return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+            return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+                    CodeActionKind.QuickFix));
         }
         
         if (failStatementResolverNode.isPresent()) {
@@ -91,7 +93,8 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
         }
 
-        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+                CodeActionKind.QuickFix));
     }
  
     public TextEdit getSurroundWithOnFailEditText(Node node) {
