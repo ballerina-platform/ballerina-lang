@@ -282,10 +282,7 @@ public class DependenciesTomlTests {
                         "Detected corrupted Dependencies.toml file. This will be updated to latest dependencies.");
     }
 
-    /**
-     * Invalid Dependencies.toml file with additional attribute in modules array.
-     */
-    @Test
+    @Test(description = "Invalid Dependencies.toml file with additional attribute in modules array")
     public void testDependenciesTomlWithAdditionalAttributeInModulesArray() throws IOException {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-modules.toml"));
@@ -301,10 +298,7 @@ public class DependenciesTomlTests {
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(31:44,31:60)");
     }
 
-    /**
-     * Invalid Dependencies.toml file with additional attribute in dependencies array.
-     */
-    @Test
+    @Test(description = "Invalid Dependencies.toml file with additional attribute in dependencies array")
     public void testDependenciesTomlWithAdditionalAttributeInDependenciesArray() throws IOException {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-dependencies.toml"));
