@@ -101,6 +101,9 @@ public interface LSCodeActionProvider {
     /**
      * Checks whether the syntax is valid.
      *
+     * @param diagnostic diagnostic to evaluate
+     * @param positionDetails   {@link DiagBasedPositionDetails}
+     * @param context    language server context
      * @return True if syntactically correct, false otherwise.
      */
     default boolean validate(Diagnostic diagnostic,

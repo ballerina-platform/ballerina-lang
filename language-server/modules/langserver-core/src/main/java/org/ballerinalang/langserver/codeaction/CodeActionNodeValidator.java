@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -227,13 +228,19 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && node.expressions().stream().allMatch(arg -> arg.apply(this))
                 && node.parent().apply(this);
     }
-    
+
+    /**
+     * Checks whether the syntax is valid.
+     *
+     * @param node    Node at cursor position
+     * @return {@link Boolean} True if syntactically correct, false otherwise
+     */
     public static Boolean validate(NonTerminalNode node) {
         NonTerminalNode validatorNode = node;
         if (node.kind().equals(SyntaxKind.LIST)) {
             validatorNode = node.parent();
         }
         CodeActionNodeValidator nodeValidator = new CodeActionNodeValidator();
-        return validatorNode.apply(nodeValidator);
+        return Optional.of(validatorNode.apply(nodeValidator)).orElse(true);
     }
 }
