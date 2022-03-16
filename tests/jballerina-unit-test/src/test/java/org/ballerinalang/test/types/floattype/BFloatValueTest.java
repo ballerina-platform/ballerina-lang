@@ -211,6 +211,23 @@ public class BFloatValueTest {
         BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 29, 20);
         BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 31, 20);
         BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 33, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 36, 16);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 39, 17);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 42, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0Xffffffffffffffff' too large", 43, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0XFFFFFFFFFFFFFFFF' too large", 44, 21);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 46, 16);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 46, 16);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0X' too large", 47, 10);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 47, 10);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 49, 20);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 49, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 51, 24);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 51, 24);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0X' too large", 52, 10);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 52, 10);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 54, 21);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 54, 21);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
