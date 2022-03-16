@@ -101,6 +101,7 @@
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTemplateExprTest" />
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTypeExprTest" />
 
+            <class name="io.ballerina.semantic.api.test.typedescriptors.TypeNarrowedTypeDescriptorTest" />
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeReferenceTSymbolTest" />
 
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
