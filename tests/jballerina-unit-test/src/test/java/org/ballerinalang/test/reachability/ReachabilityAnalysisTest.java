@@ -84,7 +84,18 @@ public class ReachabilityAnalysisTest {
                 "testTerminatingAndNonTerminatingLoops",
                 "testTypeNarrowingWithDifferentWhileCompletionStatus",
                 "testTypeNarrowingWithEqualityInCondition",
-                "testReachableStatementInQueryAction"
+                "testReachableStatementInQueryAction",
+                "testUnreachablePanicStmt1",
+                "testUnreachablePanicStmt2",
+                "testUnreachablePanicStmt3",
+                "testUnreachablePanicStmt4",
+                "testUnreachablePanicStmt5",
+                "testUnreachablePanicStmt6",
+                "testUnreachablePanicStmt7",
+                "testUnreachablePanicStmt8",
+                "testUnreachablePanicStmt9",
+                "testUnreachablePanicStmt10",
+                "testReachabilityWithQueryAction"
         };
     }
 
@@ -206,7 +217,6 @@ public class ReachabilityAnalysisTest {
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 263, 27);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 266, 17);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 268, 16);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 275, 5);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 285, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 289, 5);
         validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 290, 1);
@@ -376,9 +386,40 @@ public class ReachabilityAnalysisTest {
         validateWarning(result, i++, "unused variable 'x'", 1281, 5);
         validateWarning(result, i++, "unused variable 'y'", 1284, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1287, 17);
-        Assert.assertEquals(result.getErrorCount(), i - 35 - 21);
-        Assert.assertEquals(result.getHintCount(), 35);
-        Assert.assertEquals(result.getWarnCount(), 21);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1297, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1305, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1314, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1323, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1330, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1338, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1348, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1356, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1364, 5);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1371, 8);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1373, 15);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1374, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1382, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1384, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1391, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1393, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1399, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1410, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1413, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1419, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1421, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1428, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1431, 5);
+        validateWarning(result, i++, "unused variable 'm'", 1435, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1442, 13);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1452, 19);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1455, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1466, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1475, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1487, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1499, 13);
+        Assert.assertEquals(result.getErrorCount(), i - 38 - 22);
+        Assert.assertEquals(result.getHintCount(), 38);
+        Assert.assertEquals(result.getWarnCount(), 22);
     }
 
     @Test
@@ -478,44 +519,35 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 307, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 316, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 323, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 330, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 331, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 338, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 339, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 341, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 350, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 357, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 363, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 372, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 373, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 380, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 381, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 383, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 393, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 401, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 408, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 418, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 419, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 428, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 432, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 438, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 446, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 455, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 456, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 462, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 466, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 475, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 482, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 488, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 497, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 498, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 505, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 506, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 508, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 518, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 526, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 533, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 543, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 544, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 554, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 558, 9);
@@ -533,7 +565,6 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 646, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 654, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 661, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 664, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 669, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 677, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 684, 9);
@@ -545,7 +576,6 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 732, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 741, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 748, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 749, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 758, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 768, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 776, 5);
@@ -588,7 +618,6 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1023, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1032, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1040, 5);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1041, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1049, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1057, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1067, 17);

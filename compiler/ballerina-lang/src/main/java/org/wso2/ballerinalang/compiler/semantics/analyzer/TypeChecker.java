@@ -1704,8 +1704,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
                                 data.env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
-                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayType :
-                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayType, data.env,
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAllType :
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, data.env,
                                                                       symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
@@ -2158,8 +2158,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAnydataType,
                                 data.env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
-                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapType :
-                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapType, data.env,
+                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.mapAllType :
+                        ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.mapAllType, data.env,
                                                                       symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
