@@ -95,6 +95,16 @@ public class SymbolEnv {
     }
 
     public void copyTo(SymbolEnv target) {
+        this.withoutEnclEnvCopyTo(target);
+        target.enclEnv = this;
+    }
+
+    public void copyTo(SymbolEnv target, SymbolEnv enclEnv) {
+        this.withoutEnclEnvCopyTo(target);
+        target.enclEnv = enclEnv;
+    }
+
+    private void withoutEnclEnvCopyTo(SymbolEnv target) {
         target.enclPkg = this.enclPkg;
         target.enclType = this.enclType;
         target.enclAnnotation = this.enclAnnotation;
@@ -102,7 +112,6 @@ public class SymbolEnv {
         target.enclInvokable = this.enclInvokable;
         target.enclVarSym = this.enclVarSym;
         target.logErrors = this.logErrors;
-        target.enclEnv = this;
         target.envCount = this.envCount;
     }
 

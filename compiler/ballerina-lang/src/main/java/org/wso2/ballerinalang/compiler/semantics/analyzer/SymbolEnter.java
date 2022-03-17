@@ -2165,8 +2165,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv;
-        if (env.node.getKind() == NodeKind.CLASS_DEFN || env.node.getKind() == NodeKind.OBJECT_TYPE) {
-            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env.enclEnv);
+        NodeKind previousNodeKind = env.node.getKind();
+        if (previousNodeKind == NodeKind.CLASS_DEFN || previousNodeKind == NodeKind.OBJECT_TYPE) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, fieldsRemovedEnv(env));
         } else {
             invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         }
@@ -2185,6 +2186,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private SymbolEnv fieldsRemovedEnv(SymbolEnv currentEnv) {
+        Scope currentScope = currentEnv.scope;
+        Scope newScope = new Scope(currentScope.owner);
+        Map<Name, ScopeEntry> currentEntries = currentScope.entries;
+        boolean fieldsAvailable = false;
+        for (Name name : currentEntries.keySet()) {
+            ScopeEntry entry = currentEntries.get(name);
+            if (entry.symbol.getFlags().contains(Flag.FIELD)) {
+                    fieldsAvailable = true;
+            } else {
+                newScope.entries.put(name, entry);
+            }
+        }
+        if (!fieldsAvailable) {
+            return currentEnv;
+        }
+        SymbolEnv newEnv = new SymbolEnv(currentEnv.node, newScope);
+        currentEnv.copyTo(newEnv, currentEnv.enclEnv);
+        return newEnv;
     }
 
     private boolean isDeprecated(List<BLangAnnotationAttachment> annAttachments) {
