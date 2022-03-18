@@ -82,3 +82,40 @@ function invalidSealedLiteralIndexAccess() {
     x1[1][4] = 7;
     x2[1][4] = 7;
 }
+
+function invalidInferredArrayUsage() {
+    int[*][2][2] a1 = [[[5, 5], [6, 6]]];
+    int[*][2][2] _ = a1;
+
+    string[*][] & readonly a2 = [["1", "2"], ["3", "4"]];
+    string[*][*] & readonly _ = a2;
+
+    (float[2][2]) & readonly a3 = [[3, 4], [3, 4]];
+    (float[*][]) & readonly _ = a3;
+
+    boolean b3 = true;
+    if (b3) {
+        int[*][][] _ = a1;
+    }
+
+    map<float|int[*][*]> a4 = {"1" : [[3]]};
+    map<int[*][]> _ = a4;
+
+    [string|int[*][], float] a5 = [[[1]], 1.2];
+    [int[*][] & readonly, float] _ = a5;
+}
+
+int[*][2][2] a1 = [[[5, 5], [6, 6]]];
+int[*][2][2] _ = a1;
+
+string[*][] & readonly a2 = [["1", "2"], ["3", "4"]];
+string[*][*] & readonly _ = a2;
+
+(float[2][2]) & readonly a3 = [[3, 4], [3, 4]];
+(float[*][]) & readonly _ = a3;
+
+map<float|int[*][*]> a4 = {"1": [[3]]};
+map<int[*][]> _ = a4;
+
+[string|int[*][], float] a5 = [[[1]], 1.2];
+[int[*][] & readonly, float] _ = a5;
