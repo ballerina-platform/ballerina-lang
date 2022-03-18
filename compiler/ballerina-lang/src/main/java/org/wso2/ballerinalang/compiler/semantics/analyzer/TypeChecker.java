@@ -2487,7 +2487,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         // Check type compatibility
         if (data.expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) data.expType)) {
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+            data.resultType = symTable.semanticError;
             return;
+
         }
 
         data.resultType = types.checkType(varRefExpr, actualType, data.expType);
