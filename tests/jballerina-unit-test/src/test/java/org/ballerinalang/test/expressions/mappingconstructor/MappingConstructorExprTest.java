@@ -70,7 +70,7 @@ public class MappingConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 13);
+        Assert.assertEquals(result.getErrorCount(), 14);
         validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
         validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
         validateError(result, 2,
@@ -86,6 +86,7 @@ public class MappingConstructorExprTest {
         validateError(result, 10, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
         validateError(result, 11, "unknown type 'Foo'", 60, 5);
         validateError(result, 12, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
+        validateError(result, 13, "ambiguous type '(any|map)'", 64, 22);
     }
 
     @Test

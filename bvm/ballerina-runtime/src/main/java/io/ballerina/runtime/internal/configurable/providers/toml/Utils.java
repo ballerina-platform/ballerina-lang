@@ -467,7 +467,6 @@ public class Utils {
             case TypeTags.RECORD_TYPE_TAG:
                 return kind == TomlType.INLINE_TABLE || kind == TomlType.TABLE;
             case TypeTags.TABLE_TAG:
-                return kind == TomlType.ARRAY;
             case TypeTags.TUPLE_TAG:
                 return kind == TomlType.ARRAY;
             case TypeTags.INTERSECTION_TAG:
