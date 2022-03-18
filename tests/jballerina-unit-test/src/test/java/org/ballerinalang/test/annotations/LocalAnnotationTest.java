@@ -16,8 +16,7 @@
  */
 package org.ballerinalang.test.annotations;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -42,12 +41,11 @@ public class LocalAnnotationTest {
 
     @Test
     public void testLocalServiceAnnotEvaluation() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnnotEvaluation");
-        Assert.assertEquals(returns.length, 1);
-        BValueArray array = ((BValueArray) returns[0]);
+        Object returns = BRunUtil.invoke(result, "testAnnotEvaluation");
+        BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 6);
         for (int i = 0; i < 6; i++) {
-            Assert.assertEquals(array.getBoolean(i), 1);
+            Assert.assertEquals(array.getBoolean(i), true);
         }
     }
 }

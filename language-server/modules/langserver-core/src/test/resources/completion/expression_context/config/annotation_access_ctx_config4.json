@@ -28,6 +28,30 @@
       "sortText": "AR",
       "insertText": "serviceAnnotation2",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "annotationCommon",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "commonAnnotation2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

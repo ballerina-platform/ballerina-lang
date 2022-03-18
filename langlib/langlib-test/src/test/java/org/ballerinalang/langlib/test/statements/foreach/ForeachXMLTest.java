@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -49,16 +48,14 @@ public class ForeachXMLTest {
 
     @Test
     public void testXMLWithArityOne() {
-        BValue[] returns = BRunUtil.invoke(program, "testXMLWithArityOne");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), payload + " ");
+        Object returns = BRunUtil.invoke(program, "testXMLWithArityOne");
+        Assert.assertEquals(returns.toString(), payload + " ");
     }
 
     @Test
     public void testXMLWithArityTwo() {
-        BValue[] returns = BRunUtil.invoke(program, "testXMLWithArityTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:" + payload + " ");
+        Object returns = BRunUtil.invoke(program, "testXMLWithArityTwo");
+        Assert.assertEquals(returns.toString(), "0:" + payload + " ");
     }
 
     @Test
@@ -67,8 +64,7 @@ public class ForeachXMLTest {
                 "            <p:city>NY</p:city>\n" +
                 "            <q:country xmlns:q=\"bar\">US</q:country>\n" +
                 "        </p:address> 2:<q:ID xmlns:q=\"bar\">1131313</q:ID> ";
-        BValue[] returns = BRunUtil.invoke(program, "testXMLWithArityChildren");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), payload);
+        Object returns = BRunUtil.invoke(program, "testXMLWithArityChildren");
+        Assert.assertEquals(returns.toString(), payload);
     }
 }

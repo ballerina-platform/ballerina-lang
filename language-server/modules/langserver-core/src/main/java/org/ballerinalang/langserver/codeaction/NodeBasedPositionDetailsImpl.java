@@ -19,6 +19,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 
+import java.util.Optional;
+
 /**
  * This class holds position details for the node-based code actions.
  *
@@ -28,19 +30,19 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
     private final NonTerminalNode matchedTopLevelNode;
     private final NonTerminalNode matchedStmtNode;
     private final TypeSymbol matchedTopLevelTypeSymbol;
+    private final NonTerminalNode matchedDocumentableNode;
+    private final NonTerminalNode enclosingDocumentableNode;
 
     private NodeBasedPositionDetailsImpl(NonTerminalNode matchedTopLevelNode,
                                          NonTerminalNode matchedStmtNode,
-                                         TypeSymbol matchedTopLevelTypeSymbol) {
+                                         TypeSymbol matchedTopLevelTypeSymbol,
+                                         NonTerminalNode matchedDocumentableNode,
+                                         NonTerminalNode enclosingDocumentableNode) {
         this.matchedTopLevelNode = matchedTopLevelNode;
         this.matchedStmtNode = matchedStmtNode;
         this.matchedTopLevelTypeSymbol = matchedTopLevelTypeSymbol;
-    }
-
-    public static NodeBasedPositionDetailsImpl from(NonTerminalNode matchedTopLevelNode,
-                                                    NonTerminalNode matchedStmtNode,
-                                                    TypeSymbol matchedTopLevelTypeSymbol) {
-        return new NodeBasedPositionDetailsImpl(matchedTopLevelNode, matchedStmtNode, matchedTopLevelTypeSymbol);
+        this.matchedDocumentableNode = matchedDocumentableNode;
+        this.enclosingDocumentableNode = enclosingDocumentableNode;
     }
 
     /**
@@ -65,5 +67,59 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
      */
     public TypeSymbol matchedTopLevelTypeSymbol() {
         return matchedTopLevelTypeSymbol;
+    }
+
+    @Override
+    public Optional<NonTerminalNode> matchedDocumentableNode() {
+        return Optional.ofNullable(matchedDocumentableNode);
+    }
+
+    @Override
+    public Optional<NonTerminalNode> enclosingDocumentableNode() {
+        return Optional.ofNullable(enclosingDocumentableNode);
+    }
+
+    /**
+     * Position details builder to populate the required information.
+     */
+    public static class PositionDetailsBuilder {
+        private NonTerminalNode documentableNode;
+        private NonTerminalNode enclosingDocumentableNode;
+        private NonTerminalNode topLevelNode;
+        private NonTerminalNode statementNode;
+        private final TypeSymbol topLevelNodeType;
+
+        public PositionDetailsBuilder(TypeSymbol topLevelNodeType) {
+            this.topLevelNodeType = topLevelNodeType;
+        }
+
+        public PositionDetailsBuilder setDocumentableNode(NonTerminalNode documentableNode) {
+            this.documentableNode = documentableNode;
+            return this;
+        }
+
+        public PositionDetailsBuilder setEnclosingDocumentableNode(NonTerminalNode enclosingDocumentableNode) {
+            this.enclosingDocumentableNode = enclosingDocumentableNode;
+            return this;
+        }
+
+        public PositionDetailsBuilder setStatementNode(NonTerminalNode statementNode) {
+            this.statementNode = statementNode;
+            return this;
+        }
+
+        public PositionDetailsBuilder setTopLevelNode(NonTerminalNode topLevelNode) {
+            this.topLevelNode = topLevelNode;
+            return this;
+        }
+
+        public NodeBasedPositionDetails build() {
+            return new NodeBasedPositionDetailsImpl(
+                    this.topLevelNode,
+                    this.statementNode,
+                    this.topLevelNodeType,
+                    this.documentableNode,
+                    this.enclosingDocumentableNode);
+        }
     }
 }

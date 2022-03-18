@@ -17,16 +17,15 @@
  */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.core.model.util.JsonGenerator;
-import org.ballerinalang.core.model.util.JsonParser;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.JsonParser;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,59 +42,59 @@ public class JSONLibraryTest {
     public void testBasicJsonObjectParseCheckTypes() {
         String json = "{\"a\":\"abc\",\"b\":1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,\"g\":"
                 + "{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",\"B\",\"C\",\"D\"]}";
-        BValue node = JsonParser.parse(json);
-        Assert.assertFalse(node instanceof BValueArray);
-        Assert.assertFalse(node instanceof BBoolean);
-        Assert.assertFalse(node instanceof BFloat);
-        Assert.assertFalse(node instanceof BInteger);
+        Object node = JsonParser.parse(json);
+        Assert.assertFalse(node instanceof BArray);
+        Assert.assertFalse(node instanceof Boolean);
+        Assert.assertFalse(node instanceof Double);
+        Assert.assertFalse(node instanceof Long);
         Assert.assertFalse(node instanceof BString);
         Assert.assertTrue(node instanceof BMap);
         Assert.assertNotNull(node);
 
-        BMap<String, BValue> jsonObj = (BMap<String, BValue>) node;
-        Assert.assertTrue(jsonObj.get("a") instanceof BString);
-        Assert.assertTrue(jsonObj.get("b") instanceof BInteger);
-        Assert.assertTrue(jsonObj.get("c") instanceof BFloat);
-        Assert.assertFalse(jsonObj.get("c") instanceof BInteger);
-        Assert.assertTrue(jsonObj.get("d") instanceof BBoolean);
-        Assert.assertTrue(jsonObj.get("e") instanceof BBoolean);
-        Assert.assertNull(jsonObj.get("f"));
-        Assert.assertTrue(jsonObj.get("g") instanceof BMap);
-        Assert.assertFalse(jsonObj.get("h") instanceof BMap);
-        Assert.assertTrue(jsonObj.get("h") instanceof BValueArray);
+        BMap<String, Object> jsonObj = (BMap<String, Object>) node;
+        Assert.assertTrue(jsonObj.get(StringUtils.fromString("a")) instanceof BString);
+        Assert.assertTrue(jsonObj.get(StringUtils.fromString("b")) instanceof Long);
+        Assert.assertTrue(jsonObj.get(StringUtils.fromString("c")) instanceof BDecimal);
+        Assert.assertFalse(jsonObj.get(StringUtils.fromString("c")) instanceof Long);
+        Assert.assertTrue(jsonObj.get(StringUtils.fromString("d")) instanceof Boolean);
+        Assert.assertTrue(jsonObj.get(StringUtils.fromString("e")) instanceof Boolean);
+        Assert.assertNull(jsonObj.get(StringUtils.fromString("f")));
+        Assert.assertTrue(jsonObj.get(StringUtils.fromString("g")) instanceof BMap);
+        Assert.assertFalse(jsonObj.get(StringUtils.fromString("h")) instanceof BMap);
+        Assert.assertTrue(jsonObj.get(StringUtils.fromString("h")) instanceof BArray);
     }
 
     @Test
     public void testBasicJsonObjectParseValues() {
         String json = "{\"a\":\"abc\",\"b\":1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,"
                 + "\"g\":{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",20,30,\"D\"]}";
-        BMap<String, BValue> node = (BMap<String, BValue>) JsonParser.parse(json);
-        Assert.assertEquals(node.get("a").stringValue(), "abc");
-        Assert.assertEquals(((BInteger) node.get("b")).intValue(), 1);
-        Assert.assertEquals(((BFloat) node.get("c")).floatValue(), 3.14);
-        Assert.assertTrue(((BBoolean) node.get("d")).booleanValue());
-        Assert.assertFalse(((BBoolean) node.get("e")).booleanValue());
-        Assert.assertNull(node.get("f"));
+        BMap<String, Object> node = (BMap<String, Object>) JsonParser.parse(json);
+        Assert.assertEquals(node.get(StringUtils.fromString("a")).toString(), "abc");
+        Assert.assertEquals(node.get(StringUtils.fromString("b")), 1L);
+        Assert.assertEquals(node.get(StringUtils.fromString("c")), ValueCreator.createDecimalValue("3.14"));
+        Assert.assertTrue((Boolean) node.get(StringUtils.fromString("d")));
+        Assert.assertFalse((Boolean) node.get(StringUtils.fromString("e")));
+        Assert.assertNull(node.get(StringUtils.fromString("f")));
 
-        Assert.assertTrue(node.get("g") instanceof BMap);
-        BMap<String, BValue> objNode = (BMap<String, BValue>) node.get("g");
-        Assert.assertEquals(objNode.get("1").stringValue(), "a");
-        Assert.assertEquals(objNode.get("2").stringValue(), "b");
+        Assert.assertTrue(node.get(StringUtils.fromString("g")) instanceof BMap);
+        BMap<String, Object> objNode = (BMap<String, Object>) node.get(StringUtils.fromString("g"));
+        Assert.assertEquals(objNode.get(StringUtils.fromString("1")).toString(), "a");
+        Assert.assertEquals(objNode.get(StringUtils.fromString("2")).toString(), "b");
 
-        Assert.assertTrue(node.get("h") instanceof BValueArray);
-        BValueArray arrayNode = (BValueArray) node.get("h");
+        Assert.assertTrue(node.get(StringUtils.fromString("h")) instanceof BArray);
+        BArray arrayNode = (BArray) node.get(StringUtils.fromString("h"));
         Assert.assertEquals(arrayNode.size(), 4);
-        Assert.assertEquals(arrayNode.getRefValue(0).stringValue(), "A");
-        Assert.assertEquals(((BInteger) arrayNode.getRefValue(1)).intValue(), 20);
-        Assert.assertEquals(((BInteger) arrayNode.getRefValue(2)).intValue(), 30);
-        Assert.assertEquals(arrayNode.getRefValue(3).stringValue(), "D");
+        Assert.assertEquals(arrayNode.getRefValue(0).toString(), "A");
+        Assert.assertEquals((arrayNode.getRefValue(1)), 20L);
+        Assert.assertEquals((arrayNode.getRefValue(2)), 30L);
+        Assert.assertEquals(arrayNode.getRefValue(3).toString(), "D");
     }
 
     @Test
     public void testBasicJsonObjectGenValues() throws IOException {
         String json = "{\"a\":\"abc\", \"b\":1, \"c\":3.14, \"d\":true, \"e\":false, \"f\":null, "
                 + "\"g\":{\"1\":\"a\", \"2\":\"b\"}, \"h\":[\"A\", 20, 30, \"D\"]}";
-        BValue node = JsonParser.parse(json);
+        Object node = JsonParser.parse(json);
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JsonGenerator gen = new JsonGenerator(byteOut);
         gen.serialize(node);
@@ -107,29 +106,32 @@ public class JSONLibraryTest {
     public void testJsonEscapeChars() throws IOException {
         String json = "[{\"a\":\"abc\\\"\", \"x\":\"1\\b\\f\", \"c\":3.14, \"d\":true, \"e\":false, \"f\":null, \"g\":"
                 + "{\"1\\n2\":\"a\\r\", \"2\":\"b\"}, \"h\":[\"A\\tB\", 20, 30, \"D\\\\\"]}]";
-        BValue node = JsonParser.parse(json);
+        String expected =
+                "[{\"a\":\"abc\"\",\"x\":\"1\b\f\",\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,\"g\":{\"1\n" +
+                        "2\":\"a\r\",\"2\":\"b\"},\"h\":[\"A\tB\",20,30,\"D\\\"]}]";
+        Object node = JsonParser.parse(json);
         String result = node.toString();
-        Assert.assertEquals(result, json);
+        Assert.assertEquals(result, expected);
     }
 
     @Test
     public void testJsonUnicodeChars() {
         String json = "{\"firstName\":\"Will\", \"lastName\":\"Smith\", \"info\":\"\\u2600\", "
                 + "\"info2\":\"A\\u2655\\u2665\\u266A\\u266aB\"}";
-        String json2 = "{\"firstName\":\"Will\", \"lastName\":\"Smith\", \"info\":\"\u2600\", "
+        String json2 = "{\"firstName\":\"Will\",\"lastName\":\"Smith\",\"info\":\"\u2600\","
                 + "\"info2\":\"A\u2655\u2665\u266A\u266aB\"}";
-        BMap<String, BValue> node = (BMap<String, BValue>) JsonParser.parse(json);
-        Assert.assertEquals(node.get("info").stringValue(), "☀");
-        Assert.assertEquals(node.get("info2").stringValue(), "A♕♥♪♪B");
-        Assert.assertEquals(node.toString(), json2);
+        BMap<String, Object> node = (BMap<String, Object>) JsonParser.parse(json);
+        Assert.assertEquals(node.get(StringUtils.fromString("info")).toString(), "☀");
+        Assert.assertEquals(node.get(StringUtils.fromString("info2")).toString(), "A♕♥♪♪B");
+        Assert.assertEquals(node.stringValue(null), json2);
     }
 
     @Test
     public void testJsonDeepLevels() {
         String json = "{\"A\":{\"B\":{\"C\":{\"D\":{\"E\":{\"F\":{\"G\":{\"H\":{\"I\":{\"J\":"
                 + "{\"K\":{\"L\":{\"M\":{\"N\":5}}}}}}}}}}}}}}";
-        BValue node = JsonParser.parse(json);
-        Assert.assertEquals(node.stringValue(), json);
+        Object node = JsonParser.parse(json);
+        Assert.assertEquals(node.toString(), json);
     }
 
     @Test
@@ -317,21 +319,21 @@ public class JSONLibraryTest {
                 "    \"favoriteFruit\": \"banana\"\n" +
                 "  }\n" +
                 "]";
-        BValue node = JsonParser.parse(json);
-        Assert.assertEquals(node.toString().length(), 7829);
+        Object node = JsonParser.parse(json);
+        Assert.assertEquals(node.toString().length(), 7585);
     }
 
     @Test
     public void testQuoteInArrayElements() {
         String json = "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}";
-        BValue node = JsonParser.parse(json);
-        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}");
+        Object node = JsonParser.parse(json);
+        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\",\"orange\",\"grapes\"]}");
     }
 
-    @Test(expectedExceptions = {BallerinaException.class},
-          expectedExceptionsMessageRegExp = "expected '\"' or '}' at line: 1 column: 2")
+    @Test(expectedExceptions = {BError.class},
+            expectedExceptionsMessageRegExp = "expected '\"' or '}' at line: 1 column: 2")
     public void testMismatchQuotes() {
         String json = "{'fruits':[\"apple', 'orange', \"grapes\"]}";
-        BValue node = JsonParser.parse(json);
+        Object node = JsonParser.parse(json);
     }
 }

@@ -47,10 +47,4 @@ public class RuntimeAPITest {
                 "utils"
         };
     }
-
-    @Test
-    public void utilsTest() {
-        CompileResult result = BCompileUtil.compile("test-src/runtime/api/util");
-        BRunUtil.invoke(result, "main");
-    }
 }

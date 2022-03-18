@@ -17,12 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.primitivetypes;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -48,42 +43,42 @@ public class FunctionsReturningPrimitivesTest {
     public void testFuncReturningBBooleanJBoolean() {
         String receiver = "Ballerina Language";
         String strValue = "Ballerina Language";
-        BValue[] args = new BValue[2];
-        args[0] = new BHandleValue(receiver);
-        args[1] = new BHandleValue(strValue);
-        BValue[] returns = BRunUtil.invoke(result, "testReturningBBooleanJBoolean", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), receiver.contentEquals(strValue));
+        Object[] args = new Object[2];
+        args[0] = new HandleValue(receiver);
+        args[1] = new HandleValue(strValue);
+        Object returns = BRunUtil.invoke(result, "testReturningBBooleanJBoolean", args);
+        
+        Assert.assertEquals(returns, receiver.contentEquals(strValue));
     }
 
     @Test(description = "Test a function that returns a Java byte value")
     public void testReturningBByteJByte() {
         Long receiver = 4L;
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(receiver);
-        BValue[] returns = BRunUtil.invoke(result, "testReturningBByteJByte", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BByte) returns[0]).byteValue(), receiver.byteValue());
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(receiver);
+        Object returns = BRunUtil.invoke(result, "testReturningBByteJByte", args);
+        
+        Assert.assertEquals(returns, receiver.intValue());
     }
 
     @Test(description = "Test a function that returns a Ballerina int value")
     public void testFuncReturningJavaInt() {
         Long receiver = 10L;
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(receiver);
-        BValue[] returns = BRunUtil.invoke(result, "testReturningBIntJLong", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), receiver.longValue());
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(receiver);
+        Object returns = BRunUtil.invoke(result, "testReturningBIntJLong", args);
+        
+        Assert.assertEquals(returns, receiver.longValue());
     }
 
     @Test(description = "Test a function that returns a Ballerina float value")
     public void testFuncsReturningJavaFloatDouble() {
         Double receiver = 4d;
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(receiver);
-        BValue[] returns = BRunUtil.invoke(result, "testReturningBFloatJDouble", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), receiver);
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(receiver);
+        Object returns = BRunUtil.invoke(result, "testReturningBFloatJDouble", args);
+        
+        Assert.assertEquals(returns, receiver);
     }
 
     @AfterClass

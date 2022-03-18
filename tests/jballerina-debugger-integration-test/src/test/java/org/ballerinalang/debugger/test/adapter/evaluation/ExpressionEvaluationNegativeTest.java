@@ -436,9 +436,11 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 , "Failed to evaluate." + System.lineSeparator() +
                         "Reason: compilation error(s) found while creating executables for evaluation: " +
                         System.lineSeparator() +
-                        "field name 'id' used in key specifier is not found in table constraint type 'map'" +
+                        "field name 'id' used in key specifier is not found in table constraint type" +
+                                                      " 'map<(any|error)>'" +
                         System.lineSeparator() +
-                        "field name 'name' used in key specifier is not found in table constraint type 'map'");
+                        "field name 'name' used in key specifier is not found in table constraint type" +
+                                                      " 'map<(any|error)>'");
 
         // on conflict clauses usages with non-table returns
         debugTestRunner.assertEvaluationError(context, "from var customer in conflictedCustomerList" +

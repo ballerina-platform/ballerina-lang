@@ -649,7 +649,7 @@ function f22() {
     if x is int {
         error? m = from int i in 0 ..< 2
         do {
-            error? n = from int i in 0 ..< 2
+            error? n = from int j in 0 ..< 2
             do {
                 boolean b = false;
 

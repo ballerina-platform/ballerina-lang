@@ -18,8 +18,7 @@
 
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,98 +43,92 @@ public class ArrayLengthAccessExprTest {
 
     @Test(description = "Test array length access expression")
     public void testArrayLengthAccessExpr() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestAssignmentCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestAssignmentCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in Function invocation statement.")
     public void testArrayLengthAccessExprFunctionInvocationCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestFunctionInvocationCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestFunctionInvocationCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in Variable definition statement.")
     public void testArrayLengthAccessExprVariableDefinitionCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestVariableDefinitionCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestVariableDefinitionCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in Array initialization statement.")
     public void testArrayLengthAccessExprArrayInitializationCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestArrayInitializerCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestArrayInitializerCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in Map initialization statement.")
     public void testArrayLengthAccessExprMapInitializationCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestMapInitializerCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestMapInitializerCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in Return statement.")
     public void testArrayLengthAccessExprReturnExpressionCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestReturnStatementCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestReturnStatementCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in multi Return statement.")
     public void testArrayLengthAccessExprMultiReturnExpressionCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult,
-                "arrayLengthAccessTestMultiReturnStatementCase", args);
+        Object[] args = {(100), (5)};
+        BArray returns = (BArray) BRunUtil.invoke(compilerResult, "arrayLengthAccessTestMultiReturnStatementCase",
+                args);
 
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
 
-        int actualFirst = (int) ((BInteger) returns[0]).intValue();
-        int actualSecond = (int) ((BInteger) returns[1]).intValue();
-        int actualThird = (int) ((BInteger) returns[2]).intValue();
+        long actualFirst = (long) returns.get(0);
+        long actualSecond = (long) returns.get(1);
+        long actualThird = (long) returns.get(2);
 
-        int expectedFirst = 3;
-        int expectedSecond = 1;
-        int expectedThird = 2;
+        long expectedFirst = 3;
+        long expectedSecond = 1;
+        long expectedThird = 2;
 
         Assert.assertEquals(actualFirst, expectedFirst);
         Assert.assertEquals(actualSecond, expectedSecond);
@@ -144,53 +137,49 @@ public class ArrayLengthAccessExprTest {
 
     @Test(description = "Test array length access expression when present in Type cast expression.")
     public void testArrayLengthAccessExprTypeCastExpressionCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestTypeCastExpressionCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestTypeCastExpressionCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in If condition.")
     public void testArrayLengthAccessExprIfConditionExpressionCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestIfConditionCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestIfConditionCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in Binary expression.")
     public void testArrayLengthAccessExpBinaryExpressionCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestBinaryExpressionCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestBinaryExpressionCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test array length access expression when present in Struct field access expression.")
     public void testArrayLengthAccessExpStructFieldAccessCase() {
-        BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestStructFieldAccessCase", args);
+        Object[] args = {(100), (5)};
+        Object returns = BRunUtil.invoke(compilerResult, "arrayLengthAccessTestStructFieldAccessCase", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 3;
+        long actual = (long) returns;
+        long expected = 3;
         Assert.assertEquals(actual, expected);
     }
 

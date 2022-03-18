@@ -711,6 +711,21 @@ public function testEmptyArrayType() {
     test:assertEquals(c is int[], true);
 }
 
+function testReadOnlyArrays() {
+    anydata & readonly arr1 = [2, 2, 3];
+    test:assertTrue(arr1 is int[3]);
+    test:assertTrue(arr1 is int[]);
+    test:assertFalse(arr1 is int[2]);
+    test:assertFalse(arr1 is boolean[3]);
+
+    anydata arr2 = ["a", "b", "c"];
+    anydata & readonly arr3 = arr2.cloneReadOnly();
+    test:assertTrue(arr3 is string[3]);
+    test:assertTrue(arr3 is string[]);
+    test:assertFalse(arr3 is string[2]);
+    test:assertTrue(arr3 is anydata[3]);
+}
+
 // ========================== Tuples ==========================
 
 function testSimpleTuples() returns [boolean, boolean, boolean, boolean, boolean] {

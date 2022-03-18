@@ -1020,9 +1020,9 @@ function testReachableStatementInQueryAction9() returns error? {
     check from var item in 1 ... 5
         where item < 2
         do {
-            a = (from var item in 1 ... 5
-                where item is int
-                where item < 2
+            a = (from var value in 1 ... 5
+                where value is int
+                where value < 2
                 do {
                     int _ = 10;
                 });
@@ -1041,6 +1041,139 @@ function testReachableStatementInQueryAction() {
     assertEqual(1, testReachableStatementInQueryAction7());
     assertEqual(1, testReachableStatementInQueryAction8());
     assertEqual(true, testReachableStatementInQueryAction9() is ());
+}
+
+function testUnreachablePanicStmt1() {
+    if true {
+        return;
+    } else if true {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt2() {
+    while false {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt3() {
+    int a = 10;
+    if a !is int {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt4() {
+    if false {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt5() {
+    int? a = 10;
+    if a is int {
+    } else if a is () {
+    } else {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt6() {
+    int a = 10;
+    while a !is int {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt7() {
+    while true {
+        return;
+    }
+    panic error("Error"); // OK
+}
+
+function testUnreachablePanicStmt8() {
+    if true {
+        return;
+    }
+    panic error("Error"); // OK
+}
+
+function testUnreachablePanicStmt9() {
+    if true {
+        return;
+    } else {
+        panic error("Error"); // OK
+    }
+}
+
+function testUnreachablePanicStmt10() {
+    if true {
+        return;
+        panic error("Error"); // OK
+    }
+    panic error("Error"); // OK
+}
+
+function testReachabilityWithQueryAction1() returns string {
+    string[] stringArray = ["Hello", " ", "World"];
+
+    error? unionResult = from var item in stringArray
+        where item == "Hello"
+        do {
+            return "Hello";
+        };
+
+    if unionResult is error {
+        return "ballerina";
+    } else {
+        return "c#";
+    }
+}
+
+function testReachabilityWithQueryAction2() returns string {
+    string[] stringArray = ["Hello", " ", "World"];
+
+    error? unionResult = from var item in stringArray
+        where item == "Hello"
+        do {
+            panic error("Panic!");
+        };
+
+    if unionResult is error {
+        return "ballerina";
+    } else {
+        return "c#";
+    }
+}
+
+function testReachabilityWithQueryAction3() returns string {
+    string[] stringArray = ["Hello", " ", "World"];
+
+    error? unionResult = from var item in stringArray
+        where item == "Hello"
+        do {
+            while true {
+                return "Hello";
+            }
+        };
+
+    if unionResult is error {
+        return "ballerina";
+    } else {
+        return "c#";
+    }
+}
+
+function testReachabilityWithQueryAction() {
+    assertEqual(testReachabilityWithQueryAction1(), "c#");
+
+    string|error res = trap testReachabilityWithQueryAction2();
+    assertEqual(res is error, true);
+    assertEqual((<error>res).message(), "Panic!");
+
+    assertEqual(testReachabilityWithQueryAction3(), "c#");
 }
 
 function assertEqual(any actual, any expected) {
