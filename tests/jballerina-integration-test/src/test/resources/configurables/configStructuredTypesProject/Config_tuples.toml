@@ -1,0 +1,36 @@
+arrayTuple = [[1, 3, 5, 7, 9], [["apple", "banana", "orange"], ["ten", "twenty", "thirty"]], [[[1, 2], [3, 4]], [[1, 2], [3, 4]]]]
+simpleTuple = [278, "string", 2.3, 4.5, 2, true]
+#xmlTuple = ["<book><name>Sherlock Holmes</name></book>", "<!--I am a comment-->", "<greet>Hello!</greet>", "<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>", "xml text"]
+enumTuple = [33, "Sri Lanka"]
+mapTuple = [
+  "Foo",
+  {name = "Baz Qux", age = 22, salary = [45000.0, 150000.0], address = {number = 20, road = "Palm Grove", city = "Colombo 3"}, accounts = [{id = "1"}, {id = "2"}]},
+]
+recordTuple1 = [1, {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}}]
+recordTuple2 = [2, {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}, height = 158.4, weight = 70}]
+recordTuple3 = [3, {name = "John Doe", age = 22, height = 177, weight = 67}]
+tableTuple1 = ["Bar", [{a = "a"}, {a = 1}, {a = 2.34}, {a = false}, {a = [1, 2]}, {a = {b = "a", c = 12}}, {a = [{b = "bb"}, {c = "cc"}]}]]
+tableTuple2 = [
+  "Hello",
+  [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ],
+]
+unionTuple1 = [123, "Hello World"]
+unionTuple2 = [456, {a = 1, b = 2}]
+mapArrayTuple = [
+  "Jane",
+  [
+    {name = "John Doe", age = "22", subject = "English"},
+    {name = "Jane Doe", age = "27", subject = "Maths"},
+  ]
+]
+recordArrayTuple = [
+  "John",
+  [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ]
+]
+

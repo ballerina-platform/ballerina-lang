@@ -269,7 +269,8 @@ public class ConfigurableTest extends BaseTest {
                 {"configRecordArray", "Config_record_arrays.toml"},
                 {"configTableType", "Config_tables.toml"},
                 {"configMapType", "Config_maps.toml"},
-                {"configComplexXml", "Config_xml.toml"}
+                {"configComplexXml", "Config_xml.toml"},
+                {"configTupleType", "Config_tuples.toml"},
         };
     }
 

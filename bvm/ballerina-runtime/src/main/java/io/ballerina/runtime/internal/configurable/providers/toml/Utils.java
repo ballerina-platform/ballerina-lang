@@ -478,4 +478,15 @@ public class Utils {
         }
     }
 
+    static boolean isSimpleArray(Type elementType) {
+        switch (elementType.getTag()) {
+            case TypeTags.INTERSECTION_TAG:
+                return isSimpleArray(((IntersectionType) elementType).getEffectiveType());
+            case TypeTags.ARRAY_TAG:
+                return isSimpleArray(((ArrayType) elementType).getElementType());
+            default:
+                return isSimpleType(elementType.getTag()) || isXMLType(elementType);
+        }
+    }
+
 }
