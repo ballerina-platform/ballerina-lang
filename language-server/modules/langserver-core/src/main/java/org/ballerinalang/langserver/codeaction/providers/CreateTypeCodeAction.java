@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * Code action to create a record for an unknown type.
+ *
  * @since 2201.0.x
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")

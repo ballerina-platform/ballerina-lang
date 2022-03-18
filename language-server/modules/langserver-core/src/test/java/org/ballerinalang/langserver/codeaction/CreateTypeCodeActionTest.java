@@ -21,6 +21,11 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+/**
+ * Test class to test the functionality of the create type code action.
+ *
+ * @since 2201.0.x
+ */
 public class CreateTypeCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
@@ -32,8 +37,9 @@ public class CreateTypeCodeActionTest extends AbstractCodeActionTest {
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return new Object[][] {
-                {"create_type_in_return_type1.json", "create_type_in_return_type1.bal"}
+        return new Object[][]{
+                {"create_type_in_return_type1.json", "create_type_in_return_type1.bal"},
+                {"create_type_in_function_body1.json", "create_type_in_function_body1.bal"}
         };
     }
 
