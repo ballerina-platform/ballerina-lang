@@ -1,5 +1,0 @@
-[package]
-distribution = "2201.0.1-rc3.1"
-
-[build-options]
-observabilityIncluded = true
