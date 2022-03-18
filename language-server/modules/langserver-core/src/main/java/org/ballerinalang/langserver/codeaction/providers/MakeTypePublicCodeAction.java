@@ -17,7 +17,10 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -25,7 +28,11 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.eclipse.lsp4j.*;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -40,14 +47,14 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class MakeTypePublicCodeAction extends AbstractCodeActionProvider {
-    public static final String NAME = "MakeTypePublicCodeAction";
+    public static final String NAME = "Make Type Public";
     public static final String DIAGNOSTIC_CODE = "BCE2038";
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if ((!DIAGNOSTIC_CODE.contains(diagnostic.diagnosticInfo().code())) || context.currentSyntaxTree().isEmpty()
+        if (!DIAGNOSTIC_CODE.contains(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
                 || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
@@ -79,12 +86,13 @@ public class MakeTypePublicCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
         Position startPosition = new Position();
+        SyntaxKind typeKind = node.get().kind();
 
-        if (node.get().kind().equals(SyntaxKind.TYPE_DEFINITION)) {
+        if (typeKind.equals(SyntaxKind.TYPE_DEFINITION)) {
             TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node.get();
             startPosition = CommonUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine());
         }
-        if (node.get().kind().equals(SyntaxKind.CLASS_DEFINITION)) {
+        if (typeKind.equals(SyntaxKind.CLASS_DEFINITION)) {
             ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node.get();
             if (!classDefinitionNode.classTypeQualifiers().isEmpty()) {
                 startPosition = CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)

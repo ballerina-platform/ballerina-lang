@@ -9,7 +9,7 @@
           {
             "textDocument": {
               "version": null,
-              "uri": "file:///home/mindula/ballerina-lang/language-server/modules/langserver-core/build/resources/test/codeaction/make-type-public/source/publicCodeAction/modules/module3/convert_to_public_record_source3_test.bal"
+              "uri": "publicCodeAction/modules/module2/convert_to_public_record_source2_test.bal"
             },
             "edits": [
               {
