@@ -81,8 +81,11 @@ import io.ballerina.compiler.api.symbols.XMLProcessingInstructionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTextTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
+
 /**
  * A transformer for visiting a symbol and mapping the symbol to some other representation.
+ *
+ * @param <R> The type to which the symbol will be mapped
  */
 public abstract class SymbolTransformer<R> {
 
@@ -92,7 +95,8 @@ public abstract class SymbolTransformer<R> {
      * include any common pre-processing and post-processing tasks to be done during the course of transforming the
      * symbol.
      *
-     * @param symbol symbol to be traversed
+     * @param symbol Symbol to be traversed
+     * @return The transformed instance for the symbol
      */
     public abstract R transformSymbol(Symbol symbol);
 
