@@ -76,12 +76,13 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.api.symbols.XMLCommentTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLElementTypeSymbol;
+import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.api.symbols.XMLProcessingInstructionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTextTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
 /**
- * A transformer for recursively visiting a symbol and mapping the symbol to some other representation.
+ * A transformer for visiting a symbol and mapping the symbol to some other representation.
  */
 public abstract class SymbolTransformer<R> {
 
@@ -134,6 +135,10 @@ public abstract class SymbolTransformer<R> {
 
     public R transform(WorkerSymbol worker) {
         return transformSymbol(worker);
+    }
+
+    public R transform(XMLNamespaceSymbol xmlns) {
+        return transformSymbol(xmlns);
     }
 
     // Util symbols (i.e., used within above symbols or type symbols)

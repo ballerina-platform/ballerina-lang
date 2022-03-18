@@ -76,6 +76,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.api.symbols.XMLCommentTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLElementTypeSymbol;
+import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.api.symbols.XMLProcessingInstructionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTextTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
@@ -123,6 +124,9 @@ public abstract class SymbolVisitor {
     }
 
     public void visit(WorkerSymbol worker) {
+    }
+
+    public void visit(XMLNamespaceSymbol xmlns) {
     }
 
     // Util symbols (i.e., used within above symbols or type symbols)
