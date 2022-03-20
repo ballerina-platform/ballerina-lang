@@ -18653,7 +18653,7 @@ public class BallerinaParser extends AbstractParser {
         return getExpression(ambiguousNode, false);
     }
 
-    private STNode getExpression(STNode ambiguousNode, boolean isMappingConstructor) {
+    private STNode getExpression(STNode ambiguousNode, boolean isInMappingConstructor) {
         if (isEmpty(ambiguousNode) || 
                 (isDefiniteExpr(ambiguousNode.kind) && ambiguousNode.kind != SyntaxKind.INDEXED_EXPRESSION) || 
                 isDefiniteAction(ambiguousNode.kind) || ambiguousNode.kind == SyntaxKind.COMMA_TOKEN) {
@@ -18692,13 +18692,12 @@ public class BallerinaParser extends AbstractParser {
                         innerList.collectionEndToken);
             case REST_BINDING_PATTERN:
                 STRestBindingPatternNode restBindingPattern = (STRestBindingPatternNode) ambiguousNode;
-                if (isMappingConstructor) {
+                if (isInMappingConstructor) {
                     return STNodeFactory.createSpreadFieldNode(restBindingPattern.ellipsisToken,
                             restBindingPattern.variableName);
-                } else {
-                    return STNodeFactory.createSpreadMemberNode(restBindingPattern.ellipsisToken,
-                            restBindingPattern.variableName);
                 }
+                return STNodeFactory.createSpreadMemberNode(restBindingPattern.ellipsisToken,
+                        restBindingPattern.variableName);
             case SPECIFIC_FIELD:
                 // Specific field is used to represent ambiguous scenarios. Hence it needs to be re-written.
                 STSpecificFieldNode field = (STSpecificFieldNode) ambiguousNode;
