@@ -689,11 +689,6 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testCastMapOfJsonToMapOfAnydata");
     }
 
-    @Test
-    public void testCastMapOfJsonToAnydata() {
-        BRunUtil.invoke(result, "testCastMapOfJsonToAnydata");
-    }
-
     @AfterClass
     public void tearDown() {
         result = null;
