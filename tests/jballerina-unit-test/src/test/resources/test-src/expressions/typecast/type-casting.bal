@@ -977,6 +977,39 @@ function testCastOfTwoDimensionalIntArrayToByteArray() {
     assertEquality("[[1,2,3],[4,5,6]]", c.toString());
 }
 
+function testCastJsonToMapOfAnydata() {
+    json j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
+    map<anydata> m1 = <map<anydata>>j1;
+
+    json j2 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
+    map<anydata> m2 = <map<anydata>>j2;
+
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", m2.toString());
+}
+
+function testCastMapOfJsonToMapOfAnydata() {
+    map<json> j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
+    map<anydata> m1 = <map<anydata>>j1;
+
+    map<json> j2 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
+    map<anydata> m2 = <map<anydata>>j2;
+
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", m2.toString());
+}
+
+function testCastMapOfJsonToAnydata() {
+    map<json> j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
+    anydata any1 = <map<anydata>>j1;
+
+    map<json> j2 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
+    anydata any2 = <map<anydata>>j2;
+
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", any1.toString());
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", any2.toString());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
