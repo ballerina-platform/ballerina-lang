@@ -110,7 +110,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new ArrayValueImpl(this);
+        return getEmptyValue();
     }
 
     @Override
