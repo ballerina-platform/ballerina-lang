@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.test.javainterop.overloading;
 
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -47,38 +46,39 @@ public class OverloadedMethodTests {
 
     @Test(description = "Test invoking an overloaded java constructor")
     public void testOverloadedConstructorsWithOneParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testOverloadedConstructorsWithOneParam");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "string buffer value");
-        Assert.assertEquals(((BHandleValue) returns[1]).getValue(), "string builder value");
+        Object val = BRunUtil.invoke(result, "testOverloadedConstructorsWithOneParam");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(((HandleValue) returns.get(0)).getValue(), "string buffer value");
+        Assert.assertEquals(((HandleValue) returns.get(1)).getValue(), "string builder value");
     }
 
     @Test(description = "Test invoking an overloaded java method")
     public void testOverloadedMethodsWithByteArrayParams() {
-        BValue[] args = new BValue[1];
+        Object[] args = new Object[1];
         String strValue = "BALLERINA";
-        args[0] = new BString(strValue);
-        BValue[] returns = BRunUtil.invoke(result, "testOverloadedMethodsWithByteArrayParams", args);
-        Assert.assertEquals(returns.length, 1);
+        args[0] = StringUtils.fromString(strValue);
+        Object returns = BRunUtil.invoke(result, "testOverloadedMethodsWithByteArrayParams", args);
+
 
         byte[] bytes = strValue.getBytes();
         Arrays.sort(bytes);
         String sortedStr = new String(bytes);
 
-        Assert.assertEquals(returns[0].stringValue(), sortedStr);
+        Assert.assertEquals(returns.toString(), sortedStr);
     }
 
     @Test(description = "Test invoking multiple overloaded java methods")
     public void testOverloadedMethodsWithDifferentParametersOne() {
-        BValue[] args = new BValue[1];
-        args[0] = new BInteger(5);
+        Object[] args = new Object[1];
+        args[0] = (5);
         BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersOne", args);
     }
 
     @Test(description = "Test invoking multiple overloaded java methods")
     public void testOverloadedMethodsWithDifferentParametersTwo() {
-        BValue[] args = new BValue[1];
-        args[0] = new BString("BALLERINA");
+        Object[] args = new Object[1];
+        args[0] = StringUtils.fromString("BALLERINA");
         BRunUtil.invoke(result, "testOverloadedMethodsWithDifferentParametersTwo", args);
     }
 

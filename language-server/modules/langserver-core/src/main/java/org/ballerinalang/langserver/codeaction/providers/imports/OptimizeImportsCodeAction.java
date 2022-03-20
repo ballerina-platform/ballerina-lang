@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -142,7 +143,8 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         Position importEnd = new Position(importELine + 1, 0);
         TextEdit textEdit = new TextEdit(new Range(importStart, importEnd), editText.toString());
         List<TextEdit> edits = Collections.singletonList(textEdit);
-        actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
+        actions.add(createCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri,
+                CodeActionKind.SourceOrganizeImports));
         return actions;
     }
 

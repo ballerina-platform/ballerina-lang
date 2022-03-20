@@ -105,7 +105,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
-        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
     }
 
     @Override

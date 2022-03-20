@@ -18,10 +18,7 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -49,31 +46,34 @@ public class LangLibFloatTest {
 
     @Test
     public void testIsFinite() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIsFinite");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-        assertFalse(((BBoolean) returns[1]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testIsFinite");
+        BArray result = (BArray) returns;
+        assertTrue(result.getBoolean(0));
+        assertFalse(result.getBoolean(1));
     }
 
     @Test
     public void testIsInfinite() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIsInfinite");
-        assertFalse(((BBoolean) returns[0]).booleanValue());
-        assertTrue(((BBoolean) returns[1]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testIsInfinite");
+        BArray result = (BArray) returns;
+        assertFalse(result.getBoolean(0));
+        assertTrue(result.getBoolean(1));
     }
 
     @Test
     public void testSum() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSum");
-        assertEquals(((BFloat) returns[0]).floatValue(), 70.35);
+        Object returns = BRunUtil.invoke(compileResult, "testSum");
+        assertEquals(returns, 70.35d);
     }
 
     @Test
     public void testFloatConsts() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConsts");
-        assertEquals(((BFloat) returns[0]).floatValue(), Double.NaN);
-        assertEquals(((BFloat) returns[1]).floatValue(), Double.POSITIVE_INFINITY);
+        Object returns = BRunUtil.invoke(compileResult, "testFloatConsts");
+        BArray result = (BArray) returns;
+        assertEquals(result.getFloat(0), Double.NaN);
+        assertEquals(result.getFloat(1), Double.POSITIVE_INFINITY);
     }
 
     @Test
