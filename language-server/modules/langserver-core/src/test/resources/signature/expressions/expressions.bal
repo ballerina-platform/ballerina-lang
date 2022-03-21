@@ -413,3 +413,10 @@ int t1 = testFunctionCall()
 function testFunctionCall() {
 
 }
+
+// -- expression, method-call-expr
+function testLanglib() {
+    string testStr = "HelloWorld";
+    string subStr = testStr.substring();
+    string subStr = testStr.substring(1,7);
+}

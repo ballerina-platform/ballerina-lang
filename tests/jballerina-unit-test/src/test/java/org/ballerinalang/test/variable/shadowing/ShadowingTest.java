@@ -18,9 +18,8 @@
 
 package org.ballerinalang.test.variable.shadowing;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,69 +45,69 @@ public class ShadowingTest {
 
     @Test
     public void testLocalVarScope() {
-        BValue[] returns = BRunUtil.invoke(result, "testLocalVarScope");
-        assertEquals(returns[0].stringValue(), "John Doe");
+        Object returns = BRunUtil.invoke(result, "testLocalVarScope");
+        assertEquals(returns.toString(), "John Doe");
     }
 
     @Test
     public void testObjMethodScope() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjMethodScope");
-        assertEquals(returns[0].stringValue(), "Name in object");
+        Object returns = BRunUtil.invoke(result, "testObjMethodScope");
+        assertEquals(returns.toString(), "Name in object");
     }
 
     @Test
     public void testRecordScope() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordScope");
-        assertEquals(returns[0].stringValue(), "{name:\"Person\", age:20}");
+        Object returns = BRunUtil.invoke(result, "testRecordScope");
+        assertEquals(returns.toString(), "{\"name\":\"Person\",\"age\":20}");
     }
 
     @Test
     public void testBlockScope1() {
-        BValue[] returns = BRunUtil.invoke(result, "testBlockScope1");
-        assertEquals(returns[0].stringValue(), "Inside first if block");
-        assertEquals(returns[1].stringValue(), "Inside second if block");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testBlockScope1");
+        assertEquals(returns.get(0).toString(), "Inside first if block");
+        assertEquals(returns.get(1).toString(), "Inside second if block");
     }
 
     @Test
     public void testBlockScope2() {
-        BValue[] returns = BRunUtil.invoke(result, "testBlockScope2");
-        assertEquals(returns[0].stringValue(), "Inside else block");
+        Object returns = BRunUtil.invoke(result, "testBlockScope2");
+        assertEquals(returns.toString(), "Inside else block");
     }
 
     @Test
     public void testLambdaFunctions() {
-        BValue[] returns = BRunUtil.invoke(result, "testLambdaFunctions");
-        assertEquals(returns[0].stringValue(), "Inside a lambda function");
+        Object returns = BRunUtil.invoke(result, "testLambdaFunctions");
+        assertEquals(returns.toString(), "Inside a lambda function");
     }
 
     @Test
     public void testFunctionParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionParam",
-                                           new BValue[]{new BString("This is a function param")});
-        assertEquals(returns[0].stringValue(), "This is a function param");
+        Object returns = BRunUtil.invoke(result, "testFunctionParam",
+                                           new Object[]{StringUtils.fromString("This is a function param")});
+        assertEquals(returns.toString(), "This is a function param");
     }
 
     @Test
     public void testNestedBlocks() {
-        BValue[] returns = BRunUtil.invoke(result, "testNestedBlocks");
-        assertEquals(returns[0].stringValue(), "var after nested if-else");
+        Object returns = BRunUtil.invoke(result, "testNestedBlocks");
+        assertEquals(returns.toString(), "var after nested if-else");
     }
 
     @Test
     public void testNamespaces1() {
-        BValue[] returns = BRunUtil.invoke(result, "testNamespaces1");
-        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
+        Object returns = BRunUtil.invoke(result, "testNamespaces1");
+        assertEquals(returns.toString(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
                 "World!</ns:greeting>");
     }
 
     @Test
     public void testNamespaces2() {
-        BValue[] returns = BRunUtil.invoke(result, "testNamespaces2", new BValue[]{new BBoolean(true)});
-        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
+        Object returns = BRunUtil.invoke(result, "testNamespaces2", new Object[]{(true)});
+        assertEquals(returns.toString(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
                 "World!</ns:greeting>");
 
-        returns = BRunUtil.invoke(result, "testNamespaces2", new BValue[]{new BBoolean(false)});
-        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a3\">Hello " +
+        returns = BRunUtil.invoke(result, "testNamespaces2", new Object[]{(false)});
+        assertEquals(returns.toString(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a3\">Hello " +
                 "World!</ns:greeting>");
     }
 

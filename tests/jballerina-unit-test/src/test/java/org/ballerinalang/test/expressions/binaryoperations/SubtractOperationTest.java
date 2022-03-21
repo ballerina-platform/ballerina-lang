@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,12 +42,11 @@ public class SubtractOperationTest {
 
     @Test(description = "Test two int subtract expression")
     public void testIntAddExpr() {
-        BValue[] args = { new BInteger(1234567891011L), new BInteger(9876543211110L)};
+        Object[] args = { (1234567891011L), (9876543211110L)};
 
-        BValue[]  returns = BRunUtil.invoke(result, "intSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actual = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "intSubtract", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actual = (long) returns;
         long expected = -8641975320099L;
         Assert.assertEquals(actual, expected);
     }
@@ -64,12 +60,11 @@ public class SubtractOperationTest {
 
     @Test(description = "Test two float subtract expression")
     public void testFloatAddExpr() {
-        BValue[] args = { new BFloat(100.0f), new BFloat(200.0f)};
+        Object[] args = { (100.0f), (200.0f)};
 
-        BValue[] returns = BRunUtil.invoke(result, "floatSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
+        Object returns = BRunUtil.invoke(result, "floatSubtract", args);
+        Assert.assertSame(returns.getClass(), Double.class);
+        double actual = (double) returns;
         double expected = -100.0f;
         Assert.assertEquals(actual, expected);
     }
@@ -79,13 +74,12 @@ public class SubtractOperationTest {
     public void testNegativeValues() {
         int a = -10;
         int b = -20;
-        BValue[] args = {new BInteger(a), new BInteger(b)};
+        Object[] args = {(a), (b)};
         // Subtract
         long expectedResult = a - b;
-        BValue[] returns = BRunUtil.invoke(result, "intSubtract", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long actualResult = ((BInteger) returns[0]).intValue();
+        Object returns = BRunUtil.invoke(result, "intSubtract", args);
+        Assert.assertSame(returns.getClass(), Long.class);
+        long actualResult = (long) returns;
         Assert.assertEquals(actualResult, expectedResult);
     }
 

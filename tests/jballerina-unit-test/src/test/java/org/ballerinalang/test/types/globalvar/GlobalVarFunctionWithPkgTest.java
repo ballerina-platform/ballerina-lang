@@ -18,10 +18,8 @@
 
 package org.ballerinalang.test.types.globalvar;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -36,7 +34,7 @@ import org.testng.annotations.Test;
 public class GlobalVarFunctionWithPkgTest {
 
     CompileResult result;
-    
+
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject1");
@@ -44,56 +42,52 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test accessing global variables defined in other packages")
     public void testAccessingGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(result, "getGlobalVars", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertSame(returns[3].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 800);
-        Assert.assertEquals(((BString) returns[1]).stringValue(), "value");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 99.34323);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 88343);
+        BArray returns = (BArray) BRunUtil.invoke(result, "getGlobalVars", new Object[0]);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertSame(returns.get(2).getClass(), Double.class);
+        Assert.assertSame(returns.get(3).getClass(), Long.class);
+        Assert.assertEquals(returns.get(0), 800L);
+        Assert.assertEquals(returns.get(1).toString(), "value");
+        Assert.assertEquals(returns.get(2), 99.34323);
+        Assert.assertEquals(returns.get(3), 88343L);
     }
 
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
-        BValue[] args = {new BInteger(88)};
-        BValue[] returns = BRunUtil.invoke(result, "changeGlobalVar", args);
+        Object[] args = {(88)};
+        Object returns = BRunUtil.invoke(result, "changeGlobalVar", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
+        Assert.assertEquals(returns, 165.0);
 
         CompileResult resultGlobalVar = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject1");
-        BValue[] returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar", new BValue[0]);
+        Object returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar", new Object[0]);
 
-        Assert.assertEquals(returnsChanged.length, 1);
-        Assert.assertSame(returnsChanged[0].getClass(), BFloat.class);
+        Assert.assertSame(returnsChanged.getClass(), Double.class);
 
-        Assert.assertEquals(((BFloat) returnsChanged[0]).floatValue(), 80.0);
+        Assert.assertEquals(returnsChanged, 80.0);
     }
 
     @Test(description = "Test assigning global variable to another global variable in different package")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(result, "getAssignedGlobalVarFloat", new BValue[0]);
+        Object returns = BRunUtil.invoke(result, "getAssignedGlobalVarFloat", new Object[0]);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 88343.0);
+        Assert.assertEquals(returns, 88343.0);
 
     }
 
     @Test(description = "Test assigning function invocation to global variable")
     public void testAssignFuncInvocationToGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(result, "getGlobalVarInt", new BValue[0]);
+        Object returns = BRunUtil.invoke(result, "getGlobalVarInt", new Object[0]);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8876);
+        Assert.assertEquals(returns, 8876L);
 
     }
 
@@ -102,12 +96,11 @@ public class GlobalVarFunctionWithPkgTest {
     public void testRetrievingVarFromDifferentPkg() {
 
         CompileResult result = BCompileUtil.compile("test-src/statements/variabledef/TestGlobaVarProject2");
-        BValue[] returns = BRunUtil.invoke(result, "getStringInPkg", new BValue[0]);
+        Object returns = BRunUtil.invoke(result, "getStringInPkg", new Object[0]);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertTrue(returns instanceof BString);
 
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "sample value");
+        Assert.assertEquals(returns.toString(), "sample value");
     }
 
     @AfterClass

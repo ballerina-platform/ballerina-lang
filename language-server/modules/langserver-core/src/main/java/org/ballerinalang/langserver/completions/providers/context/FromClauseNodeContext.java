@@ -125,17 +125,16 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                 TypeDescKind.STREAM, TypeDescKind.XML);
         
         completionItems.forEach(lsCItem -> {
+            String sortText = SortingUtil.genSortText(3) + 
+                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
-                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
-                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
-                return;
+                sortText = SortingUtil.genSortText(1)
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             } else if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL &&
                     lsCItem.getCompletionItem().getKind() == CompletionItemKind.Function) {
-                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2));
-                return;
+                sortText = SortingUtil.genSortText(2);
             }
-            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(3) +
-                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            lsCItem.getCompletionItem().setSortText(sortText);
         });
     }
 

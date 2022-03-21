@@ -249,76 +249,74 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private JsonObject visibleEP(Node node, TypeSymbol typeSymbol, boolean isRemoteAction) {
         JsonObject symbolMetaInfo = new JsonObject();
-        ModuleID moduleID = typeSymbol.getModule().isPresent() ? typeSymbol.getModule().get().id() : null;
-        String orgName = moduleID != null ? moduleID.orgName() : "";
-        String moduleName = moduleID != null ? moduleID.moduleName() : "";
 
-        if (node.kind() == SyntaxKind.REQUIRED_PARAM) {
-            RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
-            Optional<Token> paramName = requiredParameterNode.paramName();
-            symbolMetaInfo.addProperty("name", paramName.isPresent() ? paramName.get().text() : "");
-            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
-            symbolMetaInfo.addProperty("orgName", orgName);
-            symbolMetaInfo.addProperty("moduleName", moduleName);
-            symbolMetaInfo.addProperty("isModuleVar", false);
-        } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
-            VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
-            CaptureBindingPatternNode captureBindingPatternNode =
-                    (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
-            symbolMetaInfo.addProperty("name", captureBindingPatternNode.variableName().text());
-            symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse(null)));
-            symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
-            symbolMetaInfo.addProperty("orgName", orgName);
-            symbolMetaInfo.addProperty("moduleName", moduleName);
-            symbolMetaInfo.addProperty("isModuleVar", false);
-        } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
-            AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
-            if (assignmentStatementNode.varRef() instanceof SimpleNameReferenceNode) {
-                SimpleNameReferenceNode simpleNameReferenceNode =
-                        (SimpleNameReferenceNode) assignmentStatementNode.varRef();
-                symbolMetaInfo.addProperty("name", simpleNameReferenceNode.name().text());
-                symbolMetaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
-                        .orElse(null)));
-                symbolMetaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
-                symbolMetaInfo.addProperty("orgName", orgName);
-                symbolMetaInfo.addProperty("moduleName", moduleName);
-                symbolMetaInfo.addProperty("isModuleVar", false);
-            }
-        } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-            JsonObject metaInfoForModuleVar = new JsonObject();
-            ModuleVariableDeclarationNode variableDeclarationNode = (ModuleVariableDeclarationNode) node;
-            CaptureBindingPatternNode captureBindingPatternNode =
-                    (CaptureBindingPatternNode) variableDeclarationNode.typedBindingPattern().bindingPattern();
-            metaInfoForModuleVar.addProperty("name", captureBindingPatternNode.variableName().text());
-            metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
-                    .orElse(null)));
-            metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
-            metaInfoForModuleVar.addProperty("orgName", orgName);
-            metaInfoForModuleVar.addProperty("moduleName", moduleName);
-            metaInfoForModuleVar.addProperty("isModuleVar", true);
-            metaInfoForModuleVar.addProperty("isExternal", true);
-
-            this.visibleEpsForModule.add(metaInfoForModuleVar);
-        } else if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isRemoteAction) {
-            String name = ((SimpleNameReferenceNode) node).name().text();
-            JsonObject metaInfoForModuleVar = new JsonObject();
-            metaInfoForModuleVar.addProperty("name", name);
-            boolean isAvailable = isAvailableAsEndpoint(name);
-
-            if (!isAvailable) {
-                metaInfoForModuleVar.addProperty("isCaller", "Caller".equals(typeSymbol.getName()
-                        .orElse(null)));
-                metaInfoForModuleVar.addProperty("typeName", typeSymbol.getName().orElse(""));
-                metaInfoForModuleVar.addProperty("orgName", orgName);
-                metaInfoForModuleVar.addProperty("moduleName", moduleName);
-                metaInfoForModuleVar.addProperty("isExternal", true);
-
-                this.visibleEpsForModule.add(metaInfoForModuleVar);
-            }
+        switch (node.kind()) {
+            case REQUIRED_PARAM:
+                RequiredParameterNode requiredParameterNode = (RequiredParameterNode) node;
+                Optional<Token> paramName = requiredParameterNode.paramName();
+                String symbolName = paramName.isPresent() ? paramName.get().text() : "";
+                symbolMetaInfo = getModuleMetaInfo(typeSymbol, symbolName, false, false);
+                break;
+            case MODULE_VAR_DECL:
+                ModuleVariableDeclarationNode moduleVariableDeclarationNode = (ModuleVariableDeclarationNode) node;
+                if (moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().kind() ==
+                        SyntaxKind.CAPTURE_BINDING_PATTERN) {
+                    String moduleVarName = ((CaptureBindingPatternNode) moduleVariableDeclarationNode
+                            .typedBindingPattern().bindingPattern()).variableName().text();
+                    if (!isAvailableAsEndpoint(moduleVarName)) {
+                        this.visibleEpsForModule.add(getModuleMetaInfo(typeSymbol, moduleVarName, true, true));
+                    }
+                }
+                break;
+            case LOCAL_VAR_DECL:
+                VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) node;
+                if (variableDeclarationNode.typedBindingPattern().bindingPattern().kind() ==
+                        SyntaxKind.CAPTURE_BINDING_PATTERN) {
+                    String localVarName = ((CaptureBindingPatternNode) variableDeclarationNode
+                            .typedBindingPattern().bindingPattern()).variableName().text();
+                    symbolMetaInfo = getModuleMetaInfo(typeSymbol, localVarName, false, false);
+                }
+                break;
+            case ASSIGNMENT_STATEMENT:
+                AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
+                if (assignmentStatementNode.varRef().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    String asgmtVarName = ((SimpleNameReferenceNode) assignmentStatementNode.varRef()).name().text();
+                    symbolMetaInfo = getModuleMetaInfo(typeSymbol, asgmtVarName, false, false);
+                }
+                break;
+            case SIMPLE_NAME_REFERENCE:
+                String name = ((SimpleNameReferenceNode) node).name().text();
+                if (isRemoteAction && !isAvailableAsEndpoint(name)) {
+                    this.visibleEpsForModule.add(getModuleMetaInfo(typeSymbol, name, false, true));
+                }
+                break;
+            default:
+                return symbolMetaInfo;
         }
 
         return symbolMetaInfo;
+    }
+
+    private JsonObject getModuleMetaInfo(TypeSymbol typeSymbol, String name, Boolean isModuleVar, Boolean isExternal) {
+        JsonObject metaInfo = new JsonObject();
+
+        if (!typeSymbol.getModule().isPresent()) {
+            return metaInfo;
+        }
+
+        ModuleID moduleID = typeSymbol.getModule().get().id();
+
+        metaInfo.addProperty("name", name);
+        metaInfo.addProperty("isCaller", "Caller".equals(typeSymbol.getName().orElse("")));
+        metaInfo.addProperty("typeName", typeSymbol.getName().orElse(""));
+        metaInfo.addProperty("orgName", moduleID.orgName());
+        metaInfo.addProperty("packageName", moduleID.packageName());
+        metaInfo.addProperty("moduleName", moduleID.moduleName());
+        metaInfo.addProperty("version", moduleID.version());
+        metaInfo.addProperty("isModuleVar", isModuleVar);
+        metaInfo.addProperty("isExternal", isExternal);
+
+        return metaInfo;
     }
 
     private boolean isAvailableAsEndpoint(String name) {
@@ -397,6 +395,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 ModuleID ballerinaModuleID = ((ModuleSymbol) ((Optional) prop).get()).id();
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
+                moduleIdJson.addProperty("packageName", ballerinaModuleID.packageName());
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
                 moduleIdJson.addProperty("version", ballerinaModuleID.version());
                 nodeJson.add("moduleID", moduleIdJson);
@@ -404,6 +403,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 ModuleID ballerinaModuleID = (ModuleID) prop;
                 JsonObject moduleIdJson = new JsonObject();
                 moduleIdJson.addProperty("orgName", ballerinaModuleID.orgName());
+                moduleIdJson.addProperty("packageName", ballerinaModuleID.packageName());
                 moduleIdJson.addProperty("moduleName", ballerinaModuleID.moduleName());
                 moduleIdJson.addProperty("version", ballerinaModuleID.version());
                 nodeJson.add(jsonName, moduleIdJson);

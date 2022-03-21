@@ -1689,7 +1689,7 @@ public class Types {
                 BType constraint = getReferredType(((BXMLType) collectionType).constraint);
                 while (constraint.tag == TypeTags.XML) {
                     collectionType = constraint;
-                    constraint = ((BXMLType) collectionType).constraint;
+                    constraint = getReferredType(((BXMLType) collectionType).constraint);
                 }
                 switch (constraint.tag) {
                     case TypeTags.XML_ELEMENT:
