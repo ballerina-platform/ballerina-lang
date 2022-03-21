@@ -116,6 +116,9 @@ public class BaseTest {
                 .resolve(currentPackage.packageName().value())
                 .resolve(currentPackage.packageVersion().value().toString())
                 .resolve(jBallerinaBackend.targetPlatform().code());
+        if (Files.exists(centralRepoBalaCache)) {
+            ProjectUtils.deleteDirectory(centralRepoBalaCache);
+        }
         Files.createDirectories(centralRepoBalaCache);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
         Path balaPath = Files.list(centralRepoBalaCache).findAny().orElseThrow();
