@@ -18,11 +18,11 @@
  */
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -127,68 +127,62 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchSealedArrayStatement() {
-        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args = {bFloatArray};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
-                "matched sealed float array size 4", "Couldn't match sealed array type");
+        Object[] args = {bFloatArray};
+        Object returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(), "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat, 5);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 5);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
         bFloatArray.add(0, 45.5);
-        BValue[] args2 = {bFloatArray};
+        Object[] args2 = {bFloatArray};
         returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args2);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args3 = {bFloatArray};
+        Object[] args3 = {bFloatArray};
         returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args3);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match unsealed array type");
     }
 
     @Test
     public void testUnionAndMatchNoSealedArrayStatement() {
-        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args = {bFloatArray};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Object[] args = {bFloatArray};
+        Object returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args);
+        Assert.assertFalse(returnValues == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BValueArray(BTypes.typeFloat);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
         bFloatArray.add(0, 34.4);
-        BValue[] args2 = {bFloatArray};
+        Object[] args2 = {bFloatArray};
         returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args2);
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
+        Assert.assertFalse(returnValues == null , "Invalid Return Values.");
+        Assert.assertEquals(returnValues.toString(),
                 "matched float array", "Couldn't match unsealed array type");
     }
 
@@ -299,7 +293,7 @@ public class SealedArrayTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void invalidIndexAccess() {
-        BValue[] args = {new BInteger(5)};
+        Object[] args = {5};
         BRunUtil.invoke(compileResult, "invalidIndexAccess", args);
     }
 
@@ -341,11 +335,11 @@ public class SealedArrayTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
-        BValue[] args = {bIntArray, new BInteger(5)};
+        Object[] args = {bIntArray, (5)};
         BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
     }
 
@@ -355,10 +349,10 @@ public class SealedArrayTest {
                     "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                             "\\{\"message\":\"array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
-        BInteger bInteger = new BInteger(1);
-        BInteger bInteger2 = new BInteger(4);
-        BValue[] args = {bInteger};
-        BValue[] args2 = {bInteger2};
+        long bInteger = (1);
+        long bInteger2 = (4);
+        Object[] args = {bInteger};
+        Object[] args2 = {bInteger2};
         BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args);
         BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args2);
     }
@@ -372,45 +366,45 @@ public class SealedArrayTest {
 
     @Test
     public void accessValidIndexOfMatchedUnsealedArray() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
-        BValue[] args = {bIntArray, new BInteger(5)};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 10, "Invalid match for sealed array");
+        Object[] args = {bIntArray, (5)};
+        Object returnValues = BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
+        Assert.assertEquals(returnValues, 10L, "Invalid match for sealed array");
     }
 
     @Test
     public void testSealedArrayConstrainedMap() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BValueArray bIntArray2 = new BValueArray(BTypes.typeInt);
+        BArray bIntArray2 = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         bIntArray2.add(0, 1);
         bIntArray2.add(1, 3);
         bIntArray2.add(2, 5);
-        BValue[] args = {bIntArray, bIntArray2};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMap", args);
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Invalid match for sealed array");
+        Object[] args = {bIntArray, bIntArray2};
+        Object returnValues = BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMap", args);
+        Assert.assertEquals(returnValues, 5L, "Invalid match for sealed array");
     }
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
-        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BValue[] args = {bIntArray, new BInteger(3)};
+        Object[] args = {bIntArray, (3)};
         BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
     }
 
     @Test(groups = { "disableOnOldParser" })
     public void testArrayWithConstantSizeReferenceFill() {
-        BRunUtil.invokeFunction(compileResult, "testArrayWithConstantSizeReferenceFill");
+        BRunUtil.invoke(compileResult, "testArrayWithConstantSizeReferenceFill");
     }
 
     @Test

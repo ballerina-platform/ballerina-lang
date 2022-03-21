@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
@@ -52,10 +53,12 @@ import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -316,6 +319,7 @@ public class JsonUtils {
     }
 
     public static Object convertJSON(Object jsonValue, Type targetType) {
+        Type inputValueType;
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonNodeToInt(jsonValue);
@@ -339,16 +343,49 @@ public class JsonUtils {
             case TypeTags.ANY_TAG:
                 return jsonValue;
             case TypeTags.UNION_TAG:
-                BUnionType type = (BUnionType) targetType;
-                if (jsonValue == null && type.isNullable()) {
-                    return null;
+                Set<Type> matchingTypes = new LinkedHashSet<>();
+                inputValueType = TypeChecker.getType(jsonValue);
+                for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
+                    if (inputValueType == memType) {
+                        return convertJSON(jsonValue, memType);
+                    } else if (TypeConverter.isIntegerSubtypeAndConvertible(jsonValue, memType)) {
+                        return jsonNodeToInt(jsonValue);
+                    } else {
+                        matchingTypes.addAll(TypeConverter.getConvertibleTypes(jsonValue, memType, null,
+                                true, new ArrayList<>(), new ArrayList<>(), false));
+                    }
                 }
-                List<Type> matchingTypes = type.getMemberTypes().stream()
-                        .filter(memberType -> memberType != PredefinedTypes.TYPE_NULL).collect(Collectors.toList());
-                if (matchingTypes.size() == 1) {
-                    return convertJSON(jsonValue, matchingTypes.get(0));
+                if (((matchingTypes.size() > 1) && !matchingTypes.contains(inputValueType) &&
+                        !TypeConverter.hasIntegerSubTypes(matchingTypes)) || (matchingTypes.isEmpty())) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                            getTypeName(jsonValue));
+                } else {
+                    return convertJSON(jsonValue, matchingTypes.iterator().next());
                 }
-                break;
+            case TypeTags.FINITE_TYPE_TAG:
+                BFiniteType finiteType = (BFiniteType) targetType;
+                if (finiteType.valueSpace.size() == 1) {
+                    Type valueType = TypeChecker.getType(finiteType.valueSpace.iterator().next());
+                    if (!TypeChecker.isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+                        return convertJSON(jsonValue, valueType);
+                    }
+                }
+                inputValueType = TypeChecker.getType(jsonValue);
+                Set<Object> matchedValues = new LinkedHashSet<>();
+                for (Object valueSpaceItem : finiteType.valueSpace) {
+                    if (jsonValue == valueSpaceItem) {
+                        return convertJSON(jsonValue, inputValueType);
+                    }
+                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem)) {
+                        matchedValues.add(valueSpaceItem);
+                    }
+                }
+                if (matchedValues.size() != 1) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                            getTypeName(jsonValue));
+                } else {
+                    return convertJSON(jsonValue, TypeChecker.getType(matchedValues.iterator().next()));
+                }
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 return convertJSONToRecord(jsonValue, (BStructureType) targetType);
@@ -365,8 +402,6 @@ public class JsonUtils {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                         getTypeName(jsonValue));
         }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
-                getTypeName(jsonValue));
     }
 
     /**

@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.cli.jline.validator;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
 
@@ -28,13 +29,22 @@ import io.ballerina.shell.cli.utils.IncompleteInputFinder;
  */
 public class StatementValidator implements Validator {
 
+    private Validator nextInValidator;
+
+    public StatementValidator() {
+        nextInValidator = null;
+    }
+
     @Override
     public void setNextValidator(Validator nextValidator) {
+        this.nextInValidator = nextValidator;
     }
 
     @Override
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
-        return NodeParser.parseStatement(source).apply(incompleteInputFinder);
+        Node parsedNode = NodeParser.parseBlockStatement("{" + source + "}");
+        return !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
+                || nextInValidator.evaluate(source);
     }
 }

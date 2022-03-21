@@ -23,6 +23,7 @@ import io.ballerina.projects.providers.SemverDataProvider;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -522,6 +523,36 @@ public class BallerinaTomlTests {
         Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
         Assert.assertEquals(iterator.next().message(),
                 "invalid 'icon' under [package]: 'icon' can only have 'png' images");
+    }
+
+    @Test
+    public void testValidTemplateValue() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(
+                BAL_TOML_REPO.resolve("valid-template-ballerina.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 0);
+        Assert.assertTrue(packageManifest.template());
+    }
+
+    @Test(dataProvider = "provideInvalidTemplateValueToml")
+    public void testInvalidTemplateValue(String balToml, String diagnosticMessage) throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve(balToml));
+        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.diagnostics().diagnostics().size(), 1);
+        Iterator<Diagnostic> iterator = packageManifest.diagnostics().errors().iterator();
+        Assert.assertEquals(iterator.next().message(), diagnosticMessage);
+    }
+
+    @DataProvider(name = "provideInvalidTemplateValueToml")
+    public Object[][] provideInvalidTemplateValueToml() {
+        return new Object[][]{
+                {"invalid-template-value.toml",
+                        "incompatible type for key 'template': expected 'BOOLEAN', found 'STRING'"},
+                {"invalid-template-value-2.toml",
+                        "incompatible type for key 'template': expected 'BOOLEAN', found 'STRING'"},
+                {"invalid-template-value-3.toml",
+                        "incompatible type for key 'template': expected 'BOOLEAN', found 'INTEGER'"}
+        };
     }
 
     static PackageManifest getPackageManifest(Path tomlPath) throws IOException {

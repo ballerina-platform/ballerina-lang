@@ -16,9 +16,7 @@
  */
 package org.ballerinalang.test.statements.breakstatement;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,62 +44,62 @@ public class BreakStmtTest {
 
     @Test(description = "Test break statement in a while loop.")
     public void testBreakStmtConditionTrue() {
-        BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object[] args = {(15), 5};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 100;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test break statement in a while loop, where break in a ")
     public void testBreakStmtConditionElseIf() {
-        BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object[] args = {(25), (15)};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 1000;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test break statement in a while loop, where break not hits")
     public void testBreakStmtConditionFalse() {
-        BValue[] args = {new BInteger(8), new BInteger(5)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
+        Object[] args = {(8), (5)};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "calculateExp1", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 40;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test break statement in a nested while loop.")
     public void testBreakStmtInNestedWhile() {
-        BValue[] args = {new BInteger(12), new BInteger(8)};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "nestedBreakStmt", args);
+        Object[] args = {(12), (8)};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "nestedBreakStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 140;
         Assert.assertEquals(actual, expected);
     }
 
     @Test
     public void testBreakWithForeach() {
-        BValue[] args = {new BString("break")};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testBreakWithForeach", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object[] args = {StringUtils.fromString("break")};
+        Object returns = BRunUtil.invoke(positiveCompileResult, "testBreakWithForeach", args);
+        
+        Assert.assertEquals(returns.toString(),
                 "start->foreach0->foreachEnd0->foreach1->foreachEnd1->foreach2->foreachEnd2->foreach3->break->end");
     }
 

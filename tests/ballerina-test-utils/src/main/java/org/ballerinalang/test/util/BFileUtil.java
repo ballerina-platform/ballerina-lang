@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

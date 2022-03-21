@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.cli.jline.validator;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
 
@@ -42,20 +43,8 @@ public class ExpressionValidator implements Validator {
     @Override
     public boolean evaluate(String source) {
         IncompleteInputFinder incompleteInputFinder = new IncompleteInputFinder();
-        boolean isIncomplete = NodeParser.parseExpression(source).apply(incompleteInputFinder);
-        if (!NodeParser.parseExpression(source).hasDiagnostics()) {
-            return false;
-        } else {
-            if (!source.endsWith(";") && !NodeParser.parseExpression(source + ";").hasDiagnostics()) {
-                return false;
-            }
-        }
-
-        if (!isIncomplete) {
-            return nextInValidator.evaluate(source);
-        } else {
-            return true;
-        }
-
+        Node parsedNode = NodeParser.parseExpression(source);
+        return !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
+                || nextInValidator.evaluate(source);
     }
 }

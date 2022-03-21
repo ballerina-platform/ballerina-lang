@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -57,8 +55,8 @@ public class AccessTest {
 
     @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
     public void testFieldAndOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "fieldAndOptionalFieldAccessFunctions")
@@ -72,8 +70,8 @@ public class AccessTest {
 
     @Test(dataProvider = "fieldOptionalFieldAndMemberAccessFunctions")
     public void testFieldOptionalFieldAndMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "fieldOptionalFieldAndMemberAccessFunctions")
@@ -92,14 +90,14 @@ public class AccessTest {
 
     @Test
     public void testMemberAccessOnNillableObjectField() {
-        BValue[] returns = BRunUtil.invoke(result, "testMemberAccessOnNillableObjectField");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testMemberAccessOnNillableObjectField");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testNilLiftingOnMemberAccessOnNillableObjectField() {
-        BValue[] returns = BRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -109,7 +107,7 @@ public class AccessTest {
 
     @Test
     public void testAccessOnGroupedExpressions() {
-        BValue[] returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
+        Assert.assertTrue((Boolean) returns);
     }
 }

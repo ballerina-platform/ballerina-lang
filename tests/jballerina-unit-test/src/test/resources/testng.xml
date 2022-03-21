@@ -88,9 +88,6 @@
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.runtime.api.*"/>
 
-            <!--https://github.com/ballerina-platform/ballerina-lang/issues/30443-->
-            <!--org.ballerinalang.test.serializer.json-->
-
             <package name="org.ballerinalang.test.services.*"/>
 
             <package name="org.ballerinalang.test.statements.arrays.*"/>

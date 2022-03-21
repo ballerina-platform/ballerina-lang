@@ -20,10 +20,14 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -33,12 +37,18 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Map;
+
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -135,6 +145,65 @@ public class FieldSymbolTest {
         assertEquals(symbolPos.lineRange().startLine().offset(), 12);
         assertEquals(symbolPos.lineRange().endLine().line(), 45);
         assertEquals(symbolPos.lineRange().endLine().offset(), 17);
+    }
+
+    @Test
+    public void testRecordFieldNames() {
+        Symbol symbol = getSymbol(54, 5);
+
+        assertEquals(symbol.kind(), SymbolKind.TYPE_DEFINITION);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind(), RECORD);
+
+        RecordTypeSymbol record = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        Map<String, RecordFieldSymbol> fields = record.fieldDescriptors();
+
+        assertTrue(fields.containsKey("'f1"));
+        assertTrue(fields.containsKey("f1"));
+        assertTrue(fields.containsKey("'\\'f2"));
+        assertTrue(fields.containsKey("\\'f2"));
+        assertTrue(fields.containsKey("'sm\uD83D\uDE00iley1"));
+        assertTrue(fields.containsKey("sm\uD83D\uDE00iley1"));
+        assertTrue(fields.containsKey("sm\uD83D\uDE00iley2"));
+        assertTrue(fields.containsKey("'sm\uD83D\uDE00iley2"));
+
+        assertFields(fields.get("'f1"), fields.get("f1"));
+        assertFields(fields.get("'\\'f2"), fields.get("\\'f2"));
+        assertFields(fields.get("'sm\uD83D\uDE00iley1"), fields.get("sm\uD83D\uDE00iley1"));
+        assertFields(fields.get("sm\uD83D\uDE00iley2"), fields.get("'sm\uD83D\uDE00iley2"));
+    }
+
+    @Test
+    public void testObjectFieldNames() {
+        Symbol symbol = getSymbol(61, 5);
+
+        assertEquals(symbol.kind(), SymbolKind.TYPE_DEFINITION);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind(), OBJECT);
+
+        ObjectTypeSymbol object = (ObjectTypeSymbol) ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        Map<String, ? extends ObjectFieldSymbol> fields = object.fieldDescriptors();
+
+        assertTrue(fields.containsKey("'order"));
+        assertTrue(fields.containsKey("order"));
+        assertFields(fields.get("'order"), fields.get("order"));
+    }
+
+    @Test
+    public void testClassFieldNames() {
+        Symbol symbol = getSymbol(65, 6);
+
+        assertEquals(symbol.kind(), SymbolKind.CLASS);
+        ClassSymbol clazz = (ClassSymbol) symbol;
+        Map<String, ? extends ObjectFieldSymbol> fields = clazz.fieldDescriptors();
+
+        assertTrue(fields.containsKey("'int"));
+        assertTrue(fields.containsKey("int"));
+        assertFields(fields.get("'int"), fields.get("int"));
+    }
+
+    private void assertFields(Object field1, Object field2) {
+        assertNotNull(field1);
+        assertNotNull(field2);
+        assertSame(field1, field2);
     }
 
     private Symbol getSymbol(int line, int col) {

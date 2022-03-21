@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.statements.arrays;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -28,6 +30,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -61,50 +64,50 @@ public class ArrayLValueFillTest {
 
     @Test
     public void testObjectArrays() {
-        BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "testObjectArrays")[0];
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "testObjectArrays");
         assertEquals(arr.size(), 2);
 
-        BMap person = (BMap) arr.getRefValue(0);
-        assertEquals(person.getType().getName(), "PersonObj");
-        assertEquals(person.get("name").stringValue(), "John Doe");
+        BObject person = (BObject) arr.getRefValue(0);
+        assertEquals(getType(person).getName(), "PersonObj");
+        assertEquals(person.get(StringUtils.fromString("name")).toString(), "John Doe");
 
-        person = (BMap) arr.getRefValue(1);
-        assertEquals(person.getType().getName(), "PersonObj");
-        assertEquals(person.get("name").stringValue(), "Pubudu");
+        person = (BObject) arr.getRefValue(1);
+        assertEquals(getType(person).getName(), "PersonObj");
+        assertEquals(person.get(StringUtils.fromString("name")).toString(), "Pubudu");
     }
 
     @Test
     public void test2DObjectArrays() {
-        BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "test2DObjectArrays")[0];
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "test2DObjectArrays");
 
         assertEquals(arr.size(), 3);
-        assertEquals(arr.getRefValue(0).size(), 0);
-        assertEquals(arr.getRefValue(1).size(), 0);
-        assertEquals(arr.getRefValue(2).size(), 2);
+        assertEquals(((BArray) arr.getRefValue(0)).size(), 0);
+        assertEquals(((BArray) arr.getRefValue(1)).size(), 0);
+        assertEquals(((BArray) arr.getRefValue(2)).size(), 2);
 
-        BValueArray peopleArr = (BValueArray) arr.getRefValue(2);
+        BArray peopleArr = (BArray) arr.getRefValue(2);
         for (int i = 0; i < peopleArr.size(); i++) {
-            BMap person = (BMap) peopleArr.getRefValue(i);
-            assertEquals(person.getType().getName(), "PersonObj");
-            assertEquals(person.get("name").stringValue(), "John Doe");
+            BObject person = (BObject) peopleArr.getRefValue(i);
+            assertEquals(getType(person).getName(), "PersonObj");
+            assertEquals(person.get(StringUtils.fromString("name")).toString(), "John Doe");
         }
     }
 
     // https://github.com/ballerina-platform/ballerina-lang/issues/20983
     @Test(enabled = false)
     public void test2DObjectArrays2() {
-        BValueArray arr = (BValueArray) BRunUtil.invokeFunction(compileResult, "test2DObjectArrays2")[0];
+        BArray arr = (BArray) BRunUtil.invoke(compileResult, "test2DObjectArrays2");
 
         assertEquals(arr.size(), 3);
-        assertEquals(arr.getRefValue(0).size(), 0);
-        assertEquals(arr.getRefValue(1).size(), 0);
-        assertEquals(arr.getRefValue(2).size(), 2);
+        assertEquals(((BArray) arr.getRefValue(0)).size(), 0);
+        assertEquals(((BArray) arr.getRefValue(1)).size(), 0);
+        assertEquals(((BArray) arr.getRefValue(2)).size(), 2);
 
-        BValueArray peopleArr = (BValueArray) arr.getRefValue(2);
+        BArray peopleArr = (BArray) arr.getRefValue(2);
         for (int i = 0; i < peopleArr.size(); i++) {
             BMap person = (BMap) peopleArr.getRefValue(i);
-            assertEquals(person.getType().getName(), "PersonObj");
-            assertEquals(person.get("name").stringValue(), "John Doe");
+            assertEquals(getType(person).getName(), "PersonObj");
+            assertEquals(person.get(StringUtils.fromString("name")).toString(), "John Doe");
         }
     }
 

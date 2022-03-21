@@ -500,7 +500,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                 tempGeneratedInitFunction.symbol.scope, env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
+        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
         classDefinition.generatedInitFunction = tempGeneratedInitFunction;
 
         // Add generated init function to the attached function list
@@ -1434,6 +1435,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
         blockStmt.scope = letExpression.env.scope;
+        blockStmt.isLetExpr = true;
 
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
@@ -7567,7 +7569,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDef, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                                                                           tempGeneratedInitFunction.symbol.scope, env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
+        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
         classDef.generatedInitFunction = tempGeneratedInitFunction;
         env.enclPkg.functions.add(classDef.generatedInitFunction);
         env.enclPkg.topLevelNodes.add(classDef.generatedInitFunction);
@@ -9932,13 +9935,12 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangFunction initFunction =
-                TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.pos, classDefinition.symbol,
-                                                                        env, names, GENERATED_INIT_SUFFIX,
-                                                                        classDefinition.getBType(), returnType);
+                TypeDefBuilderHelper.createInitFunctionForStructureType(null, classDefinition.symbol,
+                        env, names, GENERATED_INIT_SUFFIX,
+                        classDefinition.getBType(), returnType);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.getBType().tsymbol);
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(GENERATED_INIT_SUFFIX, initFunction.symbol,
-                                                                    (BInvokableType) initFunction.getBType(),
-                                                                    classDefinition.pos);
+                (BInvokableType) initFunction.getBType(), null);
         classDefinition.generatedInitFunction = initFunction;
         initFunction.returnTypeNode.setBType(returnType);
         return rewrite(initFunction, env);

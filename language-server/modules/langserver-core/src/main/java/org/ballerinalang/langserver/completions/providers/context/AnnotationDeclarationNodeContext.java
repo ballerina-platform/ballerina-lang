@@ -91,10 +91,12 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, AnnotationDeclarationNode node) {
-        Token token = node.annotationKeyword();
+        Token annotationKeyword = node.annotationKeyword();
+        Token semicolonToken = node.semicolonToken();
         int cursor = context.getCursorPositionInTree();
         
-        return !token.isMissing() && cursor >= token.textRange().endOffset();
+        return !annotationKeyword.isMissing() && cursor >= annotationKeyword.textRange().endOffset()
+                && (semicolonToken.isMissing() || cursor < semicolonToken.textRange().endOffset());
     }
 
     private boolean onTypeDescriptorContext(BallerinaCompletionContext context, AnnotationDeclarationNode node) {

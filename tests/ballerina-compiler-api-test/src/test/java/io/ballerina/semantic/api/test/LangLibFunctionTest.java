@@ -395,6 +395,19 @@ public class LangLibFunctionTest {
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
 
+    @Test
+    public void testAllErrorMemberUnionType() {
+        Symbol symbol = getSymbol(80, 8);
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TYPE_REFERENCE);
+
+        List<String> expFunctions = List.of("message", "cause", "detail", "stackTrace", "toString", "toBalString",
+                                            "ensureType", "clone", "cloneReadOnly");
+
+        List<FunctionSymbol> langLibMethods = typeSymbol.langLibMethods();
+        assertLangLibList(langLibMethods, expFunctions);
+    }
+
     private Symbol getSymbol(int line, int column) {
         return model.symbol(srcFile, from(line, column)).get();
     }

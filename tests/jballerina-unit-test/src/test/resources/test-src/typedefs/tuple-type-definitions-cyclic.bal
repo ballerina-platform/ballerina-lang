@@ -293,6 +293,18 @@ public function recursiveTupleArrayCloneTest() {
    assertTrue(x is readonly & RTuple[]);
 }
 
+type RestTypeTuple [int, RestTypeTuple...];
+
+function testRecursiveTupleWithRestType() {
+   RestTypeTuple a = [1];
+   RestTypeTuple b = [2, a, a, a];
+   RestTypeTuple c = [3, a, b];
+
+   assertTrue(a[0] is int);
+   assertTrue(b[1] is RestTypeTuple);
+   assertTrue(c[2] is RestTypeTuple);
+}
+
 function assertTrue(anydata actual) {
     assert(true, actual);
 }

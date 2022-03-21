@@ -556,21 +556,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "arg3 = ...",
-      "kind": "Snippet",
-      "detail": "arg3 = {line: 0, offset: 0}",
-      "sortText": "AR",
-      "filterText": "arg3",
-      "insertText": "arg3 = ${1:{line: 0, offset: 0}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "U",
       "filterText": "null",
       "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "arg3 = ...",
+      "kind": "Snippet",
+      "detail": "arg3 = {line: 0, offset: 0\\}",
+      "sortText": "AR",
+      "filterText": "arg3",
+      "insertText": "arg3 = ${1:{line: 0, offset: 0\\}}",
       "insertTextFormat": "Snippet"
     }
   ]

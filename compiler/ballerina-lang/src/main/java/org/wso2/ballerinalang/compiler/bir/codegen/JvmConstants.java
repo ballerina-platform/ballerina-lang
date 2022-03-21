@@ -203,7 +203,6 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
-    public static final String IDENTIFIER_UTILS = "io/ballerina/runtime/api/utils/IdentifierUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -211,6 +210,7 @@ public class JvmConstants {
     public static final String LINKED_HASH_MAP = "java/util/LinkedHashMap";
     public static final String ARRAY_LIST = "java/util/ArrayList";
     public static final String LIST = "java/util/List";
+    public static final String STACK = "java/util/Stack";
     public static final String SET = "java/util/Set";
     public static final String LINKED_HASH_SET = "java/util/LinkedHashSet";
     public static final String STRING_BUILDER = "java/lang/StringBuilder";
