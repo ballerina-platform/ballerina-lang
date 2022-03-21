@@ -158,7 +158,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
         Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
 
-        String editText = "<" + expectedTypeName + "> ";
+        String editText = "<" + expectedTypeName + ">";
 
         // If the expression is a binary expression, need to add parentheses around the expression
         if (expressionNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
