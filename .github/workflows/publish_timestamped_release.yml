@@ -33,6 +33,16 @@ jobs:
             updatedVersion=$VERSION-$startTime-$latestCommit
             echo $updatedVersion
             sed -i "s/version=\(.*\)/version=$updatedVersion/g" gradle.properties
+            curl -X POST \
+            'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
+            -H 'Accept: application/vnd.github.v3+json' \
+            -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
+            --data "{
+              \"event_type\": \"update_timestamped_version\",
+              \"client_payload\": {
+                \"timestamped_version\": \"$updatedVersion\"
+              }
+            }"
 
       -   name: Build and Publish
           env:
