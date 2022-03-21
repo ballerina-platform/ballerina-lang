@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
@@ -486,6 +487,14 @@ public class Utils {
             default:
                 return isSimpleType(elementType.getTag()) || isXMLType(elementType);
         }
+    }
+
+    static Type getTupleElementType(List<Type> tupleTypes, int i, TupleType tupleType) {
+        Type restType = tupleType.getRestType();
+        if (i >= tupleTypes.size() && restType != null) {
+            return restType;
+        }
+        return tupleTypes.get(i);
     }
 
 }

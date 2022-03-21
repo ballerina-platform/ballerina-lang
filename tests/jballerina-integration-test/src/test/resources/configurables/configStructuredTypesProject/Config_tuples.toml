@@ -34,3 +34,19 @@ recordArrayTuple = [
   ]
 ]
 
+simpleRestTuple = [1, "foo", 2, 3, 4, 5]
+arrayRestTuple = [1, "ddd",["apple", "orange", "papaya"], ["red", "green", "blue"]]
+mapRestTuple = [1, "ddd", {a = true, b = "bar"}, {c = 2 , d = 12.34, e = [1,2,3]}]
+recordRestTuple = [2, "test", {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}, height = 158.4, weight = 70}, {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}}]
+tableRestTuple = ["Bar", [{a = "a"}, {a = 1}, {a = 2.34}, {a = false}, {a = [1, 2]}], [{a = {b = "a", c = 12}}, {a = [{b = "bb"}, {c = "cc"}]}]]
+enumRestTuple = [33, "Sri Lanka", "United States",  "Sri Lanka", "Sri Lanka"]
+unionRestTuple = [22, 1, "a", 2, "b" ]
+mapArrayRestTuple = ["map[]",[{a = "true", b = "bar"}, {c = "2" , d = "12.34", e = "[1,2,3]"}] , [{a = "true", b = "bar"}, {c = "2" , d = "12.34", e = "[1,2,3]"}]]
+recordArrayRestTuple = ["record[]",   [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ], [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ]
+]

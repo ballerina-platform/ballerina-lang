@@ -50,6 +50,16 @@ configurable [int, int|map<int>] unionTuple2 = ?;
 configurable [string, map<string>[]] mapArrayTuple = ?;
 configurable [string, Student[]] recordArrayTuple = ?;
 
+configurable [int, string, int...] simpleRestTuple = ?;
+configurable [int, string, string[]...] arrayRestTuple = ?;
+configurable [int, string, map<anydata>...] mapRestTuple = ?;
+configurable [int, string, Student...] recordRestTuple = ?;
+configurable [string, table<map<anydata>>...] tableRestTuple = ?;
+configurable [int, CountryCodes...] enumRestTuple = ?;
+configurable [int, int|string...] unionRestTuple = ?;
+configurable [string, map<string>[]...] mapArrayRestTuple = ?;
+configurable [string, Student[]...] recordArrayRestTuple = ?;
+
 public function main() {
     testTuples();
     util:print("Tests passed");
@@ -83,4 +93,27 @@ function testTuples() {
     test:assertEquals(recordArrayTuple.toString(), "[\"John\",[{\"name\":\"John Doe\",\"age\":22," +
     "\"subjects\":[\"English\",\"Science\"],\"marks\":{\"English\":85,\"Science\":90}},{\"name\":\"Jane Doe\"," +
     "\"age\":27,\"subjects\":[\"Maths\",\"History\"],\"marks\":{\"Maths\":88,\"History\":97}}]]");
+
+    // Tuple with rest element types 
+    test:assertEquals(simpleRestTuple.toString(), "[1,\"foo\",2,3,4,5]");
+    test:assertEquals(arrayRestTuple.toString(), "[1,\"ddd\",[\"apple\",\"orange\",\"papaya\"],[\"red\",\"green\",\"blue\"]]");
+    test:assertEquals(mapRestTuple.toString(), "[1,\"ddd\",{\"a\":true,\"b\":\"bar\"},{\"c\":2,\"d\":12.34," +
+    "\"e\":[1,2,3]}]");
+    test:assertEquals(recordRestTuple.toString(), "[2,\"test\",{\"name\":\"John Doe\",\"age\":22," +
+    "\"subjects\":[\"English\",\"Science\"],\"marks\":{\"English\":85,\"Science\":90},\"weight\":70," +
+    "\"height\":158.4},{\"name\":\"John Doe\",\"age\":22,\"subjects\":[\"English\",\"Science\"]," +
+    "\"marks\":{\"English\":85,\"Science\":90}}]");
+    test:assertEquals(tableRestTuple.toString(), "[\"Bar\",[{\"a\":\"a\"},{\"a\":1},{\"a\":2.34},{\"a\":false}," +
+    "{\"a\":[1,2]}],[{\"a\":{\"b\":\"a\",\"c\":12}},{\"a\":[{\"b\":\"bb\"},{\"c\":\"cc\"}]}]]");
+    test:assertEquals(enumRestTuple.toString(), "[33,\"Sri Lanka\",\"United States\",\"Sri Lanka\",\"Sri Lanka\"]");
+    test:assertEquals(unionRestTuple.toString(), "[22,1,\"a\",2,\"b\"]");
+    test:assertEquals(mapArrayRestTuple.toString(), "[\"map[]\",[{\"a\":\"true\",\"b\":\"bar\"},{\"c\":\"2\"," +
+    "\"d\":\"12.34\",\"e\":\"[1,2,3]\"}],[{\"a\":\"true\",\"b\":\"bar\"},{\"c\":\"2\",\"d\":\"12.34\"," +
+    "\"e\":\"[1,2,3]\"}]]");
+    test:assertEquals(recordArrayRestTuple.toString(), "[\"record[]\",[{\"name\":\"John Doe\",\"age\":22," +
+    "\"subjects\":[\"English\",\"Science\"],\"marks\":{\"English\":85,\"Science\":90}},{\"name\":\"Jane Doe\"," +
+    "\"age\":27,\"subjects\":[\"Maths\",\"History\"],\"marks\":{\"Maths\":88,\"History\":97}}]," +
+    "[{\"name\":\"John Doe\",\"age\":22,\"subjects\":[\"English\",\"Science\"],\"marks\":{\"English\":85," +
+    "\"Science\":90}},{\"name\":\"Jane Doe\",\"age\":27,\"subjects\":[\"Maths\",\"History\"]," +
+    "\"marks\":{\"Maths\":88,\"History\":97}}]]");
 }

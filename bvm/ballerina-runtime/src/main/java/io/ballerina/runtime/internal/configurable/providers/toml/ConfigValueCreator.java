@@ -129,9 +129,10 @@ public class ConfigValueCreator {
         int size = elements.size();
         ListInitialValueEntry.ExpressionEntry[] entries =
                 new ListInitialValueEntry.ExpressionEntry[size];
+        List<Type> tupleTypes = tupleType.getTupleTypes();
         for (int i = 0; i < size; i++) {
             Object value;
-            Type type = tupleType.getTupleTypes().get(i);
+            Type type = Utils.getTupleElementType(tupleTypes, i, tupleType);
             TomlValueNode valueNode = elements.get(i);
             if (isSimpleType(type.getTag())) {
                 value = createBalValue(type, valueNode);

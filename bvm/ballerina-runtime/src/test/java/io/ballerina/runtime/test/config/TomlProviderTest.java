@@ -131,7 +131,10 @@ public class TomlProviderTest {
                 {new VariableKey(
                         ROOT_MODULE, "decimalArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(TYPE_DECIMAL), 0, false), true), decimalArrayGetFunction,
-                        expectedDecimalArray}
+                        expectedDecimalArray},
+                {new VariableKey(ROOT_MODULE, "intArrWithSize", new BIntersectionType(ROOT_MODULE, new BType[]{},
+                        TypeCreator.createArrayType(TYPE_INT, 2), 0, false), true), intArrayGetFunction,
+                        new long[]{123456, 987654321}}
         };
     }
 

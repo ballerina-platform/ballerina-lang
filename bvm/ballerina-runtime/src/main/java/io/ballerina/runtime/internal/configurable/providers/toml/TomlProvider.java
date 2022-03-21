@@ -434,13 +434,13 @@ public class TomlProvider implements ConfigProvider {
         List<Type> tupleElementTypes = tupleType.getTupleTypes();
         int tomlSize = elements.size();
         int tupleSize = tupleElementTypes.size();
-        if (tomlSize != tupleSize) {
+        if (tomlSize != tupleSize && tupleType.getRestType() == null) {
             invalidTomlLines.add(value.location().lineRange());
             throw new ConfigException(CONFIG_ARRAY_SIZE_MISMATCH, getLineRange(value), variableName, tupleSize,
                     tomlSize);
         }
-        for (int i = 0; i < tupleSize; i++) {
-            Type elementType = tupleElementTypes.get(i);
+        for (int i = 0; i < tomlSize; i++) {
+            Type elementType = Utils.getTupleElementType(tupleElementTypes, i, tupleType);
             TomlValueNode tomlElement = elements.get(i);
             String elementName = variableName + "[" + i + "]";
             if (isSimpleType(elementType.getTag()) || isXMLType(elementType)) {
@@ -741,7 +741,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateArraySize(TomlNode tomlValue, String variableName, ArrayType arrayType, int tomlArraySize) {
         int arraySize = arrayType.getSize();
-        if (arraySize < tomlArraySize && arrayType.getState() != ArrayType.ArrayState.OPEN) {
+        if (arraySize != tomlArraySize && arrayType.getState() != ArrayType.ArrayState.OPEN) {
             invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_ARRAY_SIZE_MISMATCH, getLineRange(tomlValue), variableName, arraySize,
                     tomlArraySize);

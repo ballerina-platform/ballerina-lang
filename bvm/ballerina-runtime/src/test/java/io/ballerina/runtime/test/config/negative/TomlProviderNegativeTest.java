@@ -689,13 +689,13 @@ public class TomlProviderNegativeTest {
     }
 
     @Test(dataProvider = "tuple-negative-tests")
-    public void testTupleNegativeConfig(List<Type> elements, String tomlFileName, String errorMsg, int warnCount) {
-        TupleType tupleType = TypeCreator.createTupleType(elements, null, 0, true);
+    public void testTupleNegativeConfig(List<Type> elements, String tomlFileName, String errorMsg, Type restType) {
+        TupleType tupleType = TypeCreator.createTupleType(elements, restType, 0, true);
         VariableKey tupleVar = new VariableKey(ROOT_MODULE, "tupleVar",
                 new BIntersectionType(ROOT_MODULE, new Type[]{tupleType, PredefinedTypes.TYPE_READONLY}, tupleType, 0,
                         true), true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tupleVar}));
-        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1, warnCount);
+        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1, 0);
     }
 
     @DataProvider(name = "tuple-negative-tests")
@@ -703,18 +703,22 @@ public class TomlProviderNegativeTest {
         List<Type> simpleTypes = List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING);
         return new Object[][]{
                 {simpleTypes, "TupleTypeError", "[TupleTypeError.toml:(1:12,1:33)] configurable variable 'tupleVar' " +
-                        "is expected to be of type '[int,string] & readonly', but found 'string'", 0},
+                        "is expected to be of type '[int,string] & readonly', but found 'string'", null},
                 {simpleTypes, "TupleStructureError", "[TupleStructureError.toml:(1:1,1:35)] configurable variable " +
-                        "'tupleVar' is expected to be of type '[int,string] & readonly', but found 'record'", 0},
+                        "'tupleVar' is expected to be of type '[int,string] & readonly', but found 'record'", null},
                 {simpleTypes, "TupleElementStructure", "[TupleElementStructure.toml:(1:13,1:24)] configurable " +
-                        "variable 'tupleVar[0]' is expected to be of type 'int', but found 'record'", 0},
+                        "variable 'tupleVar[0]' is expected to be of type 'int', but found 'record'", null},
                 {simpleTypes, "TupleElementType", "[TupleElementType.toml:(1:16,1:17)] configurable variable " +
-                        "'tupleVar[1]' is expected to be of type 'string', but found 'int'", 0},
+                        "'tupleVar[1]' is expected to be of type 'string', but found 'int'", null},
                 {simpleTypes, "TupleWrongSize", "[TupleWrongSize.toml:(1:12,1:29)] the array size for configurable " +
-                        "variable 'tupleVar' is expected to be '2', but found '3'", 0},
+                        "variable 'tupleVar' is expected to be '2', but found '3'", null},
                 {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BYTE), "TupleByteRange", "[TupleByteRange" +
                         ".toml:(1:18,1:21)] value provided for byte variable 'tupleVar[1]' is out of range. Expected " +
-                        "range is (0-255), found '278'", 0},
+                        "range is (0-255), found '278'", null},
+                {simpleTypes, "TupleRestTypeMisMatch", "[TupleRestTypeMisMatch.toml:(1:25,1:28)] configurable " +
+                        "variable 'tupleVar[2]' is expected to be of type 'int', but found 'float'",
+                        PredefinedTypes.TYPE_INT},
+
         };
     }
 
