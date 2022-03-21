@@ -696,6 +696,7 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
+            case TypeTags.TUPLE_TAG:
                 visitedNodes.add(tomlValue);
                 validatePrimitiveArray(tomlValue, variableName, arrayType);
                 break;
@@ -804,6 +805,9 @@ public class TomlProvider implements ConfigProvider {
                 case TypeTags.ARRAY_TAG:
                     validateArrayValue(tomlValueNode, variableName, (ArrayType) elementType);
                     break;
+                case TypeTags.TUPLE_TAG:
+                    validateTupleValue(tomlValueNode, variableName, (TupleType) elementType);
+                    break;
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.UNION_TAG:
                     validateUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
@@ -860,17 +864,26 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private TomlNode validateAndGetArrayKeyValue(TomlNode value, Type type, String variableName) {
-        if (getEffectiveType(type).getTag() == TypeTags.ARRAY_TAG) {
-            Type elementType = Utils.getEffectiveType(((BArrayType) getEffectiveType(type)).getElementType());
-            if (Utils.isSimpleArray(elementType)) {
-                if (value.kind() != TomlType.KEY_VALUE) {
-                    invalidTomlLines.add(value.location().lineRange());
-                    throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(value), variableName,
-                            type, getTomlTypeString(value));
+        visitedNodes.add(value);
+        switch (type.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                Type elementType = Utils.getEffectiveType(((BArrayType) getEffectiveType(type)).getElementType());
+                if (Utils.isSimpleArray(elementType)) {
+                    if (value.kind() != TomlType.KEY_VALUE) {
+                        invalidTomlLines.add(value.location().lineRange());
+                        throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(value), variableName,
+                                type, getTomlTypeString(value));
+                    }
+                    return ((TomlKeyValueNode) value).value();
                 }
-                visitedNodes.add(value);
-                value = ((TomlKeyValueNode) value).value();
-            }
+                break;
+            case TypeTags.INTERSECTION_TAG:
+                return validateAndGetArrayKeyValue(value, ((BIntersectionType) type).getEffectiveType(), variableName);
+            case TypeTags.TUPLE_TAG:
+                if (value.kind() == TomlType.KEY_VALUE) {
+                    return ((TomlKeyValueNode) value).value();
+                }
+                break;
         }
         return value;
     }

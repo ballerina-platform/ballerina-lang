@@ -110,8 +110,7 @@ public class ConfigValueCreator {
             case TypeTags.XML_TEXT_TAG:
                 return createBalValue(type, ((TomlKeyValueNode) tomlValue).value());
             case TypeTags.TUPLE_TAG:
-                TomlValueNode value = ((TomlKeyValueNode) tomlValue).value();
-                return createTupleValue((TomlArrayValueNode) value, (TupleType) type);
+                return createTupleValue((TomlArrayValueNode) retrieveArrayKeyValue(tomlValue, type), (TupleType) type);
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -164,6 +163,7 @@ public class ConfigValueCreator {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
+            case TypeTags.TUPLE_TAG:
                 return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
                         getEffectiveType(arrayType.getElementType()));
             case TypeTags.ARRAY_TAG:
@@ -214,6 +214,9 @@ public class ConfigValueCreator {
                 case TypeTags.UNION_TAG:
                     balValue = createUnionValue(tomlValueNode, (BUnionType) elementType);
                     break;
+                case TypeTags.TUPLE_TAG:
+                    balValue = createTupleValue((TomlArrayValueNode) tomlValueNode, (TupleType) elementType);
+                    break;
                 default:
                     balValue = createBalValue(elementType, arrayList.get(i));
             }
@@ -254,6 +257,9 @@ public class ConfigValueCreator {
             if (Utils.isSimpleArray(elementType)) {
                 value = ((TomlKeyValueNode) value).value();
             }
+        }
+        if (getEffectiveType(type).getTag() == TypeTags.TUPLE_TAG && value.kind() == TomlType.KEY_VALUE) {
+            value = ((TomlKeyValueNode) value).value();
         }
         return value;
     }

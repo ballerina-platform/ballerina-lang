@@ -484,6 +484,8 @@ public class Utils {
                 return isSimpleArray(((IntersectionType) elementType).getEffectiveType());
             case TypeTags.ARRAY_TAG:
                 return isSimpleArray(((ArrayType) elementType).getElementType());
+            case TypeTags.TUPLE_TAG:
+                return true;
             default:
                 return isSimpleType(elementType.getTag()) || isXMLType(elementType);
         }

@@ -50,3 +50,39 @@ recordArrayRestTuple = ["record[]",   [
     {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
   ]
 ]
+
+tupleArray = [[111, {a = 1, b = 2}], [222, {c = 3, d = 4}]]
+tupleOfTuple = [333, [444, {e = 5, f = 6}]]
+unionOfTuple = [444, {m = 3, n = 4}]
+
+[mapOfTuple] 
+g = [555, {h = 5, i = 6}]
+j = [666, {k = 5, l = 6}]
+
+[recordOfTuple]
+id = 777
+t = [888, {m = 7, n = 8}]
+
+[[tableOfTuple]]
+id = 999
+t = [111, {m = 9, n = 0}]
+
+[[tableOfTuple]]
+id = 222
+t = [333, {m = 1, n = 2}]
+
+[[mapArrayOfTuple]]
+g = [555, {h = 5, i = 6}]
+j = [666, {k = 5, l = 6}]
+
+[[mapArrayOfTuple]]
+a = [555, {b = 5, c = 6}]
+d = [666, {e = 5, f = 6}]
+
+[[recordArrayOfTuple]]
+id = 777
+t = [888, {m = 7, n = 8}]
+
+[[recordArrayOfTuple]]
+id = 111
+t = [222, {m = 4, n = 9}]

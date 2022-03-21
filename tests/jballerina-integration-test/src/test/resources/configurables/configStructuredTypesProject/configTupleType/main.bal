@@ -60,6 +60,23 @@ configurable [int, int|string...] unionRestTuple = ?;
 configurable [string, map<string>[]...] mapArrayRestTuple = ?;
 configurable [string, Student[]...] recordArrayRestTuple = ?;
 
+type Tuple [int, map<int>];
+
+configurable Tuple[] tupleArray = ?;
+configurable [int, Tuple] tupleOfTuple = ?;
+configurable map<Tuple> mapOfTuple = ?;
+
+type Record record {|
+    int id;
+    Tuple t;
+|};
+
+configurable Record recordOfTuple = ?;
+configurable table<Record> tableOfTuple = ?;
+configurable int|Tuple unionOfTuple = ?;
+configurable map<Tuple>[] mapArrayOfTuple = ?;
+configurable Record[] recordArrayOfTuple = ?;
+
 public function main() {
     testTuples();
     util:print("Tests passed");
@@ -116,4 +133,17 @@ function testTuples() {
     "[{\"name\":\"John Doe\",\"age\":22,\"subjects\":[\"English\",\"Science\"],\"marks\":{\"English\":85," +
     "\"Science\":90}},{\"name\":\"Jane Doe\",\"age\":27,\"subjects\":[\"Maths\",\"History\"]," +
     "\"marks\":{\"Maths\":88,\"History\":97}}]]");
+
+    // Other types contain tuple type elements 
+    test:assertEquals(tupleArray.toString(), "[[111,{\"a\":1,\"b\":2}],[222,{\"c\":3,\"d\":4}]]");
+    test:assertEquals(tupleOfTuple.toString(), "[333,[444,{\"e\":5,\"f\":6}]]");
+    test:assertEquals(mapOfTuple.toString(), "{\"g\":[555,{\"h\":5,\"i\":6}],\"j\":[666,{\"k\":5,\"l\":6}]}");
+    test:assertEquals(recordOfTuple.toString(), "{\"id\":777,\"t\":[888,{\"m\":7,\"n\":8}]}");
+    test:assertEquals(tableOfTuple.toString(), "[{\"id\":999,\"t\":[111,{\"m\":9,\"n\":0}]},{\"id\":222," +
+    "\"t\":[333,{\"m\":1,\"n\":2}]}]");
+    test:assertEquals(unionOfTuple.toString(), "[444,{\"m\":3,\"n\":4}]");
+    test:assertEquals(mapArrayOfTuple.toString(), "[{\"g\":[555,{\"h\":5,\"i\":6}],\"j\":[666,{\"k\":5,\"l\":6}]}," +
+    "{\"a\":[555,{\"b\":5,\"c\":6}],\"d\":[666,{\"e\":5,\"f\":6}]}]");
+    test:assertEquals(recordArrayOfTuple.toString(), "[{\"id\":777,\"t\":[888,{\"m\":7,\"n\":8}]}," +
+    "{\"id\":111,\"t\":[222,{\"m\":4,\"n\":9}]}]");
 }
