@@ -57,6 +57,7 @@ public type BeforeGroupsConfig record {
 # Configuration set for AfterGroups functions.
 #
 # + value - List of groups after which the afterGroups function needs to be executed
+# + alwaysRun - Flag to indicate whether the afterGroups function needs to be executed irrespective of other dependent functions
 public type AfterGroupsConfig record {
     string[] value = [];
     boolean alwaysRun = false;

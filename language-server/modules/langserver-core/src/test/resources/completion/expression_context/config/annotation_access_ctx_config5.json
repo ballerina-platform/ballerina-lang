@@ -62,22 +62,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "strand",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "strand",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isolatedParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "isolatedParam",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",

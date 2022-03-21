@@ -1,0 +1,37 @@
+{
+  "line": 2,
+  "character": 17,
+  "expected": [
+    {
+      "title": "Add 'check' error",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 12
+            },
+            "end": {
+              "line": 2,
+              "character": 12
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 23
+            },
+            "end": {
+              "line": 0,
+              "character": 23
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    }
+  ]
+}

@@ -396,7 +396,7 @@ public class ServiceTemplateGenerator {
                             parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
-                        CommonUtil.getDefaultValueForType(parameterSymbol.typeDescriptor()).orElse("") + "}");
+                        CommonUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor()).orElse("") + "}");
                 snippetIndex += 1;
             }
             listenerInitArgs = String.join(",", args);
@@ -471,7 +471,7 @@ public class ServiceTemplateGenerator {
         if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = methodSymbol.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                Optional<String> defaultReturnValueForType = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+                Optional<String> defaultReturnValueForType = CommonUtil.getDefaultPlaceholderForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (CommonKeys.PARANTHESES_KEY.equals(defaultReturnValue)) {

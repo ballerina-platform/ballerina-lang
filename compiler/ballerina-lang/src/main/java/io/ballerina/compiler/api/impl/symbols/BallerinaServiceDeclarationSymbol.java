@@ -48,6 +48,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.compiler.api.impl.util.SymbolUtils.unescapeUnicode;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 
 /**
@@ -247,6 +248,6 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
         if (name.equals(symbolName)) {
             return true;
         }
-        return unescapedUnicode(name).equals(unescapedUnicode(symbolName));
+        return unescapeUnicode(name).equals(unescapeUnicode(symbolName));
     }
 }

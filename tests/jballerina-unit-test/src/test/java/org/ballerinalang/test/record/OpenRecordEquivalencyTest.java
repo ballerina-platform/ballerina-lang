@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,97 +41,97 @@ public class OpenRecordEquivalencyTest {
 
     @Test(description = "Test equivalence of records that are in the same package")
     public void testEqOfPrivateStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPrivateStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPrivateStructsInSamePackage");
 
-        Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
+        Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalence of public records that are in the same package")
     public void testEqOfPublicStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPublicStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testEquivalenceOfPublicStructsInSamePackage");
 
-        Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
+        Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalence of public records that are in the same package. " +
             "Equivalency test is performed in another package.")
     public void testEqOfPublicStructs() {
-        BValue[] returns = BRunUtil.invoke(compileResult,
-                                           "testEqOfPublicStructs");
+        Object returns = BRunUtil.invoke(compileResult,
+                "testEqOfPublicStructs");
 
-        Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
+        Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalency of public records that are in two different packages")
     public void testEqOfPublicStructs1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs1");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs1");
 
-        Assert.assertEquals(returns[0].stringValue(), "234-56-1234:employee");
+        Assert.assertEquals(returns.toString(), "234-56-1234:employee");
     }
 
     @Test(description = "Test equivalency of public records that are in two different packages")
     public void testEqOfPublicStructs2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs2");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicStructs2");
 
-        Assert.assertEquals(returns[0].stringValue(), "234-56-3345:employee");
+        Assert.assertEquals(returns.toString(), "234-56-3345:employee");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPrivateStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPrivateStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPrivateStructsInSamePackage");
 
-        Assert.assertEquals(returns[0].stringValue(), "ttt");
+        Assert.assertEquals(returns.toString(), "ttt");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPublicStructsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructsInSamePackage");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructsInSamePackage");
 
-        Assert.assertEquals(returns[0].stringValue(), "Skyhigh");
+        Assert.assertEquals(returns.toString(), "Skyhigh");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPublicStructs() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs");
 
-        Assert.assertEquals(returns[0].stringValue(), "Skytop");
+        Assert.assertEquals(returns.toString(), "Skytop");
     }
 
     @Test(description = "Test runtime equivalency of records")
     public void testRuntimeEqPublicStructs1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
 
-        Assert.assertEquals(returns[0].stringValue(), "Brandon");
+        Assert.assertEquals(returns.toString(), "Brandon");
     }
 
     @Test(description = "Test case for record equivalence")
     public void testRecordEquivalence() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordEquivalence");
-        BMap foo = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testRecordEquivalence");
+        BMap foo = (BMap) returns;
 
         Assert.assertEquals(foo.size(), 7);
-        Assert.assertEquals(foo.get("a").stringValue(), "A");
-        Assert.assertEquals(foo.get("b").stringValue(), "B");
-        Assert.assertEquals(foo.get("c").stringValue(), "C");
-        Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
-        Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
-        Assert.assertEquals(foo.get("f").stringValue(), "rest field");
-        Assert.assertNull(foo.get("p"));
+        Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "A");
+        Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "B");
+        Assert.assertEquals(foo.get(StringUtils.fromString("c")).toString(), "C");
+        Assert.assertEquals((foo.get(StringUtils.fromString("d"))), 10L);
+        Assert.assertEquals((foo.get(StringUtils.fromString("e"))), 0.0D);
+        Assert.assertEquals(foo.get(StringUtils.fromString("f")).toString(), "rest field");
+        Assert.assertNull(foo.get(StringUtils.fromString("p")));
     }
 
     @Test(description = "Test case for using records with unordered fields in a match")
     public void testUnorderedFieldRecordsInAMatch() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testUnorderedFieldRecordsInAMatch");
-        BMap foo = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(compileResult, "testUnorderedFieldRecordsInAMatch");
+        BMap foo = (BMap) returns;
 
         Assert.assertEquals(foo.size(), 7);
-        Assert.assertEquals(foo.get("a").stringValue(), "A");
-        Assert.assertEquals(foo.get("b").stringValue(), "B");
-        Assert.assertEquals(foo.get("c").stringValue(), "C");
-        Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
-        Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
-        Assert.assertEquals(foo.get("f").stringValue(), "rest field");
-        Assert.assertNull(foo.get("p"));
+        Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "A");
+        Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "B");
+        Assert.assertEquals(foo.get(StringUtils.fromString("c")).toString(), "C");
+        Assert.assertEquals((foo.get(StringUtils.fromString("d"))), 10L);
+        Assert.assertEquals((foo.get(StringUtils.fromString("e"))), 0.0D);
+        Assert.assertEquals(foo.get(StringUtils.fromString("f")).toString(), "rest field");
+        Assert.assertNull(foo.get(StringUtils.fromString("p")));
     }
 
     @AfterClass
