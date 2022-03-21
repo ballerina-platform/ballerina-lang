@@ -291,7 +291,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<Package> packageList = LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages();
+        List<Package> packageList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
         packageList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
