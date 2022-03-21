@@ -768,7 +768,8 @@ public class TestUtil {
     }
 
     public static Optional<Package> compileAndGetPackage(Path sourcePath, WorkspaceManager workspaceManager,
-                                                         LanguageServerContext serverContext) throws IOException, WorkspaceDocumentException {
+                                                         LanguageServerContext serverContext) throws IOException,
+                                                         WorkspaceDocumentException {
         DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
                 workspaceManager,
                 LSContextOperation.TXT_DID_OPEN,

@@ -1,4 +1,0 @@
-import 
-
-function testFunction() {
-}

@@ -59,22 +59,15 @@ public class LSPackageLoader {
     }
 
     public LSPackageLoader(LanguageServerContext context) {
-        distRepoPackages = this.getPackagesFromDistRepo();
+        distRepoPackages = this.getDistributionRepoPackages();
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 
-    private List<Package> getPackagesFromDistRepo() {
-        if (this.distRepoPackages != null) {
-            return this.distRepoPackages;
-        }
-        DefaultEnvironment environment = new DefaultEnvironment();
-        // Creating a Ballerina distribution instance
-        BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
-        PackageRepository packageRepository = ballerinaDistribution.packageRepository();
-        List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
-        return Collections.unmodifiableList(getPackagesFromRepository(packageRepository, skippedLangLibs));
-    }
-
+    /**
+     * Get the local repo packages.
+     *
+     * @return {@link List} of local repo packages
+     */
     public List<Package> getLocalRepoPackages(DocumentServiceContext ctx) {
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
@@ -86,6 +79,11 @@ public class LSPackageLoader {
         return getPackagesFromRepository(localRepository, Collections.emptyList());
     }
 
+    /**
+     * Get the remote repo packages.
+     *
+     * @return {@link List} of remote repo packages
+     */
     public List<Package> getRemoteRepoPackages(DocumentServiceContext ctx) {
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
@@ -95,6 +93,37 @@ public class LSPackageLoader {
                 .from(project.get().projectEnvironmentContext().environment());
         PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
         return getPackagesFromRepository(remoteRepository, Collections.emptyList());
+    }
+
+    /**
+     * Get the distribution repo packages.
+     * Here the distRepoPackages does not contain the langlib packages and ballerinai packages
+     *
+     * @return {@link List} of distribution repo packages
+     */
+    public List<Package> getDistributionRepoPackages() {
+        if (this.distRepoPackages != null) {
+            return this.distRepoPackages;
+        }
+        DefaultEnvironment environment = new DefaultEnvironment();
+        // Creating a Ballerina distribution instance
+        BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
+        PackageRepository packageRepository = ballerinaDistribution.packageRepository();
+        List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
+        return Collections.unmodifiableList(getPackagesFromRepository(packageRepository, skippedLangLibs));
+    }
+
+    /**
+     * Get all visible repository and distribution packages.
+     *
+     * @return {@link List} packages
+     */
+    public List<Package> getAllVisiblePackages(DocumentServiceContext ctx) {
+        List<Package> packagesList = new ArrayList<>();
+        packagesList.addAll(this.getDistributionRepoPackages());
+        packagesList.addAll(this.getRemoteRepoPackages(ctx));
+        packagesList.addAll(this.getLocalRepoPackages(ctx));
+        return packagesList;
     }
 
     private List<Package> getPackagesFromRepository(PackageRepository repository, List<String> skipList) {
@@ -124,24 +153,6 @@ public class LSPackageLoader {
         });
 
         return packages;
-    }
-
-    /**
-     * Get the distribution repo packages.
-     * Here the distRepoPackages does not contain the langlib packages and ballerinai packages
-     *
-     * @return {@link List} of distribution repo packages
-     */
-    public List<Package> getDistributionRepoPackages() {
-        return this.distRepoPackages;
-    }
-
-    public List<Package> getAllVisiblePackages(DocumentServiceContext ctx) {
-        List<Package> packagesList = new ArrayList<>();
-        packagesList.addAll(this.getPackagesFromDistRepo());
-        packagesList.addAll(this.getRemoteRepoPackages(ctx));
-        packagesList.addAll(this.getLocalRepoPackages(ctx));
-        return packagesList;
     }
 
 }

@@ -277,6 +277,462 @@
       "sortText": "G",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerinax/twitter",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CG",
+      "filterText": "twitter",
+      "insertText": "twitter",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/twitter;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/file",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "file",
+      "insertText": "file",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/file;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/oauth2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "oauth2",
+      "insertText": "oauth2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/oauth2;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/http",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "http",
+      "insertText": "http",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/observe",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "observe",
+      "insertText": "observe",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/observe;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/log",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "log",
+      "insertText": "log",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/log;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/io",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "io",
+      "insertText": "io",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/io;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/url",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "url",
+      "insertText": "url",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/url;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/os",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "os",
+      "insertText": "os",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/os;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/mime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "mime",
+      "insertText": "mime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/mime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/regex",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "regex",
+      "insertText": "regex",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/regex;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/task",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "task",
+      "insertText": "task",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/task;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/crypto",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "crypto",
+      "insertText": "crypto",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/crypto;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/uuid",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "uuid",
+      "insertText": "uuid",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/uuid;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jwt",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "jwt",
+      "insertText": "jwt",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jwt;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/cache",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "cache",
+      "insertText": "cache",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/cache;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/auth",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "auth",
+      "insertText": "auth",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/auth;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/time",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CF",
+      "filterText": "time",
+      "insertText": "time",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/time;\n"
+        }
+      ]
+    },
+    {
+      "label": "malintha/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CG",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import malintha/project1;\n"
+        }
+      ]
     }
   ]
 }
