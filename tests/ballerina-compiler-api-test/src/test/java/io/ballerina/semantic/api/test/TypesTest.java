@@ -175,12 +175,13 @@ public class TypesTest {
     @DataProvider(name = "TypesByNameProvider")
     private Object[][] getTypesByName() {
         return new Object[][] {
+                // `foo` module
                 {"foo", "ErrorDetail1", TYPE_DEFINITION, RECORD},
                 {"foo", "MyErr", TYPE_DEFINITION, ERROR},
                 {"foo", "MyInt", TYPE_DEFINITION, UNION},
                 {"foo", "Language", ENUM, UNION},
                 {"foo", "SI", ENUM_MEMBER, SINGLETON},
-
+                // `bar` module
                 {"bar", "MyBoolean", TYPE_DEFINITION, UNION},
                 {"bar", "MyFloat", TYPE_DEFINITION, DECIMAL},
                 {"bar", "Student", TYPE_DEFINITION, RECORD},
@@ -194,7 +195,6 @@ public class TypesTest {
                 {"bar", "PersonClass", CLASS, OBJECT},
         };
     }
-
 
     @Test
     public void testGetTypesInFooModule() {
@@ -228,7 +228,6 @@ public class TypesTest {
                 {"RED", ENUM_MEMBER, SINGLETON},
                 {"GREEN", ENUM_MEMBER, SINGLETON},
                 {"BLUE", ENUM_MEMBER, SINGLETON},
-
                 // more_typedefs.bal
                 {"Person", TYPE_DEFINITION, RECORD},
                 {"Employee", TYPE_DEFINITION, RECORD},
@@ -357,5 +356,4 @@ public class TypesTest {
         }
         return Optional.empty();
     }
-
 }

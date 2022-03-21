@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.ballerina.compiler.api;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
@@ -47,7 +46,7 @@ import java.util.Optional;
  * Represents the Types of a semantic model.
  *
  * @since 2.0.0
-* */
+ */
 
 public class Types {
 
@@ -181,7 +180,7 @@ public class Types {
             for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
                 BSymbol bSymbol = scopeEntry.symbol;
                 if (isValidTypeDef(bSymbol)) {
-                    String typeDefName = bSymbol.getName().getValue();
+                    String typeDefName = bSymbol.getOriginalName().getValue();
                     typeDefSymbols.put(typeDefName, symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
                 }
             }
@@ -204,7 +203,8 @@ public class Types {
                 for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
                     BSymbol bSymbol = scopeEntry.symbol;
                     if (isValidTypeDef(bSymbol)) {
-                        String typeDefName = packageSymbol.getName().getValue() + ":" + bSymbol.getName().getValue();
+                        String typeDefName =
+                                packageSymbol.getOriginalName().getValue() + ":" + bSymbol.getOriginalName().getValue();
                         typeDefSymbols.put(typeDefName, symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
                     } else if (bSymbol.tag == SymTag.PACKAGE) {
                         findTypeDefsInPackageSymbol(bSymbol, typeDefSymbols);
