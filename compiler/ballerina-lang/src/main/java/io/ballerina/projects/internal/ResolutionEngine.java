@@ -124,7 +124,7 @@ public class ResolutionEngine {
                 Optional<BlendedManifest.Dependency> blendedDepOptional = blendedManifest.dependency(
                         depPkgDesc.org(), depPkgDesc.name());
                 if (blendedDepOptional.isPresent()) {
-                    errorNode = blendedDepOptional.get().origin().equals(BlendedManifest.DependencyOrigin.ERROR);
+                    errorNode = blendedDepOptional.get().isError();
                 }
 
                 // If the package version is not null, use it
@@ -146,7 +146,7 @@ public class ResolutionEngine {
                         depPkgDesc.org(), depPkgDesc.name());
                 depVersion = blendedDep.version();
                 repository = blendedDep.repository();
-                errorNode = blendedDep.origin().equals(BlendedManifest.DependencyOrigin.ERROR);
+                errorNode = blendedDep.isError();
             } else {
                 throw new IllegalStateException("Unsupported direct dependency kind: " +
                         directPkgDependency.dependencyKind());
@@ -328,7 +328,7 @@ public class ResolutionEngine {
                     unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
         }
 
-        if (blendedDep.origin().equals(BlendedManifest.DependencyOrigin.ERROR)) {
+        if (blendedDep.isError()) {
             // The conflict is already identified when creating the BlendedManifest.
             // So we just return a null.
             return null;
