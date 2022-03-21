@@ -126,7 +126,7 @@ public class BlendedManifest {
                     diagnostics.add(diagnostic);
                     Dependency newDep = new Dependency(existingDep.org(), existingDep.name(),
                             existingDep.version(), existingDep.relation, existingDep.repository,
-                            existingDep.modules, DependencyOrigin.ERROR);
+                            existingDep.modules, existingDep.origin, true);
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
                 }
             }
@@ -211,6 +211,7 @@ public class BlendedManifest {
         private final Repository repository;
         private final Collection<String> modules;
         private final DependencyOrigin origin;
+        private final boolean isError;
 
 
         private Dependency(PackageOrg org,
@@ -226,6 +227,25 @@ public class BlendedManifest {
             this.relation = relation;
             this.modules = modules;
             this.origin = origin;
+            this.isError = false;
+        }
+
+        private Dependency(PackageOrg org,
+                           PackageName name,
+                           PackageVersion version,
+                           DependencyRelation relation,
+                           Repository repository,
+                           Collection<String> modules,
+                           DependencyOrigin origin,
+                           boolean isError) {
+            this.org = org;
+            this.name = name;
+            this.version = version;
+            this.repository = repository;
+            this.relation = relation;
+            this.modules = modules;
+            this.origin = origin;
+            this.isError = isError;
         }
 
         public PackageName name() {
@@ -259,6 +279,10 @@ public class BlendedManifest {
         public Collection<String> moduleNames() {
             return modules;
         }
+
+        public boolean isError() {
+            return isError;
+        }
     }
 
     /**
@@ -284,12 +308,7 @@ public class BlendedManifest {
         /**
          * Dependencies specified in Dependencies.toml file.
          */
-        LOCKED,
-
-        /**
-         * Dependencies with an error due to a version incompatibility.
-         */
-        ERROR
+        LOCKED
     }
 
     /**
