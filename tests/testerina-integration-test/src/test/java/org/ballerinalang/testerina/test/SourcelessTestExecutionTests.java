@@ -25,8 +25,8 @@ public class SourcelessTestExecutionTests extends BaseTestCase {
     // Scenario : Modules only have tests and no sourcefiles. Default module doesnt have sources or tests
     @Test()
     public void test_SourcelessModule_TestExecution() throws BallerinaTestException {
-        String msg1 = "sourcelessModulesTest.module1\n\n\n\t\t1 passing";
-        String msg2 = "sourcelessModulesTest.module1\n\n\n\t\t1 passing";
+        String msg1 = "[pass] test1";
+        String msg2 = "[pass] test2";
         String[] args = mergeCoverageArgs(new String[]{"sourceless-modules-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -38,8 +38,8 @@ public class SourcelessTestExecutionTests extends BaseTestCase {
     // Scenario : Modules only have tests and no sourcefiles. Default module doesnt have tests but has a source file
     @Test()
     public void test_DefaultModuleSourceOnly_TestExecution() throws BallerinaTestException {
-        String msg1 = "defaultModuleSource.module1\n\n\n\t\t1 passing";
-        String msg2 = "defaultModuleSource.module2\n\n\n\t\t1 passing";
+        String msg1 = "[pass] test3";
+        String msg2 = "[pass] test4";
         String[] args = mergeCoverageArgs(new String[]{"default-module-source-only-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -51,9 +51,9 @@ public class SourcelessTestExecutionTests extends BaseTestCase {
 
     @Test()
     public void test_SourcelessProject_TestExecution() throws BallerinaTestException {
-        String msg1 = "sourcelessProjectTest\n\n\n\t\t1 passing";
-        String msg2 = "sourcelessProjectTest.module1\n\n\n\t\t1 passing";
-        String msg3 = "sourcelessProjectTest.module2\n\n\n\t\t1 passing";
+        String msg1 = "[pass] test5";
+        String msg2 = "[pass] test6";
+        String msg3 = "[pass] test7";
         String[] args = mergeCoverageArgs(new String[]{"sourceless-project-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
