@@ -784,7 +784,7 @@ public class AnnotationDesugar {
 
         pkgNode.functions.add(function);
         pkgNode.topLevelNodes.add(function);
-        pkgNode.lambdaFunctions.add(lambdaFunction);
+        lambdaFunction.function = desugar.rewrite(lambdaFunction.function, lambdaFunction.capturedClosureEnv);
         return lambdaFunction;
     }
 

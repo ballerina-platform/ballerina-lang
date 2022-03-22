@@ -50,8 +50,8 @@ public class Reduce {
         Object[] keys = m.getKeys();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand, accum.get(), true,
-                                m.get(keys[index.incrementAndGet()]), true},
+                        () -> new Object[]{parentStrand, accum.get(),
+                                m.get(keys[index.incrementAndGet()])},
                         accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }
