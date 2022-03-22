@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create variable with 'record {| string a; int b; |}'",
+            "title": "Create variable with 'record {|string a; int b;|}'",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "record {| string a; int b; |} mappingResult = "
+                    "newText": "record {|string a; int b;|} mappingResult = "
                 }
             ]
         }

@@ -54,6 +54,14 @@ function test7() {
     assertEquality(true, foo:anyFunction2(test0) is function (string, int) returns string);
 }
 
+public function fn() returns int => foo:func();
+public function fn1() returns int => foo:func1();
+
+function test8() {
+    assertEquality(500, fn());
+    assertEquality(800, fn1());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {
