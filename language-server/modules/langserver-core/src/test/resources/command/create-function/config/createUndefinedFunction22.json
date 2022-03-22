@@ -2,12 +2,12 @@
   "arguments": {
     "node.range": {
       "start": {
-        "line": 3,
-        "character": 24
+        "line": 0,
+        "character": 8
       },
       "end": {
-        "line": 3,
-        "character": 45
+        "line": 0,
+        "character": 16
       }
     }
   },
@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 5,
-                    "character": 1
+                    "line": 0,
+                    "character": 17
                   },
                   "end": {
-                    "line": 5,
-                    "character": 1
+                    "line": 0,
+                    "character": 17
                   }
                 },
-                "newText": "\n\nfunction performAction(int result) returns json {\n    \n}"
+                "newText": "\n\nfunction getInt() returns int {\n    return 0;\n}\n"
               }
             ]
           }
