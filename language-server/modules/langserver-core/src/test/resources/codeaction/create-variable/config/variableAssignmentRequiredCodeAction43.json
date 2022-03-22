@@ -16,7 +16,7 @@
               "character": 4
             }
           },
-          "newText": "record {| int value; |}? next = "
+          "newText": "record {|int value;|}? next = "
         }
       ]
     }

@@ -129,7 +129,7 @@ public class DiagnosticsTest {
 
     private Object[][] getExpectedDiagnosticProperties() {
         return new Object[][] {
-                {"[string]|record {| string arg2; |}", UNION},
+                {"[string]|record {|string arg2;|}", UNION},
                 {"()", NIL},
                 {"map<string>", MAP},
                 {"map<$UndefinedType$>", MAP},
