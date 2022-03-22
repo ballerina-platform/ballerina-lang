@@ -1558,3 +1558,80 @@ function testSome9() {
     map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
     assertValueEquality(arr.some(func5), false);
 }
+
+function testEvery1() {
+    assertValueEquality([-1, 1].every(func1), false);
+    assertValueEquality([1, 3].every(func1), false);
+    assertValueEquality([5, 3].every(func1), true);
+    assertValueEquality([].every(func1), true);
+
+    int[] arr1 = [10, 3, 4, 5];
+    assertValueEquality(arr1.every(func1), true);
+    int[4] arr2 = [3, 2, 4, 5];
+    assertValueEquality(arr2.every(func1), false);
+    int[*] arr3 = [3, 2, 4, 5];
+    assertValueEquality(arr3.every(func1), false);
+}
+
+function testEvery2() {
+    assertValueEquality([1, 2].every(func2), false);
+    assertValueEquality([].every(func2), true);
+    assertValueEquality([1, 2, 3, "4"].every(func2), false);
+    assertValueEquality(["1", "2", "3", "4", "5"].every(func2), true);
+
+    (int|string)[] arr1 = ["1", 1, "str"];
+    assertValueEquality(arr1.every(func2), false);
+}
+
+function testEvery3() {
+    assertValueEquality(["1", "2", "3"].every(val => val is string), true);
+    assertValueEquality([error("MSG1"), error("MSG2")].every(val => val is error), true);
+    assertValueEquality([error("MSG1"), 23].every(val => val is error), false);
+}
+
+function testEvery4() {
+    assertValueEquality([1, 2, 3, 4].filter(val => val > 2).every(func1), true);
+    assertValueEquality([1, 2, 3, 4].filter(val => val > 1).every(func1), false);
+}
+
+function testEvery5() {
+    [int, string] arr1 = [2, "34"];
+    assertValueEquality(arr1.every(val => val is string), false);
+    [int, string, int...] arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.every(val => val is int || val is string), true);
+}
+
+function testEvery6() {
+    [int, string] & readonly arr1 = [2, "34"];
+    assertValueEquality(arr1.every(val => val is string), false);
+    [int, string, int...] & readonly arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.every(val => val is int || val is string), true);
+}
+
+function testEvery7() {
+    [int, string...] arr = [2];
+    assertValueEquality(arr.every(val => val is string), false);
+    arr.push("str1");
+    assertValueEquality(arr.every(val => val is string), false);
+}
+
+int[] globalArr1 = [1, 2, 3, 4];
+
+function fun6(int val) returns boolean {
+    _ = globalArr1.pop();
+    return val > 0;
+}
+
+function testModificationWithinEvery() {
+    _ = globalArr1.every(fun6); // runtime error
+}
+
+function testEvery8() {
+    map<int>[] arr = [{i: 200, j: 300}, {i: 20, j: 30}];
+    assertValueEquality(arr.every(func4), true);
+}
+
+function testEvery9() {
+    map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
+    assertValueEquality(arr.every(func5), false);
+}
