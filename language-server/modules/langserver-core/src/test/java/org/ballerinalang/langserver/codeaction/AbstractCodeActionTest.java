@@ -34,6 +34,7 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -53,7 +54,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public abstract class AbstractCodeActionTest extends AbstractLSTest {
-    
+
     private final JsonParser parser = new JsonParser();
 
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
@@ -68,7 +69,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String configJsonPath = getConfigJsonPath(config);
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(this.serviceEndpoint, sourcePath);
+        TestUtil.openDocument(getServiceEndpoint(), sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
@@ -155,11 +156,11 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr
                             + " in " + sourcePath);
         }
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+        TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
     }
 
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
-        return TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        return TestUtil.getCodeActionResponse(getServiceEndpoint(), sourcePath.toString(), range, codeActionContext);
     }
 
     /**
@@ -169,10 +170,11 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
      * @param source Source file name
      */
     public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        Endpoint endpoint = getServiceEndpoint();
         String configJsonPath = getConfigJsonPath(config);
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        TestUtil.openDocument(endpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
@@ -186,7 +188,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         Range range = new Range(pos, pos);
-        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), range, codeActionContext);
         for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
             JsonObject expected = element.getAsJsonObject();
             String notExpectedTitle = expected.get("title").getAsString();

@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.AbstractLSTest;
-import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
@@ -34,7 +33,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -50,9 +48,7 @@ import java.util.List;
  * Completion Test Interface.
  */
 public abstract class CompletionTest extends AbstractLSTest {
-    
-    protected Endpoint serviceEndpoint;
-    
+
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
     private final String configDir = "config";
@@ -75,7 +71,7 @@ public abstract class CompletionTest extends AbstractLSTest {
         boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-            // updateConfig(configJsonPath, configJsonObject, resultList, expectedList, responseItemList);
+//            updateConfig(configJsonPath, configJsonObject, resultList, expectedList, responseItemList);
             Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
@@ -92,10 +88,11 @@ public abstract class CompletionTest extends AbstractLSTest {
     }
 
     public String getResponse(Path sourcePath, Position position, String triggerChar) throws IOException {
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        Endpoint endpoint = getServiceEndpoint();
+        TestUtil.openDocument(endpoint, sourcePath);
         String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+                endpoint, triggerChar);
+        TestUtil.closeDocument(endpoint, sourcePath);
         return responseString;
     }
 
@@ -190,10 +187,9 @@ public abstract class CompletionTest extends AbstractLSTest {
     }
 
     protected void preLoadAndInit() throws InterruptedException {
-        BallerinaLanguageServer ls = new BallerinaLanguageServer();
-        this.serviceEndpoint = TestUtil.initializeLanguageSever(ls);
+
         ServiceTemplateGenerator serviceTemplateGenerator =
-                ServiceTemplateGenerator.getInstance(ls.getServerContext());
+                ServiceTemplateGenerator.getInstance(getLanguageServer().getServerContext());
         long initTime = System.currentTimeMillis();
         while (!serviceTemplateGenerator.initialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
             Thread.sleep(2000);
@@ -201,10 +197,5 @@ public abstract class CompletionTest extends AbstractLSTest {
         if (!serviceTemplateGenerator.initialized()) {
             Assert.fail("Service template generator initialization failed!");
         }
-    }
-    
-    @AfterClass
-    public void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }

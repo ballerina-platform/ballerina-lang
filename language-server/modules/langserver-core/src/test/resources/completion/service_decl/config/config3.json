@@ -309,439 +309,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerinax/twitter",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "twitter",
-      "insertText": "twitter",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/twitter;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/file",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "file",
-      "insertText": "file",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/file;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/oauth2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "oauth2",
-      "insertText": "oauth2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/oauth2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/http",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "http",
-      "insertText": "http",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/observe",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "observe",
-      "insertText": "observe",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/observe;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/log",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "log",
-      "insertText": "log",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/log;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/io",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "io",
-      "insertText": "io",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/io;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/url",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "url",
-      "insertText": "url",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/url;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/os",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "os",
-      "insertText": "os",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/os;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/mime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "mime",
-      "insertText": "mime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/regex",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "regex",
-      "insertText": "regex",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/regex;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/task",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "task",
-      "insertText": "task",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/task;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/crypto",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "crypto",
-      "insertText": "crypto",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/crypto;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/uuid",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "uuid",
-      "insertText": "uuid",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/uuid;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jwt",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "jwt",
-      "insertText": "jwt",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jwt;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/cache",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "cache",
-      "insertText": "cache",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/cache;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/auth",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "auth",
-      "insertText": "auth",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/auth;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/time",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "time",
-      "insertText": "time",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/time;\n"
-        }
-      ]
-    },
-    {
-      "label": "malintha/project1",
+      "label": "test/project1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
@@ -760,7 +328,79 @@
               "character": 0
             }
           },
-          "newText": "import malintha/project1;\n"
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
         }
       ]
     }
