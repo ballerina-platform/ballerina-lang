@@ -41,7 +41,8 @@ public class ExtractTypeCodeActionTest extends AbstractCodeActionTest {
                 {"extract_type_in_return_type_desc1.json", "extract_type_in_return_type_desc1.bal"},
                 {"extract_type_in_return_type_desc2.json", "extract_type_in_return_type_desc1.bal"},
                 {"extract_type_in_fn_body1.json", "extract_type_in_fn_body1.bal"},
-                {"extract_type_in_fn_body2.json", "extract_type_in_fn_body2.bal"}
+                {"extract_type_in_fn_body2.json", "extract_type_in_fn_body2.bal"},
+                {"extract_type_in_resource_fn1.json", "extract_type_in_resource_fn1.bal"}
         };
     }
 

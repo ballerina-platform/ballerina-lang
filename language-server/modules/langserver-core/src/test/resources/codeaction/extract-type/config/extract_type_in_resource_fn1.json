@@ -1,0 +1,37 @@
+{
+  "line": 9,
+  "character": 54,
+  "expected": [
+    {
+      "title": "Extract type",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 0
+            },
+            "end": {
+              "line": 7,
+              "character": 0
+            }
+          },
+          "newText": "type Record record {|\n    *Message;\n    string next;\n|};\n\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 41
+            },
+            "end": {
+              "line": 9,
+              "character": 74
+            }
+          },
+          "newText": "Record"
+        }
+      ]
+    }
+  ]
+}
