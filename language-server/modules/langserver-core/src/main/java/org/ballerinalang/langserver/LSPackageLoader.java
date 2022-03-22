@@ -48,6 +48,9 @@ public class LSPackageLoader {
             new LanguageServerContext.Key<>();
 
     private final List<Package> distRepoPackages;
+    private List<Package> remoteRepoPackages;
+    private List<Package> localRepoPackages;
+    //Todo: introduce caches for local and remote repos as well.
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -58,7 +61,7 @@ public class LSPackageLoader {
         return lsPackageLoader;
     }
 
-    public LSPackageLoader(LanguageServerContext context) {
+    private LSPackageLoader(LanguageServerContext context) {
         distRepoPackages = this.getDistributionRepoPackages();
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
@@ -68,15 +71,12 @@ public class LSPackageLoader {
      *
      * @return {@link List} of local repo packages
      */
-    public List<Package> getLocalRepoPackages(DocumentServiceContext ctx) {
-        Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        if (project.isEmpty()) {
-            return Collections.emptyList();
+    public List<Package> getLocalRepoPackages(PackageRepository repository) {
+        if (this.localRepoPackages != null) {
+            return this.localRepoPackages;
         }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
-        return getPackagesFromRepository(localRepository, Collections.emptyList());
+        this.localRepoPackages = getPackagesFromRepository(repository, Collections.emptyList());
+        return localRepoPackages;
     }
 
     /**
@@ -84,15 +84,12 @@ public class LSPackageLoader {
      *
      * @return {@link List} of remote repo packages
      */
-    public List<Package> getRemoteRepoPackages(DocumentServiceContext ctx) {
-        Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        if (project.isEmpty()) {
-            return Collections.emptyList();
+    public List<Package> getRemoteRepoPackages(PackageRepository repository) {
+        if (this.remoteRepoPackages != null) {
+            return this.remoteRepoPackages;
         }
-        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
-                .from(project.get().projectEnvironmentContext().environment());
-        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        return getPackagesFromRepository(remoteRepository, Collections.emptyList());
+        this.remoteRepoPackages = getPackagesFromRepository(repository, Collections.emptyList());
+        return this.remoteRepoPackages;
     }
 
     /**
@@ -121,8 +118,18 @@ public class LSPackageLoader {
     public List<Package> getAllVisiblePackages(DocumentServiceContext ctx) {
         List<Package> packagesList = new ArrayList<>();
         packagesList.addAll(this.getDistributionRepoPackages());
-        packagesList.addAll(this.getRemoteRepoPackages(ctx));
-        packagesList.addAll(this.getLocalRepoPackages(ctx));
+
+
+        Optional<Project> project = ctx.workspace().project(ctx.filePath());
+        if (project.isEmpty()) {
+            return Collections.emptyList();
+        }
+        BallerinaUserHome ballerinaUserHome = BallerinaUserHome
+                .from(project.get().projectEnvironmentContext().environment());
+        PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
+        PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
+        packagesList.addAll(this.getRemoteRepoPackages(remoteRepository));
+        packagesList.addAll(this.getLocalRepoPackages(localRepository));
         return packagesList;
     }
 

@@ -1,3 +1,20 @@
+/*
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver;
 
 import io.ballerina.projects.Package;
@@ -9,6 +26,7 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -21,25 +39,26 @@ import java.util.Map;
 /**
  * An abstract class for LS unit tests.
  *
- * @since 2201.0.3
+ * @since 2201.1.0
  */
+@PrepareForTest({LSPackageLoader.class})
 public abstract class AbstractLSTest {
 
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project1", "main.bal", "project2", "main.bal");
-    private static final Map<String, String> LOCAL_PROJECTS = 
+    private static final Map<String, String> LOCAL_PROJECTS =
             Map.of("local_project1", "main.bal", "local_project2", "main.bal");
     private static final List<Package> REMOTE_PACKAGES = new ArrayList<>();
     private static final List<Package> LOCAL_PACKAGES = new ArrayList<>();
 
-    protected Endpoint serviceEndpoint;
-
-    private LanguageServerContext lsContext;
+    private Endpoint serviceEndpoint;
 
     private LSPackageLoader lsPackageLoader;
 
+    private BallerinaLanguageServer languageServer;
+
     static {
         LanguageServerContext context = new LanguageServerContextImpl();
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer(context);
+        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
             REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS, languageServer.getWorkspaceManager(), context));
@@ -53,15 +72,14 @@ public abstract class AbstractLSTest {
 
     @BeforeClass
     public void init() throws Exception {
-        this.lsContext = new LanguageServerContextImpl();
-        BallerinaLanguageServer lsInstance = new BallerinaLanguageServer(this.lsContext);
-        this.serviceEndpoint = TestUtil.initializeLanguageSever(lsInstance);
+        this.languageServer = new BallerinaLanguageServer();
+        this.serviceEndpoint = TestUtil.initializeLanguageSever(this.languageServer);
         setUp();
     }
 
     public void setUp() {
         this.lsPackageLoader = Mockito.mock(LSPackageLoader.class);
-        lsContext.put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, lsPackageLoader);
+        this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
         Mockito.when(lsPackageLoader.getRemoteRepoPackages(Mockito.any())).thenReturn(REMOTE_PACKAGES);
         Mockito.when(lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(LOCAL_PACKAGES);
         Mockito.when(lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
@@ -70,7 +88,7 @@ public abstract class AbstractLSTest {
 
     private static List<Package> getPackages(Map<String, String> projects,
                                              WorkspaceManager workspaceManager,
-                                             LanguageServerContext context) 
+                                             LanguageServerContext context)
             throws WorkspaceDocumentException, IOException {
         List<Package> packages = new ArrayList<>();
         for (Map.Entry<String, String> entry : projects.entrySet()) {
@@ -83,13 +101,21 @@ public abstract class AbstractLSTest {
 
     @AfterClass
     public void cleanMocks() {
-        if (lsPackageLoader != null) {
-            Mockito.reset(lsPackageLoader);
+        if (this.lsPackageLoader != null) {
+            Mockito.reset(this.lsPackageLoader);
         }
     }
 
     @AfterClass
-    public void cleanupLanguageServer() {
+    public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
+    }
+
+    public BallerinaLanguageServer getLanguageServer() {
+        return this.languageServer;
+    }
+
+    public Endpoint getServiceEndpoint() {
+        return this.serviceEndpoint;
     }
 }
