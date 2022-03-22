@@ -86,9 +86,8 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         boolean isWithinFile = callExpr.get().functionName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
         if (isWithinFile) {
             String commandTitle = String.format(CommandConstants.CREATE_FUNCTION_TITLE, functionName);
-            CodeAction action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
+            Command command = new Command(commandTitle, CreateFunctionExecutor.COMMAND, args);
+            CodeAction action = createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
             action.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
             return Collections.singletonList(action);
         }

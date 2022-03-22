@@ -1307,11 +1307,10 @@ public class Types {
     }
 
     public static BType getReferredType(BType type) {
-        BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+            return getReferredType(((BTypeReferenceType) type).referredType);
         }
-        return constraint;
+        return type;
     }
 
     boolean isSelectivelyImmutableType(BType type) {
@@ -1641,8 +1640,9 @@ public class Types {
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, Set<TypePair> unresolvedTypes) {
-        // If the LHS record is closed and the RHS record is open, the records aren't equivalent
-        if (lhsType.sealed && !rhsType.sealed) {
+        // If the LHS record is closed and the RHS record is open and the rest field type of RHS is not a 'never'
+        // type, the records aren't equivalent
+        if (lhsType.sealed && !rhsType.sealed && rhsType.restFieldType.tag != TypeTags.NEVER) {
             return false;
         }
 
@@ -1688,7 +1688,7 @@ public class Types {
                 BType constraint = getReferredType(((BXMLType) collectionType).constraint);
                 while (constraint.tag == TypeTags.XML) {
                     collectionType = constraint;
-                    constraint = ((BXMLType) collectionType).constraint;
+                    constraint = getReferredType(((BXMLType) collectionType).constraint);
                 }
                 switch (constraint.tag) {
                     case TypeTags.XML_ELEMENT:
@@ -2397,8 +2397,7 @@ public class Types {
         return false;
     }
 
-    private boolean isAllErrorMembers(BUnionType actualType) {
-
+    public boolean isAllErrorMembers(BUnionType actualType) {
         return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
@@ -3612,7 +3611,7 @@ public class Types {
 
     boolean isByteLiteralValue(Long longObject) {
 
-        return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
+        return (longObject >= BBYTE_MIN_VALUE && longObject <= BBYTE_MAX_VALUE);
     }
 
     boolean isSigned32LiteralValue(Long longObject) {

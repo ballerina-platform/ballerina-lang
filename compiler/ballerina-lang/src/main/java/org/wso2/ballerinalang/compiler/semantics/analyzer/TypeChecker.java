@@ -531,7 +531,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expectedType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(expectedType.tag)) {
             return getIntLiteralType(expType, literalValue);
         } else if (expectedType.tag == TypeTags.FLOAT) {
-            literalExpr.value = ((Long) literalValue).doubleValue();
+            if (literalValue instanceof Long) {
+                literalExpr.value = ((Long) literalValue).doubleValue();
+            }
             return symTable.floatType;
         } else if (expectedType.tag == TypeTags.DECIMAL) {
             literalExpr.value = String.valueOf(literalValue);
@@ -1182,7 +1184,7 @@ public class TypeChecker extends BLangNodeVisitor {
      * @return a {@code BField}
      */
     private BField createFieldWithType(BField field, List<BType> bTypes) {
-        BType resultantType = getResultantUnionOrNonUnionType(bTypes);
+        BType resultantType = getResultantType(bTypes);
 
         BVarSymbol originalSymbol = field.symbol;
         BVarSymbol fieldSymbol = new BVarSymbol(originalSymbol.flags, originalSymbol.name, originalSymbol.pkgID,
@@ -1192,36 +1194,30 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     /**
-     * Get the resultant union or non-union type from a {@code List<BType>}.
+     * Get the resultant type from a {@code List<BType>}.
      *
      * @param bTypes bType list (size > 0)
      * @return {@code BUnionType} if effective members in list is > 1. {@code BType} Otherwise.
      */
-    private BType getResultantUnionOrNonUnionType(List<BType> bTypes) {
-        if (bTypes.size() == 1) {
-            return bTypes.get(0);
-        }
-
+    private BType getResultantType(List<BType> bTypes) {
         LinkedHashSet<BType> bTypeSet = new LinkedHashSet<>(bTypes);
-        List<BType> eBTypes = new ArrayList<>(bTypes.size());
-        addEffectiveMemberTypes(eBTypes, bTypeSet);
+        List<BType> flattenBTypes = new ArrayList<>(bTypes.size());
+        addFlattenMemberTypes(flattenBTypes, bTypeSet);
 
-        return getRepresentativeBroadType(eBTypes);
+        return getRepresentativeBroadType(flattenBTypes);
     }
 
-    private void addEffectiveMemberTypes(List<BType> eBTypes, LinkedHashSet<BType> bTypes) {
+    private void addFlattenMemberTypes(List<BType> flattenBTypes, LinkedHashSet<BType> bTypes) {
         for (BType memberType : bTypes) {
             BType bType;
             switch (memberType.tag) {
-                case TypeTags.NEVER:
-                    continue;
                 case TypeTags.UNION:
-                    addEffectiveMemberTypes(eBTypes, ((BUnionType) memberType).getMemberTypes());
+                    addFlattenMemberTypes(flattenBTypes, ((BUnionType) memberType).getMemberTypes());
                     continue;
                 case TypeTags.TYPEREFDESC:
                     BType constraint = Types.getReferredType(memberType);
                     if (constraint.tag == TypeTags.UNION) {
-                        addEffectiveMemberTypes(eBTypes, ((BUnionType) constraint).getMemberTypes());
+                        addFlattenMemberTypes(flattenBTypes, ((BUnionType) constraint).getMemberTypes());
                         continue;
                     }
                     bType = constraint;
@@ -1231,9 +1227,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
             }
 
-            if (isUniqueType(eBTypes, bType)) {
-                eBTypes.add(bType);
-            }
+            flattenBTypes.add(bType);
         }
     }
 
@@ -1271,7 +1265,7 @@ public class TypeChecker extends BLangNodeVisitor {
             recordType.sealed = true;
             recordType.restFieldType = symTable.noType;
         } else {
-            recordType.restFieldType = getResultantUnionOrNonUnionType(restFieldTypes);
+            recordType.restFieldType = getResultantType(restFieldTypes);
         }
 
         return recordType;
@@ -6710,7 +6704,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         restType = this.resultType;
                     }
                 }
-            } else {
+            } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
                 List<BType> tupleMemberTypes = tupleType.tupleTypes;
                 BType tupleRestType = tupleType.restType;
@@ -6725,6 +6719,11 @@ public class TypeChecker extends BLangNodeVisitor {
                         restType = this.resultType;
                     }
                 }
+            } else {
+                for (BLangExpression restArg : iExpr.restArgs) {
+                    checkExpr(restArg, this.env, symTable.semanticError);
+                }
+                this.resultType = symTable.semanticError;
             }
         }
 
@@ -7866,8 +7865,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
 
             if (actualType == symTable.semanticError) {
-                if (Types.getReferredType(indexExpr.getBType()).tag == TypeTags.STRING
-                        && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD,
                             fieldName, indexBasedAccessExpr.expr.getBType());
@@ -7892,7 +7890,7 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.getBType().tag == TypeTags.INT && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.indexExpr.pos,
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
                     return actualType;
@@ -8033,16 +8031,19 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
                                              BArrayType arrayType) {
         BType actualType = symTable.semanticError;
-        switch (indexExprType.tag) {
-            case TypeTags.INT:
-                BLangExpression indexExpr = indexBasedAccess.indexExpr;
-                if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
-                    actualType = arrayType.eType;
-                    break;
-                }
-                Long indexVal = getConstIndex(indexExpr);
-                actualType = indexVal >= arrayType.size || indexVal < 0 ? symTable.semanticError : arrayType.eType;
-                break;
+
+        int tag = indexExprType.tag;
+
+        if (tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(tag)) {
+            BLangExpression indexExpr = indexBasedAccess.indexExpr;
+            if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
+                return arrayType.eType;
+            }
+            Long indexVal = getConstIndex(indexExpr);
+            return indexVal >= arrayType.size || indexVal < 0 ? symTable.semanticError : arrayType.eType;
+        }
+
+        switch (tag) {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
                 boolean validIndexExists = false;
@@ -8122,17 +8123,20 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple, BType currentType) {
         BType actualType = symTable.semanticError;
         BLangExpression indexExpr = accessExpr.indexExpr;
-        switch (currentType.tag) {
-            case TypeTags.INT:
-                if (isConstExpr(indexExpr)) {
-                    actualType = checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
-                } else {
-                    BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
-                    LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
-                    actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null,
-                                                                                                           tupleTypes);
-                }
-                break;
+
+        int tag = currentType.tag;
+
+        if (tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(tag)) {
+            if (isConstExpr(indexExpr)) {
+                return checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
+            }
+
+            BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
+            LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
+            return tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
+        }
+
+        switch (tag) {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
@@ -8253,6 +8257,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
                 if (isConstExpr(indexExpr)) {
                     String fieldName = Utils.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);

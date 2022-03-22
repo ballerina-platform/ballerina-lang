@@ -101,6 +101,7 @@
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTemplateExprTest" />
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTypeExprTest" />
 
+            <class name="io.ballerina.semantic.api.test.typedescriptors.TypeNarrowedTypeDescriptorTest" />
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeReferenceTSymbolTest" />
 
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
@@ -144,6 +145,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInBinaryExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInMappingConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.SymbolsInOnFailClauseTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInQueryExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInXMLNavigationExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />
@@ -161,6 +163,7 @@
             <class name="io.ballerina.semantic.api.test.langlib.TypeParamBoundXMLFunctionsTest" />
 
             <!--Visible Symbols-->
+            <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInClassesAndObjectsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInCompoundStatementsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInExpressionsTest" />
             <class name="io.ballerina.semantic.api.test.visiblesymbols.VisibleSymbolsInModuleLevelDeclsTest" />

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -32,6 +33,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -51,7 +53,7 @@ import java.util.Set;
 public class AddCheckCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Add Check";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2800");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2652", "BCE2066", "BCE2068", "BCE2800");
 
     public AddCheckCodeAction() {
         super();
@@ -104,14 +106,24 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
             pos = CommonUtil.toRange(bracedExpressionNode.expression().location().lineRange()).getStart();
         }
 
-        List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+        List<TextEdit> edits = new ArrayList<>(CodeActionUtil.getAddCheckTextEdits(
                 pos, positionDetails.matchedNode(), context));
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
-        return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(
-                CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
+
+        // The following code is used to provide code actions (but not as a quick fix, since it does not fix the code) 
+        // for the scenario where wait-future-expr is not a future
+        if (expressionNode.get().kind() == SyntaxKind.WAIT_ACTION && context.currentSemanticModel().isPresent()) {
+            WaitActionNode waitActionNode = (WaitActionNode) expressionNode.get();
+            Optional<TypeSymbol> tSymbol = context.currentSemanticModel().get().typeOf(waitActionNode.waitFutureExpr());
+            if (tSymbol.map(CommonUtil::getRawType).filter(t -> t.typeKind() != TypeDescKind.FUTURE).isPresent()) {
+                return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+                        CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
+            }
+        }
+        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(
+                CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri(), CodeActionKind.QuickFix));
     }
 
     @Override
