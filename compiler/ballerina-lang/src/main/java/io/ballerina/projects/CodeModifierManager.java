@@ -25,11 +25,7 @@ import io.ballerina.projects.plugins.ModifierTask;
 import io.ballerina.projects.plugins.SourceModifierContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -292,26 +288,6 @@ class CodeModifierManager {
         }
     }
 
-    /**
-     * Represents the null location. This can used to create diagnostics
-     * which cannot be related to a location in the document.
-     *
-     * @since 2.0.0
-     */
-    private static class NullLocation implements Location {
-
-        @Override
-        public LineRange lineRange() {
-            LinePosition from = LinePosition.from(0, 0);
-            return LineRange.from("", from, from);
-        }
-
-        @Override
-        public TextRange textRange() {
-            return TextRange.from(0, 0);
-        }
-    }
-
     private static class ModifiedSourceFile {
         private final TextDocument textDocument;
         private final DocumentId documentId;
@@ -372,10 +348,10 @@ class CodeModifierManager {
 
     private static class CodeModifyTaskResult {
         private final List<Diagnostic> reportedDiagnostics;
-        private final Map<DocumentId, List<ModifiedSourceFile>> sourceFilesMap;
+        private final Map<DocumentId, ModifiedSourceFile> sourceFilesMap;
 
         public CodeModifyTaskResult(List<Diagnostic> reportedDiagnostics,
-                                    Map<DocumentId, List<ModifiedSourceFile>> sourceFilesMap) {
+                                    Map<DocumentId, ModifiedSourceFile> sourceFilesMap) {
             this.reportedDiagnostics = reportedDiagnostics;
             this.sourceFilesMap = sourceFilesMap;
         }
@@ -384,11 +360,12 @@ class CodeModifierManager {
             return reportedDiagnostics;
         }
 
-        Collection<ModifiedSourceFile> sourceFiles(DocumentId documentId) {
-            if (sourceFilesMap.get(documentId) == null) {
-                return Collections.emptyList();
-            }
+        ModifiedSourceFile sourceFile(DocumentId documentId) {
             return sourceFilesMap.get(documentId);
+        }
+
+        Collection<DocumentId> documentIds() {
+            return sourceFilesMap.keySet();
         }
 
         boolean containsSourceFile() {
@@ -416,9 +393,9 @@ class CodeModifierManager {
         }
 
         CodeModifyTaskResult build() {
-            Map<DocumentId, List<ModifiedSourceFile>> sourceFilesMap = new HashMap<>();
+            Map<DocumentId, ModifiedSourceFile> sourceFilesMap = new HashMap<>();
             for (ModifiedSourceFile sourceFile : modifiedSourceFiles) {
-                sourceFilesMap.computeIfAbsent(sourceFile.documentId(), key -> new ArrayList<>()).add(sourceFile);
+                sourceFilesMap.put(sourceFile.documentId(), sourceFile);
             }
             return new CodeModifyTaskResult(reportedDiagnostics, sourceFilesMap);
         }
@@ -427,10 +404,9 @@ class CodeModifierManager {
     private static class PackageModifier {
 
         Package modifyPackage(Package currentPackage, CodeModifyTaskResult codeModifyTaskResult) {
-            Collection<ModuleId> moduleIds = currentPackage.moduleIds();
             Package newPackage = currentPackage;
-            for (ModuleId moduleId : moduleIds) {
-                newPackage = modifyModule(moduleId, newPackage, codeModifyTaskResult);
+            for (DocumentId documentId : codeModifyTaskResult.documentIds()) {
+                newPackage = modifyModule(documentId.moduleId(), newPackage, codeModifyTaskResult);
             }
             return newPackage;
         }
@@ -440,9 +416,10 @@ class CodeModifierManager {
             Module.Modifier modifier = module.modify();
 
             for (DocumentId documentId : pkg.module(moduleId).documentIds()) {
-                for (ModifiedSourceFile sourceFile : codeModifyTaskResult.sourceFiles(documentId)) {
+                ModifiedSourceFile modifiedSourceFile = codeModifyTaskResult.sourceFile(documentId);
+                if (modifiedSourceFile != null) {
                     Document document = module.document(documentId);
-                    updateModifiedDocument(document.name(), sourceFile.textDocument(), modifier, documentId);
+                    updateModifiedDocument(document.name(), modifiedSourceFile.textDocument(), modifier, documentId);
                 }
             }
 

@@ -313,6 +313,7 @@ public class CompilerPluginTests {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies count is 1
@@ -358,6 +359,7 @@ public class CompilerPluginTests {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies count is 1

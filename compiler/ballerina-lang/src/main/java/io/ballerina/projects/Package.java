@@ -1,8 +1,10 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -212,6 +214,57 @@ public class Package {
 
     Package duplicate(Project project) {
         return new Package(packageContext.duplicate(project), project);
+    }
+
+    /**
+     * Run {@code CodeGenerator} and {@code CodeModifier} tasks in engaged {@code CompilerPlugin}s.
+     * <p>
+     * Returns a collected diagnostics reported by the code generator and code modifier tasks
+     * in form of a {@code DiagnosticResult} instance.
+     * <p>
+     * Here is a sample usage of this API: <pre>
+     *   Project project = BuildProject.load(Paths.get(...));
+     *   Package currentPackage = project.currentPackage();
+     *   DiagnosticResult diagnosticsResult = currentPackage.runCodeGenAndModifyPlugins();
+     *
+     *   // Compile the package with generated files.
+     *   PackageCompilation compilation = packageWithGenFiles.getCompilation();
+     *   </pre>
+     * <p>
+     * This method does not run other tasks such as {@code CodeAnalyzer}s in engaged compiler plugins.
+     *
+     * @return a {@code DiagnosticResult} instance
+     */
+    public DiagnosticResult runCodeGenAndModifyPlugins() {
+        PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
+        if (cachedCompilation != null) {
+            // Check whether there are engaged code modifiers, if not return
+            CompilerPluginManager compilerPluginManager = cachedCompilation.compilerPluginManager();
+            if (compilerPluginManager.engagedCodeGeneratorCount() == 0
+                    && compilerPluginManager.engagedCodeModifierCount() == 0) {
+                return new DefaultDiagnosticResult(Collections.emptyList());
+            }
+        }
+
+        // There are engaged compiler plugins or there is no cached compilation. We have to compile anyway
+        CompilationOptions compOptions = CompilationOptions.builder()
+                .withCodeGenerators(true)
+                .withCodeModifiers(true)
+                .build();
+        CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        if (compilerPluginManager.engagedCodeGeneratorCount() > 0) {
+            CodeGeneratorManager codeGeneratorManager = compilerPluginManager.getCodeGeneratorManager();
+            CodeGeneratorResult codeGeneratorResult = codeGeneratorManager.runCodeGenerators(this);
+            diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().allDiagnostics);
+        }
+
+        if (compilerPluginManager.engagedCodeModifierCount() > 0) {
+            CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
+            CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(this);
+            diagnostics.addAll(codeModifierResult.reportedDiagnostics().allDiagnostics);
+        }
+        return new DefaultDiagnosticResult(diagnostics);
     }
 
     /**
