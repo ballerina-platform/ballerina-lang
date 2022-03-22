@@ -388,6 +388,49 @@ function testLetExprWithBLangXMLQuotedString(){
     assert(xml `<Book x="1"/>`, z);
 }
 
+function testLetExprWithQueryExpr() {
+    var a = let int n = 2
+        in from var i in [1, 2, 3]
+            where i == n
+            select n + i;
+    assert([4], a);
+
+    int[] b = let int n = 2
+        in from var i in [1, 2, 3, 4]
+            let int x = n + 1
+            where i > n
+            select n + i + x;
+    assert([8, 9], b);
+
+    int[] c = let int[] n = [2, 4, 6]
+        in from var i in [1, 2, 3, 4]
+            from int j in n
+            let int x = n[0] + 1
+            where i < n[1]
+            select i + x + j;
+    assert([6,8,10,7,9,11,8,10,12], c);
+}
+
+function testLetExprWithAnonFunc() {
+    var func = let null n = null
+        in function() returns boolean {
+            return n == ();
+        };
+    function () returns (boolean) func2 = func;
+    assert(true, func2());
+
+    var func3 = let int n = 2 in function () returns int => n * 10;
+    function () returns (int) func4 = func3;
+    assert(20, func4());
+
+    function () returns (int) func5 = let int n = 2
+        in function() returns int {
+            function () returns (int) v = let int m = 4 in function () returns int => n * 10 * m;
+            return v();
+        };
+    assert(80, func5());
+}
+
 //// Util functions
 
 function assert(anydata expected, anydata actual) {
