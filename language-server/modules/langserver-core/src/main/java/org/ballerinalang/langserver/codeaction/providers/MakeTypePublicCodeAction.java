@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
@@ -85,15 +86,26 @@ public class MakeTypePublicCodeAction extends AbstractCodeActionProvider {
         if (node.isEmpty()) {
             return Collections.emptyList();
         }
+
+        Position position = getStartPosition(node.get());
+        Range range = new Range(position, position);
+        String editText = SyntaxKind.PUBLIC_KEYWORD.stringValue() + " ";
+        TextEdit textEdit = new TextEdit(range, editText);
+        List<TextEdit> editList = List.of(textEdit);
+        String commandTitle = String.format(CommandConstants.MAKE_TYPE_PUBLIC, symbol.get().getName().orElse(""));
+        return List.of(createCodeAction(commandTitle, editList, uri.toString(), CodeActionKind.QuickFix));
+    }
+
+    private static Position getStartPosition(Node node) {
         Position startPosition = new Position();
-        SyntaxKind typeKind = node.get().kind();
+        SyntaxKind typeKind = node.kind();
 
         if (typeKind.equals(SyntaxKind.TYPE_DEFINITION)) {
-            TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node.get();
+            TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
             startPosition = CommonUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine());
         }
         if (typeKind.equals(SyntaxKind.CLASS_DEFINITION)) {
-            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node.get();
+            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
             if (!classDefinitionNode.classTypeQualifiers().isEmpty()) {
                 startPosition = CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
                         .lineRange().startLine());
@@ -101,13 +113,7 @@ public class MakeTypePublicCodeAction extends AbstractCodeActionProvider {
                 startPosition = CommonUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine());
             }
         }
-
-        Range range = new Range(startPosition, startPosition);
-        String editText = SyntaxKind.PUBLIC_KEYWORD.stringValue() + " ";
-        TextEdit textEdit = new TextEdit(range, editText);
-        List<TextEdit> editList = List.of(textEdit);
-        String commandTitle = String.format(CommandConstants.MAKE_TYPE_PUBLIC, symbol.get().getName().orElse(""));
-        return List.of(createCodeAction(commandTitle, editList, uri.toString(), CodeActionKind.QuickFix));
+        return startPosition;
     }
 
     @Override
