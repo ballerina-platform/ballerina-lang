@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -51,6 +52,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public TreeMap<Integer, BVarSymbol> paramClosureMap = new TreeMap<>();
     public BVarSymbol mapSymbol;
     public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
+    public SymbolEnv funcEnv;
 
     // Used to track uninitialized closure variables in DataFlowAnalyzer.
     public Set<ClosureVarSymbol> closureVarSymbols = new LinkedHashSet<>();

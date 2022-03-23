@@ -48,13 +48,15 @@ public class ClassClosureDesugarUtils {
         }
     }
 
-    public static void updateObjectCtorClosureSymbols(Location pos, BLangFunction enclosedF,
-                                                      BSymbol resolvedSymbol,
-                                                      BLangClassDefinition classDef, SymbolEnv env,
-                                                      BSymbol symbol,
+    public static void updateObjectCtorClosureSymbols(Location pos, BLangFunction enclosedF, BSymbol resolvedSymbol,
+                                                      BLangClassDefinition classDef, SymbolEnv env, BSymbol symbol,
                                                       BLangNode originalNode) {
         classDef.hasClosureVars = true;
+        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
         if (resolvedSymbol.closure) {
+            if (oceEnvData.closureSymbols.contains(resolvedSymbol)) {
+                return; // already marked by this class
+            }
             resolvedSymbol.flags |= Flags.ATTACHED;
             resolvedSymbol.flags |= Flags.OBJECT_CTOR;
         }
@@ -64,14 +66,11 @@ public class ClassClosureDesugarUtils {
         }
 
         resolvedSymbol.closure = true;
-        System.out.println("Adding oce flag to : " + resolvedSymbol + " " + resolvedSymbol.pos);
-        System.out.println("Original symbol is : " + symbol + " " + symbol.pos);
-        System.out.println("originalNode is : " + originalNode + " " + originalNode.pos);
         if (enclosedF != null) {
             enclosedF.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             // TODO: can identify if attached here
         }
-        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
+        oceEnvData.closureSymbols.add(resolvedSymbol);
         if (enclosedF != null && (enclosedF.symbol.params.contains(resolvedSymbol)
                 || (enclosedF.symbol.restParam == resolvedSymbol))) {
             oceEnvData.closureFuncSymbols.add(resolvedSymbol);
