@@ -120,10 +120,13 @@ public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum,
 } external;
 
 # Tests whether a function returns true for some member of an array.
-# func` is called for each member of `arr` in order unless and until a call returns true.
+#
+# The parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.
+# When the array is empty, returns false.
+#
 # + arr - the array
 # + func - function to apply to each member
-# + return - true if func returns true for some member of `arr`; otherwise, false
+# + return - true if applying parameter `func` returns true for some member of `arr`; otherwise, false
 #
 public isolated function some(Type[] arr, @isolatedParam function(Type val) returns boolean func) returns boolean {
     foreach var item in arr {
