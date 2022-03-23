@@ -75,7 +75,7 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                     Document document = module.document(documentId);
                     ModulePartNode rootNode = document.syntaxTree().rootNode();
                     NodeList<ModuleMemberDeclarationNode> newMembers =
-                            rootNode.members().add(createFunctionDefNode());
+                            rootNode.members().add(createFunctionDefNode(document));
                     ModulePartNode newModulePart =
                             rootNode.modify(rootNode.imports(), newMembers, rootNode.eofToken());
                     SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
@@ -85,7 +85,7 @@ public class InsertFunctionCodeModifier extends CodeModifier {
         });
     }
 
-    private static FunctionDefinitionNode createFunctionDefNode() {
+    private static FunctionDefinitionNode createFunctionDefNode(Document document) {
         List<Token> qualifierList = new ArrayList<>();
         Token publicToken = createToken(SyntaxKind.PUBLIC_KEYWORD, generateMinutiaeListWithTwoNewline(),
                 generateMinutiaeListWithWhitespace());
@@ -128,8 +128,8 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                 SyntaxKind.FUNCTION_DEFINITION, null, createNodeList(qualifierList),
                 createToken(SyntaxKind.FUNCTION_KEYWORD, createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()),
-                createIdentifierToken("newFunctionByCodeModifier"), createEmptyNodeList(),
-                functionSignatureNode, emptyFunctionBodyNode);
+                createIdentifierToken("newFunctionByCodeModifier" + document.name().replace(".bal", "")),
+                createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
     }
 
     private static MinutiaeList generateMinutiaeListWithWhitespace() {

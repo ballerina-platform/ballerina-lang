@@ -281,7 +281,7 @@ public class CompilerPluginTests {
     public void testCompilerPluginCodeModifyBasic() {
         Package currentPackage = loadPackage("package_plugin_code_modify_user_1");
         // Check the document count in the current package
-        Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 1);
+        Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 2);
 
         //  Running the compilation
         currentPackage.getCompilation();
@@ -300,12 +300,13 @@ public class CompilerPluginTests {
         Assert.assertSame(newPackage.project(), project);
         Assert.assertSame(newPackage, project.currentPackage());
 
-        // The code generator adds specific function to the end of every source file.
-        String specificFunction = "public function newFunctionByCodeModifier(string params) returns error? {\n}";
-
-        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 1);
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 2);
         for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
             Document document = newPackage.getDefaultModule().document(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificFunction = "public function newFunctionByCodeModifier"
+                    + document.name().replace(".bal", "")
+                    + "(string params) returns error? {\n}";
             Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
         }
 
@@ -314,7 +315,7 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
         Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies count is 1
         Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
@@ -346,12 +347,13 @@ public class CompilerPluginTests {
         Assert.assertSame(newPackage.project(), project);
         Assert.assertSame(newPackage, project.currentPackage());
 
-        // The code generator adds specific function to the end of every source file.
-        String specificFunction = "public function newFunctionByCodeModifier(string params) returns error? {\n}";
-
         Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 1);
         for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
             Document document = newPackage.getDefaultModule().document(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificFunction = "public function newFunctionByCodeModifier"
+                    + document.name().replace(".bal", "")
+                    + "(string params) returns error? {\n}";
             Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
         }
 
