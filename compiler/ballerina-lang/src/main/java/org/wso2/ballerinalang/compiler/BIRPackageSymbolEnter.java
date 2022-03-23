@@ -1702,8 +1702,7 @@ public class BIRPackageSymbolEnter {
                 BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
                 Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
                         objectSymbol.name.value, attachedFuncName));
-                Name funcOrigName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                        objectSymbol.originalName.value, attachedFuncName));
+                Name funcOrigName = names.fromString(attachedFuncName);
                 BInvokableSymbol attachedFuncSymbol =
                         Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
                                 env.pkgSymbol.pkgID, attachedFuncType,
