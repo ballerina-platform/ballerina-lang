@@ -219,13 +219,12 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
-        if (isProjectEmpty(project)) {
-            if (project.currentPackage().compilerPluginToml().isPresent()) {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
-                        false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
+        // If project is empty AND there is no compiler plugin
+        if (isProjectEmpty(project) && !project.currentPackage().compilerPluginToml().isPresent()) {
+            CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
         // Validate Settings.toml file
