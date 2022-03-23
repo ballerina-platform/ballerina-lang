@@ -45,7 +45,7 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
     private ModuleSymbol module;
     private boolean moduleEvaluated;
 
-    public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
+    public BallerinaErrorTypeSymbol(CompilerContext context, BErrorType errorType) {
         super(context, TypeDescKind.ERROR, errorType);
     }
 

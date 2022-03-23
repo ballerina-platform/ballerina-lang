@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.DecimalTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaDecimalTypeSymbol extends AbstractTypeSymbol implements DecimalTypeSymbol {
 
-    public BallerinaDecimalTypeSymbol(CompilerContext context, ModuleID moduleID, BType decimalType) {
+    public BallerinaDecimalTypeSymbol(CompilerContext context, BType decimalType) {
         super(context, TypeDescKind.DECIMAL, decimalType);
     }
 

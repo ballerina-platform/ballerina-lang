@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.NoneTypeSymbol;
@@ -30,7 +29,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaNoneTypeSymbol extends AbstractTypeSymbol implements NoneTypeSymbol {
 
-    public BallerinaNoneTypeSymbol(CompilerContext context, ModuleID moduleID, BNoType bNoType) {
+    public BallerinaNoneTypeSymbol(CompilerContext context, BNoType bNoType) {
         super(context, TypeDescKind.NONE, bNoType);
     }
 

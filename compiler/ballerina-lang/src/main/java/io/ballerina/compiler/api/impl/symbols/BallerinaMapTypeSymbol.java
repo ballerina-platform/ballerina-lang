@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
@@ -37,7 +36,7 @@ public class BallerinaMapTypeSymbol extends AbstractTypeSymbol implements MapTyp
     private TypeSymbol memberTypeDesc;
     private String signature;
 
-    public BallerinaMapTypeSymbol(CompilerContext context, ModuleID moduleID, BMapType mapType) {
+    public BallerinaMapTypeSymbol(CompilerContext context, BMapType mapType) {
         super(context, TypeDescKind.MAP, mapType);
     }
 

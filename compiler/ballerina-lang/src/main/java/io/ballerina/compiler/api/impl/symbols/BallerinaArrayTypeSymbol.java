@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
@@ -37,7 +36,7 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
     private Integer size;
     private TypeSymbol memberTypeDesc;
 
-    public BallerinaArrayTypeSymbol(CompilerContext context, ModuleID moduleID, BArrayType arrayType) {
+    public BallerinaArrayTypeSymbol(CompilerContext context, BArrayType arrayType) {
         super(context, TypeDescKind.ARRAY, arrayType);
         if (arrayType.getSize() >= 0) {
             size = arrayType.getSize();

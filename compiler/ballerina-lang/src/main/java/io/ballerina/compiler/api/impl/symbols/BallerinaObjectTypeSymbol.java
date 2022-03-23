@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
@@ -61,7 +60,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     private Map<String, MethodSymbol> methods;
     private List<TypeSymbol> typeInclusions;
 
-    public BallerinaObjectTypeSymbol(CompilerContext context, ModuleID moduleID, BObjectType objectType) {
+    public BallerinaObjectTypeSymbol(CompilerContext context, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, objectType);
     }
 

@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.LangLibrary;
@@ -44,8 +43,7 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
     private TypeSymbol effectiveType;
     private String signature;
 
-    public BallerinaIntersectionTypeSymbol(CompilerContext context, ModuleID moduleID,
-                                           BIntersectionType intersectionType) {
+    public BallerinaIntersectionTypeSymbol(CompilerContext context, BIntersectionType intersectionType) {
         super(context, TypeDescKind.INTERSECTION, intersectionType);
     }
 

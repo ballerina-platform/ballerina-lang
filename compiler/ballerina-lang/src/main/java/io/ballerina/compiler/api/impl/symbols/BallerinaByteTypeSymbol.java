@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.ByteTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaByteTypeSymbol extends AbstractTypeSymbol implements ByteTypeSymbol {
 
-    public BallerinaByteTypeSymbol(CompilerContext context, ModuleID moduleID, BType byteType) {
+    public BallerinaByteTypeSymbol(CompilerContext context, BType byteType) {
         super(context, TypeDescKind.BYTE, byteType);
     }
 

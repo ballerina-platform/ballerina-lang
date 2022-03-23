@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntSigned16TypeSymbol;
@@ -35,7 +34,7 @@ import java.util.Optional;
  */
 public class BallerinaIntSigned16TypeSymbol extends AbstractTypeSymbol implements IntSigned16TypeSymbol {
 
-    public BallerinaIntSigned16TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType signed16Type) {
+    public BallerinaIntSigned16TypeSymbol(CompilerContext context, BIntSubType signed16Type) {
         super(context, TypeDescKind.INT_SIGNED16, signed16Type);
     }
 

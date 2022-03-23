@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
@@ -37,7 +36,7 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
     private TypeSymbol completionValueTypeParameter;
     private String signature;
 
-    public BallerinaStreamTypeSymbol(CompilerContext context, ModuleID moduleID, BStreamType streamType) {
+    public BallerinaStreamTypeSymbol(CompilerContext context, BStreamType streamType) {
         super(context, TypeDescKind.STREAM, streamType);
     }
 

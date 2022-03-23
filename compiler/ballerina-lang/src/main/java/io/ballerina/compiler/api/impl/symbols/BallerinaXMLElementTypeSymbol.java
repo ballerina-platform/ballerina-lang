@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -36,7 +35,7 @@ import java.util.Optional;
  */
 public class BallerinaXMLElementTypeSymbol extends AbstractTypeSymbol implements XMLElementTypeSymbol {
 
-    public BallerinaXMLElementTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType elementType) {
+    public BallerinaXMLElementTypeSymbol(CompilerContext context, BXMLSubType elementType) {
         super(context, TypeDescKind.XML_ELEMENT, elementType);
     }
 

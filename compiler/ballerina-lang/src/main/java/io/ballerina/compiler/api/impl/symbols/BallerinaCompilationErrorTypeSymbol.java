@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.CompilationErrorTypeSymbol;
@@ -39,7 +38,7 @@ public class BallerinaCompilationErrorTypeSymbol extends AbstractTypeSymbol impl
 
     private static final List<FunctionSymbol> langLibMethods = Collections.unmodifiableList(new ArrayList<>());
 
-    public BallerinaCompilationErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BType error) {
+    public BallerinaCompilationErrorTypeSymbol(CompilerContext context, BType error) {
         super(context, TypeDescKind.COMPILATION_ERROR, error);
     }
 

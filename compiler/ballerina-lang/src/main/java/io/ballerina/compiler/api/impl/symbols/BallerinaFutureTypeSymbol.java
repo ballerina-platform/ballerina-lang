@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
@@ -36,7 +35,7 @@ public class BallerinaFutureTypeSymbol extends AbstractTypeSymbol implements Fut
 
     private TypeSymbol memberTypeDesc;
 
-    public BallerinaFutureTypeSymbol(CompilerContext context, ModuleID moduleID, BFutureType futureType) {
+    public BallerinaFutureTypeSymbol(CompilerContext context, BFutureType futureType) {
         super(context, TypeDescKind.FUTURE, futureType);
     }
 

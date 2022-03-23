@@ -16,7 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
@@ -42,7 +41,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
     private List<TypeSymbol> memberTypes;
     private TypeSymbol restTypeDesc;
 
-    public BallerinaTupleTypeSymbol(CompilerContext context, ModuleID moduleID, BTupleType tupleType) {
+    public BallerinaTupleTypeSymbol(CompilerContext context, BTupleType tupleType) {
         super(context, TypeDescKind.TUPLE, tupleType);
     }
 

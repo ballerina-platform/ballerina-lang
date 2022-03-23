@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.JSONTypeSymbol;
@@ -32,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaJSONTypeSymbol extends AbstractTypeSymbol implements JSONTypeSymbol {
 
-    public BallerinaJSONTypeSymbol(CompilerContext context, ModuleID moduleID, BJSONType jsonType) {
+    public BallerinaJSONTypeSymbol(CompilerContext context, BJSONType jsonType) {
         super(context, TypeDescKind.JSON, jsonType);
     }
 

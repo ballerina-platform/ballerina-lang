@@ -17,7 +17,6 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntUnsigned8TypeSymbol;
@@ -35,7 +34,7 @@ import java.util.Optional;
  */
 public class BallerinaIntUnsigned8TypeSymbol extends AbstractTypeSymbol implements IntUnsigned8TypeSymbol {
 
-    public BallerinaIntUnsigned8TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType unsigned8Type) {
+    public BallerinaIntUnsigned8TypeSymbol(CompilerContext context, BIntSubType unsigned8Type) {
         super(context, TypeDescKind.INT_UNSIGNED8, unsigned8Type);
     }
 
