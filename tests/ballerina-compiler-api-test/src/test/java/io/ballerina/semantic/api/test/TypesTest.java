@@ -163,7 +163,7 @@ public class TypesTest {
         String pkgName = module.descriptor().name().toString();
         String version = module.descriptor().version().toString();
 
-        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
+        Optional<Symbol> symbol = types.getTypeByName(org, pkgName, version, typeDefName);
         assertTrue(symbol.isPresent());
         assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
 
@@ -239,12 +239,9 @@ public class TypesTest {
     }
 
     @Test(dataProvider = "TypeByNameFromBir")
-    public void testTypeByNameFromBir(String typeDefName, SymbolKind symKind, TypeDescKind typeDescKind) {
-        ModuleDescriptor moduleDescriptor = project.currentPackage().getDefaultModule().descriptor();
-        String org = moduleDescriptor.org().value();
-        String pkgName = moduleDescriptor.name().toString();
-        String version = moduleDescriptor.version().toString();
-        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
+    public void testTypeByNameFromBir(String org, String pkgName, String version, String typeDefName,
+                                      SymbolKind symKind, TypeDescKind typeDescKind) {
+        Optional<Symbol> symbol = types.getTypeByName(org, pkgName, version, typeDefName);
         assertTrue(symbol.isPresent());
         assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
 
@@ -256,22 +253,21 @@ public class TypesTest {
     @DataProvider(name = "TypeByNameFromBir")
     private Object[][] getTypeByNameFromBir() {
         return new  Object[][] {
-                {"ExampleDec", TYPE_DEFINITION, DECIMAL},
-                {"TestRecord", TYPE_DEFINITION, RECORD},
-                {"AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
+                {"testorg", "typesapi", "1.0.0", "ExampleDec", TYPE_DEFINITION, DECIMAL},
+                {"testorg", "typesbir", "1.0.0", "TestRecord", TYPE_DEFINITION, RECORD},
+                {"testorg", "typesbir", "1.0.0", "AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
         };
     }
 
     @Test
     public void testTypesFromBir() {
-        testTypesInModule(project.currentPackage().getDefaultModule(), getTypesFromBir());
+        testTypesInModule("testorg", "typesbir", "1.0.0", getTypesFromBir());
     }
 
     private Object[][] getTypesFromBir() {
         return new Object[][] {
-                {"ExampleDec", TYPE_DEFINITION, DECIMAL},
-                {"typesbir:TestRecord", TYPE_DEFINITION, RECORD},
-                {"typesbir:AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
+                {"TestRecord", TYPE_DEFINITION, RECORD},
+                {"AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
         };
     }
 
@@ -284,7 +280,7 @@ public class TypesTest {
         String pkgName = module.descriptor().name().toString();
         String version = module.descriptor().version().toString();
 
-        Optional<Symbol> symbol = types.getByName(org, pkgName, version, typeDefName);
+        Optional<Symbol> symbol = types.getTypeByName(org, pkgName, version, typeDefName);
         assertTrue(symbol.isPresent());
         Optional<TypeSymbol> typeSymbol = getTypeSymbolOfTypeDef(symbol.get());
         assertTrue(typeSymbol.isPresent());
@@ -320,7 +316,10 @@ public class TypesTest {
         String org = module.descriptor().org().value();
         String pkgName = module.descriptor().name().toString();
         String version = module.descriptor().version().toString();
+        testTypesInModule(org, pkgName, version, expTypes);
+    }
 
+    private void testTypesInModule(String org, String pkgName, String version, Object[][] expTypes) {
         Optional<Map<String, Symbol>> typesInModule = types.typesInModule(org, pkgName, version);
         assertTrue(typesInModule.isPresent());
 
