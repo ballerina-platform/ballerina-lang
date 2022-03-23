@@ -293,7 +293,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (typeRefSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         TypeSymbol typeSymbol = CommonUtil.getRawType(typeRefSymbol.get());
         if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
             return Optional.empty();
@@ -436,7 +436,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 .filter(symbol -> symbol.getName().orElse("").equals(methodName.name().text()))
                 .findFirst();
 
-        if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
+        if (methodSymbol.isEmpty() || (methodSymbol.get().kind() != SymbolKind.METHOD
+                && methodSymbol.get().kind() != SymbolKind.FUNCTION)) {
             return Optional.empty();
         }
         if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
@@ -445,7 +446,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(
-                        ((MethodSymbol) methodSymbol.get()).typeDescriptor(), context, node);
+                        ((FunctionSymbol) methodSymbol.get()).typeDescriptor(), context, node);
 
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
