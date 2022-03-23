@@ -235,12 +235,12 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
      * @param node    Node at cursor position
      * @return {@link Boolean} True if syntactically correct, false otherwise
      */
-    public static Boolean validate(NonTerminalNode node) {
+    public static boolean validate(NonTerminalNode node) {
         NonTerminalNode validatorNode = node;
         if (node.kind().equals(SyntaxKind.LIST)) {
             validatorNode = node.parent();
         }
         CodeActionNodeValidator nodeValidator = new CodeActionNodeValidator();
-        return Optional.of(validatorNode.apply(nodeValidator)).orElse(true);
+        return Optional.ofNullable(validatorNode.apply(nodeValidator)).orElse(true);
     }
 }
