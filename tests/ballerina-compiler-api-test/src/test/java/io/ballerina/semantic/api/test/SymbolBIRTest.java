@@ -221,6 +221,24 @@ public class SymbolBIRTest {
         assertEquals(inclusions.get(0).getName().get(), "Person");
     }
 
+    @Test(dataProvider = "MethodsInAbstractObject")
+    public void testMethodsInAbstractObject(int line, int col, String name, SymbolKind kind) {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(line, col));
+        assertTrue(optionalSymbol.isPresent());
+        Symbol symbol = optionalSymbol.get();
+        assertEquals(symbol.getName().get(), name);
+        assertEquals(symbol.kind(), kind);
+    }
+
+    @DataProvider(name = "MethodsInAbstractObject")
+    public Object[][] getMethodSymbolsInAbstractObject() {
+        return new Object[][]{
+                {36, 26, "eatFunction", SymbolKind.METHOD},
+                {37, 24, "walkFunction", SymbolKind.METHOD},
+                {38, 17, "age", SymbolKind.OBJECT_FIELD},
+        };
+    }
+
     // util methods
 
     public static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {
