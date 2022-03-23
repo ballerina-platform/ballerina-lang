@@ -980,26 +980,24 @@ function testCastOfTwoDimensionalIntArrayToByteArray() {
 function testCastJsonToMapOfAnydata() {
     json j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
     map<anydata> m1 = <map<anydata>> j1;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
 
     json j2 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
     map<anydata> m2 = <map<anydata>> j2;
-
-    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
     assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", m2.toString());
 }
 
 function testCastMapOfJsonToMapOfAnydata() {
     map<json> j1 = {a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true};
     map<anydata> m1 = <map<anydata>> j1;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
     anydata any1 = <map<anydata>> j1;
+    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", any1.toString());
 
     map<json> j2 = {a1: null, a2: 1, a3: 1.0, a4: 1d, a5: "a5", a6: false, a7: {a1: j1}};
     map<anydata> m2 = <map<anydata>> j2;
-    anydata any2 = <map<anydata>> j2;
-
-    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", m1.toString());
     assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", m2.toString());
-    assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}", any1.toString());
+    anydata any2 = <map<anydata>> j2;
     assertEquality("{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1,\"a5\":\"a5\",\"a6\":false,\"a7\":{\"a1\":{\"a1\":null,\"a2\":1,\"a3\":1.0,\"a4\":1.2,\"a5\":\"a5\",\"a6\":true}}}", any2.toString());
 }
 
