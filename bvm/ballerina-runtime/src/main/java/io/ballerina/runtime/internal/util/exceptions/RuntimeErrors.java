@@ -123,7 +123,7 @@ public enum RuntimeErrors implements DiagnosticCode {
     CONFIG_CLI_UNUSED_CLI_ARGS("config.cli.unused.args", "RUNTIME_0095"),
     LARGE_EXPONENTS_IN_DECIMAL("large.number.of.exponents.in.decimal", "RUNTIME_0096"),
     UNSUPPORTED_DECIMAL_VALUE("unsupported.decimal.value", "RUNTIME_0097"),
-    CONFIG_ARRAY_SIZE_MISMATCH("config.array.size.mismatch", "RUNTIME_0098");
+    CONFIG_SIZE_MISMATCH("config.size.mismatch", "RUNTIME_0098");
 
     private String errorMsgKey;
     private String errorCode;

@@ -191,18 +191,18 @@ public class TomlProviderNegativeTest {
     public Object[][] getArraySizeNegativeTests() {
         MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
         return new Object[][]{
-                {PredefinedTypes.TYPE_INT, "intArr", "[ArrayWrongSize.toml:(1:10,1:22)] the array size for " +
+                {PredefinedTypes.TYPE_INT, "intArr", "[ArrayWrongSize.toml:(1:10,1:22)] the size for " +
                         "configurable variable 'intArr' is expected to be '2', but found '4'"},
                 {TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true), "mapArr",
-                        "[ArrayWrongSize.toml:(4:1,5:6)] the array size for configurable variable 'mapArr' is " +
+                        "[ArrayWrongSize.toml:(4:1,5:6)] the size for configurable variable 'mapArr' is " +
                                 "expected to be '2', but found '3'"},
                 {TypeCreator.createMapType(TYPE_ANYDATA, true), "mapAnydataArr",
-                        "[ArrayWrongSize.toml:(13:1,14:8)] the array size for configurable variable 'mapAnydataArr' " +
+                        "[ArrayWrongSize.toml:(13:1,14:8)] the size for configurable variable 'mapAnydataArr' " +
                                 "is expected to be '2', but found '3'"},
-                {TYPE_ANYDATA, "anydataArr1", "[ArrayWrongSize.toml:(2:15,2:29)] the array size for configurable " +
+                {TYPE_ANYDATA, "anydataArr1", "[ArrayWrongSize.toml:(2:15,2:29)] the size for configurable " +
                         "variable 'anydataArr1' is expected to be '2', but found '3'"},
                 {TypeCreator.createUnionType(List.of(mapType, PredefinedTypes.TYPE_INT), true), "anydataArr2",
-                        "[ArrayWrongSize.toml:(22:1,23:8)] the array size for configurable variable" +
+                        "[ArrayWrongSize.toml:(22:1,23:8)] the size for configurable variable" +
                                 " 'anydataArr2' is expected to be '2', but found '3'"},
         };
     }
@@ -710,7 +710,7 @@ public class TomlProviderNegativeTest {
                         "variable 'tupleVar[0]' is expected to be of type 'int', but found 'record'", null},
                 {simpleTypes, "TupleElementType", "[TupleElementType.toml:(1:16,1:17)] configurable variable " +
                         "'tupleVar[1]' is expected to be of type 'string', but found 'int'", null},
-                {simpleTypes, "TupleWrongSize", "[TupleWrongSize.toml:(1:12,1:29)] the array size for configurable " +
+                {simpleTypes, "TupleWrongSize", "[TupleWrongSize.toml:(1:12,1:29)] the size for configurable " +
                         "variable 'tupleVar' is expected to be '2', but found '3'", null},
                 {List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_BYTE), "TupleByteRange", "[TupleByteRange" +
                         ".toml:(1:18,1:21)] value provided for byte variable 'tupleVar[1]' is out of range. Expected " +
