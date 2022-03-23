@@ -25,33 +25,6 @@ configurations {
     highlighter
 }
 
-npmBuild {
-    dependsOn 'updateVersion'
-    dependsOn 'updateLernaVersion'
-    PatternSet patternSet = new PatternSet();
-	patternSet.exclude("**/node_modules/**");
-    patternSet.exclude("**/packages/**/build/**");
-    patternSet.exclude("**/packages/**/lib/**");
-    patternSet.exclude("**/packages/**/coverage/**");
-
-    FileTree src = files('.').asFileTree;
-    inputs.files(src.matching(patternSet))
-
-    outputs.dir("packages/distribution/build")
-    outputs.dir("packages/font/build")
-    outputs.dir("packages/syntax-highlighter/lib")
-    outputs.cacheIf { true }
-    doFirst {
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'run', 'build'
-            } else {
-                commandLine 'npm', 'run', 'build'
-            }
-        }
-    }
-}
-
 
 task updateLernaVersion(type: Exec) {
     inputs.file("package.json")

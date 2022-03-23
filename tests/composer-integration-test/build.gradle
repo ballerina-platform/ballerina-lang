@@ -36,17 +36,6 @@ task unzipToolsZip(){
     }
 }
 
-npmBuild {
-    dependsOn unzipToolsZip
-    doFirst {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npm', 'run', 'build'
-        } else {
-            commandLine 'npm', 'run', 'build'
-        }
-    }
-}
-
 task test(type: Exec) {
     onlyIf {
         !assemble.state.upToDate
@@ -58,10 +47,6 @@ task test(type: Exec) {
             commandLine 'npm', 'run', 'test'
         }
     }
-}
-
-build {
-    dependsOn npmBuild
 }
 
 description = 'Ballerina - Tools Integration Test'

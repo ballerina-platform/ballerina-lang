@@ -23,19 +23,6 @@ configurations {
     reportTpl
 }
 
-npmBuild {
-    dependsOn 'updateVersion'
-    doFirst {
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'run', 'build'
-            } else {
-                commandLine 'npm', 'run', 'build'
-            }
-        }
-    }
-}
-
 task createZip(type: Zip) {
     from "$buildDir/"
     include 'index.html'
@@ -51,6 +38,5 @@ task createZip(type: Zip) {
 artifacts.add('reportTpl', file("$buildDir/report.zip"))
 
 build {
-    dependsOn npmBuild
     dependsOn createZip
 }
