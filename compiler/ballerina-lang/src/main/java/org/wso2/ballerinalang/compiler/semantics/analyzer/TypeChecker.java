@@ -6631,47 +6631,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private void updateObjectCtorClosureSymbols(Location pos, BLangFunction currentFunction, BSymbol resolvedSymbol,
-                                                BLangClassDefinition classDef, AnalyzerData data) {
-        classDef.hasClosureVars = true;
-        resolvedSymbol.closure = true;
-        if (currentFunction != null) {
-            currentFunction.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-            // TODO: can identify if attached here
-        }
-        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
-        if (currentFunction != null && (currentFunction.symbol.params.contains(resolvedSymbol)
-                || (currentFunction.symbol.restParam == resolvedSymbol))) {
-            oceEnvData.closureFuncSymbols.add(resolvedSymbol);
-        } else {
-             oceEnvData.closureBlockSymbols.add(resolvedSymbol);
-        }
-        updateProceedingClasses(data.env.enclEnv, oceEnvData, classDef);
-    }
-
-    private void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvData oceEnvData,
-                                         BLangClassDefinition origClassDef) {
-        SymbolEnv localEnv = envArg;
-        while (localEnv != null) {
-            BLangNode node = localEnv.node;
-            if (node.getKind() == NodeKind.PACKAGE) {
-                break;
-            }
-
-            if (node.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDef = (BLangClassDefinition) node;
-                if (classDef != origClassDef) {
-                    classDef.hasClosureVars = true;
-                    OCEDynamicEnvData parentOceData = classDef.oceEnvData;
-                    oceEnvData.parents.push(classDef);
-                    parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
-                    parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
-                }
-            }
-            localEnv = localEnv.enclEnv;
-        }
-    }
-
     private boolean isNotFunction(BSymbol funcSymbol) {
         if ((funcSymbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION
                 || (funcSymbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {

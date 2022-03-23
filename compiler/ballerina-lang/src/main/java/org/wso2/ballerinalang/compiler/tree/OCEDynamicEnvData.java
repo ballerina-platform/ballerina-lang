@@ -22,8 +22,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
@@ -36,12 +36,15 @@ import java.util.Map;
 import java.util.Set;
 
 /***
- * This class is a place holder for dynamic environment data for object ctor expression. While `capturedClosureEnv`
+ * This class is a placeholder for dynamic environment data for object ctor expression. While `capturedClosureEnv`
  * provide env data other
  * @since 2.0
  */
 public class OCEDynamicEnvData {
 
+    private static final int DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY = 4;
+    public boolean blockMapUpdatedInInitMethod;
+    public boolean functionMapUpdatedInInitMethod;
     public SymbolEnv capturedClosureEnv;
 
     public BLangTypeInit typeInit;
@@ -51,21 +54,20 @@ public class OCEDynamicEnvData {
     public SymbolEnv objMethodsEnv;
     public SymbolEnv fieldEnv;
 
-    public boolean blockMapUpdatedInInitMethod;
-    public boolean functionMapUpdatedInInitMethod;
     public BVarSymbol classEnclosedFunctionMap;
     public BVarSymbol mapBlockMapSymbol;
     public BVarSymbol mapFunctionMapSymbol;
 
     public Set<BSymbol> closureBlockSymbols;
     public Set<BSymbol> closureFuncSymbols;
+    public Set<BSymbol> closureSymbols;
     public Map<BLangFunction, SymbolEnv> functionEnvs;
 
     /*
      * Following fields will be used for AST Cloning.
      */
     public OCEDynamicEnvData cloneRef;
-    public int cloneAttempt;
+    public int cloneAttempts;
     public BLangClassDefinition originalClass;
 
     // These can be removed by an proper design
@@ -73,23 +75,28 @@ public class OCEDynamicEnvData {
     public boolean closureDesugaringInProgress;
     public boolean isDirty;
     public List<BLangSimpleVarRef> desugaredClosureVars;
+    public BLangExpression initInvocation;
 
     public OCEDynamicEnvData(int functions) {
-        closureBlockSymbols = new HashSet<>();
-        closureFuncSymbols = new HashSet<>();
+        closureBlockSymbols = new HashSet<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
+        closureFuncSymbols = new HashSet<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
+        closureSymbols = new HashSet<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
         parents = new LinkedList<>();
-        desugaredClosureVars = new ArrayList<>();
+        desugaredClosureVars = new ArrayList<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
         functionEnvs = new HashMap<>(functions);
-        cloneAttempt = 0;
+        cloneAttempts = 0;
     }
 
-    public void cleanUp() {
+    public void cleanUp() { // TODO: not used
         parents.clear();
         closureFuncSymbols.clear();
         closureBlockSymbols.clear();
+        closureSymbols.clear();
         desugaredClosureVars.clear();
         functionEnvs.clear();
         mapFunctionMapSymbol = null;
         mapBlockMapSymbol = null;
+        cloneAttempts = 0;
+        throw new UnsupportedOperationException("Not tested");
     }
 }

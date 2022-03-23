@@ -3,14 +3,14 @@ plugins {
     id 'base'
 }
 
-//task downloadFile(type: Download) {
-//    src 'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml'
-//    dest buildDir
-//    overwrite false
-//    outputs.files("$project.buildDir/checkstyle.xml")
-//}
+task downloadFile(type: Download) {
+    src 'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml'
+    dest buildDir
+    overwrite false
+    outputs.files("$project.buildDir/checkstyle.xml")
+}
 
-artifacts.add('default', file("~/Downloads/checkStyle/checkstyle.xml")) {
-//    builtBy('downloadFile')
+artifacts.add('default', file("$project.buildDir/checkstyle.xml")) {
+    builtBy('downloadFile') 
 }
 

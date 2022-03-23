@@ -1381,7 +1381,10 @@ public class Desugar extends BLangNodeVisitor {
         if (!funcNode.flagSet.contains(Flag.QUERY_LAMBDA)) {
             this.stmtsToBePropagatedToQuery = new HashMap<>();
         }
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        if (funcNode.funcEnv == null) {
+            funcNode.funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        }
+        SymbolEnv funcEnv = funcNode.funcEnv;
         if (!funcNode.interfaceFunction) {
             addReturnIfNotPresent(funcNode);
         }
@@ -6551,6 +6554,12 @@ public class Desugar extends BLangNodeVisitor {
 
         // init() returning nil is the common case and the type test is not needed for it.
         if (Types.getReferredType(typeInitInvocation.getBType()).tag == TypeTags.NIL) {
+            BLangNode parent = typeInitInvocation.parent;
+            if (parent != null && parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
+                BLangObjectConstructorExpression oceExpression = (BLangObjectConstructorExpression) parent;
+                OCEDynamicEnvData oceData = oceExpression.classNode.oceEnvData;
+                oceData.initInvocation = typeInitExpr.initInvocation;
+            }
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
             initInvExpr.expr = typeInitInvocation;
             typeInitInvocation.name.value = GENERATED_INIT_SUFFIX.value;
@@ -7371,10 +7380,11 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = bLangFunction;
-        lambdaFunction.function.pos = bLangArrowFunction.pos;
-        lambdaFunction.pos = bLangArrowFunction.pos;
+        Location posArrowFunc = bLangArrowFunction.pos;
+        lambdaFunction.function.pos = posArrowFunc;
+        lambdaFunction.pos = posArrowFunc;
         lambdaFunction.parent = bLangArrowFunction.parent;
-        // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
+        // At this phase lambda function is semantically correct. Therefore, simply env can be assigned.
         lambdaFunction.capturedClosureEnv = env;
         lambdaFunction.setBType(bLangArrowFunction.funcType);
         bLangArrowFunction.params.forEach(bLangFunction::addParameter);
@@ -7384,7 +7394,13 @@ public class Desugar extends BLangNodeVisitor {
         returnType.setBType(bLangArrowFunction.body.expr.getBType());
         bLangFunction.setReturnTypeNode(returnType);
         bLangFunction.setBody(populateArrowExprBodyBlock(bLangArrowFunction));
-        bLangFunction.body.pos = bLangArrowFunction.pos;
+        bLangFunction.body.pos = posArrowFunc;
+
+//        BLangSimpleVariable receiver = funcNode.receiver;
+//        if (receiver != null && receiver.symbol.closure && funcNode.flagSet.contains(Flag.ATTACHED)) {
+//            createFunctionMap(funcNode, funcEnv);
+//            addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.getBType());
+//        }
 
         // Create function symbol.
         BLangFunction funcNode = lambdaFunction.function;
@@ -7394,9 +7410,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID,
                                                                    bLangArrowFunction.funcType,
                                                                    env.enclEnv.enclVarSym, true,
-                                                                   bLangArrowFunction.pos, VIRTUAL);
-
-        funcSymbol.originalName = new Name(funcNode.name.originalValue);
+                                                                    posArrowFunc, VIRTUAL);
 
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -7417,7 +7431,7 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.setBType(
                 new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(), null));
 
-        rewrite(lambdaFunction.function, env);
+//        rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         result = rewriteExpr(lambdaFunction);
     }
@@ -8231,11 +8245,11 @@ public class Desugar extends BLangNodeVisitor {
         return fieldBasedAccessExpression;
     }
 
-    private BlockFunctionBodyNode populateArrowExprBodyBlock(BLangArrowFunction bLangArrowFunction) {
+    private BlockFunctionBodyNode populateArrowExprBodyBlock(BLangArrowFunction blArrowFunction) {
         BlockFunctionBodyNode blockNode = TreeBuilder.createBlockFunctionBodyNode();
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.pos = bLangArrowFunction.body.expr.pos;
-        returnNode.setExpression(bLangArrowFunction.body.expr);
+        returnNode.pos = blArrowFunction.body.expr.pos;
+        returnNode.setExpression(blArrowFunction.body.expr);
         blockNode.addStatement(returnNode);
         return blockNode;
     }

@@ -2254,7 +2254,7 @@ public class NodeCloner extends BLangNodeVisitor {
             return source.cloneRef;
         }
         OCEDynamicEnvData clone = new OCEDynamicEnvData(source.functionEnvs.size());
-        source.cloneAttempt = this.currentCloneAttempt;
+        source.cloneAttempts = this.currentCloneAttempt;
         clone.originalClass = source.originalClass; // dont copy me
         clone.typeInit = clone(source.typeInit);
         source.cloneRef = clone;
