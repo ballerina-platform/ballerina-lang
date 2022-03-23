@@ -190,44 +190,44 @@ public class SealedArraysOfArraysTest {
     public void testCodeAnalysisNegativeSealedArrays() {
         Assert.assertEquals(codeAnalysisNegative.getErrorCount(), 34);
         int i = 0;
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 18, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 19, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 20, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                        "supported in the first dimension", 23, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 24, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 26, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 30, 6);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 32, 6);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 36, 15);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 37, 15);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 18, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 19, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 20, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 23, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 24, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 26, 5);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 30, 6);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 32, 6);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 36, 15);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 37, 15);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 37, 36);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 38, 43);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 39, 40);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 47, 16);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 47, 16);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 47, 45);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 51, 24);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 55, 24);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 51, 24);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 55, 24);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 59, 41);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 59, 53);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 59, 53);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 63, 14);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
@@ -238,8 +238,8 @@ public class SealedArraysOfArraysTest {
                 68, 2);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 70, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 71, 11);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 71, 11);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 72, 5);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
@@ -248,12 +248,12 @@ public class SealedArraysOfArraysTest {
                 73, 52);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 73, 80);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 74, 11);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 74, 11);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 74, 32);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: infer array size only " +
-                "supported in the first dimension", 74, 54);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
+                "dimension of an array type descriptor", 74, 54);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
                 74, 83);
         BAssertUtil.validateError(codeAnalysisNegative, i, "invalid usage of closed type: can not infer array size",
