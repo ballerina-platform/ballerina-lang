@@ -34,7 +34,8 @@ import java.nio.file.Paths;
  */
 public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "packaging", "readonly")
+    private static final String testFileLocation =
+            Paths.get("src", "test", "resources", "packaging", "readonly", "one")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 

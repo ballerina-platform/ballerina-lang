@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -71,58 +72,60 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         //Check if there is a type cast expression already present.
-        MatchedExpressionNodeResolver expressionResolver = 
+        MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
-        Optional<ExpressionNode> expressionNode = positionDetails.matchedNode().apply(expressionResolver);
+        Optional<ExpressionNode> expressionNode = expressionResolver.findExpression(positionDetails.matchedNode());
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> rhsTypeSymbol;
+        Optional<TypeSymbol> actualTypeSymbol;
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
-            rhsTypeSymbol = positionDetails.diagnosticProperty(CodeActionUtil
+            actualTypeSymbol = positionDetails.diagnosticProperty(CodeActionUtil
                     .getDiagPropertyFilterFunction(DiagBasedPositionDetails
                             .DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
         } else {
-            rhsTypeSymbol = positionDetails.diagnosticProperty(
+            actualTypeSymbol = positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
         }
 
-        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(
+        Optional<TypeSymbol> expectedTypeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
-        if (lhsTypeSymbol.isEmpty() || rhsTypeSymbol.isEmpty()) {
+        if (expectedTypeSymbol.isEmpty() || actualTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
-        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
+        if (actualTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
-            if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) rhsTypeSymbol.get())) {
+            if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) actualTypeSymbol.get())) {
                 return Collections.emptyList();
             }
         }
 
-        //Consider the type parameter of future type symbols.
-        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.FUTURE) {
-            if (lhsTypeSymbol.get().typeKind() != TypeDescKind.FUTURE) {
+        //Consider the type parameter of future type symbols within the wait action.
+        if (actualTypeSymbol.get().typeKind() == TypeDescKind.FUTURE
+                && expressionNode.get().kind() == SyntaxKind.WAIT_ACTION) {
+            if (expectedTypeSymbol.get().typeKind() != TypeDescKind.FUTURE) {
                 return Collections.emptyList();
             }
-            lhsTypeSymbol = ((FutureTypeSymbol) lhsTypeSymbol.get()).typeParameter();
-            rhsTypeSymbol = ((FutureTypeSymbol) rhsTypeSymbol.get()).typeParameter();
+            expectedTypeSymbol = ((FutureTypeSymbol) expectedTypeSymbol.get()).typeParameter();
+            actualTypeSymbol = ((FutureTypeSymbol) actualTypeSymbol.get()).typeParameter();
         }
 
         //Numeric types can be casted between each other.
-        if (!lhsTypeSymbol.get().subtypeOf(rhsTypeSymbol.get()) && (!isNumeric(lhsTypeSymbol.get())
-                || !isNumeric(rhsTypeSymbol.get()))) {
+        if (!expectedTypeSymbol.get().subtypeOf(actualTypeSymbol.get()) && (!isNumeric(expectedTypeSymbol.get())
+                || !isNumeric(actualTypeSymbol.get()))) {
             return Collections.emptyList();
         }
-        String typeName = lhsTypeSymbol.get().signature();
+
+        String typeName = CommonUtil.getModifiedTypeName(context, expectedTypeSymbol.get());
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(getTextEdits(expressionNode.get(), typeName));
+        List<TextEdit> edits = new ArrayList<>(getTextEdits(expressionNode.get(), typeName));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
-        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+                CodeActionKind.QuickFix));
     }
 
     @Override
@@ -155,7 +158,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
         Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
 
-        String editText = "<" + expectedTypeName + "> ";
+        String editText = "<" + expectedTypeName + ">";
 
         // If the expression is a binary expression, need to add parentheses around the expression
         if (expressionNode.kind() == SyntaxKind.BINARY_EXPRESSION) {

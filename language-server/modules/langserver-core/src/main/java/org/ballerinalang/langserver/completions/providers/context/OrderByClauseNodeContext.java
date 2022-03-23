@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -93,18 +94,21 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
                 TypeDescKind.BOOLEAN, TypeDescKind.FLOAT,
                 TypeDescKind.DECIMAL);
 
+        Optional<QueryExpressionNode> queryExprNode =  SortingUtil.getTheOutermostQueryExpressionNode(node);
+        if (queryExprNode.isEmpty()) {
+            return;
+        }
         completionItems.forEach(lsCItem -> {
-            if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
-                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1)
-                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
-            } else {
-                lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2) +
-                        SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+            int rank = 3;
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
+                rank = 1;
+            } else if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
+                rank = 2;
             }
+            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
+                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
         });
     }
-
-    
     
     private boolean onSuggestDirectionKeywords(BallerinaCompletionContext context, OrderByClauseNode node) {
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = node.orderKey();

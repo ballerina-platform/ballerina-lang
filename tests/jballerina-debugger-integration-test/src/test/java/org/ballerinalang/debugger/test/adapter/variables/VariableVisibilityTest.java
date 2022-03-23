@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.debugger.test.utils.DebugTestRunner.VariableScope;
-
 /**
  * Test class for variable visibility.
  */
@@ -71,7 +70,7 @@ public class VariableVisibilityTest extends BaseTestCase {
     @Test(description = "Variable visibility test in the middle of the main() method for a new variable")
     public void newVariableVisibilityTest() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 243));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 308));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 313));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(20000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
@@ -105,12 +104,14 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test in control flows")
     public void controlFlowVariableVisibilityTest() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 262));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 269));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 276));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 285));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 291));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 298));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 263));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 267));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 274));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 281));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 290));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 296));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 303));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 319));
         // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/27738
         // debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 266));
 
@@ -118,26 +119,33 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(20000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 
+        // local variable visibility test inside `let` expression
+        Assert.assertEquals(localVariables.size(), 50);
+
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+
         // local variable visibility test inside `if` statement.
-        Assert.assertEquals(localVariables.size(), 47);
+        Assert.assertEquals(localVariables.size(), 48);
 
         // local variable visibility test inside `else` statement.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 47);
+        Assert.assertEquals(localVariables.size(), 48);
 
         // local variable visibility test inside `else-if` statement.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 47);
+        Assert.assertEquals(localVariables.size(), 48);
 
         // local variable visibility test inside `while` loop.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 47);
+        Assert.assertEquals(localVariables.size(), 48);
 
         // local variable visibility test inside `foreach` loop.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
@@ -149,7 +157,13 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 48);
+        Assert.assertEquals(localVariables.size(), 49);
+
+        // visibility test of local variable defined inside `if` statement
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+        Assert.assertEquals(localVariables.size(), 49);
 
         // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/27738
         // local variable visibility test inside `foreach` statement + lambda function.
@@ -162,8 +176,8 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test for global variables")
     public void globalVariableVisibilityTest() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 335));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 310));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 349));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 324));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(20000);
         globalVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
@@ -180,7 +194,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         // global constants
         debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "\"Ballerina\"", "string");
         debugTestRunner.assertVariable(globalVariables, "nameWithType", "\"Ballerina\"", "string");
-        debugTestRunner.assertVariable(globalVariables, "nameMap", "map (size = 1)", "map");
+        debugTestRunner.assertVariable(globalVariables, "nameMap", "(debug_test_resources/variable_tests" +
+                ":0:$anonType$_11 & readonly)", "record");
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "RED", "\"RED\"", "string");
@@ -198,9 +213,23 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test for local variables at the last line of main() method")
     public void localVariableVisibilityTest() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 310));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 324));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 357));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
+        globalVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
+
+        // variable visibility test for closure
+        // A closure is an inner anonymous function that has visibility to the scope of its enclosing environment.
+        // It can access its own scope, its enclosing environment’s scope, and variables defined in the global scope.
+        debugTestRunner.assertVariable(localVariables, "a", "3", "int");
+        debugTestRunner.assertVariable(localVariables, "b", "3", "int");
+        debugTestRunner.assertVariable(localVariables, "c", "34", "int");
+        debugTestRunner.assertVariable(globalVariables, "port", "9090", "int");
+
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
 
         // var variable visibility test
@@ -210,7 +239,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "booleanVar", "true", "boolean");
 
         // int variable visibility test
-        debugTestRunner.assertVariable(localVariables, "intVar", "7", "int");
+        debugTestRunner.assertVariable(localVariables, "intVar", "14", "int");
 
         // float variable visibility test
         debugTestRunner.assertVariable(localVariables, "floatVar", "-10.0", "float");
@@ -294,11 +323,14 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // service variable visibility test
         debugTestRunner.assertVariable(localVariables, "serviceVar", "service", "service");
+
+        // let expression visibility test
+        debugTestRunner.assertVariable(localVariables, "letVar", "\"Hello Ballerina!\"", "string");
     }
 
     @Test(description = "Child variable visibility test for local variables at the last line of main() method")
     public void localVariableChildrenVisibilityTest() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 310));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 324));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(20000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
@@ -464,6 +496,31 @@ public class VariableVisibilityTest extends BaseTestCase {
         // `self` child variable visibility test inside object method.
         selfChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("self"));
         debugTestRunner.assertVariable(selfChildVariables, "name", "\"John\"", "string");
+    }
+
+    @Test(description = "Worker related variable visibility test")
+    public void workerVariableVisibilityTest() throws BallerinaTestException {
+        String testProjectName = "worker-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 23));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 31));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(20000);
+
+        // variable visibility test for workers outside fork (workers are visible outside fork() as futures).
+        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+        debugTestRunner.assertVariable(localVariables, "w1", "future<()>", "future");
+
+        // variable visibility test inside worker (only worker's variables should be visible).
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
+        debugTestRunner.assertVariable(localVariables, "x", "10", "int");
+
+        // variables outside worker should not be visible
+        Assert.assertFalse(localVariables.containsKey("a"));
     }
 
     @AfterMethod(alwaysRun = true)

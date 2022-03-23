@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -25,8 +27,9 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -94,7 +97,15 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.definition = symbolFactory.getBCompiledSymbol(tSymbol, this.name());
+
+        if (this.getReferredType(this.getBType()).tag == TypeTags.PARAMETERIZED_TYPE) {
+            this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
+                                                               this.name());
+        } else {
+            Scope.ScopeEntry scopeEntry = tSymbol.owner.scope.lookup(Names.fromString(this.name()));
+            this.definition = symbolFactory.getBCompiledSymbol(scopeEntry.symbol, this.name());
+        }
+
         return this.definition;
     }
 
@@ -110,20 +121,13 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         this.moduleEvaluated = true;
-        BSymbol symbol = this.getBType().tsymbol.owner;
-        while (symbol != null) {
-            if (symbol instanceof BPackageSymbol) {
-                break;
-            }
-            symbol = symbol.owner;
-        }
+        Symbol definition = this.definition();
 
-        if (symbol == null) {
+        if (definition.getModule().isEmpty()) {
             return Optional.empty();
         }
 
-        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        this.module = definition.getModule().get();
         return Optional.of(this.module);
     }
 
@@ -165,6 +169,16 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     private boolean isAnonOrg(ModuleID moduleID) {

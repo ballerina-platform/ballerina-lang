@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -38,6 +40,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 
@@ -144,6 +147,16 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         return this.signature;
     }
 
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     private String getSignatureForUnion(BType type) {
         BUnionType unionType = (BUnionType) type;
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
@@ -168,6 +181,12 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             StringJoiner joiner = new StringJoiner("|");
             unionType.resolvingToString = true;
             for (TypeSymbol typeDescriptor : memberTypes) {
+                // If the member is a function and not the last element, add surrounding parenthesis
+                if (typeDescriptor.typeKind() == FUNCTION &&
+                        !memberTypes.get(memberTypes.size() - 1).equals(typeDescriptor)) {
+                    joiner.add("(" + typeDescriptor.signature() + ")");
+                    continue;
+                }
                 joiner.add(getSignatureForIntersectionType(typeDescriptor));
             }
             unionType.resolvingToString = false;

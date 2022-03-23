@@ -25,16 +25,14 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.identifier.Utils;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
-import org.ballerinalang.debugadapter.completion.CompletionContext;
-import org.ballerinalang.debugadapter.completion.FieldAccessCompletionResolver;
+import org.ballerinalang.debugadapter.completion.CompletionGenerator;
+import org.ballerinalang.debugadapter.completion.context.CompletionContext;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
@@ -80,8 +78,6 @@ import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.SetExceptionBreakpointsArguments;
-import org.eclipse.lsp4j.debug.SetFunctionBreakpointsArguments;
-import org.eclipse.lsp4j.debug.SetFunctionBreakpointsResponse;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceArguments;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
@@ -106,10 +102,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -120,15 +118,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getCompletions;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getInjectedExpressionNode;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getResolverNode;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.getVisibleSymbolCompletions;
-import static org.ballerinalang.debugadapter.completion.CompletionUtil.triggerCharactersFound;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getInjectedExpressionNode;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getResolverNode;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getTriggerCharacters;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.getVisibleSymbolCompletions;
+import static org.ballerinalang.debugadapter.completion.util.CompletionUtil.triggerCharactersFound;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
 
 /**
  * JBallerina debug server implementation.
@@ -186,6 +184,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsConditionalBreakpoints(true);
         capabilities.setSupportsLogPoints(true);
         capabilities.setSupportsCompletionsRequest(true);
+        capabilities.setCompletionTriggerCharacters(getTriggerCharacters().toArray(String[]::new));
         // Todo - Implement
         capabilities.setSupportsRestartRequest(false);
         // unsupported capabilities
@@ -194,7 +193,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsStepBack(false);
         capabilities.setSupportsTerminateThreadsRequest(false);
         capabilities.setSupportsFunctionBreakpoints(false);
-        capabilities.setSupportsFunctionBreakpoints(false);
+        capabilities.setSupportsExceptionOptions(false);
+        capabilities.setSupportsExceptionFilterOptions(false);
+        capabilities.setSupportsExceptionInfoRequest(false);
 
         context.setClient(client);
         eventProcessor = new JDIEventProcessor(context);
@@ -205,24 +206,30 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
-        BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
-                .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
-                .toArray(BalBreakpoint[]::new);
+        return CompletableFuture.supplyAsync(() -> {
+            BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
+                    .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
+                    .toArray(BalBreakpoint[]::new);
 
-        Breakpoint[] breakpoints = Arrays.stream(balBreakpoints)
-                .map(BalBreakpoint::getAsDAPBreakpoint)
-                .toArray(Breakpoint[]::new);
+            LinkedHashMap<Integer, BalBreakpoint> breakpointsMap = new LinkedHashMap<>();
+            for (BalBreakpoint bp : balBreakpoints) {
+                breakpointsMap.put(bp.getLine(), bp);
+            }
 
-        Map<Integer, BalBreakpoint> breakpointsMap = new HashMap<>();
-        for (BalBreakpoint bp : balBreakpoints) {
-            breakpointsMap.put(bp.getLine(), bp);
-        }
-
-        SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
-        breakpointsResponse.setBreakpoints(breakpoints);
-        String sourcePath = args.getSource().getPath();
-        eventProcessor.setBreakpoints(sourcePath, breakpointsMap);
-        return CompletableFuture.completedFuture(breakpointsResponse);
+            SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
+            String sourcePath = args.getSource().getPath();
+            Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePath);
+            qualifiedClassName.ifPresent(className -> {
+                eventProcessor.enableBreakpoints(className, breakpointsMap);
+                BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();
+                Breakpoint[] breakpoints = breakpointProcessor.getUserBreakpoints().get(qualifiedClassName.get())
+                        .values().stream()
+                        .map(BalBreakpoint::getAsDAPBreakpoint)
+                        .toArray(Breakpoint[]::new);
+                breakpointsResponse.setBreakpoints(breakpoints);
+            });
+            return breakpointsResponse;
+        });
     }
 
     @Override
@@ -236,7 +243,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
             clientConfigHolder = new ClientLaunchConfigHolder(args);
-            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
+            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+            context.setSourceProject(sourceProject);
             String sourceProjectRoot = context.getSourceProjectRoot();
             BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
                     new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
@@ -257,7 +265,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
             clientConfigHolder = new ClientAttachConfigHolder(args);
-            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
+            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+            context.setSourceProject(sourceProject);
             ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
 
             String hostName = configHolder.getHostName().orElse("");
@@ -274,6 +283,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             LOGGER.error(e.getMessage());
             outputLogger.sendErrorOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                     host, portName));
+            terminateDebugServer(context.getDebuggeeVM() != null, false);
         }
         return CompletableFuture.completedFuture(null);
     }
@@ -515,27 +525,37 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             try {
                 NonTerminalNode injectedExpressionNode = getInjectedExpressionNode(completionContext, args,
                         clientConfigHolder.getSourcePath(), suspendedContext.getLineNumber());
+                completionContext.setNodeAtCursor(injectedExpressionNode);
                 Optional<Node> resolverNode = getResolverNode(injectedExpressionNode);
 
-                if (resolverNode.isPresent() && resolverNode.get().kind() == SyntaxKind.FIELD_ACCESS) {
-                    FieldAccessCompletionResolver fieldAccessCompletionResolver =
-                            new FieldAccessCompletionResolver(completionContext);
-                    List<Symbol> visibleEntries = fieldAccessCompletionResolver
-                            .getVisibleEntries(((FieldAccessExpressionNode) resolverNode.get()).expression());
-                    CompletionItem[] completions = getCompletions(visibleEntries);
-                    completionsResponse.setTargets(completions);
+                if (resolverNode.isEmpty()) {
+                    return completionsResponse;
+                }
+
+                CompletionItem[] completionItems;
+                switch (resolverNode.get().kind()) {
+                    case FIELD_ACCESS:
+                        completionItems = CompletionGenerator
+                                .getFieldAccessCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    case REMOTE_METHOD_CALL_ACTION:
+                        completionItems = CompletionGenerator
+                                .getRemoteMethodCallActionCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    case ASYNC_SEND_ACTION:
+                        completionItems = CompletionGenerator
+                                .getAsyncSendActionCompletions(completionContext, resolverNode.get());
+                        completionsResponse.setTargets(completionItems);
+                        break;
+                    default:
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage());
             }
             return completionsResponse;
         });
-    }
-
-    @Override
-    public CompletableFuture<SetFunctionBreakpointsResponse> setFunctionBreakpoints(
-            SetFunctionBreakpointsArguments args) {
-        return CompletableFuture.completedFuture(null);
     }
 
     private BalBreakpoint toBreakpoint(SourceBreakpoint sourceBreakpoint, Source source) {
@@ -556,18 +576,24 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
         context.setTerminateRequestReceived(true);
         boolean terminateDebuggee = Objects.requireNonNullElse(args.getTerminateDebuggee(), true);
-        terminateServer(terminateDebuggee);
+        terminateDebugServer(terminateDebuggee, true);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
         context.setTerminateRequestReceived(true);
-        terminateServer(true);
+        terminateDebugServer(true, true);
         return CompletableFuture.completedFuture(null);
     }
 
-    void terminateServer(boolean terminateDebuggee) {
+    /**
+     * Terminates the debug server.
+     *
+     * @param terminateDebuggee indicates whether the remote VM should also be terminated
+     * @param logsEnabled       indicates whether the debug server logs should be sent to the client
+     */
+    void terminateDebugServer(boolean terminateDebuggee, boolean logsEnabled) {
         // Destroys launched process, if presents.
         if (context.getLaunchedProcess().isPresent() && context.getLaunchedProcess().get().isAlive()) {
             killProcessWithDescendants(context.getLaunchedProcess().get());
@@ -594,7 +620,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
 
         // Notifies user.
-        if (executionManager != null) {
+        if (executionManager != null && logsEnabled) {
             String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
                     executionManager.getHost().get() + ":" + executionManager.getPort().get() : VALUE_UNKNOWN;
             outputLogger.sendDebugServerOutput(String.format(System.lineSeparator() + "Disconnected from the target " +
@@ -923,7 +949,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @return true if its a valid ballerina frame
      */
     static boolean isValidFrame(StackFrame stackFrame) {
-        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0;
+        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0
+                && !isCompilerGeneratedFrame(stackFrame);
+    }
+
+    /**
+     * Validates whether the provided stack frame is a compiler generated one during the codegen phase.
+     *
+     * @param stackFrame stack frame instance
+     * @return true if the provided stack frame is a compiler generated one during the codegen phase
+     */
+    private static boolean isCompilerGeneratedFrame(StackFrame stackFrame) {
+        String frameName = stackFrame.getName();
+        return frameName != null && frameName.startsWith("$") && frameName.endsWith("$");
     }
 
     /**
@@ -943,7 +981,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     //  the STDOUT stream.
                     outputLogger.sendConsoleOutput(line);
                     if (context.getDebuggeeVM() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
-                        terminateServer(false);
+                        terminateDebugServer(false, true);
                     }
                 }
             } catch (IOException ignored) {
@@ -963,7 +1001,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     if (line.contains("Listening for transport dt_socket")) {
                         attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                     } else if (context.getDebuggeeVM() == null && line.contains(COMPILATION_ERROR_MESSAGE)) {
-                        terminateServer(false);
+                        terminateDebugServer(false, true);
                     }
                     outputLogger.sendProgramOutput(line);
                 }
@@ -979,7 +1017,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 LOGGER.error(e.getMessage());
                 outputLogger.sendDebugServerOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                         host, portName));
-                terminateServer(context.getDebuggeeVM() != null);
+                terminateDebugServer(context.getDebuggeeVM() != null, false);
             }
         });
     }
@@ -1006,7 +1044,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      */
     private void prepareFor(DebugInstruction instruction) {
         clearState();
-        eventProcessor.restoreBreakpoints(instruction);
+        eventProcessor.getBreakpointProcessor().restoreUserBreakpoints(instruction);
         context.setLastInstruction(instruction);
     }
 

@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -79,8 +80,7 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
                 SyntaxKind.LISTENER_KEYWORD.stringValue().trim() + " "));
         String commandTitle = String.format(CommandConstants.CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION,
                 matchedNode.toSourceCode().trim());
-        actions.add(createQuickFixCodeAction(commandTitle, textEdits,
-                nodeUriPair.get().getRight()));
+        actions.add(createCodeAction(commandTitle, textEdits, nodeUriPair.get().getRight(), CodeActionKind.QuickFix));
         return actions;
     }
 

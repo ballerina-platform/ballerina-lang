@@ -56,10 +56,10 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 53, 15);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'MyError'", 54, 15);
         validateError(result, indx++,
-                      "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
-                      59, 26);
+                "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
+                59, 26);
         validateError(result, indx++,
-                "undefined field 'toValue' in record 'Teacher'",
+                "function invocation on type 'Teacher' is not supported",
                 68, 27);
         assertEquals(result.getErrorCount(), indx);
     }
@@ -72,7 +72,7 @@ public class OpenRecordNegativeTest {
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor",
-            groups = { "disableOnOldParser" })
+            groups = {"disableOnOldParser"})
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
         assertEquals(result.getErrorCount(), 0);
@@ -81,15 +81,14 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
-        String errMsg =
-                "invalid method call expression: expected a function type, but found 'function" +
-                        " (string,string) returns (string)?'";
+        String errMsg1 = "function invocation on type 'Person' is not supported";
+        String errMsg2 = "function invocation on type 'PersonB' is not supported";
         int indx = 0;
 
-        validateError(compileResult, indx++, errMsg, 28, 17);
-        validateError(compileResult, indx++, errMsg, 33, 17);
-        validateError(compileResult, indx++, errMsg, 47, 17);
-        validateError(compileResult, indx++, errMsg, 53, 17);
+        validateError(compileResult, indx++, errMsg1, 28, 21);
+        validateError(compileResult, indx++, errMsg1, 33, 21);
+        validateError(compileResult, indx++, errMsg2, 47, 21);
+        validateError(compileResult, indx++, errMsg2, 53, 21);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 
@@ -99,9 +98,9 @@ public class OpenRecordNegativeTest {
         assertEquals(result.getErrorCount(), 5);
         int index = 0;
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 37,
-                      24);
+                24);
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 38,
-                      24);
+                24);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
         validateError(result, index, "ambiguous type '(A|B|C)'", 74, 25);

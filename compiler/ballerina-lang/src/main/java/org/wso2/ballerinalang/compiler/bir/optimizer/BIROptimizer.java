@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -59,6 +58,7 @@ public class BIROptimizer {
     private final LHSTempVarOptimizer lhsTempVarOptimizer;
     private final BIRLockOptimizer lockOptimizer;
 //    private final BirVariableOptimizer variableOptimizer;
+    private final BIRBasicBlockOptimizer bbOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -75,6 +75,7 @@ public class BIROptimizer {
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
         this.lockOptimizer = new BIRLockOptimizer();
 //        this.variableOptimizer = new BirVariableOptimizer();
+        this.bbOptimizer = new BIRBasicBlockOptimizer();
     }
 
     public void optimizePackage(BIRPackage pkg) {
@@ -87,6 +88,9 @@ public class BIROptimizer {
         // Optimize lock statements
         this.lockOptimizer.optimizeNode(pkg);
 //        variableOptimizer.optimizeNode(pkg);
+
+        // Optimize BB - unnecessary goto removal
+        bbOptimizer.optimizeNode(pkg, null);
     }
 
     /**
@@ -113,16 +117,7 @@ public class BIROptimizer {
             for (BIRErrorEntry errorEntry : birFunction.errorTable) {
                 addErrorTableDependency(errorEntry);
             }
-
-            // First add all the instructions within the function to a list.
-            // This is done since the order of bb's cannot be guaranteed.
-            birFunction.parameters.values().forEach(this::addDependency);
             addDependency(birFunction.basicBlocks);
-
-            // Then visit and replace any temp moves
-            for (List<BIRBasicBlock> paramBBs : birFunction.parameters.values()) {
-                paramBBs.forEach(bb -> bb.accept(this));
-            }
             birFunction.basicBlocks.forEach(bb -> bb.accept(this));
 
             // Remove unused temp vars
@@ -645,16 +640,6 @@ public class BIROptimizer {
             }
             env.addTempBirOperand(birVarRef);
         }
-
-        @Override
-        public void visit(BIRArgument birArgument) {
-            BIRVariableDcl realVar = this.env.tempVars.get(birArgument.variableDcl);
-            if (realVar != null) {
-                birArgument.variableDcl = realVar;
-            }
-            env.addTempBirOperand(birArgument);
-            this.optimizeNode(birArgument.condition, this.env);
-        }
     }
 
     /**
@@ -673,6 +658,8 @@ public class BIROptimizer {
         private final List<BIRVariableDcl> multipleBBUsedTempVars = new ArrayList<>();
 
         public BIRBasicBlock currentBB;
+
+        public BIRBasicBlock nextBB;
 
         public boolean isTerminator;
 

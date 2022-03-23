@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -322,12 +323,16 @@ public class TypesFactory {
             return false;
         }
 
+        if ((tSymbol.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) {
+            return false;
+        }
+
         if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
             return true;
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == PARAMETERIZED || tSymbol.kind == SymbolKind.TYPE_DEF
+        return kind == PARAMETERIZED
                 || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
     }
 

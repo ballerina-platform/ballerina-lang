@@ -237,7 +237,15 @@ type Foo object {
     function baz() returns string;
 };
 
-class Bar {
+type Bar object {
+    string name;
+    int id;
+    int? oth;
+
+    function baz() returns string;
+};
+
+var st = object {
     final string name = "str";
     final int id = 1234;
     final int? oth = ();
@@ -245,19 +253,17 @@ class Bar {
     function baz() returns string {
         return string `${self.id}: ${self.name}`;
     }
-}
+};
 
 function testTypeReadOnlyFlagForAllFinalFields() {
-    Bar st = new;
-
     Foo & readonly pr = st;
-    assertTrue(pr is Bar);
+    assertTrue(pr is Bar & readonly);
     assertEquality("str", pr.name);
     assertEquality(1234, pr.id);
     assertEquality("1234: str", pr.baz());
 
     readonly rd = st;
-    assertTrue(rd is Bar);
+    assertTrue(rd is Bar & readonly);
 
     var ob = object {
         final map<int> & readonly config;

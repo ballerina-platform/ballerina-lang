@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 2,
+    "character": 11
+  },
+  "source": {
+    "file": "hover_negative.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": ""
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

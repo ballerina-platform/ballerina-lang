@@ -18,4 +18,12 @@ public function main() returns error? {
     var response = check clientEndpoint->getAll("");
 
     var df = check myClient->getAll("");
+    var temp;
+    temp = df;
+
+    boolean status = deleteClient(clientEndpoint);
+}
+
+function deleteClient(MyMainClient mmc) returns boolean {
+    return true;
 }

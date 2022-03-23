@@ -15,11 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.syntax.tree.FieldMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -28,9 +26,8 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -50,36 +47,30 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
             throws LSCompletionException {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        NonTerminalNode evalNode = getEvalNode(context);
-        if (this.withinValueExpression(context, evalNode)) {
+        Optional<Node> evalNode = getEvalNode(context);
+        if (evalNode.isEmpty()) {
+            return completionItems;
+        }
+        if (this.withinValueExpression(context, evalNode.get())) {
             completionItems.addAll(this.getCompletionsInValueExpressionContext(context));
         } else {
-            completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode));
+            completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode.get()));
         }
         this.sort(context, node, completionItems);
         return completionItems;
     }
 
     @Override
-    protected Map<String, RecordFieldSymbol> getValidFields(MappingMatchPatternNode node,
-                                                            RecordTypeSymbol recordTypeSymbol) {
-        List<String> missingFields = node.fieldMatchPatterns().stream()
+    protected List<String> getFields(MappingMatchPatternNode node) {
+        return node.fieldMatchPatterns().stream()
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.FIELD_MATCH_PATTERN
                         && ((FieldMatchPatternNode) field).fieldNameNode().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((FieldMatchPatternNode) field).fieldNameNode().text())
                 .collect(Collectors.toList());
-        Map<String, RecordFieldSymbol> fieldSymbols = new HashMap<>();
-        recordTypeSymbol.fieldDescriptors().forEach((name, symbol) -> {
-            if (!missingFields.contains(name)) {
-                fieldSymbols.put(name, symbol);
-            }
-        });
-
-        return fieldSymbols;
     }
 
     @Override
-    protected boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    protected boolean withinValueExpression(BallerinaCompletionContext context, Node evalNodeAtCursor) {
         if (evalNodeAtCursor.kind() != SyntaxKind.FIELD_MATCH_PATTERN) {
             return false;
         }

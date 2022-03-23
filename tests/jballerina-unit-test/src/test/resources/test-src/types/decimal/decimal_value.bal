@@ -164,6 +164,104 @@ function testDecimalFillerValue() {
     assertEquality(true, a == b);
 }
 
+function testDecimalZeroOperations() {
+    decimal result = 1.2 + 0;
+    assertEquality(1.2d, result);
+
+    result = 0 - 0;
+    assertEquality(0d, result);
+
+    result = 0 - 22;
+    assertEquality(-22d, result);
+
+    result = 22 - 0;
+    assertEquality(22d, result);
+
+    result = 0 * 0;
+    assertEquality(0d, result);
+
+    result = 0 * 1.2;
+    assertEquality(0d, result);
+
+    result = 1.2 * 0;
+    assertEquality(0d, result);
+
+    result = 0 / 1.2;
+    assertEquality(0d, result);
+
+    result = 0;
+    result = - result;
+    assertEquality(0d, result);
+
+    decimal|error d2 = trap 12d / 0d;
+    assertEquality(true, d2 is error);
+    error err = <error>d2;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'Infinity'", messageString);
+
+    decimal d1 = 0.0;
+    d2 = trap d1 / 0d;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
+
+    d2 = trap -1.0d / d1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value '-Infinity'", messageString);
+
+    d2 = trap 1.0d / d1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'Infinity'", messageString);
+
+    d2 = trap 1.0d % d1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
+
+    float inf = 1.0 / 0.0;
+    d2 = trap <decimal>inf;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'Infinity'", messageString);
+
+    float negInf = -1.0 / 0.0;
+    d2 = trap <decimal>negInf;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value '-Infinity'", messageString);
+
+    float nan1 = 0.0 / 0.0;
+    d2 = trap <decimal>nan1;
+    assertEquality(true, d2 is error);
+    err = <error>d2;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assertEquality("{ballerina}UnsupportedDecimalError", err.message());
+    assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

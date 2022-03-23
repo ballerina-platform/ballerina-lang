@@ -37,10 +37,12 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.types.BAnydataType;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.TomlType;
@@ -316,6 +318,33 @@ public class Utils {
         return ValueCreator.createDecimalValue(BigDecimal.valueOf(value));
     }
 
+    private static Object validateAndGetFiniteDoubleValue(TomlDoubleValueNodeNode tomlNode, BFiniteType finiteType,
+                                                          Set<LineRange> invalidTomlLines, String variableName) {
+        Double value = tomlNode.getValue();
+        boolean decimalValueFound = checkDoubleValue(finiteType, TypeTags.DECIMAL_TAG, value);
+        boolean floatValueFound = checkDoubleValue(finiteType, TypeTags.FLOAT_TAG, value);
+        if (decimalValueFound && floatValueFound) {
+            throwMemberAmbiguityError(finiteType, invalidTomlLines, variableName, tomlNode);
+        }
+        if (floatValueFound) {
+            return value;
+        }
+        return ValueCreator.createDecimalValue(BigDecimal.valueOf(value));
+    }
+
+    private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
+        for (Object value : type.getValueSpace()) {
+            if (TypeChecker.getType(value).getTag() == tag) {
+                if (tag == TypeTags.DECIMAL_TAG) {
+                    return doubleValue == ((DecimalValue) value).floatValue();
+                } else {
+                    return doubleValue == (double) value;
+                }
+            }
+        }
+        return false;
+    }
+
     private static Object validateAndGetStringValue(TomlStringValueNode tomlNode, BUnionType unionType,
                                                     Set<LineRange> invalidTomlLines, String variableName) {
         boolean hasString = containsType(unionType, TypeTags.STRING_TAG);
@@ -331,11 +360,11 @@ public class Utils {
         return createReadOnlyXmlValue(value);
     }
 
-    private static void throwMemberAmbiguityError(BUnionType unionType, Set<LineRange> invalidTomlLines,
+    private static void throwMemberAmbiguityError(Type type, Set<LineRange> invalidTomlLines,
                                                   String variableName, TomlNode tomlNode) {
         invalidTomlLines.add(tomlNode.location().lineRange());
         throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlNode), variableName,
-                decodeIdentifier(unionType.toString()));
+                decodeIdentifier(type.toString()));
     }
 
     private static boolean containsType(BUnionType unionType, int tag) {
@@ -403,4 +432,27 @@ public class Utils {
         return false;
     }
 
+    public static Object getFiniteBalValue(TomlNode tomlNode, Set<TomlNode> visitedNodes,
+                                           BFiniteType finiteType, Set<LineRange> invalidTomlLines,
+                                           String variableName) {
+        visitedNodes.add(tomlNode);
+        switch (tomlNode.kind()) {
+            case STRING:
+                return StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
+            case INTEGER:
+                return ((TomlLongValueNode) tomlNode).getValue();
+            case DOUBLE:
+                return validateAndGetFiniteDoubleValue((TomlDoubleValueNodeNode) tomlNode, finiteType, invalidTomlLines,
+                        variableName);
+            case BOOLEAN:
+                return ((TomlBooleanValueNode) tomlNode).getValue();
+            case KEY_VALUE:
+                return getFiniteBalValue(((TomlKeyValueNode) tomlNode).value(), visitedNodes, finiteType,
+                        invalidTomlLines, variableName);
+            default:
+                // should not come here
+                return null;
+        }
+
+    }
 }

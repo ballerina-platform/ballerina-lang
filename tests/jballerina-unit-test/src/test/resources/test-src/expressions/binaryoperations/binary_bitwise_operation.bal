@@ -349,6 +349,55 @@ function testBinaryBitwiseOperationsForNullable() {
     assertEqual(s, 1);
 }
 
+type MyType2 int:Signed32|int:Unsigned16;
+
+type MyType3 int:Unsigned32|int:Signed8;
+
+type MyType4 byte|int:Signed8;
+
+type MyUnionType MyType2|MyType4;
+
+type MySingletonUnionType 1|2|3;
+
+function testBinaryBitWiseOrOperationForUserDefinedTypes() {
+    MyType2 d = 4344;
+    MyType3 e = -34;
+    MyType4 f = -76;
+    MyUnionType g = 75;
+    MySingletonUnionType h = 2;
+
+    assertEqual(d | d, 4344);
+    assertEqual(d | g, 4347);
+    assertEqual(d | h, 4346);
+    assertEqual(d | e, -2);
+    assertEqual(d | f, -4);
+
+    assertEqual(e | e, -34);
+    assertEqual(e | f, -2);
+    assertEqual(e | g, -33);
+
+    assertEqual(f | f, -76);
+    assertEqual(f | g, -1);
+}
+
+function testBinaryBitwiseXOROperationForUserDefinedTypes() {
+    MyType2 d = 4344;
+    MyType3 e = -34;
+    MyType4 f = -76;
+    MyUnionType g = 75;
+
+    assertEqual(d ^ e, -4314);
+    assertEqual(d ^ f, -4276);
+    assertEqual(d ^ g, 4275);
+
+    assertEqual(e ^ e, 0);
+    assertEqual(e ^ f, 106);
+    assertEqual(e ^ g, -107);
+
+    assertEqual(f ^ f, 0);
+    assertEqual(f ^ g, -1);
+}
+
 function assertEqual(anydata actual, anydata expected) {
     if actual == expected {
         return;

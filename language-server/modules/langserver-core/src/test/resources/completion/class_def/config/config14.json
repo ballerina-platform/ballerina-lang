@@ -217,7 +217,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "table",
+      "filterText": "type_table_key",
       "insertText": "type ${1:TypeName} table<${2}> key${3}",
       "insertTextFormat": "Snippet"
     },

@@ -396,6 +396,7 @@
                       "moduleID": {
                         "orgName": "$anon",
                         "moduleName": ".",
+                        "packageName": ".",
                         "version": "0.0.0"
                       },
                       "kind": "VARIABLE"
@@ -426,16 +427,12 @@
                   "endColumn": 9
                 },
                 "typeData": {
-                  "typeSymbol": {
-                    "typeKind": "int",
-                    "kind": "TYPE",
-                    "signature": "int"
-                  },
                   "symbol": {
                     "deprecated": false,
                     "moduleID": {
                       "orgName": "$anon",
                       "moduleName": ".",
+                      "packageName": ".",
                       "version": "0.0.0"
                     },
                     "kind": "VARIABLE"
@@ -551,6 +548,7 @@
                   "moduleID": {
                     "orgName": "$anon",
                     "moduleName": ".",
+                    "packageName": ".",
                     "version": "0.0.0"
                   },
                   "kind": "VARIABLE"
@@ -676,6 +674,7 @@
                       "moduleID": {
                         "orgName": "$anon",
                         "moduleName": ".",
+                        "packageName": ".",
                         "version": "0.0.0"
                       },
                       "kind": "VARIABLE"
@@ -706,16 +705,12 @@
                   "endColumn": 9
                 },
                 "typeData": {
-                  "typeSymbol": {
-                    "typeKind": "int",
-                    "kind": "TYPE",
-                    "signature": "int"
-                  },
                   "symbol": {
                     "deprecated": false,
                     "moduleID": {
                       "orgName": "$anon",
                       "moduleName": ".",
+                      "packageName": ".",
                       "version": "0.0.0"
                     },
                     "kind": "VARIABLE"
@@ -831,6 +826,7 @@
                   "moduleID": {
                     "orgName": "$anon",
                     "moduleName": ".",
+                    "packageName": ".",
                     "version": "0.0.0"
                   },
                   "kind": "VARIABLE"
@@ -971,6 +967,7 @@
                           "moduleID": {
                             "orgName": "$anon",
                             "moduleName": ".",
+                            "packageName": ".",
                             "version": "0.0.0"
                           },
                           "kind": "VARIABLE"
@@ -999,6 +996,7 @@
                         "moduleID": {
                           "orgName": "$anon",
                           "moduleName": ".",
+                          "packageName": ".",
                           "version": "0.0.0"
                         },
                         "kind": "VARIABLE"
@@ -1065,6 +1063,7 @@
                           "moduleID": {
                             "orgName": "$anon",
                             "moduleName": ".",
+                            "packageName": ".",
                             "version": "0.0.0"
                           },
                           "kind": "VARIABLE"
@@ -1093,6 +1092,7 @@
                         "moduleID": {
                           "orgName": "$anon",
                           "moduleName": ".",
+                          "packageName": ".",
                           "version": "0.0.0"
                         },
                         "kind": "VARIABLE"
@@ -1308,6 +1308,7 @@
             "moduleID": {
               "orgName": "$anon",
               "moduleName": ".",
+              "packageName": ".",
               "version": "0.0.0"
             },
             "kind": "FUNCTION"

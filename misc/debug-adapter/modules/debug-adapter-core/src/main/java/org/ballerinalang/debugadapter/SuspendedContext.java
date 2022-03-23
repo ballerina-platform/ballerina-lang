@@ -18,12 +18,14 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
+import com.sun.jdi.Value;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
@@ -36,6 +38,9 @@ import java.util.Optional;
 import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.STRAND_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getStackFrameSourcePath;
 
@@ -62,11 +67,11 @@ public class SuspendedContext {
     SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef,
                      StackFrameProxyImpl frame) {
         this.executionContext = executionContext;
-        this.project = executionContext.getSourceProject();
-        this.attachedVm = executionContext.getDebuggeeVM();
         this.owningThread = threadRef;
         this.frame = frame;
+        this.attachedVm = executionContext.getDebuggeeVM();
         this.lineNumber = -1;
+        this.project = resolveCurrentProject(executionContext.getSourceProject());
     }
 
     public ExecutionContext getExecutionContext() {
@@ -140,17 +145,18 @@ public class SuspendedContext {
         return Optional.ofNullable(project.currentPackage().getDefaultModule().moduleName().toString());
     }
 
-    public Optional<Path> getBreakPointSourcePath() {
+    public Optional<Path> getBreakPointSourcePath(Project project) {
         if (breakPointSourcePath == null) {
-            Optional<Path> sourcePath = getSourcePath(frame);
-            sourcePath.ifPresent(path -> breakPointSourcePath = path);
+            Optional<Path> sourcePath = getSourcePath(project, frame);
+            sourcePath.ifPresent(path -> breakPointSourcePath = path.normalize());
         }
         return Optional.ofNullable(breakPointSourcePath);
     }
 
-    private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
+    private Optional<Path> getSourcePath(Project sourceProject, StackFrameProxyImpl frame) {
         try {
-            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(), project);
+            Optional<Map.Entry<Path, DebugSourceType>> pathAndType = getStackFrameSourcePath(frame.location(),
+                    sourceProject);
             if (pathAndType.isEmpty()) {
                 return Optional.empty();
             }
@@ -174,9 +180,27 @@ public class SuspendedContext {
         return getDebugCompiler().getSemanticInfo();
     }
 
+    /**
+     * Returns the JDI value of the strand instance that is being used, by visiting visible variables of the given
+     * debug context.
+     *
+     * @return JDI value of the strand instance that is being used
+     */
+    public Value getCurrentStrand() throws EvaluationException {
+        try {
+            Value strand = getFrame().getValue(getFrame().visibleVariableByName(STRAND_VAR_NAME));
+            if (strand == null) {
+                throw createEvaluationException(STRAND_NOT_FOUND);
+            }
+            return strand;
+        } catch (JdiProxyException e) {
+            throw createEvaluationException(STRAND_NOT_FOUND);
+        }
+    }
+
     public Optional<String> getFileName() {
         if (fileName == null) {
-            Optional<Path> breakPointPath = getBreakPointSourcePath();
+            Optional<Path> breakPointPath = getBreakPointSourcePath(project);
             if (breakPointPath.isEmpty()) {
                 return Optional.empty();
             }
@@ -211,7 +235,7 @@ public class SuspendedContext {
     }
 
     private void loadModule() {
-        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath(project);
         if (breakPointSourcePath.isEmpty()) {
             return;
         }
@@ -220,12 +244,26 @@ public class SuspendedContext {
     }
 
     private void loadDocument() {
-        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath(project);
         if (breakPointSourcePath.isEmpty()) {
             return;
         }
         DocumentId documentId = project.documentId(breakPointSourcePath.get());
         module = project.currentPackage().module(documentId.moduleId());
         document = module.document(documentId);
+    }
+
+    /**
+     * This util method is used to resolve the project instance related to the current debug hit. (Can be a
+     * BuildProject, SingleFileProject or BalaProject).
+     *
+     * @param sourceProject source project (Either BuildProject or SingleFileProject).
+     */
+    private Project resolveCurrentProject(Project sourceProject) {
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath(sourceProject);
+        if (breakPointSourcePath.isPresent()) {
+            return executionContext.getProjectCache().getProject(breakPointSourcePath.get());
+        }
+        return sourceProject;
     }
 }

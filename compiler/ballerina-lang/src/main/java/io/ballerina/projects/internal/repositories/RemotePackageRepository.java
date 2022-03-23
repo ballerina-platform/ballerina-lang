@@ -88,12 +88,6 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
-        // Avoid resolving from remote repository for lang repo tests
-        String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
-        if (langRepoBuild != null) {
-            return Optional.empty();
-        }
-
         // Check if the package is in cache
         Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(request, options);
         if (cachedPackage.isPresent()) {
@@ -169,7 +163,7 @@ public class RemotePackageRepository implements PackageRepository {
         try {
             PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(requests);
             PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
-                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion(), true);
+                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion());
             List<ImportModuleResponse> remote = toImportModuleResponses(requests, response);
             return mergeNameResolution(filesystem, remote);
         } catch (ConnectionErrorException e) {
@@ -269,7 +263,7 @@ public class RemotePackageRepository implements PackageRepository {
                 PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(updatedRequests);
                 PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
                         packageResolutionRequest, JvmTarget.JAVA_11.code(),
-                        RepoUtils.getBallerinaVersion(), true);
+                        RepoUtils.getBallerinaVersion());
 
                 Collection<PackageMetadataResponse> remotePackages =
                         fromPackageResolutionResponse(updatedRequests, packageResolutionResponse);

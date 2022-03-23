@@ -16,10 +16,7 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,13 +42,12 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test two int multiply expression")
     public void testIntMultiplyExpr() {
-        BValue[] args = { new BInteger(4611686018427387904L), new BInteger(-2L) };
-        BValue[] returns = BRunUtil.invoke(result, "intMultiply", args);
+        Object[] args = { (4611686018427387904L), (-2L) };
+        Object returns = BRunUtil.invoke(result, "intMultiply", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = -9223372036854775808L;
         Assert.assertEquals(actual, expected);
     }
@@ -65,13 +61,12 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test two float multiply expression")
     public void testFloatMultiplyExpr() {
-        BValue[] args = { new BFloat(40.0f), new BFloat(40.0f) };
-        BValue[] returns = BRunUtil.invoke(result, "floatMultiply", args);
+        Object[] args = { (40.0f), (40.0f) };
+        Object returns = BRunUtil.invoke(result, "floatMultiply", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         double expected = 1600.0f;
         Assert.assertEquals(actual, expected);
     }

@@ -307,7 +307,7 @@ public class TestBuildProject extends BaseTest {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
 
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 5);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4);
 
         Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraryDependencies(
                 currentPackage.packageId(), PlatformLibraryScope.DEFAULT);
@@ -464,7 +464,7 @@ public class TestBuildProject extends BaseTest {
                 "\n" +
                 "[build-options]\n" +
                 "experimental=true\n" +
-                "observabilityIncluded=true\n" +
+                "observabilityIncluded = true\n" +
                 "skipTests=true\n" +
                 "offline=false\n" +
                 "codeCoverage=true").apply();

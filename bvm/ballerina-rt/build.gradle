@@ -73,6 +73,7 @@ dependencies {
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
     dist project(':ballerina-lang:runtime')
+    dist project(':ballerina-core')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
     dist project(':ballerina-lang:jballerina.java')
@@ -98,7 +99,6 @@ dependencies {
     dist "io.opentelemetry:opentelemetry-context:${project.openTelemetryContextVersion}"
     dist "org.awaitility:awaitility:${project.awaitilityVersion}"
     dist "org.hdrhistogram:HdrHistogram:${project.hdrHistogramVersion}"
-    dist "com.h2database:h2:${project.h2DatabaseVersion}"
 
     // observability extensions
     //// metrics
@@ -121,7 +121,6 @@ dependencies {
 
     // Other Runtime Libs
     dist project(':ballerina-runtime')
-    dist project(':ballerina-core')
     dist project(':toml-parser')
     dist project(':ballerina-tools-api')
     dist project(':identifier-util')

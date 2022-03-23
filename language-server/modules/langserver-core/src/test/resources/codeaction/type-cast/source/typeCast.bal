@@ -107,3 +107,26 @@ function testWaitAction() {
     
     decimal result = wait A;
 }
+
+function () returns int anonFunc = function () returns int {
+        return 1.2;
+};
+
+type MyRecord record {|
+    string field1;
+|};
+
+function testMapCast() {
+    map<string> myMap = {field1:"Test"};
+    MyRecord rec = myMap;
+}
+
+function testFuture() {
+    worker w1 returns string {
+        return "ballerina";
+    }
+
+    future a0 = w1;
+    future<string> a1 = a0;
+}
+

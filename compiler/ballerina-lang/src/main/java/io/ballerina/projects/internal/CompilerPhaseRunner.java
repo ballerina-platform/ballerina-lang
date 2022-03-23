@@ -233,8 +233,9 @@ public class CompilerPhaseRunner {
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
-                nextPhase == CompilerPhase.COMPILER_PLUGIN ||
-                nextPhase == CompilerPhase.DESUGAR;
+                nextPhase == CompilerPhase.COMPILER_PLUGIN || nextPhase == CompilerPhase.DESUGAR ||
+                nextPhase == CompilerPhase.BIR_GEN;
+                // only added BIR_GEN temporary until we fully support closures for OCE
     }
 
     public void addDiagnosticForUnhandledException(BLangPackage pkgNode, Throwable throwable) {

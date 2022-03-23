@@ -72,9 +72,13 @@ public class JField extends BFunction {
         if (type.isArray()) {
             isArray = true;
             returnError = true;
-            if (!type.getComponentType().isPrimitive() && !isStringArray) {
+            if (!type.getComponentType().isPrimitive()) {
                 isObject = false;
-                isObjectArray = true;
+                if (type.getComponentType().equals(String.class)) {
+                    isStringArray = true;
+                } else {
+                    isObjectArray = true;
+                }
             }
             javaArraysModule = true;
         }
@@ -117,7 +121,7 @@ public class JField extends BFunction {
         StringBuilder returnString = new StringBuilder();
         if (super.getKind() == BFunctionKind.FIELD_GET) {
             returnString.append(fieldObj.getShortTypeName());
-            if (isString) {
+            if (isString || isStringArray) {
                 returnString.append("?");
             }
             if (returnError) {

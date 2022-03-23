@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -74,8 +75,8 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
         textEdit.setNewText(newText);
         List<TextEdit> textEdits = Collections.singletonList(textEdit);
 
-        return Collections.singletonList(createQuickFixCodeAction(CommandConstants.ADD_EXPLICIT_RETURN_STATEMENT,
-                textEdits, uri));
+        return Collections.singletonList(createCodeAction(CommandConstants.ADD_EXPLICIT_RETURN_STATEMENT,
+                textEdits, uri, CodeActionKind.QuickFix));
     }
 
     /**

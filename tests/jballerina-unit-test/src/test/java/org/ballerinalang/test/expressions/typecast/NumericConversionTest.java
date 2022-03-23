@@ -16,15 +16,11 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueType;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -36,6 +32,7 @@ import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,178 +57,207 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "floatAsFloatTests")
     public void testFloatAsFloat(String functionName, double d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BFloat(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected floats to be the same");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), (new BFloat(d)).floatValue(), "incorrect float " +
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected floats to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), ((d)), "incorrect float " +
                 "representation as float");
     }
 
     @Test(dataProvider = "floatAsDecimalTests")
     public void testFloatAsDecimal(String functionName, double d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BFloat(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected decimals to be the same");
-        Assert.assertSame(returns[1].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[1]).decimalValue(),
-                            (new BDecimal(new BigDecimal(d, MathContext.DECIMAL128))).decimalValue(),
-                            "incorrect float representation as decimal");
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected decimals to be the same");
+        Assert.assertTrue(returns.get(1) instanceof BDecimal);
+        Assert.assertEquals(returns.get(1),
+                (ValueCreator.createDecimalValue(new BigDecimal(d, MathContext.DECIMAL128))),
+                "incorrect float representation as decimal");
     }
 
     @Test(dataProvider = "floatAsIntTests")
     public void testFloatAsInt(String functionName, double d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BFloat(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), Math.round((new BFloat(d)).floatValue()), "incorrect" +
-                " float representation as int");
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected ints to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), Math.round(d), "incorrect float representation as int");
     }
 
     @Test(dataProvider = "floatAsByteTests")
     public void testFloatAsByte(String functionName, double d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BFloat(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BFloat(d)).byteValue(), "incorrect float " +
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected bytes to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Integer);
+        Assert.assertEquals(returns.get(1), (int) Math.round(d), "incorrect float " +
                 "representation as byte");
     }
 
     @Test(dataProvider = "decimalAsFloatTests")
     public void testDecimalAsFloat(String functionName, BigDecimal d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BDecimal(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected floats to be the same");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), (new BDecimal(d)).floatValue(), "incorrect decimal " +
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected floats to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), d.doubleValue(), "incorrect decimal " +
                 "representation as float");
     }
 
     @Test(dataProvider = "decimalAsDecimalTests")
     public void testDecimalAsDecimal(String functionName, BigDecimal d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BDecimal(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected decimals to be the same");
-        Assert.assertSame(returns[1].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[1]).decimalValue(), (new BDecimal(d)).decimalValue(), "incorrect " +
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected decimals to be the same");
+        Assert.assertTrue(returns.get(1) instanceof BDecimal);
+        Assert.assertEquals(returns.get(1), (ValueCreator.createDecimalValue(d)), "incorrect " +
                 "decimal representation as decimal");
     }
 
     @Test(dataProvider = "decimalAsIntTests")
     public void testDecimalAsInt(String functionName, BigDecimal d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BDecimal(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(),
-                            Math.round((new BDecimal(d)).decimalValue().doubleValue()),
-                            "incorrect decimal representation as int");
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected ints to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), Math.round(d.doubleValue()), "incorrect decimal representation as int");
     }
 
     @Test(dataProvider = "decimalAsByteTests")
     public void testDecimalAsByte(String functionName, BigDecimal d) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BDecimal(d)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), new BDecimal(d).byteValue(),
-                            "incorrect decimal representation as int");
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{ValueCreator.createDecimalValue(d)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected bytes to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Integer);
+        Assert.assertEquals(returns.get(1), d.setScale(0, RoundingMode.HALF_UP).intValue(),
+                "incorrect decimal representation as int");
     }
 
     @Test(dataProvider = "intAsFloatTests")
     public void testIntAsFloat(String functionName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BInteger(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected floats to be the same");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), (new BInteger(i)).floatValue(), "incorrect int " +
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected floats to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), (double) i, "incorrect int " +
                 "representation as float");
     }
 
     @Test(dataProvider = "intAsDecimalTests")
-    public void testIntAsDecimal(String functionName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BInteger(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected decimals to be the same");
-        Assert.assertSame(returns[1].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[1]).decimalValue(),
-                            (new BigDecimal(i, MathContext.DECIMAL128)).setScale(1, BigDecimal.ROUND_HALF_EVEN),
-                            "incorrect int representation as decimal");
+    public void testIntAsDecimal(String functionName, long i) {
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected decimals to be the same");
+        Assert.assertTrue(returns.get(1) instanceof BDecimal);
+        Assert.assertEquals(((BDecimal) returns.get(1)).intValue(), (long) i,
+                "incorrect int representation as decimal");
     }
 
     @Test(dataProvider = "intAsIntTests")
     public void testIntAsInt(String functionName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BInteger(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), (new BInteger(i)).intValue(), "incorrect int " +
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected ints to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(1), (long) i, "incorrect int " +
                 "representation as int");
     }
 
     @Test(dataProvider = "intAsByteTests")
     public void testIntAsByte(String functionName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BInteger(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
-        Assert.assertEquals(((BValueType) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
-                "representation as byte");
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected bytes to be the same");
+        Assert.assertEquals(returns.get(1), i, "incorrect int representation as byte");
+    }
+
+    @Test(dataProvider = "intAsByteInUnionTests")
+    public void testIntAsByteInUnions(String functionName, int i) {
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected bytes to be the same");
+        Assert.assertEquals(returns.get(1), (long) i, "incorrect int representation as byte");
     }
 
     @Test(dataProvider = "byteAsFloatTests")
-    public void testByteAsFloat(String functionName, long i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected floats to be the same");
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), (new BByte(i)).floatValue(), "incorrect byte " +
-                "representation as float");
+    public void testByteAsFloat(String functionName, int i) {
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected floats to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertEquals(returns.get(1), (double) i, "incorrect byte representation as float");
     }
 
     @Test(dataProvider = "byteAsDecimalTests")
-    public void testByteAsDecimal(String functionName, long i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected decimals to be the same");
-        Assert.assertSame(returns[1].getClass(), BDecimal.class);
-        Assert.assertEquals(((BDecimal) returns[1]).decimalValue(), new BByte(i).decimalValue(),
-                            "incorrect byte representation as decimal");
+    public void testByteAsDecimal(String functionName, int i) {
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected decimals to be the same");
+        Assert.assertTrue(returns.get(1) instanceof BDecimal);
+        Assert.assertEquals(returns.get(1), ValueCreator.createDecimalValue(new BigDecimal(i)),
+                "incorrect byte representation as decimal");
     }
 
     @Test(dataProvider = "byteAsIntTests")
-    public void testByteAsInt(String functionName, long i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
-        Assert.assertEquals(((BValueType) returns[1]).intValue(), (new BByte(i)).intValue(), "incorrect byte " +
-                "representation as int");
+    public void testByteAsInt(String functionName, int i) {
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected ints to be the same");
+        Assert.assertEquals(returns.get(1), (long) i, "incorrect byte representation as int");
+    }
+
+    @Test(dataProvider = "byteAsIntInUnionTests")
+    public void testByteAsIntInUnions(String functionName, int i) {
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected ints to be the same");
+        Assert.assertEquals(returns.get(1), i, "incorrect byte representation as int");
     }
 
     @Test(dataProvider = "byteAsByteTests")
-    public void testByteAsByte(String functionName, long i) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BByte(i)).byteValue(), "incorrect byte " +
+    public void testByteAsByte(String functionName, int i) {
+        Object arr = BRunUtil.invoke(result, functionName, new Object[]{(i)});
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Boolean);
+        Assert.assertTrue((Boolean) returns.get(0), "expected bytes to be the same");
+        Assert.assertTrue(returns.get(1) instanceof Integer);
+        Assert.assertEquals(returns.get(1), ((i)), "incorrect byte " +
                 "representation as byte");
     }
 
@@ -239,152 +265,112 @@ public class NumericConversionTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
                     "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidIntAsByte(int i) {
-        BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(i)});
+        BRunUtil.invoke(result, "testIntAsByte", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: 'int' cannot be cast to '\\(byte\\|boolean\\)'.*")
     public void testInvalidIntAsByteInUnions(int i) {
-        BRunUtil.invoke(result, "testIntAsByteInUnions", new BValue[]{new BInteger(i)});
+        BRunUtil.invoke(result, "testIntAsByteInUnions", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidFloatAsByte(int i) {
-        BRunUtil.invoke(result, "testFloatAsByte", new BValue[]{new BFloat(i)});
+        BRunUtil.invoke(result, "testFloatAsByte", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidFloatAsByteInUnions(int i) {
-        BRunUtil.invoke(result, "testFloatAsByteInUnions", new BValue[]{new BFloat(i)});
+        BRunUtil.invoke(result, "testFloatAsByteInUnions", new Object[]{(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
                     " value '.*' cannot be converted to 'byte'.*")
     public void testInvalidDecimalAsByte(int i) {
-        BRunUtil.invoke(result, "testDecimalAsByte", new BValue[]{new BDecimal(new BigDecimal(i))});
+        BRunUtil.invoke(result, "testDecimalAsByte",
+                new Object[]{ValueCreator.createDecimalValue(new BigDecimal(i))});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'decimal' cannot be cast to '\\(byte\\|Employee\\)'.*")
     public void testInvalidDecimalAsByteInUnions(int i) {
-        BRunUtil.invoke(result, "testDecimalAsByteInUnions", new BValue[] { new BDecimal(new BigDecimal(i)) });
+        BRunUtil.invoke(result, "testDecimalAsByteInUnions",
+                new Object[]{ValueCreator.createDecimalValue(new BigDecimal(i))});
     }
 
     @Test(dataProvider = "naNFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'NaN' cannot be converted to 'byte'.*")
     public void testNaNFloatAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'Infinity' cannot be converted to 'byte'.*")
     public void testInfiniteFloatAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'NaN' cannot be converted to 'int'.*")
     public void testNaNFloatAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
                     "value 'Infinity' cannot be converted to 'int'.*")
     public void testInfiniteFloatAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "outOfRangeFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
                     "'float' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeFloatAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
                     "'decimal' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeDecimalAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "naNDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'NaN' cannot be converted to 'byte'.*")
-    public void testNaNDecimalAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "positiveInfiniteDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'Infinity' cannot be converted to 'byte'.*")
-    public void testPositiveInfiniteDecimalAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "negativeInfiniteDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '-Infinity' cannot be converted to 'byte'.*")
-    public void testNegativeInfiniteDecimalAsByte(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "naNDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'NaN' cannot be converted to 'int'.*")
-    public void testNaNDecimalAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "positiveInfiniteDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'Infinity' cannot be converted to 'int'.*")
-    public void testPositiveInfiniteDecimalAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
-    }
-
-    @Test(dataProvider = "negativeInfiniteDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '-Infinity' cannot be converted to 'int'.*")
-    public void testNegativeInfiniteDecimalAsInt(String functionName) {
-        BRunUtil.invoke(result, functionName, new BValue[0]);
+        BRunUtil.invoke(result, functionName, new Object[0]);
     }
 
     @Test
     public void testExplicitlyTypedExprForExactValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testExplicitlyTypedExprForExactValues", new BValue[0]);
-        if (returns[0] instanceof BError) {
-            Assert.fail(((BError) returns[0]).getReason());
+        Object returns = BRunUtil.invoke(result, "testExplicitlyTypedExprForExactValues", new Object[0]);
+        if (returns instanceof BError) {
+            Assert.fail(((BError) returns).getMessage());
         }
     }
 
     @Test
     public void testConversionFromUnionWithNumericBasicTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testConversionFromUnionWithNumericBasicTypes");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected numeric conversion to be successful");
+        Object returns = BRunUtil.invoke(result, "testConversionFromUnionWithNumericBasicTypes");
+        Assert.assertTrue((Boolean) returns, "expected numeric conversion to be successful");
     }
 
     @Test
     public void testNumericConversionFromBasicTypeToUnionType() {
-        BValue[] returns = BRunUtil.invoke(result, "testNumericConversionFromBasicTypeToUnionType");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected numeric conversion to be successful");
+        Object returns = BRunUtil.invoke(result, "testNumericConversionFromBasicTypeToUnionType");
+        Assert.assertTrue((Boolean) returns, "expected numeric conversion to be successful");
     }
 
     @Test
     public void testNumericConversionFromFiniteType() {
-        BValue[] returns = BRunUtil.invoke(result, "testNumericConversionFromFiniteType");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected numeric conversion to be successful");
+        Object returns = BRunUtil.invoke(result, "testNumericConversionFromFiniteType");
+        Assert.assertTrue((Boolean) returns, "expected numeric conversion to be successful");
     }
 
     @Test
@@ -392,59 +378,59 @@ public class NumericConversionTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'float'",
-                      21, 16);
+                21, 16);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'float'",
-                      22, 18);
+                22, 18);
 
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
-                              "'decimal'", 24, 18);
+                "'decimal'", 24, 18);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
-                              "'decimal'", 25, 18);
+                "'decimal'", 25, 18);
 
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'int'",
-                      27, 14);
+                27, 14);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'int'",
-                      28, 18);
+                28, 18);
 
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'byte'",
-                      30, 18);
+                30, 18);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'byte'",
-                      31, 15);
+                31, 15);
 
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
-                              "'boolean'", 33, 19);
+                "'boolean'", 33, 19);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
-                              "'boolean'", 34, 19);
+                "'boolean'", 34, 19);
         validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be cast to 'string'",
-                      44, 17);
+                44, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'int' cannot be cast to 'boolean'",
-                      45, 18);
+                45, 18);
         validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be cast to 'string'",
-                      47, 17);
+                47, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'float' cannot be cast to 'boolean'",
-                      48, 18);
+                48, 18);
         validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be cast to " +
-                              "'string'", 50, 17);
+                "'string'", 50, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'decimal' cannot be cast to " +
-                              "'boolean'", 51, 18);
+                "'boolean'", 51, 18);
         validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'int'",
-                      53, 15);
+                53, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to " +
-                              "'string'", 54, 18);
+                "'string'", 54, 18);
         validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to " +
-                              "'float'", 55, 17);
+                "'float'", 55, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to " +
-                              "'decimal'", 56, 19);
+                "'decimal'", 56, 19);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'int'",
-                      58, 15);
+                58, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
-                              "'boolean'", 59, 19);
+                "'boolean'", 59, 19);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to 'float'",
-                      60, 17);
+                60, 17);
         validateError(resultNegative, errIndex++, "incompatible types: 'string' cannot be cast to " +
-                              "'decimal'", 61, 19);
+                "'decimal'", 61, 19);
         validateError(resultNegative, errIndex, "incompatible types: 'float' cannot be cast to " +
-                              "'(int|decimal)'", 66, 24);
+                "'(int|decimal)'", 66, 24);
     }
 
     @DataProvider
@@ -557,7 +543,13 @@ public class NumericConversionTest {
 
     @DataProvider
     public Object[][] intAsByteTests() {
-        String[] intAsByteTestFunctions = new String[]{"testIntAsByte", "testIntAsByteInUnions"};
+        String[] intAsByteTestFunctions = new String[]{"testIntAsByte"};
+        return getFunctionAndArgArraysForInt(intAsByteTestFunctions, intAsByteValues());
+    }
+
+    @DataProvider
+    public Object[][] intAsByteInUnionTests() {
+        String[] intAsByteTestFunctions = new String[]{"testIntAsByteInUnions"};
         return getFunctionAndArgArraysForInt(intAsByteTestFunctions, intAsByteValues());
     }
 
@@ -591,7 +583,13 @@ public class NumericConversionTest {
 
     @DataProvider
     public Object[][] byteAsIntTests() {
-        String[] intAsTestFunctions = new String[]{"testByteAsInt", "testByteAsIntInUnions"};
+        String[] intAsTestFunctions = new String[]{"testByteAsInt"};
+        return getFunctionAndArgArraysForByte(intAsTestFunctions);
+    }
+
+    @DataProvider
+    public Object[][] byteAsIntInUnionTests() {
+        String[] intAsTestFunctions = new String[]{"testByteAsIntInUnions"};
         return getFunctionAndArgArraysForByte(intAsTestFunctions);
     }
 
@@ -605,7 +603,7 @@ public class NumericConversionTest {
         List<Object[]> result = new ArrayList<>();
         Arrays.stream(intAsTestFunctions)
                 .forEach(func -> Arrays.stream(intAsByteValues())
-                        .forEach(arg -> result.add(new Object[]{func, (long) arg})));
+                        .forEach(arg -> result.add(new Object[]{func, arg})));
         return result.toArray(new Object[result.size()][]);
     }
 
@@ -653,59 +651,12 @@ public class NumericConversionTest {
 
     @DataProvider
     public Object[][] outOfRangeDecimalAsIntTests() {
+
         return new Object[][]{
                 {"testOutOfIntRangePositiveDecimalAsInt"},
                 {"testOutOfIntRangeNegativeDecimalAsInt"},
                 {"testOutOfIntRangePositiveDecimalInUnionAsInt"},
                 {"testOutOfIntRangeNegativeDecimalInUnionAsInt"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] naNDecimalAsByteTests() {
-        return new Object[][]{
-                {"testNaNDecimalAsByte"},
-                {"testNaNDecimalInUnionAsByte"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] positiveInfiniteDecimalAsByteTests() {
-        return new Object[][]{
-                {"testPositiveInfiniteDecimalAsByte"},
-                {"testPositiveInfiniteDecimalInUnionAsByte"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] negativeInfiniteDecimalAsByteTests() {
-        return new Object[][]{
-                {"testNegativeInfiniteDecimalAsByte"},
-                {"testNegativeInfiniteDecimalInUnionAsByte"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] naNDecimalAsIntTests() {
-        return new Object[][]{
-                {"testNaNDecimalAsInt"},
-                {"testNaNDecimalInUnionAsInt"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] positiveInfiniteDecimalAsIntTests() {
-        return new Object[][]{
-                {"testPositiveInfiniteDecimalAsInt"},
-                {"testPositiveInfiniteDecimalInUnionAsInt"}
-        };
-    }
-
-    @DataProvider
-    public Object[][] negativeInfiniteDecimalAsIntTests() {
-        return new Object[][]{
-                {"testNegativeInfiniteDecimalAsInt"},
-                {"testNegativeInfiniteDecimalInUnionAsInt"}
         };
     }
 

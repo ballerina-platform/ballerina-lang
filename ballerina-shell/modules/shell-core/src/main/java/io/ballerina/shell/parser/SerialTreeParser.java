@@ -34,6 +34,7 @@ import io.ballerina.shell.parser.trials.ParserRejectedException;
 import io.ballerina.shell.parser.trials.ParserTrialFailedException;
 import io.ballerina.shell.parser.trials.StatementTrial;
 import io.ballerina.shell.parser.trials.TreeParserTrial;
+import io.ballerina.shell.parser.trials.WorkerDeclarationTrial;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,6 +61,7 @@ public class SerialTreeParser extends TrialTreeParser {
                 new ExpressionTrial(this),
                 new ExpressionListTrial(this),
                 new StatementTrial(this),
+                new WorkerDeclarationTrial(this),
                 new EmptyExpressionTrial(this),
                 new GetErrorMessageTrial(this)
         );

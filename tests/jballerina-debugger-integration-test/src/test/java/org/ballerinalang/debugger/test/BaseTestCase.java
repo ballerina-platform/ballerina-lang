@@ -31,6 +31,8 @@ import java.nio.file.Paths;
  */
 public abstract class BaseTestCase {
 
+    protected static final String BALA_URI_SCHEME = "bala";
+
     /**
      * Each extended debugger integration test class should implement this method to initialize the debug test runner
      * (base debugger test framework).

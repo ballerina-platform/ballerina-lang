@@ -18,6 +18,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -158,7 +160,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             ScopeEntry scopeEntry = entry.getValue();
             if (scopeEntry.symbol instanceof BClassSymbol &&
                     (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                String constName = scopeEntry.symbol.getName().getValue();
+                String constName = scopeEntry.symbol.getOriginalName().getValue();
                 classes.add(symbolFactory.createClassSymbol((BClassSymbol) scopeEntry.symbol, constName));
             }
         }
@@ -186,7 +188,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
 
             if (scopeEntry.symbol instanceof BConstantSymbol &&
                     (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                String constName = scopeEntry.symbol.getName().getValue();
+                String constName = scopeEntry.symbol.getOriginalName().getValue();
                 constants.add(symbolFactory.createConstantSymbol((BConstantSymbol) scopeEntry.symbol, constName));
             }
         }
@@ -208,7 +210,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             ScopeEntry scopeEntry = entry.getValue();
 
             if (scopeEntry.symbol instanceof BEnumSymbol && Symbols.isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)) {
-                String constName = scopeEntry.symbol.getName().getValue();
+                String constName = scopeEntry.symbol.getOriginalName().getValue();
                 enums.add(symbolFactory.createEnumSymbol((BEnumSymbol) scopeEntry.symbol, constName));
             }
         }
@@ -235,14 +237,24 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
                         && scopeEntry.symbol.origin != BUILTIN)) {
                     continue;
                 }
-                symbols.add(
-                        symbolFactory.getBCompiledSymbol(scopeEntry.symbol, scopeEntry.symbol.getName().getValue()));
+                symbols.add(symbolFactory.getBCompiledSymbol(scopeEntry.symbol,
+                                                             scopeEntry.symbol.getOriginalName().getValue()));
             }
 
             this.allSymbols = Collections.unmodifiableList(symbols);
         }
 
         return this.allSymbols;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -33,57 +34,100 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 @Test
 public class ObjectConstructorTest {
 
-    private CompileResult compiledConstructedObjects;
+    private CompileResult compiledConstructedObjects, closures, annotations, multiLevelClosures;
+    private static String path = "test-src/expressions/object/";
 
     @BeforeClass
     public void setup() {
-        compiledConstructedObjects = BCompileUtil.compile(
-                "test-src/expressions/object/object_constructor_expression.bal");
+        compiledConstructedObjects = BCompileUtil.compile(path + "object_constructor_expression.bal");
+        closures = BCompileUtil.compile(path + "object_closures.bal");
+        multiLevelClosures = BCompileUtil.compile(path + "object_multilevel_closures.bal");
+        annotations = BCompileUtil.compile(path + "object_closures_annotations.bal");
+    }
+
+    @DataProvider(name = "ObjectCtorTestFunctionList")
+    public Object[][] objectCtorTestFunctionList() {
+        return new Object[][]{
+                {"testObjectCreationViaObjectConstructor"},
+                {"testObjectConstructorAnnotationAttachment"},
+                {"testObjectConstructorObjectFunctionInvocation"},
+                {"testObjectConstructorIncludedMethod"},
+                {"testObjectConstructorWithDistinctExpectedType"},
+                {"testObjectConstructorWithDistinctTypeReference"},
+                {"testObjectConstructorWithDistinctTypeReferenceVar"},
+                {"testObjectConstructorWithDefiniteTypeAndWithoutReference"},
+                {"testObjectConstructorExprWithReadOnlyCET"},
+        };
+    }
+
+    @DataProvider(name = "ClosureTestFunctionList")
+    public Object[][] closureTestFunctionList() {
+        return new Object[][]{
+                {"testClosureVariableAsFieldValue"},
+                {"testClosureVariableAsFieldValueUsedInAttachedFunctions"},
+                {"testClosureVariableAsFieldValueWithExpression"},
+                {"testClosureVariableUsedInsideAttachedMethodBodyAndField"},
+                {"testClosureVariableUsedInsideAttachedMethodBodyOnly"},
+                {"testClosureVariableUsedInsideWithDifferentType"},
+                {"testClosureButAsArgument"},
+                {"testAttachedMethodClosuresMapFromFunctionBlock"},
+                {"testFunctionPointerAsFieldValue"},
+                {"testClosuresWithObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprAsFunctionDefaultParam"},
+                {"testClosuresWithObjectConstrExprInAnonFunc"},
+                {"testClosuresWithObjectConstrExprInObjectFunc"},
+                {"testClosuresWithObjectConstrExprInVarAssignment"},
+                {"testClosuresWithObjectConstrExprInReturnStmt"},
+                {"testClosuresWithClientObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprInClientObjectConstrExpr"},
+                {"testClosuresWithServiceObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprsInObjectConstrExpr"},
+                {"testClosuresWithObjectConstrExprAsArrayMember"},
+                {"testClosuresWithObjectConstrExprInEqaulityExpr"}
+        };
+    }
+
+    @Test(dataProvider = "ObjectCtorTestFunctionList")
+    public void testCompiledConstructedObjects(String funcName) {
+        BRunUtil.invoke(compiledConstructedObjects, funcName);
+    }
+
+    @Test(dataProvider = "ClosureTestFunctionList")
+    public void testClosureSupportForObjectCtor(String funcName) {
+        BRunUtil.invoke(closures, funcName);
+    }
+
+    @Test(dataProvider = "dataToTestClosuresWithObjectConstrExprWithAnnots")
+    public void testClosureSupportForObjectCtorAnnotations(String funcName) {
+        BRunUtil.invoke(annotations, funcName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestClosuresWithObjectConstrExprWithAnnots() {
+        return new Object[]{
+                "testAnnotations",
+                "testObjectConstructorAnnotationAttachment",
+                "testAnnotsOfServiceObjectConstructorInReturnStmt",
+                "testClosuresWithObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsAsFunctionDefaultParam",
+                "testClosuresWithObjectConstrExprWithAnnotsInAnonFunc",
+                "testClosuresWithObjectConstrExprWithAnnotsInObjectFunc",
+                "testClosuresWithObjectConstrExprWithAnnotsInVarAssignment",
+                "testClosuresWithObjectConstrExprWithAnnotsInReturnStmt",
+                "testClosuresWithClientObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsInClientObjectConstrExpr",
+                "testClosuresWithServiceObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsInObjectConstrExprWithAnnots",
+                "testClosuresWithObjectConstrExprWithAnnotsAsArrayMember"
+        };
     }
 
     @Test
-    public void testObjectCreationViaObjectConstructor() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectCreationViaObjectConstructor");
-    }
-
-    @Test
-    public void testObjectConstructorAnnotationAttachment() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorAnnotationAttachment");
-    }
-
-    @Test
-    public void testObjectConstructorObjectFunctionInvocation() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorObjectFunctionInvocation");
-    }
-
-    @Test
-    public void testObjectConstructorIncludedMethod() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorIncludedMethod");
-    }
-
-    @Test
-    public void testObjectConstructorWithDistintExpectedType() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintExpectedType");
-    }
-
-    @Test
-    public void testObjectConstructorWithDistintTypeReference() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReference");
-    }
-
-    @Test
-    public void testObjectConstructorWithDistintTypeReferenceVar() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReferenceVar");
-    }
-
-    @Test
-    public void testObjectConstructorWithDefiniteTypeAndWithoutReference() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDefiniteTypeAndWithoutReference");
-    }
-
-    @Test
-    public void testObjectConstructorExprWithReadOnlyCET() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorExprWithReadOnlyCET");
+    public void testUnusedVariableWarnings() {
+        Assert.assertEquals(compiledConstructedObjects.getWarnCount(), 0);
+        Assert.assertEquals(closures.getWarnCount(), 0);
+        Assert.assertEquals(annotations.getWarnCount(), 0);
+        Assert.assertEquals(multiLevelClosures.getWarnCount(), 0);
     }
 
     @Test
@@ -139,8 +183,52 @@ public class ObjectConstructorTest {
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
+    @Test
+    public void testMultilevelUnsupportedClosureVarScenarios() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/expressions/object/object_constructor_closure_unsupported_negative.bal");
+        int index = 0;
+        validateError(negativeResult, index++, "closure variable 'i' : closures not yet supported for object " +
+                        "constructors which are fields", 18, 29);
+        validateError(negativeResult, index++, "closure variable 'i' : closures not yet supported for object " +
+                "constructors which are fields", 49, 25);
+        validateError(negativeResult, index++, "closure variable 'a1' : closures not yet supported for object " +
+                "constructors which are fields", 72, 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testRedeclaredSymbolsScenarios() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/expressions/object/object_constructor_redeclared_symbols_negative.bal");
+        int index = 0;
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 7, 36);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 11, 46);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 12, 17);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 17, 17);
+        validateError(negativeResult, index++, "incompatible types: expected 'object { public function getSum " +
+             "(int) returns (int); }', found 'isolated object { public function getSum (other) returns (int); public " +
+             "function getAge (int,other) returns (int); public function getAgeOf () returns (int); }'", 23, 12);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
+    }
+
+    @DataProvider(name = "MultiLevelClosureTestFunctionList")
+    public Object[][] multiLevelClosureTestFunctionList() {
+        return new Object[][]{
+                {"closureArrayPush"},
+        };
+    }
+
+    @Test(dataProvider = "MultiLevelClosureTestFunctionList")
+    public void testMultiLevelClosures(String funcName) {
+        BRunUtil.invoke(multiLevelClosures, funcName);
+    }
+
     @AfterClass
     public void tearDown() {
         compiledConstructedObjects = null;
+        closures = null;
+        annotations = null;
+        multiLevelClosures = null;
     }
 }

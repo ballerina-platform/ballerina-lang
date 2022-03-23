@@ -253,7 +253,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test as test1 ;\n"
+          "newText": "import ballerina/lang.test as test1;\n"
         }
       ]
     },

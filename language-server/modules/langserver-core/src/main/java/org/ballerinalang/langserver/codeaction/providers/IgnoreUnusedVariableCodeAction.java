@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
@@ -31,6 +32,7 @@ import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -77,10 +79,13 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             node = node.parent();
         }
 
-        BindingPatternNode bindingPatternNode;
+        BindingPatternNode bindingPatternNode = null;
         if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode varDeclNode = (VariableDeclarationNode) node;
-            bindingPatternNode = varDeclNode.typedBindingPattern().bindingPattern();
+            if (varDeclNode.initializer().isPresent()) {
+                // If no initializer is present, we can't ignore the variable
+                bindingPatternNode = varDeclNode.typedBindingPattern().bindingPattern();
+            }
         } else if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
             TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) node;
             bindingPatternNode = typedBindingPatternNode.bindingPattern();
@@ -89,14 +94,19 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
                 node.kind() == SyntaxKind.MAPPING_BINDING_PATTERN ||
                 node.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
             bindingPatternNode = (BindingPatternNode) node;
-        } else {
+        } else if (node.kind() == SyntaxKind.LET_VAR_DECL) {
+            bindingPatternNode = ((LetVariableDeclarationNode) node).typedBindingPattern().bindingPattern();
+        }
+
+        if (bindingPatternNode == null) {
             return Collections.emptyList();
         }
 
         // If it's a variable, need to check for references
         if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
+            BindingPatternNode finalBindingPatternNode = bindingPatternNode;
             Optional<Integer> refCount = context.currentSemanticModel()
-                    .flatMap(semanticModel -> semanticModel.symbol(bindingPatternNode))
+                    .flatMap(semanticModel -> semanticModel.symbol(finalBindingPatternNode))
                     .flatMap(symbol -> context.workspace().project(context.filePath())
                             .map(project -> ReferencesUtil.getReferences(project, symbol)))
                     .map(modRefMap -> modRefMap.values().stream().map(List::size).reduce(0, Integer::sum));
@@ -127,8 +137,8 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        return List.of(createQuickFixCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
-                List.of(textEdit), context.fileUri()));
+        return List.of(createCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
+                List.of(textEdit), context.fileUri(), CodeActionKind.QuickFix));
     }
 
     @Override

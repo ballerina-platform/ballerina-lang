@@ -71,9 +71,9 @@ public class ObjectIncludeOverrideBalaTest {
                 "getBonus(float ratio, int months) returns float', found 'private function " +
                 "getBonus(float ratio, int months) returns float'", 36, 5);
         validateError(negativeRes, index++, "incompatible type reference 'foo:Employee4': " +
-                "a referenced object cannot have non-public fields or methods", 42, 6);
+                "a referenced type across modules cannot have non-public fields or methods", 42, 6);
         validateError(negativeRes, index++, "incompatible type reference 'foo:Employee5': " +
-                "a referenced object cannot have non-public fields or methods", 48, 6);
+                "a referenced type across modules cannot have non-public fields or methods", 48, 6);
         assertEquals(negativeRes.getErrorCount(), index);
     }
 }

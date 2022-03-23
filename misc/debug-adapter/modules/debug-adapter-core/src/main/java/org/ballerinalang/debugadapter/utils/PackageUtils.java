@@ -18,14 +18,12 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
-import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -101,26 +99,6 @@ public class PackageUtils {
             }
         }
         return Optional.empty();
-    }
-
-    /**
-     * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
-     * editor instance in the client(plugin) side.
-     *
-     * @param filePath file path of the open/active editor instance in the plugin side.
-     */
-    public static Project loadProject(String filePath) {
-        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
-        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
-        Path projectRoot = projectKindAndProjectRootPair.getValue();
-        BuildOptions options = BuildOptions.builder().setOffline(true).build();
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            return BuildProject.load(projectRoot, options);
-        } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
-            return SingleFileProject.load(projectRoot, options);
-        } else {
-            return ProjectLoader.loadProject(projectRoot, options);
-        }
     }
 
     /**
@@ -241,11 +219,10 @@ public class PackageUtils {
     /**
      * Returns full-qualified class name for a given JDI class reference instance.
      *
-     * @param context       Debug context
      * @param referenceType JDI class reference instance
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(ExecutionContext context, ReferenceType referenceType) {
+    public static String getQualifiedClassName(ReferenceType referenceType) {
         try {
             List<String> paths = referenceType.sourcePaths(null);
             List<String> names = referenceType.sourceNames(null);
@@ -257,8 +234,7 @@ public class PackageUtils {
             String[] nameParts = getQModuleNameParts(name);
             String srcFileName = nameParts[nameParts.length - 1];
 
-            if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
-                    !path.startsWith(context.getSourceProject().currentPackage().packageOrg().value()))) {
+            if (!path.endsWith(BAL_FILE_EXT)) {
                 return referenceType.name();
             }
 

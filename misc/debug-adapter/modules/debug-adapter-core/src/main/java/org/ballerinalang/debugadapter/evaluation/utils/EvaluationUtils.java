@@ -29,9 +29,13 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -43,12 +47,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_LOADING_FAILED;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
  * Debug expression evaluation utils.
@@ -165,6 +172,7 @@ public class EvaluationUtils {
     private static final String DOUBLE_VALUE_METHOD = "doubleValue";
 
     // Misc
+    public static final String SELF_VAR_NAME = "self";
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
     public static final String MODULE_NAME_SEPARATOR = ".";
@@ -254,6 +262,19 @@ public class EvaluationUtils {
         } catch (Exception e) {
             throw createEvaluationException(CLASS_LOADING_FAILED, methodName);
         }
+    }
+
+    /**
+     * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
+     * accepts only the sub classes of @{@link java.lang.Object}.
+     */
+    public static List<Value> getAsObjects(SuspendedContext context, List<Value> argValueList)
+            throws EvaluationException {
+        List<Value> boxedValues = new ArrayList<>();
+        for (Value value : argValueList) {
+            boxedValues.add(getValueAsObject(context, value));
+        }
+        return boxedValues;
     }
 
     /**
@@ -455,6 +476,35 @@ public class EvaluationUtils {
     }
 
     /**
+     * Returns the fully-qualified generated java class name for the source file, which includes the given symbol.
+     *
+     * @param symbol source symbol
+     * @return the fully-qualified generated java class name for the source file, which includes the given symbol
+     */
+    public static String constructQualifiedClassName(Symbol symbol) {
+        String className = symbol.getLocation().orElseThrow().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
+        if (symbol.getModule().isEmpty()) {
+            return className;
+        }
+
+        ModuleID moduleMeta = symbol.getModule().get().id();
+        // for ballerina single source files, the package name will be "." and therefore,
+        // qualified class name ::= <file_name>
+        if (moduleMeta.packageName().equals(".")) {
+            return className;
+        }
+
+        // for ballerina package source files,
+        // qualified class name ::= <package_name>.<module_name>.<package_major_version>.<file_name>
+        return new StringJoiner(".")
+                .add(encodeModuleName(moduleMeta.orgName()))
+                .add(encodeModuleName(moduleMeta.moduleName()))
+                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR_REGEX)[0])
+                .add(className)
+                .toString();
+    }
+
+    /**
      * Converts the user given string literal into a {@link com.sun.jdi.StringReference} instance.
      *
      * @param context suspended debug context
@@ -483,5 +533,14 @@ public class EvaluationUtils {
     private static boolean compare(List<String> list1, List<String> list2) {
         return list1.size() == list2.size() && IntStream.range(0, list1.size()).allMatch(i ->
                 list1.get(i).equals(list2.get(i)));
+    }
+
+    /**
+     * This util is used as a workaround till the ballerina identifier encoding/decoding mechanisms get fixed.
+     * Todo - remove
+     */
+    public static String modifyName(String identifier) {
+        return Utils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
+                IdentifierModifier.IdentifierType.OTHER));
     }
 }

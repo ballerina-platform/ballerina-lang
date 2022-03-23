@@ -18,6 +18,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntSigned8TypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
@@ -45,5 +47,15 @@ public class BallerinaIntSigned8TypeSymbol extends AbstractTypeSymbol implements
     @Override
     public String signature() {
         return "int:" + Names.STRING_SIGNED8;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
