@@ -287,49 +287,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         return false;
     }
 
-    private void createClosureMapUpdateExpression(BLangClassDefinition classDef,
-                                                  BVarSymbol blockMap,
-                                                  BVarSymbol classMapSymbol) {
-
-        OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
-        BVarSymbol oceMap = oceEnvData.mapBlockMapSymbol;
-
-        BLangFunction function = classDef.generatedInitFunction;
-
-        // self
-        BVarSymbol selfSymbol = function.receiver.symbol;
-        BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
-        // $map$block$_2
-        BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(function.pos, blockMap);
-
-        // self.$map$objectCtor
-        BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(function.pos, blockMap.name.value);
-        BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, identifierNode);
-        fieldAccess.symbol = oceMap;
-        fieldAccess.setBType(classMapSymbol.type);
-        fieldAccess.expectedType = classMapSymbol.type;
-        fieldAccess.isStoreOnCreation = true;
-        fieldAccess.isLValue = true;
-        fieldAccess.fieldKind = FieldKind.SINGLE;
-        fieldAccess.leafNode = true;
-
-        // self.$map$objectCtor = $map$block$_2
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = refToBlockClosureMap;
-        assignmentStmt.pos = function.pos;
-        assignmentStmt.setVariable(fieldAccess);
-        fieldAccess.parent = assignmentStmt; // parent added to improve debuggability
-
-        BLangFunction generatedInitFunction = classDef.generatedInitFunction;
-        BLangBlockFunctionBody generatedInitFnBody = (BLangBlockFunctionBody) generatedInitFunction.body;
-
-        // self[$map$objectCtor$_<num1>] = $map$block$_<num2>
-        generatedInitFnBody.stmts.add(0, assignmentStmt);
-        assignmentStmt.parent = generatedInitFnBody; // parent added to improve debuggability
-
-        desugar.rewrite(assignmentStmt, oceEnvData.objMethodsEnv);
-    }
-
     // TODO: filter out only the needed variables, otherwise OCE has indrect access to all block level
     private void addClosureMapToInit(BLangClassDefinition classDef, BVarSymbol mapSymbol) {
 
@@ -413,7 +370,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         classDef.oceEnvData.classEnclosedFunctionMap = classFunctionMapSymbol;
 
         addMapSymbolAsAField(classDef, classFunctionMapSymbol);
-        createClosureMapUpdateExpression(classDef, functionMap, classFunctionMapSymbol);
+        classClosureDesugar.addClosureMapUpdateStmtToClassInit(classDef, functionMap, classFunctionMapSymbol);
         addClosureMapToInit(classDef, functionMap);
 
         classDef.oceEnvData.functionMapUpdatedInInitMethod = true;
@@ -449,12 +406,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
         OCEDynamicEnvData oceData = classDef.oceEnvData;
-        SymbolEnv env = oceData.capturedClosureEnv;
-        if (env.enclEnv.node == null) {
+        SymbolEnv closureEnv = oceData.capturedClosureEnv;
+        if (closureEnv.enclEnv.node == null) {
             return;
         }
         if (!oceData.closureBlockSymbols.isEmpty()) {
-            BLangNode node = getNextPossibleNode(env.enclEnv);
+            BLangNode node = getNextPossibleNode(closureEnv.enclEnv);
             if (node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction function = (BLangFunction) node;
                 node = function.body;
@@ -472,8 +429,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol selfSymbol = classDef.generatedInitFunction.receiver.symbol;
-        BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) classDef.generatedInitFunction.body;
+        BLangFunction generatedInitFunction = classDef.generatedInitFunction;
+        BVarSymbol selfSymbol = generatedInitFunction.receiver.symbol;
+        BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) generatedInitFunction.body;
 
         int i = initBody.stmts.size() - 1;
         for (BLangSimpleVariable field : classDef.fields) {
@@ -516,28 +474,19 @@ public class ClosureDesugar extends BLangNodeVisitor {
             accessExprForClassField.setBType(mapSymbol.type);
 
             //  self[$map$objectCtor$_<num>][i]
-            BLangIndexBasedAccess.BLangMapAccessExpr closureMapAccessForField =
-                    new BLangIndexBasedAccess.BLangMapAccessExpr(field.pos, accessExprForClassField,
-                            ASTBuilderUtil.createLiteral(field.pos, symTable.stringType, varRef.symbol.name));
-
-            closureMapAccessForField.setBType(field.getBType());
-
-            BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-            castExpr.expr = closureMapAccessForField;
-            castExpr.setBType(field.getBType());
-            castExpr.targetType = field.getBType();
+            BLangTypeConversionExpr castExpr =
+                    classClosureDesugar.createClosureMapAccessExprTypeCasted(field.pos, field.symbol.name,
+                            field.getBType(), accessExprForClassField);
 
             // self[x] =  self[$map$objectCtor$_<num>][i];
-            BLangAssignment assignFromPassedMapToInternalMap = ASTBuilderUtil.createAssignmentStmt(field.pos,
-                    mapAccessExpr, castExpr);
+            BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(field.pos, mapAccessExpr, castExpr);
             // parent added to improve debuggability
-            assignFromPassedMapToInternalMap.parent = classDef.generatedInitFunction.body;
+            assignmentStmt.parent = generatedInitFunction.body;
 
-            initBody.stmts.add(i, assignFromPassedMapToInternalMap);
+            initBody.stmts.add(i, assignmentStmt);
             i = i + 1;
         }
-        BLangFunction initFunction = classDef.generatedInitFunction;
-        desugar.visit((BLangBlockFunctionBody) initFunction.body);
+        desugar.visit((BLangBlockFunctionBody) generatedInitFunction.body);
     }
 
     @Override

@@ -7446,10 +7446,11 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = bLangFunction;
-        lambdaFunction.function.pos = bLangArrowFunction.pos;
-        lambdaFunction.pos = bLangArrowFunction.pos;
+        Location posArrowFunc = bLangArrowFunction.pos;
+        lambdaFunction.function.pos = posArrowFunc;
+        lambdaFunction.pos = posArrowFunc;
         lambdaFunction.parent = bLangArrowFunction.parent;
-        // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
+        // At this phase lambda function is semantically correct. Therefore, simply env can be assigned.
         lambdaFunction.capturedClosureEnv = env;
         lambdaFunction.setBType(bLangArrowFunction.funcType);
         bLangArrowFunction.params.forEach(bLangFunction::addParameter);
@@ -7459,7 +7460,7 @@ public class Desugar extends BLangNodeVisitor {
         returnType.setBType(bLangArrowFunction.body.expr.getBType());
         bLangFunction.setReturnTypeNode(returnType);
         bLangFunction.setBody(populateArrowExprBodyBlock(bLangArrowFunction));
-        bLangFunction.body.pos = bLangArrowFunction.pos;
+        bLangFunction.body.pos = posArrowFunc;
 
         // Create function symbol.
         BLangFunction funcNode = lambdaFunction.function;
@@ -7469,9 +7470,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID,
                                                                    bLangArrowFunction.funcType,
                                                                    env.enclEnv.enclVarSym, true,
-                                                                   bLangArrowFunction.pos, VIRTUAL);
-
-        funcSymbol.originalName = new Name(funcNode.name.originalValue);
+                                                                    posArrowFunc, VIRTUAL);
 
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -8324,11 +8323,11 @@ public class Desugar extends BLangNodeVisitor {
         return fieldBasedAccessExpression;
     }
 
-    private BlockFunctionBodyNode populateArrowExprBodyBlock(BLangArrowFunction bLangArrowFunction) {
+    private BlockFunctionBodyNode populateArrowExprBodyBlock(BLangArrowFunction blArrowFunction) {
         BlockFunctionBodyNode blockNode = TreeBuilder.createBlockFunctionBodyNode();
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.pos = bLangArrowFunction.body.expr.pos;
-        returnNode.setExpression(bLangArrowFunction.body.expr);
+        returnNode.pos = blArrowFunction.body.expr.pos;
+        returnNode.setExpression(blArrowFunction.body.expr);
         blockNode.addStatement(returnNode);
         return blockNode;
     }
