@@ -23,31 +23,6 @@ configurations {
     ballerinaTools
 }
 
-npmBuild() {
-    PatternSet patternSet = new PatternSet();
-    patternSet.exclude("**/dist/**");
-	patternSet.exclude("**/out/**");
-    patternSet.exclude("**/*.vsix/**");
-    patternSet.exclude("**/coverage/**");
-
-    FileTree src = files('.').asFileTree;
-    inputs.files(src.matching(patternSet))
-
-    outputs.dir("out")
-    outputs.dir("dist")
-    outputs.cacheIf { true } 
-
-    doFirst {
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', 'npm', 'run', 'package'
-            } else {
-                commandLine 'npm', 'run', 'package'
-            }
-        }
-    }
-}
-
 task copyDistribution() {
     dependsOn ":jballerina-tools:build"
     doFirst {
@@ -56,10 +31,6 @@ task copyDistribution() {
             into "extractedDistribution/jballerina-tools-${project.version}"
         }
     }
-}
-
-task assemble(overwrite: true) {
-    dependsOn 'npmBuild'
 }
 
 dependencies {
