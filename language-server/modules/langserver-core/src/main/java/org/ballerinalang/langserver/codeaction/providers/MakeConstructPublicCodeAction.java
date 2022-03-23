@@ -41,13 +41,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code Action to make type public.
+ * Code Action to make construct public.
  *
  * @since 2201.0.3
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
-    public static final String NAME = "Make Type Public";
+    public static final String NAME = "Make Construct Public";
     public static final String DIAGNOSTIC_CODE = "BCE2038";
 
     @Override
@@ -87,7 +87,7 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
         String editText = SyntaxKind.PUBLIC_KEYWORD.stringValue() + " ";
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
-        String commandTitle = String.format(CommandConstants.MAKE_TYPE_PUBLIC, symbol.get().getName().orElse(""));
+        String commandTitle = String.format(CommandConstants.MAKE_CONSTRUCT_PUBLIC, symbol.get().getName().orElse(""));
         return List.of(createCodeAction(commandTitle, editList, uri.toString(), CodeActionKind.QuickFix));
     }
 
