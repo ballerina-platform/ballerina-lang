@@ -76,7 +76,7 @@ public class TransactionUtils {
                                          StrandMetadata metaData, Object... paramValues) {
         try {
             Class<?> clazz = classLoader.loadClass(packageName + "." + className);
-            int paramCount = paramValues.length * 2 + 1;
+            int paramCount = paramValues.length + 1;
             Class<?>[] jvmParamTypes = new Class[paramCount];
             Object[] jvmArgs = new Object[paramCount];
             jvmParamTypes[0] = Strand.class;
@@ -84,8 +84,6 @@ public class TransactionUtils {
             for (int i = 0, j = 1; i < paramValues.length; i++) {
                 jvmArgs[j] = paramValues[i];
                 jvmParamTypes[j++] = getJvmType(paramValues[i]);
-                jvmArgs[j] = true;
-                jvmParamTypes[j++] = boolean.class;
             }
             Method method = clazz.getDeclaredMethod(methodName, jvmParamTypes);
             Function<Object[], Object> func = args -> {

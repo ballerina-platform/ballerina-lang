@@ -57,8 +57,7 @@ public class Reduce {
         Object[] values = tbl.values().toArray();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand, accum.get(), true,
-                                values[index.incrementAndGet()], true},
+                        () -> new Object[]{parentStrand, accum.get(), values[index.incrementAndGet()]},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }
