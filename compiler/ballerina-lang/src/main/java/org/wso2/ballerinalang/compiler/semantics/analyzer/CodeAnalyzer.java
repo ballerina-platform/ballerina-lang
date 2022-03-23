@@ -3856,6 +3856,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        boolean prevFailureHandled = this.failureHandled;
+        this.failureHandled = true;
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3871,6 +3873,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(clause, env);
         }
         validateActionParentNode(queryAction.pos, queryAction);
+        this.failureHandled = prevFailureHandled;
     }
 
     @Override

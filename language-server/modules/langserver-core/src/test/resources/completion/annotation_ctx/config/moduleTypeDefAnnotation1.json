@@ -292,15 +292,6 @@
       "additionalTextEdits": []
     },
     {
-      "label": "typeAnnotation1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "untainted",
       "kind": "Property",
       "detail": "Annotation",
@@ -310,20 +301,29 @@
       "additionalTextEdits": []
     },
     {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "typeAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "A",
       "insertText": "typeAnnotation3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "typeAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }
