@@ -125,7 +125,7 @@ public class JsonToRecordConverter {
         } else {
             // Sets generated type definition code block
             NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
-                    typeDefinitionNodes.values().toArray(new TypeDefinitionNode[0]));
+                    new ArrayList(typeDefinitionNodes.values()));
             Token eofToken = AbstractNodeFactory.createIdentifierToken("");
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
@@ -148,13 +148,9 @@ public class JsonToRecordConverter {
             throws JsonToRecordConverterException {
         Map<String, NonTerminalNode> typeDefinitionNodes = new LinkedHashMap<>();
 
-        if (openApi.getComponents() == null) {
-            return new LinkedHashMap<>(typeDefinitionNodes);
-        }
-
         Components components = openApi.getComponents();
 
-        if (components.getSchemas() == null) {
+        if (components.getSchemas() == null || openApi.getComponents() == null) {
             return new LinkedHashMap<>(typeDefinitionNodes);
         }
 
@@ -191,13 +187,14 @@ public class JsonToRecordConverter {
                 RecordTypeDescriptorNode recordTypeDescriptorNode =
                         NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                                 fieldNodes, null, bodyEndDelimiter);
+                String key = schema.getKey().trim();
                 if (isRecordTypeDescriptor) {
-                    typeDefinitionNodes.put(schema.getKey().trim(), recordTypeDescriptorNode);
+                    typeDefinitionNodes.put(key, recordTypeDescriptorNode);
                 } else {
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
                             null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
-                    typeDefinitionNodes.put(schema.getKey().trim(), typeDefinitionNode);
+                    typeDefinitionNodes.put(key, typeDefinitionNode);
                 }
             } else if (schemaType.equals("array")) {
                 if (schemaValue instanceof ArraySchema) {
