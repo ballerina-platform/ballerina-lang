@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -47,7 +46,7 @@ import java.util.Optional;
  * @since 2201.0.3
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class MakeTypePublicCodeAction extends AbstractCodeActionProvider {
+public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Make Type Public";
     public static final String DIAGNOSTIC_CODE = "BCE2038";
 
@@ -67,15 +66,11 @@ public class MakeTypePublicCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        ModuleID moduleID = symbol.get().getModule().get().id();
-        String orgName = moduleID.orgName();
-        String moduleName = moduleID.moduleName();
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<Path> filePath = CommonUtil.getFilePathForDependency(orgName, moduleName, project.get(),
-                symbol.get(), context);
+        Optional<Path> filePath = CommonUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
         if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
             return Collections.emptyList();
         }

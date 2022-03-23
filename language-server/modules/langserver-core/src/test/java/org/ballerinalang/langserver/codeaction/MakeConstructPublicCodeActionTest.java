@@ -26,7 +26,7 @@ import java.io.IOException;
  *
  * @since 2201.0.3
  */
-public class MakeTypePublicCodeActionTest extends AbstractCodeActionTest {
+public class MakeConstructPublicCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")
     @Override
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
@@ -35,7 +35,7 @@ public class MakeTypePublicCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     public String getResourceDir() {
-        return "make-type-public";
+        return "make-construct-public";
     }
 
     @DataProvider(name = "codeaction-data-provider")

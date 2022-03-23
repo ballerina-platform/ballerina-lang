@@ -1223,6 +1223,7 @@ public class CommonUtil {
      * @param orgName    organization name
      * @param moduleName module name
      * @param project    ballerina project
+     * @param symbol     symbol
      * @param context    service operation context
      * @return file path
      */
@@ -1257,6 +1258,24 @@ public class CommonUtil {
             }
         }
         return filepath;
+    }
+
+    /**
+     * Returns the file path.
+     *
+     * @param symbol    symbol
+     * @param project   ballerina project
+     * @param context   service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
+        if (symbol.getModule().isEmpty()) {
+            return Optional.empty();
+        }
+        ModuleID moduleID = symbol.getModule().get().id();
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return getFilePathForDependency(orgName, moduleName, project, symbol, context);
     }
 
     /**
