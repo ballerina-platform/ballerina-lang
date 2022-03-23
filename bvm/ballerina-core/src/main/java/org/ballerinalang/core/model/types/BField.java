@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,26 +15,31 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.model;
+package org.ballerinalang.core.model.types;
 
 /**
- * {@code ArgumentState} represents state of an argument in an instruction.
+ * {@code BField} represents a field in user defined type in Ballerina.
  *
- * @since 2.0.0
+ * @since 0.971.0
  */
-public enum ArgumentState {
-    /**
-     * User has provided value for default parameter.
-     */
-    PROVIDED,
+public class BField {
 
-    /**
-     * User has not provided value for default parameter.
-     */
-    NOT_PROVIDED,
-    
-    /**
-     * User has provided value as a condition for default parameter.
-     */
-    CONDITIONALLY_PROVIDED
+    public BType fieldType;
+    public String fieldName;
+    public long flags;
+
+    public BField(BType fieldType, String fieldName, long flags) {
+        this.fieldType = fieldType;
+        this.fieldName = fieldName;
+        this.flags = flags;
+    }
+
+    public BType getFieldType() {
+        return fieldType;
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
 }
+
