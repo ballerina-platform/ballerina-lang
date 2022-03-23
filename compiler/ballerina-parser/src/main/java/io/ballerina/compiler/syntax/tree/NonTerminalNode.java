@@ -42,7 +42,7 @@ import static io.ballerina.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 public abstract class NonTerminalNode extends Node {
 
     // The following two fields allow us to navigate the tree without the knowledge of the particular tree nodes
-    protected final Node[] childBuckets;
+    public final Node[] childBuckets;
     private ChildNodeList childNodeList;
 
     public NonTerminalNode(STNode internalNode, int position, NonTerminalNode parent) {
