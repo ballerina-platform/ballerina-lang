@@ -153,15 +153,11 @@ public class PackCommand implements BLauncherCmd {
         }
 
         // If project is empty
-        if (isProjectEmpty(project)) {
-            if (project.currentPackage().compilerPluginToml().isPresent()) {
-                // Do not throw an error if a compiler plugin is present
-            } else {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
+        if (isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty()) {
+            CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
                         false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
         // Check `[package]` section is available when compile
