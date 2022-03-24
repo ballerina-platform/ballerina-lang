@@ -114,7 +114,6 @@ public class Types {
                 Names.fromString(version));
 
         return getTypeDefByName(packageID, typeDefName);
-
     }
 
     public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
