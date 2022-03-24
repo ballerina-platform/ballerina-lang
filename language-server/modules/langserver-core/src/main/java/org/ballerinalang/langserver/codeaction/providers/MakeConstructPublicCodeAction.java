@@ -58,8 +58,7 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
                 || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
-        Range diagnosticRange = new Range(CommonUtil.toPosition(diagnostic.location().lineRange().startLine()),
-                CommonUtil.toPosition(diagnostic.location().lineRange().endLine()));
+        Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
         Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(nonTerminalNode);
         if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
@@ -82,8 +81,11 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Position position = getStartPosition(node.get());
-        Range range = new Range(position, position);
+        Optional<Position> position = getStartPosition(node.get());
+        if (position.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Range range = new Range(position.get(), position.get());
         String editText = SyntaxKind.PUBLIC_KEYWORD.stringValue() + " ";
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
@@ -91,24 +93,23 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
         return List.of(createCodeAction(commandTitle, editList, uri.toString(), CodeActionKind.QuickFix));
     }
 
-    private static Position getStartPosition(Node node) {
-        Position startPosition = new Position();
+    private static Optional<Position> getStartPosition(Node node) {
         SyntaxKind typeKind = node.kind();
 
         if (typeKind.equals(SyntaxKind.TYPE_DEFINITION)) {
             TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode) node;
-            startPosition = CommonUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine());
+            return Optional.of(CommonUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine()));
         }
         if (typeKind.equals(SyntaxKind.CLASS_DEFINITION)) {
             ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
             if (!classDefinitionNode.classTypeQualifiers().isEmpty()) {
-                startPosition = CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
-                        .lineRange().startLine());
+                return Optional.of(CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
+                        .lineRange().startLine()));
             } else {
-                startPosition = CommonUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine());
+                return Optional.of(CommonUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine()));
             }
         }
-        return startPosition;
+        return Optional.empty();
     }
 
     @Override
