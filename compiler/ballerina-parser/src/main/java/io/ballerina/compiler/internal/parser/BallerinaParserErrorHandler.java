@@ -364,8 +364,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.PLUS_TOKEN,
                     ParserRuleContext.MINUS_TOKEN, ParserRuleContext.NIL_LITERAL };
 
-    private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
-            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
+    private static final ParserRuleContext[] LIST_CONSTRUCTOR_FIRST_MEMBER =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.LIST_CONSTRUCTOR_MEMBER };
+
+    private static final ParserRuleContext[] LIST_CONSTRUCTOR_MEMBER =
+            { ParserRuleContext.EXPRESSION, ParserRuleContext.ELLIPSIS };
 
     private static final ParserRuleContext[] TYPE_CAST_PARAM =
             { ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, ParserRuleContext.ANNOTATIONS };
@@ -1392,6 +1395,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONSTANT_EXPRESSION_START:
             case TYPE_DESC_RHS:
             case LIST_CONSTRUCTOR_FIRST_MEMBER:
+            case LIST_CONSTRUCTOR_MEMBER:
             case TYPE_CAST_PARAM:
             case TYPE_CAST_PARAM_RHS:
             case TABLE_KEYWORD_RHS:
@@ -1697,6 +1701,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.END_OF_TYPE_DESC;
             case LIST_CONSTRUCTOR_FIRST_MEMBER:
                 return ParserRuleContext.CLOSE_BRACKET;
+            case LIST_CONSTRUCTOR_MEMBER:
+                return ParserRuleContext.EXPRESSION;
             case TYPE_CAST_PARAM:
             case TYPE_CAST_PARAM_RHS:
                 return ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS;
@@ -2646,7 +2652,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 alternativeRules = CONSTANT_EXPRESSION;
                 break;
             case LIST_CONSTRUCTOR_FIRST_MEMBER:
-                alternativeRules = LIST_CONSTRUCTOR_RHS;
+                alternativeRules = LIST_CONSTRUCTOR_FIRST_MEMBER;
+                break;
+            case LIST_CONSTRUCTOR_MEMBER:
+                alternativeRules = LIST_CONSTRUCTOR_MEMBER;
                 break;
             case TYPE_CAST_PARAM:
                 alternativeRules = TYPE_CAST_PARAM;
@@ -3097,6 +3106,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 switch (parentCtx) {
                     case MAPPING_CONSTRUCTOR:
+                    case LIST_CONSTRUCTOR:
                     case ARG_LIST:
                         return ParserRuleContext.EXPRESSION;
                     case TYPE_DESC_IN_TUPLE:
@@ -4329,8 +4339,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ARG_START;
             case MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_FIELD;
-            case LISTENERS_LIST:
             case LIST_CONSTRUCTOR:
+                return ParserRuleContext.LIST_CONSTRUCTOR_MEMBER;
+            case LISTENERS_LIST:
             case ORDER_KEY_LIST:
                 return ParserRuleContext.EXPRESSION;
             case ANNOT_ATTACH_POINTS_LIST:
