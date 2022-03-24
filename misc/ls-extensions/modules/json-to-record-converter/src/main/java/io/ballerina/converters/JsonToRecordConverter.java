@@ -454,11 +454,9 @@ public class JsonToRecordConverter {
             cleanedMap.replace("properties", properties);
         } else if (cleanedMap.get("type").equals("array")) {
             Map<String, Object> itemsSchema = (Map<String, Object>) cleanedMap.get("items");
-            if (itemsSchema != null && itemsSchema.size() != 0) {
-                cleanedMap.replace("items", cleanSchema(itemsSchema));
-            } else {
-                cleanedMap.replace("items", itemsSchema);
-            }
+            Map<String, Object> cleanedSchema = (itemsSchema != null && !itemsSchema.isEmpty()) ?
+                    cleanSchema(itemsSchema) : itemsSchema;
+            cleanedMap.replace("items", cleanedSchema);
         }
 
         return cleanedMap;
