@@ -19,7 +19,7 @@
       "kind": "Field",
       "detail": "Person.address",
       "sortText": "K",
-      "insertText": "address: {\n\tstreet: \"${1}\",\n\tcity: \"${2}\",\n\tpostalCode: \"${3}\"\n}",
+      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "Person.name",
       "sortText": "K",
-      "insertText": "name: \"${2}\"",
+      "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -35,7 +35,7 @@
       "kind": "Field",
       "detail": "Person.age",
       "sortText": "K",
-      "insertText": "age: ${3:0}",
+      "insertText": "age: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +44,7 @@
       "detail": "Person",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "address: {street: \"\", city: \"\", postalCode: \"\"},\nname: \"\",\nage: 0",
+      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}},\nname: ${2:\"\"},\nage: ${3:0}",
       "insertTextFormat": "Snippet"
     }
   ]

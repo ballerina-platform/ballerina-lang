@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "(record {| int field1; int field2; Record2 field3; anydata...; |}).field3",
       "sortText": "K",
-      "insertText": "field3: {\n\trec2f1: ${1:0},\n\trec2f2: ${2:0}\n}",
+      "insertText": "field3: {rec2f1: ${1:0}, rec2f2: ${2:0}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -35,7 +35,7 @@
       "kind": "Field",
       "detail": "(record {| int field1; int field2; Record2 field3; anydata...; |}).field2",
       "sortText": "K",
-      "insertText": "field2: ${3:0}",
+      "insertText": "field2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +44,7 @@
       "detail": "record {| int field1; int field2; Record2 field3; anydata...; |}",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "field1: 0,\nfield3: {rec2f1: 0, rec2f2: 0},\nfield2: 0",
+      "insertText": "field1: ${1:0},\nfield3: {rec2f1: ${2:0}, rec2f2: ${3:0}},\nfield2: ${3:0}",
       "insertTextFormat": "Snippet"
     }
   ]

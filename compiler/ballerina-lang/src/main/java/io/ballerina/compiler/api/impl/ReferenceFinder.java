@@ -812,9 +812,8 @@ public class ReferenceFinder extends BaseVisitor {
             find(invocationExpr.expr);
         }
 
-        find(invocationExpr.requiredArgs);
         find(invocationExpr.annAttachments);
-        find(invocationExpr.restArgs);
+        find(invocationExpr.argExprs);
 
         if (!invocationExpr.pkgAlias.value.isEmpty() && invocationExpr.symbol != null) {
             addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
