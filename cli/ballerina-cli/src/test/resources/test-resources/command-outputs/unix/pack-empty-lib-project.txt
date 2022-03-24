@@ -1,0 +1,5 @@
+Compiling source
+	user/LibraryProject:0.1.0
+
+Generating executable
+	target/bin/LibraryProject.jar

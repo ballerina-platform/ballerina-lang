@@ -270,4 +270,32 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(customTargetDir.resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
     }
 
+    @Test(description = "Build an empty library module")
+    public void testPackEmptyLibModule() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyLibProject");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-empty-lib-project.txt"));
+    }
+
+    @Test(description = "Build an empty library module with compiler plugin")
+    public void testPackEmptyLibModuleWithCompilerPlugin() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyLibProjectWithCompilerPlugin");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("pack-empty-lib-project.txt"));
+    }
+
 }
