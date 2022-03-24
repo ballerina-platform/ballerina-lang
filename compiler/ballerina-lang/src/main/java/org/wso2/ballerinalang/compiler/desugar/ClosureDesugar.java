@@ -1904,8 +1904,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        if (bLangStatementExpression.stmt.getKind() == NodeKind.BLOCK) {
-            BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) bLangStatementExpression.stmt;
+        BLangStatement exprStmt = bLangStatementExpression.stmt;
+        if (exprStmt.getKind() == NodeKind.BLOCK) {
+            BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) exprStmt;
             if (bLangBlockStmt.isLetExpr) {
                 bLangStatementExpression.stmt = rewrite(bLangBlockStmt, env);
             } else {
@@ -1915,7 +1916,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 }
             }
         } else {
-            bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
+            bLangStatementExpression.stmt = rewrite(exprStmt, env);
         }
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         result = bLangStatementExpression;
