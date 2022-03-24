@@ -102,7 +102,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         StringBuffer br = new StringBuffer();
         int i = 0;
         for (Parameter parameter : parameters) {
-            br.append(parameter.type.getName());
+            br.append(parameter.type.toString());
             if (++i < parameters.length) {
                 br.append(",");
             }
@@ -169,7 +169,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION)) {
             stringRep = "function";
         } else {
-            stringRep = "function (" + (parameters != null ? getTypeListAsString(parameters) : "") + ")" +
+            stringRep = "function (" + (parameters != null ? getTypeListAsString(parameters) : "") +
+                    (restType != null ? "," + ((BArrayType) restType).getElementType().toString() + "..." : "") + ")" +
                     (retType != null ? " returns (" + retType + ")" : "");
         }
 
