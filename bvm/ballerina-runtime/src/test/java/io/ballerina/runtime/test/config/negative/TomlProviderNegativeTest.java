@@ -235,6 +235,11 @@ public class TomlProviderNegativeTest {
                 {"MissingRecordField", "[MissingRecordField.toml:(1:1,1:24)] value not provided for non-defaultable " +
                         "required field 'name' of record 'test_module:Person' in configurable variable " +
                         "'recordVar'", 1},
+                {"RecordInlineTypeError1",
+                        "[RecordInlineTypeError1.toml:(1:34,1:38)] configurable variable 'recordVar" +
+                                ".name' is expected to be of type 'string', but found 'int'", 1},
+                {"RecordInlineTypeError2", "[RecordInlineTypeError2.toml:(1:27,1:45)] configurable variable " +
+                        "'recordVar.name' is expected to be of type 'string', but found 'record'", 2},
         };
     }
 
@@ -293,6 +298,13 @@ public class TomlProviderNegativeTest {
                 {"MissingTableField", "[MissingTableField.toml:(1:1,3:9)] value not provided for " +
                         "non-defaultable required field 'id' of record 'test_module:Person' in configurable" +
                         " variable 'tableVar'", 1},
+                {"TableInlineTypeError1", "[TableInlineTypeError1.toml:(1:34,1:37)] configurable variable 'tableVar" +
+                        ".name' is expected to be of type 'string', but found 'int'", 1},
+                {"TableInlineTypeError2", "[TableInlineTypeError2.toml:(1:39,1:56)] configurable variable 'tableVar" +
+                        ".age' is expected to be of type 'int', but found 'record'", 1},
+                {"TableInlineTypeError3", "[TableInlineTypeError3.toml:(1:24,1:53)] configurable variable 'tableVar' " +
+                        "is expected to be of type 'table<test_module:Person> key(name) & readonly', but found 'array'",
+                        1},
         };
     }
 
@@ -519,6 +531,11 @@ public class TomlProviderNegativeTest {
                         "expected to be of type 'string', but found 'int'", 1},
                 {"MapFieldStructureError", "[MapFieldStructureError.toml:(2:1,2:24)] configurable variable 'mapVar" +
                         ".name' is expected to be of type 'string', but found 'record'", 1},
+                {"MapInlineTypeError1",
+                        "[MapInlineTypeError1.toml:(1:45,1:47)] configurable variable 'mapVar.age' is " +
+                                "expected to be of type 'string', but found 'int'", 1},
+                {"MapInlineTypeError2", "[MapInlineTypeError2.toml:(1:39,1:61)] configurable variable 'mapVar" +
+                        ".mapField' is expected to be of type 'string', but found 'record'", 2},
         };
     }
 
@@ -719,6 +736,36 @@ public class TomlProviderNegativeTest {
                         "variable 'tupleVar[2]' is expected to be of type 'int', but found 'float'",
                         PredefinedTypes.TYPE_INT},
 
+        };
+    }
+
+    @Test(dataProvider = "structure-array-negative-tests")
+    public void testStructureArrayNegativeConfig(Type elementType, String tomlFileName, String errorMsg) {
+        ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
+        VariableKey arrayVar = new VariableKey(ROOT_MODULE, "arrayVar",
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0
+                        , true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{arrayVar}));
+        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1, 0);
+    }
+
+    @DataProvider(name = "structure-array-negative-tests")
+    public Object[][] getStructureArrayNegativeTests() {
+        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_INT);
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
+        RecordType recordType =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+
+        return new Object[][]{
+                {mapType, "MapArrInlineTypeError1", "[MapArrInlineTypeError1.toml:(1:43,1:47)] configurable variable " +
+                        "'arrayVar[1].b' is expected to be of type 'int', but found 'string'"},
+                {mapType, "MapArrInlineTypeError2", "[MapArrInlineTypeError2.toml:(1:37,1:42)] configurable variable " +
+                        "'arrayVar[1]' is expected to be of type 'map<int> & readonly', but found 'string'"},
+                {recordType, "RecordArrInlineTypeError1", "[RecordArrInlineTypeError1.toml:(1:34,1:36)] configurable " +
+                        "variable 'arrayVar[0].name' is expected to be of type 'string', but found 'int'"},
+                {recordType, "RecordArrInlineTypeError2", "[RecordArrInlineTypeError2.toml:(1:25,1:40)] configurable " +
+                        "variable 'arrayVar[0]' is expected to be of type 'test_module:Person', but found 'string'"},
         };
     }
 

@@ -186,13 +186,23 @@ public class ConfigValueCreator {
     }
 
     private BArray getMapValueArray(TomlNode tomlValue, ArrayType arrayType, Type elementType) {
-        ListInitialValueEntry.ExpressionEntry[] entries;
-        if (tomlValue.kind() == TomlType.ARRAY) {
-            entries = createInitialValuesFromArrayNode((TomlArrayValueNode) tomlValue, elementType);
-        } else {
-            entries = createInitialValuesFromTableArrayNode((TomlTableArrayNode) tomlValue, elementType);
-        }
+        ListInitialValueEntry.ExpressionEntry[] entries = getListEntries(tomlValue, elementType);
         return new ArrayValueImpl(arrayType, entries.length, entries);
+    }
+
+    private ListInitialValueEntry.ExpressionEntry[] getListEntries(TomlNode tomlValue, Type elementType) {
+        ListInitialValueEntry.ExpressionEntry[] entries;
+        switch (tomlValue.kind()) {
+            case ARRAY:
+                entries = createInitialValuesFromArrayNode((TomlArrayValueNode) tomlValue, elementType);
+                break;
+            case TABLE_ARRAY:
+                entries = createInitialValuesFromTableArrayNode((TomlTableArrayNode) tomlValue, elementType);
+                break;
+            default:
+                entries = getListEntries(((TomlKeyValueNode) tomlValue).value(), elementType);
+        }
+        return entries;
     }
 
     private BArray createArrayFromSimpleTomlValue(TomlArrayValueNode tomlValue, ArrayType arrayType,
@@ -280,13 +290,7 @@ public class ConfigValueCreator {
             tableType = (TableType) type;
         }
         constraintType = tableType.getConstrainedType();
-        ListInitialValueEntry.ExpressionEntry[] tableEntries;
-        if (tomlValue.kind() == TomlType.ARRAY) {
-            tableEntries = createInitialValuesFromArrayNode((TomlArrayValueNode) tomlValue, constraintType);
-        } else {
-            tableEntries = createInitialValuesFromTableArrayNode((TomlTableArrayNode) tomlValue, constraintType);
-
-        }
+        ListInitialValueEntry.ExpressionEntry[] tableEntries = getListEntries(tomlValue, constraintType);
         String[] keys = tableType.getFieldNames();
         ArrayValue tableData =
                 new ArrayValueImpl(TypeCreator.createArrayType(constraintType), tableEntries.length, tableEntries);
@@ -345,10 +349,11 @@ public class ConfigValueCreator {
 
     private BMap<BString, Object> createMapValue(TomlNode tomlValue, MapType mapType) {
         TomlTableNode tomlTableValue = (TomlTableNode) tomlValue;
+        Map<String, TopLevelNode> entries = tomlTableValue.entries();
         MappingInitialValueEntry.KeyValueEntry[] keyValueEntries =
-                new MappingInitialValueEntry.KeyValueEntry[tomlTableValue.entries().size()];
+                new MappingInitialValueEntry.KeyValueEntry[entries.size()];
         int count = 0;
-        for (Map.Entry<String, TopLevelNode> field : tomlTableValue.entries().entrySet()) {
+        for (Map.Entry<String, TopLevelNode> field : entries.entrySet()) {
             String fieldName = field.getKey();
             Type constrainedType = mapType.getConstrainedType();
             Object value =

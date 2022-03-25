@@ -89,9 +89,9 @@ function testTuples() {
     // Need to enable this after fixing issue #35395
     // test:assertEquals(xmlTuple.toString(), "[[1,3,5,7,9],[[\"apple\",\"banana\",\"orange\"]," 
     // "[\"ten\",\"twenty\",\"thirty\"]]]");
-    test:assertEquals(mapTuple.toString(), "[\"Foo\",{\"address\":{\"number\":20,\"road\":\"Palm Grove\"," +
-    "\"city\":\"Colombo 3\"},\"name\":\"Baz Qux\",\"accounts\":[{\"id\":\"1\"},{\"id\":\"2\"}]," +
-    "\"salary\":[45000.0,150000.0],\"age\":22}]");
+    test:assertEquals(mapTuple.toString(), "[\"Foo\",{\"name\":\"Baz Qux\",\"age\":22,\"salary\":[45000.0,150000.0]," +
+    "\"address\":{\"number\":20,\"road\":\"Palm Grove\",\"city\":\"Colombo 3\"},\"accounts\":[{\"id\":\"1\"}," +
+    "{\"id\":\"2\"}]}]");
     test:assertEquals(recordTuple1.toString(), "[1,{\"name\":\"John Doe\",\"age\":22,\"subjects\":[\"English\"," +
     "\"Science\"],\"marks\":{\"English\":85,\"Science\":90}}]");
     test:assertEquals(recordTuple2.toString(), "[2,{\"name\":\"John Doe\",\"age\":22,\"subjects\":[\"English\"," +
@@ -105,8 +105,8 @@ function testTuples() {
     test:assertEquals(enumTuple.toString(), "[33,\"Sri Lanka\"]");
     test:assertEquals(unionTuple1.toString(), "[123,\"Hello World\"]");
     test:assertEquals(unionTuple2.toString(), "[456,{\"a\":1,\"b\":2}]");
-    test:assertEquals(mapArrayTuple.toString(), "[\"Jane\",[{\"subject\":\"English\",\"name\":\"John Doe\"," +
-    "\"age\":\"22\"},{\"subject\":\"Maths\",\"name\":\"Jane Doe\",\"age\":\"27\"}]]");
+    test:assertEquals(mapArrayTuple.toString(), "[\"Jane\",[{\"name\":\"John Doe\",\"age\":\"22\"," +
+    "\"subject\":\"English\"},{\"name\":\"Jane Doe\",\"age\":\"27\",\"subject\":\"Maths\"}]]");
     test:assertEquals(recordArrayTuple.toString(), "[\"John\",[{\"name\":\"John Doe\",\"age\":22," +
     "\"subjects\":[\"English\",\"Science\"],\"marks\":{\"English\":85,\"Science\":90}},{\"name\":\"Jane Doe\"," +
     "\"age\":27,\"subjects\":[\"Maths\",\"History\"],\"marks\":{\"Maths\":88,\"History\":97}}]]");
