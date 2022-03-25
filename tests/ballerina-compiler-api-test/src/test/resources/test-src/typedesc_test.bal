@@ -266,6 +266,14 @@ function testUnionTypeWithFunctionType() {
     (function () returns string)|function () returns int gVar = returnIntFunc;
 }
 
+function testFixedArrays() {
+    int[3] a;
+    string[1][2][3][4][5] b;
+    int[][2] c;
+    int[2][] d;
+    (int|string)[1][2] e;
+}
+
 // utils
 type ReturnIntFunctionType function () returns int;
 
