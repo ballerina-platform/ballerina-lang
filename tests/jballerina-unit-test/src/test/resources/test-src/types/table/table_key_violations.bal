@@ -135,3 +135,9 @@ table<Customer> key(id) _ = table [
         {id: ID1, firstName: "Foo", lastName: "QWER"},
         {id: ID2, firstName: "Bar", lastName: "UYOR"}
     ];
+
+//Should throw a duplicate key error. Related to ballerina-lang/issues/35584
+table<Customer> key(id) _ = table [
+        {id: ID1, firstName: "Foo", lastName: "QWER"},
+        {id: 13, firstName: "Bar", lastName: "UYOR"}
+    ];
