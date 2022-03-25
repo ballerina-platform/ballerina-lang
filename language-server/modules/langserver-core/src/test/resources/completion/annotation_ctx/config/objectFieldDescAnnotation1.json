@@ -265,24 +265,6 @@
       "additionalTextEdits": []
     },
     {
-      "label": "objectFieldAnnotation1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "objectFieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "fieldAnnotation1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "fieldAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "fieldAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
@@ -292,11 +274,29 @@
       "additionalTextEdits": []
     },
     {
+      "label": "objectFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "objectFieldAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "display",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "fieldAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

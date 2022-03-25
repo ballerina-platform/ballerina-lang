@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -141,6 +142,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -175,6 +177,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -220,6 +223,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private boolean containsCheckExpr;
     private boolean withinLambdaFunc = false;
+    private HashSet<BType> checkedErrorList;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -247,6 +251,9 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
         containsCheckExpr = false;
+        HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
+        this.checkedErrorList = new HashSet<>();
+
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
@@ -293,7 +300,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
                 // so that it will propagate the error properly.
                 BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
-                checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+                checkedExpr.equivalentErrorTypeList.addAll(this.checkedErrorList);
                 streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
                 streamStmtExpr.setBType(checkedExpr.getBType());
             } else {
@@ -302,6 +309,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 streamStmtExpr.setBType(queryExpr.getBType());
             }
         }
+        this.checkedErrorList = prevCheckedErrorList;
         return streamStmtExpr;
     }
 
@@ -313,14 +321,42 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return desugared query action.
      */
     BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env) {
+        containsCheckExpr = false;
+        HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
+        this.checkedErrorList = new HashSet<>();
         List<BLangNode> clauses = queryAction.getQueryClauses();
         Location pos = clauses.get(0).pos;
+        BType returnType = symTable.errorOrNilType;
+        if (queryAction.returnsWithinDoClause) {
+            BInvokableSymbol invokableSymbol = env.enclInvokable.symbol;
+            returnType = ((BInvokableType) invokableSymbol.type).retType;
+        }
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, queryAction.getBType(), env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock);
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                QUERY_CONSUME_STREAM_FUNCTION, symTable.errorOrNilType, Lists.of(streamRef), pos);
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
-        stmtExpr.setBType(symTable.errorOrNilType);
+                QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
+        BLangStatementExpression stmtExpr;
+        if (!containsCheckExpr && queryAction.returnsWithinDoClause) {
+            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, result);
+            BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(pos);
+            ifBody.stmts.add(returnStmt);
+
+            BLangTypeTestExpr nilTypeTestExpr = desugar.createTypeCheckExpr(pos, result, desugar.getNillTypeNode());
+            nilTypeTestExpr.setBType(symTable.booleanType);
+
+            BLangGroupExpr nilCheckGroupExpr = new BLangGroupExpr();
+            nilCheckGroupExpr.setBType(symTable.booleanType);
+            // !($streamElement$ is ()))
+            nilCheckGroupExpr.expression = desugar.createNotBinaryExpression(pos, nilTypeTestExpr);
+
+            BLangIf ifStatement = ASTBuilderUtil.createIfStmt(pos, queryBlock);
+            ifStatement.expr = nilCheckGroupExpr;
+            ifStatement.body = ifBody;
+        }
+        stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                addTypeConversionExpr(result, returnType));
+        stmtExpr.setBType(returnType);
+        this.checkedErrorList = prevCheckedErrorList;
         return stmtExpr;
     }
 
@@ -494,7 +530,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
         Location pos = fromClause.pos;
         // function(_Frame frame) returns any|error? { return collection; }
-        BLangUnionTypeNode returnType = getAnyErrorNilTypeNode();
+        BLangUnionTypeNode returnType = getAnyAndErrorTypeNode();
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.expr = fromClause.collection;
         returnNode.pos = pos;
@@ -822,8 +858,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return created lambda function.
      */
     private BLangLambdaFunction createActionLambda(Location pos) {
-        // returns ()
-        BLangValueType returnType = getNilTypeNode();
+        // returns any|error
+        BLangUnionTypeNode returnType = getAnyAndErrorTypeNode();
         return createLambdaFunction(pos, returnType, null, false);
     }
 
@@ -1250,16 +1286,15 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Return union type node consists of any, error & ().
+     * Return union type node consists of any & error.
      *
-     * @return a any, error & nil type node.
+     * @return a any & error type node.
      */
-    private BLangUnionTypeNode getAnyErrorNilTypeNode() {
-        BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType, symTable.nilType);
+    private BLangUnionTypeNode getAnyAndErrorTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.anyType, symTable.errorType);
         BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         unionTypeNode.memberTypeNodes.add(getAnyTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
-        unionTypeNode.memberTypeNodes.add(getNilTypeNode());
         unionTypeNode.setBType(unionType);
         unionTypeNode.desugared = true;
         return unionTypeNode;
@@ -1785,6 +1820,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         containsCheckExpr = true;
+        this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
         this.acceptNode(checkedExpr.expr);
     }
 
@@ -2056,6 +2092,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         onFailClause.body.stmts.forEach(stmt -> this.acceptNode(stmt));
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        this.acceptNode(failNode.expr);
     }
 
     @Override

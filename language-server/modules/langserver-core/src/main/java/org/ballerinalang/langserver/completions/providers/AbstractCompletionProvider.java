@@ -192,8 +192,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                  */
                 String typeName = (typeDesc == null || typeDesc.typeKind() == null) ? "" :
                         CommonUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
-                        typeName);
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, 
+                        varSymbol.getName().orElse(""), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
 
                 if (typeDesc != null) {

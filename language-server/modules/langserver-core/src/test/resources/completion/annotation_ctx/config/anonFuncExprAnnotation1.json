@@ -269,7 +269,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "A",
-      "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "functionAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -278,7 +278,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }
