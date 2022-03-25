@@ -131,7 +131,7 @@ public class TableNegativeTest {
     @Test
     public void testTableKeyViolations() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table_key_violations.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
         int index = 0;
 
         validateError(compileResult, index++, "duplicate key found in table row key('id') : '13'",
@@ -155,8 +155,10 @@ public class TableNegativeTest {
                 76, 5);
         validateError(compileResult, index++, "duplicate key found in table row key('id') : ' '",
                 102, 9);
-        validateError(compileResult, index, "duplicate key found in table row key('id') : " +
+        validateError(compileResult, index++, "duplicate key found in table row key('id') : " +
                         "'<(byte[] & readonly)> (base16 `5A`)'",
                 128, 9);
+        validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
+                136, 9);
     }
 }

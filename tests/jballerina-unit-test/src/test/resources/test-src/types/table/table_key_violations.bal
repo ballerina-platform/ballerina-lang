@@ -127,3 +127,11 @@ table<CustomerWithByteArrId> key(id) _ = table [
         {id: <byte[] & readonly>(base16 `5A`), firstName: "Foo", lastName: "QWER"},
         {id: <byte[] & readonly>(base16 `5A`), firstName: "Bar", lastName: "UYOR"}
     ];
+
+const int ID1 = 13;
+const int ID2 = 13;
+
+table<Customer> key(id) _ = table [
+        {id: ID1, firstName: "Foo", lastName: "QWER"},
+        {id: ID2, firstName: "Bar", lastName: "UYOR"}
+    ];

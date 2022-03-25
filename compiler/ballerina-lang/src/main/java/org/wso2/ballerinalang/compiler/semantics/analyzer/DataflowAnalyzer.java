@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -1014,14 +1015,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean checkForKeyEquality(HashMap<Integer, List<BLangExpression>> keyValues,
                                         List<BLangExpression> keyArray, int hash) {
         List<BLangExpression> existingExpList = keyValues.get(hash);
+        boolean isEqual = false;
         if (existingExpList.size() == keyArray.size()) {
-            boolean isEqual = true;
+            isEqual = true;
             for (int i = 0; i < keyArray.size(); i++) {
                 isEqual = isEqual && equality(keyArray.get(i), existingExpList.get(i));
             }
-            return isEqual;
         }
-        return false;
+        return isEqual;
     }
 
     private int generateHash(List<BLangExpression> keyArray) {
@@ -1140,7 +1141,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
                 BLangSimpleVarRef simpleVarRefA = (BLangSimpleVarRef) nodeA;
                 BLangSimpleVarRef simpleVarRefB = (BLangSimpleVarRef) nodeB;
-                return simpleVarRefA.variableName.equals(simpleVarRefB.variableName);
+                BSymbol symbolA = simpleVarRefA.symbol;
+                BSymbol symbolB = simpleVarRefB.symbol;
+                if (symbolA != null && symbolB != null
+                        && (Symbols.isFlagOn(symbolA.flags, Flags.CONSTANT)
+                        && Symbols.isFlagOn(symbolB.flags, Flags.CONSTANT))) {
+                    return (((BConstantSymbol) symbolA).value).value
+                            .equals((((BConstantSymbol) symbolB).value).value);
+                } else {
+                    return simpleVarRefA.variableName.equals(simpleVarRefB.variableName);
+                }
             case STRING_TEMPLATE_LITERAL:
                 BLangStringTemplateLiteral stringTemplateLiteralA = (BLangStringTemplateLiteral) nodeA;
                 BLangStringTemplateLiteral stringTemplateLiteralB = (BLangStringTemplateLiteral) nodeB;
@@ -1271,7 +1281,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             result = identifier.value.hashCode();
         } else if (node.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) node;
-            result = simpleVarRef.variableName.hashCode();
+            BSymbol symbol = simpleVarRef.symbol;
+            if (symbol != null && Symbols.isFlagOn(symbol.flags, Flags.CONSTANT)) {
+                BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
+                result = Objects.hash(constantSymbol.value.value);
+            } else {
+                result = simpleVarRef.variableName.hashCode();
+            }
         } else if (node.getKind() == NodeKind.STRING_TEMPLATE_LITERAL) {
             BLangStringTemplateLiteral stringTemplateLiteral = (BLangStringTemplateLiteral) node;
             for (BLangExpression expr : stringTemplateLiteral.exprs) {
@@ -1316,7 +1332,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean getTypeEquality(BType typeA, BType typeB) {
-        return typeA.tag == typeB.tag && Objects.equals(typeA.name, typeB.name);
+        return types.isAssignable(typeA, typeB) || types.isAssignable(typeB, typeA);
     }
 
     private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
