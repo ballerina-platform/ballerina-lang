@@ -137,6 +137,11 @@ public class MatchStmtConstPatternTest {
         BRunUtil.invoke(result, "testConstPatternWithNegativeLiteral");
     }
 
+    @Test
+    public void testConstPatternWithPredeclaredPrefix() {
+        BRunUtil.invoke(result, "testConstPatternWithPredeclaredPrefix");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testConstPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);

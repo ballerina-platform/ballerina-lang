@@ -752,8 +752,7 @@ public class EnvironmentResolver extends BaseVisitor {
     private boolean isNarrowerEnclosure(Location nodePosition) {
         // Have to special case the pkg node since its position is (0,0,0,0). Plus any other node would for sure will
         // be a narrower enclosure than the package.
-        if (this.scope == null || this.scope.node.getKind() == NodeKind.PACKAGE
-                               || this.scope.node.getKind() == NodeKind.TESTABLE_PACKAGE) {
+        if (this.scope == null || this.scope.node.getKind() == NodeKind.PACKAGE) {
             return true;
         }
 

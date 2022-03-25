@@ -18,6 +18,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
@@ -100,5 +102,15 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
 
         this.signature = "[" + typeSignature + " " + this.getName().get() + "]";
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
