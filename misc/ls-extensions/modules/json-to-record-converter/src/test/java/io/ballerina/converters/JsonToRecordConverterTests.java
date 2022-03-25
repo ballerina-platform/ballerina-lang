@@ -63,6 +63,8 @@ public class JsonToRecordConverterTests {
 
     private final Path nullObjectJson = RES_DIR.resolve("json")
             .resolve("null_object.json");
+    private final Path nullObjectBal = RES_DIR.resolve("ballerina")
+            .resolve("null_object.bal");
 
     private final Path sample1Json = RES_DIR.resolve("json")
             .resolve("sample_1.json");
@@ -292,7 +294,7 @@ public class JsonToRecordConverterTests {
             JsonToRecordConverter.convert(jsonFileContent, "",
                             true, false).getCodeBlock()
                     .replaceAll("\\s+", "");
-            Assert.assertTrue(false);
+            Assert.assertTrue(true);
         } catch (JsonToRecordConverterException e) {
             Assert.assertEquals(e.getLocalizedMessage(), "Unsupported, Null or Missing type in Json");
         }
@@ -305,9 +307,9 @@ public class JsonToRecordConverterTests {
             JsonToRecordConverter.convert(jsonFileContent, "",
                             true, false).getCodeBlock()
                     .replaceAll("\\s+", "");
-            Assert.fail();
-        } catch (JsonToRecordConverterException e) {
             Assert.assertTrue(true);
+        } catch (JsonToRecordConverterException e) {
+            Assert.fail();
         }
     }
 
@@ -335,7 +337,8 @@ public class JsonToRecordConverterTests {
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         JsonToRecordResponse response = (JsonToRecordResponse) result.get();
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, "");
+        String expectedCodeBlock = Files.readString(nullObjectBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "Test null and empty array field type extraction")
