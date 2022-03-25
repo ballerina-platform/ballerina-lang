@@ -483,31 +483,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "[\"\"]",
-      "kind": "Snippet",
-      "documentation": {
-        "left": "Convert to a member access expression"
-      },
-      "sortText": "CR",
-      "insertText": "[\"${1}\"]",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 32,
-              "character": 23
-            },
-            "end": {
-              "line": 32,
-              "character": 24
-            }
-          },
-          "newText": ""
-        }
-      ]
     }
   ]
 }

@@ -136,10 +136,9 @@ public class ContextBuilder {
                                                          LanguageServerContext serverContext,
                                                          Position position,
                                                          CancelChecker cancelChecker) {
-        return new SignatureContextImpl.SignatureContextBuilder(serverContext)
+        return new SignatureContextImpl.SignatureContextBuilder(serverContext, capabilities)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
-                .withCapabilities(capabilities)
                 .withPosition(position)
                 .withCancelChecker(cancelChecker)
                 .build();

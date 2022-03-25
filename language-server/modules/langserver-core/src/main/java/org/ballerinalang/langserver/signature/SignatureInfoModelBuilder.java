@@ -79,8 +79,7 @@ public class SignatureInfoModelBuilder {
     public List<SignatureInformation> build() {
         List<SignatureInformation> result = new ArrayList<>();
 
-        String functionName = getFunctionName();
-        StringBuilder defaultLabelBuilder = new StringBuilder(functionName);
+        StringBuilder defaultLabelBuilder = new StringBuilder(getFunctionName());
         defaultLabelBuilder.append("(");
 
         List<ParameterInformation> defaultSignatureParamInfo = new ArrayList<>();
@@ -189,6 +188,11 @@ public class SignatureInfoModelBuilder {
                 .orElse(null);
     }
 
+    /**
+     * For the langlib methods, we skip the first parameter, when it is called in a method call.
+     *
+     * @return {@link Boolean}
+     */
     private boolean skipFirstParam() {
         return (symbol.kind() == SymbolKind.FUNCTION || symbol.kind() == SymbolKind.METHOD)
                 && (symbol.getModule().isPresent() && CommonUtil.isLangLib(symbol.getModule().get().id()));

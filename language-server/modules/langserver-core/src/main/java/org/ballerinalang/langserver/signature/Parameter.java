@@ -23,6 +23,8 @@ import java.util.Optional;
 
 /**
  * Parameter model to hold the parameter information meta data.
+ *
+ * @since 2201.0.4
  */
 public class Parameter {
 

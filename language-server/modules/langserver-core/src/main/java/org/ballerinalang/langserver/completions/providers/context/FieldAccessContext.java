@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -98,8 +99,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             completionItems.addAll(this.getCompletionItemList(symbolList, ctx));
         }
 
-        if ((rawType.typeKind() == TypeDescKind.RECORD || rawType.typeKind() == TypeDescKind.MAP)
-                && expr.parent().kind() == SyntaxKind.FIELD_ACCESS) {
+        if (isMemberAccessAllowed(rawType, expr.parent())) {
             completionItems.add(this.getMemberAccessCompletionItem(ctx, (FieldAccessExpressionNode) expr.parent()));
         }
 
@@ -114,6 +114,12 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param completionItems Completion items to be sorted
      */
     public abstract void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems);
+
+    private boolean isMemberAccessAllowed(TypeSymbol typeSymbol, Node parentNode) {
+        return parentNode.kind() == SyntaxKind.FIELD_ACCESS && (typeSymbol.typeKind() == TypeDescKind.MAP
+                || (typeSymbol.typeKind() == TypeDescKind.RECORD)
+                && ((RecordTypeSymbol) typeSymbol).restTypeDescriptor().isPresent());
+    }
 
     private List<LSCompletionItem> getXmlAttributeAccessCompletions(BallerinaCompletionContext context) {
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
