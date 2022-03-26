@@ -155,7 +155,6 @@ public isolated function slice(Type[] arr, int startIndex, int endIndex = arr.le
 # + arr - the array
 # + func - function to apply to each member
 # + return - true if applying parameter func returns true for every member of `arr`; otherwise, false
-#
 public isolated function every(Type[] arr, @isolatedParam function(Type val) returns boolean func) returns boolean {
     foreach var item in arr {
         if !func(item) {
