@@ -1360,7 +1360,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        if (funcNode.funcEnv == null) {
+            funcNode.funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        }
+        SymbolEnv funcEnv = funcNode.funcEnv;
         if (!funcNode.interfaceFunction) {
             addReturnIfNotPresent(funcNode);
         }

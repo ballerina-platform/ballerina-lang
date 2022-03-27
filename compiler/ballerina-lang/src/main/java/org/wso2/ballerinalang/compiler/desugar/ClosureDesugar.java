@@ -805,12 +805,18 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private static BVarSymbol getMapSymbol(BLangNode node) {
         switch (node.getKind()) {
             case BLOCK_FUNCTION_BODY:
-//                BLangFunction blockFunction = (BLangFunction) node.parent;
-//                if (blockFunction != null && blockFunction.mapSymbol == null &&
-//                        blockFunction.attachedFunction && blockFunction.flagSet.contains(Flag.OBJECT_CTOR)) {
-//                    BLangClassDefinition classDefinition = (BLangClassDefinition) blockFunction.parent;
-//                    return classDefinition.oceEnvData.mapBlockMapSymbol;
-//                }
+                BLangNode parent = node.parent;
+                if (parent == null) {
+                    return ((BLangBlockFunctionBody) node).mapSymbol;
+                }
+                if (parent.getKind() == NodeKind.FUNCTION) {
+                    BLangFunction blockFunction = (BLangFunction) parent;
+                    if (blockFunction.mapSymbol == null &&
+                            blockFunction.attachedFunction && blockFunction.flagSet.contains(Flag.OBJECT_CTOR)) {
+                        BLangClassDefinition classDefinition = (BLangClassDefinition) blockFunction.parent;
+                        return classDefinition.oceEnvData.mapBlockMapSymbol;
+                    }
+                }
                 return ((BLangBlockFunctionBody) node).mapSymbol;
             case BLOCK:
                 return ((BLangBlockStmt) node).mapSymbol;

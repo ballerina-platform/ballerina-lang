@@ -753,6 +753,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
+        if (!bLangArrowFunction.closureVarSymbols.isEmpty()) {
+            bLangArrowFunction.body.expr = rewriteExpr(bLangArrowFunction.body.expr);
+        }
         result = bLangArrowFunction;
     }
 
@@ -1357,10 +1360,21 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         }
         createMapSymbolsIfAbsent(classDef);
         addFunctionLevelClosureMapToClassDefinition(classDef);
+        updateFields(classDef);
         addBlockLevelClosureMapToClassDefinition(classDef);
-        updateFields(classDef); //        updateFunctions(classDef);
+        updateFunctions(classDef);
 
         reset();
+    }
+
+    private void updateFunctions(BLangClassDefinition classDef) {
+        for (BLangFunction fn : classDef.functions) {
+            //rewrite(fn, this.env);
+            if (fn.funcEnv == null) {
+                fn.funcEnv = SymbolEnv.createFunctionEnv(fn, fn.symbol.scope, env);
+            }
+            fn.body = rewrite(fn.body, fn.funcEnv);
+        }
     }
 
     private void updateFields(BLangClassDefinition classDef) {
