@@ -756,9 +756,9 @@ public class BuildCommandTest extends BaseCommandTest {
                 ".json")));
     }
 
-    @Test(description = "Build an empty library module")
-    public void testBuildEmptyLibModule() throws IOException {
-        Path projectPath = this.testResources.resolve("emptyLibProject");
+    @Test(description = "Build an empty package")
+    public void testBuildEmptyPackage() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackage");
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -767,12 +767,12 @@ public class BuildCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-lib-project.txt"));
+                getOutput("build-empty-package.txt"));
     }
 
-    @Test(description = "Build an empty library module with compiler plugin")
-    public void testBuildEmptyLibModuleWithCompilerPlugin() throws IOException {
-        Path projectPath = this.testResources.resolve("emptyLibProjectWithCompilerPlugin");
+    @Test(description = "Build an empty package with compiler plugin")
+    public void testBuildEmptyPackageWithCompilerPlugin() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackageWithCompilerPlugin");
         System.setProperty("user.dir", projectPath.toString());
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
@@ -781,7 +781,7 @@ public class BuildCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("build-empty-lib-project.txt"));
+                getOutput("build-empty-package.txt"));
     }
 
 }
