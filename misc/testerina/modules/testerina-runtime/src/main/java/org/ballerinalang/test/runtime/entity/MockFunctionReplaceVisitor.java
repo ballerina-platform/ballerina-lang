@@ -32,13 +32,17 @@ import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DRETURN;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FRETURN;
-import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
 
+/**
+ * Remove existing method body and replace it with a method call.
+ *
+ * @since 2201.1.0
+ */
 public class MockFunctionReplaceVisitor extends ClassVisitor {
 
     private final String methodName;
@@ -88,21 +92,14 @@ public class MockFunctionReplaceVisitor extends ClassVisitor {
             methodVisitor.visitCode();
 
             Class<?>[] parameterTypes = mockFunc.getParameterTypes();
-            int index = 0;
             int paramOffset = 0;
             for (Class<?> parameterType : parameterTypes) {
-                if (index != 0 && index % 2 == 0 && parameterType == Boolean.TYPE) {
-                    methodVisitor.visitInsn(ICONST_1);
-                    paramOffset++;
+                generateLoadInstruction(parameterType, paramOffset);
+                if (parameterType == Long.TYPE || parameterType == Double.TYPE) {
+                    paramOffset += 2;
                 } else {
-                    generateLoadInstruction(parameterType, paramOffset);
-                    if (parameterType == Long.TYPE || parameterType == Double.TYPE) {
-                        paramOffset += 2;
-                    } else {
-                        paramOffset++;
-                    }
+                    paramOffset++;
                 }
-                index++;
             }
 
             String mockFuncClassName = mockFunc.getDeclaringClass().getName().replace(".", "/");
@@ -114,7 +111,7 @@ public class MockFunctionReplaceVisitor extends ClassVisitor {
 
         private void generateLoadInstruction(Class<?> type, int index) {
             if (type.isPrimitive()) {
-                if (type == Integer.TYPE || type == Boolean.TYPE || type == Byte.TYPE) {
+                if (type == Integer.TYPE || type == Boolean.TYPE) {
                     methodVisitor.visitVarInsn(ILOAD, index);
                 } else if (type == Long.TYPE) {
                     methodVisitor.visitVarInsn(LLOAD, index);

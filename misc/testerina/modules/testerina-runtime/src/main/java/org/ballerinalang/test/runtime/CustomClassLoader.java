@@ -22,6 +22,11 @@ import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A custom classloader responsible for loading modified classes.
+ *
+ * @since 2201.1.0
+ */
 public class CustomClassLoader extends URLClassLoader {
 
     private final HashMap<String, byte[]> modifiedClassDefs;
