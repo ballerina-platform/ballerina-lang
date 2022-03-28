@@ -164,7 +164,7 @@ public class LangLibFunctionTest {
                 "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                 "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                 "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                "includes", "concat");
+                "includes", "concat", "padStart", "padEnd", "padZero");
 
         assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
     }
@@ -182,7 +182,7 @@ public class LangLibFunctionTest {
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                                             "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                                             "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                                            "includes", "concat");
+                                            "includes", "concat", "padStart", "padEnd", "padZero");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
