@@ -74,6 +74,7 @@ public class BallerinaErrorReasons {
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
     public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
     public static final String UNORDERED_TYPES = "UnorderedTypesError";
+    public static final String LENGTH_SHOULD_BE_LESS_THAN_2147483647 = "length should be less than 2147483647";
 
     public static final BString INDEX_OUT_OF_RANGE_ERROR = StringUtils
             .fromString(INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER);
