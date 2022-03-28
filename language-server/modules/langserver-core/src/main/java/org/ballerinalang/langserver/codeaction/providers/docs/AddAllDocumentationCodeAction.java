@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.docs;
 
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
@@ -59,7 +60,8 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
         // We don't show 'Document All' for nodes other than top level nodes
-        if (posDetails.matchedStatementNode() != posDetails.matchedTopLevelNode()) {
+        if (posDetails.matchedDocumentableNode().isEmpty()
+                || posDetails.matchedDocumentableNode().get().parent().kind() != SyntaxKind.MODULE_PART) {
             return Collections.emptyList();
         }
 

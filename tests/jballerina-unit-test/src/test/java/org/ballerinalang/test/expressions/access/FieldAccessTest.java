@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -59,23 +57,23 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)'", 56, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'", 57, 15);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>' does not support field access",
-                      62, 16);
+                62, 16);
         validateError(negativeResult, i++, "invalid operation: type '(map<string>|EmployeeTwo)' does not support " +
-                              "field access", 68, 16);
+                "field access", 68, 16);
         validateError(negativeResult, i++, "invalid operation: type 'EmployeeTwo?' does not support field access",
-                      74, 17);
+                74, 17);
         validateError(negativeResult, i++, "invalid operation: type '(map<string>|map<int>)' does not support " +
-                              "field access", 80, 20);
+                "field access", 80, 20);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 85, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 90, 14);
         validateError(negativeResult, i++, "invalid operation: type '(json|error)' does not support field access", 96,
-                      22);
+                22);
         validateError(negativeResult, i++, "incompatible types: expected '(map<json>|error)', " +
-                              "found '(map<json>|json|error)'", 102, 26);
+                "found '(map<json>|json|error)'", 102, 26);
         validateError(negativeResult, i++, "incompatible types: expected 'map<json>', found '(json|map<json>|error)'",
-                      106, 20);
+                106, 20);
         validateError(negativeResult, i++, "invalid operation: type 'Foo?' does not support field access", 131, 14);
-        validateError(negativeResult, i++, "invalid operation: type 'Baz?' does not support field access", 134, 16);
+        validateError(negativeResult, i++, "function invocation on type 'Foo' is not supported", 134, 19);
         validateError(negativeResult, i++, "invalid operation: type 'Foo[]' does not support field access", 138, 9);
 
         validateError(negativeResult, i++, "undeclared field 'a' in record 'R1'", 155, 13);
@@ -133,8 +131,8 @@ public class FieldAccessTest {
 
     @Test(dataProvider = "recordFieldAccessFunctions")
     public void testRecordFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "recordFieldAccessFunctions")
@@ -148,52 +146,48 @@ public class FieldAccessTest {
 
     @Test
     public void testJsonFieldAccessPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessPositive");
-        Assert.assertEquals(returns.length, 1);
-        BValueArray array = ((BValueArray) returns[0]);
+        Object returns = BRunUtil.invoke(result, "testJsonFieldAccessPositive");
+        BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 2);
         for (int i = 0; i < 2; i++) {
-            Assert.assertEquals(array.getBoolean(i), 1);
+            Assert.assertEquals(array.getBoolean(i), true);
         }
     }
 
     @Test
     public void testJsonFieldAccessNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessNegative");
-        Assert.assertEquals(returns.length, 1);
-        BValueArray array = ((BValueArray) returns[0]);
+        Object returns = BRunUtil.invoke(result, "testJsonFieldAccessNegative");
+        BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 5);
         for (int i = 0; i < 5; i++) {
-            Assert.assertEquals(array.getBoolean(i), 1);
+            Assert.assertEquals(array.getBoolean(i), true);
         }
     }
 
     @Test
     public void testMapJsonFieldAccessPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapJsonFieldAccessPositive");
-        Assert.assertEquals(returns.length, 1);
-        BValueArray array = ((BValueArray) returns[0]);
+        Object returns = BRunUtil.invoke(result, "testMapJsonFieldAccessPositive");
+        BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 2);
         for (int i = 0; i < 2; i++) {
-            Assert.assertEquals(array.getBoolean(i), 1);
+            Assert.assertEquals(array.getBoolean(i), true);
         }
     }
 
     @Test
     public void testMapJsonFieldAccessNegative() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapJsonFieldAccessNegative");
-        Assert.assertEquals(returns.length, 1);
-        BValueArray array = ((BValueArray) returns[0]);
+        Object returns = BRunUtil.invoke(result, "testMapJsonFieldAccessNegative");
+        BArray array = ((BArray) returns);
         Assert.assertEquals(array.size(), 5);
         for (int i = 0; i < 5; i++) {
-            Assert.assertEquals(array.getBoolean(i), 1);
+            Assert.assertEquals(array.getBoolean(i), true);
         }
     }
 
     @Test(dataProvider = "nonNilLiftingJsonFieldAccessFunctions")
     public void testNonNilLiftingJsonFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "nonNilLiftingJsonFieldAccessFunctions")
@@ -207,14 +201,14 @@ public class FieldAccessTest {
 
     @Test
     public void testLaxUnionFieldAccessPositive() {
-        BValue[] returns = BRunUtil.invoke(result, "testLaxUnionFieldAccessPositive");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testLaxUnionFieldAccessPositive");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(dataProvider = "laxUnionFieldAccessNegativeFunctions")
     public void testLaxUnionFieldAccessNegative(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "laxUnionFieldAccessNegativeFunctions")
@@ -238,8 +232,8 @@ public class FieldAccessTest {
 
     @Test(dataProvider = "mapJsonFieldAccessTypePositiveFunctions")
     public void testMapJsonFieldAccessTypePositive(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mapJsonFieldAccessTypePositiveFunctions")
@@ -252,29 +246,29 @@ public class FieldAccessTest {
 
     @Test
     public void testFieldAccessOnInvocation() {
-        BValue[] returns = BRunUtil.invoke(result, "testFieldAccessOnInvocation");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testFieldAccessOnInvocation");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testJsonFieldAccessOnInvocation() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessOnInvocation");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testJsonFieldAccessOnInvocation");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFieldAccessOnMapConstruct() {
-        BValue[] returns = BRunUtil.invoke(result, "testFieldAccessOnMapConstruct");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testFieldAccessOnMapConstruct");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAccessOptionalFieldWithFieldAccess1() {
-        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess1");
+        Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess1");
     }
 
     @Test
     public void testAccessOptionalFieldWithFieldAccess2() {
-        BValue[] returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
+        Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
     }
 }

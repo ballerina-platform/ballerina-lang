@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.hasDocs;
 
@@ -53,7 +54,8 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.RESOURCE,
                 CodeActionNodeType.RECORD,
                 CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.CLASS_FUNCTION));
+                CodeActionNodeType.CLASS_FUNCTION,
+                CodeActionNodeType.MODULE_VARIABLE));
     }
 
     @Override
@@ -68,15 +70,15 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
-        NonTerminalNode matchedNode = posDetails.matchedTopLevelNode();
+        Optional<NonTerminalNode> documentableNode = posDetails.matchedDocumentableNode();
         
-        if (hasDocs(matchedNode)) {
+        if (documentableNode.isEmpty() || hasDocs(documentableNode.get())) {
             return Collections.emptyList();
         }
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         CommonUtil.toRange(matchedNode.lineRange()));
+                                                         CommonUtil.toRange(documentableNode.get().lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.ADD_DOCUMENTATION_TITLE);

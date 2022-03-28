@@ -70,8 +70,7 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "integer"
-                },
-                "description": ""
+                }
               },
               "description": ""
             },
@@ -134,8 +133,7 @@
                     "name",
                     "salary"
                   ]
-                },
-                "description": ""
+                }
               },
               "description": ""
             }

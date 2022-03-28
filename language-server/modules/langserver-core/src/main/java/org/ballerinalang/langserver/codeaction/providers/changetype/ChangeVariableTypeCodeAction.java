@@ -37,6 +37,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(CommonUtil.toRange(typeNode.get().lineRange()), type));
             String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
-            actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }

@@ -1,0 +1,28 @@
+{
+  "line": 4,
+  "character": 29,
+  "expected": [
+    {
+      "title": "Create function 'getInt(...)'",
+      "command": {
+        "title": "Create function 'getInt(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 4,
+                "character": 24
+              },
+              "end": {
+                "line": 4,
+                "character": 32
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

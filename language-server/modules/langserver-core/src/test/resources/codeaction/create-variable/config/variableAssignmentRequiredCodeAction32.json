@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create variable with 'record {| string name; int age; record {| int maths; int physics; int chemistry; |} grades; string city; string country; |}'",
+            "title": "Create variable with 'record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|}'",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "record {| string name; int age; record {| int maths; int physics; int chemistry; |} grades; string city; string country; |} mappingResult = "
+                    "newText": "record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|} mappingResult = "
                 }
             ]
         }

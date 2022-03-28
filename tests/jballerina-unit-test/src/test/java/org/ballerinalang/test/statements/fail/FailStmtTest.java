@@ -18,8 +18,7 @@
 
 package org.ballerinalang.test.statements.fail;
 
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,11 +45,11 @@ public class FailStmtTest {
 
     @Test(description = "Test fail statement basic syntax")
     public void testFailStmt() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testFailStmt");
+        Object returnValues = BRunUtil.invoke(result, "testFailStmt");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
+        Assert.assertTrue(returnValues instanceof BError);
+        Assert.assertEquals(((BError) returnValues).getMessage(),
                 "Custom error thrown explicitly.");
     }
 

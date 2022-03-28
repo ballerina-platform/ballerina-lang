@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -90,7 +91,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 String typeLabel = isTuple && type.length() > 10 ? "Tuple" : type;
                 commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
-            actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
+            actions.add(createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix));
         }
         return actions;
     }

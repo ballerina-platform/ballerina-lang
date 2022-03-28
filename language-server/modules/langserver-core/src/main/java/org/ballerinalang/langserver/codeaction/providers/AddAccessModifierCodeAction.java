@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -61,7 +62,8 @@ public class AddAccessModifierCodeAction extends AbstractCodeActionProvider {
         String editText = "public ";
         List<TextEdit> edits = Arrays.asList(new TextEdit(new Range(funcBodyStart, funcBodyStart), editText));
         String commandTitle = CommandConstants.CONVERT_FUNCTION_TO_PUBLIC;
-        List<CodeAction> codeActions = Arrays.asList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+        List<CodeAction> codeActions = Arrays.asList(createCodeAction(commandTitle, edits, context.fileUri(),
+                CodeActionKind.QuickFix));
         return codeActions;
     }
 

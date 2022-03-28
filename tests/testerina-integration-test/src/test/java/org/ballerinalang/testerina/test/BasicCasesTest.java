@@ -151,4 +151,11 @@ public class BasicCasesTest extends BaseTestCase {
         AssertionUtils.assertForTestFailures(output, "intersection type failure");
     }
 
+    @Test
+    public void testAnydataType() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"anydata-type-test"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "anydata type failure");
+    }
 }

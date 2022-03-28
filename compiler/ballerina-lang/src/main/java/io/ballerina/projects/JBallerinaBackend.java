@@ -132,8 +132,6 @@ public class JBallerinaBackend extends CompilerBackend {
             observabilitySymbolCollector.process(packageContext.project());
         }
         this.conflictedJars = new ArrayList<>();
-
-        // Trigger code generation
         performCodeGen();
     }
 
@@ -154,6 +152,15 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            // If modules from the current package are being processed
+            // we do an overall check on the diagnostics of the package
+            if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
+                if (packageCompilation.diagnosticResult().hasErrors()) {
+                    moduleDiagnostics.addAll(packageCompilation.diagnosticResult().diagnostics());
+                    break;
+                }
+            }
+
             // We can't generate backend code when one of its dependencies have errors.
             if (hasNoErrors(moduleDiagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
@@ -167,6 +174,8 @@ public class JBallerinaBackend extends CompilerBackend {
         diagnostics.addAll(moduleDiagnostics);
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+
+        diagnostics = diagnostics.stream().distinct().collect(Collectors.toList());
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
