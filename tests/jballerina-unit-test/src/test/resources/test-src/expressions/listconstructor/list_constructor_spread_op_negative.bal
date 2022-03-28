@@ -164,7 +164,7 @@ function testFillerValuePositive() {
     [string, string, (int|string)...] _ = [...a1]; // OK
 }
 
-function testFixedMemberExpectedErrorPos() {
+function testFixedMemberExpectedErrorPositive() {
     string[] a1 = [];
     string[1] a2 = [];
 
@@ -189,17 +189,6 @@ function testFixedMemberExpectedErrorPos() {
     string[] _ = [...a7]; // OK
     [string...] _ = [...a6]; // OK
     [string...] _ = [...a7]; // OK
-}
-
-function pos3() {
-    (int|string)[2] a1 = [1, "s"];
-    [int, any, (int|string|boolean)] _ = [1, ...a1]; // OK
-
-    (int|string)[*] a2 = [1, "s"];
-    [int, any, (int|string)...] _ = [1, ...a2]; // OK
-
-    int[1] a5 = [1];
-    [(int|string), int...] _ = [...a5]; // OK
 }
 
 function testTypeCheckingPositive1() {
@@ -238,3 +227,18 @@ function testTypeCheckingPositive1() {
     (int|string)[] q = p;
     (int|string)[] _ = [...q]; // OK
 }
+
+function testTypeCheckingPositive2() {
+    (int|string)[2] a1 = [1, "s"];
+    [int, any, (int|string|boolean)] _ = [1, ...a1]; // OK
+
+    (int|string)[*] a2 = [1, "s"];
+    [int, any, (int|string)...] _ = [1, ...a2]; // OK
+
+    int[1] a5 = [1];
+    [(int|string), int...] _ = [...a5]; // OK
+}
+
+// TODO: add tests with no reference in spread op
+// TODO: add test with `never`
+// TODO: add test with ACET is a ref

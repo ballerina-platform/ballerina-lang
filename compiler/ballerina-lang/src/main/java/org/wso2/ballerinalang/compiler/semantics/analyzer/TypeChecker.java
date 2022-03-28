@@ -1996,10 +1996,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            checkExpr(((BLangListConstructorSpreadOpExpr) e).expr, this.env, expType);
+            BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
+            checkExpr(spreadOpExpr, this.env, expType);
             if (resultType.tag == TypeTags.TUPLE && ((BTupleType) resultType).restType == null) {
                 types.addAll(((BTupleType) resultType).tupleTypes);
+            } else if (resultType.tag == TypeTags.ARRAY && ((BArrayType) resultType).state == BArrayState.CLOSED) {
+                BArrayType bArrayType = (BArrayType) resultType;
+                for (int i = 0; i < bArrayType.size; i++) {
+                    types.add(bArrayType.eType);
+                }
             } else {
+                dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
                 types.add(symTable.semanticError);
             }
         }

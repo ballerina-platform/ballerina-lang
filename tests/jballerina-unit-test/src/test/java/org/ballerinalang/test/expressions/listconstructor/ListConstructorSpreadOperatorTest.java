@@ -33,7 +33,7 @@ public class ListConstructorSpreadOperatorTest {
     @Test
     public void testSpreadOperatorNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
-                "test-src/expressions/listconstructor/list_constructor_spread_operator_negative.bal");
+                "test-src/expressions/listconstructor/list_constructor_spread_op_negative.bal");
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected an array or a tuple, found 'other'", 18, 19);
@@ -99,6 +99,41 @@ public class ListConstructorSpreadOperatorTest {
         BAssertUtil.validateError(resultNegative, i++, "invalid usage of spread operator: fixed member expected for '(int|string)'", 150, 36);
         BAssertUtil.validateError(resultNegative, i++, "invalid usage of spread operator: fixed member expected for 'int'", 153, 47);
         BAssertUtil.validateError(resultNegative, i++, "invalid usage of list constructor: type '(string|int)' does not have a filler value", 158, 43);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @Test
+    public void testSpreadOpInferenceNegative() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/listconstructor/list_constructor_spread_op_inference_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type from spread operator: fixed length list expected", 18, 17);
+        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 18, 17);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type from spread operator: fixed length list expected", 21, 17);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type from spread operator: fixed length list expected", 22, 23);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type from spread operator: fixed length list expected", 25, 17);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type from spread operator: fixed length list expected", 26, 23);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type from spread operator: fixed length list expected", 29, 17);
+        BAssertUtil.validateError(resultNegative, i++, "cannot infer type from spread operator: fixed length list expected", 30, 23);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[int,int]'", 36, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[int,string,int,int,boolean]'", 37, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[string,(int|boolean)]'", 43, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[int,string,string,(int|boolean),boolean]'", 44, 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @Test
+    public void testSpreadOpSelfReferenceNegative() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/listconstructor/list_constructor_spread_op_self_ref_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a1'", 18, 20);
+        BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a2'", 19, 23);
+        BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a3'", 20, 21);
+        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 21, 24);
+        BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a4'", 21, 31);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 22, 39);
+        BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a5'", 22, 39);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }

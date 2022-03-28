@@ -176,6 +176,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPES_LIST_SPREAD_OP("BCE2132", "incompatible.types.list.spread.op"),
     INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED("BCE2133", "invalid.spread.operator.fixed.length.list.expected"),
     INVALID_SPREAD_OP_FIXED_MEMBER_EXPECTED("BCE2134", "invalid.spread.operator.fixed.member.expected"),
+    CANNOT_INFER_TYPE_FROM_SPREAD_OP("BCE2135", "cannot.infer.type.from.spread.op"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
