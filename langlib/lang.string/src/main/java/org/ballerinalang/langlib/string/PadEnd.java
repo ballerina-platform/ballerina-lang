@@ -27,9 +27,9 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
- * Extern function ballerina.model.strings:padStart.
+ * Extern function ballerina.model.strings:padEnd.
  *
- * @since 2201.0.0
+ * @since 2201.1.0
  */
 
 public class PadEnd {
