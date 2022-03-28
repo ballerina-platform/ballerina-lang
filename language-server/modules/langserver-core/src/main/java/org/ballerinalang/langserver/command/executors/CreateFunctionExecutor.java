@@ -175,10 +175,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(fnCallExprNode.get());
         Range insertRange;
         if (enclosingNode.isPresent()) {
-            LineRange lineRange = enclosingNode.get().lineRange();
             newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
-            insertRange = new Range(new Position(lineRange.endLine().line(), lineRange.endLine().offset()),
-                    new Position(lineRange.endLine().line(), lineRange.endLine().offset()));
+            insertRange = CommonUtil.toRange(enclosingNode.get().lineRange().endLine());
         } else {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }

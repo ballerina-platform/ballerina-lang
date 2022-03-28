@@ -202,6 +202,16 @@ public class CommonUtil {
     }
 
     /**
+     * Convert the syntax-node line position into a lsp4j range.
+     *
+     * @param linePosition - line position.
+     * @return {@link Range} converted range
+     */
+    public static Range toRange(LinePosition linePosition) {
+        return new Range(toPosition(linePosition), toPosition(linePosition));
+    }
+
+    /**
      * Converts syntax-node line position into a lsp4j position.
      *
      * @param linePosition - line position
