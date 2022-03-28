@@ -33,8 +33,8 @@ function invalidSealedLiteralUsage() {
 }
 
 public function invalidInferredArrays() {
-    function (int[*][*] a) returns int[] _ = value;
-    function (int[*][*] a) returns int[*] _ = value;
+    function (int[*][*] a = [[1]]) returns int[] _ = value;
+    function (int[1][1] a = [[1]]) returns int[*] _ = value;
     var _ = function(int b) returns int {[int[*]] _ = [[1]]; int[*] _ = [32]; return b;};
     var _ = function(int[3] b) returns int[*] {return [2, 3];};
 
@@ -44,7 +44,7 @@ public function invalidInferredArrays() {
     }
 }
 
-function value(int[*][*] a = [[1]]) returns int[*] {
+function value(int[1][1] a = [[1]]) returns int[*] {
     return [10];
 }
 
@@ -70,6 +70,5 @@ function fn4(int[*][] x = [[1]]) {
 map<int[*][]> a5 = {"1" : [[3]]};
 map<float|int[*][*]> a6 = {"1" : [[3]]};
 map<int[*][]> a7 = {};
-function (int[*][] a) returns int[][] _ = function(int[*][] b = [[1]]) returns int[*][] {return [[2, 3]];};
-function (int[*][*] a) returns int[*][] _ = function(int[*][*] b = [[9]]) returns int[*][] {return [[2], [3]];};
+function (int[*][] a = [[1]]) returns int[][] _ = function(int[*][] b = [[1]]) returns int[*][] {return [[2, 3]];};
 var _ = function(int[3] b) returns int[*][] {return [[2, 3]];};
