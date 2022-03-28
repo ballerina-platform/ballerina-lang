@@ -694,15 +694,16 @@ public class SymbolTable {
     private void defineIntFloatingPointArithmeticOperations() {
         BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
                 unsigned16IntType, unsigned8IntType};
-        OperatorKind[] opKinds = {OperatorKind.DIV, OperatorKind.MUL, OperatorKind.MOD};
-        
+
         for (BType intType : intTypes) {
-            for (OperatorKind opKind : opKinds) {
-                defineBinaryOperator(opKind, decimalType, intType, decimalType);
-                defineBinaryOperator(opKind, intType, decimalType, decimalType);
-                defineBinaryOperator(opKind, floatType, intType, floatType);
-                defineBinaryOperator(opKind, intType, floatType, floatType); 
-            }
+            defineBinaryOperator(OperatorKind.MUL, decimalType, intType, decimalType);
+            defineBinaryOperator(OperatorKind.MUL, intType, decimalType, decimalType);
+            defineBinaryOperator(OperatorKind.MUL, floatType, intType, floatType);
+            defineBinaryOperator(OperatorKind.MUL, intType, floatType, floatType);
+            defineBinaryOperator(OperatorKind.DIV, decimalType, intType, decimalType);
+            defineBinaryOperator(OperatorKind.DIV, floatType, intType, floatType);
+            defineBinaryOperator(OperatorKind.MOD, decimalType, intType, decimalType);
+            defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType);
         }
     }
 
@@ -719,27 +720,37 @@ public class SymbolTable {
         for (int i = 0; i < intTypes.length; i++) {
             nilableIntTypes[i] = getNilableBType(intTypes[i]);
         }
-
-        OperatorKind[] opKinds = {OperatorKind.MUL, OperatorKind.DIV, OperatorKind.MOD};
         
-        for (OperatorKind opKind : opKinds) {
-            for (BType intType : intTypes) {
-                defineBinaryOperator(opKind, decimalOptional, intType, decimalOptional);
-                defineBinaryOperator(opKind, intType, decimalOptional, decimalOptional);
-                defineBinaryOperator(opKind, floatOptional, intType, floatOptional);
-                defineBinaryOperator(opKind, intType, floatOptional, floatOptional);
-            }
+        for (BType intType : intTypes) {
+            defineBinaryOperator(OperatorKind.MUL, decimalOptional, intType, decimalOptional);
+            defineBinaryOperator(OperatorKind.MUL, intType, decimalOptional, decimalOptional);
+            defineBinaryOperator(OperatorKind.MUL, floatOptional, intType, floatOptional);
+            defineBinaryOperator(OperatorKind.MUL, intType, floatOptional, floatOptional);
+            defineBinaryOperator(OperatorKind.DIV, decimalOptional, intType, decimalOptional);
+            defineBinaryOperator(OperatorKind.DIV, floatOptional, intType, floatOptional);
+            defineBinaryOperator(OperatorKind.MOD, decimalOptional, intType, decimalOptional);
+            defineBinaryOperator(OperatorKind.MOD, floatOptional, intType, floatOptional);
+        }
 
-            for (BUnionType nilableIntType : nilableIntTypes) {
-                    defineBinaryOperator(opKind, floatType, nilableIntType, floatOptional);
-                    defineBinaryOperator(opKind, nilableIntType, floatType, floatOptional);
-                    defineBinaryOperator(opKind, nilableIntType, floatOptional, floatOptional);
-                    defineBinaryOperator(opKind, floatOptional, nilableIntType, floatOptional);
-                    defineBinaryOperator(opKind, decimalType, nilableIntType, decimalOptional);
-                    defineBinaryOperator(opKind, nilableIntType, decimalType, decimalOptional);
-                    defineBinaryOperator(opKind, nilableIntType, decimalOptional, decimalOptional);
-                    defineBinaryOperator(opKind, decimalOptional, nilableIntType, decimalOptional);
-            }
+        for (BUnionType nilableIntType : nilableIntTypes) {
+            defineBinaryOperator(OperatorKind.MUL, floatType, nilableIntType, floatOptional);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, floatType, floatOptional);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, floatOptional, floatOptional);
+            defineBinaryOperator(OperatorKind.MUL, floatOptional, nilableIntType, floatOptional);
+            defineBinaryOperator(OperatorKind.MUL, decimalType, nilableIntType, decimalOptional);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, decimalType, decimalOptional);
+            defineBinaryOperator(OperatorKind.MUL, nilableIntType, decimalOptional, decimalOptional);
+            defineBinaryOperator(OperatorKind.MUL, decimalOptional, nilableIntType, decimalOptional);
+            
+            defineBinaryOperator(OperatorKind.DIV, floatType, nilableIntType, floatOptional);
+            defineBinaryOperator(OperatorKind.DIV, floatOptional, nilableIntType, floatOptional);
+            defineBinaryOperator(OperatorKind.DIV, decimalType, nilableIntType, decimalOptional);
+            defineBinaryOperator(OperatorKind.DIV, decimalOptional, nilableIntType, decimalOptional);
+
+            defineBinaryOperator(OperatorKind.MOD, floatType, nilableIntType, floatOptional);
+            defineBinaryOperator(OperatorKind.MOD, floatOptional, nilableIntType, floatOptional);
+            defineBinaryOperator(OperatorKind.MOD, decimalType, nilableIntType, decimalOptional);
+            defineBinaryOperator(OperatorKind.MOD, decimalOptional, nilableIntType, decimalOptional);
         }
     }
     
