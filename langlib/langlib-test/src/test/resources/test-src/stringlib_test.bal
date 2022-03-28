@@ -219,6 +219,80 @@ function concatNonBMP(string prefix, string expected) {
     assertEquals(expected, prefix + s);
 }
 
+function testPadStart() {
+    string str = "123";
+    string y1 = str.padStart(0, " ");
+    assertEquals("123", y1);
+
+    string y2 = str.padStart(3);
+    assertEquals("123", y2);
+
+    string y3 = str.padStart(4);
+    assertEquals(" 123", y3);
+
+    string y4 = str.padStart(5, " ");
+    assertEquals("  123", y4);
+
+    string y5 = str.padStart(5);
+    assertEquals("  123", y5);
+
+    string y6 = str.padStart(30, "-");
+    assertEquals("---------------------------123", y6);
+}
+
+function testPadEnd() {
+    string str = "123";
+    string y1 = str.padEnd(0, " ");
+    assertEquals("123", y1);
+
+    string y2 = str.padEnd(3);
+    assertEquals("123", y2);
+
+    string y3 = str.padEnd(4);
+    assertEquals("123 ", y3);
+
+    string y4 = str.padEnd(5, " ");
+    assertEquals("123  ", y4);
+
+    string y5 = str.padEnd(5);
+    assertEquals("123  ", y5);
+
+    string y6 = str.padEnd(30, "-");
+    assertEquals("123---------------------------", y6);
+}
+
+function testPadZero() {
+    string str = "123";
+    string y1 = str.padZero(0, " ");
+    assertEquals("123", y1);
+
+    string y2 = str.padZero(3);
+    assertEquals("123", y2);
+
+    string y3 = str.padZero(4);
+    assertEquals("0123", y3);
+
+    string y4 = str.padZero(5, " ");
+    assertEquals("  123", y4);
+
+    string y5 = str.padZero(5);
+    assertEquals("00123", y5);
+
+    string str2 = "+123";
+    string str3 = "--123";
+    string y6 = str2.padZero(5);
+    assertEquals("+0123", y6);
+    string y7 = str3.padZero(6);
+    assertEquals("-0-123", y7);
+    string y8 = str2.padZero(5, " ");
+    assertEquals("+ 123", y8);
+    string y9 = str3.padZero(6, "+");
+    assertEquals("-+-123", y9);
+
+    string y10 = str.padZero(30, "-");
+    assertEquals("---------------------------123", y10);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {

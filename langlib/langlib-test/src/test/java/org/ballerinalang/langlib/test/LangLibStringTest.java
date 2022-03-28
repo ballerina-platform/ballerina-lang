@@ -319,4 +319,19 @@ public class LangLibStringTest {
     public Object[] testBMPStringProvider() {
         return new String[]{"ascii~?", "£ßóµ¥", "ęЯλĢŃ", "☃✈௸ऴᛤ", "😀🄰🍺" };
     }
+
+    @Test
+    public void testPadStart() {
+        BRunUtil.invoke(compileResult, "testPadStart");
+    }
+
+    @Test
+    public void testPadEnd() {
+        BRunUtil.invoke(compileResult, "testPadEnd");
+    }
+
+    @Test
+    public void testPadZero() {
+        BRunUtil.invoke(compileResult, "testPadZero");
+    }
 }
