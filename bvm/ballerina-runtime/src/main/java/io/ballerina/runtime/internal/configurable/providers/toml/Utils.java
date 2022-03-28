@@ -497,4 +497,10 @@ public class Utils {
         return tupleTypes.get(i);
     }
 
+    static TomlNode getValueFromKeyValueNode(TomlNode value) {
+        if (value.kind() == TomlType.KEY_VALUE) {
+            return ((TomlKeyValueNode) value).value();
+        }
+        return value;
+    }
 }

@@ -37,7 +37,6 @@ import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -69,10 +68,10 @@ import java.util.Set;
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.checkEffectiveTomlType;
-import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getModuleKey;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getTomlTypeString;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isSimpleType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
@@ -248,7 +247,6 @@ public class TomlProvider implements ConfigProvider {
         for (TomlTableNode moduleNode : moduleTomlNodes) {
             if (moduleNode.entries().containsKey(key.variable)) {
                 TomlNode tomlValue = moduleNode.entries().get(key.variable);
-                tomlValue = validateAndGetArrayKeyValue(tomlValue, effectiveType, key.variable);
                 validateArrayValue(tomlValue, key.variable, (ArrayType) effectiveType);
                 return getTomlConfigValue(tomlValue, key);
             }
@@ -293,7 +291,7 @@ public class TomlProvider implements ConfigProvider {
         for (Map.Entry<String, TopLevelNode> field : tomlTableValue.entries().entrySet()) {
             String fieldName = variableName + "." + field.getKey();
             TomlNode value = field.getValue();
-            value = validateAndGetArrayKeyValue(value, mapType.getConstrainedType(), fieldName);
+            visitedNodes.add(value);
             validateValue(value, fieldName, mapType.getConstrainedType());
         }
     }
@@ -418,6 +416,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateTupleValue(TomlNode value, String variableName, TupleType tupleType) {
+        value = getValueFromKeyValueNode(value);
         if (!checkEffectiveTomlType(value.kind(), tupleType, variableName)) {
             throwTypeIncompatibleError(value, variableName, tupleType);
         }
@@ -655,13 +654,15 @@ public class TomlProvider implements ConfigProvider {
                 throwTypeIncompatibleError(tomlValue, variableName, type);
             }
         }
-        tomlValue = validateAndGetArrayKeyValue(tomlValue, type, variableName);
+        visitedNodes.add(tomlValue);
         validateStructuredValue(tomlValue, variableName, type);
     }
 
     private void validateArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
         if (isSimpleType(elementType.getTag())) {
+            visitedNodes.add(tomlValue);
+            tomlValue = getValueFromKeyValueNode(tomlValue);
             validatePrimitiveArray(tomlValue, variableName, arrayType);
         } else {
             validateNonPrimitiveArray(tomlValue, variableName, arrayType, elementType);
@@ -680,6 +681,7 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.TUPLE_TAG:
                 visitedNodes.add(tomlValue);
+                tomlValue = getValueFromKeyValueNode(tomlValue);
                 validatePrimitiveArray(tomlValue, variableName, arrayType);
                 break;
             case TypeTags.MAP_TAG:
@@ -834,33 +836,10 @@ public class TomlProvider implements ConfigProvider {
             }
             Type fieldType = field.getFieldType();
             String variableFieldName = variableName + "." + fieldName;
-            value = validateAndGetArrayKeyValue(value, fieldType, variableFieldName);
+            visitedNodes.add(value);
             validateValue(value, variableFieldName, fieldType);
         }
         validateRequiredField(tomlValue.entries(), recordType, variableName, tomlValue);
-    }
-
-    private TomlNode validateAndGetArrayKeyValue(TomlNode value, Type type, String variableName) {
-        visitedNodes.add(value);
-        switch (type.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                Type elementType = Utils.getEffectiveType(((BArrayType) getEffectiveType(type)).getElementType());
-                if (Utils.isSimpleArray(elementType)) {
-                    if (value.kind() != TomlType.KEY_VALUE) {
-                        throwTypeIncompatibleError(value, variableName, type);
-                    }
-                    return ((TomlKeyValueNode) value).value();
-                }
-                break;
-            case TypeTags.INTERSECTION_TAG:
-                return validateAndGetArrayKeyValue(value, ((BIntersectionType) type).getEffectiveType(), variableName);
-            case TypeTags.TUPLE_TAG:
-                if (value.kind() == TomlType.KEY_VALUE) {
-                    return ((TomlKeyValueNode) value).value();
-                }
-                break;
-        }
-        return value;
     }
 
     private void validateRequiredField(Map<String, TopLevelNode> initialValueEntries, RecordType recordType,
