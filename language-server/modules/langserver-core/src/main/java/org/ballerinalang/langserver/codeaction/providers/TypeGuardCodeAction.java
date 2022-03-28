@@ -191,7 +191,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         } else if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             node = ((VariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
         }
-        return node == null ? false : CommonUtil.isWithInRange(node, context.cursorPositionInTree());
+        return node != null &&  CommonUtil.isWithInRange(node, context.cursorPositionInTree());
     }
     
 }
