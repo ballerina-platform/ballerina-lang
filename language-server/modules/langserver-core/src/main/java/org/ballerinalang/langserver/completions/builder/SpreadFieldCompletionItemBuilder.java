@@ -26,12 +26,16 @@ import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.List;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+
 /**
  * This class is being used to build spread field completion item.
  *
  * @since 2201.0.3
  */
 public class SpreadFieldCompletionItemBuilder {
+    
+    private static final String  SPREAD_OPERATOR = "...";
 
     /**
      * Build the constant {@link CompletionItem}.
@@ -40,9 +44,12 @@ public class SpreadFieldCompletionItemBuilder {
      * @param typeName type name of the {@link Symbol}
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(Symbol symbol, String typeName) {
+    public static CompletionItem build(Symbol symbol, String typeName, BallerinaCompletionContext context) {
+        if (symbol.kind() == FUNCTION) {
+            return SpreadFieldCompletionItemBuilder.build((FunctionSymbol) symbol, typeName, context);
+        }
         String symbolName = symbol.getName().orElseThrow();
-        String insertText = "..." + symbolName;
+        String insertText = SPREAD_OPERATOR + symbolName;
         return build(insertText, insertText, CompletionItemKind.Variable, symbolName, typeName);
     }
 
@@ -53,11 +60,11 @@ public class SpreadFieldCompletionItemBuilder {
      * @param typeName type name of the {@link Symbol}
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(FunctionSymbol symbol, String typeName, BallerinaCompletionContext context) {
+    private static CompletionItem build(FunctionSymbol symbol, String typeName, BallerinaCompletionContext context) {
         String symbolName = symbol.getName().orElseThrow();
         List<String> funcArguments = CommonUtil.getFuncArguments(symbol, context);
-        String insertText = "..." + symbolName + (funcArguments.isEmpty() ? "()" : "(${1})");
-        String label = "..." + symbolName + "(" + String.join(", ", funcArguments) + ")";
+        String insertText = SPREAD_OPERATOR + symbolName + (funcArguments.isEmpty() ? "()" : "(${1})");
+        String label = SPREAD_OPERATOR + symbolName + "(" + String.join(", ", funcArguments) + ")";
         return build(insertText, label, CompletionItemKind.Function, symbolName, typeName);
     }
 

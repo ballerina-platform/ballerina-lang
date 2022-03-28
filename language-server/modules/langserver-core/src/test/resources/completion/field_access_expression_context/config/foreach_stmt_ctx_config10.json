@@ -96,36 +96,6 @@
       }
     },
     {
-      "label": "shift()",
-      "kind": "Function",
-      "detail": "int[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int[]`   \n- the value that was the first member of the array  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "shift",
-      "insertText": "shift()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "length()",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns the number of members of an array.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `arr`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "length",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "sort(array:SortDirection direction, function ()? key)",
       "kind": "Function",
       "detail": "int[][]",
@@ -143,36 +113,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "reverse()",
-      "kind": "Function",
-      "detail": "int[][]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `int[][]`   \n- parameter `arr` with its members in reverse order  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "reverse",
-      "insertText": "reverse()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toStream()",
-      "kind": "Function",
-      "detail": "stream<int[]>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<int[]>`   \n- The stream representation of the array `arr`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toStream",
-      "insertText": "toStream()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "remove(int index)",
@@ -194,7 +134,7 @@
       }
     },
     {
-      "label": "push(int[]... vals)",
+      "label": "push(int[][] arr, int[]... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -232,21 +172,6 @@
       }
     },
     {
-      "label": "pop()",
-      "kind": "Function",
-      "detail": "int[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int[]`   \n- removed member  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "pop",
-      "insertText": "pop()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lastIndexOf(int[] val, int startIndex)",
       "kind": "Function",
       "detail": "int?",
@@ -264,36 +189,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "iterator()",
-      "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|array:Type value;|}?;}",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|array:Type value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "iterator",
-      "insertText": "iterator()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "removeAll()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nRemoves all members of an array.\n\nPanics if any member cannot be removed.  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "removeAll",
-      "insertText": "removeAll()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "setLength(int length)",
@@ -334,22 +229,7 @@
       }
     },
     {
-      "label": "enumerate()",
-      "kind": "Function",
-      "detail": "[int, int[]][]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, int[]][]`   \n- array of index, member pairs  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "enumerate",
-      "insertText": "enumerate()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "unshift(int[]... vals)",
+      "label": "unshift(int[][] arr, int[]... vals)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -406,66 +286,6 @@
       }
     },
     {
-      "label": "cloneReadOnly()",
-      "kind": "Function",
-      "detail": "value:CloneableType & readonly",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toBalString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toBalString",
-      "insertText": "toBalString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toJson()",
-      "kind": "Function",
-      "detail": "json",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toJson",
-      "insertText": "toJson()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isReadOnly()",
-      "kind": "Function",
-      "detail": "boolean",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "isReadOnly",
-      "insertText": "isReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "fromJsonWithType(typedesc<anydata> t)",
       "kind": "Function",
       "detail": "t|error",
@@ -504,21 +324,6 @@
       }
     },
     {
-      "label": "clone()",
-      "kind": "Function",
-      "detail": "value:CloneableType",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "clone",
-      "insertText": "clone()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ensureType(typedesc<any> t)",
       "kind": "Function",
       "detail": "t|error",
@@ -536,36 +341,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "toString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toString",
-      "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toJsonString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toJsonString",
-      "insertText": "toJsonString()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "'map(function () func)",
@@ -587,18 +362,18 @@
       }
     },
     {
-      "label": "some(function () func)",
+      "label": "shift(int[][] arr)",
       "kind": "Function",
-      "detail": "boolean",
+      "detail": "int[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for some member of an array.\n\nThe parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.\nWhen the array is empty, returns false.\n  \n**Params**  \n- `function ()` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter `func` returns true for some member of `arr`; otherwise, false  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nRemoves and returns first member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int[]`   \n- the value that was the first member of the array  \n  \n"
         }
       },
       "sortText": "CD",
-      "filterText": "some",
-      "insertText": "some(${1})",
+      "filterText": "shift",
+      "insertText": "shift(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -606,18 +381,265 @@
       }
     },
     {
-      "label": "every(function () func)",
+      "label": "length((any|error)[] arr)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns the number of members of an array.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `arr`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "length",
+      "insertText": "length(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "reverse(int[][] arr)",
+      "kind": "Function",
+      "detail": "int[][]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReverses the order of the members of an array.\n  \n  \n  \n**Return** `int[][]`   \n- parameter `arr` with its members in reverse order  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "reverse",
+      "insertText": "reverse(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toStream(int[][] arr)",
+      "kind": "Function",
+      "detail": "stream<int[]>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns a stream from the given array.\n  \n  \n  \n**Return** `stream<int[]>`   \n- The stream representation of the array `arr`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toStream",
+      "insertText": "toStream(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "pop(int[][] arr)",
+      "kind": "Function",
+      "detail": "int[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nRemoves and returns the last member of an array.\n\nThe array must not be empty.\n  \n  \n  \n**Return** `int[]`   \n- removed member  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "pop",
+      "insertText": "pop(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "iterator(int[][] arr)",
+      "kind": "Function",
+      "detail": "object {public isolated function next() returns record {| array:Type value; |}?;}",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| array:Type value; |}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "iterator",
+      "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "removeAll((any|error)[] arr)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nRemoves all members of an array.\n\nPanics if any member cannot be removed.  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "removeAll",
+      "insertText": "removeAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "enumerate(int[][] arr)",
+      "kind": "Function",
+      "detail": "[int, int[]][]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns a new array consisting of index and member pairs.\n  \n  \n  \n**Return** `[int, int[]][]`   \n- array of index, member pairs  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "enumerate",
+      "insertText": "enumerate(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneReadOnly(value:CloneableType v)",
+      "kind": "Function",
+      "detail": "value:CloneableType & readonly",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "cloneReadOnly",
+      "insertText": "cloneReadOnly(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toBalString(any v)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toBalString",
+      "insertText": "toBalString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toJson(anydata v)",
+      "kind": "Function",
+      "detail": "json",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toJson",
+      "insertText": "toJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isReadOnly(anydata v)",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for every member of an array.\n\nThe parameter `func` is called for each member of `arr` in order unless and until a call returns false.\nWhen the array is empty, returns true.\n  \n**Params**  \n- `function ()` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter func returns true for every member of `arr`; otherwise, false  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "CD",
-      "filterText": "every",
-      "insertText": "every(${1})",
+      "filterText": "isReadOnly",
+      "insertText": "isReadOnly(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone(value:CloneableType v)",
+      "kind": "Function",
+      "detail": "value:CloneableType",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "clone",
+      "insertText": "clone(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString(any v)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toString",
+      "insertText": "toString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toJsonString(anydata v)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toJsonString",
+      "insertText": "toJsonString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

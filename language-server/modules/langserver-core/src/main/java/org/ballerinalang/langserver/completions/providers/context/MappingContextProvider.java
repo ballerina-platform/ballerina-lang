@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -162,7 +161,6 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol.getLeft()));
             Map<String, RecordFieldSymbol> fields = this.getValidFields((T) node, rawType);
             validFields.addAll(fields.values());
-            // TODO: Revamp the implementation
             completionItems.addAll(this.getSpreadFieldCompletionItems(context, validFields));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
             if (!fields.values().isEmpty()) {
@@ -250,12 +248,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             return false;
         }
         Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) rawType).fieldDescriptors();
-        for (RecordFieldSymbol fieldSymbol : recordFields.values()) {
-            if (!isAMember(fieldSymbol, fields)) {
-                return false;
-            }
-        }
-        return true;
+        return recordFields.values().stream().allMatch(fieldSymbol -> isAMember(fieldSymbol, fields));
     }
 
     private boolean isAMember(RecordFieldSymbol field, List<RecordFieldSymbol> fields) {
@@ -279,11 +272,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             String typeName = (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() == null) ? "" :
                     CommonUtil.getModifiedTypeName(ctx, typeDescriptor.get());
             CompletionItem cItem;
-            if (symbol.kind() == FUNCTION) {
-                cItem = SpreadFieldCompletionItemBuilder.build((FunctionSymbol) symbol, typeName, ctx);
-            } else {
-                cItem = SpreadFieldCompletionItemBuilder.build(symbol, typeName);
-            }
+            cItem = SpreadFieldCompletionItemBuilder.build(symbol, typeName, ctx);
             completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
             processedSymbols.add(symbol);
         });

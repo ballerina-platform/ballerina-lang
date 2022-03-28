@@ -6,7 +6,26 @@
   "source": "field_access_expression_context/source/field_access_ctx_source31.bal",
   "items": [
     {
-      "label": "cause()",
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cause(error e)",
       "kind": "Function",
       "detail": "error?",
       "documentation": {
@@ -17,11 +36,15 @@
       },
       "sortText": "AD",
       "filterText": "cause",
-      "insertText": "cause()",
-      "insertTextFormat": "Snippet"
+      "insertText": "cause(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "toBalString()",
+      "label": "toBalString(error e)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -32,11 +55,15 @@
       },
       "sortText": "CD",
       "filterText": "toBalString",
-      "insertText": "toBalString()",
-      "insertTextFormat": "Snippet"
+      "insertText": "toBalString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "toString()",
+      "label": "toString(error e)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -47,11 +74,15 @@
       },
       "sortText": "CD",
       "filterText": "toString",
-      "insertText": "toString()",
-      "insertTextFormat": "Snippet"
+      "insertText": "toString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "detail()",
+      "label": "detail(error:$anonType$_0 e)",
       "kind": "Function",
       "detail": "error:DetailType & readonly",
       "documentation": {
@@ -62,11 +93,15 @@
       },
       "sortText": "CD",
       "filterText": "detail",
-      "insertText": "detail()",
-      "insertTextFormat": "Snippet"
+      "insertText": "detail(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "stackTrace()",
+      "label": "stackTrace(error e)",
       "kind": "Function",
       "detail": "error:StackFrame[]",
       "documentation": {
@@ -77,11 +112,15 @@
       },
       "sortText": "CD",
       "filterText": "stackTrace",
-      "insertText": "stackTrace()",
-      "insertTextFormat": "Snippet"
+      "insertText": "stackTrace(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "message()",
+      "label": "message(error e)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -92,11 +131,15 @@
       },
       "sortText": "CD",
       "filterText": "message",
-      "insertText": "message()",
-      "insertTextFormat": "Snippet"
+      "insertText": "message(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "cloneReadOnly()",
+      "label": "cloneReadOnly(value:CloneableType v)",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
       "documentation": {
@@ -107,11 +150,15 @@
       },
       "sortText": "CD",
       "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly()",
-      "insertTextFormat": "Snippet"
+      "insertText": "cloneReadOnly(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "clone()",
+      "label": "clone(value:CloneableType v)",
       "kind": "Function",
       "detail": "value:CloneableType",
       "documentation": {
@@ -122,22 +169,7 @@
       },
       "sortText": "CD",
       "filterText": "clone",
-      "insertText": "clone()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ensureType(typedesc<any> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "ensureType",
-      "insertText": "ensureType(${1})",
+      "insertText": "clone(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

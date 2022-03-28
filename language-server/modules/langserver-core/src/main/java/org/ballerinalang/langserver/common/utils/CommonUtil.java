@@ -2053,14 +2053,17 @@ public class CommonUtil {
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
         Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
         List<ParameterSymbol> parameterDefs = new ArrayList<>();
+
         if (functionTypeDesc.params().isPresent()) {
-            parameterDefs.addAll(functionTypeDesc.params().get());
-        }
-        for (int i = 0; i < parameterDefs.size(); i++) {
-            if (i == 0 && skipFirstParam) {
-                continue;
+            List<ParameterSymbol> params = functionTypeDesc.params().get();
+            if (params.size() > 1 && skipFirstParam) {
+                parameterDefs.addAll(params.subList(1, params.size()));
+            } else {
+                parameterDefs.addAll(params);
             }
-            ParameterSymbol param = parameterDefs.get(i);
+        }
+
+        for (ParameterSymbol param : parameterDefs) {
             if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
                 // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
                 args.add("");
@@ -2069,6 +2072,7 @@ public class CommonUtil {
                         : " " + param.getName().get()));
             }
         }
+
         restParam.ifPresent(param -> {
             // Rest param is represented as an array type symbol
             ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
@@ -2083,7 +2087,7 @@ public class CommonUtil {
      * Whether we skip the first parameter being included as a label in the signature.
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
      * showing the invocation over package of the langlib with the COLON we show the first param.
-     *
+     * <p>
      * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
      * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
      *

@@ -6,36 +6,6 @@
   "source": "field_access_expression_context/source/field_access_ctx_source53.bal",
   "items": [
     {
-      "label": "length()",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns the length of the string.\n  \n  \n  \n**Return** `int`   \n- the number of characters (code points) in parameter `str`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "length",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "iterator()",
-      "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|string:Char value;|}?;}",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|string:Char value;|}?;}`   \n- a new iterator object  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "iterator",
-      "insertText": "iterator()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "cloneWithType(typedesc<anydata> t)",
       "kind": "Function",
       "detail": "t|error",
@@ -53,81 +23,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "cloneReadOnly()",
-      "kind": "Function",
-      "detail": "value:CloneableType & readonly",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toBalString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
-        }
-      },
-      "sortText": "AD",
-      "filterText": "toBalString",
-      "insertText": "toBalString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toJson()",
-      "kind": "Function",
-      "detail": "json",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toJson",
-      "insertText": "toJson()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isReadOnly()",
-      "kind": "Function",
-      "detail": "boolean",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "isReadOnly",
-      "insertText": "isReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "clone()",
-      "kind": "Function",
-      "detail": "value:CloneableType",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "clone",
-      "insertText": "clone()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "ensureType(typedesc<any> t)",
@@ -149,36 +44,6 @@
       }
     },
     {
-      "label": "toString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
-        }
-      },
-      "sortText": "AD",
-      "filterText": "toString",
-      "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toJsonString()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
-        }
-      },
-      "sortText": "AD",
-      "filterText": "toJsonString",
-      "insertText": "toJsonString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "getCodePoint(int index)",
       "kind": "Function",
       "detail": "int",
@@ -196,36 +61,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "toBytes()",
-      "kind": "Function",
-      "detail": "byte[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRepresents a string as an array of bytes using UTF-8.\n  \n  \n  \n**Return** `byte[]`   \n- UTF-8 byte array  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toBytes",
-      "insertText": "toBytes()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toCodePointInts()",
-      "kind": "Function",
-      "detail": "int[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Return** `int[]`   \n- an array with a code point for each character of parameter `str`  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "toCodePointInts",
-      "insertText": "toCodePointInts()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "includes(string substr, int startIndex)",
@@ -285,21 +120,6 @@
       }
     },
     {
-      "label": "toUpperAscii()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of a-z to A-Z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of a-z converted to A-Z  \n  \n"
-        }
-      },
-      "sortText": "AD",
-      "filterText": "toUpperAscii",
-      "insertText": "toUpperAscii()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "substring(int startIndex, int endIndex)",
       "kind": "Function",
       "detail": "string",
@@ -338,21 +158,6 @@
       }
     },
     {
-      "label": "trim()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\n\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with leading or trailing ASCII white space characters removed  \n  \n"
-        }
-      },
-      "sortText": "AD",
-      "filterText": "trim",
-      "insertText": "trim()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "endsWith(string substr)",
       "kind": "Function",
       "detail": "boolean",
@@ -372,7 +177,7 @@
       }
     },
     {
-      "label": "'join(string... strs)",
+      "label": "'join(string separator, string... strs)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -429,21 +234,6 @@
       }
     },
     {
-      "label": "toLowerAscii()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of A-Z to a-z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of A-Z converted to a-z  \n  \n"
-        }
-      },
-      "sortText": "AD",
-      "filterText": "toLowerAscii",
-      "insertText": "toLowerAscii()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "startsWith(string substr)",
       "kind": "Function",
       "detail": "boolean",
@@ -461,66 +251,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "fromJsonString()",
-      "kind": "Function",
-      "detail": "json|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\n\nNumbers in the JSON string are converted into Ballerina values of type\ndecimal except in the following two cases:\nif the JSON number starts with `-` and is numerically equal to zero, then it is\nconverted into float value of `-0.0`;\notherwise, if the JSON number is syntactically an integer and is in the range representable\nby a Ballerina int, then it is converted into a Ballerina int.\nA JSON number is considered syntactically an integer if it contains neither\na decimal point nor an exponent.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `json|error`   \n- `str` parsed to json or error  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "fromJsonString",
-      "insertText": "fromJsonString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromBalString()",
-      "kind": "Function",
-      "detail": "anydata|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses and evaluates a subset of Ballerina expression syntax.\n\nThe subset of Ballerina expression syntax supported is that produced\nby toBalString when applied to an anydata value.\n  \n  \n  \n**Return** `anydata|error`   \n- the result of evaluating the parsed expression, or  \nan error if the string cannot be parsed  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "fromBalString",
-      "insertText": "fromBalString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromJsonFloatString()",
-      "kind": "Function",
-      "detail": "value:JsonFloat|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonFloat|error`   \n- parameter `str` parsed to JsonFloat or error  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "fromJsonFloatString",
-      "insertText": "fromJsonFloatString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromJsonDecimalString()",
-      "kind": "Function",
-      "detail": "value:JsonDecimal|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonDecimal|error`   \n- parameter `str` parsed to JsonDecimal or error  \n  \n"
-        }
-      },
-      "sortText": "BD",
-      "filterText": "fromJsonDecimalString",
-      "insertText": "fromJsonDecimalString()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "fromJsonStringWithType(typedesc<anydata> t)",
@@ -580,18 +310,18 @@
       }
     },
     {
-      "label": "padStart(int len, string:Char padChar)",
+      "label": "toBytes(string str)",
       "kind": "Function",
-      "detail": "string",
+      "detail": "byte[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the start of a string.\nAdds sufficient `padChar` characters at the start of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRepresents a string as an array of bytes using UTF-8.\n  \n  \n  \n**Return** `byte[]`   \n- UTF-8 byte array  \n  \n"
         }
       },
-      "sortText": "AD",
-      "filterText": "padStart",
-      "insertText": "padStart(${1})",
+      "sortText": "CD",
+      "filterText": "toBytes",
+      "insertText": "toBytes(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -599,18 +329,18 @@
       }
     },
     {
-      "label": "padEnd(int len, string:Char padChar)",
+      "label": "length(string str)",
       "kind": "Function",
-      "detail": "string",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the end of a string.\nAdds sufficient `padChar` characters to the end of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns the length of the string.\n  \n  \n  \n**Return** `int`   \n- the number of characters (code points) in parameter `str`  \n  \n"
         }
       },
-      "sortText": "AD",
-      "filterText": "padEnd",
-      "insertText": "padEnd(${1})",
+      "sortText": "CD",
+      "filterText": "length",
+      "insertText": "length(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -618,18 +348,303 @@
       }
     },
     {
-      "label": "padZero(int len, string:Char zeroChar)",
+      "label": "toCodePointInts(string str)",
+      "kind": "Function",
+      "detail": "int[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Return** `int[]`   \n- an array with a code point for each character of parameter `str`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toCodePointInts",
+      "insertText": "toCodePointInts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toUpperAscii(string str)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nPads a string with zeros.\nThe zeros are added at the start of the string, after a `+` or `-` sign if there is one.\nSufficient zero characters are added to `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` zeroChar: the character to use for the zero; defaults to ASCII zero `0`(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with zeros  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of a-z to A-Z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of a-z converted to A-Z  \n  \n"
         }
       },
       "sortText": "AD",
-      "filterText": "padZero",
-      "insertText": "padZero(${1})",
+      "filterText": "toUpperAscii",
+      "insertText": "toUpperAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "iterator(string str)",
+      "kind": "Function",
+      "detail": "object {public isolated function next() returns record {| string:Char value; |}?;}",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| string:Char value; |}?;}`   \n- a new iterator object  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "iterator",
+      "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "trim(string str)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\n\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with leading or trailing ASCII white space characters removed  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "trim",
+      "insertText": "trim(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toLowerAscii(string str)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of A-Z to a-z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of A-Z converted to a-z  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "toLowerAscii",
+      "insertText": "toLowerAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromJsonString(string str)",
+      "kind": "Function",
+      "detail": "json|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\n\nNumbers in the JSON string are converted into Ballerina values of type\ndecimal except in the following two cases:\nif the JSON number starts with `-` and is numerically equal to zero, then it is\nconverted into float value of `-0.0`;\notherwise, if the JSON number is syntactically an integer and is in the range representable\nby a Ballerina int, then it is converted into a Ballerina int.\nA JSON number is considered syntactically an integer if it contains neither\na decimal point nor an exponent.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `json|error`   \n- `str` parsed to json or error  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "fromJsonString",
+      "insertText": "fromJsonString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromBalString(string s)",
+      "kind": "Function",
+      "detail": "anydata|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses and evaluates a subset of Ballerina expression syntax.\n\nThe subset of Ballerina expression syntax supported is that produced\nby toBalString when applied to an anydata value.\n  \n  \n  \n**Return** `anydata|error`   \n- the result of evaluating the parsed expression, or  \nan error if the string cannot be parsed  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "fromBalString",
+      "insertText": "fromBalString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromJsonFloatString(string str)",
+      "kind": "Function",
+      "detail": "value:JsonFloat|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonFloat|error`   \n- parameter `str` parsed to JsonFloat or error  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "fromJsonFloatString",
+      "insertText": "fromJsonFloatString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromJsonDecimalString(string str)",
+      "kind": "Function",
+      "detail": "value:JsonDecimal|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonDecimal|error`   \n- parameter `str` parsed to JsonDecimal or error  \n  \n"
+        }
+      },
+      "sortText": "BD",
+      "filterText": "fromJsonDecimalString",
+      "insertText": "fromJsonDecimalString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneReadOnly(value:CloneableType v)",
+      "kind": "Function",
+      "detail": "value:CloneableType & readonly",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "cloneReadOnly",
+      "insertText": "cloneReadOnly(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toBalString(any v)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "toBalString",
+      "insertText": "toBalString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toJson(anydata v)",
+      "kind": "Function",
+      "detail": "json",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toJson",
+      "insertText": "toJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isReadOnly(anydata v)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "isReadOnly",
+      "insertText": "isReadOnly(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone(value:CloneableType v)",
+      "kind": "Function",
+      "detail": "value:CloneableType",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "clone",
+      "insertText": "clone(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString(any v)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "toString",
+      "insertText": "toString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toJsonString(anydata v)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "toJsonString",
+      "insertText": "toJsonString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

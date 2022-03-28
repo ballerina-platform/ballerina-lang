@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "B.field2",
       "sortText": "K",
-      "insertText": "field2: \"${2}\"",
+      "insertText": "field2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "B",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "field3: 0,\nfield2: \"\"",
+      "insertText": "field3: ${1:0},\nfield2: ${2:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]
