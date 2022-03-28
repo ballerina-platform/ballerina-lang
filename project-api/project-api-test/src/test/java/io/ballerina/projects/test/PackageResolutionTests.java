@@ -542,7 +542,7 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(nodeInGraph.size(), 2);
     }
     // For this to be enabled, #31026 should be fixed.
-    @Test(enabled = false, dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
+    @Test(dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
     public void testResolveDependencyFromCustomRepo() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
         String dependencyContent = "[[dependency]]\n" +
@@ -568,7 +568,7 @@ public class PackageResolutionTests extends BaseTest {
     }
 
     // For this to be enabled, #31026 should be fixed.
-    @Test (enabled = false)
+    @Test
     public void testResolveDependencyFromUnsupportedCustomRepo() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
         String dependencyContent = "[[dependency]]\n" +

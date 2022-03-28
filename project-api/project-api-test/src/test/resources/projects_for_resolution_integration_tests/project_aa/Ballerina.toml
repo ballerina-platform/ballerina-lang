@@ -1,0 +1,10 @@
+[package]
+org = "adv_res"
+name = "project_aa"
+version = "1.0.0"
+
+[[dependency]]
+org="adv_res"
+name="package_aa"
+version="1.0.0"
+repository="local"
