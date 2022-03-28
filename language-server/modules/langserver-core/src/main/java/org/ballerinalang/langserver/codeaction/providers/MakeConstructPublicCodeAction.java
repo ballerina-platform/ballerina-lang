@@ -43,7 +43,7 @@ import java.util.Optional;
 /**
  * Code Action to make construct public.
  *
- * @since 2201.0.3
+ * @since 2201.0.4
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
@@ -101,13 +101,15 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
             return Optional.of(CommonUtil.toPosition(typeDefinitionNode.typeKeyword().lineRange().startLine()));
         }
         if (typeKind.equals(SyntaxKind.CLASS_DEFINITION)) {
+            Position startPosition;
             ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
-            if (!classDefinitionNode.classTypeQualifiers().isEmpty()) {
-                return Optional.of(CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
-                        .lineRange().startLine()));
+            if (classDefinitionNode.classTypeQualifiers().isEmpty()) {
+                startPosition = CommonUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine());
             } else {
-                return Optional.of(CommonUtil.toPosition(classDefinitionNode.classKeyword().lineRange().startLine()));
+                startPosition = CommonUtil.toPosition(classDefinitionNode.classTypeQualifiers().get(0)
+                        .lineRange().startLine());
             }
+            return Optional.of(startPosition);
         }
         return Optional.empty();
     }
