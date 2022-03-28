@@ -32,58 +32,58 @@ import java.util.Collections;
  */
 public class STListConstructorExpressionNode extends STExpressionNode {
     public final STNode openBracket;
-    public final STNode listMembers;
+    public final STNode expressions;
     public final STNode closeBracket;
 
     STListConstructorExpressionNode(
             STNode openBracket,
-            STNode listMembers,
+            STNode expressions,
             STNode closeBracket) {
         this(
                 openBracket,
-                listMembers,
+                expressions,
                 closeBracket,
                 Collections.emptyList());
     }
 
     STListConstructorExpressionNode(
             STNode openBracket,
-            STNode listMembers,
+            STNode expressions,
             STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.LIST_CONSTRUCTOR, diagnostics);
         this.openBracket = openBracket;
-        this.listMembers = listMembers;
+        this.expressions = expressions;
         this.closeBracket = closeBracket;
 
         addChildren(
                 openBracket,
-                listMembers,
+                expressions,
                 closeBracket);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STListConstructorExpressionNode(
                 this.openBracket,
-                this.listMembers,
+                this.expressions,
                 this.closeBracket,
                 diagnostics);
     }
 
     public STListConstructorExpressionNode modify(
             STNode openBracket,
-            STNode listMembers,
+            STNode expressions,
             STNode closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,
-                listMembers,
+                expressions,
                 closeBracket)) {
             return this;
         }
 
         return new STListConstructorExpressionNode(
                 openBracket,
-                listMembers,
+                expressions,
                 closeBracket,
                 diagnostics);
     }

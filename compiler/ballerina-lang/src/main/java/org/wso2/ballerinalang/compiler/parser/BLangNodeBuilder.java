@@ -1984,7 +1984,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
 
-        for (Node listMember : listConstructorExprNode.listMembers()) {
+        for (Node listMember : listConstructorExprNode.expressions()) {
             BLangExpression memberExpr;
             if (listMember.kind() == SyntaxKind.SPREAD_MEMBER) {
                 Node spreadMemberExpr = ((SpreadMemberNode) listMember).expression();
