@@ -46,6 +46,11 @@ public class BTypeDefinitionSymbol extends BSymbol {
     }
 
     @Override
+    public SymbolKind getKind() {
+        return this.kind != null ? this.kind : super.getKind();
+    }
+
+    @Override
     public String toString() {
         if (this.pkgID == PackageID.DEFAULT ||
                 this.pkgID.equals(PackageID.ANNOTATIONS) ||

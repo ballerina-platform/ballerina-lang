@@ -22,15 +22,14 @@ import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -42,7 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents the Types of a semantic model.
+ * Represents the set of built-in and user-defined types available in a single semantic context.
  *
  * @since 2.0.0
  */
@@ -52,7 +51,6 @@ public class Types {
     private static final CompilerContext.Key<Types> TYPES_KEY = new CompilerContext.Key<>();
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
-    private final SymbolResolver symbolResolver;
     private final PackageCache packageCache;
 
     public final TypeSymbol BOOLEAN;
@@ -84,7 +82,6 @@ public class Types {
         TypesFactory typesFactory = TypesFactory.getInstance(context);
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
-        this.symbolResolver = SymbolResolver.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
 
         this.BOOLEAN = typesFactory.getTypeDescriptor(symbolTable.booleanType);
@@ -109,6 +106,17 @@ public class Types {
         this.COMPILATION_ERROR = typesFactory.getTypeDescriptor(symbolTable.semanticError);
     }
 
+    /**
+     * Lookup for the symbol of a user defined type within a given module. This would be considering type
+     * definitions, enums, enum members, and class definitions as valid user defined types when
+     * looking up. The module is determined by the provided org, module name and the version.
+     *
+     * @param org           The organization of the looking up module
+     * @param moduleName    The name of the looking up module
+     * @param version       The version of the looking up module
+     * @param typeDefName   The type definition
+     * @return The {@link Symbol} of the user defined type
+     */
     public Optional<Symbol> getTypeByName(String org, String moduleName, String version, String typeDefName) {
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
@@ -116,6 +124,16 @@ public class Types {
         return getTypeDefByName(packageID, typeDefName);
     }
 
+    /**
+     * Lookup for all the symbols of user defined types within a given module. This would be considering type
+     * definitions, enums, enum members, and class definitions as valid user defined types when looking up.
+     * The module is determined by the provided org, module name and the version.
+     *
+     * @param org           The organization of the looking up module
+     * @param moduleName    The name of the looking up module
+     * @param version       The version of the looking up module
+     * @return A {@link Map} of the user defined type symbols
+     */
     public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
@@ -139,10 +157,11 @@ public class Types {
         }
 
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
-        BSymbol bSymbol = symbolResolver.lookupSymbolInMainSpace(pkgEnv, Names.fromString(typeDefName));
-
-        if (isValidTypeDef(bSymbol)) {
-            return Optional.ofNullable(symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+        Scope.ScopeEntry entry = pkgEnv.scope.lookup(Names.fromString(typeDefName));
+        if (entry != null) {
+            if (isValidTypeDef(entry.symbol)) {
+                return Optional.ofNullable(symbolFactory.getBCompiledSymbol(entry.symbol, typeDefName));
+            }
         }
 
         return Optional.empty();
@@ -174,9 +193,9 @@ public class Types {
 
     private boolean isValidTypeDef(BSymbol bSymbol) {
         return bSymbol != null && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL
-                && (bSymbol.tag == SymTag.TYPE_DEF
-                || bSymbol.tag == SymTag.CONSTANT
-                || bSymbol.tag == SymTag.ENUM
+                && (bSymbol.getKind() == SymbolKind.TYPE_DEF
+                || bSymbol.getKind() == SymbolKind.CONSTANT
+                || bSymbol.getKind() == SymbolKind.ENUM
                 || Symbols.isFlagOn(bSymbol.flags, Flags.CLASS));
     }
 }

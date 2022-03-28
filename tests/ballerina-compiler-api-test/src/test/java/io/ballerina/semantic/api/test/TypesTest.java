@@ -49,7 +49,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -198,12 +197,12 @@ public class TypesTest {
 
     @Test
     public void testGetTypesInFooModule() {
-        testTypesInModule("foo", getTypesInFooModule());
+        testTypesInModule("typesapi.foo", getTypesInFooModule());
     }
 
     @Test
     public void testTypesInBarModule() {
-        testTypesInModule("bar", getTypesInBarModule());
+        testTypesInModule("typesapi.bar", getTypesInBarModule());
     }
 
     private Object[][] getTypesInFooModule() {
@@ -239,9 +238,9 @@ public class TypesTest {
     }
 
     @Test(dataProvider = "TypeByNameFromBir")
-    public void testTypeByNameFromBir(String org, String pkgName, String version, String typeDefName,
+    public void testTypeByNameFromBir(String pkgName, String typeDefName,
                                       SymbolKind symKind, TypeDescKind typeDescKind) {
-        Optional<Symbol> symbol = types.getTypeByName(org, pkgName, version, typeDefName);
+        Optional<Symbol> symbol = types.getTypeByName("testorg", pkgName, "1.0.0", typeDefName);
         assertTrue(symbol.isPresent());
         assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
 
@@ -253,15 +252,15 @@ public class TypesTest {
     @DataProvider(name = "TypeByNameFromBir")
     private Object[][] getTypeByNameFromBir() {
         return new  Object[][] {
-                {"testorg", "typesapi", "1.0.0", "ExampleDec", TYPE_DEFINITION, DECIMAL},
-                {"testorg", "typesbir", "1.0.0", "TestRecord", TYPE_DEFINITION, RECORD},
-                {"testorg", "typesbir", "1.0.0", "AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
+                {"typesapi", "ExampleDec", TYPE_DEFINITION, DECIMAL},
+                {"typesbir", "TestRecord", TYPE_DEFINITION, RECORD},
+                {"typesbir", "AnInt", TYPE_DEFINITION, TYPE_REFERENCE},
         };
     }
 
     @Test
     public void testTypesFromBir() {
-        testTypesInModule("testorg", "typesbir", "1.0.0", getTypesFromBir());
+        testTypesInModule("typesbir", getTypesFromBir());
     }
 
     private Object[][] getTypesFromBir() {
@@ -306,21 +305,8 @@ public class TypesTest {
         };
     }
 
-    private void testTypesInModule(String moduleName, Object[][] expTypes) {
-        testTypesInModule(getModule(project, moduleName), expTypes);
-    }
-
-    private void testTypesInModule(Module module, Object[][] expTypes) {
-        model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
-        types = model.types();
-        String org = module.descriptor().org().value();
-        String pkgName = module.descriptor().name().toString();
-        String version = module.descriptor().version().toString();
-        testTypesInModule(org, pkgName, version, expTypes);
-    }
-
-    private void testTypesInModule(String org, String pkgName, String version, Object[][] expTypes) {
-        Optional<Map<String, Symbol>> typesInModule = types.typesInModule(org, pkgName, version);
+    private void testTypesInModule(String pkgName, Object[][] expTypes) {
+        Optional<Map<String, Symbol>> typesInModule = types.typesInModule("testorg", pkgName, "1.0.0");
         assertTrue(typesInModule.isPresent());
 
         Map<String, Symbol> typeDefSymbolMap = typesInModule.get();

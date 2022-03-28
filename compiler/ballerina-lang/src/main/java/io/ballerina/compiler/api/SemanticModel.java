@@ -40,7 +40,7 @@ public interface SemanticModel {
     /**
      * Retrieves a single instance of the Types API.
      *
-     * @return {@link Types} instance per single context
+     * @return {@link Types} instance of a given semantic context
      */
 
     Types types();

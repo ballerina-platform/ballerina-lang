@@ -306,7 +306,7 @@ public class SymbolTable {
         // Initialize the invokable type
         this.invokableType.flags = Flags.ANY_FUNCTION;
         BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
-                rootPkgSymbol.pkgID, this.invokableType, rootPkgNode.symbol.scope.owner, builtinPos, VIRTUAL);
+                rootPkgSymbol.pkgID, this.invokableType, rootPkgNode.symbol.scope.owner, builtinPos, BUILTIN);
         tSymbol.params = null;
         tSymbol.restParam = null;
         tSymbol.returnType = null;
