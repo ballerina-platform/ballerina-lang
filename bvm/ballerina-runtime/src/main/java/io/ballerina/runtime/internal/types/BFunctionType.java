@@ -98,12 +98,12 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-    private static void addParamListToString(Parameter[] parameters, StringBuilder br) {
+    private static void addParamListToString(Parameter[] parameters, StringBuilder stringRep) {
         String prefix = "";
         for (Parameter parameter : parameters) {
-            br.append(prefix);
+            stringRep.append(prefix);
             prefix = ",";
-            br.append(parameter.type.toString());
+            stringRep.append(parameter.type.toString());
         }
     }
 
