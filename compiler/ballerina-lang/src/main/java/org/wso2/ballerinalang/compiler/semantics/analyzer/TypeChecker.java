@@ -4344,8 +4344,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr, data);
-
         SymbolEnv rhsExprEnv;
         BType lhsType;
         BType referredExpType = Types.getReferredType(binaryExpr.expectedType);
@@ -4514,25 +4512,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             constituent = type;
         }
         return constituent;
-    }
-
-    private void checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(BLangBinaryExpr binaryExpr,
-                                                                               AnalyzerData data) {
-        if (data.expType.tag != TypeTags.DECIMAL) {
-            return;
-        }
-
-        switch (binaryExpr.opKind) {
-            case ADD:
-            case SUB:
-            case MUL:
-            case DIV:
-                checkExpr(binaryExpr.lhsExpr, data.expType, data);
-                checkExpr(binaryExpr.rhsExpr, data.expType, data);
-                break;
-            default:
-                break;
-        }
     }
 
     public void visit(BLangElvisExpr elvisExpr, AnalyzerData data) {
