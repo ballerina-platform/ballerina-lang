@@ -37,9 +37,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A collection of utilities related to LS client.
@@ -58,9 +58,11 @@ public class LSClientUtil {
      * Calculates the commands dynamically added by compiler plugins of imported modules and register the new ones in
      * LS client side.
      *
-     * @param context Document service context
+     * @param context           Document service context
+     * @param scheduledFuture   Boolean Completable Future
      */
-    public static void chekAndRegisterCommands(DocumentServiceContext context) {
+    public static synchronized void checkAndRegisterCommands(DocumentServiceContext context, 
+                                                             CompletableFuture<Boolean> scheduledFuture) {
         LanguageServerContext serverContext = context.languageServercontext();
         LSClientLogger clientLogger = LSClientLogger.getInstance(serverContext);
 
@@ -74,13 +76,25 @@ public class LSClientUtil {
             clientLogger.logTrace("Not registering commands: client doesn't support dynamic commands registration");
             return;
         }
+        scheduledFuture
+                .thenApplyAsync(aBoolean -> context.workspace().waitAndGetPackageCompilation(context.filePath()))
+                .thenAccept(compilation -> compilation.ifPresent(pkgCompilation -> 
+                        compileAndRegisterCommands(serverContext, clientLogger, serverCapabilities, pkgCompilation)));
+    }
 
-        Optional<PackageCompilation> compilation = context.workspace().waitAndGetPackageCompilation(context.filePath());
-        if (compilation.isEmpty()) {
-            return;
-        }
-
-        CodeActionManager codeActionManager = compilation.get().getCodeActionManager();
+    /**
+     * Compile and register commands.
+     * 
+     * @param serverContext         Language Server Context
+     * @param clientLogger          LS Client Logger
+     * @param serverCapabilities    Server Capabilities
+     * @param compilation           Package Compilation
+     */
+    private static void compileAndRegisterCommands(LanguageServerContext serverContext, 
+                                                   LSClientLogger clientLogger, 
+                                                   ServerCapabilities serverCapabilities,
+                                                   PackageCompilation compilation) {
+        CodeActionManager codeActionManager = compilation.getCodeActionManager();
         Set<String> commands = codeActionManager.getPossibleProviderNames();
 
         Set<String> supportedCommands = new HashSet<>(serverCapabilities.getExecuteCommandProvider().getCommands());

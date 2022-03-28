@@ -39,13 +39,12 @@ import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
-import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.eventsync.publishers.ProjectUpdateEventPublisher;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
-import org.ballerinalang.langserver.util.LSClientUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -114,14 +113,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final BallerinaWorkspaceManagerProxy workspaceManagerProxy;
     private final LanguageServerContext serverContext;
     private final LSClientLogger clientLogger;
+    private final ProjectUpdateEventPublisher projectUpdateEventPublisher;
 
     BallerinaTextDocumentService(BallerinaLanguageServer languageServer,
                                  BallerinaWorkspaceManagerProxy workspaceManagerProxy,
-                                 LanguageServerContext serverContext) {
+                                 LanguageServerContext serverContext, 
+                                 ProjectUpdateEventPublisher projectUpdateEventPublisher) {
         this.workspaceManagerProxy = workspaceManagerProxy;
         this.languageServer = languageServer;
         this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(this.serverContext);
+        this.projectUpdateEventPublisher = projectUpdateEventPublisher;
     }
 
     /**
@@ -528,9 +530,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.workspaceManagerProxy.didOpen(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened");
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
-            LSClientUtil.chekAndRegisterCommands(context);
+            projectUpdateEventPublisher.publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -551,9 +551,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.workspaceManagerProxy.didChange(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
-            LSClientUtil.chekAndRegisterCommands(context);
+            projectUpdateEventPublisher.publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             this.clientLogger.logError(LSContextOperation.TXT_DID_CHANGE, msg, e, params.getTextDocument(),

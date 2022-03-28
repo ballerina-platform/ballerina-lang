@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClientAware;
+import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
 import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
@@ -32,6 +33,7 @@ import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
+import org.ballerinalang.langserver.eventsync.SubscribersHolder;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
@@ -97,7 +99,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     private BallerinaLanguageServer(LanguageServerContext serverContext) {
         super(serverContext);
-        this.textService = new BallerinaTextDocumentService(this, workspaceManagerProxy, this.serverContext);
+        this.textService = new BallerinaTextDocumentService(this, workspaceManagerProxy, this.serverContext, 
+                this.projectUpdateEventPublisher);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManagerProxy, this.serverContext);
     }
 
@@ -171,6 +174,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     HashMap.class);
         }
+        // Subscribe for document sync events
+        subscribeDocumentSyncEvents();
 
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
@@ -190,6 +195,19 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
         return CompletableFuture.supplyAsync(() -> res);
+    }
+
+    /**
+     * Subscribe for document sync events.
+     */
+    private void subscribeDocumentSyncEvents() {
+        SubscribersHolder subscribersHolder = SubscribersHolder.getInstance(this.serverContext);
+        subscribersHolder.getSubscribers().forEach(eventSubscriber -> {
+            if (eventSubscriber.getPublisherKinds().stream()
+                    .anyMatch(publisherKind -> publisherKind == PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER)) {
+                this.projectUpdateEventPublisher.subscribe(eventSubscriber);
+            }
+        });
     }
 
     @Override
