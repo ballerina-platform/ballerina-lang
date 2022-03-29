@@ -158,10 +158,38 @@ function testNoFillerValueError() {
     [string, (string|int), string...] _ = [...a1]; // error
 }
 
-function testFillerValuePositive() {
-    string[1] a1 = [];
-    [string, string, string...] _ = [...a1]; // OK
-    [string, string, (int|string)...] _ = [...a1]; // OK
+function testSpreadOpWithVaryingLength() {
+    int[] a1 = [1];
+    [int, int...] _ = [...a1]; // error
+
+    string[] a2 = [];
+    string[] a3 = ["s"];
+    [string, string, string...] _ = [...a2,...a3]; // error
+
+    [int, string...] a4 = [1, "s"];
+    [int, string, string...] _ = [...a4]; // error
+}
+
+type IntArr int[];
+
+type IntArr3 int[3];
+
+type Foo [int, string, anydata...];
+
+type Bar [int, string];
+
+type Baz int[]|string|boolean;
+
+function testSpreadOpWithListTypeBeingTypeRef() {
+    IntArr _ = [1, ...[2, "s"]]; // error
+
+    IntArr a = [1, ...[2, 3]]; // OK
+    IntArr3 _ = [1, ...a]; // error
+
+    Foo _ = [3, ...[4]]; // error
+
+    Foo t = [3, ...["s"]]; // OK
+    Bar _ = [...t]; // error
 }
 
 function testFixedMemberExpectedErrorPositive() {
@@ -239,6 +267,51 @@ function testTypeCheckingPositive2() {
     [(int|string), int...] _ = [...a5]; // OK
 }
 
-// TODO: add tests with no reference in spread op
+function testFillerValuePositive() {
+    string[1] a1 = [];
+    [string, string, string...] _ = [...a1]; // OK
+    [string, string, (int|string)...] _ = [...a1]; // OK
+}
+
+function testSpreadOpWithVaryingLengthPositive() {
+    int[] a1 = [];
+    [int, string, boolean...] a2 = [];
+    [int, string, any...] _ = [1, "s", ...a1, ...a1, 23, "x", ...a2]; // OK
+
+    [int, string] a3 = [1, "s"];
+    [int, any, anydata...] _ = [...a3, ...a1, true, ...a2, "x"]; // OK
+
+    [int, string, string] a4 = [1, "s"];
+    [int, any, anydata...] _ = [...a4, ...a2, true, ...a1, "x"]; // OK
+}
+
+function testSpreadOpWithNoRefPositive() {
+    int[] _ = [1, ...[2, 3]]; // OK
+    (int|string)[] _ = [1, "x", ...["s", 4]]; // OK
+    int[] _ = [1, 2, ...[3, ...[...[4, 5], 6], 7], ...[8]]; // OK
+
+    int[3] _ = [1, ...[2, 3]]; // OK
+    (int|string)[4] _ = [1, "x", ...["s", 4]]; // OK
+    int[8] _ = [1, 2, ...[3, ...[...[4, 5], 6], 7], ...[8]]; // OK
+
+    [int, string...] _ = [3, ...["x", "y"]]; //OK
+    [string, string, string...] _ = [...["x", "y"]]; // OK
+
+    [int, string] _ = [3, ...["x"]]; // OK
+    [string, boolean|string, int] _ = [...["x", "y"], 2]; // OK
+}
+
+function testSpreadOpWithListTypeBeingTypeRefPositive() {
+    IntArr a = [1, ...[2, 3]]; // OK
+    IntArr _ = [1, ...a]; // OK
+
+    [int, string, boolean]  t = [];
+    Foo _ = [...t, true, false]; // OK
+
+    Baz _ = [...a, 4]; // OK
+
+    Foo b = [4, "x"];
+    Foo _ = [4, "x", ...b]; // OK
+}
+
 // TODO: add test with `never`
-// TODO: add test with ACET is a ref

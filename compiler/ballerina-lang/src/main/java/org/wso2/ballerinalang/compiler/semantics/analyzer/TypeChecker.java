@@ -1697,6 +1697,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
                 BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+                spreadOpType = Types.getReferredType(spreadOpType);
 
                 switch (spreadOpType.tag) {
                     case TypeTags.ARRAY:
@@ -1751,6 +1752,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
             BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+            spreadOpType = Types.getReferredType(spreadOpType);
+
             switch (spreadOpType.tag) {
                 case TypeTags.ARRAY:
                     BType spreadOpeType = ((BArrayType) spreadOpType).eType;
@@ -1798,6 +1801,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
                 BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+                spreadOpType = Types.getReferredType(spreadOpType);
 
                 switch (spreadOpType.tag) {
                     case TypeTags.ARRAY:
@@ -1854,6 +1858,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
             BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+            spreadOpType = Types.getReferredType(spreadOpType);
 
             switch (spreadOpType.tag) {
                 case TypeTags.ARRAY:
@@ -1908,7 +1913,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                     if (spreadOpMemberTypeSize < remainNonRestCount) {
                         dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_MEMBER_EXPECTED,
-                                memberTypes.get(nonRestTypeIndex));
+                                memberTypes.get(nonRestTypeIndex + spreadOpMemberTypeSize));
                         return symTable.semanticError;
                     }
 
@@ -2007,11 +2012,13 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
-            checkExpr(spreadOpExpr, this.env, expType);
-            if (resultType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) resultType)) {
-                types.addAll(((BTupleType) resultType).tupleTypes);
-            } else if (resultType.tag == TypeTags.ARRAY && ((BArrayType) resultType).state == BArrayState.CLOSED) {
-                BArrayType bArrayType = (BArrayType) resultType;
+            BType spreadOpExprType = checkExpr(spreadOpExpr, this.env, expType);
+            spreadOpExprType = Types.getReferredType(resultType);
+
+            if (spreadOpExprType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) spreadOpExprType)) {
+                types.addAll(((BTupleType) spreadOpExprType).tupleTypes);
+            } else if (spreadOpExprType.tag == TypeTags.ARRAY && ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
+                BArrayType bArrayType = (BArrayType) spreadOpExprType;
                 for (int i = 0; i < bArrayType.size; i++) {
                     types.add(bArrayType.eType);
                 }

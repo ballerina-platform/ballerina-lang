@@ -133,9 +133,21 @@ public class ListConstructorSpreadOperatorTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid usage of spread operator: fixed member expected for '(int|string)'", 150, 36);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'int'", 153, 47);
+                "invalid usage of spread operator: fixed member expected for 'boolean'", 153, 47);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid usage of list constructor: type '(string|int)' does not have a filler value", 158, 43);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of spread operator: fixed member expected for 'int'", 163, 27);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of spread operator: fixed member expected for 'string'", 167, 41);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of spread operator: fixed member expected for 'string'", 170, 38);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 184, 23);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of spread operator: fixed length list expected", 187, 24);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 189, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of spread operator: fixed length list expected", 192, 17);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -239,6 +251,16 @@ public class ListConstructorSpreadOperatorTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'boolean'," +
                         " found '[int,int,string,(int|string),string,boolean]'", 136, 17);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found '[string,int,int,int]'", 150, 17);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found '[string,int,int,int,boolean]'", 151, 17);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 157, 17);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 158, 17);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type from spread operator: fixed length list expected", 161, 23);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

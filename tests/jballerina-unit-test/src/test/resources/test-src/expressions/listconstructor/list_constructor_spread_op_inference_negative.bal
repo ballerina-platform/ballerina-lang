@@ -136,6 +136,31 @@ function testSpreadOpInferenceWithNeverRestDesc() {
     boolean _ = v2; // error: expected 'boolean', found '[int,int,string,(int|string),string,boolean]'
 }
 
+type IntArr int[];
+
+type IntArr3 int[3];
+
+type Foo [anydata, string];
+
+function testInferenceViaSpreadOpWithTypeRef() {
+    IntArr3 a = [1, ...[2, 3]]; // OK
+    var v1 = ["s", ...a]; // OK
+    var v2 = [...v1, false]; // OK
+
+    boolean _ = v1; // error: expected 'boolean', found '[string,int,int,int]'
+    boolean _ = v2; // error: expected 'boolean', found '[string,int,int,int,boolean]'
+
+    Foo t = [...[true], "s"];
+    var v3 = [...t, 4];
+    var v4 = [...v3];
+
+    boolean _ = v3; // error: expected 'boolean', found '[anydata,string,int]'
+    boolean _ = v4; // error: expected 'boolean', found '[anydata,string,int]'
+
+    IntArr c = [];
+    var v5 = ["s", ...c]; // error
+}
+
 function testSpreadOpInferenceWithVarPositive() {
     int[2] a1 = [];
     var v1 = [...a1]; // OK
@@ -179,4 +204,14 @@ function testSpreadOpInferenceWithNeverRestDescPositive() {
 
     var v1 = [...a1]; // OK
     var v2 = [1, ...a1, "s", ...a2, true]; // OK
+}
+
+function testInferenceViaSpreadOpWithTypeRefPositive() {
+    IntArr3 a = [1, ...[2, 3]]; // OK
+    var v1 = ["s", ...a]; // OK
+    var v2 = [...v1, false]; // OK
+
+    Foo t = [...[true], "s"];
+    var v3 = [...t, 4];
+    var v4 = [...v3];
 }
