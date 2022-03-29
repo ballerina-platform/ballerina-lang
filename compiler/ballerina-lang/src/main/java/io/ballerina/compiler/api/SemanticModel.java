@@ -20,6 +20,7 @@ package io.ballerina.compiler.api;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.types.Types;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
