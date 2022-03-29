@@ -1711,7 +1711,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return symTable.semanticError;
                     case TypeTags.TUPLE:
                         BTupleType tType = (BTupleType) spreadOpType;
-                        if (tType.restType == null) {
+                        if (isFixedLengthTuple(tType)) {
                             listExprSize += tType.tupleTypes.size();
                             continue;
                         }
@@ -1759,9 +1759,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     break;
                 case TypeTags.TUPLE:
-                    List<BType> tupleTypes = ((BTupleType) spreadOpType).tupleTypes;
+                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    List<BType> tupleTypes = spreadOpTuple.tupleTypes;
                     for (BType tupleMemberType : tupleTypes) {
                         if (types.typeIncompatible(spreadOpExpr.pos, tupleMemberType, eType)) {
+                            return symTable.semanticError;
+                        }
+                    }
+
+                    if (!isFixedLengthTuple(spreadOpTuple)) {
+                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.restType, eType)) {
                             return symTable.semanticError;
                         }
                     }
@@ -1781,7 +1788,7 @@ public class TypeChecker extends BLangNodeVisitor {
         int memberTypeSize = memberTypes.size();
         BType restType = tupleType.restType;
 
-        if (restType == null) {
+        if (isFixedLengthTuple(tupleType)) {
             int listExprSize = 0;
             for (BLangExpression expr : exprs) {
                 if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
@@ -1804,7 +1811,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return symTable.semanticError;
                     case TypeTags.TUPLE:
                         BTupleType tType = (BTupleType) spreadOpType;
-                        if (tType.restType == null) {
+                        if (isFixedLengthTuple(tType)) {
                             listExprSize += tType.tupleTypes.size();
                             continue;
                         }
@@ -1834,7 +1841,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BLangExpression expr : exprs) {
             int remainNonRestCount = memberTypeSize - nonRestTypeIndex;
-            assert remainNonRestCount >= 0; // TODO: remove
 
             if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 if (remainNonRestCount > 0) {
@@ -1883,7 +1889,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     BTupleType spreadOpTuple = (BTupleType) spreadOpType;
                     int spreadOpMemberTypeSize = spreadOpTuple.tupleTypes.size();
 
-                    if (spreadOpTuple.restType == null) {
+                    if (isFixedLengthTuple(spreadOpTuple)) {
                         for (int i = 0; i < spreadOpMemberTypeSize && nonRestTypeIndex < memberTypeSize;
                              i++, nonRestTypeIndex++) {
                             if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.tupleTypes.get(i),
@@ -1939,6 +1945,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return errored ? symTable.semanticError : tupleType;
+    }
+
+    private boolean isFixedLengthTuple(BTupleType bTupleType) {
+        return bTupleType.restType == null || Types.getReferredType(bTupleType.restType).tag == TypeTags.NEVER;
     }
 
     private BType checkReadOnlyListType(BLangListConstructorExpr listConstructor) {
@@ -1998,7 +2008,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
             checkExpr(spreadOpExpr, this.env, expType);
-            if (resultType.tag == TypeTags.TUPLE && ((BTupleType) resultType).restType == null) {
+            if (resultType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) resultType)) {
                 types.addAll(((BTupleType) resultType).tupleTypes);
             } else if (resultType.tag == TypeTags.ARRAY && ((BArrayType) resultType).state == BArrayState.CLOSED) {
                 BArrayType bArrayType = (BArrayType) resultType;
