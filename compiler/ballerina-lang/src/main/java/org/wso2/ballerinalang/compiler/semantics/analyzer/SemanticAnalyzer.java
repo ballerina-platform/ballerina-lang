@@ -495,7 +495,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangStatement stmt : body.stmts) {
             stmtCount++;
             boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null, funcBodyEnv, true, data);
+                    stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null, funcBodyEnv, data);
             if (analyzedStmt) {
                 continue;
             }
@@ -508,21 +508,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement,
-                                                           SymbolEnv currentEnv, boolean inFunctionBody,
-                                                           AnalyzerData data) {
+                                                           SymbolEnv currentEnv, AnalyzerData data) {
         if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
                 && ((BLangIf) prevStatement).elseStmt == null && data.notCompletedNormally) {
             BLangIf ifStmt = (BLangIf) prevStatement;
             data.notCompletedNormally =
                     ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
-            // Explicitly add function body env since it's required for resetting the types
-            if (inFunctionBody) {
-                data.prevEnvs.push(currentEnv);
-            }
+            // Explicitly add block env since it's required for resetting the types
+            data.prevEnvs.push(currentEnv);
             // Types are narrowed following an `if` statement without an `else`, if it's not completed normally.
-            SymbolEnv narrowedBlockEnv = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
-            data.env = narrowedBlockEnv;
+            data.env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
             analyzeStmt(currentStmt, data);
+            data.prevEnvs.pop();
             return true;
         }
         return false;
@@ -1884,7 +1881,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangStatement stmt : blockNode.stmts) {
             stmtCount++;
             boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
-                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null, data.env, false, data);
+                    stmtCount > 0 ? blockNode.stmts.get(stmtCount - 1) : null, data.env, data);
             if (analyzedStmt) {
                 continue;
             }
