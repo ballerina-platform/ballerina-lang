@@ -544,7 +544,8 @@ public class SyntaxTreeGenTest {
 
         // Verify secondFunc function else block
         Assert.assertEquals(secondFunctionBody.get("statements").getAsJsonArray().get(3).getAsJsonObject()
-                .get("elseBody").getAsJsonObject().get("elseBody").getAsJsonObject().get("kind").getAsString(), "BlockStatement");
+                        .get("elseBody").getAsJsonObject().get("elseBody").getAsJsonObject().get("kind").getAsString(),
+                "BlockStatement");
         JsonObject secondFunctionElseBody = secondFunctionBody.get("statements").getAsJsonArray().get(3)
                 .getAsJsonObject().get("elseBody").getAsJsonObject().get("elseBody").getAsJsonObject();
         JsonArray secondFunctionElseBodyVEp = secondFunctionElseBody.get("VisibleEndpoints").getAsJsonArray();
