@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractTypeSymbol implements
+public class BallerinaXMLProcessingInstructionTypeSymbol extends AbstractXMLSubTypeSymbol implements
                                                                                     XMLProcessingInstructionTypeSymbol {
 
     public BallerinaXMLProcessingInstructionTypeSymbol(CompilerContext context, BXMLSubType piType) {
