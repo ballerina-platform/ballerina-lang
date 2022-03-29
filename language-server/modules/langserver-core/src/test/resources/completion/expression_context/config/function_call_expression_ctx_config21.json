@@ -571,7 +571,7 @@
       "label": "arr",
       "kind": "Variable",
       "detail": "int[]",
-      "sortText": "AD",
+      "sortText": "CD",
       "insertText": "arr",
       "insertTextFormat": "Snippet"
     },
@@ -587,8 +587,38 @@
       "label": "b",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "CD",
+      "sortText": "AD",
       "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "CE",
+      "filterText": "getString",
+      "insertText": "getString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getInt()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AE",
+      "filterText": "getInt",
+      "insertText": "getInt()",
       "insertTextFormat": "Snippet"
     }
   ]
