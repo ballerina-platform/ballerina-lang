@@ -2777,6 +2777,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void assignTypesToMemberPatterns(BLangMatchPattern matchPattern, BType bType) {
         BType patternType = Types.getReferredType(bType);
         NodeKind matchPatternKind = matchPattern.getKind();
+        if (patternType.tag == TypeTags.INTERSECTION) {
+            patternType = ((BIntersectionType) patternType).effectiveType;
+        }
         switch (matchPatternKind) {
             case WILDCARD_MATCH_PATTERN:
             case CONST_MATCH_PATTERN:

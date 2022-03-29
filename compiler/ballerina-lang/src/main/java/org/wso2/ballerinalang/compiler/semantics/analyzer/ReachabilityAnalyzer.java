@@ -120,6 +120,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     private final BLangDiagnosticLog dlog;
     private final Names names;
     private boolean statementReturnsPanicsOrFails;
+    private boolean returnedWithinQuery;
     private boolean breakAsLastStatement;
     private boolean continueAsLastStatement;
     private boolean errorThrown;
@@ -255,6 +256,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         checkStatementExecutionValidity(returnStmt);
         analyzeReachabilityInExpressionIfApplicable(returnStmt.expr, env);
         this.statementReturnsPanicsOrFails = true;
+        this.returnedWithinQuery = true;
     }
 
     @Override
@@ -360,6 +362,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         if (!this.failureHandled) {
             this.statementReturnsPanicsOrFails = true;
         }
+        this.returnedWithinQuery = true;
     }
 
     @Override
@@ -660,6 +663,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        boolean prevReturnedWithinQuery = this.returnedWithinQuery;
+        this.returnedWithinQuery = false;
         for (BLangNode queryClause : queryAction.queryClauseList) {
             if (queryClause.getKind() == NodeKind.WHERE) {
                 BLangWhereClause whereClause = (BLangWhereClause) queryClause;
@@ -671,6 +676,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
             }
         }
         analyzeReachability(queryAction.getDoClause(), env);
+        queryAction.returnsWithinDoClause = this.returnedWithinQuery;
+        this.returnedWithinQuery = prevReturnedWithinQuery;
     }
 
     @Override
