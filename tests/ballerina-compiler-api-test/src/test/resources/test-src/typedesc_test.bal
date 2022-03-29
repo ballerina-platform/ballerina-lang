@@ -275,6 +275,8 @@ function testFixedArrays() {
     (Bar & readonly)[1][2][3] f;
 }
 
+const string greeting = "Hello" + ;
+
 // utils
 type ReturnIntFunctionType function () returns int;
 
