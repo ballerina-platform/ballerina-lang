@@ -1191,6 +1191,7 @@ public class ReferenceFinder extends BaseVisitor {
 
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : bLangErrorVariable.detail) {
             find(errorDetailEntry.valueBindingPattern);
+            addIfSameSymbol(errorDetailEntry.keySymbol, errorDetailEntry.key.pos);
         }
     }
 
