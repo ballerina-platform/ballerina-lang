@@ -65,8 +65,8 @@ public class ListConstructorExprTest {
                 "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value",
                 45, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of list constructor: type '[NoFillerObject,NoFillerObject]' does not have a filler value",
-                46, 56);
+                "invalid usage of list constructor: type '[NoFillerObject,NoFillerObject]'" +
+                        " does not have a filler value", 46, 56);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[record {| int id; string name;" +
                                           " int city; |},record {| anydata...; |},boolean,string]', found '[record {|" +
                                           " int id; string name; string city; |},record {| int id; string name; " +
