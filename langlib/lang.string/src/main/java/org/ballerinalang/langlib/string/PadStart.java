@@ -47,6 +47,6 @@ public class PadStart {
 
         int targetLen = (int) len;
         String pad = padChar.toString().repeat(targetLen - strLength);
-        return StringUtils.fromString(pad + str);
+        return StringUtils.fromString(pad.concat(str.toString()));
     }
 }

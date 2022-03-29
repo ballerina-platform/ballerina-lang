@@ -47,12 +47,12 @@ public class PadZero {
 
         int targetLen = (int) len;
         String pad = padChar.toString().repeat(targetLen - strLength);
-        String result;
-        if (str.substring(0, 1).toString().equals("+") || str.substring(0, 1).toString().equals("-")) {
-            result = str.substring(0, 1) + pad + str.substring(1, strLength);
+        StringBuilder result = new StringBuilder();
+        if (str.toString().charAt(0) == '+' || str.toString().charAt(0) == '-') {
+            result.append(str.toString().substring(0, 1)).append(pad).append(str.toString().substring(1));
         } else {
-            result = pad + str;
+            result.append(pad).append(str);
         }
-        return StringUtils.fromString(result);
+        return StringUtils.fromString(result.toString());
     }
 }

@@ -47,6 +47,6 @@ public class PadEnd {
 
         int targetLen = (int) len;
         String pad = padChar.toString().repeat(targetLen - strLength);
-        return StringUtils.fromString(str + pad);
+        return StringUtils.fromString(str.toString().concat(pad));
     }
 }
