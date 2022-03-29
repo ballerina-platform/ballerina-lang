@@ -1156,6 +1156,126 @@ function testToExpStringWithHexaDecimalFloatingPoints() {
     assertEquality("-2.3546e+5", b.toExpString(4));
 }
 
+function testRound() {
+    assertEquality(float:round(123.123f, 2), 123.12f);
+    assertEquality(float:round(123.123f, 3), 123.123f);
+    assertEquality(float:round(123.123f, 4), 123.123f);
+
+    assertEquality(float:round(555.555f, 2), 555.56f);
+    assertEquality(float:round(555.555f, 3), 555.555f);
+    assertEquality(float:round(555.555f, 4), 555.555f);
+
+    assertEquality(float:round(555.545f, 2), 555.54f);
+    assertEquality(float:round(555.545f, 3), 555.545f);
+    assertEquality(float:round(555.545f, 4), 555.545f);
+
+    assertEquality(float:round(555.55551f, 3), 555.556f);
+    assertEquality(float:round(555.55451f, 3), 555.555f);
+    assertEquality(float:round(555.55449f, 3), 555.554f);
+
+    assertEquality(float:round(765f, 1), 765.0f);
+    assertEquality(float:round(765f, 2), 765.0f);
+
+    assertEquality(float:round(0.1234f, 2), 0.12f);
+    assertEquality(float:round(0.1234f, 4), 0.1234f);
+    assertEquality(float:round(0.1234f, 5), 0.1234f);
+
+    assertEquality(float:round(0.1555f, 1), 0.2f);
+    assertEquality(float:round(0.1555f, 2), 0.16f);
+    assertEquality(float:round(0.1555f, 3), 0.156f);
+    assertEquality(float:round(0.1555f, 4), 0.1555f);
+    assertEquality(float:round(0.1555f, 5), 0.1555f);
+
+    assertEquality(float:round(0.001234f, 2), 0.0f);
+    assertEquality(float:round(0.001234f, 4), 0.0012f);
+    assertEquality(float:round(0.001234f, 6), 0.001234f);
+    assertEquality(float:round(0.001234f, 7), 0.001234f);
+
+    assertEquality(float:round(0.0050f, 2), 0.0f);
+    assertEquality(float:round(0.0051f, 2), 0.01f);
+
+    assertEquality(float:round(0.0055f, 3), 0.006f);
+    assertEquality(float:round(0.0045f, 3), 0.004f);
+
+    assertEquality(float:round(1.123456e12f, 1), 1.123456e12f);
+    assertEquality(float:round(1.123456e12f, 7), 1.123456e12f);
+
+    assertEquality(float:round(1.123456e2f, 1), 112.3f); // 112.3456, 1 => 112.3 => X*10^-1 = 1123*10^-1
+    assertEquality(float:round(1.123456e2f, 2), 112.35f); // 112.3456, 2 => 112.35 => X*10^-2 = 11235*10^-2
+    assertEquality(float:round(1.123456e2f, 3), 112.346f); // 112.3456, 3 => 112.346 => X*10^-2 = 11235*10^-2
+    assertEquality(float:round(1.12345e2f, 3), 112.345f); // 112.345, 3 => 112.346 => X*10^-2 = 11235*10^-2
+    assertEquality(float:round(1.12345e2f, 20), 112.345f); // 112.345, 20 => 112.346 => X*10^-2 = 11235*10^-2
+
+    assertEquality(float:round(5.0e2f, 2), 5.0e2f);
+
+    assertEquality(float:round(0.000055e2f, 2), 0.01f);
+    assertEquality(float:round(0.00005e2f, 2), 0.0f);
+
+    assertEquality(float:round(0.000055e20f, 2), 0.000055e20f);
+    assertEquality(float:round(12345.67e-2f, 2), 123.46f);
+    assertEquality(float:round(12345.0e-2f, 1), 123.4f);
+    assertEquality(float:round(12345.0e-1f, 1), 1234.5f);
+    assertEquality(float:round(12355.0e-1f, 1), 1235.5f);
+
+    assertEquality(float:round(12345.67e-20f, 2), 0.0f);
+
+    assertEquality(float:round(0.05e-2f, 3), 0.0f);
+    assertEquality(float:round(0.051e-2f, 3), 0.001f);
+
+    assertEquality(float:round(1.1234567891234561f, 15), 1.123456789123456f);
+    assertEquality(float:round(1.123456789123456999999f, 15), 1.123456789123457f);
+    assertEquality(float:round(2.3e307f, 307), 2.3e307f);
+    assertEquality(float:round(2.335e307f, 2), 2.335e307f);
+
+    assertEquality(float:round(0.1f, int:MAX_VALUE), 0.1f);
+    assertEquality(float:round(-0.1f, int:MAX_VALUE), -0.1f);
+    assertEquality(float:round(2.335e307f, int:MAX_VALUE), 2.335e307f);
+    assertEquality(float:round(2.335e-307f, int:MAX_VALUE), 2.335e-307f);
+
+    assertEquality(float:round(123.123f, 0), 123.0f);
+    assertEquality(float:round(123.123f), 123.0f);
+    assertEquality(float:round(555.555f), 556.0f);
+    assertEquality(float:round(554.5f), 554.0f);
+    assertEquality(float:round(765f), 765.0f);
+
+    assertEquality(float:round(0.1234f), 0.0f);
+    assertEquality(float:round(0.5f), 0.0f);
+    assertEquality(float:round(0.9f), 1.0f);
+    assertEquality(float:round(0.001234f), 0.0f);
+
+    assertEquality(float:round(1.123456e12f), 1.123456e12f);
+    assertEquality(float:round(5.0e2f), 5.0e2f);
+    assertEquality(float:round(0.000055e2f), 0.0f);
+    assertEquality(float:round(0.000055e20f), 0.000055e20f);
+    assertEquality(float:round(12345.67e-2f), 123.0f);
+    assertEquality(float:round(12345.0e-2f), 123.0f);
+    assertEquality(float:round(12345.0e-1f), 1234f);
+    assertEquality(float:round(12345.67e-20f), 0.0f);
+    assertEquality(float:round(2.3e307f), 2.3e307f);
+    assertEquality(float:round(2.335e-307f), 0.0f);
+
+    float f = float:NaN;
+    assertEquality(float:round(f, 3), f);
+    f = -0.0f;
+    assertEquality(float:round(f, 3), f);
+    f = 0.0f;
+    assertEquality(float:round(f, 3), f);
+    f = float:Infinity;
+    assertEquality(float:round(f), f);
+    f = -float:Infinity;
+    assertEquality(float:round(f), f);
+
+}
+
+function testRoundNegative1() {
+    float _ = float:round(2.3f, -3); // runtime error
+}
+
+function testRoundNegative2() {
+    int fractionDigits = -1;
+    float _ = float:round(2.3f, fractionDigits); // runtime error
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

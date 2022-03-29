@@ -113,6 +113,7 @@ public class BallerinaErrorReasons {
     public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
     public static final BString UNSUPPORTED_DECIMAL_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
             "UnsupportedDecimalError"));
+    public static final String NEGATIVE_FRACTION_DIGITS = "NegativeFractionDigits";
 
     public static final String INVALID_FRACTION_DIGITS_ERROR = "InvalidFractionDigits";
 
