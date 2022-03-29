@@ -115,7 +115,7 @@ public class ListConstructorSpreadOperatorTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid usage of spread operator: fixed length list expected", 125, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '(int|string)', found '(int|boolean)'", 128, 44);
+                "incompatible types: expected '(int|string)', found '(int|boolean)'", 128, 31);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid usage of spread operator: fixed length list expected", 135, 22);
         BAssertUtil.validateError(resultNegative, i++,
@@ -285,6 +285,9 @@ public class ListConstructorSpreadOperatorTest {
         BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a4'", 21, 31);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 22, 39);
         BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a5'", 22, 39);
+        BAssertUtil.validateError(resultNegative, i++,
+                "size mismatch in closed array. expected '3', but found '4'", 23, 17);
+        BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a6'", 23, 32);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }

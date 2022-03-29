@@ -125,7 +125,7 @@ function testTypeForArrayTupleCompatibility() {
     (int|string)[4] _ = [1, ...a4, 4]; // error
 
     [int, string, (int|boolean)...] a5 = [1, "s"];
-    [int, int, (int|string)...] _ = [1, ...a5]; // error
+    (int|string)[] _ = [1, ...a5]; // error
 }
 
 function testFixedLengthListError() {
@@ -192,34 +192,7 @@ function testSpreadOpWithListTypeBeingTypeRef() {
     Bar _ = [...t]; // error
 }
 
-function testFixedMemberExpectedErrorPositive() {
-    string[] a1 = [];
-    string[1] a2 = [];
-
-    [string, string, string...] _ = ["s1", "s2", ...a1]; // OK
-    [string, string, string...] _ = [...a2, ...a2, ...a1]; // OK
-    [string, string, string...] _ = [...a2, "s", ...a1]; // OK
-
-    string[2] a3 = [];
-    ["s", "S"] a4 = [];
-    ["s", "S", "x", string] a5 = [];
-
-    [string, string, string...] _ = [...a3]; // OK
-    [string, string, string...] _ = [...a4]; // OK
-    [string, string, string...] _ = [...a5]; // OK
-    [int, boolean, "s", string...] _ = [ 2, true, ...a4]; // OK
-    [int, boolean, "s", string...] _ = [ 2, true, ...a4, "y"]; // OK
-
-    string[] a6 = [];
-    [string...] a7 = [];
-
-    string[] _ = [...a6]; // OK
-    string[] _ = [...a7]; // OK
-    [string...] _ = [...a6]; // OK
-    [string...] _ = [...a7]; // OK
-}
-
-function testTypeCheckingPositive1() {
+function testTypeCheckingForArrayArrayCompatibilityPositive() {
     int[] a1 = [3, 4];
     int[] a2 = [6, 7];
 
@@ -247,6 +220,11 @@ function testTypeCheckingPositive1() {
     (int|string)[] a7 = [1, 2];
     any[] _ = [...a7]; // OK
 
+    int[*] a8 = [3, 4];
+    int[*] a9 = [6, 7];
+    int[] _ = [2, ...a8, 5, ...a9]; // OK
+    int[*] _ = [2, ...a8, 5, ...a9]; // OK
+
     int[] x = [];
     (int|string)[] y = x;
     (int|string)[] _ = [...y]; // OK
@@ -256,15 +234,105 @@ function testTypeCheckingPositive1() {
     (int|string)[] _ = [...q]; // OK
 }
 
-function testTypeCheckingPositive2() {
-    (int|string)[2] a1 = [1, "s"];
-    [int, any, (int|string|boolean)] _ = [1, ...a1]; // OK
+function testTypeForTupleTupleCompatibilityPositive() {
+    [int, string] a1 = [1, "s"];
+    [int, string, int] _ = [...a1, 4]; // OK
 
-    (int|string)[*] a2 = [1, "s"];
-    [int, any, (int|string)...] _ = [1, ...a2]; // OK
+    [(int|string), int...] a2 = [1, 2];
+    [(int|string), any...] _ = [...a2]; // OK
 
-    int[1] a5 = [1];
-    [(int|string), int...] _ = [...a5]; // OK
+    [int, "s"] a3 = [1, "s"];
+    [int, string, (int|string)...] a4 = [1, "s"];
+
+    [int, int, "s"] _ = [1, ...a3]; // OK
+    [int, int, (int|string)...] _ = [1, ...a3, "x"]; // OK
+    [int, int, (int|string)...] _ = [1, ...a4]; // OK
+
+    [int, string] x = [1, "s"];
+    [int, string|int] y = x;
+    [int, string|int] _ = [...y]; // OK
+
+    [(int|string), any...] p = [1];
+    [any, any...] q = p;
+    [any, any...] _ = [...q]; // OK
+}
+
+function testTypeForTupleArrayCompatibilityPositive() {
+    int[2] a1 = [1];
+    [(int|string)...] _ = [...a1]; // OK
+
+    int[1] a2 = [1];
+    [(int|string), int...] _ = [...a2]; // OK
+
+    (int|string)[2] a3 = [1, "s"];
+    [int, any, (int|string|boolean)] _ = [1, ...a3]; // OK
+
+    (int|string)[*] a4 = [1, "s"];
+    [int, any, (int|string)...] _ = [1, ...a4]; // OK
+
+    anydata[2] a5 = [1, "s"];
+    [int, any, anydata] _ = [1, ...a5]; // OK
+
+    (int|string)[] a6 = [1, "s"] ;
+    [int, (int|string)...] _ = [1, ...a6, "x", ...a6, 4]; // OK
+
+    [int|string] x = ["s"];
+    (int|string)[1] y = x;
+    [int|string] _ = [...y]; // OK
+
+    [(int|string)...] p = [];
+    (int|string)[] q = p;
+    [(int|string)...] _ = [...q]; // OK
+}
+
+function testTypeForArrayTupleCompatibilityPositive() {
+    [int, string] a1 = [1, "s"];
+    (int|string)[] _ = [1, ...a1]; // OK
+    (int|string)[3] _ = [1, ...a1]; // OK
+
+    [(int|string), boolean...] a2 = [1];
+    (int|string|boolean)[] _ = [...a2]; // OK
+
+    [(int|string), string] a3 = ["x", "y"];
+    (string|int)[*] _ = ["s", ...a3, 4, ...a3]; // OK
+
+    [int] a4 = [1];
+    int[4] _ = [1, ...a4]; // OK
+
+    (int|string)[1] x = ["s"];
+    [int|string] y = x;
+    (int|string)[1] _ = [...y]; // OK
+
+    (int|string)[]  p = [];
+    [(int|string)...]  q = p;
+    (int|string)[] _ = [...q]; // OK
+}
+
+function testFixedMemberExpectedPositive() {
+    string[] a1 = [];
+    string[1] a2 = [];
+
+    [string, string, string...] _ = ["s1", "s2", ...a1]; // OK
+    [string, string, string...] _ = [...a2, ...a2, ...a1]; // OK
+    [string, string, string...] _ = [...a2, "s", ...a1]; // OK
+
+    string[2] a3 = [];
+    ["s", "S"] a4 = [];
+    ["s", "S", "x", string] a5 = [];
+
+    [string, string, string...] _ = [...a3]; // OK
+    [string, string, string...] _ = [...a4]; // OK
+    [string, string, string...] _ = [...a5]; // OK
+    [int, boolean, "s", string...] _ = [ 2, true, ...a4]; // OK
+    [int, boolean, "s", string...] _ = [ 2, true, ...a4, "y"]; // OK
+
+    string[] a6 = [];
+    [string...] a7 = [];
+
+    string[] _ = [...a6]; // OK
+    string[] _ = [...a7]; // OK
+    [string...] _ = [...a6]; // OK
+    [string...] _ = [...a7]; // OK
 }
 
 function testFillerValuePositive() {
@@ -285,6 +353,19 @@ function testSpreadOpWithVaryingLengthPositive() {
     [int, any, anydata...] _ = [...a4, ...a2, true, ...a1, "x"]; // OK
 }
 
+function testSpreadOpWithListTypeBeingTypeRefPositive() {
+    IntArr a = [1, ...[2, 3]]; // OK
+    IntArr _ = [1, ...a]; // OK
+
+    [int, string, boolean]  t = [];
+    Foo _ = [...t, true, false]; // OK
+
+    Baz _ = [...a, 4]; // OK
+
+    Foo b = [4, "x"];
+    Foo _ = [4, "x", ...b]; // OK
+}
+
 function testSpreadOpWithNoRefPositive() {
     int[] _ = [1, ...[2, 3]]; // OK
     (int|string)[] _ = [1, "x", ...["s", 4]]; // OK
@@ -301,17 +382,13 @@ function testSpreadOpWithNoRefPositive() {
     [string, boolean|string, int] _ = [...["x", "y"], 2]; // OK
 }
 
-function testSpreadOpWithListTypeBeingTypeRefPositive() {
-    IntArr a = [1, ...[2, 3]]; // OK
-    IntArr _ = [1, ...a]; // OK
+function testSpreadOpTupleWithNeverRestDescPositive() {
+    [int, never...] t1 = [3];
+    int[1] _ = [...t1]; // OK
+    int[3] _ = [...t1, 7, ...t1]; // OK
+    [int, string, int] _ = [...t1, "x", ...t1]; // OK
 
-    [int, string, boolean]  t = [];
-    Foo _ = [...t, true, false]; // OK
-
-    Baz _ = [...a, 4]; // OK
-
-    Foo b = [4, "x"];
-    Foo _ = [4, "x", ...b]; // OK
+    [string, boolean, never...] t2 = [];
+    [string, boolean, int, any...] _ = [...t2, 5]; // OK
+    [string, boolean, int] _ = [...t2]; // OK
 }
-
-// TODO: add test with `never`

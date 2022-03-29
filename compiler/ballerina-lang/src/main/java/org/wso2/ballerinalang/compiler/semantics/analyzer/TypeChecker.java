@@ -1667,7 +1667,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (spreadOpExprType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) spreadOpExprType)) {
             types.addAll(((BTupleType) spreadOpExprType).tupleTypes);
-        } else if (spreadOpExprType.tag == TypeTags.ARRAY && ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
+        } else if (spreadOpExprType.tag == TypeTags.ARRAY &&
+                ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
             BArrayType bArrayType = (BArrayType) spreadOpExprType;
             for (int i = 0; i < bArrayType.size; i++) {
                 types.add(bArrayType.eType);

@@ -20,4 +20,5 @@ function testSelfReferenceError() {
     int[1] a3 = [...a3];
     [int, string] a4 = [3, ...a4];
     [int, string, any...] a5 = [3, ...a5];
+    int[3] a6 = [3, ...[...[...a6]]];
 }
