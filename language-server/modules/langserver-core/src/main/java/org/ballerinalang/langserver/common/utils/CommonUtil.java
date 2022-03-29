@@ -1910,4 +1910,15 @@ public class CommonUtil {
 
         return Optional.ofNullable(evalNode);
     }
+
+    /**
+     * Check if a given offset is with in the range of a given node. 
+     * 
+     * @param node
+     * @param offset
+     * @return
+     */
+    public static boolean isWithInRange(Node node, int offset) {
+        return node.textRange().startOffset() <= offset && offset <= node.textRange().endOffset();
+    }
 }

@@ -1,0 +1,170 @@
+{
+  "resourceType": "Claim",
+  "id": "660151",
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">A human-readable rendering of the Vision Claim for Glasses</div>"
+  },
+  "identifier": [
+    {
+      "system": "http://happysight.com/claim",
+      "value": "6612346"
+    }
+  ],
+  "status": "active",
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+        "code": "vision"
+      }
+    ]
+  },
+  "use": "claim",
+  "patient": {
+    "reference": "Patient/1"
+  },
+  "created": "2014-08-16",
+  "insurer": {
+    "reference": "Organization/2"
+  },
+  "provider": {
+    "reference": "Organization/1"
+  },
+  "priority": {
+    "coding": [
+      {
+        "code": "normal"
+      }
+    ]
+  },
+  "prescription": {
+    "reference": "http://www.optdocs.com/prescription/12345"
+  },
+  "payee": {
+    "type": {
+      "coding": [
+        {
+          "code": "provider"
+        }
+      ]
+    }
+  },
+  "careTeam": [
+    {
+      "sequence": 1,
+      "provider": {
+        "reference": "Practitioner/example"
+      }
+    }
+  ],
+  "diagnosis": [
+    {
+      "sequence": 1,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "code": "654321"
+          }
+        ]
+      }
+    }
+  ],
+  "insurance": [
+    {
+      "sequence": 1,
+      "focal": true,
+      "coverage": {
+        "reference": "Coverage/9876B1"
+      }
+    }
+  ],
+  "item": [
+    {
+      "sequence": 1,
+      "careTeamSequence": [
+        1
+      ],
+      "productOrService": {
+        "coding": [
+          {
+            "system": "http://example.org/fhir/CodeSystem/ex-visionservice",
+            "code": "glasses"
+          }
+        ]
+      },
+      "servicedDate": "2014-08-16",
+      "unitPrice": {
+        "value": 214.00,
+        "currency": "USD"
+      },
+      "net": {
+        "value": 214.00,
+        "currency": "USD"
+      },
+      "detail": [
+        {
+          "sequence": 1,
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://example.org/fhir/CodeSystem/ex-visionservice",
+                "code": "frame"
+              }
+            ]
+          },
+          "unitPrice": {
+            "value": 100.00,
+            "currency": "USD"
+          },
+          "net": {
+            "value": 100.00,
+            "currency": "USD"
+          }
+        },
+        {
+          "sequence": 2,
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://example.org/fhir/CodeSystem/ex-visionservice",
+                "code": "lens"
+              }
+            ]
+          },
+          "quantity": {
+            "value": 2
+          },
+          "unitPrice": {
+            "value": 50.00,
+            "currency": "USD"
+          },
+          "net": {
+            "value": 100.00,
+            "currency": "USD"
+          }
+        },
+        {
+          "sequence": 3,
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://example.org/fhir/CodeSystem/ex-visionservice",
+                "code": "fst"
+              }
+            ]
+          },
+          "unitPrice": {
+            "value": 200.00,
+            "currency": "USD"
+          },
+          "factor": 0.07,
+          "net": {
+            "value": 14.00,
+            "currency": "USD"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -223,7 +223,7 @@ public function getType() {
 }
 
 class SimpleClass {
-    int i = 0;
+
 }
 
 function testObjectConstructorWithCodeAnalyzer() {
@@ -232,4 +232,68 @@ function testObjectConstructorWithCodeAnalyzer() {
         function init() {
         }
     };
+}
+
+@deprecated
+annotation myAnnot on function;
+
+@myAnnot
+function testUsingDeprecatedAnnotation() {
+
+}
+
+function testAccessingDeprecatedAnnotation() {
+    typedesc funcType = typeof testUsingDeprecatedAnnotation();
+    _ = funcType.@myAnnot;
+}
+
+@deprecated
+type MyObject client object {
+    @deprecated
+    int id;
+
+    @deprecated
+    remote function getId() returns int;
+};
+
+@deprecated
+class Person {
+    @deprecated
+    string name = "john";
+
+    @deprecated
+    function getName() returns string {
+        return self.name;
+    }
+
+    function getAge() {
+    }
+}
+
+function testUsingDeprecatedFieldsMethodsAndTypes(int i, string s) {
+    MyObject obj = client object MyObject {
+        @deprecated
+        int id = 4;
+
+        remote function getId() returns int {
+            return self.id;
+        }
+    };
+
+    int _ = obj.id;
+    int _ = obj->getId();
+
+    Person obj2 = new Person();
+    string _ = obj2.name;
+    string _ = obj2.getName();
+    obj2.getAge(); // should not give a warning
+}
+
+@deprecated
+function myFunction(int i, string s) {
+
+}
+
+function testUsingDepricatedFunction() {
+    myFunction(1, "hello");
 }
