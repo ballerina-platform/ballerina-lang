@@ -4417,8 +4417,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
-                        dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
-                                lhsType, rhsType);
+                        String lhsParam = lhsType.toString();
+                        String rhsParam = rhsType.toString();
+
+                        DiagnosticErrorCode errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES;
+                        
+                        if ((binaryExpr.opKind == OperatorKind.DIV || binaryExpr.opKind == OperatorKind.MOD) &&
+                                lhsType.tag == TypeTags.INT && 
+                                (rhsType.tag == TypeTags.DECIMAL || rhsType.tag == TypeTags.FLOAT)) {
+                            errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
+                        }
+                        
+                        dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind,
+                                lhsParam, rhsParam);
                     } else {
                         binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                         actualType = opSymbol.type.getReturnType();
