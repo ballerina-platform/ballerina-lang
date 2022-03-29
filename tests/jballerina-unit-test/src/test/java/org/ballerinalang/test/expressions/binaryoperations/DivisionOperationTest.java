@@ -96,8 +96,10 @@ public class DivisionOperationTest {
                 "'(string|string:Char)'", 30, 17);
         BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'float' and 'decimal'", 37, 14);
         BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'float' and 'decimal'", 38, 14);
-        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'int'(dividend) and 'float'(divisor)", 39, 18);
-        BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'int'(dividend) and 'decimal'(divisor)", 40, 18);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '/' not defined for 'int'(dividend) and 'float'(divisor)", 39, 18);
+        BAssertUtil.validateError(resultNegative, i++, 
+                "operator '/' not defined for 'int'(dividend) and 'decimal'(divisor)", 40, 18);
         BAssertUtil.validateError(resultNegative, i++, "operator '/' not defined for 'C' and 'float'", 44, 14);
         BAssertUtil.validateError(resultNegative, i, "operator '/' not defined for 'C' and 'float'", 45, 14);
     }
