@@ -120,15 +120,22 @@
           "endColumn": 20
         },
         "typeData": {
-          "diagnostics": [
-            {
-              "message": "cannot resolve module 'ballerina/io'",
-              "diagnosticInfo": {
-                "code": "BCE2003",
-                "severity": "ERROR"
-              }
+          "symbol": {
+            "moduleID": {
+              "orgName": "ballerina",
+              "packageName": "io",
+              "moduleName": "io",
+              "version": "1.2.0"
+            },
+            "kind": "MODULE",
+            "id": {
+              "orgName": "ballerina",
+              "packageName": "io",
+              "moduleName": "io",
+              "version": "1.2.0"
             }
-          ]
+          },
+          "diagnostics": []
         }
       }
     ],
@@ -395,8 +402,8 @@
                       "deprecated": false,
                       "moduleID": {
                         "orgName": "$anon",
-                        "moduleName": ".",
                         "packageName": ".",
+                        "moduleName": ".",
                         "version": "0.0.0"
                       },
                       "kind": "VARIABLE"
@@ -431,8 +438,8 @@
                     "deprecated": false,
                     "moduleID": {
                       "orgName": "$anon",
-                      "moduleName": ".",
                       "packageName": ".",
+                      "moduleName": ".",
                       "version": "0.0.0"
                     },
                     "kind": "VARIABLE"
@@ -443,7 +450,7 @@
               "equalsToken": {
                 "kind": "EqualToken",
                 "isToken": true,
-                "value": "=",
+                "value": "\u003d",
                 "isMissing": false,
                 "position": {
                   "startLine": 3,
@@ -515,7 +522,7 @@
                   }
                 ]
               },
-              "source": "    int x = 10;\n",
+              "source": "    int x \u003d 10;\n",
               "syntaxDiagnostics": [],
               "leadingMinutiae": [
                 {
@@ -547,8 +554,8 @@
                   "deprecated": false,
                   "moduleID": {
                     "orgName": "$anon",
-                    "moduleName": ".",
                     "packageName": ".",
+                    "moduleName": ".",
                     "version": "0.0.0"
                   },
                   "kind": "VARIABLE"
@@ -673,8 +680,8 @@
                       "deprecated": false,
                       "moduleID": {
                         "orgName": "$anon",
-                        "moduleName": ".",
                         "packageName": ".",
+                        "moduleName": ".",
                         "version": "0.0.0"
                       },
                       "kind": "VARIABLE"
@@ -709,8 +716,8 @@
                     "deprecated": false,
                     "moduleID": {
                       "orgName": "$anon",
-                      "moduleName": ".",
                       "packageName": ".",
+                      "moduleName": ".",
                       "version": "0.0.0"
                     },
                     "kind": "VARIABLE"
@@ -721,7 +728,7 @@
               "equalsToken": {
                 "kind": "EqualToken",
                 "isToken": true,
-                "value": "=",
+                "value": "\u003d",
                 "isMissing": false,
                 "position": {
                   "startLine": 4,
@@ -793,7 +800,7 @@
                   }
                 ]
               },
-              "source": "    int y = 20;\n",
+              "source": "    int y \u003d 20;\n",
               "syntaxDiagnostics": [],
               "leadingMinutiae": [
                 {
@@ -825,8 +832,8 @@
                   "deprecated": false,
                   "moduleID": {
                     "orgName": "$anon",
-                    "moduleName": ".",
                     "packageName": ".",
+                    "moduleName": ".",
                     "version": "0.0.0"
                   },
                   "kind": "VARIABLE"
@@ -906,9 +913,20 @@
                   },
                   "typeData": {
                     "typeSymbol": {
-                      "typeKind": "CompilationError",
+                      "typeKind": "nil",
                       "kind": "TYPE",
-                      "signature": "$CompilationError$"
+                      "signature": "()"
+                    },
+                    "symbol": {
+                      "external": false,
+                      "deprecated": false,
+                      "moduleID": {
+                        "orgName": "ballerina",
+                        "packageName": "io",
+                        "moduleName": "io",
+                        "version": "1.2.0"
+                      },
+                      "kind": "FUNCTION"
                     },
                     "diagnostics": []
                   }
@@ -966,8 +984,8 @@
                           "deprecated": false,
                           "moduleID": {
                             "orgName": "$anon",
-                            "moduleName": ".",
                             "packageName": ".",
+                            "moduleName": ".",
                             "version": "0.0.0"
                           },
                           "kind": "VARIABLE"
@@ -995,8 +1013,8 @@
                         "deprecated": false,
                         "moduleID": {
                           "orgName": "$anon",
-                          "moduleName": ".",
                           "packageName": ".",
+                          "moduleName": ".",
                           "version": "0.0.0"
                         },
                         "kind": "VARIABLE"
@@ -1062,8 +1080,8 @@
                           "deprecated": false,
                           "moduleID": {
                             "orgName": "$anon",
-                            "moduleName": ".",
                             "packageName": ".",
+                            "moduleName": ".",
                             "version": "0.0.0"
                           },
                           "kind": "VARIABLE"
@@ -1091,8 +1109,8 @@
                         "deprecated": false,
                         "moduleID": {
                           "orgName": "$anon",
-                          "moduleName": ".",
                           "packageName": ".",
+                          "moduleName": ".",
                           "version": "0.0.0"
                         },
                         "kind": "VARIABLE"
@@ -1133,26 +1151,22 @@
                 },
                 "typeData": {
                   "typeSymbol": {
-                    "typeKind": "CompilationError",
+                    "typeKind": "nil",
                     "kind": "TYPE",
-                    "signature": "$CompilationError$"
+                    "signature": "()"
                   },
-                  "diagnostics": [
-                    {
-                      "message": "undefined function 'print'",
-                      "diagnosticInfo": {
-                        "code": "BCE2011",
-                        "severity": "ERROR"
-                      }
+                  "symbol": {
+                    "external": false,
+                    "deprecated": false,
+                    "moduleID": {
+                      "orgName": "ballerina",
+                      "packageName": "io",
+                      "moduleName": "io",
+                      "version": "1.2.0"
                     },
-                    {
-                      "message": "undefined module 'io'",
-                      "diagnosticInfo": {
-                        "code": "BCE2000",
-                        "severity": "ERROR"
-                      }
-                    }
-                  ]
+                    "kind": "FUNCTION"
+                  },
+                  "diagnostics": []
                 }
               },
               "semicolonToken": {
@@ -1199,26 +1213,11 @@
               },
               "typeData": {
                 "typeSymbol": {
-                  "typeKind": "CompilationError",
+                  "typeKind": "nil",
                   "kind": "TYPE",
-                  "signature": "$CompilationError$"
+                  "signature": "()"
                 },
-                "diagnostics": [
-                  {
-                    "message": "undefined function 'print'",
-                    "diagnosticInfo": {
-                      "code": "BCE2011",
-                      "severity": "ERROR"
-                    }
-                  },
-                  {
-                    "message": "undefined module 'io'",
-                    "diagnosticInfo": {
-                      "code": "BCE2000",
-                      "severity": "ERROR"
-                    }
-                  }
-                ]
+                "diagnostics": []
               }
             }
           ],
@@ -1242,7 +1241,7 @@
               }
             ]
           },
-          "source": "{\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+          "source": "{\n    int x \u003d 10;\n    int y \u003d 20;\n    io:print(x, y);\n}\n",
           "syntaxDiagnostics": [],
           "leadingMinutiae": [],
           "trailingMinutiae": [
@@ -1259,25 +1258,10 @@
             "endColumn": 1
           },
           "typeData": {
-            "diagnostics": [
-              {
-                "message": "undefined function 'print'",
-                "diagnosticInfo": {
-                  "code": "BCE2011",
-                  "severity": "ERROR"
-                }
-              },
-              {
-                "message": "undefined module 'io'",
-                "diagnosticInfo": {
-                  "code": "BCE2000",
-                  "severity": "ERROR"
-                }
-              }
-            ]
+            "diagnostics": []
           }
         },
-        "source": "\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+        "source": "\npublic function bar() {\n    int x \u003d 10;\n    int y \u003d 20;\n    io:print(x, y);\n}\n",
         "syntaxDiagnostics": [],
         "leadingMinutiae": [
           {
@@ -1305,28 +1289,13 @@
             "deprecated": false,
             "moduleID": {
               "orgName": "$anon",
-              "moduleName": ".",
               "packageName": ".",
+              "moduleName": ".",
               "version": "0.0.0"
             },
             "kind": "FUNCTION"
           },
-          "diagnostics": [
-            {
-              "message": "undefined function 'print'",
-              "diagnosticInfo": {
-                "code": "BCE2011",
-                "severity": "ERROR"
-              }
-            },
-            {
-              "message": "undefined module 'io'",
-              "diagnosticInfo": {
-                "code": "BCE2000",
-                "severity": "ERROR"
-              }
-            }
-          ]
+          "diagnostics": []
         }
       }
     ],
@@ -1344,7 +1313,7 @@
       "leadingMinutiae": [],
       "trailingMinutiae": []
     },
-    "source": "import ballerina/io;\n\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+    "source": "import ballerina/io;\n\npublic function bar() {\n    int x \u003d 10;\n    int y \u003d 20;\n    io:print(x, y);\n}\n",
     "kind": "ModulePart",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
@@ -1356,33 +1325,11 @@
       "endColumn": 1
     },
     "typeData": {
-      "diagnostics": [
-        {
-          "message": "cannot resolve module 'ballerina/io'",
-          "diagnosticInfo": {
-            "code": "BCE2003",
-            "severity": "ERROR"
-          }
-        },
-        {
-          "message": "undefined function 'print'",
-          "diagnosticInfo": {
-            "code": "BCE2011",
-            "severity": "ERROR"
-          }
-        },
-        {
-          "message": "undefined module 'io'",
-          "diagnosticInfo": {
-            "code": "BCE2000",
-            "severity": "ERROR"
-          }
-        }
-      ]
+      "diagnostics": []
     },
     "isNodePath": true,
     "isLocatedNode": true
   },
-  "source": "import ballerina/io;\n\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+  "source": "import ballerina/io;\n\npublic function bar() {\n    int x \u003d 10;\n    int y \u003d 20;\n    io:print(x, y);\n}\n",
   "parseSuccess": true
 }
