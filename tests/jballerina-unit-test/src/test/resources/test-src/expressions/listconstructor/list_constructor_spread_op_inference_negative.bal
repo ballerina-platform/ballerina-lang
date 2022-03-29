@@ -161,6 +161,19 @@ function testInferenceViaSpreadOpWithTypeRef() {
     var v5 = ["s", ...c]; // error
 }
 
+function testSpreadOpWithTypedesc() {
+    typedesc _ = [...a]; // error
+
+    int n = 3;
+    typedesc _ = [string, int, ...n, boolean]; // error
+
+    int[] a1 = [];
+    typedesc _ = [int, ...a1, boolean]; // error
+
+    [int, int...] a2 = [1];
+    typedesc _ = [any, boolean, ...a2, int]; // error
+}
+
 function testSpreadOpInferenceWithVarPositive() {
     int[2] a1 = [];
     var v1 = [...a1]; // OK
@@ -214,4 +227,14 @@ function testInferenceViaSpreadOpWithTypeRefPositive() {
     Foo t = [...[true], "s"];
     var v3 = [...t, 4];
     var v4 = [...v3];
+}
+
+function testSpreadOpWithTypedescPositive() {
+    int[2] a1 = [];
+    typedesc v1 = [...a1]; // OK
+    typedesc v2 = [string, ...a1, boolean]; // OK
+
+    [string, (int|boolean)] a2 = ["s", true];
+    typedesc v3 = [...a2]; // OK
+    typedesc v4 = [string , ...a2, any]; // OK
 }

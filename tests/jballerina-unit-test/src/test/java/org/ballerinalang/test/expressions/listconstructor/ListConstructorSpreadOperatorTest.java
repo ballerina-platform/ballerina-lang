@@ -261,6 +261,15 @@ public class ListConstructorSpreadOperatorTest {
                 "incompatible types: expected 'boolean', found '[anydata,string,int]'", 158, 17);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type from spread operator: fixed length list expected", 161, 23);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type from spread operator: fixed length list expected", 165, 22);
+        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 165, 22);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type from spread operator: fixed length list expected", 168, 35);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type from spread operator: fixed length list expected", 171, 27);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type from spread operator: fixed length list expected", 174, 36);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

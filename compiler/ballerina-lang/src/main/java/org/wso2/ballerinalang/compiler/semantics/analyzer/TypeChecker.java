@@ -1618,20 +1618,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 return checkReadOnlyListType(listConstructor);
             case TypeTags.TYPEDESC:
                 // i.e typedesc t = [int, string]
-                List<BType> results = new ArrayList<>();
                 listConstructor.isTypedescExpr = true;
-                for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                    results.add(checkExpr(listConstructor.exprs.get(i), env, symTable.noType));
-                }
                 List<BType> actualTypes = new ArrayList<>();
-                for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                    final BLangExpression expr = listConstructor.exprs.get(i);
+                for (BLangExpression expr : listConstructor.exprs) {
+                    if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                        addListConstSpreadOpMemberTypes(actualTypes, expr, symTable.noType);
+                        continue;
+                    }
+
+                    BType resultType = checkExpr(expr, env, symTable.noType);
                     if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
                         actualTypes.add(((BLangTypedescExpr) expr).resolvedType);
                     } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                         actualTypes.add(((BLangSimpleVarRef) expr).symbol.type);
                     } else {
-                        actualTypes.add(results.get(i));
+                        actualTypes.add(resultType);
                     }
                 }
                 if (actualTypes.size() == 1) {
@@ -1657,6 +1658,24 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return symTable.semanticError;
+    }
+
+    private void addListConstSpreadOpMemberTypes(List<BType> types, BLangExpression expr, BType expType) {
+        expr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+        BType spreadOpExprType = checkExpr(expr, env, expType);
+        spreadOpExprType = Types.getReferredType(spreadOpExprType);
+
+        if (spreadOpExprType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) spreadOpExprType)) {
+            types.addAll(((BTupleType) spreadOpExprType).tupleTypes);
+        } else if (spreadOpExprType.tag == TypeTags.ARRAY && ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
+            BArrayType bArrayType = (BArrayType) spreadOpExprType;
+            for (int i = 0; i < bArrayType.size; i++) {
+                types.add(bArrayType.eType);
+            }
+        } else {
+            dlog.error(expr.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
+            types.add(symTable.semanticError);
+        }
     }
 
     private BType getListConstructorCompatibleNonUnionType(BType type) {
@@ -2005,27 +2024,13 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = env;
         this.expType = expType;
         for (BLangExpression e : exprs) {
-            if (e.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                checkExpr(e, this.env, expType);
-                types.add(resultType);
+            if (e.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                addListConstSpreadOpMemberTypes(types, e, expType);
                 continue;
             }
 
-            BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
-            BType spreadOpExprType = checkExpr(spreadOpExpr, this.env, expType);
-            spreadOpExprType = Types.getReferredType(resultType);
-
-            if (spreadOpExprType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) spreadOpExprType)) {
-                types.addAll(((BTupleType) spreadOpExprType).tupleTypes);
-            } else if (spreadOpExprType.tag == TypeTags.ARRAY && ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
-                BArrayType bArrayType = (BArrayType) spreadOpExprType;
-                for (int i = 0; i < bArrayType.size; i++) {
-                    types.add(bArrayType.eType);
-                }
-            } else {
-                dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
-                types.add(symTable.semanticError);
-            }
+            checkExpr(e, this.env, expType);
+            types.add(resultType);
         }
         this.env = prevEnv;
         this.expType = preExpType;
