@@ -223,12 +223,12 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         boolean isEnum = SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
         if (!isEnum && !containsSupportedMembers(unionType)) {
             throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
         }
-        CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
