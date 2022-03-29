@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaIntTypeSymbol;
@@ -941,6 +942,17 @@ public class TypedescriptorTest {
                 {7, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "ClassType",
                         "symbolowner/testprojmodules.module1:0.1.0"},
         };
+    }
+
+    @Test
+    public void testIncompleteConstDef() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(268, 13));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), CONSTANT);
+        BallerinaConstantSymbol constSymbol = (BallerinaConstantSymbol) symbol.get();
+        assertEquals(constSymbol.getName().get(), "greeting");
+        assertEquals(constSymbol.typeDescriptor().typeKind(), SINGLETON);
+        assertEquals(constSymbol.typeDescriptor().signature(), "");
     }
 
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {

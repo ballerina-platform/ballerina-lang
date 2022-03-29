@@ -266,6 +266,8 @@ function testUnionTypeWithFunctionType() {
     (function () returns string)|function () returns int gVar = returnIntFunc;
 }
 
+const string greeting = "Hello" + ;
+
 // utils
 type ReturnIntFunctionType function () returns int;
 
