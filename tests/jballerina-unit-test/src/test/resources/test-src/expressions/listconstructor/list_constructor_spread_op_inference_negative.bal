@@ -237,4 +237,6 @@ function testSpreadOpWithTypedescPositive() {
     [string, (int|boolean)] a2 = ["s", true];
     typedesc v3 = [...a2]; // OK
     typedesc v4 = [string , ...a2, any]; // OK
+
+    typedesc v5 = [string , ...[int, string], [3]]; // OK
 }

@@ -57,8 +57,9 @@ function testTypeForTupleTupleCompatibility() {
     [int, string] a1 = [1, "s"];
     [int, string, int] _ = [1, ...a1]; // error
 
-    [(int|string), any...] a2 = [1, 2];
-    [(int|string), int...] _ = [...a2]; // error
+    [(int|string), int, any...] a2 = [1, 2];
+    [(int|string), string...] _ = [...a2]; // error
+    [(int|string), int, int...] _ = [...a2]; // error
 
     [int, string] a3 = [1, "s"];
     [int, string, string...] a4 = [1, "s"];
@@ -81,12 +82,14 @@ function testTypeForTupleTupleCompatibility() {
 function testTypeForTupleArrayCompatibility() {
     (int|string)[] a1 = [1, "s"];
     [int, string, int] _ = [1, ...a1]; // error
+    [int...] _ = [...a1]; // error
 
     (int|string)[2] a2 = [1, "s"];
     [int, string, int] _ = [1, ...a2]; // error
 
-    int[2] a3 = [1];
-    [(int|string)] _ = [...a3]; // error
+    string[3] a3 = [];
+    [string, string, int...] _ = [...a3]; // error
+    [string, string] _ = [...a3]; // error
 
     any[2] a4 = [1, "s"];
     (int|string)[] a5 = [1, "s"];
@@ -238,7 +241,7 @@ function testTypeForTupleTupleCompatibilityPositive() {
     [int, string] a1 = [1, "s"];
     [int, string, int] _ = [...a1, 4]; // OK
 
-    [(int|string), int...] a2 = [1, 2];
+    [(int|string), int, string...] a2 = [1, 2];
     [(int|string), any...] _ = [...a2]; // OK
 
     [int, "s"] a3 = [1, "s"];
@@ -266,6 +269,7 @@ function testTypeForTupleArrayCompatibilityPositive() {
 
     (int|string)[2] a3 = [1, "s"];
     [int, any, (int|string|boolean)] _ = [1, ...a3]; // OK
+    [int|string, any...] _ = [...a3]; // OK
 
     (int|string)[*] a4 = [1, "s"];
     [int, any, (int|string)...] _ = [1, ...a4]; // OK

@@ -69,85 +69,89 @@ public class ListConstructorSpreadOperatorTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected an array or a tuple, found 'int'", 55, 43);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 58, 35);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'any'", 61, 36);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '\"s\"', found 'string'", 67, 32);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 61, 39);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'any'", 62, 41);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '\"s\"', found 'string'", 68, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 68, 40);
+                "invalid usage of spread operator: fixed length list expected", 69, 40);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '(int|boolean)', found 'string'", 69, 45);
+                "incompatible types: expected '(int|boolean)', found 'string'", 70, 45);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '(int|string)', found '(int|boolean)'", 70, 44);
+                "incompatible types: expected '(int|string)', found '(int|boolean)'", 71, 44);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'string', found '(string|int)'", 74, 32);
+                "incompatible types: expected 'string', found '(string|int)'", 75, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '(int|string)', found 'any'", 78, 36);
+                "incompatible types: expected '(int|string)', found 'any'", 79, 36);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 83, 35);
+                "invalid usage of spread operator: fixed length list expected", 84, 35);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'string', found '(int|string)'", 86, 35);
-        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 89, 24);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'any'", 94, 32);
+                "incompatible types: expected 'int', found '(int|string)'", 85, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 95, 40);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'any'", 96, 45);
+                "incompatible types: expected 'string', found '(int|string)'", 88, 35);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 91, 38);
+        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 92, 26);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'any'", 97, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'int'", 97, 44);
+                "invalid usage of spread operator: fixed length list expected", 98, 40);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'any'", 99, 45);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'string', found '(int|string)'", 101, 35);
+                "invalid usage of spread operator: fixed member expected for 'int'", 100, 44);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'string'", 105, 46);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 110, 22);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 111, 23);
+                "incompatible types: expected 'string', found '(int|string)'", 104, 35);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '(int|string)', found 'any'", 114, 28);
+                "invalid usage of spread operator: fixed member expected for 'string'", 108, 46);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 113, 22);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 114, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 117, 30);
+                "incompatible types: expected '(int|string)', found 'any'", 117, 28);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 118, 25);
+                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 120, 30);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 119, 25);
+                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 121, 25);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 120, 26);
+                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 122, 25);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 121, 26);
+                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 123, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '(string|boolean)', found '(int|string)'", 122, 37);
+                "incompatible types: expected '\"x\"|\"y\"', found '(int|string)'", 124, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 125, 32);
+                "incompatible types: expected '(string|boolean)', found '(int|string)'", 125, 37);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected '(int|string)', found '(int|boolean)'", 128, 31);
+                "invalid usage of spread operator: fixed length list expected", 128, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 135, 22);
+                "incompatible types: expected '(int|string)', found '(int|boolean)'", 131, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 136, 27);
+                "invalid usage of spread operator: fixed length list expected", 138, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 137, 27);
+                "invalid usage of spread operator: fixed length list expected", 139, 27);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 138, 23);
+                "invalid usage of spread operator: fixed length list expected", 140, 27);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 139, 20);
+                "invalid usage of spread operator: fixed length list expected", 141, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'string'", 144, 41);
+                "invalid usage of spread operator: fixed length list expected", 142, 20);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'any'", 147, 44);
+                "invalid usage of spread operator: fixed member expected for 'string'", 147, 41);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for '(int|string)'", 150, 36);
+                "invalid usage of spread operator: fixed member expected for 'any'", 150, 44);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'boolean'", 153, 47);
+                "invalid usage of spread operator: fixed member expected for '(int|string)'", 153, 36);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of list constructor: type '(string|int)' does not have a filler value", 158, 43);
+                "invalid usage of spread operator: fixed member expected for 'boolean'", 156, 47);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'int'", 163, 27);
+                "invalid usage of list constructor: type '(string|int)' does not have a filler value", 161, 43);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'string'", 167, 41);
+                "invalid usage of spread operator: fixed member expected for 'int'", 166, 27);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed member expected for 'string'", 170, 38);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 184, 23);
+                "invalid usage of spread operator: fixed member expected for 'string'", 170, 41);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 187, 24);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 189, 20);
+                "invalid usage of spread operator: fixed member expected for 'string'", 173, 38);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 187, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 192, 17);
+                "invalid usage of spread operator: fixed length list expected", 190, 24);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 192, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of spread operator: fixed length list expected", 195, 17);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
