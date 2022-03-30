@@ -1384,6 +1384,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         SymbolEnv symbolEnv = env.createClone();
         bLangLambdaFunction.capturedClosureEnv = symbolEnv;
+        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, symbolEnv);
+
         BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
         // Save param closure map of the encl invokable. Used in BIRGen
         bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
