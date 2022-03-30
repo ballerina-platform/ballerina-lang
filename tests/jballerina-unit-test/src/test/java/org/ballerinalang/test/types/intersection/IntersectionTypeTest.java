@@ -64,8 +64,8 @@ public class IntersectionTypeTest {
     }
 
     @Test
-    public void testTypeCheckingInUnions() {
-        BRunUtil.invoke(readOnlyIntersectionResults, "testTypeCheckingInUnions");
+    public void testTypeTestingInReadonlyRecord() {
+        BRunUtil.invoke(readOnlyIntersectionResults, "testTypeTestingInReadonlyRecord");
     }
 
     @Test

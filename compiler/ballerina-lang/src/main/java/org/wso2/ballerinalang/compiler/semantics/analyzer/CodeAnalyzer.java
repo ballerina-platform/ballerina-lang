@@ -3951,10 +3951,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         BLangExpression expr = typeTestExpr.expr;
-        BLangType typeNode = typeTestExpr.typeNode;
         analyzeNode(expr, env);
+        BType typeNodeType = typeTestExpr.typeNode.getBType();
         BType exprType = expr.getBType();
-        BType typeNodeType = typeNode.getBType();
         if (typeNodeType == symTable.semanticError || exprType == symTable.semanticError) {
             return;
         }
@@ -3977,7 +3976,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!intersectionExists(expr, typeNodeType, expr.pos, typeNode.pos)) {
+        if (!intersectionExists(expr, typeNodeType, typeTestExpr.pos)) {
             dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
@@ -3991,11 +3990,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean intersectionExists(BLangExpression expression, BType testType, Location lhsPos, Location rhsPos) {
+    private boolean intersectionExists(BLangExpression expression, BType testType, Location intersectionPos) {
         BType expressionType = expression.getBType();
 
         BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.typeTestIntersectionExistenceContext(lhsPos, rhsPos),
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(intersectionPos),
                 expressionType, testType, env);
 
         if (intersectionType != symTable.semanticError) {

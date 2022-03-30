@@ -166,9 +166,9 @@ function testR2(R2 r) returns boolean {
     return r is record {|int i;|};
 }
 
-function testTypeCheckingInUnions() {
-    assertTrue(testR1({ i: 2 }));
-    assertTrue(testR2({ i: 2 }));
+function testTypeTestingInReadonlyRecord() {
+    assertTrue(testR1({i: 2}));
+    assertTrue(testR2({i: 2}));
     assertFalse(testR1(()));
     assertFalse((testR2(())));
 }
