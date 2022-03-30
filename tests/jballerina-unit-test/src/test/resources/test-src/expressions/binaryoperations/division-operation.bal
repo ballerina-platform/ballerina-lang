@@ -304,6 +304,8 @@ function testDivisionFloatInt() {
     float b = float:Infinity;
     float c = 4.5e-1;
     float d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
 
     float var4 = b / a;
     assertEqual(var4, float:Infinity);
@@ -333,6 +335,11 @@ function testDivisionFloatInt() {
     assertEqual(var15, 10.25);
     float var16 = constFloat / d;
     assertEqual(var16, float:Infinity);
+    
+    float var17 = c / e;
+    assertEqual(var17, 4.87890977618477E-20);
+    float var18 = c / f;
+    assertEqual(var18, -4.87890977618477E-20);
 }
 
 function testDivisionFloatIntSubTypes() {
@@ -539,6 +546,8 @@ function testDivisionDecimalInt() {
     int a = 2;
     decimal c = 4.5e-1;
     decimal d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
 
     decimal var5 = c / a;
     assertEqual(var5, 0.225d);
@@ -555,6 +564,11 @@ function testDivisionDecimalInt() {
 
     decimal var15 = constDecimal / a;
     assertEqual(var15, 10.25d);
+    
+    decimal var17 = c / e;
+    assertEqual(var17, 4.878909776184769953562510061784767E-20d);
+    decimal var18 = c / f;
+    assertEqual(var18, -4.878909776184769953033537603914738E-20d);
 }
 
 function testDivisionDecimalIntSubTypes() {

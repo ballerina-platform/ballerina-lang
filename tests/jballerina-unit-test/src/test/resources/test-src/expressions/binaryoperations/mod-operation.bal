@@ -172,6 +172,8 @@ function testModFloatInt() {
     float b = float:Infinity;
     float c = 4.5e-1;
     float d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
 
     float var4 = b % a;
     assertEqual(var4, float:NaN);
@@ -201,6 +203,11 @@ function testModFloatInt() {
     assertEqual(var15, 0.5);
     float var16 = constFloat % d;
     assertEqual(var16, float:NaN);
+    
+    float var17 = c % e;
+    assertEqual(var17, 0.45);
+    float var18 = c % f;
+    assertEqual(var18, 0.45);
 }
 
 function testModFloatIntSubTypes() {
@@ -383,6 +390,8 @@ function testModDecimalInt() {
     int a = 2;
     decimal c = 4.5e-1;
     decimal d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
 
     decimal var5 = c % a;
     assertEqual(var5, 0.45d);
@@ -399,6 +408,11 @@ function testModDecimalInt() {
 
     decimal var15 = constDecimal % a;
     assertEqual(var15, 0.5d);
+    
+    decimal var17 = c % e;
+    assertEqual(var17, 0.45d);
+    decimal var18 = c % f;
+    assertEqual(var18, 0.45d);
 }
 
 function testModDecimalIntSubTypes() {
