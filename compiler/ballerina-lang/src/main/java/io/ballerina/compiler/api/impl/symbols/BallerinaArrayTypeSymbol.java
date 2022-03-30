@@ -70,7 +70,7 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
             memberType = arrType.memberTypeDescriptor();
         }
 
-        if (memberType.typeKind() == TypeDescKind.UNION) {
+        if (memberType.typeKind() == TypeDescKind.UNION || memberType.typeKind() == TypeDescKind.INTERSECTION) {
             this.signature = "(" + memberType.signature() + ")" + sigBuilder;
         } else {
             this.signature = memberType.signature() + sigBuilder;

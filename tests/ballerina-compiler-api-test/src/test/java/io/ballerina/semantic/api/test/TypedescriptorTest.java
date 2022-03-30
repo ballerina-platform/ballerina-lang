@@ -235,6 +235,7 @@ public class TypedescriptorTest {
                 {271, 13, "int[][2]"},
                 {272, 13, "int[2][]"},
                 {273, 23, "(int|string)[1][2]"},
+                {274, 30, "(Bar & readonly)[1][2][3]"},
         };
     }
 

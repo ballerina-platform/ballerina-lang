@@ -272,6 +272,7 @@ function testFixedArrays() {
     int[][2] c;
     int[2][] d;
     (int|string)[1][2] e;
+    (Bar & readonly)[1][2][3] f;
 }
 
 // utils
