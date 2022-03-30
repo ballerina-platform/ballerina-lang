@@ -159,7 +159,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> record",
+      "label": "type <RecordName> record {}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -204,7 +204,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> closed record",
+      "label": "type <RecordName> record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
