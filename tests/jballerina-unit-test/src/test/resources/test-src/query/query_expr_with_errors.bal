@@ -210,6 +210,50 @@ function throwUnreachableError() returns int|UnreachableError {
     return error UnreachableError("intersection must not be empty", message="GFGF");
 }
 
+function testCatchingErrorAtOnFail() {
+    error? res1 = ();
+    do {
+        _ = from int v in 1 ... 3
+            select check verifyCheck(v);
+    } on fail error err {
+        res1 = err;
+    }
+    assertTrue(res1 is error);
+
+    error? res2 = ();
+    do {
+        do {
+            _ = from int v in 1 ... 3
+                select check verifyCheck(v);
+        } on fail error err {
+            _ = from int v in 1 ... 3
+                select check verifyCheck(v);
+        }
+    } on fail error err {
+        res2 = err;
+    }
+    assertTrue(res2 is error);
+
+    error? res3 = ();
+    do {
+        _ = from int v in 1 ... 3
+            let int intVal = check verifyCheck(v)
+            select 1;
+    } on fail error err {
+        res3 = err;
+    }
+    assertTrue(res3 is error);
+}
+
+function testErrorReturnedFromSelect() {
+    assertTrue(checkErrorAtSelect() is error);
+}
+
+function checkErrorAtSelect() returns error? {
+    _ = from int v in 1 ... 3
+        select check verifyCheck(v);
+}
+
 // Utils ---------------------------------------------------------------------------------------------------------
 
 public function verifyCheck(int i) returns int|error {
