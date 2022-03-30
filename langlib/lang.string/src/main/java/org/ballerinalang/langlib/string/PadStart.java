@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.LENGTH_SHOULD_BE_LESS_THAN_2147483647;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
@@ -42,7 +42,7 @@ public class PadStart {
 
         if (len > Integer.MAX_VALUE) {
             throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                    LENGTH_SHOULD_BE_LESS_THAN_2147483647));
+                    LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED));
         }
 
         int targetLen = (int) len;
