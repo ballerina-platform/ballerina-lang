@@ -708,28 +708,4 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(4:2,4:27)] undefined module 'ddd'");
     }
-
-    @Test(description = "tests resolution having http compiler plugin used with compiler error in tests")
-    public void testPackageResolutionHavingHttpCompilerPluginUsedWithCompilerErrorInTests() {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_with__http_plugin_compile_issue_in_tests");
-        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
-        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(OUT::println);
-        // Three internal diagnostics and one compiler plugin diagnostic
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
-
-        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        // Three internal diagnostics
-        Assert.assertTrue(diagnosticIterator.next().toString().contains("INTERNAL"));
-        Assert.assertTrue(diagnosticIterator.next().toString().contains("INTERNAL"));
-        Assert.assertTrue(diagnosticIterator.next().toString().contains("INTERNAL"));
-
-        // Check compiler plugin diagnostics added for test resources
-        Assert.assertTrue(diagnosticIterator.next().toString().contains(
-                "ERROR [tests/test.bal:(4:58,4:64)] invalid resource method return type: " +
-                        "can not use http:Caller and return string from a resource : expected error or nil"));
-    }
 }
