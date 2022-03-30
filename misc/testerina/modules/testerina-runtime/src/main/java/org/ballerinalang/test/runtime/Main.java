@@ -54,9 +54,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Main class to init the test suit.
@@ -65,6 +65,8 @@ public class Main {
     private static final PrintStream out = System.out;
     static TestReport testReport;
     static ClassLoader classLoader;
+    static Map<String, List<String>> classVsMockFunctionsMap = new HashMap<>();
+    static Map<String, String> mockFuncDelimiterMap = new HashMap<>();
 
     public static void main(String[] args) throws IOException {
         int exitStatus = 0;
@@ -189,32 +191,37 @@ public class Main {
             throw new BallerinaTestException("failed to load Test init class :" + testClassName);
         }
 
-        Map<String, List<String>> classVsMockFunctionMap = getClassNameVsFunctionToMockMap(suite);
+        populateClassNameVsFunctionToMockMap(suite);
         Map<String, byte[]> modifiedClassDef = new HashMap<>();
-        for (Map.Entry<String, List<String>> entry : classVsMockFunctionMap.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
             String className = entry.getKey();
             List<String> functionNamesList = entry.getValue();
-            byte[] classFile = getModifiedClassBytes(className, functionNamesList, testClass);
+            byte[] classFile = getModifiedClassBytes(className, functionNamesList, testClass, suite);
             modifiedClassDef.put(className, classFile);
         }
         classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
     }
 
-    private static Map<String, List<String>> getClassNameVsFunctionToMockMap(TestSuite suite) {
-        Map<String, List<String>> classVsMockFunctionMap = new HashMap<>();
+    private static void populateClassNameVsFunctionToMockMap(TestSuite suite) {
         Map<String, String> mockFunctionMap = suite.getMockFunctionNamesMap();
         for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
-            String functionToMock = entry.getKey().substring(entry.getKey().indexOf("#") + 1);
-            String functionToMockClassName = suite.getTestUtilityFunctions().get(functionToMock);
-            if (functionToMockClassName != null) {
-                classVsMockFunctionMap.computeIfAbsent(functionToMockClassName,
-                        k -> new ArrayList<>()).add(functionToMock);
+            String key = entry.getKey();
+            String functionToMock;
+            if (key.contains("#")) {
+                functionToMock = key.substring(key.indexOf("#") + 1);
+                mockFuncDelimiterMap.put(functionToMock, "#");
+            } else {
+                functionToMock = key.substring(key.indexOf("~") + 1);
+                mockFuncDelimiterMap.put(functionToMock, "~");
             }
+            String functionToMockClassName = suite.getTestUtilityFunctions().get(functionToMock);
+            classVsMockFunctionsMap.computeIfAbsent(functionToMockClassName,
+                    k -> new ArrayList<>()).add(functionToMock);
         }
-        return classVsMockFunctionMap;
     }
 
-    public static byte[] getModifiedClassBytes(String className, List<String> functionNames, Class<?> testClass) {
+    public static byte[] getModifiedClassBytes(String className, List<String> functionNames, Class<?> testClass,
+                                               TestSuite suite) {
         Class<?> functionToMockClass;
         try {
             functionToMockClass = classLoader.loadClass(className);
@@ -223,18 +230,43 @@ public class Main {
         }
 
         byte[] classFile = new byte[0];
-        boolean isFirstFunc = true;
+        boolean readFromBytes = false;
         for (Method method1 : functionToMockClass.getDeclaredMethods()) {
             if (functionNames.contains(method1.getName())) {
                 //mock function
-                String desugaredMockFunctionName = "$MOCK_" + method1.getName();
-                for (Method method2 : testClass.getDeclaredMethods()) {
-                    if (method2.getName().equals(desugaredMockFunctionName)) {
-                        if (isFirstFunc) {
-                            classFile = replaceMethodBody(method1, method2);
-                            isFirstFunc = false;
-                        } else {
-                            classFile = replaceMethodBody(classFile, method1, method2);
+                if (mockFuncDelimiterMap.get(method1.getName()).equals("#")) {
+                    String desugaredMockFunctionName = "$MOCK_" + method1.getName();
+                    for (Method method2 : testClass.getDeclaredMethods()) {
+                        if (method2.getName().equals(desugaredMockFunctionName)) {
+                            if (!readFromBytes) {
+                                classFile = replaceMethodBody(method1, method2);
+                                readFromBytes = true;
+                            } else {
+                                classFile = replaceMethodBody(classFile, method1, method2);
+                            }
+                        }
+                    }
+                } else {
+                    for (String key : suite.getMockFunctionNamesMap().keySet()) {
+                        if (key.contains("~" + method1.getName())) {
+                            String mockFunctionName = suite.getMockFunctionNamesMap().get(key);
+                            String mockFunctionClassName = suite.getTestUtilityFunctions().get(mockFunctionName);
+                            Class<?> mockFunctionClass;
+                            try {
+                                mockFunctionClass = classLoader.loadClass(mockFunctionClassName);
+                            } catch (ClassNotFoundException e) {
+                                throw new BallerinaTestException("failed to load class: " + mockFunctionClassName);
+                            }
+                            for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
+                                if (method2.getName().equals(mockFunctionName)) {
+                                    if (!readFromBytes) {
+                                        classFile = replaceMethodBody(method1, method2);
+                                        readFromBytes = true;
+                                    } else {
+                                        classFile = replaceMethodBody(classFile, method1, method2);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -254,7 +286,7 @@ public class Main {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr = null;
         try {
-            cr = new ClassReader(Objects.requireNonNull(
+            cr = new ClassReader(requireNonNull(
                     clazz.getResourceAsStream(clazz.getSimpleName() + ".class")));
         } catch (IOException e) {
             e.printStackTrace();
