@@ -52,7 +52,6 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
-import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -205,7 +204,7 @@ public class TestProcessor {
                             functionName, suite);
                 } else if (annotationName.contains(MOCK_ANNOTATION_NAME)) {
                     processFunctionMockAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName),
-                            functionName, suite, module);
+                            functionName, suite, module, true);
                 } else {
                     // disregard this annotation
                 }
@@ -222,7 +221,7 @@ public class TestProcessor {
                     String type = variableSymbol.typeDescriptor().getName().get();
                     if (type.equals("MockFunction")) {
                         processFunctionMockAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, variableName),
-                                variableName, suite, module);
+                                variableName, suite, module, false);
                     }
                 }
             }
@@ -268,7 +267,8 @@ public class TestProcessor {
                         Node varNameNode = ((ModuleVariableDeclarationNode) node).childBuckets[3];
                         String varName = varNameNode.toString().split("[ \\t\\\\x0B\\f\\r]+|(?=\\n)")[1];
                         if (varName.equals(name)) {
-                            Optional<MetadataNode> optionalMetadataNode = ((ModuleVariableDeclarationNode) node).metadata();
+                            Optional<MetadataNode> optionalMetadataNode = ((ModuleVariableDeclarationNode) node)
+                                    .metadata();
                             if (optionalMetadataNode.isPresent()) {
                                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
                                 for (AnnotationNode annotation : annotations) {
@@ -597,7 +597,8 @@ public class TestProcessor {
         }
     }
 
-    private void processFunctionMockAnnotation(AnnotationNode annotationNode, String name, TestSuite suite, Module module) {
+    private void processFunctionMockAnnotation(AnnotationNode annotationNode, String name, TestSuite suite,
+                                               Module module, boolean isLegacy) {
         if (annotationNode != null && !annotationNode.annotValue().isEmpty()) {
             Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
             if (!mappingNodes.isEmpty()) {
@@ -615,7 +616,12 @@ public class TestProcessor {
                         }
                     }
                 }
-                suite.addMockFunction(annotationValues[0] + MOCK_ANNOTATION_DELIMITER + annotationValues[1], name);
+                if (!isLegacy) {
+                    suite.addMockFunction(annotationValues[0] + MOCK_ANNOTATION_DELIMITER +
+                            annotationValues[1], name);
+                } else {
+                    suite.addMockFunction(annotationValues[0] + MOCK_FN_DELIMITER + annotationValues[1], name);
+                }
             }
         }
     }
