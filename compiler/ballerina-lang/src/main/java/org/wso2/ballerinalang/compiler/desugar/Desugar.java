@@ -763,7 +763,7 @@ public class Desugar extends BLangNodeVisitor {
         parameterDesugar.visit(pkgNode);
 
         // Initialize the annotation map
-        if (pkgNode.getKind() != NodeKind.TESTABLE_PACKAGE) {
+        if (!Symbols.isFlagOn(pkgNode.symbol.flags, Flags.TESTABLE)) {
             annotationDesugar.initializeAnnotationMap(pkgNode);
         }
 
