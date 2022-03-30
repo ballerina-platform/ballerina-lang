@@ -295,7 +295,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                getOutput("pack-empty-package.txt"));
+                getOutput("pack-empty-package-with-compiler-plugin.txt"));
     }
 
 }
