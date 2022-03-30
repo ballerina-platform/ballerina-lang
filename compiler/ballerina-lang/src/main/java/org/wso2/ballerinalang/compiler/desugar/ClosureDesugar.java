@@ -295,13 +295,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // eg : $map$block$_<num2>
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, mapSymbol);
         BLangTypeInit typeInit = oceData.typeInit;
-        BLangInvocation initInvocation = typeInit.initInvocation;
-
-        // argsExpr updated to improve debug efforts since `argsExpr` is part of `toString`
+        BLangInvocation initInvocation = (BLangInvocation) oceData.initInvocation;
         if (typeInit.argsExpr == null) {
             typeInit.argsExpr = new ArrayList<>(1);
         }
-        typeInit.argsExpr.add(refToBlockClosureMap);
+//        typeInit.argsExpr.add(refToBlockClosureMap);
 
         // update new expression
         initInvocation.requiredArgs.add(refToBlockClosureMap);
@@ -345,8 +343,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     private void addMapToCalleeExpression(BVarSymbol mapSymbol, OCEDynamicEnvData oceData) {
-        BLangSimpleVarRef.BLangLocalVarRef blockLevelMapLocalVarRef = new BLangSimpleVarRef.BLangLocalVarRef(mapSymbol);
-        oceData.attachedFunctionInvocation.requiredArgs.add(blockLevelMapLocalVarRef);
+        BLangSimpleVarRef.BLangLocalVarRef blkLvlMapLocalVarRef = new BLangSimpleVarRef.BLangLocalVarRef(mapSymbol);
+        oceData.attachedFunctionInvocation.requiredArgs.add(blkLvlMapLocalVarRef);
     }
 
     private void addMapSymbolAsAField(BLangClassDefinition classDef, BVarSymbol mapSymbol) {
@@ -429,9 +427,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        BLangFunction generatedInitFunction = classDef.generatedInitFunction;
-        BVarSymbol selfSymbol = generatedInitFunction.receiver.symbol;
-        BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) generatedInitFunction.body;
+        BLangFunction genInitFunction = classDef.generatedInitFunction;
+        BVarSymbol selfSymbol = genInitFunction.receiver.symbol;
+        BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) genInitFunction.body;
 
         int i = initBody.stmts.size() - 1;
         for (BLangSimpleVariable field : classDef.fields) {
@@ -475,18 +473,18 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
             //  self[$map$objectCtor$_<num>][i]
             BLangTypeConversionExpr castExpr =
-                    classClosureDesugar.createClosureMapAccessExprTypeCasted(field.pos, field.symbol.name,
+                    classClosureDesugar.createClosureMapAccessExprTypeCasted(field.pos, varRef.symbol.name,
                             field.getBType(), accessExprForClassField);
 
             // self[x] =  self[$map$objectCtor$_<num>][i];
             BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(field.pos, mapAccessExpr, castExpr);
             // parent added to improve debuggability
-            assignmentStmt.parent = generatedInitFunction.body;
+            assignmentStmt.parent = genInitFunction.body;
 
             initBody.stmts.add(i, assignmentStmt);
             i = i + 1;
         }
-        desugar.visit((BLangBlockFunctionBody) generatedInitFunction.body);
+        desugar.visit((BLangBlockFunctionBody) genInitFunction.body);
     }
 
     @Override

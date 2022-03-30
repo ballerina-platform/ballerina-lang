@@ -864,7 +864,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             analyzeNode(constituentTypeNode, data);
         }
     }
-
+ 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangType> memberTypeNodes = tupleTypeNode.memberTypeNodes;

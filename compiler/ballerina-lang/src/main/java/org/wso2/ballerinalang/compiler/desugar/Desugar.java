@@ -6672,7 +6672,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangNode parent = initInvocation.parent;
             if (parent != null && parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
                 BLangObjectConstructorExpression oceExpression = (BLangObjectConstructorExpression) parent;
-                OCEDynamicEnvironmentData oceData = oceExpression.classNode.oceEnvData;
+                OCEDynamicEnvData oceData = oceExpression.classNode.oceEnvData;
                 oceData.initInvocation = typeInitExpr.initInvocation;
             }
             typeInitExpr.initInvocation = objInitVarRef;
@@ -7465,6 +7465,12 @@ public class Desugar extends BLangNodeVisitor {
         bLangFunction.setBody(populateArrowExprBodyBlock(bLangArrowFunction));
         bLangFunction.body.pos = posArrowFunc;
 
+//        BLangSimpleVariable receiver = funcNode.receiver;
+//        if (receiver != null && receiver.symbol.closure && funcNode.flagSet.contains(Flag.ATTACHED)) {
+//            createFunctionMap(funcNode, funcEnv);
+//            addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.getBType());
+//        }
+
         // Create function symbol.
         BLangFunction funcNode = lambdaFunction.function;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
@@ -7493,7 +7499,7 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.setBType(new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(),
                           funcSymbol.type.tsymbol));
 
-        rewrite(lambdaFunction.function, env);
+//        rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         result = rewriteExpr(lambdaFunction);
     }
