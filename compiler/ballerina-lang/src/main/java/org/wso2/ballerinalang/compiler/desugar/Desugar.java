@@ -395,6 +395,7 @@ public class Desugar extends BLangNodeVisitor {
     private int errorCount = 0;
     private int annonVarCount = 0;
     private int initFuncIndex = 0;
+    private int startFuncIndex = 0;
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
@@ -791,6 +792,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.initFunction = splitInitFunction(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
+        pkgNode.startFunction = splitStartFunction(pkgNode, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
@@ -10125,6 +10127,66 @@ public class Desugar extends BLangNodeVisitor {
         return generatedFunctions.get(0);
     }
 
+    private BLangFunction splitStartFunction(BLangPackage packageNode, SymbolEnv env) {
+        int listenerCountPerMethod = 50;
+        BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.startFunction.body;
+        if (!isJvmTarget) {
+            return packageNode.startFunction;
+        }
+        BLangFunction startFunction = packageNode.startFunction;
+
+        List<BLangFunction> generatedFunctions = new ArrayList<>();
+        List<BLangStatement> stmts = new ArrayList<>(funcBody.stmts);
+        funcBody.stmts.clear();
+        BLangFunction newFunc = startFunction;
+        BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.body;
+
+        for (int i = 0; i < stmts.size() - 1; i++) {
+            if (i > 0 && (i % listenerCountPerMethod == 0)) {
+                generatedFunctions.add(newFunc);
+                newFunc = createIntermediateStartFunction(packageNode, env);
+                newFuncBody = (BLangBlockFunctionBody) newFunc.body;
+                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
+            }
+            newFuncBody.stmts.add(stmts.get(i));
+        }
+
+        newFuncBody.stmts.add(stmts.get(stmts.size() - 1));
+        generatedFunctions.add(newFunc);
+
+        for (int j = 0; j < generatedFunctions.size() - 1; j++) {
+            BLangFunction thisFunction = generatedFunctions.get(j);
+
+            BLangCheckedExpr checkedExpr =
+                    ASTBuilderUtil.createCheckExpr(startFunction.pos,
+                            createInvocationNode(generatedFunctions.get(j + 1).name.value,
+                                    new ArrayList<>(), symTable.errorOrNilType),
+                            symTable.nilType);
+            checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+
+            BLangExpressionStmt expressionStmt = ASTBuilderUtil
+                    .createExpressionStmt(thisFunction.pos, (BLangBlockFunctionBody) thisFunction.body);
+            expressionStmt.expr = checkedExpr;
+            expressionStmt.expr.pos = startFunction.pos;
+
+            if (j > 0) { // skip start func
+                thisFunction = rewrite(thisFunction, env);
+                packageNode.functions.add(thisFunction);
+                packageNode.topLevelNodes.add(thisFunction);
+            }
+        }
+
+        if (generatedFunctions.size() > 1) {
+            // add last func
+            BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
+            lastFunc = rewrite(lastFunc, env);
+            packageNode.functions.add(lastFunc);
+            packageNode.topLevelNodes.add(lastFunc);
+        }
+
+        return generatedFunctions.get(0);
+    }
+
     private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
         if (statement.getKind() == NodeKind.ASSIGNMENT) {
             return isMappingOrObjectConstructorOrObjInit(((BLangAssignment) statement).getExpression());
@@ -10162,6 +10224,17 @@ public class Desugar extends BLangNodeVisitor {
         // Create invokable symbol for init function
         createInvokableSymbol(initFunction, env);
         return initFunction;
+    }
+
+    private BLangFunction createIntermediateStartFunction(BLangPackage pkgNode, SymbolEnv env) {
+        String alias = pkgNode.symbol.pkgID.toString();
+        BLangFunction startFunction = ASTBuilderUtil
+                .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                        new Name(Names.START_FUNCTION_SUFFIX.value
+                                + this.startFuncIndex++), symTable);
+        // Create invokable symbol for init function
+        createInvokableSymbol(startFunction, env);
+        return startFunction;
     }
 
     private BType getRestType(BInvokableSymbol invokableSymbol) {
