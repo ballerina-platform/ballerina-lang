@@ -98,7 +98,8 @@ public class DiagnosticsTest {
 ////             //This will print nice comparable text in IDE
 //            Assert.assertEquals(responseDiags.toString(), expectedDiags.toString(),
 //                    "Failed Test for: " + configJsonPath);
-            Assert.fail("Failed Test for: " + configJsonPath);
+            Assert.fail(String.format("Failed Test for: %s. Expected: %s, actual: %s", 
+                    configJsonPath, expectedDiags, responseDiags));
         }
     }
 
