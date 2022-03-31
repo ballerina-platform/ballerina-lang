@@ -43,3 +43,36 @@ const ABC = "abc";
 public type Digit 0|1|2|3|4|5|6|7|8|9;
 
 public type ExampleErr distinct error;
+
+listener ListenerCls aListner = new();
+
+isolated service / on aListner {
+    final string name = "example";
+
+    final int id = 0;
+
+    resource function get hello(int number) returns string {
+        return "/" + number.toString();
+    }
+
+}
+
+class ListenerCls {
+    public function init() returns error? {
+    }
+
+    public function attach(service object {} s, string|string[]? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}

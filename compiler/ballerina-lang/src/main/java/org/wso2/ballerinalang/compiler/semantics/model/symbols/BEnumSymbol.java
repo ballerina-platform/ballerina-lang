@@ -55,7 +55,7 @@ public class BEnumSymbol extends BTypeSymbol implements Annotatable {
 
     @Override
     public SymbolKind getKind() {
-        return this.kind != null ? this.kind : super.getKind();
+        return SymbolKind.ENUM;
     }
 
     @Override

@@ -43,12 +43,13 @@ import java.util.Optional;
 /**
  * Represents the set of built-in and user-defined types available in a single semantic context.
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 
 public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY = new CompilerContext.Key<>();
+    private CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
     private final PackageCache packageCache;
@@ -73,7 +74,6 @@ public class Types {
     public final TypeSymbol JSON;
     public final TypeSymbol BYTE;
     public final TypeSymbol COMPILATION_ERROR;
-    public final CompilerContext context;
 
 
     private Types(CompilerContext context) {
@@ -107,8 +107,21 @@ public class Types {
     }
 
     /**
+     * This method is only used by the Ballerina Semantic Model as an entry point to the Types API implementation and
+     * retrieve an instance of this class. It shall not be used to access the Types API from elsewhere.
+     */
+    public static Types getInstance(CompilerContext context) {
+        Types types = context.get(TYPES_KEY);
+        if (types == null) {
+            types = new Types(context);
+        }
+
+        return types;
+    }
+
+    /**
      * Lookup for the symbol of a user defined type within a given module. This would be considering type
-     * definitions, enums, enum members, and class definitions as valid user defined types when
+     * definitions, constants, enums, enum members, and class definitions as valid user defined types when
      * looking up. The module is determined by the provided org, module name and the version.
      *
      * @param org           The organization of the looking up module
@@ -126,7 +139,7 @@ public class Types {
 
     /**
      * Lookup for all the symbols of user defined types within a given module. This would be considering type
-     * definitions, enums, enum members, and class definitions as valid user defined types when looking up.
+     * definitions, constants, enums, enum members, and class definitions as valid user defined types when looking up.
      * The module is determined by the provided org, module name and the version.
      *
      * @param org           The organization of the looking up module
@@ -139,15 +152,6 @@ public class Types {
                 Names.fromString(version));
 
         return getTypeDefSymbolsInModule(packageID);
-    }
-
-    public static Types getInstance(CompilerContext context) {
-        Types types = context.get(TYPES_KEY);
-        if (types == null) {
-            types = new Types(context);
-        }
-
-        return types;
     }
 
     private Optional<Symbol> getTypeDefByName(PackageID packageID, String typeDefName) {
@@ -175,20 +179,21 @@ public class Types {
 
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
         Scope pkgEnvScope = pkgEnv.scope;
-        if (pkgEnvScope != null && pkgEnvScope.entries != null) {
-            Map<String, Symbol> typeDefSymbols = new HashMap<>();
-            for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
-                BSymbol bSymbol = scopeEntry.symbol;
-                if (isValidTypeDef(bSymbol)) {
-                    String typeDefName = bSymbol.getOriginalName().getValue();
-                    typeDefSymbols.put(typeDefName, symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
-                }
-            }
 
-            return Optional.of(Collections.unmodifiableMap(typeDefSymbols));
+        if (pkgEnvScope == null || pkgEnvScope.entries == null) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        Map<String, Symbol> typeDefSymbols = new HashMap<>();
+        for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
+            BSymbol bSymbol = scopeEntry.symbol;
+            if (isValidTypeDef(bSymbol)) {
+                String typeDefName = bSymbol.getOriginalName().getValue();
+                typeDefSymbols.put(typeDefName, symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
+            }
+        }
+
+        return Optional.of(Collections.unmodifiableMap(typeDefSymbols));
     }
 
     private boolean isValidTypeDef(BSymbol bSymbol) {

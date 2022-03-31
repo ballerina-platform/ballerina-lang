@@ -234,6 +234,7 @@ public class TypesTest {
                 {"ExampleErr", TYPE_DEFINITION, ERROR},
                 {"ABC", CONSTANT, SINGLETON},
                 {"PersonClass", CLASS, OBJECT},
+                {"ListenerCls", CLASS, OBJECT},
         };
     }
 

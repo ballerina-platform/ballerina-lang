@@ -43,7 +43,6 @@ public interface SemanticModel {
      *
      * @return {@link Types} instance of a given semantic context
      */
-
     Types types();
 
     /**

@@ -47,7 +47,7 @@ public class BTypeDefinitionSymbol extends BSymbol {
 
     @Override
     public SymbolKind getKind() {
-        return this.kind != null ? this.kind : super.getKind();
+        return SymbolKind.TYPE_DEF;
     }
 
     @Override
