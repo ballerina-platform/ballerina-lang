@@ -179,7 +179,7 @@ public class Main {
     public static URLClassLoader createURLClassLoader(List<String> jarFilePaths) {
         return AccessController.doPrivileged(
                 (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(getURLList(jarFilePaths).toArray(
-                        new URL[0]), null));
+                        new URL[0]), ClassLoader.getSystemClassLoader()));
     }
 
     public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths) {
@@ -278,7 +278,8 @@ public class Main {
             cr = new ClassReader(requireNonNull(
                     clazz.getResourceAsStream(clazz.getSimpleName() + ".class")));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new BallerinaTestException("failed to get the class reader object for the class "
+                    + clazz.getSimpleName());
         }
 
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
@@ -300,7 +301,8 @@ public class Main {
 
     private static CustomClassLoader createClassLoader(List<String> jarFilePaths,
                                                        Map<String, byte[]> modifiedClassDef) {
-        return new CustomClassLoader(getURLList(jarFilePaths).toArray(new URL[0]), null, modifiedClassDef);
+        return new CustomClassLoader(getURLList(jarFilePaths).toArray(new URL[0]),
+                ClassLoader.getSystemClassLoader(), modifiedClassDef);
     }
 
     public static ClassLoader getClassLoader() {
