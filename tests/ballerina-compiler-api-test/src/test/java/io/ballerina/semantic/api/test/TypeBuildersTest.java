@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -35,12 +36,18 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+/**
+ * Test cases for the builders in Types API
+ *
+ * @since 2.0.0
+ */
 public class TypeBuildersTest {
 
     private Types types;
@@ -96,6 +103,28 @@ public class TypeBuildersTest {
         return new Object[][] {
                 {types.ANY, MAP, "map<any>"},
                 {types.INT, MAP, "map<int>"},
+        };
+    }
+
+    @Test(dataProvider = "futureTypeBuilderProvider")
+    public void testFutureTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
+        TypeBuilder builder = types.builder();
+        FutureTypeSymbol futureTypeSymbol = builder.FUTURE.withTypeParam(typeParam).build();
+        assertEquals(futureTypeSymbol.typeKind(), typeDescKind);
+        if (typeParam != null) {
+            assertTrue(futureTypeSymbol.typeParameter().isPresent());
+            assertEquals(futureTypeSymbol.typeParameter().get().signature(), typeParam.signature());
+        }
+
+        assertEquals(futureTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "futureTypeBuilderProvider")
+    private Object[][] getFutureTypeBuilders() {
+        return new Object[][] {
+                {types.STRING, FUTURE, "future<string>"},
+                {types.INT, FUTURE, "future<int>"},
+                {null, FUTURE, "future"},
         };
     }
 }
