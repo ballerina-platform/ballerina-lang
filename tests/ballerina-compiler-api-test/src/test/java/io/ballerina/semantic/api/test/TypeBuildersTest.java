@@ -46,7 +46,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for the builders in Types API
+ * Test cases for the builders in Types API.
  *
  * @since 2.0.0
  */
@@ -125,8 +125,8 @@ public class TypeBuildersTest {
     private Object[][] getFutureTypeBuilders() {
         return new Object[][] {
                 {types.STRING, FUTURE, "future<string>"},
-//                {types.INT, FUTURE, "future<int>"},
-//                {null, FUTURE, "future"},
+                {types.INT, FUTURE, "future<int>"},
+                {null, FUTURE, "future<()>"},
         };
     }
 
