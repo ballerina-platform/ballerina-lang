@@ -46,7 +46,7 @@ public class FiniteTypeNegativeTest {
     public void testInvalidLiteralAssignment() {
 
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 17, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 60, "Error count mismatch");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Finite', found 'string'", 33, 16);
         validateError(result, i++, "incompatible types: expected 'ByteType', found '5'", 40, 18);
@@ -64,6 +64,49 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'Foo', found 'int'", 116, 14);
         validateError(result, i++, "incompatible types: expected 'Foo2', found 'int'", 117, 15);
         validateError(result, i++, "incompatible types: expected 'Foo4', found 'int'", 118, 15);
-        validateError(result, i, "incompatible types: expected '\"chiran\"', found 'int'", 119, 18);
+        validateError(result, i++, "incompatible types: expected '\"chiran\"', found 'int'", 119, 18);
+        validateError(result, i++, "incompatible types: expected '1f', found 'int'", 123, 12);
+        validateError(result, i++, "incompatible types: expected '1.0f', found 'int'", 124, 13);
+        validateError(result, i++, "incompatible types: expected '1.121f', found 'int'", 125, 15);
+        validateError(result, i++, "incompatible types: expected '1.2e12f', found 'float'", 126, 16);
+        validateError(result, i++, "incompatible types: expected '0x1p-1f', found 'float'", 127, 16);
+        validateError(result, i++, "incompatible types: expected '0x.12p12f', found 'decimal'", 128, 18);
+        validateError(result, i++, "incompatible types: expected '1.2e12f', found 'decimal'", 129, 16);
+        validateError(result, i++, "incompatible types: expected '2d', found 'int'", 131, 12);
+        validateError(result, i++, "incompatible types: expected '1.2d', found 'float'", 132, 14);
+        validateError(result, i++, "incompatible types: expected '1.21d', found 'float'", 133, 15);
+        validateError(result, i++, "incompatible types: expected '0.1219e-1f', found 'decimal'", 134, 19);
+        validateError(result, i++, "incompatible types: expected '12.1d', found 'float'", 135, 15);
+        validateError(result, i++, "incompatible types: expected '0x.12p12f', found 'decimal'", 139, 22);
+        validateError(result, i++, "incompatible types: expected '1.2e12f', found 'decimal'", 140, 20);
+        validateError(result, i++, "incompatible types: expected '2d', found 'int'", 142, 16);
+        validateError(result, i++, "incompatible types: expected '1.2d', found 'float'", 143, 18);
+        validateError(result, i++, "incompatible types: expected 'Float1', found 'int'", 148, 12);
+        validateError(result, i++, "incompatible types: expected '1f', found 'int'", 150, 8);
+        validateError(result, i++, "incompatible types: expected '1.0f', found 'int'", 151, 9);
+        validateError(result, i++, "incompatible types: expected '1.121f', found 'int'", 152, 11);
+        validateError(result, i++, "incompatible types: expected '1.2e12f', found 'float'", 153, 12);
+        validateError(result, i++, "incompatible types: expected '0x1p-1f', found 'float'", 154, 12);
+        validateError(result, i++, "incompatible types: expected '0x.12p12f', found 'decimal'", 155, 14);
+        validateError(result, i++, "incompatible types: expected '1.2e12f', found 'decimal'", 156, 12);
+        validateError(result, i++, "incompatible types: expected '2d', found 'int'", 158, 8);
+        validateError(result, i++, "incompatible types: expected '1.2d', found 'float'", 159, 10);
+        validateError(result, i++, "incompatible types: expected '1.21d', found 'float'", 160, 11);
+        validateError(result, i++, "incompatible types: expected '0.1219e-1f', found 'decimal'", 161, 15);
+        validateError(result, i++, "incompatible types: expected '12.1d', found 'float'", 162, 11);
+        validateError(result, i++, "incompatible types: expected '2d', found 'int'", 165, 9);
+        validateError(result, i++, "incompatible types: expected '1f', found 'int'", 165, 12);
+        validateError(result, i++, "incompatible types: expected '0.1219e-1f', found 'int'", 166, 9);
+        validateError(result, i++, "incompatible types: expected '0x.12p12f', found 'int'", 166, 12);
+        validateError(result, i++, "incompatible types: expected '2d', found '1f'", 178, 12);
+        validateError(result, i++, "incompatible types: expected '3f', found '2d'", 179, 12);
+        validateError(result, i++, "incompatible types: expected '1f', found 'int'", 183, 12);
+        validateError(result, i++, "incompatible types: expected '2d', found 'string'", 187, 12);
+        validateError(result, i++, "incompatible types: 'int' cannot be cast to '2f'", 191, 12);
+        validateError(result, i++, "incompatible types: expected '3d', found '4f'", 192, 12);
+        validateError(result, i++, "incompatible types: expected '2f', found '2d'", 193, 12);
+        validateError(result, i++, "incompatible types: expected '3f', found '4d'", 194, 12);
+        validateError(result, i++, "incompatible types: expected '3f', found '4f'", 195, 12);
+        validateError(result, i, "incompatible types: expected '3d', found '4d'", 196, 12);
     }
 }

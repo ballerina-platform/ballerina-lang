@@ -602,6 +602,28 @@ function testConstPattern18() {
     assertEquals("Default", result);
 }
 
+type A int[2] & readonly;
+
+function constPattern19(A x) returns int {
+    match x {
+        [1, 2] => {
+            return 1;
+        }
+        [-2, -7] => {
+            return 2;
+        }
+        _ => {
+            return 4;
+        }
+    }
+}
+
+public function testConstPattern19() {
+    assertEquals(1, constPattern19([1, 2]));
+    assertEquals(2, constPattern19([-2, -7]));
+    assertEquals(4, constPattern19([2, 4]));
+}
+
 function constPatternWithNegativeLiteral(any x) returns string {
     match x {
         -1 => {
