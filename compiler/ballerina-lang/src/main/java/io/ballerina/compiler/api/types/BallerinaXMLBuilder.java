@@ -1,16 +1,23 @@
 package io.ballerina.compiler.api.types;
 
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaXMLTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 public class BallerinaXMLBuilder implements TypeBuilder.XMLBuilder {
 
-    CompilerContext context;
-    TypeSymbol typeParam;
+    private final CompilerContext context;
+    private final SymbolTable symTable;
+    private TypeSymbol typeParam;
 
     public BallerinaXMLBuilder(CompilerContext context) {
         this.context = context;
+        symTable = SymbolTable.getInstance(context);
     }
 
     @Override
@@ -21,6 +28,17 @@ public class BallerinaXMLBuilder implements TypeBuilder.XMLBuilder {
 
     @Override
     public XMLTypeSymbol build() {
-        return null;
+        BXMLType xmlType = new BXMLType(getBType(typeParam), null);
+        return new BallerinaXMLTypeSymbol(this.context, xmlType);
+    }
+
+    private BType getBType(TypeSymbol typeSymbol) {
+        if (typeSymbol != null) {
+            if (typeSymbol instanceof AbstractTypeSymbol) {
+                return ((AbstractTypeSymbol) typeSymbol).getBType();
+            }
+        }
+
+        return symTable.noType;
     }
 }
