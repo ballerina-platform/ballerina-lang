@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
@@ -36,6 +37,7 @@ public abstract class TypeBuilder {
     public MapTypeBuilder MAP;
     public FutureTypeBuilder FUTURE;
     public TypeDescTypeBuilder TYPEDESC;
+    public StreamTypeBuilder STREAM;
 
     public interface XMLBuilder {
 
@@ -72,6 +74,13 @@ public abstract class TypeBuilder {
         ErrorTypeBuilder isDistinct();
 
         ErrorTypeSymbol build();
+    }
+
+    public interface StreamTypeBuilder {
+
+        StreamTypeBuilder withValueType(TypeSymbol valueType);
+        StreamTypeBuilder withCompletionType(TypeSymbol completionType);
+        StreamTypeSymbol build();
     }
 
     public interface FunctionTypeBuilder {

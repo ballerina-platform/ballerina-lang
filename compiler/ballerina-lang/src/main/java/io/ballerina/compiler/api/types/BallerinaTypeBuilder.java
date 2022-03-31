@@ -31,6 +31,7 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         this.MAP = new BallerinaMapBuilder(context);
         this.FUTURE = new BallerinaFutureTypeBuilder(context);
         this.TYPEDESC = new BallerinaTypeDescTypeBuilder(context);
+        this.STREAM = new BallerinaStreamTypeBuilder(context);
     }
 
     public static TypeBuilder getInstance(CompilerContext context) {
