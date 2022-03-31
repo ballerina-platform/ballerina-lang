@@ -39,6 +39,7 @@ class CompilerPluginManager {
 
     private CodeAnalyzerManager codeAnalyzerManager;
     private CodeGeneratorManager codeGeneratorManager;
+    private CodeModifierManager codeModifierManager;
     private CompilerLifecycleManager compilerLifecycleListenerManager;
     private CodeActionManager codeActionManager;
 
@@ -104,6 +105,15 @@ class CompilerPluginManager {
         return codeGeneratorManager;
     }
 
+    CodeModifierManager getCodeModifierManager() {
+        if (codeModifierManager != null) {
+            return codeModifierManager;
+        }
+
+        codeModifierManager = CodeModifierManager.from(compilation, compilerPluginContexts);
+        return codeModifierManager;
+    }
+
     CodeActionManager getCodeActionManager() {
         if (codeActionManager != null) {
             return codeActionManager;
@@ -117,6 +127,14 @@ class CompilerPluginManager {
         int count = 0;
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
             count += compilerPluginContext.codeGenerators().size();
+        }
+        return count;
+    }
+
+    int engagedCodeModifierCount() {
+        int count = 0;
+        for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
+            count += compilerPluginContext.codeModifiers().size();
         }
         return count;
     }

@@ -17,6 +17,8 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -43,7 +45,7 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
     private ModuleSymbol module;
     private boolean moduleEvaluated;
 
-    public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
+    public BallerinaErrorTypeSymbol(CompilerContext context, BErrorType errorType) {
         super(context, TypeDescKind.ERROR, errorType);
     }
 
@@ -111,6 +113,16 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         }
 
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     private boolean isDefaultDetailTypeDesc() {

@@ -760,9 +760,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION("BCE4023", "invalid.assignment.to.narrowed.var.in.query.action"),
     COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS("BCE4024",
             "compound.assignment.not.allowed.with.nullable.operands"),
-
+    INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK_IN_RECORD_DEFAULT(
+            "BCE4025", "invalid.isolated.variable.access.outside.lock.in.record.default"),
     INVALID_TYPE_CYCLE("BCE5000", "invalid.type.cycle"),
-    REFERENCE_TO_UNDEFINED_TYPE("BCE5001", "reference.to.undefined.type");
+    REFERENCE_TO_UNDEFINED_TYPE("BCE5001", "reference.to.undefined.type")
+    ;
 
     private String diagnosticId;
     private String messageKey;

@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -57,17 +56,14 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         }
 
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri());
-        List<Diagnostic> diagnostics = new ArrayList<>();
 
         List<Object> args = new ArrayList<>();
         args.add(uriArg);
         args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, moduleName.get()));
 
         String commandTitle = CommandConstants.PULL_MOD_TITLE;
-        CodeAction action = new CodeAction(commandTitle);
-        action.setKind(CodeActionKind.QuickFix);
-        action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
-        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        Command command = new Command(commandTitle, PullModuleExecutor.COMMAND, args);
+        CodeAction action = createCodeAction(commandTitle, command, CodeActionKind.QuickFix);
         return Collections.singletonList(action);
     }
 

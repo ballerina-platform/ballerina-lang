@@ -16,7 +16,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
@@ -38,8 +39,7 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
 
     private final String typeName;
 
-    public BallerinaSingletonTypeSymbol(CompilerContext context, ModuleID moduleID, BLangLiteral shape,
-                                        BType bType) {
+    public BallerinaSingletonTypeSymbol(CompilerContext context, BLangLiteral shape, BType bType) {
         super(context, TypeDescKind.SINGLETON, bType);
 
         // Special case handling for `()` since in BLangLiteral, `null` is used to represent nil.
@@ -69,5 +69,15 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
     @Override
     public String signature() {
         return this.typeName;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

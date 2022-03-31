@@ -1217,9 +1217,9 @@ function testUnreachableStatementInQueryAction20() returns error? {
     check from var item in 1 ... 5
         where item < 2
         do {
-            a = (from var item in 1 ... 5
+            a = (from var value in 1 ... 5
                 where false
-                where item < 2
+                where value < 2
                 do {
                     int _ = 10; // unreachable code
                 });
@@ -1287,5 +1287,215 @@ function testUnreachableStatementInQueryAction24() {
                 int _ = 1; // unreachable code
                 int _ = 1;
             };
+        };
+}
+
+function testLoggingExpectedUnreachableErrors1() {
+    if true {
+        return;
+    } else if true {
+        int _ = 10; // unreachable code
+    }
+}
+
+function testLoggingExpectedUnreachableErrors2() returns error? {
+    if true {
+        fail error("fail msg");
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors3() returns error? {
+    if true {
+        return;
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors4() {
+    if true {
+        panic error("fail msg");
+    } else {
+        int _ = 10; // unreachable code
+    }
+    int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors5() {
+    while false {
+        continue; // unreachable code
+        int _ = 10;
+        string _ = "A";
+    }
+}
+
+function testLoggingExpectedUnreachableErrors6() {
+    while false {
+        return; // unreachable code
+        int _ = 10;
+        string _ = "A";
+    }
+}
+
+function testLoggingExpectedUnreachableErrors7() returns error? {
+    while true {
+        fail error("fail msg");
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors8() {
+    while true {
+        panic error("fail msg");
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors9() {
+    while true {
+        return;
+    }
+    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
+}
+
+function testLoggingExpectedUnreachableErrors10() {
+    int a = 10;
+    string b = "A";
+    if a is int {
+        return;
+    } else if b is string {
+        int _ = 10; // unreachable code
+    }
+}
+
+function testLoggingExpectedUnreachableErrors11() returns error? {
+    int i = 0;
+    while i > 10 {
+        fail error("Error");
+        i = i + 1; // unreachable code
+    }
+    i = 7; // unreachable code
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors12() returns error? {
+    while true {
+        fail error("Error");
+        int _ = 10; // unreachable code
+    }
+    int _ = 10; // unreachable code
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors13() returns error? {
+    while false {
+        fail error("Error"); // unreachable code
+        int _ = 10;
+    }
+    int _ = 10;
+    return;
+}
+
+function testLoggingExpectedUnreachableErrors14() {
+    int i = 0;
+    while i > 10 {
+        panic error("Error");
+        i = i + 1; // unreachable code
+    }
+    return;
+    i = 7; // unreachable code
+}
+
+function testLoggingExpectedUnreachableErrors15() {
+    while true {
+        panic error("Error");
+        int _ = 10; // unreachable code
+    }
+    return; // unreachable code
+    //int _ = 10;
+}
+
+function testLoggingExpectedUnreachableErrors16() {
+    while false {
+        panic error("Error");
+        int _ = 10; // unreachable code
+    }
+    panic error("error");
+    int _ = 10; // unreachable code
+}
+
+function testUnreachableStatementInQueryAction25() {
+    string m;
+    error(m) = <error>from var item in 1 ... 5
+        where true
+        do {
+            while true {
+                int _ = 3;
+            }
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction26() returns error? {
+    string m;
+    check from var item in 1 ... 5
+        where true
+        do {
+            m = "Error";
+            while m is string {
+                int _ = 3;
+            }
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction27() returns error? {
+    check from var item in 1 ... 5
+        where true
+        do {
+            if true {
+                return;
+            }
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction28() returns error? {
+    check from var item in 1 ... 5
+        where false
+        do {
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction29() returns error? {
+    check from var item in 1 ... 5
+        where true
+        do {
+            while true {
+                int _ = 3;
+            }
+            panic error("Panic!");
+            int _ = 2; // unreachable code
+        };
+}
+
+function testUnreachableStatementInQueryAction30() returns error? {
+    check from var item in 1 ... 5
+        where true
+        do {
+            if true {
+                return;
+            }
+            panic error("Panic!");
+            int _ = 2; // unreachable code
         };
 }
