@@ -5346,11 +5346,18 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
                 kind = NodeKind.DECIMAL_FLOATING_POINT_LITERAL;
                 typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
+                String val = textValue;
+                
+                // Remove exponent indicator if it is not followed by a digit
+                if (val.matches("[1-9]*(.[1-9]*)?[eE][+-]?[fd]?")) {
+                    val = val.replaceAll("[eE][+-]?", "");
+                }
+                
                 if (isFiniteType) {
-                    value = textValue.replaceAll("[fd+]", "");
+                    value = val.replaceAll("[fd+]", "");
                     originalValue = textValue.replace("+", "");
                 } else {
-                    value = textValue;
+                    value = val;
                     originalValue = textValue;
                 }
             } else {
