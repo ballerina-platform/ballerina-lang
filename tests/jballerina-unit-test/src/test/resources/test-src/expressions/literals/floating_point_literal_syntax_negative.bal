@@ -87,4 +87,8 @@ function testMissingDigitAfterExponentIndicator() {
     _ = 0Xc.4bp;
     _ = 0Xc.4bp+;
     _ = 0Xc.4bp-;
+    _ = 0xp6;
+    _ = 0XP6;
+    _ = 0xp-6;
+    _ = 0XP-6;
 }

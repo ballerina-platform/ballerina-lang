@@ -5940,6 +5940,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             value = value.replaceAll("[pP][+-]?", "");
         }
         
+        // Add 0 if there is no hex digit precedes hex indicator
+        if (value.matches("0[xX][pP].*")) {
+            value = value.replaceAll("[pP]", "0p");
+        }
+        
         if (!(value.contains("p") || value.contains("P"))) {
             value = value + "p0";
         }
