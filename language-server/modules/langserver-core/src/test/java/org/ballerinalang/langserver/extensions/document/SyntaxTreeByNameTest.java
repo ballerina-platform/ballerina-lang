@@ -55,7 +55,19 @@ public class SyntaxTreeByNameTest {
     @Test(description = "Find ST by range in a project")
     public void testFindFunctionInProject() throws Exception {
         TestUtil.openDocument(serviceEndpoint, projectFile);
-        Range range = new Range(new Position(1, 12), new Position(1, 21));
+        Range range = new Range(new Position(3, 12), new Position(3, 21));
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
+                projectFile.toString(), range, this.serviceEndpoint);
+        Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
+        Assert.assertNotNull(syntaxTreeByNameResponse.getSource());
+        TestUtil.closeDocument(this.serviceEndpoint, projectFile);
+    }
+
+    @Test(description = "Find ST by range in a module")
+    public void testFindFunctionInModule() throws Exception {
+        TestUtil.openDocument(serviceEndpoint, projectFile);
+        Range range = new Range(new Position(4, 11), new Position(4, 19));
         BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByName(
                 projectFile.toString(), range, this.serviceEndpoint);
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
