@@ -17,12 +17,13 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Document;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.DependencyUtils;
 import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
 import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
@@ -39,6 +40,7 @@ import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerSe
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManagerProxy;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -289,6 +291,84 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
+    @JsonRequest
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeByName(BallerinaSyntaxTreeByNameRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            var result = new Object() {
+                String sourceCode = null;
+                JsonElement jsonSyntaxTree = null;
+            };
+            BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return reply;
+            }
+
+            try {
+                Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
+                if (srcFile.isEmpty()) {
+                    return reply;
+                }
+
+                // Get the semantic model.
+                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+
+                // Get the start line range of function invoke.
+                int lineValue = request.getLineRange().getStart().getLine();
+                int charValue = request.getLineRange().getStart().getCharacter();
+
+                // Get the symbol of function
+                Optional<Symbol> functionSymbol = semanticModel.get().symbol(srcFile.get(), LinePosition.from(lineValue, charValue));
+
+                // Get the file path of the function symbol
+                String functionPath = functionSymbol.get().getLocation().get().lineRange().filePath();
+
+                // Get the project of current file
+                Optional<Project> project = this.workspaceManagerProxy.get().project(filePath.get());
+
+                // Loop through project modules to find the document of the function declaration
+                project.get().currentPackage().modules().forEach(module -> {
+                    module.documentIds().forEach(id -> {
+                            Document document = module.document(id);
+                            if(functionPath.equals(document.name())) {
+                                // Get the nodes from the found document
+                                SyntaxTree st = document.syntaxTree();
+                                FindNodes findNodes = new FindNodes();
+                                findNodes.visit((ModulePartNode) st.rootNode());
+
+                                // Get only the function nodes
+                                List<FunctionDefinitionNode> functionNodes = findNodes.getFunctionDefinitionNodes();
+
+                                // Find the function node equals to the function name
+                                functionNodes.forEach(node -> {
+                                    if(functionSymbol.get().nameEquals(node.functionName().text())) {
+
+                                        // Get the new semantic model for found document
+                                        PackageCompilation packageCompilation = document.module().packageInstance().getCompilation();
+                                        SemanticModel semanticModelNew = packageCompilation.getSemanticModel(document.module().moduleId());
+
+                                        // Set the node syntax tree JSON with type info and source code.
+                                        result.jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew);
+                                        result.sourceCode = node.toSourceCode();
+                                    }
+                                });
+                            }
+                        });
+                });
+                reply.setSource(result.sourceCode);
+                reply.setSyntaxTree(result.jsonSyntaxTree);
+                reply.setParseSuccess(reply.getSyntaxTree() != null);
+                return reply;
+            } catch (Throwable e) {
+                reply.setParseSuccess(false);
+                String msg = "Operation 'ballerinaDocument/syntaxTreeByName' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_BY_NAME, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return reply;
+            }
+        });
+    }
     /**
      * @deprecated use {@link BallerinaPackageService} instead.
      */
