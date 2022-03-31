@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.symbols.Annotatable;
@@ -33,6 +34,7 @@ public abstract class TypeBuilder {
 
     public XMLBuilder XML;
     public MapTypeBuilder MAP;
+    public FutureTypeBuilder FUTURE;
 
     public interface XMLBuilder {
 
@@ -42,19 +44,22 @@ public abstract class TypeBuilder {
     }
 
     public interface MapTypeBuilder {
+
         MapTypeBuilder withTypeParam(TypeSymbol typeParam);
 
         MapTypeSymbol build();
     }
 
     public interface FutureTypeBuilder {
-        TypeSymbol withTypeParam(TypeSymbol typeParam);
+
+        FutureTypeBuilder withTypeParam(TypeSymbol typeParam);
 
         FutureTypeSymbol build();
     }
 
     public interface TypeDescTypeBuilder {
-        TypeSymbol withTypeParam(TypeSymbol typeParam);
+
+        TypeDescTypeBuilder withTypeParam(TypeSymbol typeParam);
 
         TypeDescTypeSymbol build();
     }
