@@ -50,7 +50,6 @@ public class LSPackageLoader {
     private final List<Package> distRepoPackages;
     private List<Package> remoteRepoPackages;
     private List<Package> localRepoPackages;
-    //Todo: introduce caches for local and remote repos as well.
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -161,5 +160,4 @@ public class LSPackageLoader {
 
         return packages;
     }
-
 }
