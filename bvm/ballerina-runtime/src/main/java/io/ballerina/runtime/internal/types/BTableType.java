@@ -133,6 +133,11 @@ public class BTableType extends BType implements TableType {
     }
 
     @Override
+    public boolean isAnydata() {
+        return this.constraint.isAnydata();
+    }
+
+    @Override
     public boolean isReadOnly() {
         return this.readonly;
     }

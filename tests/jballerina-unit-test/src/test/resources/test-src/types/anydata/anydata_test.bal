@@ -27,7 +27,7 @@ type Employee record {|
     string name;
     float salary;
 |};
-    
+
 type Person record {|
     string name = "";
     int age = 0;
@@ -76,16 +76,17 @@ function testRecordAssignment() returns [anydata, anydata] {
 }
 
 function testCyclicRecordAssignment() returns (anydata) {
-    Person p = {name:"Child",
-                age:25,
-                parent:{name:"Parent", age:50},
-                address:{"city":"Colombo", "country":"SriLanka"},
-                info:{status:"single"},
-                marks:[67, 38, 91]
+    Person p = {
+        name: "Child",
+        age: 25,
+        parent: {name: "Parent", age: 50},
+        address: {"city": "Colombo", "country": "SriLanka"},
+        info: {status: "single"},
+        marks: [67, 38, 91]
     };
     anydata adp = p;
-    any p2 =  <Person> adp;
-    if(p2 is anydata){
+    any p2 = <Person>adp;
+    if (p2 is anydata) {
         return p2;
     } else {
         return ();
@@ -109,9 +110,9 @@ function testJSONAssignment() returns anydata {
 
 function testTableAssignment() {
     table<Employee> t = table key(id) [
-          { id: 1, name: "Mary", salary: 300.5 },
-          { id: 2, name: "John", salary: 200.5 },
-          { id: 3, name: "Jim", salary: 330.5 }
+            {id: 1, name: "Mary", salary: 300.5},
+            {id: 2, name: "John", salary: 200.5},
+            {id: 3, name: "Jim", salary: 330.5}
         ];
 
     anydata adt = t;
@@ -168,7 +169,7 @@ function testMapAssignment() {
     ad = mnil;
 }
 
-function testConstrainedMaps(){
+function testConstrainedMaps() {
     byte b = 10;
     Foo foo = {a: 15};
     json j = {name: "apple", color: "red", price: 40};
@@ -191,10 +192,10 @@ function testConstrainedMaps(){
     adm["nil"] = ();
 
     table<Employee> t = table key(id) [
-        { id: 1, name: "Mary", salary: 300.5 },
-        { id: 2, name: "John", salary: 200.5 },
-        { id: 3, name: "Jim", salary: 330.5 }
-    ];
+            {id: 1, name: "Mary", salary: 300.5},
+            {id: 2, name: "John", salary: 200.5},
+            {id: 3, name: "Jim", salary: 330.5}
+        ];
     adm["table"] = t;
 
     assertEquality(1234, adm["int"]);
@@ -234,16 +235,16 @@ function testArrayAssignment() {
     xml[] ax = [xml `<book>The Lost World</book>`];
     ad = ax;
 
-    Foo[] ar = [{a:10}, {a:20}];
+    Foo[] ar = [{a: 10}, {a: 20}];
     ad = ar;
 
-    ClosedFoo[] acr = [{ca:10}, {ca:20}];
+    ClosedFoo[] acr = [{ca: 10}, {ca: 20}];
     ad = acr;
 
     table<Employee> t = table key(id) [
-            { id: 1, name: "Mary", salary: 300.5 },
-            { id: 2, name: "John", salary: 200.5 },
-            { id: 3, name: "Jim", salary: 330.5 }
+            {id: 1, name: "Mary", salary: 300.5},
+            {id: 2, name: "John", salary: 200.5},
+            {id: 3, name: "Jim", salary: 330.5}
         ];
     table<Employee>[] at = [t];
     ad = at;
@@ -263,7 +264,7 @@ function testArrayAssignment() {
 }
 
 function testAnydataArray() returns anydata[] {
-    Foo foo = {a:15};
+    Foo foo = {a: 15};
     json j = {name: "apple", color: "red", price: 40};
     xml x = xml `<book>The Lost World</book>`;
     byte b = 10;
@@ -272,6 +273,7 @@ function testAnydataArray() returns anydata[] {
 }
 
 type ValueType int|float|string|boolean|byte|decimal;
+
 type DataType ValueType|table<map<any>>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
 function testUnionAssignment() returns anydata[] {
@@ -302,7 +304,7 @@ function testUnionAssignment() returns anydata[] {
     return rets;
 }
 
-function testUnionAssignment2(){
+function testUnionAssignment2() {
     anydata[] rets = [];
     int i = 0;
 
@@ -311,9 +313,9 @@ function testUnionAssignment2(){
     i += 1;
 
     table<Employee> t = table key(id) [
-            { id: 1, name: "Mary", salary: 300.5 },
-            { id: 2, name: "John", salary: 200.5 },
-            { id: 3, name: "Jim", salary: 330.5 }
+            {id: 1, name: "Mary", salary: 300.5},
+            {id: 2, name: "John", salary: 200.5},
+            {id: 3, name: "Jim", salary: 330.5}
         ];
     dt = t;
     rets[i] = dt;
@@ -328,12 +330,12 @@ function testUnionAssignment2(){
     rets[i] = dt;
     i += 1;
 
-    Foo foo = {a:15};
+    Foo foo = {a: 15};
     dt = foo;
     rets[i] = dt;
     i += 1;
 
-    ClosedFoo cfoo = {ca:15};
+    ClosedFoo cfoo = {ca: 15};
     dt = cfoo;
     rets[i] = dt;
     i += 1;
@@ -360,7 +362,7 @@ function testUnionAssignment2(){
     assertEquality(m, rets[6]);
 }
 
-function testTupleAssignment(){
+function testTupleAssignment() {
     anydata[] rets = [];
     int i = 0;
 
@@ -369,7 +371,7 @@ function testTupleAssignment(){
     rets[i] = vt;
     i += 1;
 
-    json j = { name: "apple", color: "red", price: 40 };
+    json j = {name: "apple", color: "red", price: 40};
     xml x = xml `<book>The Lost World</book>`;
     [json, xml] jxt = [j, x];
     rets[i] = jxt;
@@ -452,7 +454,7 @@ function testAnydataToValueTypes() returns [int, float, boolean, string] {
 }
 
 function testAnydataToJson() returns json {
-    json j = { name: "apple", color: "red", price: 40 };
+    json j = {name: "apple", color: "red", price: 40};
     anydata adJ = j;
     json convertedJ = null;
     if (adJ is json) {
@@ -597,11 +599,11 @@ function testAnydataToMap() {
     }
 }
 
-function testAnydataToTable(){
-    table<Employee> t = table key(id)[
-                    { id: 1, name: "Mary", salary: 300.5 },
-                    { id: 2, name: "John", salary: 200.5 },
-                    { id: 3, name: "Jim", salary: 330.5 }
+function testAnydataToTable() {
+    table<Employee> t = table key(id) [
+            {id: 1, name: "Mary", salary: 300.5},
+            {id: 2, name: "John", salary: 200.5},
+            {id: 3, name: "Jim", salary: 330.5}
         ];
 
     anydata ad = t;
@@ -650,12 +652,12 @@ function testAnydataToUnion() returns ValueType?[] {
     return vt;
 }
 
-function testAnydataToUnion2(){
+function testAnydataToUnion2() {
     anydata ad;
     DataType[] dt = [];
     int i = 0;
 
-    json j = { name: "apple", color: "red", price: 40 };
+    json j = {name: "apple", color: "red", price: 40};
     ad = j;
     dt[i] = ad;
     i += 1;
@@ -666,10 +668,10 @@ function testAnydataToUnion2(){
     i += 1;
 
     table<Employee> t = table key(id) [
-        { id: 1, name: "Mary", salary: 300.5 },
-        { id: 2, name: "John", salary: 200.5 },
-        { id: 3, name: "Jim", salary: 330.5 }
-    ];
+            {id: 1, name: "Mary", salary: 300.5},
+            {id: 2, name: "John", salary: 200.5},
+            {id: 3, name: "Jim", salary: 330.5}
+        ];
 
     ad = t;
     dt[i] = ad;
@@ -722,7 +724,7 @@ function testAnydataToTuple() returns [int, float, boolean, string, byte]? {
 function testAnydataToTuple2() returns [json, xml]? {
     anydata ad;
 
-    json j = { name: "apple", color: "red", price: 40 };
+    json j = {name: "apple", color: "red", price: 40};
     xml x = xml `<book>The Lost World</book>`;
     [json, xml] jxt = [j, x];
     ad = jxt;
@@ -737,7 +739,7 @@ function testAnydataToTuple2() returns [json, xml]? {
 function testAnydataToTuple3() {
     anydata ad;
 
-    json j = { name: "apple", color: "red", price: 40 };
+    json j = {name: "apple", color: "red", price: 40};
     xml x = xml `<book>The Lost World</book>`;
     DataType[] dt = [j, x];
     [DataType[], string] ct = [dt, "hello world!"];
@@ -830,7 +832,7 @@ function testTypeCheckingOnAny() returns anydata {
         i += 1;
     }
 
-    json j = { name: "apple", color: "red", price: 40 };
+    json j = {name: "apple", color: "red", price: 40};
     a = j;
     if (a is anydata) {
         ad[i] = a;
@@ -861,15 +863,15 @@ function testTypeCheckingOnAny() returns anydata {
 }
 
 function testRuntimeIsAnydata() {
-    any a = <(anydata|error)[]> [1, error("error!")];
-    any b = <(anydata|error)[]> [1];
-    any c = <[int, error]> [1, error("error!")];
-    any d = <[int, error...]> [1, error("error!")];
-    any e = <map<anydata|error>> {a: 1, b: error("error!")};
-    any f = <map<anydata|error>> {a: 1, b: "hello"};
-    any g = <record {anydata a; error e;}> {a: 1, e: error("error!")};
-    any h = <record {|anydata a; error...;|}> {a: 1};
-    any i = <record {anydata a; error e?;}> {a: 1};
+    any a = <(anydata|error)[]>[1, error("error!")];
+    any b = <(anydata|error)[]>[1];
+    any c = <[int, error]>[1, error("error!")];
+    any d = <[int, error...]>[1, error("error!")];
+    any e = <map<anydata|error>>{a: 1, b: error("error!")};
+    any f = <map<anydata|error>>{a: 1, b: "hello"};
+    any g = <record {anydata a; error e;}>{a: 1, e: error("error!")};
+    any h = <record {|anydata a;error...; |}>{a: 1};
+    any i = <record {anydata a; error e?;}>{a: 1};
 
     assertFalse(a is anydata);
     assertFalse(b is anydata);
@@ -881,14 +883,14 @@ function testRuntimeIsAnydata() {
     assertFalse(h is anydata);
     assertFalse(i is anydata);
 
-    any a2 = <(anydata|error)[] & readonly> [1, 2];
-    any b2 = <anydata[]> [1];
-    any c2 = <[int]> [1];
-    any d2 = <[int, error...] & readonly> [1];
-    any e2 = <map<anydata|error> & readonly> {a: 1};
-    any f2 = <map<anydata>> {a: 1, b: "hello"};
-    any g2 = <record {anydata a; error e?;} & readonly> {a: 1};
-    any h2 = <record {|anydata a; error...;|} & readonly> {a: 1};
+    any a2 = <(anydata|error)[] & readonly>[1, 2];
+    any b2 = <anydata[]>[1];
+    any c2 = <[int]>[1];
+    any d2 = <[int, error...] & readonly>[1];
+    any e2 = <map<anydata|error> & readonly>{a: 1};
+    any f2 = <map<anydata>>{a: 1, b: "hello"};
+    any g2 = <record {anydata a; error e?;} & readonly>{a: 1};
+    any h2 = <record {|anydata a;error...; |} & readonly>{a: 1};
 
     assertTrue(a2 is anydata);
     assertTrue(b2 is anydata);
@@ -928,6 +930,77 @@ function testMapOfNeverTypeIsAnydata() {
     map<never> x5 = {};
     any a5 = x5;
     assertTrue(a5 is anydata);
+}
+
+function testAnytoAnydataTypeCast() returns error? {
+    // negative cases
+    any anyVal = {a: 23};
+    anydata|error result = trap <anydata>anyVal;
+
+    assertTrue(result is error);
+    error err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'map' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    any[] arr = [1, "2", 3.4];
+    result = trap <anydata>arr;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'any[]' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    map<any> anyMap = {"a": 2, "b": 3};
+    result = trap <anydata>anyMap;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'map' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    table<map<any>> tab = table [
+            {id: 12, name: "abc"},
+            {id: 34, name: "def"}
+        ];
+    result = trap <anydata>tab;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'table<map>' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    // positive cases
+    any & readonly anyValRO = {a: 23};
+    anyVal = anyValRO;
+    result = trap <anydata>anyVal;
+    assertTrue(result is anydata);
+    anydata anyDataVal = check result;
+    assertEquality("{\"a\":23}", anyDataVal.toString());
+
+    any[] & readonly arrRO = [1, "2", 3.4];
+    arr = arrRO;
+    result = trap <anydata>arr;
+    assertTrue(result is anydata);
+    anyDataVal = check result;
+    assertEquality("[1,\"2\",3.4]", anyDataVal.toString());
+
+    map<any> & readonly mapAnyRO = {a: 23};
+    anyMap = mapAnyRO;
+    result = trap <anydata>anyMap;
+    assertTrue(result is anydata);
+    anyDataVal = check result;
+    assertEquality("{\"a\":23}", anyDataVal.toString());
+
+    table<map<any>> & readonly tabRO = table [
+            {id: 12, name: "abc"},
+            {id: 34, name: "def"}
+        ];
+    tab = tabRO;
+    result = trap <anydata>tab;
+    assertTrue(result is anydata);
+    anyDataVal = check result;
+    assertEquality("[{\"id\":12,\"name\":\"abc\"},{\"id\":34,\"name\":\"def\"}]", anyDataVal.toString());
 }
 
 function assertTrue(any|error actual) {
