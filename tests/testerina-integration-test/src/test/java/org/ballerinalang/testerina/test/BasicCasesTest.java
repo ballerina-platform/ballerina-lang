@@ -87,7 +87,7 @@ public class BasicCasesTest extends BaseTestCase {
         AssertionUtils.assertForTestFailures(output, "assertion failure for sequence data types");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAnnotationAccess() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"annotation-access"});
         String output = balClient.runMainAndReadStdOut("test", args,

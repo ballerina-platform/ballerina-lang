@@ -173,8 +173,7 @@ class Bar {
 
 function testArrowExprInRecord() returns int {
     Foo f = {};
-    function (int) returns int fp = f.lambda;
-    return fp(5);
+    return f.lambda(5);
 }
 
 function testArrowExprInObject() returns int {

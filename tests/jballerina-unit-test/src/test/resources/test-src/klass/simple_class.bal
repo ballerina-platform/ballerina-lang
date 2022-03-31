@@ -50,7 +50,7 @@ class Student {
     *Person;
     int grade = 1;
 
-    function init(int age, string name, int year, string month = "Jan")  {
+    function init(int age, string name, int year, string month)  {
         self.age = age;
         self.name = name;
         self.year = year;
