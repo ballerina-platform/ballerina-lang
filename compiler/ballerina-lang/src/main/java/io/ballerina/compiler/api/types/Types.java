@@ -49,7 +49,6 @@ import java.util.Optional;
 public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY = new CompilerContext.Key<>();
-    private CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
     private final PackageCache packageCache;
@@ -78,7 +77,6 @@ public class Types {
 
     private Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
-        this.context = context;
         TypesFactory typesFactory = TypesFactory.getInstance(context);
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -131,6 +129,10 @@ public class Types {
      * @return The {@link Symbol} of the user defined type
      */
     public Optional<Symbol> getTypeByName(String org, String moduleName, String version, String typeDefName) {
+        if (org == null || moduleName == null || version == null) {
+            return Optional.empty();
+        }
+
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
 
@@ -148,6 +150,10 @@ public class Types {
      * @return A {@link Map} of the user defined type symbols
      */
     public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
+        if (org == null || moduleName == null || version == null) {
+            return Optional.empty();
+        }
+
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
 
