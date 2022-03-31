@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.StringTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -30,12 +31,22 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaStringTypeSymbol extends AbstractTypeSymbol implements StringTypeSymbol {
 
-    public BallerinaStringTypeSymbol(CompilerContext context, ModuleID moduleID, BType stringType) {
+    public BallerinaStringTypeSymbol(CompilerContext context, BType stringType) {
         super(context, TypeDescKind.STRING, stringType);
     }
 
     @Override
     public String signature() {
         return "string";
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }
