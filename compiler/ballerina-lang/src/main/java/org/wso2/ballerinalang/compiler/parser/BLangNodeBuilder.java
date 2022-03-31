@@ -5349,7 +5349,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 String val = textValue;
                 
                 // Remove exponent indicator if it is not followed by a digit
-                if (val.matches("[1-9]*(.[1-9]*)?[eE][+-]?[fd]?")) {
+                if (val.matches(".*[eE][+-]?[fd]?")) {
                     val = val.replaceAll("[eE][+-]?", "");
                 }
                 
@@ -5935,6 +5935,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private String getHexNodeValue(String value) {
+        // Remove exponent indicator if it is not followed by a digit
+        if (value.matches(".*[pP][+-]?")) {
+            value = value.replaceAll("[pP][+-]?", "");
+        }
+        
         if (!(value.contains("p") || value.contains("P"))) {
             value = value + "p0";
         }

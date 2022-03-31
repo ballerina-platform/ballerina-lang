@@ -69,4 +69,22 @@ function testMissingDigitAfterExponentIndicator() {
     _ = .99e-d;
     _ = .99e+d;
     _ = .99ed;
+    _ = 0x2p;
+    _ = 0x2p+;
+    _ = 0x3p-;
+    _ = 0xcp;
+    _ = 0xcp+;
+    _ = 0xcp-;
+    _ = 0xc.4bp;
+    _ = 0xc.4bp+;
+    _ = 0xc.4bp-;
+    _ = 0X2p;
+    _ = 0X2p+;
+    _ = 0X3p-;
+    _ = 0Xcp;
+    _ = 0Xcp+;
+    _ = 0Xcp-;
+    _ = 0Xc.4bp;
+    _ = 0Xc.4bp+;
+    _ = 0Xc.4bp-;
 }
