@@ -24,25 +24,25 @@ public abstract class TypeBuilder {
         XMLTypeSymbol build();
     }
 
-    interface MapTypeBuilder {
-        TypeSymbol withTypeParam(TypeSymbol typeParam);
+    public interface MapTypeBuilder {
+        MapTypeBuilder withTypeParam(TypeSymbol typeParam);
 
         MapTypeSymbol build();
     }
 
-    interface FutureTypeBuilder {
+    public interface FutureTypeBuilder {
         TypeSymbol withTypeParam(TypeSymbol typeParam);
 
         FutureTypeSymbol build();
     }
 
-    interface TypeDescTypeBuilder {
+    public interface TypeDescTypeBuilder {
         TypeSymbol withTypeParam(TypeSymbol typeParam);
 
         TypeDescTypeSymbol build();
     }
 
-    interface ErrorTypeBuilder {
+    public interface ErrorTypeBuilder {
 
         ErrorTypeBuilder withTypeParam(TypeSymbol typeParam);
 
@@ -51,7 +51,7 @@ public abstract class TypeBuilder {
         ErrorTypeSymbol build();
     }
 
-    interface FunctionTypeBuilder {
+    public interface FunctionTypeBuilder {
 
         FunctionTypeBuilder withQualifiers(Qualifier... qualifiers);
 

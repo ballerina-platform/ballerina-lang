@@ -49,6 +49,7 @@ import java.util.Optional;
 public class Types {
 
     private static final CompilerContext.Key<Types> TYPES_KEY = new CompilerContext.Key<>();
+    private final CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
     private final PackageCache packageCache;
@@ -73,8 +74,6 @@ public class Types {
     public final TypeSymbol JSON;
     public final TypeSymbol BYTE;
     public final TypeSymbol COMPILATION_ERROR;
-    public final CompilerContext context;
-
 
     private Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
@@ -104,6 +103,10 @@ public class Types {
         this.JSON = typesFactory.getTypeDescriptor(symbolTable.jsonType);
         this.BYTE = typesFactory.getTypeDescriptor(symbolTable.byteType);
         this.COMPILATION_ERROR = typesFactory.getTypeDescriptor(symbolTable.semanticError);
+    }
+
+    public TypeBuilder builder() {
+        return BallerinaTypeBuilder.getInstance(this.context);
     }
 
     /**
