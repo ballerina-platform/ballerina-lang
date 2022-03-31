@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
@@ -61,7 +62,6 @@ public class TypeBuildersTest {
 
     @Test(dataProvider = "xmlTypeBuilderProvider")
     public void testXMLTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
-
         TypeBuilder builder = types.builder();
         XMLTypeSymbol xmlTypeSymbol = builder.XML.withTypeParam(typeParam).build();
         assertEquals(xmlTypeSymbol.typeKind(), typeDescKind);
@@ -83,4 +83,19 @@ public class TypeBuildersTest {
         };
     }
 
+    @Test(dataProvider = "mapTypeBuilderProvider")
+    public void testMapTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
+        TypeBuilder builder = types.builder();
+        MapTypeSymbol mapTypeSymbol = builder.MAP.withTypeParam(typeParam).build();
+        assertEquals(mapTypeSymbol.typeKind(), typeDescKind);
+        assertEquals(mapTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "mapTypeBuilderProvider")
+    private Object[][] getMapTypeBuilders() {
+        return new Object[][] {
+                {types.ANY, MAP, "map<any>"},
+                {types.INT, MAP, "map<int>"},
+        };
+    }
 }
