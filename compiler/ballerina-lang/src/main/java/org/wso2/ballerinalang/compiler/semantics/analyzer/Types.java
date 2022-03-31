@@ -398,6 +398,20 @@ public class Types {
         return type.tag == TypeTags.ERROR;
     }
 
+    public boolean containsNilType(BType bType) {
+        BType type = getReferredType(bType);
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .anyMatch(this::containsNilType);
+        }
+
+        if (type.tag == TypeTags.READONLY) {
+            return true;
+        }
+
+        return type.tag == TypeTags.NIL;
+    }
+
     public boolean isSubTypeOfList(BType bType) {
         BType type = getReferredType(bType);
         if (type.tag != TypeTags.UNION) {

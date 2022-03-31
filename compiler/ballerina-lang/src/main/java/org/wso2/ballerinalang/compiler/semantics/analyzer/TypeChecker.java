@@ -3619,10 +3619,17 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
 
-                if (!cIExpr.initInvocation.argExprs.isEmpty()) {
+                BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
+                if (cIExpr.initInvocation.argExprs.isEmpty()) {
+                    if (!types.containsNilType(actualStreamType.completionType)) {
+                        dlog.error(cIExpr.pos, DiagnosticErrorCode.INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR,
+                                expectedNextReturnType);
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                } else {
                     BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
-                    BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                     if (constructType.tag != TypeTags.OBJECT) {
                         dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
                                 expectedNextReturnType, constructType);
@@ -3636,8 +3643,8 @@ public class TypeChecker extends BLangNodeVisitor {
                                 .lookup(Names.ABSTRACT_STREAM_CLOSEABLE_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, closeableIteratorType)) {
                             dlog.error(iteratorExpr.pos,
-                                       DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
-                                       expectedNextReturnType, constructType);
+                                    DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
+                                    expectedNextReturnType, constructType);
                             resultType = symTable.semanticError;
                             return;
                         }

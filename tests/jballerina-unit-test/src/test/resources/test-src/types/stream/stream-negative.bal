@@ -380,3 +380,10 @@ function testAssignabilityOfStreams() {
 function testNonIteratorsInStreamConstructor() {
     stream<int> intStrm = new("test");
 }
+
+function testUnboundedStreamWithEmptyConstructor() {
+    stream<int, error?> _ = new;
+    stream<int, error?> _ = new stream<int, error?>();
+    var _ = new stream<int, error?>();
+    stream<int, error> _ = new stream<int, error>();
+}

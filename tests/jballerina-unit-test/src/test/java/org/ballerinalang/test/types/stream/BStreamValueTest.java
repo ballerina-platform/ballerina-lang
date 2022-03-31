@@ -248,6 +248,9 @@ public class BStreamValueTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype " +
                 "of 'object { public isolated function next() returns record {| int value; |}?; }', but found " +
                 "'string'", 381, 31);
+        BAssertUtil.validateError(negativeResult, i++, "no stream constructor provided. " +
+                "expected a subtype of 'object { public isolated function next() " +
+                "returns (record {| int value; |}|error); }'", 388, 28);
 
         Assert.assertEquals(i, negativeResult.getErrorCount());
 
