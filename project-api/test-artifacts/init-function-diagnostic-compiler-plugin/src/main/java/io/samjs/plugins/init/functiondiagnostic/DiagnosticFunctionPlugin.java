@@ -30,7 +30,7 @@ import io.samjs.jarlibrary.diagnosticutils.DiagnosticUtils;
 /**
  * A sample {@code CompilerPlugin} that adding diagnostic for each function definition.
  *
- * @since 2201.0.3
+ * @since 2201.0.4
  */
 public class DiagnosticFunctionPlugin extends CompilerPlugin {
 
@@ -42,7 +42,7 @@ public class DiagnosticFunctionPlugin extends CompilerPlugin {
     /**
      * A sample {@code CodeAnalyzer} that adding diagnostic for each function definition.
      *
-     * @since 2201.0.3
+     * @since 2201.0.4
      */
     public static class BalFileNodeAnalyzer extends CodeAnalyzer {
 
