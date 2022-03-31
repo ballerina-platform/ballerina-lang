@@ -21,6 +21,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -39,6 +40,8 @@ import java.util.Arrays;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -149,6 +152,30 @@ public class TypeBuildersTest {
                 {types.FLOAT, TYPEDESC, "typedesc<float>"},
                 {types.BOOLEAN, TYPEDESC, "typedesc<boolean>"},
                 {null, TYPEDESC, "TYPEDESC"},
+        };
+    }
+
+    @Test(dataProvider = "streamTypeBuilderProvider")
+    public void testStreamTypeBuilder(TypeSymbol vType, TypeSymbol cType, TypeDescKind typeDescKind,String signature) {
+        TypeBuilder builder = types.builder();
+        StreamTypeSymbol streamTypeSymbol = builder.STREAM.withValueType(vType).withCompletionType(cType).build();
+        assertEquals(streamTypeSymbol.typeKind(), typeDescKind);
+        assertEquals(streamTypeSymbol.typeParameter(), vType);
+
+        if (cType.typeKind() != NIL) {
+            assertEquals(streamTypeSymbol.completionValueTypeParameter().signature(), cType.signature());
+        }
+
+        assertEquals(streamTypeSymbol.signature(), signature);
+
+    }
+
+    @DataProvider(name = "streamTypeBuilderProvider")
+    private Object[][] getStreamTypeBuilder() {
+        return new Object[][] {
+                {types.FLOAT, types.INT, STREAM, "stream<float, int>"},
+                {types.BYTE, types.STRING, STREAM, "stream<byte, string>"},
+                {types.ANY, types.NIL, STREAM, "stream<any>"},
         };
     }
 }
