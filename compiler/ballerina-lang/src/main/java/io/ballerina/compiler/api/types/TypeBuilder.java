@@ -35,6 +35,7 @@ public abstract class TypeBuilder {
     public XMLBuilder XML;
     public MapTypeBuilder MAP;
     public FutureTypeBuilder FUTURE;
+    public TypeDescTypeBuilder TYPEDESC;
 
     public interface XMLBuilder {
 

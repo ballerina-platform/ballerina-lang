@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.compiler.api.types.TypeBuilder;
@@ -38,6 +39,7 @@ import java.util.Arrays;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static org.testng.Assert.assertEquals;
@@ -123,8 +125,30 @@ public class TypeBuildersTest {
     private Object[][] getFutureTypeBuilders() {
         return new Object[][] {
                 {types.STRING, FUTURE, "future<string>"},
-                {types.INT, FUTURE, "future<int>"},
-                {null, FUTURE, "future"},
+//                {types.INT, FUTURE, "future<int>"},
+//                {null, FUTURE, "future"},
+        };
+    }
+
+    @Test(dataProvider = "typedescTypeBuilderProvider")
+    public void testTypeDescTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
+        TypeBuilder builder = types.builder();
+        TypeDescTypeSymbol typeDescTypeSymbol = builder.TYPEDESC.withTypeParam(typeParam).build();
+        assertEquals(typeDescTypeSymbol.typeKind(), typeDescKind);
+        if (typeParam != null) {
+            assertTrue(typeDescTypeSymbol.typeParameter().isPresent());
+            assertEquals(typeDescTypeSymbol.typeParameter().get().signature(), typeParam.signature());
+        }
+
+        assertEquals(typeDescTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "typedescTypeBuilderProvider")
+    private Object[][] getTypedescTypeBuilders() {
+        return new Object[][] {
+                {types.FLOAT, TYPEDESC, "typedesc<float>"},
+                {types.BOOLEAN, TYPEDESC, "typedesc<boolean>"},
+                {null, TYPEDESC, "TYPEDESC"},
         };
     }
 }

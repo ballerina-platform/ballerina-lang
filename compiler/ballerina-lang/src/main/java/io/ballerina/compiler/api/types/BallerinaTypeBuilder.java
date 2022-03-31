@@ -27,8 +27,10 @@ public class BallerinaTypeBuilder extends TypeBuilder {
     public BallerinaTypeBuilder(CompilerContext context) {
         context.put(TYPE_BUILDER_KEY, this);
         this.context = context;
-        this.XML = new BallerinaXMLBuilder(this.context);
-        this.MAP = new BallerinaMapBuilder(this.context);
+        this.XML = new BallerinaXMLBuilder(context);
+        this.MAP = new BallerinaMapBuilder(context);
+        this.FUTURE = new BallerinaFutureTypeBuilder(context);
+        this.TYPEDESC = new BallerinaTypeDescTypeBuilder(context);
     }
 
     public static TypeBuilder getInstance(CompilerContext context) {
