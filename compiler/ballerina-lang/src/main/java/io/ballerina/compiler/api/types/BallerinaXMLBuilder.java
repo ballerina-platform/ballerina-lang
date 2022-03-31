@@ -54,8 +54,9 @@ public class BallerinaXMLBuilder implements TypeBuilder.XMLBuilder {
             if (typeSymbol instanceof AbstractTypeSymbol) {
                 return ((AbstractTypeSymbol) typeSymbol).getBType();
             }
+            return symTable.noType;
         }
 
-        return symTable.noType;
+        return null;
     }
 }
