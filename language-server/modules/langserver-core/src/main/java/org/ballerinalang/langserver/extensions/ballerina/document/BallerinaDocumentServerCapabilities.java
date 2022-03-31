@@ -28,6 +28,8 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
 
     private boolean syntaxTree;
 
+    private boolean syntaxTreeByName;
+
     private boolean syntaxTreeByRange;
 
     private boolean syntaxTreeLocate;
@@ -66,6 +68,14 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
 
     public void setSyntaxTreeByRange(boolean syntaxTreeByRange) {
         this.syntaxTreeByRange = syntaxTreeByRange;
+    }
+
+    public boolean getSyntaxTreeByName() {
+        return syntaxTreeByName;
+    }
+
+    public void setSyntaxTreeByName(boolean syntaxTreeByName) {
+        this.syntaxTreeByName = syntaxTreeByName;
     }
 
     public boolean getSyntaxTreeLocate() {
